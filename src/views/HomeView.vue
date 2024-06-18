@@ -1,5 +1,4 @@
 <script setup>
-// import TheWelcome from '../components/TheWelcome.vue'
 import { RouterLink } from 'vue-router'
 </script>
 
@@ -17,8 +16,4 @@ import { RouterLink } from 'vue-router'
   </div>
 </template>
 
-<style>
-/* .home {
-  width: 100%;
-} */
-</style>
+<style></style>
