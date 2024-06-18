@@ -1,9 +1,8 @@
-import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
 export const useScoreStore = defineStore('score', {
   state: () => ({
-    money: 100000, // start with something
+    money: 0, // start with something
     revenue: 0,
     system: {
       modularity: 0

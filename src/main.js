@@ -15,31 +15,17 @@ import App from './App.vue'
 import router from './router'
 
 const vuetify = createVuetify({
-    components,
-    directives,
-    theme: {
-        defaultTheme: 'dark'
-    },
-    // icons: {
-    //     defaultSet: 'mdi',
-    //     aliases,
-    //     sets: {
-    //         mdi,
-    //     },
-    // },
+  components,
+  directives,
+  theme: {
+    defaultTheme: 'dark'
+  }
 })
 
 createApp(App)
-    .use(vuetify, {
-        // iconfont: 'mdi'
-    })
-    .use(createPinia())
-    .use(router)
-    .mount('#app')
-
-// const app = createApp(App)
-
-// app.use(createPinia())
-// app.use(router)
-
-// app.mount('#app')
+  .use(vuetify, {
+    // iconfont: 'mdi'
+  })
+  .use(createPinia())
+  .use(router)
+  .mount('#app')
