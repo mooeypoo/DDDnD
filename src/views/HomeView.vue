@@ -18,7 +18,7 @@ import { RouterLink } from 'vue-router'
 </template>
 
 <style>
-.home {
+/* .home {
   width: 100%;
-}
+} */
 </style>
