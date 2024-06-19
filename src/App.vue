@@ -2,27 +2,27 @@
   <v-app>
     <v-navigation-drawer v-model="drawer" permanent width="80">
       <div class="d-flex justify-center pa-4">
-        <v-avatar image="https://vuetifyjs.b-cdn.net/docs/images/logos/v.svg" />
+        <v-avatar image="./images/logo-small.png" />
       </div>
 
       <v-btn
         class="text-none"
-        prepend-icon="mdi-view-dashboard"
+        prepend-icon="mdi-home"
         size="x-small"
         stacked
-        text="Dashboard"
+        text="Home"
         tile
         variant="text"
         width="80"
       />
 
-      <v-btn class="text-none" size="x-small" stacked tile variant="text" width="80">
+      <!-- <v-btn class="text-none" size="x-small" stacked tile variant="text" width="80">
         <v-badge content="39" floating>
           <v-icon>mdi-account-circle</v-icon>
         </v-badge>
 
         <div class="mt-1">Friends</div>
-      </v-btn>
+      </v-btn> -->
 
       <v-btn
         class="text-none"
@@ -85,36 +85,45 @@
       </template>
     </v-navigation-drawer>
 
-    <v-app-bar :elevation="2" title="Application">
+    <v-app-bar :elevation="2" title="DDDnD">
       <template #prepend>
         <v-app-bar-nav-icon @click="drawer = !drawer" />
+      </template>
+      <v-spacer />
+      <template #append>
+        <!-- <v-divider v-if="isGameActive" class="mx-2 align-self-center" inset length="24" vertical /> -->
+        <v-avatar v-if="isGameActive" :image="userAvatarPath" />
+        <v-spacer v-if="isGameActive" />
+        <span v-if="isGameActive">{{ vUsername }}</span>
+        <v-spacer />
       </template>
     </v-app-bar>
 
     <v-main>
-      <div class="pa-4">
+      <v-container>
+        <RouterView />
+      </v-container>
+      <!-- <div class="pa-4">
         <h2 class="text-h4 font-weight-bold mb-4">Dashboard</h2>
 
         <v-sheet border="dashed md" color="surface-light" height="500" rounded="lg" width="100%" />
-      </div>
+      </div> -->
     </v-main>
   </v-app>
 </template>
 
 <script setup>
-// import { RouterView } from 'vue-router'
-// import { useUserStore } from '@/stores/user.js'
+import { ref } from 'vue'
+// import { storeToRefs } from 'pinia'
+import { RouterView } from 'vue-router'
+// import { useScoreStore } from '@/stores/score'
+import { userDetails } from '@/use/userDetails'
+import { scoreDetails } from '@/use/scoreDetails'
+const { userAvatarPath, vUsername } = userDetails()
+const drawer = ref(true)
+const { isGameActive } = scoreDetails()
 </script>
 
-<script>
-export default {
-  data() {
-    return {
-      drawer: true
-    }
-  },
-  computed: {}
-}
-</script>
+<script></script>
 
 <style scoped></style>
