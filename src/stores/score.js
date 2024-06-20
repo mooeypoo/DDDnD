@@ -3,10 +3,12 @@ import { defineStore } from 'pinia'
 export const useScoreStore = defineStore('score', {
   state: () => ({
     active: false,
-    money: 0,
+    coins: 0,
     revenue: 0,
     system: {
-      modularity: 0
+      modularity: 0,
+      performance: 0,
+      stability: 0
     },
     happiness: {
       users: 0, // can be affected negatively by speed of delivery, etc
@@ -37,10 +39,12 @@ export const useScoreStore = defineStore('score', {
 
       // TODO: There should be some random initial conditions
       const defaultStart = {
-        money: 10000,
+        coins: 10000,
         revenue: 1000,
         system: {
-          modularity: 50
+          modularity: 50,
+          performance: 50,
+          stability: 50
         },
         happiness: {
           users: 50,
@@ -50,9 +54,11 @@ export const useScoreStore = defineStore('score', {
 
       // Load initial conditions
       // TODO: Do this properly, srsly
-      this.money = defaultStart.money
+      this.coins = defaultStart.coins
       this.revenue = defaultStart.revenue
       this.system.modularity = defaultStart.system.modularity
+      this.system.performance = defaultStart.system.performance
+      this.system.stability = defaultStart.system.stability
       this.happiness.users = defaultStart.happiness.users
       this.happiness.devs = defaultStart.happiness.devs
     }
