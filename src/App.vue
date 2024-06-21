@@ -5,17 +5,6 @@
         <v-avatar image="./images/logo-small.png" />
       </div>
 
-      <v-btn
-        class="text-none"
-        prepend-icon="mdi-home"
-        size="x-small"
-        stacked
-        text="Home"
-        tile
-        variant="text"
-        width="80"
-      />
-
       <!-- <v-btn class="text-none" size="x-small" stacked tile variant="text" width="80">
         <v-badge content="39" floating>
           <v-icon>mdi-account-circle</v-icon>
@@ -23,66 +12,36 @@
 
         <div class="mt-1">Friends</div>
       </v-btn> -->
-
       <v-btn
-        class="text-none"
-        prepend-icon="mdi-cloud-download"
+        class="text-none mb-2"
+        prepend-icon="mdi-help-circle-outline"
         size="x-small"
         stacked
-        text="Downloads"
+        text="Instructions"
         tile
         variant="text"
         width="80"
+        @click="toggleInstructionDialog"
       />
-
       <v-btn
+        v-if="$route.name === 'game'"
         class="text-none"
-        prepend-icon="mdi-history"
+        prepend-icon="mdi-autorenew"
         size="x-small"
         stacked
-        text="History"
+        text="Restart"
         tile
         variant="text"
         width="80"
+        to="/"
       />
-
-      <v-btn
-        class="text-none"
-        prepend-icon="mdi-currency-usd"
-        size="x-small"
-        stacked
-        text="Sales"
-        tile
-        variant="text"
-        width="80"
-      />
-
-      <v-btn
-        class="text-none"
-        prepend-icon="mdi-trending-up"
-        size="x-small"
-        stacked
-        text="Trend"
-        tile
-        variant="text"
-        width="80"
-      />
-
-      <template #append>
+      <!-- <template #append>
         <div class="d-flex justify-center pa-4">
-          <v-btn icon variant="text">
-            <v-avatar image="https://cdn.vuetifyjs.com/images/john.jpg" />
-
-            <v-menu activator="parent" location="top">
-              <v-list density="compact" nav slim>
-                <v-list-item link prepend-icon="mdi-cog" title="Settings" />
-
-                <v-list-item link prepend-icon="mdi-logout" title="Logout" />
-              </v-list>
-            </v-menu>
+          <v-btn icon variant="text" href="https://moriel.tech">
+            <v-avatar image="/images/moriel-150px.jpg" />
           </v-btn>
         </div>
-      </template>
+      </template> -->
     </v-navigation-drawer>
 
     <v-app-bar :elevation="2" title="DDDnD">
@@ -94,8 +53,7 @@
         <!-- <v-divider v-if="isGameActive" class="mx-2 align-self-center" inset length="24" vertical /> -->
         <v-avatar v-if="isGameActive" :image="userAvatarPath" />
         <v-spacer v-if="isGameActive" />
-        <span v-if="isGameActive">{{ vUsername }}</span>
-        <v-spacer />
+        <span v-if="isGameActive" class="px-2">{{ vUsername }}</span>
       </template>
     </v-app-bar>
 
@@ -109,6 +67,7 @@
         <v-sheet border="dashed md" color="surface-light" height="500" rounded="lg" width="100%" />
       </div> -->
     </v-main>
+    <InstructionsDialog />
   </v-app>
 </template>
 
@@ -116,9 +75,13 @@
 import { ref } from 'vue'
 // import { storeToRefs } from 'pinia'
 import { RouterView } from 'vue-router'
-// import { useScoreStore } from '@/stores/score'
+import InstructionsDialog from '@/components/InstructionsDialog.vue'
 import { userDetails } from '@/use/userDetails'
 import { scoreDetails } from '@/use/scoreDetails'
+import { gameDetails } from '@/use/gameDetails'
+
+const { toggleInstructionDialog } = gameDetails()
+
 const { userAvatarPath, vUsername } = userDetails()
 const drawer = ref(true)
 const { isGameActive } = scoreDetails()

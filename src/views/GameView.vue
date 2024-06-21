@@ -6,21 +6,62 @@
     </v-row>
     <v-row v-if="isGameActive">
       <v-col md="7" sm="7" xs="12">
-        <v-card variant="outlined" class="mx-auto" min-width="200">
-          <template v-slot:title
-            ><span class="text-h5 font-weight-bold text-pink-lighten-1"
-              >DDDnD: the adventure begins!</span
-            ></template
-          >
-          <v-card-text
-            >Welcome, <span class="font-weight-bold text-yellow">{{ vUsername }}</span
-            >, the {{ randomUserDescriptor }} Domain-Driven Design {{ vUserChar }}!<br />
-            You have arrived to Company. Your job is to transform the architecture of their current
-            system to be more <span class="font-weight-bold text-blue">modular</span>,
-            <span class="font-weight-bold text-blue">performant</span>, and
-            <span class="font-weight-bold text-blue">stable</span>.</v-card-text
-          >
+        <v-card class="mx-auto" max-width="400">
+          <v-card-item class="bg-orange-darken-4">
+            <v-card-title> Your adventure </v-card-title>
+
+            <!-- <template v-slot:append>
+              <v-btn color="white" icon="mdi-plus" size="small"></v-btn>
+            </template> -->
+          </v-card-item>
+
+          <v-card-text class="pt-4">
+            Your goal is to transform The System to be more
+            <span class="text-blue-lighten-1">performant</span>,
+            <span class="text-blue-lighten-1">modular</span>, and
+            <span class="text-blue-lighten-1">stable</span>.
+          </v-card-text>
+
+          <v-divider></v-divider>
+
+          <v-virtual-scroll :items="getLastTenEntries" height="300" item-height="50">
+            <template v-slot:default="{ item }">
+              <v-list-item>
+                <template v-slot:prepend>
+                  <v-avatar :color="item.color" class="text-white" size="40">
+                    {{ item.initials }}
+                  </v-avatar>
+                </template>
+
+                <v-list-item-title>{{ item.fullName }}</v-list-item-title>
+
+                <template v-slot:append>
+                  <v-btn size="small" variant="tonal">
+                    View User
+
+                    <v-icon color="orange-darken-4" end> mdi-open-in-new </v-icon>
+                  </v-btn>
+                </template>
+              </v-list-item>
+            </template>
+          </v-virtual-scroll>
         </v-card>
+
+        <!-- <v-card variant="outlined" class="mx-auto mb-5" min-width="200">
+            <template v-slot:title
+              ><span class="text-h5 font-weight-bold text-pink-lighten-1"
+                >DDDnD: the adventure begins!</span
+              ></template
+            >
+            <v-card-text
+              >Welcome, <span class="font-weight-bold text-yellow">{{ vUsername }}</span
+              >, the {{ randomUserDescriptor }} Domain-Driven Design {{ vUserChar }}!<br />
+              You have arrived to THE COMPANY. Your job is to transform the architecture of their
+              current system to be more <span class="font-weight-bold text-blue">modular</span>,
+              <span class="font-weight-bold text-blue">performant</span>, and
+              <span class="font-weight-bold text-blue">stable</span>.</v-card-text
+            >
+          </v-card> -->
       </v-col>
       <v-col md="5" sm="5" xs="12">
         <ScoreCard
@@ -51,15 +92,20 @@
 <script setup>
 // import { ref } from 'vue'
 import { userDetails } from '@/use/userDetails'
-import { scoreDetails } from '@/use/scoreDetails'
+// import { scoreDetails } from '@/use/scoreDetails'
+import { gameDetails } from '@/use/gameDetails'
+import { historyDetails } from '@/use/historyDetails'
 import GameDetailsDialog from '@/components/GameDetailsDialog.vue'
 import ScoreCard from '@/components/ScoreCard.vue'
 
-const { isGameActive } = scoreDetails()
-const { vUsername, vUserChar } = userDetails()
-const userDescriptorList = ['magnificent', 'wonderful', 'amazing', 'incredible', 'amazing']
-const randomUserDescriptor =
-  userDescriptorList[Math.floor(Math.random() * userDescriptorList.length)]
+const { isGameActive } = gameDetails()
+const { getLastTenEntries } = historyDetails()
+
+// User description
+// const userDescriptorList = ['magnificent', 'wonderful', 'amazing', 'incredible', 'amazing']
+// const { vUsername, vUserChar } = userDetails()
+// const randomUserDescriptor =
+//   userDescriptorList[Math.floor(Math.random() * userDescriptorList.length)]
 
 // If game is active, warn before page reload
 window.onbeforeunload = function () {

@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 
 export const useScoreStore = defineStore('score', {
   state: () => ({
-    active: false,
     coins: 0,
     revenue: 0,
     system: {
@@ -29,14 +28,11 @@ export const useScoreStore = defineStore('score', {
     */
   }),
   getters: {
-    isGameActive: (state) => !!state.active
     // getMaintainability: (state) => state.maintainability,
     // getScore: (state) => (state.maintainability + state.sustainability + state.modularization) / 3,
   },
   actions: {
     startGame() {
-      this.active = true
-
       // TODO: There should be some random initial conditions
       const defaultStart = {
         coins: 10000,

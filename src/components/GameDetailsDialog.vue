@@ -31,9 +31,11 @@
 import { ref } from 'vue'
 import { userDetails } from '@/use/userDetails'
 import { scoreDetails } from '@/use/scoreDetails'
+import { gameDetails } from '@/use/gameDetails'
 
 const { chars, charImagePaths, vUsername, vUserChar } = userDetails()
-const { isGameActive, startGame } = scoreDetails()
+const { startGame } = scoreDetails()
+const { isGameActive, setGameActive } = gameDetails()
 
 const gameDetailsDialog = ref(true)
 const checkStartGame = function () {
@@ -41,6 +43,7 @@ const checkStartGame = function () {
     // Validate
     return false
   }
+  setGameActive()
   startGame()
   gameDetailsDialog.value = false
 }
