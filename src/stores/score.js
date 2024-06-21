@@ -32,6 +32,19 @@ export const useScoreStore = defineStore('score', {
     // getScore: (state) => (state.maintainability + state.sustainability + state.modularization) / 3,
   },
   actions: {
+    reset() {
+      this.coins = 0
+      this.revenue = 0
+      this.system = {
+        modularity: 0,
+        performance: 0,
+        stability: 0
+      }
+      this.happiness = {
+        users: 0,
+        devs: 0
+      }
+    },
     startGame() {
       // TODO: There should be some random initial conditions
       const defaultStart = {

@@ -10,6 +10,10 @@ export const useUserStore = defineStore('user', {
     getCharacter: (state) => state.character
   },
   actions: {
+    reset() {
+      this.name = ''
+      this.character = ''
+    },
     setName(value) {
       this.name = value
     },

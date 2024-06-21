@@ -90,8 +90,8 @@
 </template>
 
 <script setup>
-// import { ref } from 'vue'
-import { userDetails } from '@/use/userDetails'
+// import { watch } from 'vue'
+// import { userDetails } from '@/use/userDetails'
 // import { scoreDetails } from '@/use/scoreDetails'
 import { gameDetails } from '@/use/gameDetails'
 import { historyDetails } from '@/use/historyDetails'
@@ -100,12 +100,6 @@ import ScoreCard from '@/components/ScoreCard.vue'
 
 const { isGameActive } = gameDetails()
 const { getLastTenEntries } = historyDetails()
-
-// User description
-// const userDescriptorList = ['magnificent', 'wonderful', 'amazing', 'incredible', 'amazing']
-// const { vUsername, vUserChar } = userDetails()
-// const randomUserDescriptor =
-//   userDescriptorList[Math.floor(Math.random() * userDescriptorList.length)]
 
 // If game is active, warn before page reload
 window.onbeforeunload = function () {

@@ -19,7 +19,6 @@ export function userDetails() {
     return './images/characters/' + char + '_standing.png'
   })
 
-  // TODO: This isn't working....
   const charChoice = computed({
     get() {
       if (chars.indexOf(store.getCharacter) === -1) {

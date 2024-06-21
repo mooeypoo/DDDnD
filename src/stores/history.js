@@ -20,6 +20,9 @@ export const useHistoryStore = defineStore('history', {
     getLatestUserAction: (state) => state.history.filter((item) => (item.actor = 'user'))[0]
   },
   actions: {
+    reset() {
+      this.history = []
+    },
     addLogEntry(actor, desc, effect) {
       // Put it in the first position of the array (recent should be first)
       this.history.splice(0, 0, {

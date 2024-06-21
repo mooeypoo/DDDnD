@@ -24,7 +24,7 @@
         @click="toggleInstructionDialog"
       />
       <v-btn
-        v-if="$route.name === 'game'"
+        v-if="isGameActive"
         class="text-none"
         prepend-icon="mdi-autorenew"
         size="x-small"
@@ -33,7 +33,7 @@
         tile
         variant="text"
         width="80"
-        to="/"
+        @click="toggleResetDialog"
       />
       <!-- <template #append>
         <div class="d-flex justify-center pa-4">
@@ -67,6 +67,7 @@
       </div> -->
     </v-main>
     <InstructionsDialog />
+    <ResetConfirmationDialog @resetComplete="$router.push({ name: 'home' })" />
   </v-app>
 </template>
 
@@ -75,10 +76,11 @@ import { ref } from 'vue'
 // import { storeToRefs } from 'pinia'
 import { RouterView } from 'vue-router'
 import InstructionsDialog from '@/components/InstructionsDialog.vue'
+import ResetConfirmationDialog from '@/components/ResetConfirmationDialog.vue'
 import { userDetails } from '@/use/userDetails'
 import { gameDetails } from '@/use/gameDetails'
 
-const { toggleInstructionDialog, isGameActive } = gameDetails()
+const { toggleInstructionDialog, toggleResetDialog, isGameActive } = gameDetails()
 
 const { userAvatarPath, vUsername } = userDetails()
 const drawer = ref(true)
