@@ -4,13 +4,13 @@
       <template v-slot:title>
         <span>Game instructions</span>
       </template>
-      <v-card-text class="pa-4 bg-surface">
+      <v-card-text class="pa-4 bg-surface" v-if="vUsername">
         Hello, <span class="text-red-lighten-1">{{ vUsername }}</span
         >, the <span class="text-red-lighten-1">{{ randomUserDescriptor }} </span>
         <span class="text-red-lighten-1">&nbsp;{{ vUserChar }}</span
         >!
       </v-card-text>
-      <v-card-text class="py-0 px-4 m-0 bg-surface">
+      <v-card-text class="py-4 px-4 m-0 bg-surface">
         You have been hired at <span class="text-green-lighten-1">The Company</span> to transform
         their technical systems. Your goal is to evolve the architecture to make the system more
         <span class="text-blue-lighten-1">performant</span>,
@@ -27,12 +27,30 @@
 </template>
 
 <script setup>
+import { watch, ref } from 'vue'
 import { userDetails } from '@/use/userDetails'
 import { gameDetails } from '@/use/gameDetails'
 
 const { userAvatarPath, vUsername, vUserChar } = userDetails()
 const { toggleInstructionDialog, isInstructionDialogOpen } = gameDetails()
-const userDescriptorList = ['magnificent', 'wonderful', 'amazing', 'incredible', 'amazing']
-const randomUserDescriptor =
+
+// Random descriptor
+const userDescriptorList = [
+  'magnificent',
+  'wonderful',
+  'amazing',
+  'incredible',
+  'wonderous',
+  'brave',
+  'valiant',
+  'incredible'
+]
+const randomizeDescriptor = () =>
   userDescriptorList[Math.floor(Math.random() * userDescriptorList.length)]
+const randomUserDescriptor = ref(randomizeDescriptor())
+
+watch(isInstructionDialogOpen, (val) => {
+  if (!val) return
+  randomUserDescriptor.value = randomizeDescriptor()
+})
 </script>

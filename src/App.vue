@@ -50,10 +50,9 @@
       </template>
       <v-spacer />
       <template #append>
-        <!-- <v-divider v-if="isGameActive" class="mx-2 align-self-center" inset length="24" vertical /> -->
-        <v-avatar v-if="isGameActive" :image="userAvatarPath" />
-        <v-spacer v-if="isGameActive" />
         <span v-if="isGameActive" class="px-2">{{ vUsername }}</span>
+        <v-spacer v-if="isGameActive" />
+        <v-avatar v-if="isGameActive" :image="userAvatarPath" />
       </template>
     </v-app-bar>
 
@@ -77,16 +76,12 @@ import { ref } from 'vue'
 import { RouterView } from 'vue-router'
 import InstructionsDialog from '@/components/InstructionsDialog.vue'
 import { userDetails } from '@/use/userDetails'
-import { scoreDetails } from '@/use/scoreDetails'
 import { gameDetails } from '@/use/gameDetails'
 
-const { toggleInstructionDialog } = gameDetails()
+const { toggleInstructionDialog, isGameActive } = gameDetails()
 
 const { userAvatarPath, vUsername } = userDetails()
 const drawer = ref(true)
-const { isGameActive } = scoreDetails()
 </script>
-
-<script></script>
 
 <style scoped></style>
