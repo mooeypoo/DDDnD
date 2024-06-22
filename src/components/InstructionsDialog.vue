@@ -6,8 +6,8 @@
       </template>
       <v-card-text class="pa-4 bg-surface" v-if="vUsername">
         Hello, <span class="text-red-lighten-1">{{ vUsername }}</span
-        >, the <span class="text-red-lighten-1">{{ randomUserDescriptor }} </span>
-        <span class="text-red-lighten-1">&nbsp;{{ vUserChar }}</span
+        >, the <span class="text-red-lighten-1">{{ randomUserDescriptor }}</span> Domain-Driven
+        Design <span class="text-red-lighten-1">{{ vUserChar }}</span
         >!
       </v-card-text>
       <v-card-text class="py-4 px-4 m-0 bg-surface">

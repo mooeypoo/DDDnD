@@ -5,13 +5,6 @@
         <v-avatar image="./images/logo-small.png" />
       </div>
 
-      <!-- <v-btn class="text-none" size="x-small" stacked tile variant="text" width="80">
-        <v-badge content="39" floating>
-          <v-icon>mdi-account-circle</v-icon>
-        </v-badge>
-
-        <div class="mt-1">Friends</div>
-      </v-btn> -->
       <v-btn
         class="text-none mb-2"
         prepend-icon="mdi-help-circle-outline"
@@ -22,6 +15,18 @@
         variant="text"
         width="80"
         @click="toggleInstructionDialog"
+      />
+      <v-btn
+        v-if="isGameActive && $route.name !== 'game'"
+        class="text-none mb-2"
+        prepend-icon="mdi-auto-fix"
+        size="x-small"
+        stacked
+        text="Return to Game"
+        tile
+        variant="text"
+        width="80"
+        to="/game"
       />
       <v-btn
         v-if="isGameActive"
@@ -35,13 +40,21 @@
         width="80"
         @click="toggleResetDialog"
       />
-      <!-- <template #append>
+      <template #append>
         <div class="d-flex justify-center pa-4">
-          <v-btn icon variant="text" href="https://moriel.tech">
-            <v-avatar image="/images/moriel-150px.jpg" />
+          <v-btn
+            class="text-none"
+            prepend-icon="mdi-github"
+            variant="text"
+            size="x-small"
+            stacked
+            href="https://github.com/mooeypoo/DDDnD"
+            target="_blank"
+            text="Source"
+          >
           </v-btn>
         </div>
-      </template> -->
+      </template>
     </v-navigation-drawer>
 
     <v-app-bar :elevation="2" title="DDDnD">
@@ -60,11 +73,6 @@
       <v-container>
         <RouterView />
       </v-container>
-      <!-- <div class="pa-4">
-        <h2 class="text-h4 font-weight-bold mb-4">Dashboard</h2>
-
-        <v-sheet border="dashed md" color="surface-light" height="500" rounded="lg" width="100%" />
-      </div> -->
     </v-main>
     <InstructionsDialog />
     <ResetConfirmationDialog @resetComplete="$router.push({ name: 'home' })" />

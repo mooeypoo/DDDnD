@@ -5,6 +5,7 @@ export const useScoreStore = defineStore('score', {
     coins: 0,
     revenue: 0,
     system: {
+      bounded_contexts: 0,
       modularity: 0,
       performance: 0,
       stability: 0
@@ -12,6 +13,9 @@ export const useScoreStore = defineStore('score', {
     happiness: {
       users: 0, // can be affected negatively by speed of delivery, etc
       devs: 0
+    },
+    hidden: {
+      architecture_maturity: 0 // factor whether things are good impact or bad on devs
     }
     // consider adding "revenue" as an explicit
     // communication
@@ -19,7 +23,7 @@ export const useScoreStore = defineStore('score', {
     // Elements / challenges / options to do will have
     /*
     duration: x, // how many turns; 1 for one-time, 0 for always
-    on_time_effect: {
+    one_time_effect: {
       ...
     }
     effect_per_turn: {
@@ -36,6 +40,7 @@ export const useScoreStore = defineStore('score', {
       this.coins = 0
       this.revenue = 0
       this.system = {
+        bounded_contexts: 0,
         modularity: 0,
         performance: 0,
         stability: 0
@@ -51,6 +56,7 @@ export const useScoreStore = defineStore('score', {
         coins: 10000,
         revenue: 1000,
         system: {
+          bounded_contexts: 50,
           modularity: 50,
           performance: 50,
           stability: 50
@@ -62,12 +68,10 @@ export const useScoreStore = defineStore('score', {
       }
 
       // Load initial conditions
-      // TODO: Do this properly, srsly
       this.coins = defaultStart.coins
       this.revenue = defaultStart.revenue
-      this.system.modularity = defaultStart.system.modularity
-      this.system.performance = defaultStart.system.performance
-      this.system.stability = defaultStart.system.stability
+      this.system = { ...defaultStart.system }
+      this.happiness = { ...defaultStart.happiness }
       this.happiness.users = defaultStart.happiness.users
       this.happiness.devs = defaultStart.happiness.devs
     }

@@ -6,7 +6,31 @@
     </v-row>
     <v-row v-if="isGameActive">
       <v-col md="7" sm="7" xs="12">
-        <v-card class="mx-auto" max-width="400">
+        <v-card class="mx-auto" max-width="500">
+          <v-card-item class="bg-pink-darken-4">
+            <v-card-title> Your inventory </v-card-title>
+          </v-card-item>
+          <v-card-item>
+            <v-card color="blue" variant="elevated" max-width="150">
+              <v-card-item>
+                <div>
+                  <!-- <div class="text-overline mb-1">
+                    {{ variant }}
+                  </div> -->
+                  <div class="text-h6 mb-1">Headline</div>
+                  <div class="text-caption">Greyhound divisely hello coldly fonwderfully</div>
+                </div>
+              </v-card-item>
+            </v-card>
+          </v-card-item>
+
+          <!-- <template v-slot:append>
+              <v-btn color="white" icon="mdi-plus" size="small"></v-btn>
+            </template> -->
+          <!-- </v-card-item> -->
+        </v-card>
+
+        <v-card class="mx-auto mt-4" max-width="500">
           <v-card-item class="bg-orange-darken-4">
             <v-card-title> Your adventure </v-card-title>
 
