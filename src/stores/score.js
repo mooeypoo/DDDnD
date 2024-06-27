@@ -53,7 +53,7 @@ export const useScoreStore = defineStore('score', {
           devs: 50
         },
         influence: 0,
-        user_power: 0
+        user_power: 10
       }
 
       // Load initial conditions

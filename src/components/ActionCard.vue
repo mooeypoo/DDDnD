@@ -27,9 +27,9 @@
         size="small"
         :color="isActive ? 'black' : ''"
         :variant="isActive ? 'flat' : 'plain'"
-        :disabled="availablePower <= 0 ? true : false"
+        :disabled="cardStyle.buttonDisabled"
         @click="toggleCard(name)"
-        >{{ isActive ? 'Remove' : 'Add' }}</v-btn
+        >{{ cardStyle.buttonText }}</v-btn
       >
     </v-card-actions>
   </v-card>
@@ -45,26 +45,32 @@ const displayName = ref('')
 const isActive = computed(() => {
   return userCardChoices.value.indexOf(props.name) > -1
 })
+console.log(availablePower.value)
 
 const cardStyle = computed(() => {
   if (isActive.value === true) {
     return {
       color: 'primary',
-      variant: 'elevated'
+      variant: 'elevated',
+      buttonDisabled: false,
+      buttonText: 'Remove'
     }
   }
-
-  if (availablePower <= 0) {
+  if (availablePower.value <= 0) {
     // The card is muted / no more power
     return {
       color: 'blue',
-      variant: 'outlined'
+      variant: 'outlined',
+      buttonDisabled: true,
+      buttonText: 'Not enough power'
     }
   }
 
   return {
     color: '',
-    variant: 'outlined'
+    variant: 'outlined',
+    buttonDisabled: false,
+    buttonText: 'Add'
   }
 })
 
