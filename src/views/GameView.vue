@@ -6,22 +6,32 @@
     </v-row>
     <v-row v-if="isGameActive">
       <v-col md="7" sm="7" xs="12">
-        <v-card class="mx-auto" max-width="500">
-          <v-card-item class="bg-pink-darken-4">
-            <v-card-title> Your inventory </v-card-title>
-          </v-card-item>
+        <v-card class="mx-auto">
+          <v-card-text class="bg-pink-darken-4">
+            <v-row align="center" class="mx-0">
+              <v-col xs="12" sm="3" md="3" lg="3" class="py-0"
+                ><span class="text-subtitle-1">Actions</span></v-col
+              >
+              <v-col class="d-flex justify-center flex-grow-1 py-0"
+                ><div class="text-grey">Available Power</div>
+                <v-rating
+                  :model-value="1"
+                  color="amber"
+                  density="compact"
+                  size="small"
+                  readonly
+                ></v-rating
+              ></v-col>
+            </v-row>
+          </v-card-text>
           <v-card-item>
-            <v-card color="blue" variant="elevated" max-width="150">
-              <v-card-item>
-                <div>
-                  <!-- <div class="text-overline mb-1">
-                    {{ variant }}
-                  </div> -->
-                  <div class="text-h6 mb-1">Headline</div>
-                  <div class="text-caption">Greyhound divisely hello coldly fonwderfully</div>
-                </div>
-              </v-card-item>
-            </v-card>
+            <v-row>
+              <v-col md="4" sm="6" xs="12">
+                <!-- CARDS -->
+                <ActionCard name="heuristics" />
+                <!-- /CARDS -->
+              </v-col>
+            </v-row>
           </v-card-item>
 
           <!-- <template v-slot:append>
@@ -33,18 +43,17 @@
         <v-card class="mx-auto mt-4" max-width="500">
           <v-card-item class="bg-orange-darken-4">
             <v-card-title> Your adventure </v-card-title>
-
             <!-- <template v-slot:append>
               <v-btn color="white" icon="mdi-plus" size="small"></v-btn>
             </template> -->
           </v-card-item>
 
-          <v-card-text class="pt-4">
+          <!-- <v-card-text class="pt-4">
             Your goal is to transform The System to be more
             <span class="text-blue-lighten-1">performant</span>,
-            <span class="text-blue-lighten-1">modular</span>, and
-            <span class="text-blue-lighten-1">stable</span>.
-          </v-card-text>
+            <span class="text-blue-lighten-1">modular</span>, and improve the system's
+            <span class="text-blue-lighten-1">bounded contexts</span>.
+          </v-card-text> -->
 
           <v-divider></v-divider>
 
@@ -89,6 +98,13 @@
       </v-col>
       <v-col md="5" sm="5" xs="12">
         <ScoreCard
+          group="architecture"
+          title="Architect "
+          color="green"
+          icon="mdi-account-star"
+          class="mb-4"
+        ></ScoreCard>
+        <ScoreCard
           group="company"
           title="The company"
           color="purple"
@@ -114,17 +130,18 @@
 </template>
 
 <script setup>
-// import { watch } from 'vue'
+import { ref } from 'vue'
 // import { userDetails } from '@/use/userDetails'
 // import { scoreDetails } from '@/use/scoreDetails'
 import { gameDetails } from '@/use/gameDetails'
 import { historyDetails } from '@/use/historyDetails'
 import GameDetailsDialog from '@/components/GameDetailsDialog.vue'
 import ScoreCard from '@/components/ScoreCard.vue'
+import ActionCard from '@/components/ActionCard.vue'
 
 const { isGameActive } = gameDetails()
 const { getLastTenEntries } = historyDetails()
-
+const actionGroup = ref([])
 // If game is active, warn before page reload
 window.onbeforeunload = function () {
   if (isGameActive) {
@@ -133,6 +150,9 @@ window.onbeforeunload = function () {
 }
 </script>
 
-<script></script>
-
-<style></style>
+<style lang="scss">
+// .usercard:hover {
+//   background-color: rgb(53, 12, 49);
+//   border: 2px solid white;
+// }
+</style>

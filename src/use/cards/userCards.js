@@ -12,14 +12,15 @@ export function userCards() {
   // domain events
   // event sourcing
   // model
-  const tier1cards = [
-    {
-      title: 'Define Heuristics',
+  const cards = {
+    heuristics: {
+      title: 'Map and Discover Heuristics',
       icon: '',
       short: "Pull out your magical robes and head to discover The Company's heuristics!",
       long: `Discover and clarify <em>The Company</em>'s heuristics by
       conducting interviews and producing written artifacts that clarify
-      the context of <em>The Company</em>'s approach.`,
+      and align <em>The Company</em>'s approach and context.`,
+      required_power: 10,
       effect: {
         once: {
           happiness: {
@@ -52,8 +53,9 @@ export function userCards() {
         }
       }
     }
-  ]
+  }
+
   return {
-    tier1cards
+    cards
   }
 }

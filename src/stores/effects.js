@@ -2,7 +2,12 @@
 import { defineStore } from 'pinia'
 
 export const useEffectsStore = defineStore('effects', {
-  state: () => ({}),
+  state: () => ({
+    immediate: [],
+    ongoing: [],
+    delayed: [],
+    modifiers: []
+  }),
   getters: {},
   actions: {
     reset() {}

@@ -7,6 +7,22 @@ export function scoreDetails() {
   const isGameActive = computed(() => store.isGameActive)
 
   const gameStatsForView = computed(() => ({
+    architecture: [
+      {
+        color: store.user_power > 50 ? 'green' : 'white',
+        icon: store.user_power > 50 ? 'mdi-star-face' : 'mdi-star',
+        title: 'Power',
+        value: store.user_power,
+        isPercentage: true
+      },
+      {
+        color: store.influence > 50 ? 'green' : 'white',
+        icon: 'mdi-access-point',
+        title: 'Influence',
+        value: store.influence,
+        isPercentage: true
+      }
+    ],
     company: [
       {
         color: store.coins > 0 ? 'yellow' : 'red',
@@ -53,10 +69,10 @@ export function scoreDetails() {
         isPercentage: true
       },
       {
-        color: store.system.stability > 50 ? 'green' : 'white',
+        color: store.system.bounded_contexts > 50 ? 'green' : 'white',
         icon: 'mdi-domain',
-        title: 'Stability',
-        value: store.system.stability,
+        title: 'Bounded Contexts',
+        value: store.system.bounded_contexts,
         isPercentage: true
       }
     ]
