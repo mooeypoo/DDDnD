@@ -15,8 +15,8 @@
               <v-col class="d-flex justify-center flex-grow-1 py-0"
                 ><div class="text-grey">Available Power</div>
                 <v-rating
-                  :model-value="1"
-                  color="amber"
+                  :model-value="powerLevel"
+                  :color="availablePower > 0 ? 'amber' : 'grey-darken-3'"
                   density="compact"
                   size="small"
                   readonly
@@ -130,7 +130,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 // import { userDetails } from '@/use/userDetails'
 // import { scoreDetails } from '@/use/scoreDetails'
 import { gameDetails } from '@/use/gameDetails'
@@ -139,9 +139,13 @@ import GameDetailsDialog from '@/components/GameDetailsDialog.vue'
 import ScoreCard from '@/components/ScoreCard.vue'
 import ActionCard from '@/components/ActionCard.vue'
 
-const { isGameActive } = gameDetails()
+const { isGameActive, availablePower } = gameDetails()
 const { getLastTenEntries } = historyDetails()
-const actionGroup = ref([])
+
+const powerLevel = computed(() => {
+  return Math.round(availablePower.value / 10)
+})
+
 // If game is active, warn before page reload
 window.onbeforeunload = function () {
   if (isGameActive) {

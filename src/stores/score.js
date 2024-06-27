@@ -21,10 +21,7 @@ export const useScoreStore = defineStore('score', {
     // and takes a penalty when outcomes are negative
     user_power: 0
   }),
-  getters: {
-    // getMaintainability: (state) => state.maintainability,
-    // getScore: (state) => (state.maintainability + state.sustainability + state.modularization) / 3,
-  },
+  getters: {},
   actions: {
     reset() {
       this.coins = 0
@@ -56,7 +53,7 @@ export const useScoreStore = defineStore('score', {
           devs: 50
         },
         influence: 0,
-        user_power: 10
+        user_power: 0
       }
 
       // Load initial conditions

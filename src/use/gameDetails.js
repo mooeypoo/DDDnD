@@ -48,6 +48,21 @@ export function gameDetails() {
     }
   })
 
+  // TODO: Should this be in scoreDetails?
+  const availablePower = computed(() => {
+    let power = scoreStore.user_power
+    store.chosenCards.forEach((item) => {
+      if (power < 0) return
+
+      const details = cards[item]
+      if (!details) return
+
+      power -= cards[item].required_power
+    })
+
+    return power || 0
+  })
+
   // Dialogs
   const toggleInstructionDialog = function () {
     store.instructionDialog = !store.instructionDialog
@@ -78,6 +93,7 @@ export function gameDetails() {
     isInstructionDialogOpen,
     isResetDialogOpen,
     userCardChoices,
-    toggleCard
+    toggleCard,
+    availablePower
   }
 }
