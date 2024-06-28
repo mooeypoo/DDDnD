@@ -5,6 +5,10 @@ export const useGameStore = defineStore('game', {
     active: false,
     instructionDialog: false,
     resetDialog: false,
+    userCardDialog: {
+      open: false,
+      card: ''
+    },
     chosenCards: []
   }),
   getters: {
@@ -20,6 +24,9 @@ export const useGameStore = defineStore('game', {
     },
     toggleResetConfirmationDialog(isActive) {
       this.resetDialog = !!isActive
+    },
+    setUserCardDialogCard(card) {
+      this.userCardDialog.card = card
     }
   }
 })

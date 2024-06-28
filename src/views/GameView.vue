@@ -1,6 +1,7 @@
 <template>
   <div class="game">
     <GameDetailsDialog />
+    <UserCardInfoDialog />
     <v-row>
       <v-col cols="12" class="d-flex justify-center"> </v-col>
     </v-row>
@@ -26,34 +27,19 @@
           </v-card-text>
           <v-card-item>
             <v-row>
-              <v-col md="4" sm="6" xs="12">
+              <v-col v-for="cardName in userCardListByPower" :key="cardName" md="4" sm="6" xs="12">
                 <!-- CARDS -->
-                <ActionCard name="heuristics" />
+                <ActionCard :name="cardName" />
                 <!-- /CARDS -->
               </v-col>
             </v-row>
           </v-card-item>
-
-          <!-- <template v-slot:append>
-              <v-btn color="white" icon="mdi-plus" size="small"></v-btn>
-            </template> -->
-          <!-- </v-card-item> -->
         </v-card>
 
         <v-card class="mx-auto mt-4" max-width="500">
           <v-card-item class="bg-orange-darken-4">
             <v-card-title> Your adventure </v-card-title>
-            <!-- <template v-slot:append>
-              <v-btn color="white" icon="mdi-plus" size="small"></v-btn>
-            </template> -->
           </v-card-item>
-
-          <!-- <v-card-text class="pt-4">
-            Your goal is to transform The System to be more
-            <span class="text-blue-lighten-1">performant</span>,
-            <span class="text-blue-lighten-1">modular</span>, and improve the system's
-            <span class="text-blue-lighten-1">bounded contexts</span>.
-          </v-card-text> -->
 
           <v-divider></v-divider>
 
@@ -136,10 +122,11 @@ import { computed } from 'vue'
 import { gameDetails } from '@/use/gameDetails'
 import { historyDetails } from '@/use/historyDetails'
 import GameDetailsDialog from '@/components/GameDetailsDialog.vue'
+import UserCardInfoDialog from '@/components/UserCardInfoDialog.vue'
 import ScoreCard from '@/components/ScoreCard.vue'
 import ActionCard from '@/components/ActionCard.vue'
 
-const { isGameActive, availablePower } = gameDetails()
+const { isGameActive, availablePower, userCardListByPower } = gameDetails()
 const { getLastTenEntries } = historyDetails()
 
 const powerLevel = computed(() => {
@@ -154,9 +141,4 @@ window.onbeforeunload = function () {
 }
 </script>
 
-<style lang="scss">
-// .usercard:hover {
-//   background-color: rgb(53, 12, 49);
-//   border: 2px solid white;
-// }
-</style>
+<style lang="scss"></style>

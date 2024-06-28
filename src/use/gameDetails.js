@@ -16,10 +16,21 @@ export function gameDetails() {
 
   // User cards
   const { cards } = userCards()
-  const cardNames = Object.keys(cards)
+  const userCardList = Object.keys(cards)
+  const userCardListByPower = userCardList.sort((a, b) => {
+    if (cards[a].required_power < cards[b].required_power) return -1
+    else if (cards[a].required_power > cards[b].required_power) return 1
+    else {
+      // alphabetically
+      if (a < b) return -1
+      else if (a > b) return 1
+      else return 0
+    }
+  })
+  const cardDisplayName = (name) => cards[name].name
   const toggleCard = function (name) {
     // Check the card is valid
-    if (cardNames.indexOf(name) === -1) {
+    if (userCardList.indexOf(name) === -1) {
       return
     }
 
@@ -32,11 +43,22 @@ export function gameDetails() {
       store.chosenCards.splice(i, 1)
     }
   }
+  const userCardDialogCardName = computed({
+    get() {
+      return store.userCardDialog.card
+    },
+    set(cardName) {
+      store.setUserCardDialogCard(cardName)
+    }
+  })
+
+  const userCardDialogCardInfo = computed(() => cards[store.userCardDialog.card])
 
   // Bools
   const isGameActive = computed(() => store.isActive)
   const isInstructionDialogOpen = computed(() => store.instructionDialog)
   const isResetDialogOpen = computed(() => store.resetDialog)
+  const isUserCardInfoDialogOpen = computed(() => store.userCardDialog.open)
 
   // Computed
   const userCardChoices = computed({
@@ -72,6 +94,10 @@ export function gameDetails() {
     store.resetDialog = !store.resetDialog
   }
 
+  const toggleUserCardDialog = function () {
+    store.userCardDialog.open = !store.userCardDialog.open
+  }
+
   const setGameActive = function () {
     store.toggleActive(true)
   }
@@ -94,6 +120,13 @@ export function gameDetails() {
     isResetDialogOpen,
     userCardChoices,
     toggleCard,
-    availablePower
+    cardDisplayName,
+    availablePower,
+    userCardList,
+    userCardListByPower,
+    isUserCardInfoDialogOpen,
+    userCardDialogCardName,
+    userCardDialogCardInfo,
+    toggleUserCardDialog
   }
 }

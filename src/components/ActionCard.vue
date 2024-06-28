@@ -25,27 +25,50 @@
     <v-card-actions class="py-2 my-0 userCardActions">
       <v-btn
         size="small"
+        :color="isActive ? 'primary' : ''"
+        variant="flat"
+        @click="openUserCardInfoDialog(name)"
+        >INFO</v-btn
+      >
+      <v-btn
+        size="small"
         :color="isActive ? 'black' : ''"
         :variant="isActive ? 'flat' : 'plain'"
         :disabled="cardStyle.buttonDisabled"
         @click="toggleCard(name)"
-        >{{ cardStyle.buttonText }}</v-btn
-      >
+        >{{ cardStyle.buttonText
+        }}<v-icon v-if="cardStyle.buttonIcon" :icon="cardStyle.buttonIcon"></v-icon
+      ></v-btn>
     </v-card-actions>
   </v-card>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 const props = defineProps(['name'])
 import { gameDetails } from '@/use/gameDetails'
-const { toggleCard, userCardChoices, availablePower } = gameDetails()
+const {
+  toggleCard,
+  userCardChoices,
+  cardDisplayName,
+  availablePower,
+  //   isUserCardInfoDialogOpen,
+  //   userCardDialogCardInfo,
+  userCardDialogCardName,
+  toggleUserCardDialog
+} = gameDetails()
 
-const displayName = ref('')
+const displayName = cardDisplayName(props.name)
 const isActive = computed(() => {
   return userCardChoices.value.indexOf(props.name) > -1
 })
-console.log(availablePower.value)
+
+const openUserCardInfoDialog = function (name) {
+  // set the data
+  userCardDialogCardName.value = name
+  console.log('openUserCardInfoDialog', userCardDialogCardName.value)
+  toggleUserCardDialog()
+}
 
 const cardStyle = computed(() => {
   if (isActive.value === true) {
@@ -62,7 +85,8 @@ const cardStyle = computed(() => {
       color: 'blue',
       variant: 'outlined',
       buttonDisabled: true,
-      buttonText: 'Not enough power'
+      buttonText: '',
+      buttonIcon: 'mdi-power-plug-off'
     }
   }
 
@@ -74,8 +98,8 @@ const cardStyle = computed(() => {
   }
 })
 
-const capitalize = (str) => str[0].toUpperCase() + str.slice(1)
-displayName.value = capitalize(props.name)
+// const capitalize = (str) => str[0].toUpperCase() + str.slice(1)
+// displayName.value = capitalize(props.name)
 </script>
 
 <style lang="scss">
