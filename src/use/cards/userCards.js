@@ -3,24 +3,24 @@ export function userCards() {
   // ---------------
   // Bounded context
   // Ubiquitous language
-  // Heuristics
+  // x Heuristics
   // domains
   // subdomains
   // context mapping
   // tactical design
   // aggregates
   // domain events
-  // event sourcing
+  // x event sourcing
   // model
   const cards = {
-    eventsourcing: {
-      name: 'Event Sourcing',
-      title: 'Workshop: Event Sourcing',
+    eventstorming: {
+      name: 'Event Storming',
+      title: 'Workshop: Event Storming',
       icon: '',
       short:
         'Light that fire and gather your allies! Delve into the behavior of your system to find the way forward!',
-      long: 'Consult with domain experts and stakeholders to map behaviors of the system. Find leverage points for improvement and alignment on how things work, and how they could work.',
-      link: '',
+      long: 'Consult with domain experts and stakeholders to map behaviors domain. Simplify complex processes and find leverage points for implementing improvements.',
+      link: 'https://en.wikipedia.org/wiki/Event_storming',
       required_power: 10,
       effect: {
         once: {

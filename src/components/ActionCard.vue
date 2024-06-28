@@ -52,8 +52,6 @@ const {
   userCardChoices,
   cardDisplayName,
   availablePower,
-  //   isUserCardInfoDialogOpen,
-  //   userCardDialogCardInfo,
   userCardDialogCardName,
   toggleUserCardDialog
 } = gameDetails()
@@ -66,7 +64,6 @@ const isActive = computed(() => {
 const openUserCardInfoDialog = function (name) {
   // set the data
   userCardDialogCardName.value = name
-  console.log('openUserCardInfoDialog', userCardDialogCardName.value)
   toggleUserCardDialog()
 }
 

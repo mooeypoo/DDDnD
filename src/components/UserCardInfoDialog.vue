@@ -14,8 +14,16 @@
         class="bg-surface-light pt-4 pb-0"
         v-html="userCardDialogCardInfo.long"
       ></v-card-text>
-      <v-card-actions class="bg-surface-light pt-4"
-        ><v-btn @click="toggleUserCardDialog">Close</v-btn></v-card-actions
+      <v-card-actions class="bg-surface-light pt-4">
+        <v-btn
+          v-if="userCardDialogCardInfo.link"
+          color="pink-lighten-3"
+          href="userCardDialogCardInfo.link"
+          prepend-icon="mdi-open-in-new"
+          target="_blank"
+          >Read more</v-btn
+        >
+        <v-btn @click="toggleUserCardDialog">Close</v-btn></v-card-actions
       >
     </v-card>
   </v-dialog>
