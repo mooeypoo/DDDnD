@@ -18,7 +18,7 @@
         <v-btn
           v-if="userCardDialogCardInfo.link"
           color="pink-lighten-3"
-          href="userCardDialogCardInfo.link"
+          :href="userCardDialogCardInfo.link"
           prepend-icon="mdi-open-in-new"
           target="_blank"
           >Read more</v-btn

@@ -69,7 +69,7 @@ export function userCards() {
       long: `Discover and clarify <em>The Company</em>'s heuristics by
       conducting interviews and producing written artifacts that clarify
       and align <em>The Company</em>'s approach and context.`,
-      link: '',
+      link: 'https://ddd.academy/distilling-design-heuristics/',
       required_power: 10,
       effect: {
         once: {

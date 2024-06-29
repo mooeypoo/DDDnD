@@ -4,7 +4,7 @@
     :color="cardStyle.color"
     class="d-flex flex-column align-center"
   >
-    <v-card-title class="px-2">{{ displayName }}</v-card-title>
+    <v-card-title class="text-body-1 px-2">{{ displayName }}</v-card-title>
     <v-card-item class="py-0 my-0">
       <v-rating
         :model-value="1"
@@ -17,23 +17,23 @@
       >
       </v-rating>
     </v-card-item>
-    <v-card-text class="py-0 my-0">
+    <!-- <v-card-text class="py-0 my-0">
       <v-avatar>
         <v-img :src="`/images/cards/${name}.png`"></v-img>
       </v-avatar>
-    </v-card-text>
-    <v-card-actions class="py-2 my-0 userCardActions">
+    </v-card-text> -->
+    <v-card-actions class="py-2 my-0 px-4 userCardActions">
       <v-btn
-        size="small"
+        size="x-small"
         :color="isActive ? 'primary' : ''"
         variant="flat"
         @click="openUserCardInfoDialog(name)"
         >INFO</v-btn
       >
       <v-btn
-        size="small"
+        size="x-small"
         :color="isActive ? 'black' : ''"
-        :variant="isActive ? 'flat' : 'plain'"
+        :variant="isActive ? 'outlined' : 'plain'"
         :disabled="cardStyle.buttonDisabled"
         @click="toggleCard(name)"
         >{{ cardStyle.buttonText

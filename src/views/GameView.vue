@@ -2,11 +2,18 @@
   <div class="game">
     <GameDetailsDialog />
     <UserCardInfoDialog />
-    <v-row>
-      <v-col cols="12" class="d-flex justify-center"> </v-col>
-    </v-row>
     <v-row v-if="isGameActive">
       <v-col md="7" sm="7" xs="12">
+        <v-card class="mx-auto mb-4">
+          <v-card-item class="d-flex justify-center">
+            <v-btn rounded="xl" size="x-large" color="blue" @click="expand = !expand"
+              >Play turn</v-btn
+            >
+            <!-- <v-expand-transition>
+              <v-card v-show="expand" class="mx-auto" color="primary" height="100">Foo</v-card>
+            </v-expand-transition> -->
+          </v-card-item>
+        </v-card>
         <v-card class="mx-auto">
           <v-card-text class="bg-pink-darken-4">
             <v-row align="center" class="mx-0">
@@ -116,7 +123,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 // import { userDetails } from '@/use/userDetails'
 // import { scoreDetails } from '@/use/scoreDetails'
 import { gameDetails } from '@/use/gameDetails'
@@ -126,6 +133,7 @@ import UserCardInfoDialog from '@/components/UserCardInfoDialog.vue'
 import ScoreCard from '@/components/ScoreCard.vue'
 import ActionCard from '@/components/ActionCard.vue'
 
+const expand = ref(false)
 const { isGameActive, availablePower, userCardListByPower } = gameDetails()
 const { getLastTenEntries } = historyDetails()
 
