@@ -1,9 +1,9 @@
 import { computed } from 'vue'
 import { useScoreStore } from '@/stores/score'
-
+import { langHelper } from '@/use/langHelper'
 export function scoreDetails() {
   const store = useScoreStore()
-
+  const { getScoreDisplayDetails } = langHelper()
   const isGameActive = computed(() => store.isGameActive)
 
   const gameStatsForView = computed(() => ({
@@ -11,44 +11,44 @@ export function scoreDetails() {
       {
         color: store.user_power > 50 ? 'green' : 'white',
         icon: store.user_power > 50 ? 'mdi-star-face' : 'mdi-star',
-        title: 'Power',
+        title: getScoreDisplayDetails('', 'user_power').title,
         value: store.user_power,
         isPercentage: true
       },
       {
         color: store.influence > 50 ? 'green' : 'white',
         icon: 'mdi-access-point',
-        title: 'Influence',
+        title: getScoreDisplayDetails('', 'influence').title,
         value: store.influence,
         isPercentage: true
       }
     ],
-    company: [
-      {
-        color: store.coins > 0 ? 'yellow' : 'red',
-        icon: 'mdi-hand-coin',
-        title: 'Coins',
-        value: store.coins
-      },
-      {
-        color: store.revenue > 0 ? 'green' : 'red',
-        icon: 'mdi-purse',
-        title: 'Revenue',
-        value: store.revenue
-      }
-    ],
+    // company: [
+    //   {
+    //     color: store.coins > 0 ? 'yellow' : 'red',
+    //     icon: 'mdi-hand-coin',
+    //     title: 'Coins',
+    //     value: store.coins
+    //   },
+    //   {
+    //     color: store.revenue > 0 ? 'green' : 'red',
+    //     icon: 'mdi-purse',
+    //     title: 'Revenue',
+    //     value: store.revenue
+    //   }
+    // ],
     happiness: [
       {
         color: store.happiness.users > 50 ? 'green' : 'red',
         icon: 'mdi-account',
-        title: 'Users',
+        title: getScoreDisplayDetails('happiness', 'users').title,
         value: store.happiness.users,
         isPercentage: true
       },
       {
         color: store.happiness.devs > 50 ? 'green' : 'red',
         icon: 'mdi-laptop',
-        title: 'Devs',
+        title: getScoreDisplayDetails('happiness', 'devs').title,
         value: store.happiness.devs,
         isPercentage: true
       }
@@ -57,21 +57,21 @@ export function scoreDetails() {
       {
         color: store.system.modularity > 50 ? 'green' : 'white',
         icon: 'mdi-puzzle-outline',
-        title: 'Modularity',
+        title: getScoreDisplayDetails('system', 'modularity').title,
         value: store.system.modularity,
         isPercentage: true
       },
       {
         color: store.system.performance > 50 ? 'green' : 'white',
         icon: 'mdi-clock-outline',
-        title: 'Performance',
+        title: getScoreDisplayDetails('system', 'performance').title,
         value: store.system.performance,
         isPercentage: true
       },
       {
         color: store.system.bounded_contexts > 50 ? 'green' : 'white',
         icon: 'mdi-domain',
-        title: 'Bounded Contexts',
+        title: getScoreDisplayDetails('system', 'bounded_contexts').title,
         value: store.system.bounded_contexts,
         isPercentage: true
       }

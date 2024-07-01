@@ -1,7 +1,7 @@
 <template>
   <div class="game">
     <GameDetailsDialog />
-    <UserCardInfoDialog />
+    <ActionCardInfoDialog />
     <v-row v-if="isGameActive">
       <v-col md="7" sm="7" xs="12">
         <ActionsView />
@@ -18,7 +18,7 @@
 // import { computed, ref } from 'vue'
 import { gameDetails } from '@/use/gameDetails'
 import GameDetailsDialog from '@/components/GameDetailsDialog.vue'
-import UserCardInfoDialog from '@/components/UserCardInfoDialog.vue'
+import ActionCardInfoDialog from '@/components/ActionCardInfoDialog.vue'
 import ActionsView from '@/components/ActionsView.vue'
 import HistoryView from '@/components/HistoryView.vue'
 import ScoreCard from '@/components/ScoreGroupView.vue'
@@ -34,12 +34,14 @@ const scoreCards = [
     color: 'green',
     icon: 'mdi-account-star'
   },
-  {
-    group: 'company',
-    title: 'The company',
-    color: 'purple',
-    icon: 'mdi-map-legend'
-  },
+  // TODO: Coins and revenue will be a future game functionality
+  // Start simple without these
+  // {
+  //   group: 'company',
+  //   title: 'The company',
+  //   color: 'purple',
+  //   icon: 'mdi-map-legend'
+  // },
   {
     group: 'happiness',
     title: 'Happiness',

@@ -29,18 +29,19 @@ export function userCards() {
           }
         },
         per_turn: {
-          turns: 2,
-          cost: 100,
-          happiness: {
-            devs: 10 // getting happier
-          },
-          system: {
-            bounded_contexts: 10
-          },
-          influence: 5
+          turns: [1, 4],
+          effect: {
+            happiness: {
+              devs: 10 // getting happier
+            },
+            system: {
+              bounded_contexts: 10
+            },
+            influence: 5
+          }
         },
         outcome: {
-          wait_turns: 0, // after turns were finished
+          wait_turns: [0], // after turns were finished
           good: {
             msg: ['We found an area where the devs wanted to refactor. A new component is born!'],
             happiness: {
@@ -54,9 +55,7 @@ export function userCards() {
           },
           bad: {
             // There isn't very bad here except no-effect
-            msg: ['The teams will continue thinking about this. Try again soon!'],
-            happiness: {},
-            system: {}
+            msg: ['The teams will continue thinking about this. Try again soon!']
           }
         }
       }
@@ -73,17 +72,18 @@ export function userCards() {
       required_power: 10,
       effect: {
         once: {
+          influence: 10,
           happiness: {
-            devs: -10
+            devs: -10,
+            users: 10 // improve consistency in communication
           }
         },
-        per_turn: {
-          turns: 5,
-          cost: 500,
-          system: {}
-        },
+        // per_turn: {
+        //   turns: [5, 10],
+        //   effect: {}
+        // },
         outcome: {
-          wait_turns: 1, // after turns were finished
+          wait_turns: [0, 1], // after turns were finished
           good: {
             msg: [
               'Conversations are starting to happen with shared understanding of the technical space!'

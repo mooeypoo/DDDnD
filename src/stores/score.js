@@ -41,8 +41,8 @@ export const useScoreStore = defineStore('score', {
     startGame() {
       // TODO: There should be some random initial conditions
       const defaultStart = {
-        coins: 10000,
-        revenue: 100,
+        coins: 0, // TODO: in the future this should count
+        revenue: 0, // TODO: in the future this should count
         system: {
           bounded_contexts: 50,
           modularity: 50,
