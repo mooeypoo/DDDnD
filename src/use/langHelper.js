@@ -33,6 +33,16 @@ export function langHelper() {
         title: 'Bounded contexts',
         icon: { pos: 'mdi-domain', neg: 'mdi-domain' }
       }
+    },
+    _groups: {
+      happiness: {
+        title: 'Happiness',
+        icon: { pos: '', neg: '' }
+      },
+      system: {
+        title: 'System',
+        icon: { pos: '', neg: '' }
+      }
     }
   }
 

@@ -20,7 +20,7 @@
           <v-table density="compact">
             <thead>
               <tr>
-                <td colspan="2" class="text-overline">Immediate effect</td>
+                <td colspan="2" class="text-overline text-pink-lighten-2">One-time effect</td>
               </tr>
             </thead>
             <tbody>
@@ -29,7 +29,9 @@
                 :key="immediate_effect.title"
               >
                 <td class="text-caption">
-                  <span>{{ immediate_effect.group }}</span>
+                  <span v-if="immediate_effect.group">{{
+                    getScoreDisplayDetails('_groups', immediate_effect.group).title
+                  }}</span>
                 </td>
                 <td class="text-caption">
                   <v-icon :icon="immediate_effect.icon.pos" class="mr-1"></v-icon
@@ -37,6 +39,35 @@
                 </td>
                 <td class="text-caption">
                   <span>{{ immediate_effect.value }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+          <v-table density="compact" v-if="getEffectView(userCardDialogCardInfo.effect).recurring">
+            <thead>
+              <tr>
+                <td colspan="2" class="text-pink-lighten-2">
+                  <span class="text-overline">Ongoing effect</span>&nbsp;
+                  <span>({{ getEffectView(userCardDialogCardInfo.effect).num_turns }} turns)</span>
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="ongoing_effect in getEffectView(userCardDialogCardInfo.effect).recurring"
+                :key="ongoing_effect.title"
+              >
+                <td class="text-caption">
+                  <span v-if="ongoing_effect.group">{{
+                    getScoreDisplayDetails('_groups', ongoing_effect.group).title
+                  }}</span>
+                </td>
+                <td class="text-caption">
+                  <v-icon :icon="ongoing_effect.icon.pos" class="mr-1"></v-icon
+                  ><span>{{ ongoing_effect.title }}</span>
+                </td>
+                <td class="text-caption">
+                  <span>{{ ongoing_effect.value }}</span>
                 </td>
               </tr>
             </tbody>
