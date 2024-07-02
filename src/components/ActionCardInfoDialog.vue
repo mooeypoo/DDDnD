@@ -14,7 +14,7 @@
         class="bg-surface-light pt-4 pb-2"
         v-html="userCardDialogCardInfo.long"
       ></v-card-text>
-      <v-card-item class="bg-pink-darken-4 py-0">
+      <v-card-item class="bg-pink-darken-4 pt-0 pb-2">
         <span class="text-overline">Effects</span>
         <v-card-text class="bg-surface-light py-4">
           <v-table density="compact">
