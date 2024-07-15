@@ -5,6 +5,19 @@
         <v-avatar image="./images/logo-small.png" />
       </div>
 
+      <AboutDialog />
+      <!-- <v-btn
+        class="text-none mb-2"
+        prepend-icon="mdi-help-circle-outline"
+        size="x-small"
+        stacked
+        text="About this game"
+        tile
+        variant="text"
+        width="80"
+        to="/about"
+      /> -->
+
       <v-btn
         class="text-none mb-2"
         prepend-icon="mdi-help-circle-outline"
@@ -85,6 +98,7 @@ import { ref } from 'vue'
 import { RouterView } from 'vue-router'
 import InstructionsDialog from '@/components/InstructionsDialog.vue'
 import ResetConfirmationDialog from '@/components/ResetConfirmationDialog.vue'
+import AboutDialog from '@/components/AboutDialog.vue'
 import { userDetails } from '@/use/userDetails'
 import { gameDetails } from '@/use/gameDetails'
 
