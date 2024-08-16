@@ -16,8 +16,8 @@ export function gameDetails() {
 
   // User cards
   const { cards } = userCards()
-  const userCardList = Object.keys(cards)
-  const userCardListByPower = userCardList.sort((a, b) => {
+  const allUserCardsList = Object.keys(cards)
+  const allUserCardsListByPower = allUserCardsList.sort((a, b) => {
     if (cards[a].required_power < cards[b].required_power) return -1
     else if (cards[a].required_power > cards[b].required_power) return 1
     else {
@@ -30,7 +30,7 @@ export function gameDetails() {
   const cardDisplayName = (name) => cards[name].name
   const toggleCard = function (name) {
     // Check the card is valid
-    if (userCardList.indexOf(name) === -1) {
+    if (allUserCardsList.indexOf(name) === -1) {
       return
     }
 
@@ -118,12 +118,12 @@ export function gameDetails() {
     toggleResetDialog,
     isInstructionDialogOpen,
     isResetDialogOpen,
-    userCardChoices,
+    userCardChoices, // Currently chosen cards for the turn
     toggleCard,
     cardDisplayName,
     availablePower,
-    userCardList,
-    userCardListByPower,
+    allUserCardsList,
+    allUserCardsListByPower,
     isUserCardInfoDialogOpen,
     userCardDialogCardName,
     userCardDialogCardInfo,

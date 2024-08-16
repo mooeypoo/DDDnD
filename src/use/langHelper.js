@@ -34,6 +34,9 @@ export function langHelper() {
         icon: { pos: 'mdi-domain', neg: 'mdi-domain' }
       }
     },
+    // Group titles and details
+    // TODO: The object above should really just
+    // include those directly
     _groups: {
       happiness: {
         title: 'Happiness',

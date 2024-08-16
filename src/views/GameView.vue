@@ -4,8 +4,8 @@
     <ActionCardInfoDialog />
     <v-row v-if="isGameActive">
       <v-col md="7" sm="7" xs="12">
-        <ActionsView />
-        <HistoryView />
+        <ActionsBox />
+        <HistoryBox />
       </v-col>
       <v-col md="5" sm="5" xs="12">
         <ScoreCard v-for="card in scoreCards" :key="card.group" v-bind="card" class="mb-4" />
@@ -19,8 +19,8 @@
 import { gameDetails } from '@/use/gameDetails'
 import GameDetailsDialog from '@/components/GameDetailsDialog.vue'
 import ActionCardInfoDialog from '@/components/ActionCardInfoDialog.vue'
-import ActionsView from '@/components/ActionsView.vue'
-import HistoryView from '@/components/HistoryView.vue'
+import ActionsBox from '@/components/ActionsBox.vue'
+import HistoryBox from '@/components/HistoryBox.vue'
 import ScoreCard from '@/components/ScoreGroupView.vue'
 
 // const expand = ref(false)

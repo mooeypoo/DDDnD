@@ -29,7 +29,7 @@
     </v-card-item>
     <v-card-item>
       <v-row>
-        <v-col v-for="cardName in userCardListByPower" :key="cardName" md="4" sm="6" xs="12">
+        <v-col v-for="cardName in allUserCardsListByPower" :key="cardName" md="4" sm="6" xs="12">
           <ActionCard :name="cardName" />
         </v-col>
       </v-row>
@@ -42,7 +42,7 @@ import { computed } from 'vue'
 import ActionCard from '@/components/ActionCard.vue'
 import { gameDetails } from '@/use/gameDetails'
 
-const { availablePower, userCardListByPower, userCardChoices } = gameDetails()
+const { availablePower, allUserCardsListByPower, userCardChoices } = gameDetails()
 
 const powerLevel = computed(() => {
   return Math.round(availablePower.value / 10)
