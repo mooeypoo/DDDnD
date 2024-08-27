@@ -23,13 +23,14 @@ export const useHistoryStore = defineStore('history', {
     reset() {
       this.history = []
     },
-    addLogEntry(actor, desc, effect) {
+    addEntry(actor, type, desc, extra) {
       // Put it in the first position of the array (recent should be first)
       this.history.splice(0, 0, {
         actor,
+        type,
         desc,
         time: Date.now(),
-        effect
+        extra
       })
     }
   }
