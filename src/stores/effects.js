@@ -28,23 +28,25 @@ export const useEffectsStore = defineStore('effects', {
     removeIndexFromDelayed(index) {
       this.delayed.splice(index, 1)
     },
-    addImmediate(type, cardKey, effectGroup, effectName, effectValue) {
+    addImmediate(type, cardKey, effectGroup, effectName, effectValue, extra = {}) {
       this.immediate.push({
         type,
         cardKey,
         effectName,
         effectGroup,
-        effectValue
+        effectValue,
+        extra
       })
     },
-    addOngoing(type, cardKey, effectGroup, effectName, effectValue, turns_left) {
+    addOngoing(type, cardKey, effectGroup, effectName, effectValue, turns_left, extra = {}) {
       this.ongoing.push({
         type,
         cardKey,
         turns_left,
         effectName,
         effectGroup,
-        effectValue
+        effectValue,
+        extra
       })
     },
     addDelayed(type, cardKey, wait_turns, goodOutcomeObj, badOutcomeObj) {

@@ -9,7 +9,7 @@ export function Turns() {
   const scoreStore = useScoreStore()
   const { userCardChoices } = gameDetails()
   const _getRandomWithinRange = (min, max) => {
-    return Math.random() * (max - min) + min
+    return Math.round(Math.random() * (max - min) + min)
   }
   /**
    * Choose whether the outcome is good or bad
@@ -64,19 +64,26 @@ export function Turns() {
           cardKey,
           '', // No group
           groupKey,
-          effectGroup[groupKey]
+          effectGroup[groupKey],
+          turns
         ]
+
+        result.push(params)
       } else {
         // this key has an object. Go over each value
         Object.keys(effectGroup[groupKey]).forEach((subGroupKey) => {
-          params = [actor, cardKey, groupKey, subGroupKey, effectGroup[groupKey][subGroupKey]]
+          params = [
+            actor,
+            cardKey,
+            groupKey,
+            subGroupKey,
+            effectGroup[groupKey][subGroupKey],
+            turns
+          ]
+
+          result.push(params)
         })
       }
-
-      if (turns !== undefined) {
-        params.push(turns)
-      }
-      result.push(params)
     })
 
     return result
@@ -109,7 +116,7 @@ export function Turns() {
     let perTurnNumber = 1
     if (cardEffects.per_turn) {
       perTurnNumber = Array.isArray(cardEffects.per_turn.turns)
-        ? _getRandomWithinRange(cardEffects.per_turn.turns)
+        ? _getRandomWithinRange(...cardEffects.per_turn.turns)
         : 1
 
       _setupEffectStoreParams(actor, cardKey, cardEffects.per_turn, perTurnNumber).forEach(
@@ -123,7 +130,7 @@ export function Turns() {
     if (cardEffects.outcome) {
       const delayedTurnsNumber =
         cardEffects.outcome && Array.isArray(cardEffects.outcome.wait_turns)
-          ? _getRandomWithinRange(cardEffects.outcome.wait_turns)
+          ? _getRandomWithinRange(...cardEffects.outcome.wait_turns)
           : 0
       effectsStore.addDelayed(
         actor,
