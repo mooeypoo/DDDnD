@@ -24,6 +24,7 @@
         size="x-large"
         :color="userCardChoices.length ? 'pink' : ''"
         :variant="userCardChoices.length ? 'elevated' : 'plain'"
+        @click="execute()"
         >Play turn</v-btn
       >
     </v-card-item>
@@ -41,10 +42,16 @@
 import { computed } from 'vue'
 import ActionCard from '@/components/ActionCard.vue'
 import { gameDetails } from '@/use/gameDetails'
+import { Turns } from '@/use/system/Turns'
 
 const { availablePower, allUserCardsListByPower, userCardChoices } = gameDetails()
+const { runTurn } = Turns()
 
 const powerLevel = computed(() => {
   return Math.round(availablePower.value / 10)
 })
+
+const execute = () => {
+  runTurn()
+}
 </script>

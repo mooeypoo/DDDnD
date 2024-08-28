@@ -12,7 +12,7 @@ export function userCards() {
   // domain events
   // x event sourcing
   // model
-  const cards = {
+  const userCardsDetails = {
     eventstorming: {
       name: 'Event Storming',
       title: 'Workshop: Event Storming',
@@ -112,6 +112,6 @@ export function userCards() {
   }
 
   return {
-    cards
+    userCardsDetails
   }
 }

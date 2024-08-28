@@ -15,11 +15,11 @@ export function gameDetails() {
   const historyStore = useHistoryStore()
 
   // User cards
-  const { cards } = userCards()
-  const allUserCardsList = Object.keys(cards)
+  const { userCardsDetails } = userCards()
+  const allUserCardsList = Object.keys(userCardsDetails)
   const allUserCardsListByPower = allUserCardsList.sort((a, b) => {
-    if (cards[a].required_power < cards[b].required_power) return -1
-    else if (cards[a].required_power > cards[b].required_power) return 1
+    if (userCardsDetails[a].required_power < userCardsDetails[b].required_power) return -1
+    else if (userCardsDetails[a].required_power > userCardsDetails[b].required_power) return 1
     else {
       // alphabetically
       if (a < b) return -1
@@ -27,7 +27,7 @@ export function gameDetails() {
       else return 0
     }
   })
-  const cardDisplayName = (name) => cards[name].name
+  const cardDisplayName = (name) => userCardsDetails[name].name
   const toggleCard = function (name) {
     // Check the card is valid
     if (allUserCardsList.indexOf(name) === -1) {
@@ -52,7 +52,7 @@ export function gameDetails() {
     }
   })
 
-  const userCardDialogCardInfo = computed(() => cards[store.userCardDialog.card])
+  const userCardDialogCardInfo = computed(() => userCardsDetails[store.userCardDialog.card])
 
   // Bools
   const isGameActive = computed(() => store.isActive)
@@ -76,10 +76,10 @@ export function gameDetails() {
     store.chosenCards.forEach((item) => {
       if (power < 0) return
 
-      const details = cards[item]
+      const details = userCardsDetails[item]
       if (!details) return
 
-      power -= cards[item].required_power
+      power -= userCardsDetails[item].required_power
     })
 
     return power || 0
