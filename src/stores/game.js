@@ -9,7 +9,8 @@ export const useGameStore = defineStore('game', {
       open: false,
       card: ''
     },
-    chosenCards: []
+    chosenCards: [],
+    turnCount: 0
   }),
   getters: {
     isActive: (state) => !!state.active
@@ -18,6 +19,7 @@ export const useGameStore = defineStore('game', {
     reset() {
       this.toggleActive(false)
       this.chosenCards = []
+      this.turnCount = 0
     },
     toggleActive(isActive) {
       this.active = !!isActive
@@ -27,6 +29,9 @@ export const useGameStore = defineStore('game', {
     },
     setUserCardDialogCard(card) {
       this.userCardDialog.card = card
+    },
+    increaseTurnCount() {
+      this.turnCount++
     }
   }
 })

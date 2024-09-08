@@ -8,6 +8,7 @@ export function Turns() {
   const effectsStore = useEffectsStore()
   const scoreStore = useScoreStore()
   const { userCardChoices } = gameDetails()
+
   const _getRandomWithinRange = (min, max) => {
     return Math.round(Math.random() * (max - min) + min)
   }
@@ -142,7 +143,8 @@ export function Turns() {
     }
   }
 
-  const runTurn = function () {
+  const prepareCards = function (cardNameArray) {
+    cardNameArray = cardNameArray || userCardChoices
     // TODO!!!! Add logging into the history!!
 
     // Operation:
@@ -155,8 +157,8 @@ export function Turns() {
     //   - for per_turn effect, set turns = per_turn.turns[chosen]
     // - ADD 'outcome' TO DELAYED LIST (set turns = outcome.wait_turns + per_turn.turns[chosen])
 
-    // Go over user card choices:
-    userCardChoices.value.forEach((cardKey) => {
+    // Go over card choices:
+    cardNameArray.value.forEach((cardKey) => {
       // Add effects to store
       addCardToEffectQueues('user', cardKey, userCardsDetails[cardKey].effect)
       // TODO: Keep record of the actual card names in play
@@ -215,62 +217,62 @@ export function Turns() {
       effectsStore.removeIndexFromDelayed(i)
     })
 
-    // - Order 'ongoing' in the store by turns_left, ascending
-    effectsStore.sortOngoing()
-    // - Go over each 'ongoing':
-    del = []
-    effectsStore.ongoing.forEach((item, index) => {
-      //    - turns_left = turns_left -1
-      item.turns_left = item.turns_left - 1
-      //    - if turns_left = 0 --> remove from 'ongoing' and add to "immediate"
-      if (item.turns_left <= 0) {
-        effectsStore.addImmediate(
-          item.type,
-          item.cardKey,
-          item.effectName,
-          item.effectGroup,
-          item.effectValue,
-          item.extra
-        )
+    // TODO: REASSESS THE BELOW!!
+    // Ongoing should be applied every turn until it's done
+    // so no need to move it to 'immediate' when turns = 0
+    // unlike delayed!!!
+    // This should just 'clean out' the ongoing ones that run out
 
-        // add to removal list
-        del.push(index)
-      }
-    })
-    // Actually delete from ongoing
-    del.forEach((i) => {
-      effectsStore.removeIndexFromOngoing(i)
-    })
+    // // - Order 'ongoing' in the store by turns_left, ascending
+    // effectsStore.sortOngoing()
+    // // - Go over each 'ongoing':
+    // del = []
+    // effectsStore.ongoing.forEach((item, index) => {
+    //   //    - turns_left = turns_left -1
+    //   item.turns_left = item.turns_left - 1
+    //   //    - if turns_left = 0 --> remove from 'ongoing' and add to "immediate"
+
+    //   // if (item.turns_left <= 0) {
+    //   //   effectsStore.addImmediate(
+    //   //     item.type,
+    //   //     item.cardKey,
+    //   //     item.effectName,
+    //   //     item.effectGroup,
+    //   //     item.effectValue,
+    //   //     item.extra
+    //   //   )
+
+    //     // add to removal list
+    //     del.push(index)
+    //   }
+    // })
+    // // Actually delete from ongoing
+    // del.forEach((i) => {
+    //   effectsStore.removeIndexFromOngoing(i)
+    // })
 
     // At this point, everything should be ready for application:
     // - Ongoing and Delayed are updated.
     // - Whatever came from delayed has an 'extra' info object
     // - Immediate contains all the effects that should apply in this turn
+  }
 
+  const applyTurnEffects = () => {
     // Apply user card from the 'immediate' list
     // - Go over each 'immediate', and apply the effect
     // - clear 'immediate' list.
-
+    // Apply cards from 'ongoing' list
+    // - Go over each 'ongoing'
+    //   - Check turns > 0 and apply the effect
+    //   - Change ongoing turns = turns - 1
+    // - Go over the entire 'ongoing' list and remove all that have turns >= 0
     // FIN
+  }
 
-    //
-    // ## MODIFIERS
-    // - GET EXISTING MODIFIERS
-    //
-    // ## OUTCOMES
-    // PROCESS OUTCOME LIST:
-    // - Foreach outcome, decrease turns
-    // - If turns = 0
-    //      - run randomizer --> 'positive' or 'negative' result
-    //      - adjust with 'influence' for positive/negative
-    //      - add effect (either positive or negative) to ONGOING with turns = 1
-    //
-    // ## APPLY
-    // GO OVER AND APPLY ONGOING LIST
-    // - APPLY ALL ONGOING + MODIFIERS
-    // - REDUCE TURNS -1
-    // - IF TURNS=0 REMOVE FROM ONGOING
-    //
+  // TODO: Add modifiers (this should be done in the beginning so it can apply to whatever we add to the 'immediate' list)
+
+  // TODO: Add system card
+  const decideAndApplySystemCard = () => {
     // ## SYSTEM CARDS (RANDOM events)
     // - run randomizer to decide if there's a random event this turn
     // - if there is, randomize which card the system uses
@@ -278,6 +280,7 @@ export function Turns() {
   }
 
   return {
-    runTurn
+    prepareCards
+    // applyImmediateEffects
   }
 }

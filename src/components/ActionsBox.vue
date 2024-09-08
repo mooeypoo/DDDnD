@@ -44,14 +44,30 @@ import ActionCard from '@/components/ActionCard.vue'
 import { gameDetails } from '@/use/gameDetails'
 import { Turns } from '@/use/system/Turns'
 
-const { availablePower, allUserCardsListByPower, userCardChoices } = gameDetails()
-const { runTurn } = Turns()
+const { availablePower, allUserCardsListByPower, userCardChoices, increaseTurnCount } =
+  gameDetails()
+const { prepareCards } = Turns()
 
 const powerLevel = computed(() => {
   return Math.round(availablePower.value / 10)
 })
 
 const execute = () => {
-  runTurn()
+  // Prepare and process the current card choices for the user
+  prepareCards(userCardChoices)
+
+  // Apply effects for chosen cards
+
+  // Choose system action
+  // Display system action choice
+  // Process system card(s)
+  // Apply effects for system cards
+
+  // Check whether there are specific turn effects (per turn number)
+
+  // Count another turn
+  increaseTurnCount()
+
+  // Re-enable next turn: reset user choice cards + re-enable the button
 }
 </script>
