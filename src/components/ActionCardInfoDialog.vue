@@ -25,12 +25,12 @@
             </thead>
             <tbody>
               <tr
-                v-for="immediate_effect in getEffectView(userCardDialogCardInfo.effect).once"
+                v-for="immediate_effect in getCardEffectView(userCardDialogCardInfo.effect).once"
                 :key="immediate_effect.title"
               >
                 <td class="text-caption">
                   <span v-if="immediate_effect.group">{{
-                    getScoreDisplayDetails('_groups', immediate_effect.group).title
+                    getScoreDisplayLabel('_groups', immediate_effect.group).title
                   }}</span>
                 </td>
                 <td class="text-caption">
@@ -43,23 +43,28 @@
               </tr>
             </tbody>
           </v-table>
-          <v-table density="compact" v-if="getEffectView(userCardDialogCardInfo.effect).recurring">
+          <v-table
+            density="compact"
+            v-if="getCardEffectView(userCardDialogCardInfo.effect).recurring"
+          >
             <thead>
               <tr>
                 <td colspan="2" class="text-pink-lighten-2">
                   <span class="text-overline">Ongoing effect</span>&nbsp;
-                  <span>({{ getEffectView(userCardDialogCardInfo.effect).num_turns }} turns)</span>
+                  <span
+                    >({{ getCardEffectView(userCardDialogCardInfo.effect).num_turns }} turns)</span
+                  >
                 </td>
               </tr>
             </thead>
             <tbody>
               <tr
-                v-for="ongoing_effect in getEffectView(userCardDialogCardInfo.effect).recurring"
+                v-for="ongoing_effect in getCardEffectView(userCardDialogCardInfo.effect).recurring"
                 :key="ongoing_effect.title"
               >
                 <td class="text-caption">
                   <span v-if="ongoing_effect.group">{{
-                    getScoreDisplayDetails('_groups', ongoing_effect.group).title
+                    getScoreDisplayLabel('_groups', ongoing_effect.group).title
                   }}</span>
                 </td>
                 <td class="text-caption">
@@ -91,61 +96,11 @@
 
 <script setup>
 import { gameDetails } from '@/use/gameDetails'
+import { effectDetails } from '@/use/effectDetails'
 import { langHelper } from '@/use/langHelper'
 
-const { getScoreDisplayDetails } = langHelper()
+const { getScoreDisplayLabel } = langHelper()
 const { isUserCardInfoDialogOpen, userCardDialogCardInfo, toggleUserCardDialog, cardDefinition } =
   gameDetails()
-
-const getEffectView = function (cardEffectObj) {
-  if (!cardEffectObj) return []
-  if (!userCardDialogCardInfo) return []
-
-  const output = {
-    once: [],
-    recurring: null,
-    num_turns: null
-  }
-
-  if (cardEffectObj.once) {
-    output.once = _getOutputViewArr(cardEffectObj.once)
-  }
-
-  if (cardEffectObj.per_turn && cardEffectObj.per_turn.effect) {
-    output.recurring = _getOutputViewArr(cardEffectObj.per_turn.effect)
-    // Add the range of turns
-    output.num_turns = Array.isArray(cardEffectObj.per_turn.turns)
-      ? cardEffectObj.per_turn.turns.join(' - ')
-      : cardEffectObj.per_turn.turns
-  }
-
-  return output
-}
-
-const _getOutputViewArr = (obj) => {
-  const output = []
-  Object.keys(obj).forEach((groupKey) => {
-    const groupContent = obj[groupKey]
-    if (typeof groupContent === 'object') {
-      // this is a group that has subitems.
-      // go over the sub items
-      Object.keys(groupContent).forEach((key) => {
-        output.push({
-          group: groupKey,
-          ...getScoreDisplayDetails(groupKey, key),
-          value: groupContent[key]
-        })
-      })
-    } else {
-      // this is a direct item without a group
-      output.push({
-        group: null,
-        ...getScoreDisplayDetails('', groupKey),
-        value: groupContent
-      })
-    }
-  })
-
-  return output
-}
+const { getCardEffectView } = effectDetails()
 </script>

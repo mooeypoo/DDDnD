@@ -5,6 +5,7 @@
         <v-avatar image="./images/logo-small.png" />
       </div>
 
+      <TurnSummaryDialog />
       <AboutDialog />
       <!-- <v-btn
         class="text-none mb-2"
@@ -99,6 +100,7 @@ import { RouterView } from 'vue-router'
 import InstructionsDialog from '@/components/InstructionsDialog.vue'
 import ResetConfirmationDialog from '@/components/ResetConfirmationDialog.vue'
 import AboutDialog from '@/components/AboutDialog.vue'
+import TurnSummaryDialog from '@/components/TurnSummaryDialog.vue'
 import { userDetails } from '@/use/userDetails'
 import { gameDetails } from '@/use/gameDetails'
 

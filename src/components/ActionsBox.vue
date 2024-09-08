@@ -44,8 +44,13 @@ import ActionCard from '@/components/ActionCard.vue'
 import { gameDetails } from '@/use/gameDetails'
 import { Turns } from '@/use/system/Turns'
 
-const { availablePower, allUserCardsListByPower, userCardChoices, increaseTurnCount } =
-  gameDetails()
+const {
+  availablePower,
+  allUserCardsListByPower,
+  userCardChoices,
+  increaseTurnCount,
+  toggleTurnSummaryDialog
+} = gameDetails()
 const { prepareCards } = Turns()
 
 const powerLevel = computed(() => {
@@ -53,6 +58,7 @@ const powerLevel = computed(() => {
 })
 
 const execute = () => {
+  toggleTurnSummaryDialog(true)
   // Prepare and process the current card choices for the user
   prepareCards(userCardChoices)
 

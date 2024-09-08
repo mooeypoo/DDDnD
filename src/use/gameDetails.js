@@ -27,6 +27,9 @@ export function gameDetails() {
       else return 0
     }
   })
+  const increaseTurnCount = () => {
+    store.increaseTurnCount()
+  }
   const cardDisplayName = (name) => userCardsDetails[name].name
   const toggleCard = function (name) {
     // Check the card is valid
@@ -51,7 +54,6 @@ export function gameDetails() {
       store.setUserCardDialogCard(cardName)
     }
   })
-
   const userCardDialogCardInfo = computed(() => userCardsDetails[store.userCardDialog.card])
 
   // Bools
@@ -59,6 +61,7 @@ export function gameDetails() {
   const isInstructionDialogOpen = computed(() => store.instructionDialog)
   const isResetDialogOpen = computed(() => store.resetDialog)
   const isUserCardInfoDialogOpen = computed(() => store.userCardDialog.open)
+  const isTurnSummaryDialogOpen = computed(() => store.turnSummaryDialog)
 
   // Computed
   const userCardChoices = computed({
@@ -90,6 +93,10 @@ export function gameDetails() {
     store.instructionDialog = !store.instructionDialog
   }
 
+  const toggleTurnSummaryDialog = function () {
+    store.toggleTurnSummaryDialog()
+  }
+
   const toggleResetDialog = function () {
     store.resetDialog = !store.resetDialog
   }
@@ -115,6 +122,7 @@ export function gameDetails() {
     isGameActive,
     setGameActive,
     toggleInstructionDialog,
+    toggleTurnSummaryDialog,
     toggleResetDialog,
     isInstructionDialogOpen,
     isResetDialogOpen,
@@ -125,8 +133,10 @@ export function gameDetails() {
     allUserCardsList,
     allUserCardsListByPower,
     isUserCardInfoDialogOpen,
+    isTurnSummaryDialogOpen,
     userCardDialogCardName,
     userCardDialogCardInfo,
-    toggleUserCardDialog
+    toggleUserCardDialog,
+    increaseTurnCount
   }
 }

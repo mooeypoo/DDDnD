@@ -1,3 +1,4 @@
+import TurnSummaryDialog from '@/components/TurnSummaryDialog.vue'
 import { defineStore } from 'pinia'
 
 export const useGameStore = defineStore('game', {
@@ -9,6 +10,7 @@ export const useGameStore = defineStore('game', {
       open: false,
       card: ''
     },
+    turnSummaryDialog: false,
     chosenCards: [],
     turnCount: 0
   }),
@@ -26,6 +28,10 @@ export const useGameStore = defineStore('game', {
     },
     toggleResetConfirmationDialog(isActive) {
       this.resetDialog = !!isActive
+    },
+    toggleTurnSummaryDialog(isActive) {
+      isActive = isActive || !this.turnSummaryDialog
+      this.turnSummaryDialog = !!isActive
     },
     setUserCardDialogCard(card) {
       this.userCardDialog.card = card

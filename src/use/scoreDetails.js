@@ -3,7 +3,7 @@ import { useScoreStore } from '@/stores/score'
 import { langHelper } from '@/use/langHelper'
 export function scoreDetails() {
   const store = useScoreStore()
-  const { getScoreDisplayDetails } = langHelper()
+  const { getScoreDisplayLabel } = langHelper()
   const isGameActive = computed(() => store.isGameActive)
 
   const gameStatsForView = computed(() => ({
@@ -11,14 +11,14 @@ export function scoreDetails() {
       {
         color: store.user_power > 50 ? 'green' : 'white',
         icon: store.user_power > 50 ? 'mdi-star-face' : 'mdi-star',
-        title: getScoreDisplayDetails('', 'user_power').title,
+        title: getScoreDisplayLabel('', 'user_power').title,
         value: store.user_power,
         isPercentage: true
       },
       {
         color: store.influence > 50 ? 'green' : 'white',
         icon: 'mdi-access-point',
-        title: getScoreDisplayDetails('', 'influence').title,
+        title: getScoreDisplayLabel('', 'influence').title,
         value: store.influence,
         isPercentage: true
       }
@@ -41,14 +41,14 @@ export function scoreDetails() {
       {
         color: store.happiness.users > 50 ? 'green' : 'red',
         icon: 'mdi-account',
-        title: getScoreDisplayDetails('happiness', 'users').title,
+        title: getScoreDisplayLabel('happiness', 'users').title,
         value: store.happiness.users,
         isPercentage: true
       },
       {
         color: store.happiness.devs > 50 ? 'green' : 'red',
         icon: 'mdi-laptop',
-        title: getScoreDisplayDetails('happiness', 'devs').title,
+        title: getScoreDisplayLabel('happiness', 'devs').title,
         value: store.happiness.devs,
         isPercentage: true
       }
@@ -57,21 +57,21 @@ export function scoreDetails() {
       {
         color: store.system.modularity > 50 ? 'green' : 'white',
         icon: 'mdi-puzzle-outline',
-        title: getScoreDisplayDetails('system', 'modularity').title,
+        title: getScoreDisplayLabel('system', 'modularity').title,
         value: store.system.modularity,
         isPercentage: true
       },
       {
         color: store.system.performance > 50 ? 'green' : 'white',
         icon: 'mdi-clock-outline',
-        title: getScoreDisplayDetails('system', 'performance').title,
+        title: getScoreDisplayLabel('system', 'performance').title,
         value: store.system.performance,
         isPercentage: true
       },
       {
         color: store.system.bounded_contexts > 50 ? 'green' : 'white',
         icon: 'mdi-domain',
-        title: getScoreDisplayDetails('system', 'bounded_contexts').title,
+        title: getScoreDisplayLabel('system', 'bounded_contexts').title,
         value: store.system.bounded_contexts,
         isPercentage: true
       }

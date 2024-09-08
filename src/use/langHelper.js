@@ -49,7 +49,7 @@ export function langHelper() {
     }
   }
 
-  const getScoreDisplayDetails = (group, scoreName) => {
+  const getScoreDisplayLabel = (group, scoreName) => {
     // No group given, empty group -- means top level
     if (!group) {
       return scoreViewDetails[scoreName]
@@ -63,6 +63,6 @@ export function langHelper() {
   }
 
   return {
-    getScoreDisplayDetails
+    getScoreDisplayLabel
   }
 }
