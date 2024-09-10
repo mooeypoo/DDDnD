@@ -55,6 +55,10 @@ export function gameDetails() {
     }
   })
   const userCardDialogCardInfo = computed(() => userCardsDetails[store.userCardDialog.card])
+  const userCardDetailsByName = function (name) {
+    // Check the card is valid
+    return { key: name, ...userCardsDetails[name] } || {}
+  }
 
   // Bools
   const isGameActive = computed(() => store.isActive)
@@ -136,6 +140,7 @@ export function gameDetails() {
     isTurnSummaryDialogOpen,
     userCardDialogCardName,
     userCardDialogCardInfo,
+    userCardDetailsByName,
     toggleUserCardDialog,
     increaseTurnCount
   }
