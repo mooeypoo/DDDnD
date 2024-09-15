@@ -1,8 +1,8 @@
 import viewDefinitions from './definitions/viewDefinitions'
 
 export function ViewManager() {
-  const _getRelevantViewData = (stateContext, groupKey, elementKey) => {
-    const context = viewDefinitions[stateContext]
+  const _getRelevantViewData = (type, groupKey, elementKey) => {
+    const context = viewDefinitions[type]
 
     if (!context) return ''
 
@@ -19,17 +19,46 @@ export function ViewManager() {
     // Otherwise, return the whole child chain
     return context[groupKey] && context[groupKey].children && context[groupKey].children[elementKey]
   }
+  /**
+   * Return the details of the element requested
+   *
+   * @param {String} type Definition type: 'player', 'score'
+   * @param {String} groupKey The group key for this element. Empty if it's an element without children
+   * @param {String} elementKey The element key
+   * @returns Element details object
+   */
+  const getDetails = (type, groupKey, elementKey) => {
+    return _getRelevantViewData(type, groupKey, elementKey)
+  }
 
-  const getLabel = (stateContext, groupKey, elementKey) => {
-    const data = _getRelevantViewData(stateContext, groupKey, elementKey)
+  /**
+   * Return the label of the element requested
+   *
+   * @param {String} type Definition type: 'player', 'score'
+   * @param {String} groupKey The group key for this element. Empty if it's an element without children
+   * @param {String} elementKey The element key
+   * @returns Element label
+   */
+  const getLabel = (type, groupKey, elementKey) => {
+    const data = _getRelevantViewData(type, groupKey, elementKey)
     return data && data.title
   }
-  const getIcon = (stateContext, groupKey, elementKey) => {
-    const data = _getRelevantViewData(stateContext, groupKey, elementKey)
+
+  /**
+   * Return the icon of the element requested
+   *
+   * @param {String} type Definition type: 'player', 'score'
+   * @param {String} groupKey The group key for this element. Empty if it's an element without children
+   * @param {String} elementKey The element key
+   * @returns Element icon
+   */
+  const getIcon = (type, groupKey, elementKey) => {
+    const data = _getRelevantViewData(type, groupKey, elementKey)
     return data && data.icon
   }
 
   return {
+    getDetails,
     getLabel,
     getIcon
   }

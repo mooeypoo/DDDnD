@@ -12,7 +12,7 @@
 // x event sourcing
 // model
 
-const playerCards = {
+const dddPlayerCards = {
   eventstorming: {
     meta: {
       title: { short: 'Event Storming', long: 'Workshop: Event Storming' },
@@ -196,4 +196,4 @@ const playerCards = {
   //   }
 }
 
-export default playerCards
+export default dddPlayerCards
