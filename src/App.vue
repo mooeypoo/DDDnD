@@ -28,20 +28,40 @@
       </v-menu>
     </v-app-bar>
     <v-main class="ma-2">
-      <ScoreBox title="A score box" />
+      <ScoreBox group="happiness" />
+      <ScoreBox group="system" />
     </v-main>
   </v-app>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+// import { ref } from 'vue'
 import ScoreBox from '@/components/ScoreBox.vue'
 // import { storeToRefs } from 'pinia'
 // const drawer = ref(true)
 </script>
+<style lang="scss">
+@import url('https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
-<style>
 .v-application {
+  font-family: 'Kode Mono', monospace;
   background: url('/images/background.png');
+  font-weight: 400;
+  font-style: normal;
+}
+// <uniquifier>: Use a unique and descriptive class name
+// <weight>: Use a value from 400 to 700
+
+.kode-mono-terminal {
+  font-family: 'Kode Mono', monospace;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+.font-terminal {
+  font-family: 'VT323', monospace;
+  font-weight: 400;
+  font-style: normal;
 }
 </style>

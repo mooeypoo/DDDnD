@@ -1,11 +1,15 @@
 <template>
   <v-card variant="elevated" class="mx-auto">
-    <v-card-item :class="`bg-${props.color}`">
-      <v-card-title>{{ props.title }}</v-card-title>
-      <v-card-subtitle v-if="props.subtitle">{{ props.subtitle }}</v-card-subtitle>
+    <v-card-item :class="`bg-${titleColor}`">
+      <v-card-title>{{ details.label }}</v-card-title>
+      <!-- <v-card-subtitle v-if="props.subtitle">{{ props.subtitle }}</v-card-subtitle> -->
     </v-card-item>
-    <v-card-item>
-      <ScoreLine group="happiness" element="devs" />
+    <v-card-item class="bg-secondary pt-4 d-flex justify-space-between">
+      <v-row>
+        <v-col v-for="elementKey in details.children" :key="elementKey">
+          <ScoreLine :group="props.group" :element="elementKey" />
+        </v-col>
+      </v-row>
     </v-card-item>
     <v-card-text class="bg-secondary pt-4">
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est
@@ -16,12 +20,17 @@
 
 <script setup>
 import ScoreLine from './ScoreLine.vue'
-const rawProps = defineProps(['color', 'title', 'subtitle', 'icon'])
+import { scoreDetails } from '@/use/scoreDetails'
+const { getScoreGroupDisplayDetails } = scoreDetails()
 
-const props = {
-  color: rawProps.color || 'pink',
-  title: rawProps.title || 'Score',
-  subtitle: rawProps.subtitle,
-  icon: rawProps.icon
-}
+const props = defineProps(['group'])
+// const props = {
+//   color: rawProps.color || 'pink',
+//   title: rawProps.title || 'Score',
+//   subtitle: rawProps.subtitle,
+//   icon: rawProps.icon
+// }
+
+const details = getScoreGroupDisplayDetails(props.group)
+const titleColor = props.color || details.color || 'pink'
 </script>

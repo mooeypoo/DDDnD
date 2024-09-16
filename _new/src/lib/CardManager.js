@@ -1,7 +1,7 @@
 import dddPlayerCards from './definitions/ddd/playerCards'
 import dddSystemCards from './definitions/ddd/systemCards'
 
-export function CardManager() {
+export default function CardManager() {
   /**
    * Provide the correct deck of cards. This allows the game to expand to use
    * different sets of cards beyond the initial DDD-terminology specific ones.

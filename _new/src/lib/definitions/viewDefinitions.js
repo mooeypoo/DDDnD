@@ -1,43 +1,43 @@
 const viewDefinitions = {
   player: {
     user_power: {
-      title: 'Power',
+      label: 'Power',
       icon: { pos: 'mdi-star-face', neg: 'mdi-star' }
     },
     influence: {
-      title: 'Influence',
+      label: 'Influence',
       icon: { pos: 'mdi-access-point', neg: 'mdi-access-point' }
     }
   },
   score: {
     happiness: {
-      title: 'Happiness',
+      label: 'Happiness',
       icon: { pos: '', neg: '' },
       children: {
         users: {
-          title: 'Users',
+          label: 'Users',
           icon: { pos: 'mdi-account', neg: 'mdi-account' }
         },
         devs: {
-          title: 'Devs',
+          label: 'Devs',
           icon: { pos: 'mdi-laptop', neg: 'mdi-laptop' }
         }
       }
     },
     system: {
-      title: 'System',
+      label: 'System',
       icon: { pos: '', neg: '' },
       children: {
         modularity: {
-          title: 'Modularity',
+          label: 'Modularity',
           icon: { pos: 'mdi-puzzle-outline', neg: 'mdi-puzzle-outline' }
         },
         performance: {
-          title: 'Performance',
+          label: 'Performance',
           icon: { pos: 'mdi-clock-outline', neg: 'mdi-clock-outline' }
         },
         bounded_contexts: {
-          title: 'Bounded contexts',
+          label: 'Bounded contexts',
           icon: { pos: 'mdi-domain', neg: 'mdi-domain' }
         }
       }

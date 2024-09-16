@@ -1,6 +1,7 @@
+debugger
 import viewDefinitions from './definitions/viewDefinitions'
 
-export function ViewManager() {
+export default function ViewManager() {
   const _getRelevantViewData = (type, groupKey, elementKey) => {
     const context = viewDefinitions[type]
 

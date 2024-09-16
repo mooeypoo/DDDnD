@@ -29,16 +29,18 @@ export const useScoreStore = defineStore('score', {
     }
   }),
   getters: {
-    getElementValue(group, element) {
-      if (group && element) {
-        return this[group][element]
-      }
+    getElementValue: (state) => {
+      return (group, element) => {
+        if (group && element) {
+          return state[group][element]
+        }
 
-      if (element) {
-        return this[element]
-      }
+        if (element) {
+          return state[element]
+        }
 
-      return null
+        return null
+      }
     }
   },
   actions: {
