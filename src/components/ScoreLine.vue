@@ -1,12 +1,12 @@
 <template>
-  <v-card min-width="300">
+  <v-card min-width="300" color="secondary">
     <v-card-item class="pb-0 kode-mono-terminal">
       <v-row>
         <v-col class="flex-grow-1 flex-shrink-0 text-caption kode-mono-terminal">{{
           details.label
         }}</v-col>
         <v-col class="d-flex justify-end">
-          <v-chip size="x-small" color="green" class="mx-2">
+          <!-- <v-chip size="x-small" color="green" class="mx-2">
             +5
             <v-tooltip activator="parent" class="kode-mono-terminal"
               >Source card | 5 turns</v-tooltip
@@ -17,7 +17,7 @@
             <v-tooltip activator="parent" class="kode-mono-terminal"
               >Source card | 5 turns</v-tooltip
             >
-          </v-chip>
+          </v-chip> -->
         </v-col>
       </v-row>
     </v-card-item>

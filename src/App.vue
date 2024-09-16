@@ -28,8 +28,10 @@
       </v-menu>
     </v-app-bar>
     <v-main class="ma-2">
-      <ScoreBox group="happiness" />
-      <ScoreBox group="system" />
+      <v-row>
+        <v-col><ScoreBox group="happiness" /></v-col>
+        <v-col><ScoreBox group="system" /></v-col>
+      </v-row>
     </v-main>
   </v-app>
 </template>

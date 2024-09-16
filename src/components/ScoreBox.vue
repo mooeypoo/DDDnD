@@ -1,20 +1,26 @@
 <template>
   <v-card variant="elevated" class="mx-auto">
     <v-card-item :class="`bg-${titleColor}`">
-      <v-card-title>{{ details.label }}</v-card-title>
+      <v-row>
+        <v-col
+          ><v-card-title>{{ details.label }}</v-card-title></v-col
+        >
+        <v-col v-if="details.icon" class="text-right"><v-icon :icon="details.icon" /></v-col>
+      </v-row>
+
       <!-- <v-card-subtitle v-if="props.subtitle">{{ props.subtitle }}</v-card-subtitle> -->
     </v-card-item>
-    <v-card-item class="bg-secondary pt-4 d-flex justify-space-between">
+    <v-card-item class="bg-surface pt-4 d-flex justify-space-between">
       <v-row>
         <v-col v-for="elementKey in details.children" :key="elementKey">
           <ScoreLine :group="props.group" :element="elementKey" />
         </v-col>
       </v-row>
     </v-card-item>
-    <v-card-text class="bg-secondary pt-4">
+    <!-- <v-card-text class="bg-secondary pt-4">
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est
       labore voluptatibus!
-    </v-card-text>
+    </v-card-text> -->
   </v-card>
 </template>
 
