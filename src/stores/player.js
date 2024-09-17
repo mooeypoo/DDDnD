@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 const defaults = {
+  name: '',
+  character: '',
   power: 10,
   influence: 10
 }

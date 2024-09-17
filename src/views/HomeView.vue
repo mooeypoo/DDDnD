@@ -19,8 +19,6 @@
 
 <script setup>
 import { RouterLink } from 'vue-router'
-// import { scoreDetails } from '@/use/scoreDetails'
-// const { isGameStarted } = scoreDetails()
 </script>
 
 <style lang="scss"></style>
