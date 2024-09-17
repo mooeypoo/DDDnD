@@ -45,8 +45,8 @@
   </v-row>
 </template>
 <script setup>
-import { scoreDetails } from '@/use/scoreDetails'
-const { getScoreElementDisplayDetails } = scoreDetails()
+import { useScoreAbstraction } from '@/use/scoreAbstraction'
+const { getScoreElementDisplayDetails } = useScoreAbstraction()
 
 // This should identify the element in ViewManager and in the store
 const props = defineProps(['group', 'element'])

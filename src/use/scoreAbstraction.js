@@ -2,7 +2,7 @@ import { computed } from 'vue'
 import { useScoreStore } from '@/stores/score'
 import { ViewManager } from '@/lib/ViewManager'
 
-export function scoreDetails() {
+export function useScoreAbstraction() {
   const scoreStore = useScoreStore()
   const { getViewDetails } = ViewManager()
 
