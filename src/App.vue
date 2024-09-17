@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar color="secondary" image="/images/backgrounds/appbar2.png">
+    <v-app-bar color="secondary" image="/images/backgrounds/appbar2.png" class="px-2">
       <v-menu min-width="200px" rounded>
         <template v-slot:activator="{ props }">
           <v-btn icon v-bind="props">
@@ -26,6 +26,8 @@
           </v-card-text> -->
         </v-card>
       </v-menu>
+      <v-spacer />
+      <PlayerPower power="10" swords="5" />
     </v-app-bar>
     <v-main class="ma-2">
       <v-row>
@@ -39,6 +41,7 @@
 <script setup>
 // import { ref } from 'vue'
 import ScoreBox from '@/components/ScoreBox.vue'
+import PlayerPower from './components/PlayerPower.vue'
 // import { storeToRefs } from 'pinia'
 // const drawer = ref(true)
 </script>

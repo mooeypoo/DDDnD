@@ -11,11 +11,7 @@
       <!-- <v-card-subtitle v-if="props.subtitle">{{ props.subtitle }}</v-card-subtitle> -->
     </v-card-item>
     <v-card-item v-for="elementKey in details.children" :key="elementKey" class="bg-surface">
-      <!-- <v-row>
-        <v-col v-for="elementKey in details.children" :key="elementKey" class="pt-0"> -->
       <ScoreLine :group="props.group" :element="elementKey" />
-      <!-- </v-col>
-      </v-row> -->
     </v-card-item>
     <!-- <v-card-text class="bg-secondary pt-4">
       Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est
