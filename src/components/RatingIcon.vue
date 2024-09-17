@@ -1,12 +1,14 @@
 <template>
   <v-avatar :size="size" :color="bgcolor" class="mr-1"
-    ><v-icon :size="iconSize" :color="color">mdi-sword</v-icon></v-avatar
+    ><v-icon :size="iconSize" :color="color">{{ icon }}</v-icon></v-avatar
   >
 </template>
 
 <script setup>
-const props = defineProps(['state', 'size'])
+const props = defineProps(['state', 'size', 'icon'])
 const size = props.size || 'x-small'
+const icon = props.icon || 'mdi-sword'
+
 let iconSize = props.size || 'x-small'
 if (!isNaN(size)) {
   iconSize = size - 4

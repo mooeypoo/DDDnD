@@ -27,7 +27,8 @@
         </v-card>
       </v-menu>
       <v-spacer />
-      <PlayerPower power="10" swords="5" />
+      <RatingBox value="20" numOfIcons="5" title="Player Power" icon="mdi-star" class="mr-2" />
+      <RatingBox value="50" numOfIcons="5" title="Player Influence" />
     </v-app-bar>
     <v-main class="ma-2">
       <v-row>
@@ -41,7 +42,7 @@
 <script setup>
 // import { ref } from 'vue'
 import ScoreBox from '@/components/ScoreBox.vue'
-import PlayerPower from './components/PlayerPower.vue'
+import RatingBox from './components/RatingBox.vue'
 // import { storeToRefs } from 'pinia'
 // const drawer = ref(true)
 </script>
