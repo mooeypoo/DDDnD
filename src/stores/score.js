@@ -34,16 +34,25 @@ export const useScoreStore = defineStore('score', {
         if (group && element) {
           return state[group][element]
         }
-
         if (element) {
           return state[element]
         }
-
         return null
       }
     }
   },
   actions: {
+    // getElementValue(group, element) {
+    //   if (group && element) {
+    //     return this[group][element]
+    //   }
+
+    //   if (element) {
+    //     return this[element]
+    //   }
+
+    //   return null
+    // },
     reset() {
       // reset to defaults
       Object.keys(defaults).forEach((key) => {

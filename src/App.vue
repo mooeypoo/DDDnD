@@ -52,9 +52,8 @@ import ScoreBox from '@/components/ScoreBox.vue'
   font-weight: 400;
   font-style: normal;
 }
-// <uniquifier>: Use a unique and descriptive class name
-// <weight>: Use a value from 400 to 700
 
+// FONTS
 .kode-mono-terminal {
   font-family: 'Kode Mono', monospace;
   font-optical-sizing: auto;
@@ -65,5 +64,18 @@ import ScoreBox from '@/components/ScoreBox.vue'
   font-family: 'VT323', monospace;
   font-weight: 400;
   font-style: normal;
+}
+
+html {
+  font-size: 90%;
+  @media only screen and (min-width: 600px) {
+    font-size: 94%;
+  }
+  @media only screen and (min-width: 1000px) {
+    font-size: 98%;
+  }
+  @media only screen and (min-width: 1200px) {
+    font-size: 100%;
+  }
 }
 </style>
