@@ -12,9 +12,16 @@ export function useGameAbstraction() {
     gameStore.reset()
   }
 
+  const getTurnCount = computed(() => gameStore.getTurnCount)
+  const increaseTurn = function () {
+    gameStore.increaseTurn()
+  }
+
   return {
     resetGame,
     isGameActive,
-    setGameActive
+    setGameActive,
+    getTurnCount,
+    increaseTurn
   }
 }

@@ -71,6 +71,7 @@ const startGame = () => {
   } else {
     console.log('game is not active, start a new game')
     setGameActive()
+    drawer.value = false
   }
 }
 
