@@ -1,7 +1,10 @@
 <template>
   <v-app>
     <v-app-bar color="secondary" image="/images/backgrounds/appbar2.png" class="px-2">
-      <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon
+        variant="text"
+        @click.stop="sidedrawer = !sidedrawer"
+      ></v-app-bar-nav-icon>
 
       <v-avatar size="x-large">
         <v-img alt="DDDnD" src="/images/logo/dddnd.png"></v-img>
@@ -19,62 +22,28 @@
         </v-col>
       </v-row>
     </v-main>
-    <v-navigation-drawer v-model="drawer" temporary>
-      <v-card>
-        <v-card-item>
-          <v-img alt="DDDnD logo" height="150" src="/images/logo/logo-128px.png"></v-img>
-          <div class="mx-auto text-center">
-            <p class="text-caption mt-1">A systems architecture adventure!</p>
-          </div>
-        </v-card-item>
-        <v-card-item class="d-flex justify-center">
-          <!-- START/RESTART GAME BUTTON -->
-          <v-btn
-            color="gray"
-            variant="outlined"
-            @click="startGame()"
-            :text="isGameActive ? 'RESTART GAME' : 'START GAME'"
-          ></v-btn>
-        </v-card-item>
-        <v-card-item> </v-card-item>
+    <MainSideDrawer v-model="sidedrawer" />
+    <!-- bottom drawer -->
+    <v-navigation-drawer location="bottom" v-model="bottomdrawer" temporary>
+      <v-card color="pink">
+        <v-card-title @click.stop="bottomdrawer = !bottomdrawer">
+          <!-- <v-btn @click.stop="bottomdrawer = !bottomdrawer">Close</v-btn> -->
+          Card list
+        </v-card-title>
       </v-card>
-      <v-divider />
-      <v-list density="compact" nav>
-        <v-list-subheader>INFORMATION</v-list-subheader>
-        <v-list-item
-          prepend-icon="mdi-book-open-variant-outline"
-          title="Instructions"
-          value="instructions"
-        ></v-list-item>
 
-        <v-spacer />
-        <v-list-subheader>CREDITS</v-list-subheader>
-        <v-list-item
-          link
-          title="View source code"
-          value="code"
-          href="https://github.com/mooeypoo/dddnd"
-          target="_blank"
-        >
-          <template v-slot:prepend>
-            <v-avatar size="small"><v-icon size="x-large">mdi-github</v-icon></v-avatar>
-          </template></v-list-item
-        >
-        <v-list-item
-          link
-          title="Made by Moriel"
-          value="moriel"
-          href="https://moriel.tech"
-          target="_blank"
-        >
-          <template v-slot:prepend>
-            <v-avatar size="small"><v-img src="/images/moriel-100px.png" /></v-avatar>
-          </template>
-        </v-list-item>
-        <!-- <v-list-item color="primary" prepend-icon="mdi-book-open-variant-outline">
-              <v-list-item-title>Instructions</v-list-item-title>
-            </v-list-item> -->
-      </v-list>
+      <v-card>
+        <v-card-title>Card list</v-card-title>
+        <v-card-item>foo bar</v-card-item>
+      </v-card>
+    </v-navigation-drawer>
+    <v-navigation-drawer location="bottom" permanent>
+      <v-card color="pink">
+        <v-card-title @click.stop="bottomdrawer = !bottomdrawer">
+          <!-- <v-btn @click.stop="bottomdrawer = !bottomdrawer">Close</v-btn> -->
+          Card list
+        </v-card-title>
+      </v-card>
     </v-navigation-drawer>
   </v-app>
 </template>
@@ -83,25 +52,14 @@
 import { ref, watch } from 'vue'
 import ScorePanel from './components/ScorePanel.vue'
 import RatingBox from './components/RatingBox.vue'
-import { useGameAbstraction } from './use/gameAbstraction'
+import MainSideDrawer from './components/MainSideDrawer.vue'
 
-const { resetGame, isGameActive, setGameActive } = useGameAbstraction()
-
-const startGame = () => {
-  if (isGameActive.value) {
-    console.log('game is active, check if user wants to restart')
-    resetGame()
-  } else {
-    console.log('game is not active, start a new game')
-    setGameActive()
-  }
-}
-
-const drawer = ref(true)
+const sidedrawer = ref(false)
+const bottomdrawer = ref(false)
 const group = ref(null)
 
 watch(group, () => {
-  drawer.value = false
+  sidedrawer.value = false
 })
 </script>
 
