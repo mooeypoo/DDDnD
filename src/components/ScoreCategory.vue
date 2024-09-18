@@ -7,16 +7,10 @@
         </v-col>
         <v-col v-if="details.icon" class="text-right"><v-icon :icon="details.icon" /></v-col>
       </v-row>
-
-      <!-- <v-card-subtitle v-if="props.subtitle">{{ props.subtitle }}</v-card-subtitle> -->
     </v-card-item>
-    <v-card-item v-for="elementKey in details.children" :key="elementKey" class="bg-surface">
+    <v-card-item v-for="elementKey in details.children" :key="elementKey" class="bg-surface pa-2">
       <ScoreLine :group="props.group" :element="elementKey" />
     </v-card-item>
-    <!-- <v-card-text class="bg-secondary pt-4">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Commodi, ratione debitis quis est
-      labore voluptatibus!
-    </v-card-text> -->
   </v-card>
 </template>
 
