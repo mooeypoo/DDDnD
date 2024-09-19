@@ -39,29 +39,9 @@
       </v-row>
     </v-main>
     <MainSideDrawer v-model="sidedrawer" />
+    <AbandonConfirmationDialog />
 
-    <!-- bottom drawer -->
-    <v-navigation-drawer location="bottom" v-model="bottomdrawer" temporary>
-      <v-card color="pink">
-        <v-card-title @click.stop="bottomdrawer = !bottomdrawer">
-          <!-- <v-btn @click.stop="bottomdrawer = !bottomdrawer">Close</v-btn> -->
-          Card list
-        </v-card-title>
-      </v-card>
-
-      <v-card>
-        <v-card-title>Card list</v-card-title>
-        <v-card-item>foo bar</v-card-item>
-      </v-card>
-    </v-navigation-drawer>
-    <v-navigation-drawer location="bottom" permanent>
-      <v-card color="pink">
-        <v-card-title @click.stop="bottomdrawer = !bottomdrawer">
-          <!-- <v-btn @click.stop="bottomdrawer = !bottomdrawer">Close</v-btn> -->
-          Card list
-        </v-card-title>
-      </v-card>
-    </v-navigation-drawer>
+    <!-- <BottomDrawer title="Card list" color="pink"> BLAH </BottomDrawer> -->
   </v-app>
 </template>
 
@@ -71,12 +51,13 @@ import ScorePanel from './components/ScorePanel.vue'
 import RatingBox from './components/RatingBox.vue'
 import MainSideDrawer from './components/MainSideDrawer.vue'
 import TurnCountBox from './components/TurnCountBox.vue'
+// import BottomDrawer from './components/BottomDrawer.vue'
+import AbandonConfirmationDialog from './components/AbandonConfirmationDialog.vue'
 import { useGameAbstraction } from '@/use/gameAbstraction'
 
 const { isGameActive } = useGameAbstraction()
 
 const sidedrawer = ref(false)
-const bottomdrawer = ref(false)
 const group = ref(null)
 
 watch(group, () => {

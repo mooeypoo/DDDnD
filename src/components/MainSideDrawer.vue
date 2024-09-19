@@ -13,7 +13,7 @@
           color="gray"
           variant="outlined"
           @click="startGame()"
-          :text="isGameActive ? 'RESTART GAME' : 'START GAME'"
+          :text="isGameActive ? 'ABANDON GAME' : 'START GAME'"
         ></v-btn>
       </v-card-item>
       <v-card-item> </v-card-item>
@@ -61,15 +61,18 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useGameAbstraction } from '../use/gameAbstraction'
+import { useUITogglesAbstraction } from '../use/uiTogglesAbstraction'
 
-const { resetGame, isGameActive, setGameActive } = useGameAbstraction()
+const { isGameActive, setGameActive } = useGameAbstraction()
+const { toggleAbandonConfirmationDialog } = useUITogglesAbstraction()
 
 const startGame = () => {
   if (isGameActive.value) {
-    console.log('game is active, check if user wants to restart')
-    resetGame()
+    // Abandon game
+    // Load the 'are you sure' dialog
+    toggleAbandonConfirmationDialog(true)
   } else {
-    console.log('game is not active, start a new game')
+    // Start the game
     setGameActive()
     drawer.value = false
   }
