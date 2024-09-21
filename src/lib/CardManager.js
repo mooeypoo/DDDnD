@@ -42,12 +42,18 @@ export function CardManager() {
 
   const getCardDetails = function (cardID, cardType = 'player', deck = 'ddd') {
     const obj = _getCardObject(cardID, cardType, deck)
+
     return Object.assign(
       {
-        power: obj.requirements.power
+        power: obj.requirements?.power || 0
       },
       obj.meta
     )
+  }
+
+  const getCardPower = function (cardID, cardType = 'player', deck = 'ddd') {
+    const card = _getCardObject(cardID, cardType, deck)
+    return card.requirements.power || 0
   }
 
   const allCardsInType = function (cardType = 'player', deck = 'ddd') {
@@ -144,6 +150,7 @@ export function CardManager() {
 
   // Expose public functions
   return {
+    getCardPower,
     allCardsNamesInType,
     getCardDetails,
     getListOfImpactTypeFromCard

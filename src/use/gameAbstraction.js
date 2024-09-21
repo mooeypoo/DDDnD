@@ -12,6 +12,7 @@ export function useGameAbstraction() {
   const setGameActive = function () {
     gameStore.toggleActive(true)
   }
+
   const resetGame = function () {
     gameStore.reset()
   }
@@ -21,6 +22,7 @@ export function useGameAbstraction() {
     gameStore.increaseTurn()
   }
 
+  const getAllChosenCards = computed(() => gameStore.chosenCards)
   const isCardChosen = function (cardId) {
     return gameStore.getChosenCards.indexOf(cardId) > -1
   }
@@ -52,6 +54,7 @@ export function useGameAbstraction() {
     getTurnCount,
     increaseTurn,
     isCardChosen,
+    getAllChosenCards,
     toggleChosenCard,
     availablePlayerPower
   }

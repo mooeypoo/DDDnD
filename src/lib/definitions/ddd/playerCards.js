@@ -22,7 +22,7 @@ const dddPlayerCards = {
       description: {
         short:
           'Light that fire and gather your allies! Delve into the behavior of your system to find the way forward!',
-        long: 'Consult with domain experts and stakeholders to map behaviors domain. Simplify complex processes and find leverage points for implementing improvements.'
+        long: 'Conslt with domain experts and stakeholders to map behaviors domain. Simplify complex processes and find leverage points for implementing improvements.'
       },
       links: [
         {

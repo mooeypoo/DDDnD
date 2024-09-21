@@ -1,27 +1,23 @@
 <template>
   <v-card
-    :width="width"
-    :color="isCardChosen(id) ? 'blue' : ''"
-    :variant="isCardChosen(id) ? 'outlined' : 'elevated'"
     min-width="250"
     class="ma-2 cardview"
+    :class="[isAvailable ? 'available' : 'notavailable', isChosen ? 'chosen' : 'notchosen']"
+    :width="width"
+    :color="cardColor"
+    :variant="cardVariant"
   >
     <v-img
       height="100"
-      :src="coverImage"
+      :src="`/images/cards/backgrounds/${details.image}`"
       color="black"
       cover
-      class="d-flex justify-end"
-      @click="isGameActive && isCardAvailable() ? toggleCard() : null"
-    >
-    </v-img>
-    <!-- <v-expand-transition>
-      <v-img v-if="show" height="250" :src="coverImage" color="black" cover> </v-img>
-      <v-img v-else height="100" :src="coverImage" color="black" cover> </v-img>
-    </v-expand-transition> -->
-    <v-row @click="show = !show" no-gutters :class="isCardChosen(id) ? 'bg-grey-darken-3' : ''">
+      class="cardimage d-flex justify-end"
+      @click="toggleCard()"
+    />
+    <v-row @click="show = !show" no-gutters :class="isChosen ? 'bg-blue-darken-3' : ''">
       <v-col>
-        <v-card-title class="px-2 py-0">{{ meta.title }}</v-card-title>
+        <v-card-title class="px-2 py-0">{{ details.title }}</v-card-title>
       </v-col>
       <v-col cols="2" class="text-right pr-1">
         <v-btn
@@ -33,15 +29,15 @@
         ></v-btn>
       </v-col>
     </v-row>
-    <v-row @click="show = !show" no-gutters :class="isCardChosen(id) ? 'bg-grey-darken-3' : ''">
+    <v-row @click="show = !show" no-gutters :class="isChosen ? 'bg-blue-darken-3' : ''">
       <v-col>
-        <v-card-subtitle class="px-2 pb-2">{{ meta.subtitle }}</v-card-subtitle></v-col
-      >
+        <v-card-subtitle class="px-2 pb-2">{{ details.subtitle }}</v-card-subtitle>
+      </v-col>
     </v-row>
     <v-expand-transition>
       <div v-show="show" class="bg-surface">
         <RatingBox
-          :value="meta.power"
+          :value="details.power"
           variant="flat"
           numOfIcons="10"
           title="Power required"
@@ -50,17 +46,17 @@
           width="250"
         />
         <v-divider></v-divider>
-        <v-card-item class="bg-surface">{{ meta.description.short }}</v-card-item>
-        <v-card-actions v-if="isGameActive" class="d-flex justify-center bg-surface">
+        <v-card-item class="bg-surface">{{ details.description.short }}</v-card-item>
+        <v-card-actions class="d-flex justify-center bg-surface">
           <v-btn variant="outlined" size="small" prepend-icon="mdi-help">INFO</v-btn>
           <v-btn
-            :variant="isCardChosen(id) ? 'text' : 'outlined'"
-            :color="isCardChosen(id) ? 'primary' : ''"
+            variant="outlined"
+            :color="isChosen ? 'primary' : ''"
             size="small"
             prepend-icon="mdi-card-bulleted"
             @click="toggleCard()"
-            :text="isCardChosen(id) ? 'REMOVE' : 'ADD'"
-            :disabled="!isCardChosen(id) && !isCardAvailable()"
+            :text="isChosen ? 'REMOVE' : !isAvailable ? 'Not enough power' : 'ADD'"
+            :disabled="!isChosen && !isAvailable"
           />
         </v-card-actions>
       </div>
@@ -69,13 +65,17 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useDisplay } from 'vuetify'
 import { useDeckAbstraction } from '@/use/deckAbstraction'
-import { useGameAbstraction } from '@/use/gameAbstraction'
-
 import RatingBox from './RatingBox.vue'
 
+const props = defineProps(['id', 'type', 'deck', 'isAvailable', 'isChosen'])
+const emit = defineEmits(['toggle'])
+
+const show = ref(false)
+
+// Width
 const { name } = useDisplay()
 const width = computed(() => {
   // name is reactive and
@@ -93,32 +93,54 @@ const width = computed(() => {
 
   return undefined
 })
+
+// Card details
 const { getCardDisplay } = useDeckAbstraction()
-const { isGameActive, isCardChosen, toggleChosenCard, availablePlayerPower } = useGameAbstraction()
+const details = getCardDisplay(props.id, props.type, props.deck)
 
-const props = defineProps(['id', 'type', 'image', 'available'])
-const typeID = props.type || 'player'
-
-const meta = getCardDisplay(props.id, typeID)
-
-const show = ref(false)
-
-const imageName = props.image || meta.image || 'forest-stream-night.png'
-const coverImage = `/images/cards/backgrounds/${imageName}`
-
-const toggleCard = () => {
-  toggleChosenCard(props.id)
+// Card display for the states
+const cardColor = ref('')
+const cardVariant = ref('elevated')
+const recalculateCardState = () => {
+  if (props.isChosen) {
+    cardColor.value = 'blue'
+    cardVariant.value = 'outlined'
+  } else if (!props.isAvailable) {
+    cardColor.value = 'white'
+    cardVariant.value = 'tonal'
+  } else {
+    cardColor.value = ''
+    cardVariant.value = 'elevated'
+  }
+}
+// Emit when card is toggled
+const toggleCard = function () {
+  emit('toggle', props.id, props.isAvailable, props.isChosen)
 }
 
-const isCardAvailable = () => {
-  return availablePlayerPower.value >= meta.power
-}
+// Listed to state changes
+recalculateCardState()
+watch(
+  () => props.isAvailable,
+  () => recalculateCardState()
+)
+watch(
+  () => props.isChosen,
+  () => recalculateCardState()
+)
 </script>
 
 <style lang="scss">
 .cardview {
   .v-card-subtitle {
     text-wrap: wrap;
+  }
+
+  &.notavailable:not(.chosen) {
+    opacity: 0.7;
+    img {
+      opacity: 0.5;
+    }
   }
 }
 </style>
