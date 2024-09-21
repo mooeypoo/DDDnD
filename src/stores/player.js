@@ -11,7 +11,10 @@ export const usePlayerStore = defineStore('player', {
     power: 10,
     influence: 10
   }),
-  getters: {},
+  getters: {
+    getPlayerPower: (state) => state.power,
+    getPlayerInfluence: (state) => state.influence
+  },
   actions: {
     reset() {
       // reset to defaults
@@ -24,6 +27,12 @@ export const usePlayerStore = defineStore('player', {
           this[key] = defaults[key]
         }
       })
+    },
+    setPlayerPower(val) {
+      this.power = val
+    },
+    setPlayerInfluence(val) {
+      this.influence = val
     }
   }
 })

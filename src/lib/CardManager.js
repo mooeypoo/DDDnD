@@ -14,7 +14,7 @@ export function CardManager() {
    * @param {String} deck Name of deck; 'ddd' by default.
    * @returns
    */
-  const getCardDeck = (type = 'player', deck = 'ddd') => {
+  const _getCardDeck = (type = 'player', deck = 'ddd') => {
     if (type === 'system') {
       switch (deck) {
         default:
@@ -28,26 +28,63 @@ export function CardManager() {
     }
   }
 
+  const _getCardObject = (cardID, cardType = 'player', deck = 'ddd') => {
+    // Verify params
+    if (!cardID) {
+      return {}
+    }
+    // Use the correct card list
+    const cardFullList = allCardsInType(cardType)
+
+    // Resolve the card definition
+    return cardFullList[cardID] || {}
+  }
+
+  const getCardDetails = function (cardID, cardType = 'player', deck = 'ddd') {
+    const obj = _getCardObject(cardID, cardType, deck)
+    return Object.assign(
+      {
+        requirements: obj.requirements
+      },
+      obj.meta
+    )
+  }
+
+  const allCardsInType = function (cardType = 'player', deck = 'ddd') {
+    return cardType === 'player' ? _getCardDeck('player', deck) : _getCardDeck('system', deck)
+  }
+
+  const allCardsNamesInType = function (cardType = 'player', deck = 'ddd') {
+    return Object.keys(allCardsInType(cardType))
+  }
+
   /**
    * Get a list of impact effects based on the card ID and the impact type.
    *
-   * @param {} cardListID The string ID of the card list: 'player' or 'system'
+   * @param {} cardType The string ID of the card list: 'player' or 'system'
    * @param {*} cardID The key associated with the desired card's structure in
    *  the card lists
    * @param {*} impactType The impact type to return for; 'immediate' or 'per_turn'
    * @returns An object that represents the metadata of the impact type with an
    *  array of actionable impacts that can be analyzed individually
    */
-  const getListOfImpactTypeFromCard = (cardListID, cardID, impactType = 'immediate') => {
+  const getListOfImpactTypeFromCard = function (
+    cardType,
+    cardID,
+    impactType = 'immediate',
+    deck = 'ddd'
+  ) {
     // Verify params
-    if (!cardID || (cardListID !== 'user' && cardListID !== 'system')) {
+    if (!cardID || (cardType !== 'player' && cardType !== 'system')) {
       return {}
     }
-    // Use the correct card list
-    const cardFullList = cardListID === 'user' ? getCardDeck('player') : getCardDeck('system')
+    // // Use the correct card list
+    // const cardFullList =
+    //   cardType === 'player' ? _getCardDeck('player', deck) : _getCardDeck('system', deck)
 
-    // Resolve the card definition
-    const cardDefinition = cardFullList[cardID]
+    // // Resolve the card definition
+    // const cardDefinition = cardFullList[cardID]
+    const cardDefinition = _getCardObject(cardID, cardType, deck)
     if (
       !cardDefinition ||
       !cardDefinition.impact ||
@@ -107,6 +144,8 @@ export function CardManager() {
 
   // Expose public functions
   return {
+    allCardsNamesInType,
+    getCardDetails,
     getListOfImpactTypeFromCard
   }
 }

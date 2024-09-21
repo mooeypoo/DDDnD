@@ -30,12 +30,17 @@
     </v-app-bar>
     <v-main class="ma-2">
       <v-row>
-        <v-col cols="12" sm="6" md="8" lg="9"></v-col>
-        <v-col cols="12" sm="6" md="4" lg="3">
-          <v-expand-transition>
-            <ScorePanel v-if="isGameActive" />
-          </v-expand-transition>
+        <v-col v-if="!isGameActive" cols="12">
+          <DeckView title="Actions" />
         </v-col>
+        <v-col v-if="isGameActive" cols="12" sm="6" md="8" lg="9">
+          <DeckView title="Actions" />
+        </v-col>
+        <v-expand-x-transition>
+          <v-col v-if="isGameActive" cols="12" sm="6" md="4" lg="3">
+            <ScorePanel />
+          </v-col>
+        </v-expand-x-transition>
       </v-row>
     </v-main>
     <MainSideDrawer v-model="sidedrawer" />
@@ -51,6 +56,8 @@ import ScorePanel from './components/ScorePanel.vue'
 import RatingBox from './components/RatingBox.vue'
 import MainSideDrawer from './components/MainSideDrawer.vue'
 import TurnCountBox from './components/TurnCountBox.vue'
+import CardView from './components/CardView.vue'
+import DeckView from './components/DeckView.vue'
 // import BottomDrawer from './components/BottomDrawer.vue'
 import AbandonConfirmationDialog from './components/AbandonConfirmationDialog.vue'
 import { useGameAbstraction } from '@/use/gameAbstraction'

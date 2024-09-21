@@ -1,7 +1,7 @@
 <template>
-  <v-card variant="tonal">
-    <v-card-subtitle class="py-0 pt-1">{{ title }}: {{ value }}%</v-card-subtitle>
-    <v-card-item class="pa-1 pt-0 d-flex justify-center">
+  <v-card :variant="variantValue">
+    <v-card-subtitle class="py-0 pt-1 text-center">{{ title }}: {{ value }}%</v-card-subtitle>
+    <v-card-item class="pa-2 pt-0 d-flex justify-center">
       <RatingIcon
         v-for="i in numOfIcons"
         :state="active[i]"
@@ -16,12 +16,12 @@
 <script setup>
 import RatingIcon from './RatingIcon.vue'
 
-const props = defineProps(['value', 'numOfIcons', 'title', 'icon'])
+const props = defineProps(['value', 'numOfIcons', 'title', 'icon', 'variant'])
 
 const maxValue = 100
 const numOfIcons = isNaN(props.numOfIcons) ? 5 : Number(props.numOfIcons)
 const value = isNaN(props.value) ? 0 : props.value
-
+const variantValue = props.variant || 'tonal'
 // TODO: Something's wrong when the value equals 'max' value (100%)
 // seems 4/5 icons are lit without the last one...
 
