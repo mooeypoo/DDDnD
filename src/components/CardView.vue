@@ -12,7 +12,7 @@
       color="black"
       cover
       class="d-flex justify-end"
-      @click="isGameActive ? toggleCard() : null"
+      @click="isGameActive && isCardAvailable() ? toggleCard() : null"
     >
     </v-img>
     <!-- <v-expand-transition>
@@ -41,13 +41,13 @@
     <v-expand-transition>
       <div v-show="show" class="bg-surface">
         <RatingBox
-          :value="meta.requirements.power"
+          :value="meta.power"
           variant="flat"
-          numOfIcons="5"
+          numOfIcons="10"
           title="Power required"
           icon="mdi-star"
           class="mx-auto"
-          width="150"
+          width="250"
         />
         <v-divider></v-divider>
         <v-card-item class="bg-surface">{{ meta.description.short }}</v-card-item>
@@ -84,12 +84,11 @@ const width = computed(() => {
     case 'xs':
       return 500
     case 'sm':
-      return 400
     case 'md':
     case 'lg':
     case 'xl':
     case 'xxl':
-      return 300
+      return 400
   }
 
   return undefined
@@ -112,7 +111,7 @@ const toggleCard = () => {
 }
 
 const isCardAvailable = () => {
-  return availablePlayerPower.value >= meta.requirements.power
+  return availablePlayerPower.value >= meta.power
 }
 </script>
 

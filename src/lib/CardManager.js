@@ -44,7 +44,7 @@ export function CardManager() {
     const obj = _getCardObject(cardID, cardType, deck)
     return Object.assign(
       {
-        requirements: obj.requirements
+        power: obj.requirements.power
       },
       obj.meta
     )

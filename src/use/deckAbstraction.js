@@ -8,7 +8,7 @@ export function useDeckAbstraction() {
   }
 
   const getCardRequiredPower = (cardID, cardType = 'player', deck = 'ddd') =>
-    getCardDetails(cardID, cardType, deck).requirements.power
+    getCardDetails(cardID, cardType, deck).power
 
   const getAllCardIDs = (cardType = 'player', deck = 'ddd') => {
     return allCardsNamesInType(cardType, deck)
