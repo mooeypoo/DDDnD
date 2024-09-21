@@ -8,8 +8,9 @@
         :type="typeID"
         :deck="deckID"
         :key="cardID"
-        :isAvailable="isAvailable(cardID)"
-        :isChosen="isChosen(cardID)"
+        :isAvailable="!isGameActive || isAvailable(cardID)"
+        :isChosen="isGameActive && isChosen(cardID)"
+        :actionable="isGameActive"
         class="ma-2"
         @toggle="toggleCard"
       />
@@ -24,8 +25,7 @@ import { useGameAbstraction } from '@/use/gameAbstraction'
 
 import CardView from './CardView.vue'
 const { getAllCardIDs, getCardRequiredPower } = useDeckAbstraction()
-const { isCardChosen, toggleChosenCard, availablePlayerPower, getAllChosenCards } =
-  useGameAbstraction()
+const { isGameActive, isCardChosen, toggleChosenCard, availablePlayerPower } = useGameAbstraction()
 
 const props = defineProps(['title', 'type', 'deck'])
 const visibleTitle = props.title || 'Card list'
@@ -38,10 +38,10 @@ const allCardIDs = getAllCardIDs(typeID, deckID)
 const isAvailable = computed(() => (cardID) => {
   return availablePlayerPower.value - getCardRequiredPower(cardID, typeID, deckID) >= 0
 })
-const isChosen = computed(() => (cardID) => isCardChosen(cardID))
+const isChosen = computed(() => (cardID) => isGameActive && isCardChosen(cardID))
 
 const toggleCard = (cardID, isCardAvailable, isCardChosen) => {
-  if (isCardAvailable || isCardChosen) {
+  if (isGameActive.value && (isCardAvailable || isCardChosen)) {
     toggleChosenCard(cardID)
   }
 }

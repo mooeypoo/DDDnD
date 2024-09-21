@@ -50,12 +50,13 @@
         <v-card-actions class="d-flex justify-center bg-surface">
           <v-btn variant="outlined" size="small" prepend-icon="mdi-help">INFO</v-btn>
           <v-btn
+            v-if="actionable"
             variant="outlined"
             :color="isChosen ? 'primary' : ''"
             size="small"
             prepend-icon="mdi-card-bulleted"
             @click="toggleCard()"
-            :text="isChosen ? 'REMOVE' : !isAvailable ? 'Not enough power' : 'ADD'"
+            :text="isChosen ? 'REMOVE' : !isAvailable ? 'Not enough power' : 'ADD TO TURN ACTIONS'"
             :disabled="!isChosen && !isAvailable"
           />
         </v-card-actions>
@@ -70,7 +71,7 @@ import { useDisplay } from 'vuetify'
 import { useDeckAbstraction } from '@/use/deckAbstraction'
 import RatingBox from './RatingBox.vue'
 
-const props = defineProps(['id', 'type', 'deck', 'isAvailable', 'isChosen'])
+const props = defineProps(['id', 'type', 'deck', 'isAvailable', 'isChosen', 'actionable'])
 const emit = defineEmits(['toggle'])
 
 const show = ref(false)
