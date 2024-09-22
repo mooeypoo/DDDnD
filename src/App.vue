@@ -79,7 +79,7 @@ watch(group, () => {
 
 .v-application {
   font-family: 'Kode Mono', monospace;
-  background: url('/images/background.png');
+  background: url('/images/backgrounds/background.png');
   font-weight: 400;
   font-style: normal;
 }
