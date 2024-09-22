@@ -34,6 +34,7 @@
           <DeckView title="Actions" />
         </v-col>
         <v-col v-if="isGameActive" cols="12" sm="6" md="8" lg="9">
+          <TurnActionsView class="mb-2" />
           <DeckView title="Actions" />
         </v-col>
         <v-expand-x-transition>
@@ -57,6 +58,7 @@ import RatingBox from './components/RatingBox.vue'
 import MainSideDrawer from './components/MainSideDrawer.vue'
 import TurnCountBox from './components/TurnCountBox.vue'
 import DeckView from './components/DeckView.vue'
+import TurnActionsView from './components/TurnActionsView.vue'
 // import BottomDrawer from './components/BottomDrawer.vue'
 import AbandonConfirmationDialog from './components/AbandonConfirmationDialog.vue'
 import { useGameAbstraction } from '@/use/gameAbstraction'

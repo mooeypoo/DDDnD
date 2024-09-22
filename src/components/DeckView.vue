@@ -22,8 +22,8 @@
 import { computed } from 'vue'
 import { useDeckAbstraction } from '@/use/deckAbstraction'
 import { useGameAbstraction } from '@/use/gameAbstraction'
-
 import CardView from './CardView.vue'
+
 const { getAllCardIDs, getCardRequiredPower } = useDeckAbstraction()
 const { isGameActive, isCardChosen, toggleChosenCard, availablePlayerPower } = useGameAbstraction()
 
