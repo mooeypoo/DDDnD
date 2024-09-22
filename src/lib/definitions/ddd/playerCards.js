@@ -16,7 +16,7 @@ const dddPlayerCards = {
   eventstorming: {
     meta: {
       title: 'Event Storming',
-      subtitle: 'Workshop: Event Storming',
+      subtitle: 'Run Event Storming Workshops',
       icon: '',
       image: 'winding-path-conference.jpeg',
       description: {

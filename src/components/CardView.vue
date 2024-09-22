@@ -48,7 +48,9 @@
         <v-divider></v-divider>
         <v-card-item class="bg-surface">{{ details.description.short }}</v-card-item>
         <v-card-actions class="d-flex justify-center bg-surface">
-          <v-btn variant="outlined" size="small" prepend-icon="mdi-help">INFO</v-btn>
+          <v-btn variant="outlined" size="small" prepend-icon="mdi-help" @click="triggerInfoCard()"
+            >INFO</v-btn
+          >
           <v-btn
             v-if="actionable"
             variant="outlined"
@@ -72,7 +74,7 @@ import { useDeckAbstraction } from '@/use/deckAbstraction'
 import RatingBox from './RatingBox.vue'
 
 const props = defineProps(['id', 'type', 'deck', 'isAvailable', 'isChosen', 'actionable'])
-const emit = defineEmits(['toggle'])
+const emit = defineEmits(['toggle', 'info'])
 
 const show = ref(false)
 
@@ -117,6 +119,9 @@ const recalculateCardState = () => {
 // Emit when card is toggled
 const toggleCard = function () {
   emit('toggle', props.id, props.isAvailable, props.isChosen)
+}
+const triggerInfoCard = function () {
+  emit('info', props.id, props.type, props.deck)
 }
 
 // Listed to state changes

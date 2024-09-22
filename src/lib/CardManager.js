@@ -67,16 +67,16 @@ export function CardManager() {
   /**
    * Get a list of impact effects based on the card ID and the impact type.
    *
-   * @param {} cardType The string ID of the card list: 'player' or 'system'
    * @param {*} cardID The key associated with the desired card's structure in
    *  the card lists
+   * @param {} cardType The string ID of the card list: 'player' or 'system'
    * @param {*} impactType The impact type to return for; 'immediate' or 'per_turn'
    * @returns An object that represents the metadata of the impact type with an
    *  array of actionable impacts that can be analyzed individually
    */
   const getListOfImpactTypeFromCard = function (
-    cardType,
     cardID,
+    cardType,
     impactType = 'immediate',
     deck = 'ddd'
   ) {
@@ -110,7 +110,10 @@ export function CardManager() {
     const contexts = ['score', 'player']
     // both 'score' and 'player' contexts
     contexts.forEach((stateContext) => {
-      Object(cardDefinition.impact[impactType][stateContext]).forEach((groupKey) => {
+      if (!cardDefinition.impact[impactType][stateContext]) {
+        return
+      }
+      Object.keys(cardDefinition.impact[impactType][stateContext]).forEach((groupKey) => {
         if (typeof cardDefinition.impact[impactType][stateContext][groupKey] === 'number') {
           // this key has 1 numeric value without a sub group
           result.list.push({

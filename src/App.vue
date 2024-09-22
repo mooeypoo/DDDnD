@@ -46,7 +46,7 @@
     </v-main>
     <MainSideDrawer v-model="sidedrawer" />
     <AbandonConfirmationDialog />
-
+    <CardDetailsDialog />
     <!-- <BottomDrawer title="Card list" color="pink"> BLAH </BottomDrawer> -->
   </v-app>
 </template>
@@ -62,6 +62,7 @@ import TurnActionsView from './components/TurnActionsView.vue'
 // import BottomDrawer from './components/BottomDrawer.vue'
 import AbandonConfirmationDialog from './components/AbandonConfirmationDialog.vue'
 import { useGameAbstraction } from '@/use/gameAbstraction'
+import CardDetailsDialog from './components/CardDetailsDialog.vue'
 
 const { isGameActive } = useGameAbstraction()
 

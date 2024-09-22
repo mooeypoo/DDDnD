@@ -12,7 +12,7 @@
       </v-col>
     </v-row>
     <v-card-actions class="d-flex justify-center bg-surface">
-      <v-btn variant="outlined" size="x-small" icon="mdi-help"></v-btn>
+      <v-btn variant="outlined" size="x-small" icon="mdi-help" @click="triggerInfoCard()"></v-btn>
       <v-btn
         variant="outlined"
         color="primary"
@@ -35,12 +35,13 @@ const { getCardDisplay } = useDeckAbstraction()
 const details = getCardDisplay(props.id, props.type, props.deck)
 
 // Emit when card is toggled
-const emit = defineEmits(['toggle'])
+const emit = defineEmits(['toggle', 'info'])
 const toggleCard = function () {
   emit('toggle', props.id, props.isAvailable, props.isChosen)
 }
-
-// Listed to state changes
+const triggerInfoCard = function () {
+  emit('info', props.id, props.type, props.deck)
+}
 </script>
 
 <style lang="scss">

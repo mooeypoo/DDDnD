@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card variant="">
     <v-card-title>{{ visibleTitle }}</v-card-title>
     <v-card-item class="deckview">
       <CardView
@@ -13,6 +13,7 @@
         :actionable="isGameActive"
         class="ma-2"
         @toggle="toggleCard"
+        @info="launchInfoDialog"
       />
     </v-card-item>
   </v-card>
@@ -22,10 +23,13 @@
 import { computed } from 'vue'
 import { useDeckAbstraction } from '@/use/deckAbstraction'
 import { useGameAbstraction } from '@/use/gameAbstraction'
+import { useUITogglesAbstraction } from '@/use/uiTogglesAbstraction'
+
 import CardView from './CardView.vue'
 
 const { getAllCardIDs, getCardRequiredPower } = useDeckAbstraction()
 const { isGameActive, isCardChosen, toggleChosenCard, availablePlayerPower } = useGameAbstraction()
+const { openCardDetailsDialog } = useUITogglesAbstraction()
 
 const props = defineProps(['title', 'type', 'deck'])
 const visibleTitle = props.title || 'Card list'
@@ -44,6 +48,9 @@ const toggleCard = (cardID, isCardAvailable, isCardChosen) => {
   if (isGameActive.value && (isCardAvailable || isCardChosen)) {
     toggleChosenCard(cardID)
   }
+}
+const launchInfoDialog = (cardID, type, deck) => {
+  openCardDetailsDialog(cardID, type, deck)
 }
 </script>
 
