@@ -35,7 +35,7 @@
         </v-col>
         <v-col v-if="isGameActive" cols="12" sm="6" md="8" lg="9">
           <TurnActionsView class="mb-2" />
-          <DeckView title="Actions" />
+          <DeckView title="Actions" type="player" deck="ddd" />
         </v-col>
         <v-expand-x-transition>
           <v-col v-if="isGameActive" cols="12" sm="6" md="4" lg="3">
