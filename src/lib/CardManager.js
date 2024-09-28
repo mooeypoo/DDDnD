@@ -67,17 +67,17 @@ export function CardManager() {
   /**
    * Get a list of impact effects based on the card ID and the impact type.
    *
+   * @param {*} impactType The impact type to return for; 'immediate' or 'per_turn'
    * @param {*} cardID The key associated with the desired card's structure in
    *  the card lists
    * @param {} cardType The string ID of the card list: 'player' or 'system'
-   * @param {*} impactType The impact type to return for; 'immediate' or 'per_turn'
    * @returns An object that represents the metadata of the impact type with an
    *  array of actionable impacts that can be analyzed individually
    */
   const getListOfImpactTypeFromCard = function (
+    impactType, // = 'immediate' or 'per_turn,
     cardID,
     cardType,
-    impactType = 'immediate',
     deck = 'ddd'
   ) {
     // Verify params

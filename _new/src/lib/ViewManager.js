@@ -1,4 +1,3 @@
-debugger
 import viewDefinitions from './definitions/viewDefinitions'
 
 export default function ViewManager() {

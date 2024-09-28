@@ -1,6 +1,27 @@
 <template>
-  <v-chip size="x-small" color="green" class="mx-2">
-    +5
-    <v-tooltip activator="parent" class="kode-mono-terminal">Source card | 5 turns</v-tooltip>
+  <!-- <v-btn :size="size" text="+5" variant="flat" color="red-darken-4" prepend-icon="mdi-sticker">
+    <v-badge color="green-darken-4" content="9"> </v-badge>
+  </v-btn> -->
+  <v-chip
+    :size="size"
+    variant="flat"
+    :color="`${color}-darken-4`"
+    class="mx-2"
+    :prepend-icon="icon"
+    :append-icon="arrowicon"
+  >
+    {{ display.label }}: {{ value }}
+    <!-- <v-tooltip activator="parent" class="kode-mono-terminal"
+      >{{ cardTitle }}: {{ value }}</v-tooltip
+    > -->
   </v-chip>
 </template>
+
+<script setup>
+const props = defineProps(['size', 'context', 'group', 'display', 'value', 'cardTitle'])
+const size = props.size || 'large'
+
+const icon = props.value > 0 ? props.display.icon.pos : props.display.icon.neg
+const arrowicon = props.value > 0 ? 'mdi-arrow-up-bold' : 'mdi-arrow-down-bold'
+const color = props.value > 0 ? 'green' : 'red'
+</script>
