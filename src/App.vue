@@ -1,113 +1,113 @@
 <template>
   <v-app>
-    <v-navigation-drawer v-model="drawer" permanent width="80">
-      <div class="d-flex justify-center pa-4">
-        <v-avatar image="./images/logo-small.png" />
-      </div>
+    <v-app-bar color="secondary" image="/images/backgrounds/appbar2.png" class="px-2">
+      <v-app-bar-nav-icon
+        variant="text"
+        @click.stop="sidedrawer = !sidedrawer"
+      ></v-app-bar-nav-icon>
 
-      <TurnSummaryDialog />
-      <AboutDialog />
-      <!-- <v-btn
-        class="text-none mb-2"
-        prepend-icon="mdi-help-circle-outline"
-        size="x-small"
-        stacked
-        text="About this game"
-        tile
-        variant="text"
-        width="80"
-        to="/about"
-      /> -->
+      <v-avatar size="x-large">
+        <v-img alt="DDDnD" src="/images/logo/dddnd.png"></v-img>
+      </v-avatar>
 
-      <v-btn
-        class="text-none mb-2"
-        prepend-icon="mdi-help-circle-outline"
-        size="x-small"
-        stacked
-        text="Instructions"
-        tile
-        variant="text"
-        width="80"
-        @click="toggleInstructionDialog"
-      />
-      <v-btn
-        v-if="isGameActive && $route.name !== 'game'"
-        class="text-none mb-2"
-        prepend-icon="mdi-auto-fix"
-        size="x-small"
-        stacked
-        text="Return to Game"
-        tile
-        variant="text"
-        width="80"
-        to="/game"
-      />
-      <v-btn
-        v-if="isGameActive"
-        class="text-none"
-        prepend-icon="mdi-autorenew"
-        size="x-small"
-        stacked
-        text="Restart"
-        tile
-        variant="text"
-        width="80"
-        @click="toggleResetDialog"
-      />
-      <template #append>
-        <div class="d-flex justify-center pa-4">
-          <v-btn
-            class="text-none"
-            prepend-icon="mdi-github"
-            variant="text"
-            size="x-small"
-            stacked
-            href="https://github.com/mooeypoo/DDDnD"
-            target="_blank"
-            text="Source"
-          >
-          </v-btn>
-        </div>
-      </template>
-    </v-navigation-drawer>
-
-    <v-app-bar :elevation="2" title="DDDnD">
-      <template #prepend>
-        <v-app-bar-nav-icon @click="drawer = !drawer" />
-      </template>
       <v-spacer />
-      <template #append>
-        <span v-if="isGameActive" class="px-2">{{ vUsername }}</span>
-        <v-spacer v-if="isGameActive" />
-        <v-avatar v-if="isGameActive" :image="userAvatarPath" />
-      </template>
+      <v-fade-transition>
+        <TurnCountBox v-if="isGameActive" class="mr-2" />
+      </v-fade-transition>
+      <v-fade-transition>
+        <RatingBox
+          v-if="isGameActive"
+          value="20"
+          numOfIcons="5"
+          title="Player Power"
+          icon="mdi-star"
+          class="mr-2"
+        />
+      </v-fade-transition>
+      <v-fade-transition>
+        <RatingBox v-if="isGameActive" value="50" numOfIcons="5" title="Player Influence" />
+      </v-fade-transition>
     </v-app-bar>
-
-    <v-main>
-      <v-container>
-        <RouterView />
-      </v-container>
+    <v-main class="ma-2">
+      <v-row>
+        <v-col v-if="!isGameActive" cols="12">
+          <DeckView title="Actions" />
+        </v-col>
+        <v-col v-if="isGameActive" cols="12" sm="6" md="8" lg="9">
+          <TurnActionsView class="mb-2" />
+          <DeckView title="Actions" type="player" deck="ddd" />
+        </v-col>
+        <v-expand-x-transition>
+          <v-col v-if="isGameActive" cols="12" sm="6" md="4" lg="3">
+            <ScorePanel />
+          </v-col>
+        </v-expand-x-transition>
+      </v-row>
     </v-main>
-    <InstructionsDialog />
-    <ResetConfirmationDialog @resetComplete="$router.push({ name: 'home' })" />
+    <MainSideDrawer v-model="sidedrawer" />
+    <AbandonConfirmationDialog />
+    <CardDetailsDialog />
+    <!-- <BottomDrawer title="Card list" color="pink"> BLAH </BottomDrawer> -->
   </v-app>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-// import { storeToRefs } from 'pinia'
-import { RouterView } from 'vue-router'
-import InstructionsDialog from '@/components/InstructionsDialog.vue'
-import ResetConfirmationDialog from '@/components/ResetConfirmationDialog.vue'
-import AboutDialog from '@/components/AboutDialog.vue'
-import TurnSummaryDialog from '@/components/TurnSummaryDialog.vue'
-import { userDetails } from '@/use/userDetails'
-import { gameDetails } from '@/use/gameDetails'
+import { ref, watch } from 'vue'
+import ScorePanel from './components/ScorePanel.vue'
+import RatingBox from './components/RatingBox.vue'
+import MainSideDrawer from './components/MainSideDrawer.vue'
+import TurnCountBox from './components/TurnCountBox.vue'
+import DeckView from './components/DeckView.vue'
+import TurnActionsView from './components/TurnActionsView.vue'
+// import BottomDrawer from './components/BottomDrawer.vue'
+import AbandonConfirmationDialog from './components/AbandonConfirmationDialog.vue'
+import { useGameAbstraction } from '@/use/gameAbstraction'
+import CardDetailsDialog from './components/CardDetailsDialog.vue'
 
-const { toggleInstructionDialog, toggleResetDialog, isGameActive } = gameDetails()
+const { isGameActive } = useGameAbstraction()
 
-const { userAvatarPath, vUsername } = userDetails()
-const drawer = ref(true)
+const sidedrawer = ref(false)
+const group = ref(null)
+
+watch(group, () => {
+  sidedrawer.value = false
+})
 </script>
 
-<style scoped></style>
+<style lang="scss">
+@import url('https://fonts.googleapis.com/css2?family=Kode+Mono:wght@400..700&family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+.v-application {
+  font-family: 'Kode Mono', monospace;
+  background: url('/images/backgrounds/background.png');
+  font-weight: 400;
+  font-style: normal;
+}
+
+// FONTS
+.kode-mono-terminal {
+  font-family: 'Kode Mono', monospace;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+.font-terminal {
+  font-family: 'VT323', monospace;
+  font-weight: 400;
+  font-style: normal;
+}
+
+html {
+  font-size: 90%;
+  @media only screen and (min-width: 600px) {
+    font-size: 94%;
+  }
+  @media only screen and (min-width: 1000px) {
+    font-size: 98%;
+  }
+  @media only screen and (min-width: 1200px) {
+    font-size: 100%;
+  }
+}
+</style>
