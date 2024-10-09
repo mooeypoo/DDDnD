@@ -10,6 +10,19 @@ export function useDeckAbstraction() {
     return getCardDetails(cardID, cardType, deck)
   }
 
+  /**
+   * Output a structured object that is aimed specifically for the card dialog to
+   * show the relevant impacts for the given card.
+   * NOTE that this will not output delayed effects, as the original
+   * getListOfImpactTypeFromCard from CardManager doesn't output delayed because
+   * we don't want to show those to the user, as they are the "surprise" impacts.
+   *
+   * @param {String} cardID The key associated with the desired card's structure in
+   *  the card lists
+   * @param {String} cardType The string ID of the card list: 'player' or 'system'
+   * @param {String} deck Deck name. Default: 'ddd'
+   * @returns
+   */
   const getCardImpactDisplay = (cardID, cardType = 'player', deck = 'ddd') => {
     if (!cardID) {
       return {}
@@ -21,7 +34,6 @@ export function useDeckAbstraction() {
     const types = ['immediate', 'per_turn']
     let turns
     types.forEach((type) => {
-      // const groups = {}
       result[type] = result[type] || []
 
       getListOfImpactTypeFromCard(type, cardID, cardType, deck)
