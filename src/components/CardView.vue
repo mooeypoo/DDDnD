@@ -15,11 +15,20 @@
       class="cardimage d-flex justify-end"
       @click="toggleCard()"
     />
-    <v-row @click="show = !show" no-gutters :class="isChosen ? 'bg-blue-darken-3' : ''">
-      <v-col>
+    <v-row no-gutters :class="isChosen ? 'bg-blue-darken-3' : ''">
+      <v-col @click="show = !show">
         <v-card-title class="px-2 py-0">{{ details.title }}</v-card-title>
       </v-col>
-      <v-col cols="2" class="text-right pr-1">
+      <v-col>
+        <v-btn
+          density="compact"
+          variant="outlined"
+          size="small"
+          icon="mdi-help"
+          @click="triggerInfoCard()"
+        ></v-btn>
+      </v-col>
+      <v-col cols="2" class="text-right pr-1" @click="show = !show">
         <v-btn
           density="compact"
           variant="outlined"
