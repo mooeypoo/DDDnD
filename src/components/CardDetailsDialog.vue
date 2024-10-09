@@ -69,48 +69,6 @@
             </tr>
           </tbody>
         </v-table>
-        <!-- <v-table v-if="Object.keys(cardEffects.per_turn).length" fixed-header density="compact">
-          <thead>
-            <tr>
-              <td colspan="2" class="bg-purple-darken-2 text-center pa-2">
-                Ongoing Effects ({{ turnsString }} Turns)
-              </td>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="group in Object.keys(cardEffects.per_turn)" :key="group">
-              <td
-                v-if="
-                  cardEffects.per_turn[group] &&
-                  !cardEffects.per_turn[group].items.length &&
-                  cardEffects.per_turn[group].view
-                "
-              >
-                {{ cardEffects.per_turn[group].view.label }}
-              </td>
-              <td v-if="cardEffects.per_turn[group].items">
-                <ImpactChip
-                  v-for="(impact, i) in cardEffects.per_turn[group].items"
-                  :key="i"
-                  :label="impact.view.label"
-                  :icon="impact.view.icon"
-                  :value="impact.value"
-                  :turns="impact.turns"
-                  size="small"
-                />
-              </td>
-              <td v-else>
-                <ImpactChip
-                  :label="cardEffects.per_turn[group].view.label"
-                  :icon="cardEffects.per_turn[group].view.icon"
-                  :value="cardEffects.per_turn[group].value"
-                  :turns="cardEffects.per_turn[group].turns"
-                  size="small"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </v-table> -->
       </v-card-item>
       <v-card-actions>
         <v-btn @click="closeCardDetailsDialog">Close</v-btn>
@@ -132,7 +90,7 @@ const { isCardDetailsDialogOpen, cardDetailsDialogData, closeCardDetailsDialog }
 let cardDisplay = {}
 let cardEffects = {}
 let desc = {}
-let turnsString = ''
+
 const types = {
   immediate: 'Immediate Effects',
   per_turn: 'Ongoing Effects'
@@ -155,7 +113,6 @@ const recalculateCardState = function () {
   )
 
   types.per_turn = `Ongoing Effects (${cardEffects.turns?.join(' - ')} Turns)`
-  console.log('cardEffects', cardEffects)
 }
 
 // re-Update the details when the state changes
