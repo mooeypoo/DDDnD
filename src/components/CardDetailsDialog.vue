@@ -22,69 +22,95 @@
       <v-card-text class="py-2" v-html="desc.long"></v-card-text>
       <v-card-title class="bg-pink-darken-4"> Effects </v-card-title>
       <v-card-item>
-        <v-table density="compact">
-          <tbody>
+        <v-table v-for="type in Object.keys(types)" fixed-header density="compact" :key="type">
+          <thead>
             <tr>
-              <td colspan="2">Immediate effects</td>
+              <td colspan="2" class="bg-purple-darken-2 text-center pa-2">{{ types[type] }}</td>
             </tr>
-            <tr v-for="group in Object.keys(cardEffects.immediate)" :key="group">
-              <!-- <td
+          </thead>
+          <tbody v-if="Object.keys(cardEffects[type]).length">
+            <tr v-for="group in Object.keys(cardEffects[type])" :key="group">
+              <td
                 v-if="
-                  group !== '_' &&
-                  cardEffects.immediate[group] &&
-                  cardEffects.immediate[group].display
+                  cardEffects[type][group] &&
+                  cardEffects[type][group].items &&
+                  cardEffects[type][group].view
                 "
               >
-                {{ cardEffects.immediate[group].display.label }}
-              </td> -->
-              <td></td>
-              <td>
+                {{ cardEffects[type][group].view.label }}
+              </td>
+              <td v-else></td>
+              <td v-if="cardEffects[type][group].items">
                 <ImpactChip
-                  v-for="(impact, i) in cardEffects.immediate[group].items"
+                  v-for="(impact, i) in cardEffects[type][group].items"
                   :key="i"
-                  :cardTitle="cardDisplay.title"
-                  :context="impact.context"
-                  :group="group === '_' ? '' : group"
-                  :display="impact.display"
+                  :label="impact.view.label"
+                  :icon="impact.view.icon"
                   :value="impact.value"
-                  size="large"
+                  :turns="impact.turns"
+                  size="small"
                 />
               </td>
-            </tr>
-            <tr v-if="cardEffects.per_turn">
-              <td colspan="2">Ongoing effects ({{ turnsString }} turns)</td>
-            </tr>
-            <tr
-              v-if="cardEffects.per_turn"
-              v-for="group in Object.keys(cardEffects.per_turn)"
-              :key="group"
-            >
-              <!-- <td v-if="group !== '_'">
-                {{ cardEffects.per_turn[group].display.label }}
-              </td> -->
-              <td></td>
-              <td>
+              <td v-else>
                 <ImpactChip
-                  v-for="(impact, i) in cardEffects.per_turn[group].items"
-                  :key="i"
-                  :cardTitle="cardDisplay.title"
-                  :context="impact.context"
-                  :group="group === '_' ? '' : group"
-                  :display="impact.display"
-                  :value="impact.value"
-                  size="large"
+                  :label="cardEffects[type][group].view.label"
+                  :icon="cardEffects[type][group].view.icon"
+                  :value="cardEffects[type][group].value"
+                  :turns="cardEffects[type][group].turns"
+                  size="small"
                 />
               </td>
             </tr>
           </tbody>
+          <tbody v-else>
+            <!-- empty -->
+            <tr>
+              <td colspan="2" class="text-center">None</td>
+            </tr>
+          </tbody>
         </v-table>
-        <!-- <ImpactChip
-          v-for="(impact, i) in cardEffects.immediate.list"
-          :key="i"
-          :context="impact.context"
-          :score="impact.score"
-          size="large"
-        /> -->
+        <!-- <v-table v-if="Object.keys(cardEffects.per_turn).length" fixed-header density="compact">
+          <thead>
+            <tr>
+              <td colspan="2" class="bg-purple-darken-2 text-center pa-2">
+                Ongoing Effects ({{ turnsString }} Turns)
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="group in Object.keys(cardEffects.per_turn)" :key="group">
+              <td
+                v-if="
+                  cardEffects.per_turn[group] &&
+                  !cardEffects.per_turn[group].items.length &&
+                  cardEffects.per_turn[group].view
+                "
+              >
+                {{ cardEffects.per_turn[group].view.label }}
+              </td>
+              <td v-if="cardEffects.per_turn[group].items">
+                <ImpactChip
+                  v-for="(impact, i) in cardEffects.per_turn[group].items"
+                  :key="i"
+                  :label="impact.view.label"
+                  :icon="impact.view.icon"
+                  :value="impact.value"
+                  :turns="impact.turns"
+                  size="small"
+                />
+              </td>
+              <td v-else>
+                <ImpactChip
+                  :label="cardEffects.per_turn[group].view.label"
+                  :icon="cardEffects.per_turn[group].view.icon"
+                  :value="cardEffects.per_turn[group].value"
+                  :turns="cardEffects.per_turn[group].turns"
+                  size="small"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </v-table> -->
       </v-card-item>
       <v-card-actions>
         <v-btn @click="closeCardDetailsDialog">Close</v-btn>
@@ -107,6 +133,10 @@ let cardDisplay = {}
 let cardEffects = {}
 let desc = {}
 let turnsString = ''
+const types = {
+  immediate: 'Immediate Effects',
+  per_turn: 'Ongoing Effects'
+}
 const recalculateCardState = function () {
   cardDisplay = getCardDisplay(
     cardDetailsDialogData.value.cardID,
@@ -123,8 +153,8 @@ const recalculateCardState = function () {
     cardDetailsDialogData.value.type,
     cardDetailsDialogData.value.deck
   )
-  debugger
-  turnsString = cardEffects.per_turn?.turns?.join(' - ')
+
+  types.per_turn = `Ongoing Effects (${cardEffects.turns?.join(' - ')} Turns)`
   console.log('cardEffects', cardEffects)
 }
 

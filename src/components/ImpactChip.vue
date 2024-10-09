@@ -10,7 +10,7 @@
     :prepend-icon="icon"
     :append-icon="arrowicon"
   >
-    {{ display.label }}: {{ value }}
+    {{ label }}: {{ value }}
     <!-- <v-tooltip activator="parent" class="kode-mono-terminal"
       >{{ cardTitle }}: {{ value }}</v-tooltip
     > -->
@@ -18,10 +18,10 @@
 </template>
 
 <script setup>
-const props = defineProps(['size', 'context', 'group', 'display', 'value', 'cardTitle'])
+const props = defineProps(['size', 'label', 'value', 'icon', 'variant'])
 const size = props.size || 'large'
 
-const icon = props.value > 0 ? props.display.icon.pos : props.display.icon.neg
+const icon = props.value > 0 ? props.icon.pos : props.icon.neg
 const arrowicon = props.value > 0 ? 'mdi-arrow-up-bold' : 'mdi-arrow-down-bold'
 const color = props.value > 0 ? 'green' : 'red'
 </script>

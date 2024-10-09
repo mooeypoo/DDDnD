@@ -17,36 +17,64 @@ export function useDeckAbstraction() {
 
     // Get the card's impacts (immediate and per_turn) in an output that is suitable
     // for the CardDetailsDialog
-    const result = { immediate: {}, per_turn: {} }
+    const result = { immediate: [], per_turn: [] }
     const types = ['immediate', 'per_turn']
-    let turns = []
-
+    let turns
     types.forEach((type) => {
-      getListOfImpactTypeFromCard(type, cardID, cardType, deck).list?.forEach((item) => {
-        const grp = item.score.group || '_'
-        result[type][grp] = result[type][grp] || {
-          // TODO: This isn't working :|
-          display: getViewDetails(item.context, grp),
-          items: []
-        }
+      // const groups = {}
+      result[type] = result[type] || []
 
-        result[type][grp].items.push({
-          context: item.context,
-          // Get labels
-          display: getViewDetails(item.context, item.score.group, item.score.element),
-          value: item.score.value,
-          turns: item.turns
+      getListOfImpactTypeFromCard(type, cardID, cardType, deck)
+        .list?.sort((a, b) => {
+          // Sort by group
+          return a.score.group > b.score.group
         })
+        .forEach((impact) => {
+          const group = impact.score.group || '_'
 
-        turns = item.turns
-      })
+          if (group !== '_') {
+            // This is an item that is in a group
+            const details = getViewDetails(impact.context, group)
+
+            if (!result[type][group]) {
+              // Set up the group detail
+              result[type][group] = {
+                view: {
+                  label: details.label,
+                  icon: details.icon,
+                  color: details.color
+                },
+                items: []
+              }
+            }
+
+            // Add the specific item
+            result[type][group].items.push({
+              view: details.children[impact.score.element],
+              context: impact.context,
+              turns: impact.turns,
+              value: impact.score.value
+            })
+          } else {
+            // This is an item that is top-level
+            result[type][impact.score.element] = {
+              view: getViewDetails(impact.context, impact.score.element),
+              context: impact.context,
+              turns: impact.turns,
+              value: impact.score.value
+            }
+          }
+
+          // turns
+          // TODO: We need to 'raise' turns up to the main per_turn object
+          // but this is messy and really not a good way to do it...
+          if (type === 'per_turn') {
+            turns = turns || impact.turns
+          }
+        })
     })
 
-    // Insert turns as a general value
-    // TODO: If we ever have turns per score, this should change
-    // but right now, turns are for the entire score block, same value
-    // of random turns
-    result.per_turn.turns = turns
+    result.turns = turns
 
     return result
   }
