@@ -1,5 +1,5 @@
 <template>
-  <v-card variant="">
+  <v-card>
     <v-card-title>{{ visibleTitle }}</v-card-title>
     <v-card-item class="deckview">
       <CardView
