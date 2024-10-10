@@ -17,7 +17,7 @@
       <v-fade-transition>
         <RatingBox
           v-if="isGameActive"
-          value="20"
+          :value="playerMaxPower"
           numOfIcons="5"
           title="Player Power"
           icon="mdi-star"
@@ -25,7 +25,12 @@
         />
       </v-fade-transition>
       <v-fade-transition>
-        <RatingBox v-if="isGameActive" value="50" numOfIcons="5" title="Player Influence" />
+        <RatingBox
+          v-if="isGameActive"
+          :value="playerMaxInfluence"
+          numOfIcons="5"
+          title="Player Influence"
+        />
       </v-fade-transition>
     </v-app-bar>
     <v-main class="ma-2">
@@ -59,12 +64,11 @@ import MainSideDrawer from './components/MainSideDrawer.vue'
 import TurnCountBox from './components/TurnCountBox.vue'
 import DeckView from './components/DeckView.vue'
 import TurnActionsView from './components/TurnActionsView.vue'
-// import BottomDrawer from './components/BottomDrawer.vue'
 import AbandonConfirmationDialog from './components/AbandonConfirmationDialog.vue'
 import { useGameAbstraction } from '@/use/gameAbstraction'
 import CardDetailsDialog from './components/CardDetailsDialog.vue'
 
-const { isGameActive } = useGameAbstraction()
+const { isGameActive, playerMaxPower, playerMaxInfluence } = useGameAbstraction()
 
 const sidedrawer = ref(false)
 const group = ref(null)

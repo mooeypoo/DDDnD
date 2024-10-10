@@ -14,33 +14,40 @@
 </template>
 
 <script setup>
+import { ref, watch } from 'vue'
 import RatingIcon from './RatingIcon.vue'
 
 const props = defineProps(['value', 'numOfIcons', 'title', 'icon', 'variant'])
 
 const maxValue = 100
 const numOfIcons = isNaN(props.numOfIcons) ? 5 : Number(props.numOfIcons)
-const value = isNaN(props.value) ? 0 : props.value
 const variantValue = props.variant || 'tonal'
-// TODO: Something's wrong when the value equals 'max' value (100%)
-// seems 4/5 icons are lit without the last one...
 
-// Return an array of certain amount of 'active' and 'partial' items, to be then
-// used to set an array of RatingIcon components states on/off based on the given
-// value. This is very similar to a star rating widget functionality.
-const active = []
-const activeIndex = Math.floor(value / (maxValue / numOfIcons))
-const remainder = value % (maxValue / numOfIcons)
+const activeIndex = ref(0)
+const remainder = ref(0)
+const active = ref([])
 
-// Set 'active' state for the relevant number of icons by the value
-for (let i = 0; i < numOfIcons; i++) {
-  active[i] = i <= activeIndex ? 'active' : ''
+const update = () => {
+  activeIndex.value = Math.floor(props.value / (maxValue / numOfIcons))
+  remainder.value = props.value % (maxValue / numOfIcons)
+  // Set 'active' state for the relevant number of icons by the value
+  for (let i = 0; i < numOfIcons + 1; i++) {
+    active.value[i] = i <= activeIndex.value ? 'active' : ''
+  }
+  // If there is a remainder, make the next icon partially active
+  if (remainder.value) {
+    active.value[activeIndex.value + 1] = 'partial'
+  }
 }
 
-// If there is a remainder, make the next icon partially active
-if (remainder) {
-  active[activeIndex + 1] = 'partial'
-}
+update()
+watch(
+  () => props.value,
+  () => {
+    update()
+  },
+  { immediate: true }
+)
 </script>
 
 <style lang="scss" scoped>

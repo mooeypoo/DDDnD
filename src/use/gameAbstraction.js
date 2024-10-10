@@ -8,6 +8,7 @@ export function useGameAbstraction() {
   const playerStore = usePlayerStore()
   const { getCardRequiredPower } = useDeckAbstraction()
 
+  // Game active
   const isGameActive = computed(() => gameStore.isActive)
   const setGameActive = function () {
     gameStore.toggleActive(true)
@@ -17,11 +18,13 @@ export function useGameAbstraction() {
     gameStore.reset()
   }
 
+  // Turns
   const getTurnCount = computed(() => gameStore.getTurnCount)
   const increaseTurn = function () {
     gameStore.increaseTurn()
   }
 
+  // Chosen cards
   const getAllChosenCards = computed(() => gameStore.chosenCards)
   const isCardChosen = function (cardId) {
     return gameStore.getChosenCards.indexOf(cardId) > -1
@@ -35,9 +38,9 @@ export function useGameAbstraction() {
     }
   }
 
-  /**
-   * Check available player power based on player power and chosen cards
-   */
+  // Power
+
+  // Check available player power based on player power and chosen cards
   const availablePlayerPower = computed(() => {
     let result = 0
     gameStore.getChosenCards.forEach((cardId) => {
@@ -46,6 +49,9 @@ export function useGameAbstraction() {
 
     return playerStore.getPlayerPower - result
   })
+
+  const playerMaxPower = computed(() => playerStore.getPlayerPower)
+  const playerMaxInfluence = computed(() => playerStore.getPlayerInfluence)
 
   return {
     resetGame,
@@ -56,6 +62,8 @@ export function useGameAbstraction() {
     isCardChosen,
     getAllChosenCards,
     toggleChosenCard,
-    availablePlayerPower
+    availablePlayerPower,
+    playerMaxPower,
+    playerMaxInfluence
   }
 }

@@ -5,6 +5,7 @@
 </template>
 
 <script setup>
+import { ref, watch } from 'vue'
 const props = defineProps(['state', 'size', 'icon'])
 const size = props.size || 'x-small'
 const icon = props.icon || 'mdi-sword'
@@ -14,14 +15,27 @@ if (!isNaN(size)) {
   iconSize = size - 4
 }
 
-let bgcolor = 'grey-darken-4'
-let color = 'grey-darken-2'
+let bgcolor = ref('grey-darken-4')
+let color = ref('grey-darken-2')
 
-if (props.state === 'active') {
-  bgcolor = 'orange-darken-4'
-  color = 'yellow'
-} else if (props.state === 'partial') {
-  bgcolor = 'grey-darken-2'
-  color = 'yellow-darken-2'
+const update = () => {
+  if (props.state === 'active') {
+    bgcolor.value = 'orange-darken-4'
+    color.value = 'yellow'
+  } else if (props.state === 'partial') {
+    bgcolor.value = 'grey-darken-2'
+    color.value = 'yellow-darken-2'
+  } else {
+    bgcolor.value = 'grey-darken-4'
+    color.value = 'grey-darken-2'
+  }
 }
+
+watch(
+  () => props.state,
+  () => {
+    update()
+  },
+  { immediate: true }
+)
 </script>
