@@ -4,7 +4,7 @@
       <v-card-title class="bg-pink-darken-4">Details: {{ cardDisplay.title }}</v-card-title>
       <v-img
         height="250"
-        :src="`/images/cards/backgrounds/dragon-incinirating-bugs.jpeg`"
+        :src="`/images/cards/backgrounds/${img}`"
         color="black"
         cover
         class="cardimage d-flex align-end"
@@ -78,7 +78,7 @@
 </template>
 
 <script setup>
-import { watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useDeckAbstraction } from '@/use/deckAbstraction'
 import { useUITogglesAbstraction } from '@/use/uiTogglesAbstraction'
 import ImpactChip from './ImpactChip.vue'
@@ -90,6 +90,7 @@ const { isCardDetailsDialogOpen, cardDetailsDialogData, closeCardDetailsDialog }
 let cardDisplay = {}
 let cardEffects = {}
 let desc = {}
+let img = ref('')
 
 const types = {
   immediate: 'Immediate Effects',
@@ -105,6 +106,7 @@ const recalculateCardState = function () {
     long: cardDisplay.description?.long || '',
     short: cardDisplay.description?.short || ''
   }
+  img.value = cardDisplay.image || 'dragon-incinirating-bugs.jpeg'
 
   cardEffects = getCardImpactDisplay(
     cardDetailsDialogData.value.cardID,
