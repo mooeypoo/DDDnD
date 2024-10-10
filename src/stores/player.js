@@ -2,13 +2,13 @@ import { defineStore } from 'pinia'
 const defaults = {
   name: '',
   character: '',
-  power: 100,
+  power: 10,
   influence: 10
 }
 
 export const usePlayerStore = defineStore('player', {
   state: () => ({
-    power: 100,
+    power: 10,
     influence: 10
   }),
   getters: {

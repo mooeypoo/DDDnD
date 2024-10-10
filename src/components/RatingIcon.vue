@@ -26,6 +26,7 @@ const update = () => {
     bgcolor.value = 'grey-darken-2'
     color.value = 'yellow-darken-2'
   } else {
+    // "Off" state
     bgcolor.value = 'grey-darken-4'
     color.value = 'grey-darken-2'
   }
