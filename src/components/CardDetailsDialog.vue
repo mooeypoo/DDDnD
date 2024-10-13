@@ -23,53 +23,6 @@
       <v-card-title class="bg-pink-darken-4"> Effects </v-card-title>
       <v-card-item>
         <CardImpactView :cardID="cardID" :type="cardType" :deck="cardDeck" />
-        <!-- TODO: Get this to its own component so we can reuse this in the turn actions dialog for chosen cards -->
-        <!-- <v-table v-for="type in Object.keys(types)" fixed-header density="compact" :key="type">
-          <thead>
-            <tr>
-              <td colspan="2" class="bg-purple-darken-2 text-center pa-2">{{ types[type] }}</td>
-            </tr>
-          </thead>
-          <tbody v-if="Object.keys(cardEffects[type]).length">
-            <tr v-for="group in Object.keys(cardEffects[type])" :key="group">
-              <td
-                v-if="
-                  cardEffects[type][group] &&
-                  cardEffects[type][group].items &&
-                  cardEffects[type][group].view
-                "
-              >
-                {{ cardEffects[type][group].view.label }}
-              </td>
-              <td v-else></td>
-              <td v-if="cardEffects[type][group].items">
-                <ImpactChip
-                  v-for="(impact, i) in cardEffects[type][group].items"
-                  :key="i"
-                  :label="impact.view.label"
-                  :icon="impact.view.icon"
-                  :value="impact.value"
-                  :turns="impact.turns"
-                  size="small"
-                />
-              </td>
-              <td v-else>
-                <ImpactChip
-                  :label="cardEffects[type][group].view.label"
-                  :icon="cardEffects[type][group].view.icon"
-                  :value="cardEffects[type][group].value"
-                  :turns="cardEffects[type][group].turns"
-                  size="small"
-                />
-              </td>
-            </tr>
-          </tbody>
-          <tbody v-else>
-            <tr>
-              <td colspan="2" class="text-center">None</td>
-            </tr>
-          </tbody>
-        </v-table>-->
       </v-card-item>
       <v-card-actions>
         <v-btn @click="closeCardDetailsDialog">Close</v-btn>

@@ -62,7 +62,7 @@ const types = {
 }
 const recalculateCardState = function () {
   cardEffects = getCardImpactDisplay(props.cardID, props.type || 'player', props.deck || 'ddd')
-  debugger
+
   if (cardEffects.turns) {
     types.per_turn = cardEffects.turns
       ? `Ongoing Effects (${cardEffects.turns?.join(' - ')} Turns)`
