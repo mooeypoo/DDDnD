@@ -22,7 +22,9 @@
       <v-card-text class="py-2" v-html="desc.long"></v-card-text>
       <v-card-title class="bg-pink-darken-4"> Effects </v-card-title>
       <v-card-item>
-        <v-table v-for="type in Object.keys(types)" fixed-header density="compact" :key="type">
+        <CardImpactView :cardID="cardID" :type="cardType" :deck="cardDeck" />
+        <!-- TODO: Get this to its own component so we can reuse this in the turn actions dialog for chosen cards -->
+        <!-- <v-table v-for="type in Object.keys(types)" fixed-header density="compact" :key="type">
           <thead>
             <tr>
               <td colspan="2" class="bg-purple-darken-2 text-center pa-2">{{ types[type] }}</td>
@@ -63,12 +65,11 @@
             </tr>
           </tbody>
           <tbody v-else>
-            <!-- empty -->
             <tr>
               <td colspan="2" class="text-center">None</td>
             </tr>
           </tbody>
-        </v-table>
+        </v-table>-->
       </v-card-item>
       <v-card-actions>
         <v-btn @click="closeCardDetailsDialog">Close</v-btn>
@@ -78,24 +79,24 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useDeckAbstraction } from '@/use/deckAbstraction'
 import { useUITogglesAbstraction } from '@/use/uiTogglesAbstraction'
-import ImpactChip from './ImpactChip.vue'
+import CardImpactView from './CardImpactView.vue'
+// import ImpactChip from './ImpactChip.vue'
 
-const { getCardDisplay, getCardImpactDisplay } = useDeckAbstraction()
+const { getCardDisplay } = useDeckAbstraction()
 const { isCardDetailsDialogOpen, cardDetailsDialogData, closeCardDetailsDialog } =
   useUITogglesAbstraction()
 
 let cardDisplay = {}
-let cardEffects = {}
+// let cardEffects = {}
 let desc = {}
 let img = ref('')
 
-const types = {
-  immediate: 'Immediate Effects',
-  per_turn: 'Ongoing Effects'
-}
+const cardID = computed(() => cardDetailsDialogData.value.cardID)
+const cardType = computed(() => cardDetailsDialogData.value.type)
+const cardDeck = computed(() => cardDetailsDialogData.value.deck)
 const recalculateCardState = function () {
   cardDisplay = getCardDisplay(
     cardDetailsDialogData.value.cardID,
@@ -107,14 +108,6 @@ const recalculateCardState = function () {
     short: cardDisplay.description?.short || ''
   }
   img.value = cardDisplay.image || 'dragon-incinirating-bugs.jpeg'
-
-  cardEffects = getCardImpactDisplay(
-    cardDetailsDialogData.value.cardID,
-    cardDetailsDialogData.value.type,
-    cardDetailsDialogData.value.deck
-  )
-
-  types.per_turn = `Ongoing Effects (${cardEffects.turns?.join(' - ')} Turns)`
 }
 
 // re-Update the details when the state changes
