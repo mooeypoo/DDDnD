@@ -2,12 +2,32 @@ import { CardManager } from '@/lib/CardManager'
 import { ViewManager } from '@/lib/ViewManager'
 
 export function useDeckAbstraction() {
-  const { getCardPower, allCardsNamesInType, getCardDetails, getListOfImpactTypeFromCard } =
-    CardManager()
+  const {
+    getRandomTurn,
+    getCardPower,
+    allCardsNamesInType,
+    getCardDetails,
+    getListOfImpactTypeFromCard
+  } = CardManager()
   const { getViewDetails } = ViewManager()
 
   const getCardDisplay = (cardID, cardType = 'player', deck = 'ddd') => {
     return getCardDetails(cardID, cardType, deck)
+  }
+
+  const getCardImpactTurns = (cardID, cardType = 'player', deck = 'ddd') => {
+    if (!cardID) {
+      return {}
+    }
+
+    const per_turn = getListOfImpactTypeFromCard('per_turn', cardID, cardType, deck)
+    if (per_turn && per_turn.list && Object.keys(per_turn.list).length) {
+      // For the moment, all impacts have the same number of turns
+      // so just pick one
+      return per_turn.list[Object.keys(per_turn.list)[0]].turns
+    }
+
+    return 0
   }
 
   /**
@@ -97,11 +117,19 @@ export function useDeckAbstraction() {
   const getAllCardIDs = (cardType = 'player', deck = 'ddd') => {
     return allCardsNamesInType(cardType, deck)
   }
+  const chooseRandomTurn = (turnArray) => {
+    if (!Array.isArray(turnArray)) {
+      return turnArray
+    }
+    return getRandomTurn(turnArray[0], turnArray[1])
+  }
 
   return {
+    chooseRandomTurn,
     getAllCardIDs,
     getCardDisplay,
     getCardRequiredPower,
-    getCardImpactDisplay
+    getCardImpactDisplay,
+    getCardImpactTurns
   }
 }

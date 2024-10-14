@@ -52,6 +52,7 @@
     <MainSideDrawer v-model="sidedrawer" />
     <AbandonConfirmationDialog />
     <CardDetailsDialog />
+    <TurnActionsDialog />
     <!-- <BottomDrawer title="Card list" color="pink"> BLAH </BottomDrawer> -->
   </v-app>
 </template>
@@ -64,6 +65,7 @@ import MainSideDrawer from './components/MainSideDrawer.vue'
 import TurnCountBox from './components/TurnCountBox.vue'
 import DeckView from './components/DeckView.vue'
 import TurnActionsView from './components/TurnActionsView.vue'
+import TurnActionsDialog from './components/TurnActionsDialog.vue'
 import AbandonConfirmationDialog from './components/AbandonConfirmationDialog.vue'
 import { useGameAbstraction } from '@/use/gameAbstraction'
 import CardDetailsDialog from './components/CardDetailsDialog.vue'

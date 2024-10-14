@@ -6,7 +6,7 @@ import { useDeckAbstraction } from './deckAbstraction'
 export function useGameAbstraction() {
   const gameStore = useGameStore()
   const playerStore = usePlayerStore()
-  const { getCardRequiredPower } = useDeckAbstraction()
+  const { getCardRequiredPower, getCardImpactTurns, chooseRandomTurn } = useDeckAbstraction()
 
   // Game active
   const isGameActive = computed(() => gameStore.isActive)
@@ -39,7 +39,6 @@ export function useGameAbstraction() {
   }
 
   // Power
-
   // Check available player power based on player power and chosen cards
   const availablePlayerPower = computed(() => {
     let result = 0
@@ -53,6 +52,38 @@ export function useGameAbstraction() {
   const playerMaxPower = computed(() => playerStore.getPlayerPower)
   const playerMaxInfluence = computed(() => playerStore.getPlayerInfluence)
 
+  // GAME TURNS
+  const preparePlayerTurn = (deckID = 'ddd') => {
+    const details = { turns: {} }
+    // Go over cards to figure out 'per_turn' turns
+    getAllChosenCards.value.forEach((cardId) => {
+      const turnsArr = getCardImpactTurns(cardId, 'player', deckID)
+      details.turns[cardId] = chooseRandomTurn(turnsArr)
+    })
+
+    return details
+  }
+
+  const executePlayerTurn = () => {
+    // Go over chosen cards
+    const immediate = []
+    const ongoing = []
+    const delayed = []
+    gameStore.getChosenCards.forEach((cardId) => {})
+    // - Get all immediate effects
+    // - Get all ongoing effects -> how many turns
+    // - Get all delayed effects -> store for later
+    // Update card list state
+    // - Go over ongoing effect;
+    //   - apply + reduce turn by 1
+    //   - delete from list if turns=0
+    // - Go over delayed effects
+    //   - reduce turns by 1
+    //   - if turns=0, choose good/bad + apply effects
+    // Decide if system card should be applied
+    // Decide if user power should be increased
+  }
+
   return {
     resetGame,
     isGameActive,
@@ -64,6 +95,7 @@ export function useGameAbstraction() {
     toggleChosenCard,
     availablePlayerPower,
     playerMaxPower,
-    playerMaxInfluence
+    playerMaxInfluence,
+    preparePlayerTurn
   }
 }

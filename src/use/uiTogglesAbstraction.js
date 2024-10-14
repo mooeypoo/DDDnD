@@ -8,6 +8,10 @@ export function useUITogglesAbstraction() {
     get: () => uiTogglesStore.abandonConfirmDialog,
     set: (value) => uiTogglesStore.toggleAbandonConfirmDialog(value)
   })
+  const isTurnActionsDialog = computed({
+    get: () => uiTogglesStore.turnActionsDialogOpen,
+    set: (value) => uiTogglesStore.toggleTurnActionsDialog(value)
+  })
   const isCardDetailsDialogOpen = computed({
     get: () => uiTogglesStore.cardDetailsDialogOpen,
     set: (value) => {
@@ -22,6 +26,9 @@ export function useUITogglesAbstraction() {
 
   const toggleAbandonConfirmationDialog = function (state) {
     uiTogglesStore.toggleAbandonConfirmDialog(state)
+  }
+  const toggleTurnActionsDialog = function (state) {
+    uiTogglesStore.toggleTurnActionsDialog(state)
   }
   const openCardDetailsDialog = function (cardID, cardType = 'player', deckID = 'ddd') {
     uiTogglesStore.openCardDetailsDialog(cardID, cardType, deckID)
@@ -38,6 +45,9 @@ export function useUITogglesAbstraction() {
     isCardDetailsDialogOpen,
     cardDetailsDialogData,
     openCardDetailsDialog,
-    closeCardDetailsDialog
+    closeCardDetailsDialog,
+    // Turn actions dialog
+    toggleTurnActionsDialog,
+    isTurnActionsDialog
   }
 }

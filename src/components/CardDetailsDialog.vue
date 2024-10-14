@@ -36,7 +36,6 @@ import { ref, watch, computed } from 'vue'
 import { useDeckAbstraction } from '@/use/deckAbstraction'
 import { useUITogglesAbstraction } from '@/use/uiTogglesAbstraction'
 import CardImpactView from './CardImpactView.vue'
-// import ImpactChip from './ImpactChip.vue'
 
 const { getCardDisplay } = useDeckAbstraction()
 const { isCardDetailsDialogOpen, cardDetailsDialogData, closeCardDetailsDialog } =

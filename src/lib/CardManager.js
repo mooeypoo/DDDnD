@@ -2,6 +2,11 @@ import dddPlayerCards from './definitions/ddd/playerCards'
 import dddSystemCards from './definitions/ddd/systemCards'
 
 export function CardManager() {
+  const getRandomTurn = (min, max) => {
+    min = Math.ceil(min)
+    max = Math.floor(max)
+    return Math.floor(Math.random() * (max - min + 1)) + min
+  }
   /**
    * Provide the correct deck of cards. This allows the game to expand to use
    * different sets of cards beyond the initial DDD-terminology specific ones.
@@ -153,6 +158,7 @@ export function CardManager() {
 
   // Expose public functions
   return {
+    getRandomTurn,
     getCardPower,
     allCardsNamesInType,
     getCardDetails,

@@ -6,12 +6,12 @@
       cover
       class="cardimage d-flex justify-end"
     />
-    <v-row @click="show = !show" no-gutters class="">
+    <v-row no-gutters>
       <v-col>
         <v-card-title class="pa-2 text-center">{{ details.title }}</v-card-title>
       </v-col>
     </v-row>
-    <v-card-actions class="d-flex justify-center bg-surface">
+    <v-card-actions v-if="interactive !== 'false'" class="d-flex justify-center bg-surface">
       <v-btn variant="outlined" size="x-small" icon="mdi-help" @click="triggerInfoCard()"></v-btn>
       <v-btn
         variant="outlined"
@@ -28,7 +28,7 @@
 <script setup>
 import { useDeckAbstraction } from '@/use/deckAbstraction'
 
-const props = defineProps(['id', 'type', 'deck'])
+const props = defineProps(['id', 'type', 'deck', 'interactive'])
 
 // Card details
 const { getCardDisplay } = useDeckAbstraction()
