@@ -64,14 +64,13 @@ The simulation engine only depends on the scenario bundle.
 
 The simulation engine exposes the following API:
 
-```
-create_engine({ scenario_bundle })
+- `create_engine`
+- `create_run`
+- `get_turn_briefing`
+- `play_turn`
+- `get_run_outcome`
 
-engine.create_run(): GameState
-engine.get_turn_briefing(): TurnBriefing
-engine.play_turn(action_id): TurnResolution
-engine.get_turn_outcome(): RunOutcome
-```
+`get_run_outcome` returns the current or final outcome state for the overall run.
 
 These APIs should be defined with explicit TypeScript interfaces.
 
@@ -101,6 +100,8 @@ Game state must be serializable.
 ---
 
 # Turn Resolution Pipeline
+
+The simulation uses a detailed canonical phase vocabulary for runtime records and future extensibility. The MVP engine shell may temporarily group these into a smaller orchestration sequence — Architectural Aftershocks, Player Action, System Event, Stakeholder Resolution, and Turn Wrap-Up — as long as the runtime model remains compatible with the fuller phase model.
 
 Each turn follows this sequence:
 

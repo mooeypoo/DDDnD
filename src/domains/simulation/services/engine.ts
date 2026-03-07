@@ -22,33 +22,88 @@
  * - getRunOutcome(): Determine final outcome of completed run
  */
 
-// TODO: Define GameState interface
-// TODO: Define TurnBriefing interface
-// TODO: Define TurnResolution interface
-// TODO: Define RunOutcome interface
+import { ScenarioBundle } from '@/domains/content/model'
+import { createSeededRandom, SeededRandom } from '@/shared/random/seeded_random'
+import { GameState } from '../model'
+import { createRun } from './create_run'
+import { RunOutcome, getRunOutcome } from './get_run_outcome'
+import { TurnBriefing, getTurnBriefing } from './get_turn_briefing'
+import { PlayTurnResult, playTurn } from './play_turn'
 
-export function createEngine(_scenarioBundle: unknown, _seed: string) {
-  // TODO: Initialize engine with bundle and seed
-  
+export interface CreateEngineInput {
+  scenario_bundle: ScenarioBundle
+  seed?: string
+}
+
+interface EngineStateContainer {
+  scenario_bundle: ScenarioBundle
+  seed: string
+  random: SeededRandom
+  game_state: GameState | null
+}
+
+export interface SimulationEngine {
+  create_run(): GameState
+  get_turn_briefing(): TurnBriefing
+  play_turn(action_id: string): PlayTurnResult
+  get_run_outcome(): RunOutcome | null
+}
+
+function getActiveGameState(engineState: EngineStateContainer): GameState {
+  if (!engineState.game_state) {
+    throw new Error('Run has not been initialized. Call create_run() first.')
+  }
+
+  return engineState.game_state
+}
+
+export function create_engine(input: CreateEngineInput): SimulationEngine {
+  if (!input.scenario_bundle) {
+    throw new Error('create_engine requires a scenario_bundle')
+  }
+
+  const seed = input.seed ?? 'default-seed'
+  const engineState: EngineStateContainer = {
+    scenario_bundle: input.scenario_bundle,
+    seed,
+    random: createSeededRandom(seed),
+    game_state: null
+  }
+
   return {
-    createRun: () => {
-      // TODO: Implement in create_run.ts
-      throw new Error('Not implemented')
+    create_run: () => {
+      engineState.game_state = createRun(engineState.scenario_bundle, engineState.seed)
+      return engineState.game_state
     },
-    
-    getTurnBriefing: (_state: unknown) => {
-      // TODO: Implement in get_turn_briefing.ts
-      throw new Error('Not implemented')
+
+    get_turn_briefing: () => {
+      return getTurnBriefing(getActiveGameState(engineState), engineState.scenario_bundle)
     },
-    
-    playTurn: (_state: unknown, _actionId: string) => {
-      // TODO: Implement in play_turn.ts
-      throw new Error('Not implemented')
+
+    play_turn: (action_id: string) => {
+      const result = playTurn(
+        getActiveGameState(engineState),
+        engineState.scenario_bundle,
+        action_id,
+        engineState.random
+      )
+
+      engineState.game_state = result.game_state
+      return result
     },
-    
-    getRunOutcome: (_state: unknown) => {
-      // TODO: Implement in get_run_outcome.ts
-      throw new Error('Not implemented')
+
+    get_run_outcome: () => {
+      return getRunOutcome(getActiveGameState(engineState), engineState.scenario_bundle)
     }
   }
+}
+
+export function createEngine(
+  scenarioBundle: ScenarioBundle,
+  seed?: string
+): SimulationEngine {
+  return create_engine({
+    scenario_bundle: scenarioBundle,
+    seed
+  })
 }

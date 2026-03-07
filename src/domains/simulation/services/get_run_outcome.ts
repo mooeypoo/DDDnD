@@ -18,12 +18,40 @@
  * This is called when a run ends (victory, failure, or max turns reached).
  */
 
-// TODO: Define RunOutcome interface
-// TODO: Implement outcome tier evaluation
-// TODO: Implement archetype classification
-// TODO: Generate shareable result payload
+import { ScenarioBundle } from '@/domains/content/model'
+import { GameState } from '../model'
 
-export function getRunOutcome(_gameState: unknown, _scenarioBundle: unknown) {
-  // TODO: Evaluate final outcome
-  throw new Error('Not implemented')
+export interface RunOutcome {
+  has_outcome: boolean
+  completion_reason: 'max_turns_reached'
+  scenario_id: string
+  scenario_version: number
+  turns_completed: number
+  max_turns: number
+  placeholder_tier_id: string | null
+  placeholder_archetype_id: string | null
+}
+
+export function getRunOutcome(
+  gameState: GameState,
+  scenarioBundle: ScenarioBundle
+): RunOutcome | null {
+  const hasReachedMaximumTurns =
+    gameState.run_analytics.turns_completed >= gameState.progress.max_turns ||
+    gameState.progress.run_status === 'completed_max_turns'
+
+  if (!hasReachedMaximumTurns) {
+    return null
+  }
+
+  return {
+    has_outcome: true,
+    completion_reason: 'max_turns_reached',
+    scenario_id: scenarioBundle.scenario.id,
+    scenario_version: scenarioBundle.scenario.version,
+    turns_completed: gameState.run_analytics.turns_completed,
+    max_turns: gameState.progress.max_turns,
+    placeholder_tier_id: null,
+    placeholder_archetype_id: null
+  }
 }
