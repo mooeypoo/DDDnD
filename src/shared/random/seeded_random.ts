@@ -26,6 +26,11 @@ export interface SeededRandom {
    * Returns a random integer in range [min, max]
    */
   nextInt(min: number, max: number): number
+
+  /**
+   * Returns the current deterministic state snapshot.
+   */
+  getState(): number
   
   /**
    * Returns a random element from an array
@@ -55,12 +60,28 @@ export function createSeededRandom(seed: string): SeededRandom {
     },
     
     nextInt(min: number, max: number): number {
+      if (!Number.isInteger(min) || !Number.isInteger(max)) {
+        throw new Error('nextInt requires integer min and max values')
+      }
+
+      if (max < min) {
+        throw new Error(`nextInt received invalid range: min=${min}, max=${max}`)
+      }
+
       return Math.floor(this.next() * (max - min + 1)) + min
     },
     
     choice<T>(items: T[]): T {
+      if (items.length === 0) {
+        throw new Error('choice requires a non-empty array')
+      }
+
       const index = this.nextInt(0, items.length - 1)
       return items[index]
+    },
+
+    getState(): number {
+      return state
     }
   }
 }

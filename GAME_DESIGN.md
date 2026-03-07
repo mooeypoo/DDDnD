@@ -77,6 +77,8 @@ Stakeholders may influence:
 - project direction
 - system stability
 
+Stakeholder support is tracked on a 0–100 scale, with scenario-defined starting values and stakeholder-specific thresholds for labels such as critical, neutral, and supportive.
+
 ---
 
 # Events

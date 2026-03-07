@@ -128,6 +128,43 @@ Each turn follows this sequence:
 
 Stakeholder rules run **once per turn** and do not recursively trigger new stakeholder evaluations.
 
+## Canonical Turn Phases
+
+The simulation uses the following canonical turn phases:
+
+- `turn_start`
+- `architectural_aftershocks`
+- `turn_briefing`
+- `action_selection`
+- `action_resolution`
+- `event_resolution`
+- `stakeholder_resolution`
+- `turn_wrap_up`
+- `run_outcome_check`
+- `completed`
+
+For MVP, delayed effects resolve only during `architectural_aftershocks`, even though runtime records may use the broader phase vocabulary for future extensibility.
+
+## Stakeholder Satisfaction Scale
+
+Stakeholder satisfaction is modeled as a numeric value on a 0–100 scale.
+
+- `0` represents complete loss of support
+- `50` represents a neutral midpoint
+- `100` represents maximum support
+
+Scenarios define starting stakeholder values. Stakeholder content defines threshold ranges such as critical, low, neutral, and supportive.
+
+## Transient vs Persisted Turn Records
+
+`turn_resolution_context` is a transient runtime structure used during turn execution and immediate UI handoff.
+
+It is not the canonical persisted record of a run.
+
+Completed turns are archived as `turn_history_entry` objects in `game_state.history`.
+
+If future versions require mid-turn save/resume, persistence of partial turn context should be introduced explicitly rather than assumed.
+
 ---
 
 # Determinism
