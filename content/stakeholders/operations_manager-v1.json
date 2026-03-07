@@ -1,0 +1,16 @@
+{
+  "id": "operations_manager",
+  "version": 1,
+  "name": "Operations Manager",
+  "description": "Operations leader focused on system stability and user trust",
+  "reaction_rule_refs": [
+    {
+      "id": "ops_manager_stressed_by_instability",
+      "version": 1
+    },
+    {
+      "id": "ops_manager_confident_in_stability",
+      "version": 1
+    }
+  ]
+}

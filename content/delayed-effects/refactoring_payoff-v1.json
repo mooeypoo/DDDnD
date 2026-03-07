@@ -1,0 +1,17 @@
+{
+  "id": "refactoring_payoff",
+  "version": 1,
+  "name": "Refactoring Pays Off",
+  "description": "The refactored code becomes easier to work with",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 8
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 5
+    }
+  ]
+}

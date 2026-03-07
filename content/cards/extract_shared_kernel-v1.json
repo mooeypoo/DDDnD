@@ -1,0 +1,27 @@
+{
+  "id": "extract_shared_kernel",
+  "version": 1,
+  "name": "Extract Shared Kernel",
+  "description": "Pull out common code into a well-defined shared module",
+  "flavor_text": "Some coupling is okay if we're honest about it",
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 6
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 5
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "refactoring_payoff",
+      "version": 1
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "vp_product_worried_about_users",
+  "version": 1,
+  "name": "VP Product Worried About Users",
+  "description": "VP Product reacts to declining user trust",
+  "condition_description": "User trust < 45",
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ]
+}

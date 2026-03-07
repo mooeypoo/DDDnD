@@ -1,0 +1,17 @@
+{
+  "id": "team_energized",
+  "version": 1,
+  "name": "Team Energized",
+  "description": "Progress on architecture boosts team motivation",
+  "turns_until_resolution": 1,
+  "score_changes": [
+    {
+      "score_id": "developer_morale",
+      "delta": 8
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 4
+    }
+  ]
+}

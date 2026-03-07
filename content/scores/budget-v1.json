@@ -1,0 +1,7 @@
+{
+  "id": "budget",
+  "version": 1,
+  "name": "Budget",
+  "description": "Available resources for architectural improvements and refactoring",
+  "default_value": 60
+}

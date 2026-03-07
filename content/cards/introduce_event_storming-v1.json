@@ -1,0 +1,35 @@
+{
+  "id": "introduce_event_storming",
+  "version": 1,
+  "name": "Introduce Event Storming",
+  "description": "Map out business processes and domain events collaboratively",
+  "flavor_text": "Sticky notes and sharpies can solve anything",
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 12
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": 4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -5
+    },
+    {
+      "score_id": "budget",
+      "delta": -7
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "boundaries_clarify",
+      "version": 1
+    },
+    {
+      "id": "team_energized",
+      "version": 1
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "concerned_about_debt",
+  "version": 1,
+  "name": "Concerned About Technical Debt",
+  "description": "React negatively when technical debt is high",
+  "condition_description": "Technical debt > 70",
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -5
+    }
+  ]
+}

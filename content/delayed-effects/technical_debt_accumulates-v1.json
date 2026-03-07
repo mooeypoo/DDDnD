@@ -1,0 +1,17 @@
+{
+  "id": "technical_debt_accumulates",
+  "version": 1,
+  "name": "Technical Debt Accumulates",
+  "description": "Shortcuts taken now will cost us later",
+  "turns_until_resolution": 3,
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": -8
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": -5
+    }
+  ]
+}

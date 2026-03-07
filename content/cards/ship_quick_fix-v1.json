@@ -1,0 +1,27 @@
+{
+  "id": "ship_quick_fix",
+  "version": 1,
+  "name": "Ship Quick Fix",
+  "description": "Bypass architecture work to deliver a feature fast",
+  "flavor_text": "Sometimes good enough is good enough... right?",
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 8
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 3
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -5
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "technical_debt_accumulates",
+      "version": 1
+    }
+  ]
+}

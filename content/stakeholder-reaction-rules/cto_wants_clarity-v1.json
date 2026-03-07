@@ -1,0 +1,17 @@
+{
+  "id": "cto_wants_clarity",
+  "version": 1,
+  "name": "CTO Wants Clarity",
+  "description": "CTO pushes for better domain understanding when clarity is low",
+  "condition_description": "Domain clarity < 40",
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": -5
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": -3
+    }
+  ]
+}

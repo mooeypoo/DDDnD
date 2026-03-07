@@ -1,0 +1,7 @@
+{
+  "id": "team_morale",
+  "version": 1,
+  "name": "Team Morale",
+  "description": "Developer satisfaction and productivity",
+  "default_value": 60
+}

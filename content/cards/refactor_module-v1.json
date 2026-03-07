@@ -1,0 +1,23 @@
+{
+  "id": "refactor_module",
+  "version": 1,
+  "name": "Refactor Core Module",
+  "description": "Clean up a messy module to improve maintainability",
+  "flavor_text": "Time to pay down some of that technical debt",
+  "score_changes": [
+    {
+      "score_id": "technical_debt",
+      "delta": -5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -2
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "improved_clarity",
+      "version": 1
+    }
+  ]
+}

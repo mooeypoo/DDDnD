@@ -1,0 +1,17 @@
+{
+  "id": "user_trust_recovers",
+  "version": 1,
+  "name": "User Trust Recovers",
+  "description": "Users regain confidence after seeing consistent stability",
+  "turns_until_resolution": 3,
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 10
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 3
+    }
+  ]
+}

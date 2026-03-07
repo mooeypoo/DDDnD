@@ -1,0 +1,17 @@
+{
+  "id": "ops_manager_confident_in_stability",
+  "version": 1,
+  "name": "Operations Manager Confident in Stability",
+  "description": "Operations manager supports the team when user trust is high",
+  "condition_description": "User trust > 70",
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 4
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": 2
+    }
+  ]
+}

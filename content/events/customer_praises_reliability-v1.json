@@ -1,0 +1,28 @@
+{
+  "id": "customer_praises_reliability",
+  "version": 1,
+  "name": "Customer Praises Reliability",
+  "description": "A major customer publicly thanks the team for system stability",
+  "flavor_text": "Sometimes good news actually happens",
+  "occurrence_weight": 3,
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 10
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": 6
+    },
+    {
+      "score_id": "budget",
+      "delta": 5
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "user_trust_recovers",
+      "version": 1
+    }
+  ]
+}

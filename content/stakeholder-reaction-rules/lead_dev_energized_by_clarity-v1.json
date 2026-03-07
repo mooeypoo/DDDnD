@@ -1,0 +1,17 @@
+{
+  "id": "lead_dev_energized_by_clarity",
+  "version": 1,
+  "name": "Lead Developer Energized by Clarity",
+  "description": "Lead developer is motivated when domain clarity improves",
+  "condition_description": "Domain clarity > 60",
+  "score_changes": [
+    {
+      "score_id": "developer_morale",
+      "delta": 5
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 3
+    }
+  ]
+}

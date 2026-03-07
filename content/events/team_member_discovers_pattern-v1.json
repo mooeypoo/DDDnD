@@ -1,0 +1,28 @@
+{
+  "id": "team_member_discovers_pattern",
+  "version": 1,
+  "name": "Team Member Discovers Pattern",
+  "description": "A developer finds an elegant solution to a recurring problem",
+  "flavor_text": "Eureka moments in the codebase",
+  "occurrence_weight": 4,
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 6
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 5
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": 4
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "team_energized",
+      "version": 1
+    }
+  ]
+}

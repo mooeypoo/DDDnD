@@ -1,0 +1,16 @@
+{
+  "id": "vp_product",
+  "version": 1,
+  "name": "VP of Product",
+  "description": "Product leader focused on feature delivery and user satisfaction",
+  "reaction_rule_refs": [
+    {
+      "id": "vp_product_demands_features",
+      "version": 1
+    },
+    {
+      "id": "vp_product_worried_about_users",
+      "version": 1
+    }
+  ]
+}

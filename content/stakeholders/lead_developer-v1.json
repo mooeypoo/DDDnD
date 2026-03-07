@@ -1,0 +1,16 @@
+{
+  "id": "lead_developer",
+  "version": 1,
+  "name": "Lead Developer",
+  "description": "Senior engineer who champions code quality and team morale",
+  "reaction_rule_refs": [
+    {
+      "id": "lead_dev_fights_for_quality",
+      "version": 1
+    },
+    {
+      "id": "lead_dev_energized_by_clarity",
+      "version": 1
+    }
+  ]
+}

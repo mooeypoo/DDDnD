@@ -1,0 +1,28 @@
+{
+  "id": "dependency_breaks_unexpectedly",
+  "version": 1,
+  "name": "Dependency Breaks Unexpectedly",
+  "description": "A third-party library update causes widespread issues",
+  "flavor_text": "Never trust a minor version bump",
+  "occurrence_weight": 5,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -7
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -4
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": -6
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "integration_complexity_emerges",
+      "version": 1
+    }
+  ]
+}

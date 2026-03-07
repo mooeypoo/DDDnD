@@ -1,0 +1,17 @@
+{
+  "id": "ops_manager_stressed_by_instability",
+  "version": 1,
+  "name": "Operations Manager Stressed By Instability",
+  "description": "Operations manager reacts to low user trust",
+  "condition_description": "User trust < 40",
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": -3
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": -2
+    }
+  ]
+}

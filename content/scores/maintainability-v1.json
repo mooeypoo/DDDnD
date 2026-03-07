@@ -1,0 +1,7 @@
+{
+  "id": "maintainability",
+  "version": 1,
+  "name": "Maintainability",
+  "description": "How easy it is to modify and extend the codebase",
+  "default_value": 40
+}

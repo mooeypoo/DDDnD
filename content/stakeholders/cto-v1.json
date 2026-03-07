@@ -1,0 +1,16 @@
+{
+  "id": "cto",
+  "version": 1,
+  "name": "Chief Technology Officer",
+  "description": "Strategic technical leader focused on domain clarity and delivery capability",
+  "reaction_rule_refs": [
+    {
+      "id": "cto_wants_clarity",
+      "version": 1
+    },
+    {
+      "id": "cto_celebrates_delivery",
+      "version": 1
+    }
+  ]
+}

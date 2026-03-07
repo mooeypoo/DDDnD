@@ -1,0 +1,17 @@
+{
+  "id": "lead_dev_fights_for_quality",
+  "version": 1,
+  "name": "Lead Developer Fights For Quality",
+  "description": "Lead developer advocates for maintainability when it's suffering",
+  "condition_description": "Maintainability < 35",
+  "score_changes": [
+    {
+      "score_id": "developer_morale",
+      "delta": -4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -2
+    }
+  ]
+}

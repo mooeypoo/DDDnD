@@ -1,0 +1,23 @@
+{
+  "id": "critical_bug_discovered",
+  "version": 1,
+  "name": "Critical Bug Discovered",
+  "description": "A serious production issue has been found",
+  "flavor_text": "The Slack channel is lighting up",
+  "occurrence_weight": 6,
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": -8
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": -5
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    }
+  ],
+  "delayed_effect_refs": []
+}

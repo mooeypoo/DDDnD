@@ -1,0 +1,28 @@
+{
+  "id": "urgent_feature_request",
+  "version": 1,
+  "name": "Urgent Feature Request",
+  "description": "Leadership demands a new feature be delivered immediately",
+  "flavor_text": "The roadmap just changed again",
+  "occurrence_weight": 7,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -6
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "technical_debt_accumulates",
+      "version": 1
+    }
+  ]
+}

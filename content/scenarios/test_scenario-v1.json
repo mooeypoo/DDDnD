@@ -1,0 +1,40 @@
+{
+  "id": "test_scenario",
+  "version": 1,
+  "name": "Test Scenario",
+  "description": "A minimal test scenario for validating the content system",
+  "flavor_text": "Testing the content loading pipeline",
+  "max_turns": 10,
+  "starting_scores": {
+    "technical_debt": 50,
+    "team_morale": 60
+  },
+  "score_refs": [
+    {
+      "id": "technical_debt",
+      "version": 1
+    },
+    {
+      "id": "team_morale",
+      "version": 1
+    }
+  ],
+  "stakeholder_refs": [
+    {
+      "id": "tech_lead",
+      "version": 1
+    }
+  ],
+  "card_refs": [
+    {
+      "id": "refactor_module",
+      "version": 1
+    }
+  ],
+  "event_refs": [
+    {
+      "id": "production_incident",
+      "version": 1
+    }
+  ]
+}

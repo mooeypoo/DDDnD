@@ -1,0 +1,27 @@
+{
+  "id": "define_bounded_context",
+  "version": 1,
+  "name": "Define Bounded Context",
+  "description": "Identify and document a clear domain boundary within the monolith",
+  "flavor_text": "Let's draw some lines in the sand",
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 8
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    },
+    {
+      "score_id": "budget",
+      "delta": -5
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "boundaries_clarify",
+      "version": 1
+    }
+  ]
+}

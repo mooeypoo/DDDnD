@@ -1,0 +1,17 @@
+{
+  "id": "integration_complexity_emerges",
+  "version": 1,
+  "name": "Integration Complexity Emerges",
+  "description": "New boundaries reveal unexpected integration challenges",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -6
+    },
+    {
+      "score_id": "budget",
+      "delta": -5
+    }
+  ]
+}

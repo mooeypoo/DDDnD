@@ -1,0 +1,12 @@
+{
+  "id": "tech_lead",
+  "version": 1,
+  "name": "Technical Lead",
+  "description": "Experienced developer who cares about code quality",
+  "reaction_rule_refs": [
+    {
+      "id": "concerned_about_debt",
+      "version": 1
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "id": "domain_clarity",
+  "version": 1,
+  "name": "Domain Clarity",
+  "description": "How well the domain boundaries are understood and defined",
+  "default_value": 30
+}

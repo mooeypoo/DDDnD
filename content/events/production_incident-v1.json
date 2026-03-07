@@ -1,0 +1,19 @@
+{
+  "id": "production_incident",
+  "version": 1,
+  "name": "Production Incident",
+  "description": "A critical bug has escaped to production",
+  "flavor_text": "The pager is going off",
+  "occurrence_weight": 5,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -10
+    },
+    {
+      "score_id": "technical_debt",
+      "delta": 5
+    }
+  ],
+  "delayed_effect_refs": []
+}

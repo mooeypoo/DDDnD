@@ -1,0 +1,7 @@
+{
+  "id": "technical_debt",
+  "version": 1,
+  "name": "Technical Debt",
+  "description": "Accumulated shortcuts and compromises in the codebase",
+  "default_value": 50
+}

@@ -1,0 +1,17 @@
+{
+  "id": "cto_celebrates_delivery",
+  "version": 1,
+  "name": "CTO Celebrates Delivery",
+  "description": "CTO provides support when delivery confidence is high",
+  "condition_description": "Delivery confidence > 65",
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": 5
+    },
+    {
+      "score_id": "developer_morale",
+      "delta": 3
+    }
+  ]
+}

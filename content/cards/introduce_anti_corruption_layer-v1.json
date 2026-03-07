@@ -1,0 +1,31 @@
+{
+  "id": "introduce_anti_corruption_layer",
+  "version": 1,
+  "name": "Introduce Anti-Corruption Layer",
+  "description": "Add translation layer to protect clean code from messy dependencies",
+  "flavor_text": "Build a buffer zone between the clean and the chaotic",
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 8
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -5
+    },
+    {
+      "score_id": "budget",
+      "delta": -6
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "refactoring_payoff",
+      "version": 1
+    }
+  ]
+}

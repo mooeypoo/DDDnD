@@ -1,0 +1,17 @@
+{
+  "id": "boundaries_clarify",
+  "version": 1,
+  "name": "Boundaries Clarify Over Time",
+  "description": "The team gradually understands the new domain boundaries",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 10
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 5
+    }
+  ]
+}
