@@ -287,3 +287,34 @@ Reporting reads simulation history but does not modify state.
 The simulation supports both outcome tiers and archetypes.
 
 For MVP implementation, outcome tier classification may be completed before archetype classification if authored archetype criteria are not yet fully defined. In that case, archetype handling should remain an explicit stub rather than implicit or ad hoc behavior, and should be completed before final end-of-run presentation and sharing are considered complete.
+
+---
+
+## Outcome Snapshot in Persistence
+
+Persistence exports store an `outcome_snapshot`, which is a stable summary of the run’s current or final outcome.
+
+This snapshot is intended for:
+
+- display
+- sharing
+- inspection
+- deterministic run export
+
+It is not required to duplicate every internal detail of the simulation engine’s outcome-classification process.
+
+---
+
+## Exact Run Export Scope
+
+In MVP, exact-run exports use a minimal deterministic schema.
+
+They must include enough information to:
+
+- identify the scenario and content version
+- preserve seed-based determinism
+- preserve player profile
+- preserve turn history
+- expose a stable summary of the current or final outcome
+
+Exact-run exports are not yet required to be a full archival dump of all possible internal engine metadata.
