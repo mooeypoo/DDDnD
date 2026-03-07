@@ -279,3 +279,11 @@ Reporting produces:
 - run analysis
 
 Reporting reads simulation history but does not modify state.
+
+---
+
+## Outcome Classification Progression
+
+The simulation supports both outcome tiers and archetypes.
+
+For MVP implementation, outcome tier classification may be completed before archetype classification if authored archetype criteria are not yet fully defined. In that case, archetype handling should remain an explicit stub rather than implicit or ad hoc behavior, and should be completed before final end-of-run presentation and sharing are considered complete.

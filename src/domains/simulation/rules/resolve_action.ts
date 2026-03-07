@@ -1,0 +1,127 @@
+import { Card, ScenarioBundle, versionRefKey } from '@/domains/content/model'
+import { ScoreChangeRecord, StakeholderChangeRecord, VersionedContentRef } from '@/shared/contracts'
+import { ActionResolutionRecord, createDelayedEffectInstance, DelayedEffectInstance, GameState } from '../model'
+import { ConditionEvaluationState, evaluateNumericCondition } from './condition_evaluator'
+
+export interface ResolveActionResult {
+  action_resolution: ActionResolutionRecord
+  score_changes: ScoreChangeRecord[]
+  stakeholder_changes: StakeholderChangeRecord[]
+  queued_delayed_effects: DelayedEffectInstance[]
+  selected_action_ref: VersionedContentRef
+  style_tags: string[]
+}
+
+function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): ScoreChangeRecord[] {
+  return scoreChanges.map((change) => ({
+    score_id: change.score_id,
+    delta: change.delta
+  }))
+}
+
+function toStakeholderChanges(
+  stakeholderChanges: { stakeholder_id: string; delta: number }[] | undefined
+): StakeholderChangeRecord[] {
+  if (!stakeholderChanges) {
+    return []
+  }
+
+  return stakeholderChanges.map((change) => ({
+    stakeholder_id: change.stakeholder_id,
+    delta: change.delta
+  }))
+}
+
+function findCardFromActionId(
+  actionId: string,
+  gameState: GameState,
+  scenarioBundle: ScenarioBundle
+): { actionRef: VersionedContentRef; card: Card } {
+  const actionRef = gameState.action_state.available_action_refs.find((candidate) => candidate.id === actionId)
+
+  if (!actionRef) {
+    throw new Error(`Action is not available for this run: ${actionId}`)
+  }
+
+  const card = scenarioBundle.cards.get(versionRefKey(actionRef))
+  if (!card) {
+    throw new Error(`Action card content was not found in bundle: ${actionRef.id}-v${actionRef.version}`)
+  }
+
+  return { actionRef, card }
+}
+
+function assertActionRequirements(
+  card: Card,
+  conditionState: ConditionEvaluationState
+): void {
+  if (!card.requirements || card.requirements.length === 0) {
+    return
+  }
+
+  for (const requirement of card.requirements) {
+    const met = evaluateNumericCondition(requirement, conditionState)
+    if (!met) {
+      throw new Error(`Action requirements are not met for card: ${card.id}-v${card.version}`)
+    }
+  }
+}
+
+export function resolveAction(
+  actionId: string,
+  gameState: GameState,
+  scenarioBundle: ScenarioBundle,
+  conditionState: ConditionEvaluationState
+): ResolveActionResult {
+  const { actionRef, card } = findCardFromActionId(actionId, gameState, scenarioBundle)
+  assertActionRequirements(card, conditionState)
+
+  const scoreChanges = toScoreChanges(card.score_changes)
+  const stakeholderChanges = toStakeholderChanges(card.stakeholder_changes)
+
+  const queuedDelayedEffects = card.delayed_effect_refs
+    .map((effectRef) => {
+      const delayedEffect = scenarioBundle.delayed_effects.get(versionRefKey(effectRef))
+      if (!delayedEffect) {
+        return null
+      }
+
+      return createDelayedEffectInstance({
+        effect_id: delayedEffect.id,
+        effect_version: delayedEffect.version,
+        source_type: 'card',
+        source_id: card.id,
+        source_version: card.version,
+        source_turn: gameState.progress.current_turn,
+        turns_until_resolution: delayedEffect.turns_until_resolution,
+        trigger_phase: 'aftershocks',
+        selected_flavor_index: 0
+      })
+    })
+    .filter((value): value is DelayedEffectInstance => value !== null)
+
+  return {
+    action_resolution: {
+      selected_action: actionRef,
+      score_changes: scoreChanges,
+      stakeholder_changes: stakeholderChanges,
+      queued_delayed_effects: queuedDelayedEffects.map((effect) => ({
+        effect_instance_id: effect.effect_instance_id,
+        effect_id: effect.effect_id,
+        effect_version: effect.effect_version,
+        trigger_turn: effect.trigger_turn,
+        trigger_phase: effect.trigger_phase
+      })),
+      presentation: {
+        title: card.name,
+        summary: card.description,
+        flavor_text: card.flavor_text
+      }
+    },
+    score_changes: scoreChanges,
+    stakeholder_changes: stakeholderChanges,
+    queued_delayed_effects: queuedDelayedEffects,
+    selected_action_ref: actionRef,
+    style_tags: card.style_tags ?? []
+  }
+}

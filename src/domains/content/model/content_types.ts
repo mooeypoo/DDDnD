@@ -24,6 +24,8 @@ export interface Score extends ContentMetadata {
   name: string
   description: string
   default_value: number
+  min_value?: number
+  max_value?: number
 }
 
 /**
@@ -37,6 +39,28 @@ export interface ScoreChange {
 }
 
 /**
+ * Stakeholder Change
+ *
+ * Represents a change in stakeholder satisfaction.
+ */
+export interface StakeholderChange {
+  stakeholder_id: string
+  delta: number
+}
+
+/**
+ * Numeric Condition
+ *
+ * A reusable condition format for score/stakeholder gate checks.
+ */
+export interface NumericCondition {
+  target_type: 'score' | 'stakeholder'
+  target_id: string
+  operator: '<' | '<=' | '>' | '>=' | '=' | '=='
+  value: number
+}
+
+/**
  * Delayed Effect
  * 
  * Represents a future consequence that resolves after a number of turns.
@@ -46,6 +70,7 @@ export interface DelayedEffect extends ContentMetadata {
   description: string
   turns_until_resolution: number
   score_changes: ScoreChange[]
+  stakeholder_changes?: StakeholderChange[]
 }
 
 /**
@@ -58,7 +83,10 @@ export interface Card extends ContentMetadata {
   description: string
   flavor_text?: string
   score_changes: ScoreChange[]
+  stakeholder_changes?: StakeholderChange[]
   delayed_effect_refs: VersionRef[]
+  requirements?: NumericCondition[]
+  style_tags?: string[]
 }
 
 /**
@@ -71,8 +99,10 @@ export interface Event extends ContentMetadata {
   description: string
   flavor_text?: string
   score_changes: ScoreChange[]
+  stakeholder_changes?: StakeholderChange[]
   delayed_effect_refs: VersionRef[]
   occurrence_weight: number
+  trigger_condition_description?: string
 }
 
 /**
@@ -85,6 +115,8 @@ export interface StakeholderReactionRule extends ContentMetadata {
   description: string
   condition_description: string
   score_changes: ScoreChange[]
+  stakeholder_changes?: StakeholderChange[]
+  priority?: number
 }
 
 /**
@@ -137,6 +169,7 @@ export interface Scenario extends ContentMetadata {
   event_refs: VersionRef[]
   outcome_tier_refs?: VersionRef[]
   outcome_archetype_refs?: VersionRef[]
+  failure_conditions?: NumericCondition[]
 }
 
 /**

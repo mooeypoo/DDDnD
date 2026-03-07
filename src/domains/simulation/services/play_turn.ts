@@ -19,17 +19,24 @@
  * Given the same state, bundle, action, and seed - it must produce identical results.
  */
 
-import { ScenarioBundle, versionRefKey } from '@/domains/content/model'
-import { ScoreChangeRecord, StakeholderChangeRecord, VersionedContentRef } from '@/shared/contracts'
+import { ScenarioBundle } from '@/domains/content/model'
+import { ScoreChangeRecord, StakeholderChangeRecord } from '@/shared/contracts'
 import { SeededRandom } from '@/shared/random/seeded_random'
 import {
-  ActionResolutionRecord,
-  EventResolutionRecord,
   GameState,
-  StakeholderResolutionRecord,
   TurnHistoryEntry,
   TurnResolutionContext
 } from '../model'
+import {
+  applyScoreChanges,
+  applyStakeholderChanges,
+  buildTurnHistoryEntry,
+  classifyRunOutcome,
+  resolveAction,
+  resolveArchitecturalAftershocks,
+  resolveEvent,
+  resolveStakeholderRules
+} from '../rules'
 
 export interface PlayTurnResult {
   game_state: GameState
@@ -37,136 +44,222 @@ export interface PlayTurnResult {
   turn_history_entry: TurnHistoryEntry
 }
 
-function cloneStakeholderSnapshot(
-  stakeholders: GameState['stakeholders']
-): GameState['stakeholders'] {
-  const cloned: GameState['stakeholders'] = {}
+function mergeScoreDeltas(
+  existing: Record<string, number>,
+  changes: ScoreChangeRecord[]
+): Record<string, number> {
+  const next = { ...existing }
 
-  for (const stakeholderId of Object.keys(stakeholders)) {
-    cloned[stakeholderId] = {
-      satisfaction: stakeholders[stakeholderId].satisfaction
-    }
+  for (const change of changes) {
+    next[change.score_id] = (next[change.score_id] ?? 0) + change.delta
   }
 
-  return cloned
+  return next
 }
 
-function toDeltaRecords(
-  scoreChanges: ScoreChangeRecord[]
-): { score_id: string; delta: number }[] {
-  return scoreChanges.map((change) => ({
-    score_id: change.score_id,
-    delta: change.delta
-  }))
-}
+function mergeStakeholderDeltas(
+  existing: Record<string, number>,
+  changes: StakeholderChangeRecord[]
+): Record<string, number> {
+  const next = { ...existing }
 
-function toStakeholderDeltaRecords(
-  stakeholderChanges: StakeholderChangeRecord[]
-): { stakeholder_id: string; delta: number }[] {
-  return stakeholderChanges.map((change) => ({
-    stakeholder_id: change.stakeholder_id,
-    delta: change.delta
-  }))
-}
-
-function createStubActionResolution(
-  selectedAction: VersionedContentRef,
-  scenarioBundle: ScenarioBundle
-): ActionResolutionRecord {
-  const selectedCard = scenarioBundle.cards.get(versionRefKey(selectedAction))
-
-  return {
-    selected_action: selectedAction,
-    score_changes: [],
-    stakeholder_changes: [],
-    queued_delayed_effects: [],
-    presentation: {
-      title: selectedCard?.name ?? `Action: ${selectedAction.id}`,
-      summary: selectedCard?.description ?? 'Action recorded. Rule resolution is stubbed for now.'
-    }
+  for (const change of changes) {
+    next[change.stakeholder_id] = (next[change.stakeholder_id] ?? 0) + change.delta
   }
+
+  return next
 }
 
-function createStubStakeholderResolution(): StakeholderResolutionRecord {
-  return {
-    reactions: [],
-    presentation: {
-      title: 'Stakeholder Resolution',
-      summary: 'Stakeholder rules are stubbed for this engine shell.'
-    }
+function mergeUsageCounters(
+  existing: Record<string, number>,
+  keys: string[]
+): Record<string, number> {
+  const next = { ...existing }
+
+  for (const key of keys) {
+    next[key] = (next[key] ?? 0) + 1
   }
+
+  return next
+}
+
+function computeDeterministicLastUpdatedAt(createdAtUtc: string, turnsCompleted: number): string {
+  const baseTimestamp = Date.parse(createdAtUtc)
+  if (Number.isNaN(baseTimestamp)) {
+    return createdAtUtc
+  }
+
+  return new Date(baseTimestamp + turnsCompleted * 1000).toISOString()
 }
 
 export function playTurn(
   gameState: GameState,
   scenarioBundle: ScenarioBundle,
   actionId: string,
-  _random: SeededRandom
+  random: SeededRandom
 ): PlayTurnResult {
-  const selectedActionRef = gameState.action_state.available_action_refs.find(
-    (actionRef) => actionRef.id === actionId
-  )
-
-  if (!selectedActionRef) {
-    throw new Error(`Action is not available for this run: ${actionId}`)
+  if (gameState.progress.run_status !== 'in_progress') {
+    throw new Error('Cannot play a turn on a completed run.')
   }
 
-  const actionResolution = createStubActionResolution(selectedActionRef, scenarioBundle)
-  const eventResolution: EventResolutionRecord | null = null
-  const stakeholderResolution = createStubStakeholderResolution()
+  const aftershocksResult = resolveArchitecturalAftershocks(gameState, scenarioBundle)
+  let nextScores = applyScoreChanges(gameState.scores, aftershocksResult.score_changes, scenarioBundle)
+  let nextStakeholders = applyStakeholderChanges(
+    gameState.stakeholders,
+    aftershocksResult.stakeholder_changes
+  )
 
-  const totalScoreChanges: ScoreChangeRecord[] = []
-  const totalStakeholderChanges: StakeholderChangeRecord[] = []
+  const actionResult = resolveAction(actionId, gameState, scenarioBundle, {
+    scores: nextScores,
+    stakeholders: nextStakeholders
+  })
+
+  nextScores = applyScoreChanges(nextScores, actionResult.score_changes, scenarioBundle)
+  nextStakeholders = applyStakeholderChanges(nextStakeholders, actionResult.stakeholder_changes)
+
+  const eventResult = resolveEvent(gameState, scenarioBundle, random, {
+    scores: nextScores,
+    stakeholders: nextStakeholders
+  })
+
+  nextScores = applyScoreChanges(nextScores, eventResult.score_changes, scenarioBundle)
+  nextStakeholders = applyStakeholderChanges(nextStakeholders, eventResult.stakeholder_changes)
+
+  const stakeholderResult = resolveStakeholderRules(scenarioBundle, {
+    scores: nextScores,
+    stakeholders: nextStakeholders
+  })
+
+  nextScores = applyScoreChanges(nextScores, stakeholderResult.score_changes, scenarioBundle)
+  nextStakeholders = applyStakeholderChanges(nextStakeholders, stakeholderResult.stakeholder_changes)
+
+  const allScoreChanges = [
+    ...aftershocksResult.score_changes,
+    ...actionResult.score_changes,
+    ...eventResult.score_changes,
+    ...stakeholderResult.score_changes
+  ]
+
+  const allStakeholderChanges = [
+    ...aftershocksResult.stakeholder_changes,
+    ...actionResult.stakeholder_changes,
+    ...eventResult.stakeholder_changes,
+    ...stakeholderResult.stakeholder_changes
+  ]
+
+  const turnsCompleted = gameState.run_analytics.turns_completed + 1
+  const pendingDelayedEffects = [
+    ...aftershocksResult.remaining_pending_effects,
+    ...actionResult.queued_delayed_effects,
+    ...eventResult.queued_delayed_effects
+  ]
+
+  const tentativeGameState: GameState = {
+    ...gameState,
+    scores: nextScores,
+    stakeholders: nextStakeholders,
+    effect_state: {
+      ...gameState.effect_state,
+      pending_delayed_effects: pendingDelayedEffects,
+      resolved_effect_instance_ids: [
+        ...gameState.effect_state.resolved_effect_instance_ids,
+        ...aftershocksResult.resolved_effect_instance_ids
+      ]
+    },
+    run_analytics: {
+      ...gameState.run_analytics,
+      turns_completed: turnsCompleted,
+      total_aftershocks_resolved:
+        gameState.run_analytics.total_aftershocks_resolved + aftershocksResult.resolved_aftershocks.length,
+      total_events_triggered:
+        gameState.run_analytics.total_events_triggered + (eventResult.event_resolution ? 1 : 0),
+      total_actions_played: gameState.run_analytics.total_actions_played + 1,
+      cumulative_score_deltas: mergeScoreDeltas(
+        gameState.run_analytics.cumulative_score_deltas,
+        allScoreChanges
+      ),
+      cumulative_stakeholder_deltas: mergeStakeholderDeltas(
+        gameState.run_analytics.cumulative_stakeholder_deltas,
+        allStakeholderChanges
+      ),
+      card_usage: mergeUsageCounters(gameState.run_analytics.card_usage, [actionResult.selected_action_ref.id]),
+      style_tags_used: mergeUsageCounters(
+        gameState.run_analytics.style_tags_used,
+        actionResult.style_tags
+      )
+    }
+  }
+
+  const outcome = classifyRunOutcome(tentativeGameState, scenarioBundle)
+
+  const runStatusAfterTurn =
+    outcome?.run_status ??
+    (turnsCompleted >= gameState.progress.max_turns ? 'completed_max_turns' : 'in_progress')
+
+  const turnHistoryEntry = buildTurnHistoryEntry({
+    turn_number: gameState.progress.current_turn,
+    resolved_aftershocks: aftershocksResult.resolved_aftershocks,
+    action_resolution: actionResult.action_resolution,
+    event_resolution: eventResult.event_resolution,
+    stakeholder_resolution: stakeholderResult.stakeholder_resolution,
+    all_score_changes: allScoreChanges,
+    all_stakeholder_changes: allStakeholderChanges,
+    end_of_turn_scores: nextScores,
+    end_of_turn_stakeholders: nextStakeholders,
+    run_status_after_turn: runStatusAfterTurn
+  })
+
+  const totalScoreChanges: ScoreChangeRecord[] = turnHistoryEntry.total_score_changes.map((change) => ({
+    score_id: change.score_id,
+    delta: change.delta
+  }))
+
+  const totalStakeholderChanges: StakeholderChangeRecord[] = turnHistoryEntry.total_stakeholder_changes.map(
+    (change) => ({
+      stakeholder_id: change.stakeholder_id,
+      delta: change.delta
+    })
+  )
 
   const turnResolutionContext: TurnResolutionContext = {
     turn_number: gameState.progress.current_turn,
-    resolved_aftershocks: [],
-    selected_action: selectedActionRef,
-    action_resolution: actionResolution,
-    event_resolution: eventResolution,
-    stakeholder_resolution: stakeholderResolution,
+    resolved_aftershocks: aftershocksResult.resolved_aftershocks,
+    selected_action: actionResult.selected_action_ref,
+    action_resolution: actionResult.action_resolution,
+    event_resolution: eventResult.event_resolution,
+    stakeholder_resolution: stakeholderResult.stakeholder_resolution,
     total_score_changes: totalScoreChanges,
     total_stakeholder_changes: totalStakeholderChanges
   }
 
-  const turnsCompleted = gameState.run_analytics.turns_completed + 1
-  const reachedMaxTurns = turnsCompleted >= gameState.progress.max_turns
-  const runStatusAfterTurn = reachedMaxTurns ? 'completed_max_turns' : 'in_progress'
-
-  const turnHistoryEntry: TurnHistoryEntry = {
-    turn_number: gameState.progress.current_turn,
-    resolved_aftershocks: turnResolutionContext.resolved_aftershocks,
-    action_resolution: turnResolutionContext.action_resolution,
-    event_resolution: turnResolutionContext.event_resolution,
-    stakeholder_resolution: turnResolutionContext.stakeholder_resolution,
-    total_score_changes: toDeltaRecords(turnResolutionContext.total_score_changes),
-    total_stakeholder_changes: toStakeholderDeltaRecords(turnResolutionContext.total_stakeholder_changes),
-    end_of_turn_scores: { ...gameState.scores },
-    end_of_turn_stakeholders: cloneStakeholderSnapshot(gameState.stakeholders),
-    run_status_after_turn: runStatusAfterTurn
-  }
-
   const nextGameState: GameState = {
-    ...gameState,
+    ...tentativeGameState,
+    meta: {
+      ...gameState.meta,
+      last_updated_at: computeDeterministicLastUpdatedAt(gameState.meta.created_at_utc, turnsCompleted)
+    },
     progress: {
       ...gameState.progress,
-      current_turn: reachedMaxTurns
-        ? gameState.progress.max_turns
-        : gameState.progress.current_turn + 1,
+      current_turn:
+        runStatusAfterTurn === 'in_progress'
+          ? gameState.progress.current_turn + 1
+          : Math.min(gameState.progress.current_turn, gameState.progress.max_turns),
       run_status: runStatusAfterTurn
     },
     action_state: {
       ...gameState.action_state,
-      selected_action_ref: selectedActionRef,
+      selected_action_ref: actionResult.selected_action_ref,
       actions_played: gameState.action_state.actions_played + 1,
-      played_action_refs: [...gameState.action_state.played_action_refs, selectedActionRef]
+      played_action_refs: [...gameState.action_state.played_action_refs, actionResult.selected_action_ref]
     },
-    history: [...gameState.history, turnHistoryEntry],
-    run_analytics: {
-      ...gameState.run_analytics,
-      turns_completed: turnsCompleted,
-      total_actions_played: gameState.run_analytics.total_actions_played + 1
-    }
+    event_state: {
+      ...gameState.event_state,
+      last_event_ref: eventResult.selected_event_ref,
+      triggered_event_refs: eventResult.selected_event_ref
+        ? [...gameState.event_state.triggered_event_refs, eventResult.selected_event_ref]
+        : gameState.event_state.triggered_event_refs
+    },
+    history: [...gameState.history, turnHistoryEntry]
   }
 
   return {

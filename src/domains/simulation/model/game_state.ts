@@ -6,6 +6,7 @@ export interface RunMeta {
   run_id: string
   seed: string
   created_at_utc: string
+  last_updated_at: string
   content_pack_version?: string
 }
 
@@ -53,6 +54,8 @@ export interface RunAnalytics {
   total_actions_played: number
   cumulative_score_deltas: Record<string, number>
   cumulative_stakeholder_deltas: Record<string, number>
+  card_usage: Record<string, number>
+  style_tags_used: Record<string, number>
 }
 
 /**
@@ -97,7 +100,8 @@ export function createInitialGameState(input: CreateInitialGameStateInput): Game
     meta: {
       run_id: input.run_id,
       seed: input.seed,
-      created_at_utc: input.created_at_utc ?? new Date().toISOString()
+      created_at_utc: input.created_at_utc ?? new Date().toISOString(),
+      last_updated_at: input.created_at_utc ?? new Date().toISOString()
     },
     player_profile: {
       selected_class_ref: input.selected_class_ref
@@ -132,7 +136,9 @@ export function createInitialGameState(input: CreateInitialGameStateInput): Game
       total_events_triggered: 0,
       total_actions_played: 0,
       cumulative_score_deltas: {},
-      cumulative_stakeholder_deltas: {}
+      cumulative_stakeholder_deltas: {},
+      card_usage: {},
+      style_tags_used: {}
     }
   }
 }

@@ -181,3 +181,20 @@ The intended flow is:
 TypeScript definitions must not replace schema validation.
 
 Validation is required even if TypeScript types exist.
+
+---
+
+## Optional Content Fields
+
+Some supported content fields may be omitted in MVP authored content.
+
+Examples include:
+
+- card requirements
+- direct stakeholder_changes on cards/events/effects
+- score min/max values
+- scenario failure conditions
+
+When omitted, the engine applies sensible defaults or treats the field as absent behavior rather than invalid content.
+
+Optional support in the engine does not require immediate use in every authored file.

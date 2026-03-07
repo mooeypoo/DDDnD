@@ -20,38 +20,42 @@
 
 import { ScenarioBundle } from '@/domains/content/model'
 import { GameState } from '../model'
+import { classifyRunOutcome, RunCompletionReason } from '../rules'
 
 export interface RunOutcome {
   has_outcome: boolean
-  completion_reason: 'max_turns_reached'
+  completion_reason: RunCompletionReason
   scenario_id: string
   scenario_version: number
+  run_status: 'completed_failure' | 'completed_max_turns' | 'completed_success'
   turns_completed: number
   max_turns: number
-  placeholder_tier_id: string | null
-  placeholder_archetype_id: string | null
+  matched_failure_conditions: string[]
+  selected_tier_id: string | null
+  selected_archetype_id: string | null
+  score_average: number
 }
 
 export function getRunOutcome(
   gameState: GameState,
   scenarioBundle: ScenarioBundle
 ): RunOutcome | null {
-  const hasReachedMaximumTurns =
-    gameState.run_analytics.turns_completed >= gameState.progress.max_turns ||
-    gameState.progress.run_status === 'completed_max_turns'
-
-  if (!hasReachedMaximumTurns) {
+  const classified = classifyRunOutcome(gameState, scenarioBundle)
+  if (!classified) {
     return null
   }
 
   return {
-    has_outcome: true,
-    completion_reason: 'max_turns_reached',
-    scenario_id: scenarioBundle.scenario.id,
-    scenario_version: scenarioBundle.scenario.version,
-    turns_completed: gameState.run_analytics.turns_completed,
-    max_turns: gameState.progress.max_turns,
-    placeholder_tier_id: null,
-    placeholder_archetype_id: null
+    has_outcome: classified.has_outcome,
+    completion_reason: classified.completion_reason,
+    scenario_id: classified.scenario_id,
+    scenario_version: classified.scenario_version,
+    run_status: classified.run_status,
+    turns_completed: classified.turns_completed,
+    max_turns: classified.max_turns,
+    matched_failure_conditions: classified.matched_failure_conditions,
+    selected_tier_id: classified.selected_tier_id,
+    selected_archetype_id: classified.selected_archetype_id,
+    score_average: classified.score_average
   }
 }
