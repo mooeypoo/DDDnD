@@ -34,16 +34,22 @@
       <div class="game-main">
         <!-- Left Sidebar: Scores & Stakeholders -->
         <aside class="game-sidebar">
-          <ScorePanel 
-            v-if="gameStore.turnBriefing"
-            :scores="gameStore.turnBriefing.current_scores"
-          />
-          
-          <StakeholderPanel 
-            v-if="gameStore.gameState"
-            :stakeholders="gameStore.gameState.stakeholders"
-            :stakeholderNames="stakeholderNames"
-          />
+          <div class="sidebar-shell score-shell">
+            <p class="sidebar-label">System Ledger</p>
+            <ScorePanel 
+              v-if="gameStore.turnBriefing"
+              :scores="gameStore.turnBriefing.current_scores"
+            />
+          </div>
+
+          <div class="sidebar-shell stakeholders-shell">
+            <p class="sidebar-label">Stakeholder Pulse</p>
+            <StakeholderPanel 
+              v-if="gameStore.gameState"
+              :stakeholders="gameStore.gameState.stakeholders"
+              :stakeholderNames="stakeholderNames"
+            />
+          </div>
         </aside>
         
         <!-- Center: Cards & Actions -->
@@ -88,24 +94,51 @@
           <!-- Available Actions -->
           <div v-if="!gameStore.isRunComplete" class="play-area">
             <div class="play-area-header">
-              <h2 class="play-area-title">
-                <span class="title-icon">🎴</span>
-                Choose Your Next Move
-              </h2>
-              <p class="play-area-hint">Select a card to play this turn</p>
+              <div>
+                <h2 class="play-area-title">
+                  <span class="title-icon">🎒</span>
+                  Action Satchel
+                </h2>
+                <p class="play-area-hint">Choose your next architectural move</p>
+              </div>
+              <button
+                v-if="hasHiddenCards"
+                type="button"
+                class="satchel-toggle"
+                :aria-expanded="isSatchelExpanded"
+                @click="toggleSatchel"
+              >
+                {{ isSatchelExpanded ? 'Collapse' : 'Expand' }}
+              </button>
             </div>
-            
-            <div class="actions-grid">
-              <ActionCard 
-                v-for="entry in availableCardEntries" 
-                :key="entry.card.id + '-v' + entry.card.version"
-                :card="entry.card"
-                :availability="entry.availability"
-                :isDisabled="gameStore.isPlayingTurn"
-                @showDetails="handleShowDetails(entry.card.id)"
-                @play="handlePlayCard"
-              />
+
+            <div class="satchel-shell" :class="{ expanded: isSatchelExpanded }">
+              <div class="satchel-mouth" aria-hidden="true"></div>
+
+              <div class="actions-grid">
+                <ActionCard 
+                  v-for="entry in visibleCardEntries" 
+                  :key="entry.card.id + '-v' + entry.card.version"
+                  :card="entry.card"
+                  :availability="entry.availability"
+                  :isDisabled="gameStore.isPlayingTurn"
+                  @showDetails="handleShowDetails(entry.card.id)"
+                  @play="handlePlayCard"
+                />
+              </div>
             </div>
+
+            <button
+              v-if="hasHiddenCards"
+              type="button"
+              class="satchel-expand-button"
+              @click="toggleSatchel"
+            >
+              {{ isSatchelExpanded ? 'Show fewer cards' : `Open satchel (+${hiddenCardCount})` }}
+            </button>
+
+            <p v-else class="satchel-footer-note">All action cards are currently in your satchel.</p>
+
           </div>
           
           <!-- Run Complete Message -->
@@ -156,6 +189,11 @@ const MOBILE_BREAKPOINT_PX = 768
 const SCROLL_OFFSET_DESKTOP_PX = 80
 const SCROLL_OFFSET_MOBILE_PX = 100
 const SCROLL_OFFSET_SMALL_MOBILE_PX = 125
+const MOBILE_ACTION_PREVIEW_COUNT = 2
+const DESKTOP_ACTION_PREVIEW_COUNT = 4
+
+const viewportWidth = ref(typeof window === 'undefined' ? 1280 : window.innerWidth)
+const isSatchelExpanded = ref(false)
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
 
@@ -196,6 +234,28 @@ const availableCardEntries = computed(() => {
   return cards
 })
 
+const collapsedCardLimit = computed(() => {
+  return viewportWidth.value <= MOBILE_BREAKPOINT_PX
+    ? MOBILE_ACTION_PREVIEW_COUNT
+    : DESKTOP_ACTION_PREVIEW_COUNT
+})
+
+const hasHiddenCards = computed(() => {
+  return availableCardEntries.value.length > collapsedCardLimit.value
+})
+
+const hiddenCardCount = computed(() => {
+  return Math.max(0, availableCardEntries.value.length - collapsedCardLimit.value)
+})
+
+const visibleCardEntries = computed(() => {
+  if (!hasHiddenCards.value || isSatchelExpanded.value) {
+    return availableCardEntries.value
+  }
+
+  return availableCardEntries.value.slice(0, collapsedCardLimit.value)
+})
+
 const modalCard = computed(() => {
   if (!modalCardId.value || !gameStore.scenarioBundle) {
     return null
@@ -224,10 +284,12 @@ onMounted(() => {
   
   // Listen for reset event from masthead
   window.addEventListener('reset-run', handleResetRun)
+  window.addEventListener('resize', handleWindowResize)
 })
 
 onUnmounted(() => {
   window.removeEventListener('reset-run', handleResetRun)
+  window.removeEventListener('resize', handleWindowResize)
 })
 
 function handleResetRun() {
@@ -237,6 +299,14 @@ function handleResetRun() {
 
 function handleShowDetails(cardId: string) {
   modalCardId.value = cardId
+}
+
+function handleWindowResize() {
+  viewportWidth.value = window.innerWidth
+}
+
+function toggleSatchel() {
+  isSatchelExpanded.value = !isSatchelExpanded.value
 }
 
 async function handlePlayCard(cardId: string) {
@@ -308,7 +378,7 @@ function goToEndScreen() {
 /* Main Game Layout */
 .game-main {
   display: grid;
-  grid-template-columns: 340px 1fr;
+  grid-template-columns: 340px minmax(0, 1fr);
   gap: var(--space-xl);
   align-items: start;
 }
@@ -316,9 +386,34 @@ function goToEndScreen() {
 .game-sidebar {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
   position: sticky;
   top: var(--space-lg);
+}
+
+.sidebar-shell {
+  padding: var(--space-md);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, var(--surface-panel) 0%, var(--bg-secondary) 100%);
+  box-shadow: var(--shadow-panel);
+}
+
+.score-shell {
+  border-color: var(--border-accent);
+}
+
+.stakeholders-shell {
+  border-color: var(--border-panel);
+}
+
+.sidebar-label {
+  margin: 0 0 var(--space-sm) 0;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
 }
 
 .game-center {
@@ -330,39 +425,19 @@ function goToEndScreen() {
 
 /* Aftershock Alert */
 .aftershock-alert {
-  background: linear-gradient(135deg, var(--color-warning-bg) 0%, rgba(243, 156, 18, 0.05) 100%);
-  border: 2px solid var(--color-warning);
+  background: linear-gradient(135deg, var(--effect-warning-bg) 0%, var(--surface-panel) 100%);
+  border: 1px solid var(--effect-warning-border);
   border-radius: var(--radius-xl);
-  padding: var(--space-xl);
+  padding: var(--space-lg);
   display: flex;
   align-items: center;
   gap: var(--space-lg);
-  box-shadow: 0 4px 16px rgba(243, 156, 18, 0.2);
-  animation: pulseGlow 2s ease-in-out infinite;
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 4px 16px rgba(243, 156, 18, 0.2);
-  }
-  50% {
-    box-shadow: 0 4px 24px rgba(243, 156, 18, 0.4);
-  }
+  box-shadow: var(--shadow-panel);
 }
 
 .alert-icon {
-  font-size: var(--text-5xl);
+  font-size: var(--text-4xl);
   line-height: 1;
-  animation: bounce 1s ease-in-out infinite;
-}
-
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
 }
 
 .alert-content {
@@ -370,57 +445,109 @@ function goToEndScreen() {
 }
 
 .alert-title {
-  color: var(--color-warning);
-  font-size: var(--text-lg);
+  color: var(--effect-warning);
+  font-size: var(--text-base);
   font-weight: var(--font-bold);
   margin-bottom: var(--space-xs);
 }
 
 .alert-message {
-  color: var(--color-text-primary);
-  font-size: var(--text-base);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
 }
 
 /* Play Area */
 .play-area {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-2xl);
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(180deg, var(--surface-card) 0%, var(--surface-panel) 100%);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
 }
 
 .play-area-header {
-  margin-bottom: var(--space-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-lg);
 }
 
 .play-area-title {
-  color: var(--color-text-bright);
-  font-size: var(--text-2xl);
+  color: var(--text-bright);
+  font-size: var(--text-xl);
   font-weight: var(--font-bold);
-  margin: 0 0 var(--space-sm) 0;
+  margin: 0 0 var(--space-xs) 0;
   display: flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-sm);
 }
 
 .title-icon {
-  font-size: var(--text-3xl);
+  font-size: var(--text-2xl);
 }
 
 .play-area-hint {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-size: var(--text-sm);
   margin: 0;
-  font-style: italic;
+}
+
+.satchel-toggle,
+.satchel-expand-button {
+  appearance: none;
+  border: 1px solid var(--border-accent);
+  background: var(--bg-overlay-strong);
+  color: var(--text-bright);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  padding: var(--space-sm) var(--space-lg);
+  cursor: pointer;
+  transition: border-color var(--transition-hover), background var(--transition-hover), transform var(--transition-hover);
+}
+
+.satchel-toggle:hover,
+.satchel-expand-button:hover {
+  border-color: var(--border-focus);
+  background: var(--bg-overlay);
+  transform: translateY(-1px);
+}
+
+.satchel-shell {
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-panel);
+  background: linear-gradient(180deg, var(--bg-page) 0%, var(--bg-secondary) 100%);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.satchel-mouth {
+  width: clamp(120px, 26%, 180px);
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, transparent 0%, var(--border-accent) 50%, transparent 100%);
+  margin-inline: auto;
 }
 
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: var(--space-lg);
-  margin-bottom: var(--space-xl);
+}
+
+.satchel-footer-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
 }
 
 .play-controls {
@@ -553,14 +680,14 @@ function goToEndScreen() {
   
   .game-sidebar {
     position: static;
-    order: 1;
+    order: 0;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: var(--space-lg);
   }
   
   .game-center {
-    order: 0;
+    order: 1;
   }
 }
 
@@ -589,12 +716,24 @@ function goToEndScreen() {
     font-size: var(--text-xl);
   }
   
+  .play-area {
+    padding: var(--space-lg);
+  }
+
+  .play-area-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .satchel-toggle,
+  .satchel-expand-button {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
   .actions-grid {
     grid-template-columns: 1fr;
-  }
-  
-  .play-area {
-    padding: var(--space-xl);
   }
   
   .btn-play-card {
@@ -614,6 +753,10 @@ function goToEndScreen() {
   
   .play-area {
     padding: var(--space-lg);
+  }
+
+  .sidebar-shell {
+    padding: var(--space-sm);
   }
   
   .aftershock-alert {

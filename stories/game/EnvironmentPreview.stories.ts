@@ -32,9 +32,9 @@ const meta: Meta = {
 Shows the complete game environment as a composite scene. Demonstrates:
 
 - **Global background**: tabletop dot grid + depth gradient
-- **Console panels**: ScenarioBanner, TurnBriefing, MetricsPanel with inset-ridge shadow
+- **Console panels**: ScenarioBanner, TurnBriefing, score command deck, stakeholder/event pressure surfaces
 - **Card artifacts**: ActionCard category accent strips, EventCard severity framing
-- **Depth hierarchy**: background → panels → cards
+- **Depth hierarchy**: background → command surfaces → satchel cards
 
 Use this story to validate atmosphere without running the full game.
         `.trim()
@@ -66,9 +66,9 @@ export const ConsoleComposition: Story = {
         padding: 2rem;
         display: grid;
         gap: 1.5rem;
-        grid-template-columns: minmax(0, 1fr) 280px;
+        grid-template-columns: 320px minmax(0, 1fr);
         grid-template-rows: auto auto 1fr;
-        max-width: 1100px;
+        max-width: 1200px;
         margin: 0 auto;
       ">
         <!-- Scenario header — spans full width -->
@@ -81,7 +81,48 @@ export const ConsoleComposition: Story = {
           />
         </div>
 
-        <!-- Left: turn briefing + action cards -->
+        <!-- Left: score command deck -->
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div style="
+            border: 1px solid var(--border-accent);
+            background: linear-gradient(180deg, var(--surface-panel) 0%, var(--bg-secondary) 100%);
+            border-radius: var(--radius-xl);
+            padding: var(--space-md);
+            box-shadow: var(--shadow-panel);
+          ">
+            <p style="
+              margin: 0 0 var(--space-sm) 0;
+              color: var(--text-secondary);
+              font-size: var(--text-xs);
+              letter-spacing: var(--tracking-widest);
+              text-transform: uppercase;
+              font-weight: var(--font-semibold);
+            ">System Ledger</p>
+            <ScorePanel :scores="scores" />
+          </div>
+
+          <div style="
+            border: 1px solid var(--border-panel);
+            background: linear-gradient(180deg, var(--surface-panel) 0%, var(--bg-secondary) 100%);
+            border-radius: var(--radius-xl);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-panel);
+          ">
+            <p style="
+              margin: 0;
+              color: var(--text-secondary);
+              font-size: var(--text-xs);
+              letter-spacing: var(--tracking-widest);
+              text-transform: uppercase;
+              font-weight: var(--font-semibold);
+            ">Stakeholder Pulse</p>
+            <p style="margin: var(--space-sm) 0 0 0; color: var(--text-muted); font-size: var(--text-sm);">
+              See full stakeholder reactions in the live game view.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: turn briefing + event + satchel cards -->
         <div style="display: flex; flex-direction: column; gap: 1.25rem;">
           <TurnBriefingPanel
             :eventTitle="event.name"
@@ -99,14 +140,128 @@ export const ConsoleComposition: Story = {
             :highlights="['User trust -10', 'Delivery confidence -6']"
           />
 
-          <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));">
-            <ActionCard v-for="card in cards" :key="card.id" :card="card" />
+          <div style="
+            border: 1px solid var(--border-card);
+            border-radius: var(--radius-2xl);
+            background: linear-gradient(180deg, var(--surface-card) 0%, var(--surface-panel) 100%);
+            padding: var(--space-lg);
+            box-shadow: var(--shadow-card);
+            display: grid;
+            gap: var(--space-lg);
+          ">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-md);">
+              <div>
+                <h3 style="margin: 0; color: var(--text-bright); font-size: var(--text-xl);">🎒 Action Satchel</h3>
+                <p style="margin: var(--space-xs) 0 0 0; color: var(--text-secondary); font-size: var(--text-sm);">Choose your next architectural move</p>
+              </div>
+              <button style="
+                border: 1px solid var(--border-accent);
+                border-radius: var(--radius-full);
+                background: var(--bg-overlay-strong);
+                color: var(--text-bright);
+                font-size: var(--text-xs);
+                text-transform: uppercase;
+                letter-spacing: var(--tracking-wide);
+                padding: var(--space-sm) var(--space-lg);
+              ">Expand</button>
+            </div>
+
+            <div style="
+              border: 1px solid var(--border-panel);
+              border-radius: var(--radius-xl);
+              background: linear-gradient(180deg, var(--bg-page) 0%, var(--bg-secondary) 100%);
+              padding: var(--space-lg);
+              display: grid;
+              gap: var(--space-lg);
+            ">
+              <div style="
+                width: clamp(120px, 26%, 180px);
+                height: 6px;
+                border-radius: var(--radius-full);
+                background: linear-gradient(90deg, transparent 0%, var(--border-accent) 50%, transparent 100%);
+                margin: 0 auto;
+              "></div>
+              <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));">
+                <ActionCard v-for="card in cards" :key="card.id" :card="card" />
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+    `
+  })
+}
 
-        <!-- Right: metrics panel -->
-        <div>
+export const MobilePlayable: Story = {
+  name: 'Mobile Playable Composition',
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile1'
+    }
+  },
+  render: () => ({
+    components: { TurnBriefingPanel, ScorePanel, ActionCard, EventCard },
+    setup() {
+      return {
+        scores: metricStates.unstable,
+        cards: [cardMocks.riskyRefactor, cardMocks.safeIncrementalChange],
+        event: eventMocks.productionIncident
+      }
+    },
+    template: `
+      <div style="max-width: 420px; margin: 0 auto; padding: 1rem; display: grid; gap: 1rem;">
+        <div style="
+          border: 1px solid var(--border-accent);
+          border-radius: var(--radius-xl);
+          padding: var(--space-sm);
+          background: linear-gradient(180deg, var(--surface-panel) 0%, var(--bg-secondary) 100%);
+          box-shadow: var(--shadow-panel);
+        ">
+          <p style="margin: 0 0 var(--space-sm) 0; color: var(--text-secondary); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-widest);">System Ledger</p>
           <ScorePanel :scores="scores" />
+        </div>
+
+        <TurnBriefingPanel
+          eventTitle="Production Pressure"
+          narrativeDescription="Make a stable move while balancing delivery and trust."
+          :availableActions="4"
+          :pendingAftershocks="1"
+          :currentTurn="5"
+          :totalTurns="8"
+        />
+
+        <EventCard
+          :title="event.name"
+          :description="event.description"
+          severity="high"
+          :highlights="['User trust -10', 'Delivery confidence -6']"
+        />
+
+        <div style="
+          border: 1px solid var(--border-card);
+          border-radius: var(--radius-2xl);
+          background: linear-gradient(180deg, var(--surface-card) 0%, var(--surface-panel) 100%);
+          box-shadow: var(--shadow-card);
+          padding: var(--space-lg);
+          display: grid;
+          gap: var(--space-md);
+        ">
+          <h3 style="margin: 0; color: var(--text-bright); font-size: var(--text-lg);">🎒 Action Satchel</h3>
+          <p style="margin: 0; color: var(--text-secondary); font-size: var(--text-sm);">Tap a card to inspect or play.</p>
+          <div style="display: grid; gap: 0.75rem; grid-template-columns: 1fr;">
+            <ActionCard v-for="card in cards" :key="card.id" :card="card" />
+          </div>
+          <button style="
+            width: 100%;
+            border: 1px solid var(--border-accent);
+            border-radius: var(--radius-full);
+            background: var(--bg-overlay-strong);
+            color: var(--text-bright);
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: var(--tracking-wide);
+            padding: var(--space-sm) var(--space-lg);
+          ">Open satchel (+3)</button>
         </div>
       </div>
     `
