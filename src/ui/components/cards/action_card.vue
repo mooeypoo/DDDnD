@@ -11,6 +11,11 @@
 
     <header class="card-header">
       <h3 class="card-title">{{ card.name }}</h3>
+
+      <!-- Optional artwork thumbnail — shown when illustration_url is supplied -->
+      <div v-if="artwork?.illustration_url" class="card-artwork-thumb" aria-hidden="true">
+        <img :src="artwork.illustration_url" :alt="artwork.alt ?? ''" />
+      </div>
     </header>
 
     <p class="card-description">{{ summaryText }}</p>
@@ -71,11 +76,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Card } from '@/domains/content/model'
+import type { ArtworkMeta } from '@/ui/types/artwork'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 
 const props = defineProps<{
   card: Card
   isDisabled?: boolean
+  /** Optional artwork metadata. Renders a thumbnail in the card header when illustration_url is present. */
+  artwork?: ArtworkMeta
 }>()
 
 defineEmits<{
@@ -191,6 +199,26 @@ function metricPresentation(scoreId: string) {
   align-items: start;
   justify-content: space-between;
   gap: var(--space-md);
+}
+
+/* Small artwork thumbnail — shown in the card header when illustration_url is provided */
+.card-artwork-thumb {
+  flex-shrink: 0;
+  width: 52px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--artwork-bg);
+  border: 1px solid var(--artwork-border);
+  position: relative;
+}
+
+.card-artwork-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.85;
 }
 
 .card-title {

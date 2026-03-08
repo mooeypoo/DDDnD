@@ -1,5 +1,11 @@
 <template>
-  <section class="scenario-banner">
+  <section class="scenario-banner" :class="{ 'has-hero': heroUrl }">
+
+    <!-- Optional hero illustration — full-bleed region, collapses when heroUrl is absent -->
+    <div v-if="heroUrl" class="banner-hero" aria-hidden="true">
+      <img :src="heroUrl" alt="" class="banner-hero-img" />
+    </div>
+
     <div class="banner-main">
       <p class="banner-label">Scenario</p>
       <h1 class="banner-title">{{ title }}</h1>
@@ -38,6 +44,8 @@ defineProps<{
   description?: string
   currentTurn: number
   maxTurns: number
+  /** Optional hero illustration URL. Rendered as a full-bleed image above the scenario title. */
+  heroUrl?: string
 }>()
 
 const isExpanded = ref(false)
@@ -53,6 +61,28 @@ const isExpanded = ref(false)
   flex-direction: column;
   gap: var(--space-md);
   box-shadow: var(--shadow-panel), var(--shadow-inset-ridge);
+  overflow: hidden;
+}
+
+/* Hero illustration region — bleeds to card edges, collapses when absent */
+.banner-hero {
+  margin: calc(-1 * var(--space-lg)) calc(-1 * var(--space-xl)) 0;
+  min-height: var(--artwork-min-height);
+  position: relative;
+  overflow: hidden;
+  background: var(--artwork-bg);
+  border-bottom: 1px solid var(--artwork-border);
+  flex-shrink: 0;
+}
+
+.banner-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.88;
 }
 
 .banner-main {

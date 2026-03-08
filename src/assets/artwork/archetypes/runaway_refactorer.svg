@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" fill="none">
+  <defs>
+    <pattern id="grid" width="16" height="16" patternUnits="userSpaceOnUse">
+      <path d="M 16 0 L 0 0 0 16" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+    </pattern>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="320" height="180" fill="#0b0e1a"/>
+  <rect width="320" height="180" fill="url(#grid)"/>
+  <radialGradient id="haze" cx="50%" cy="50%" r="55%">
+    <stop offset="0%" stop-color="#34d399" stop-opacity="0.10"/>
+    <stop offset="100%" stop-color="#0b0e1a" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="320" height="180" fill="url(#haze)"/>
+
+  <!-- Corner marks -->
+  <g stroke="rgba(52,211,153,0.35)" stroke-width="1">
+    <path d="M 8 18 L 8 8 L 18 8"/>
+    <path d="M 302 18 L 302 8 L 312 8"/>
+    <path d="M 8 162 L 8 172 L 18 172"/>
+    <path d="M 302 162 L 302 172 L 312 172"/>
+  </g>
+
+  <!-- Refactoring cascade — 5 generations of modules getting cleaner -->
+  <!-- Gen 1: messy original (left edge, tangled box) -->
+  <rect x="20" y="60" width="44" height="60" rx="2"
+    fill="rgba(52,211,153,0.05)" stroke="rgba(52,211,153,0.35)" stroke-width="1" stroke-dasharray="3,2"/>
+  <!-- internal tangle lines -->
+  <g stroke="rgba(52,211,153,0.25)" stroke-width="1">
+    <line x1="28" y1="70" x2="56" y2="110"/>
+    <line x1="56" y1="70" x2="28" y2="110"/>
+    <line x1="28" y1="90" x2="56" y2="90"/>
+  </g>
+  <text x="42" y="128" text-anchor="middle" fill="rgba(52,211,153,0.35)" font-family="monospace" font-size="6">v0</text>
+
+  <!-- Arrow 1 -->
+  <path d="M 66 90 L 82 90" stroke="rgba(52,211,153,0.55)" stroke-width="1.5" marker-end="url(#arr)"/>
+  <polygon points="84,90 78,87 78,93" fill="rgba(52,211,153,0.55)"/>
+
+  <!-- Gen 2 -->
+  <rect x="86" y="65" width="40" height="50" rx="2"
+    fill="rgba(52,211,153,0.07)" stroke="rgba(52,211,153,0.45)" stroke-width="1.2"/>
+  <g stroke="rgba(52,211,153,0.30)" stroke-width="1">
+    <line x1="94" y1="78" x2="118" y2="100"/>
+    <line x1="118" y1="78" x2="94" y2="100"/>
+  </g>
+  <text x="106" y="124" text-anchor="middle" fill="rgba(52,211,153,0.45)" font-family="monospace" font-size="6">v1</text>
+
+  <!-- Arrow 2 -->
+  <polygon points="148,90 142,87 142,93" fill="rgba(52,211,153,0.65)"/>
+  <line x1="128" y1="90" x2="146" y2="90" stroke="rgba(52,211,153,0.55)" stroke-width="1.5"/>
+
+  <!-- Gen 3 -->
+  <rect x="150" y="70" width="36" height="40" rx="3"
+    fill="rgba(52,211,153,0.09)" stroke="rgba(52,211,153,0.60)" stroke-width="1.5" filter="url(#glow)"/>
+  <line x1="158" y1="82" x2="178" y2="98" stroke="rgba(52,211,153,0.35)" stroke-width="1"/>
+  <text x="168" y="120" text-anchor="middle" fill="rgba(52,211,153,0.55)" font-family="monospace" font-size="6">v2</text>
+
+  <!-- Arrow 3 -->
+  <polygon points="210,90 204,87 204,93" fill="rgba(52,211,153,0.75)"/>
+  <line x1="188" y1="90" x2="208" y2="90" stroke="rgba(52,211,153,0.65)" stroke-width="1.5"/>
+
+  <!-- Gen 4 -->
+  <rect x="212" y="74" width="30" height="32" rx="4"
+    fill="rgba(52,211,153,0.12)" stroke="rgba(52,211,153,0.75)" stroke-width="1.8" filter="url(#glow)"/>
+  <text x="227" y="115" text-anchor="middle" fill="rgba(52,211,153,0.65)" font-family="monospace" font-size="6">v3</text>
+
+  <!-- Arrow 4 -->
+  <polygon points="264,90 258,87 258,93" fill="rgba(52,211,153,0.90)"/>
+  <line x1="244" y1="90" x2="262" y2="90" stroke="rgba(52,211,153,0.80)" stroke-width="1.5"/>
+
+  <!-- Gen 5: clean hexagon (ideal form) -->
+  <polygon points="287,72 302,81 302,99 287,108 272,99 272,81"
+    fill="rgba(52,211,153,0.15)" stroke="rgba(52,211,153,0.95)" stroke-width="2" filter="url(#glow)"/>
+  <text x="287" y="115" text-anchor="middle" fill="rgba(52,211,153,0.80)" font-family="monospace" font-size="6">v∞</text>
+
+  <!-- "Ideal" label -->
+  <text x="287" y="94" text-anchor="middle" fill="rgba(52,211,153,0.80)" font-family="monospace" font-size="7">✓</text>
+
+  <!-- Progress arc underneath -->
+  <path d="M 42 145 Q 160 135 287 145" stroke="rgba(52,211,153,0.20)" stroke-width="1" stroke-dasharray="3,4"/>
+
+  <!-- Label -->
+  <text x="160" y="158" text-anchor="middle" fill="rgba(52,211,153,0.35)" font-family="monospace" font-size="6.5" letter-spacing="1">REFACTORING CASCADE · ENTROPY ↓</text>
+
+  <!-- Bottom annotation -->
+  <text x="16" y="170" fill="rgba(52,211,153,0.35)" font-family="monospace" font-size="6" letter-spacing="1">MODULE EVOLUTION SCHEMA · REV 1</text>
+  <text x="304" y="170" text-anchor="end" fill="rgba(52,211,153,0.25)" font-family="monospace" font-size="6">§RR</text>
+</svg>

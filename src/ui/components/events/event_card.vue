@@ -1,9 +1,10 @@
 <template>
   <article class="event-card" :class="`severity-${severity}`">
 
-    <!-- Optional artwork region: accepts future event illustrations via named slot -->
-    <div v-if="$slots.artwork" class="event-artwork" aria-hidden="true">
-      <slot name="artwork" />
+    <!-- Artwork region: renders illustrationUrl prop or falls back to named slot content -->
+    <div v-if="illustrationUrl || $slots.artwork" class="event-artwork" aria-hidden="true">
+      <img v-if="illustrationUrl" :src="illustrationUrl" alt="" />
+      <slot v-else name="artwork" />
     </div>
 
     <header class="event-header">
@@ -31,6 +32,8 @@ const props = withDefaults(
     description: string
     severity?: 'low' | 'medium' | 'high' | 'critical'
     highlights?: string[]
+    /** Optional scene illustration URL. Rendered above the event title when provided. */
+    illustrationUrl?: string
   }>(),
   {
     severity: 'medium',

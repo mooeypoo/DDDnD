@@ -10,8 +10,14 @@
           <button class="close-button" @click="emit('close')" aria-label="Close modal">×</button>
         </div>
 
-        <!-- Artwork frame — reserved for future card illustration; stable when empty -->
-        <div class="modal-artwork-frame" aria-hidden="true"></div>
+        <!-- Artwork frame — renders illustration when artwork prop is supplied; stable when absent -->
+        <div class="modal-artwork-frame" aria-hidden="true">
+          <img
+            v-if="artwork?.illustration_url"
+            :src="artwork.illustration_url"
+            :alt="artwork.alt ?? ''"
+          />
+        </div>
 
         <div class="modal-body">
           <p class="card-description">{{ card.description }}</p>
@@ -75,12 +81,15 @@
 <script setup lang="ts">
 import type { Card } from '@/domains/content/model/content_types';
 import { getMetricPresentation } from '@/ui/composables/metric_presentation';
+import type { ArtworkMeta } from '@/ui/types/artwork'
 
 interface Props {
   isOpen: boolean;
   card: Card;
   isDisabled?: boolean;
   stakeholderNames?: Record<string, string>;
+  /** Optional artwork for the modal illustration frame. Renders an image when illustration_url is present. */
+  artwork?: ArtworkMeta
 }
 
 interface Emits {

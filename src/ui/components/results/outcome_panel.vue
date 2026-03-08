@@ -2,7 +2,9 @@
   <section class="outcome-panel" :class="[`mood-${mood}`, `archetype-${archetype}`]">
     <!-- Artwork frame — reserved for future archetype portrait illustrations -->
     <div class="artwork-frame" aria-hidden="true">
-      <div class="artwork-icon">{{ archetypeIcon }}</div>
+      <!-- Portrait image replaces the icon emoji when a URL is supplied -->
+      <img v-if="portraitUrl" class="archetype-portrait" :src="portraitUrl" alt="" />
+      <div v-else class="artwork-icon">{{ archetypeIcon }}</div>
     </div>
 
     <div class="outcome-body">
@@ -30,6 +32,8 @@ const props = withDefaults(
     summary: string
     mood?: 'calm' | 'tense' | 'victorious'
     tier?: 'triumph' | 'success' | 'survival' | 'struggle' | 'collapse'
+    /** Optional archetype portrait URL. Replaces the icon emoji when provided. */
+    portraitUrl?: string
   }>(),
   {
     mood: 'calm'
@@ -116,6 +120,17 @@ const tierDisplay = computed(() => {
       rgba(251, 191, 36, 0.08) 0%,
       transparent 70%),
     var(--bg-overlay-strong);
+}
+
+/* Portrait image — fills artwork frame when portraitUrl is provided */
+.archetype-portrait {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.92;
 }
 
 .artwork-icon {
