@@ -13,8 +13,8 @@ const router = createRouter({
       component: WelcomeView
     },
     {
-      path: '/setup',
-      name: 'setup',
+      path: '/play',
+      name: 'play',
       component: RunSetupView
     },
     {
@@ -23,8 +23,8 @@ const router = createRouter({
       component: GameView
     },
     {
-      path: '/result',
-      name: 'result',
+      path: '/end',
+      name: 'end',
       component: EndOfRunView
     }
   ]
