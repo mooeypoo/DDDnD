@@ -67,6 +67,7 @@
           <!-- Aftershocks Warning -->
           <div 
             v-if="gameStore.turnBriefing && gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 0"
+            ref="aftershockAlertRef"
             class="aftershock-alert"
           >
             <div class="alert-icon">⚡</div>
@@ -79,11 +80,15 @@
           </div>
           
           <!-- Last Turn Resolution -->
-          <TurnResolutionPanel 
+          <div
             v-if="gameStore.lastTurnResolution && gameStore.lastTurnResolution.turn_resolution_context"
-            :turnResolution="gameStore.lastTurnResolution.turn_resolution_context"
-            :stakeholderNames="stakeholderNames"
-          />
+            ref="turnResolutionPanelRef"
+          >
+            <TurnResolutionPanel 
+              :turnResolution="gameStore.lastTurnResolution.turn_resolution_context"
+              :stakeholderNames="stakeholderNames"
+            />
+          </div>
           
           <!-- Available Actions -->
           <div v-if="!gameStore.isRunComplete" class="play-area">
@@ -124,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { Card } from '@/domains/content/model'
@@ -145,6 +150,14 @@ const router = useRouter()
 const gameStore = useGameStore()
 
 const modalCardId = ref<string | null>(null)
+const aftershockAlertRef = ref<HTMLElement | null>(null)
+const turnResolutionPanelRef = ref<HTMLElement | null>(null)
+
+const SMALL_MOBILE_BREAKPOINT_PX = 480
+const MOBILE_BREAKPOINT_PX = 768
+const SCROLL_OFFSET_DESKTOP_PX = 80
+const SCROLL_OFFSET_MOBILE_PX = 100
+const SCROLL_OFFSET_SMALL_MOBILE_PX = 125
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
 
@@ -198,11 +211,42 @@ function handleShowDetails(cardId: string) {
 async function handlePlayCard(cardId: string) {
   modalCardId.value = null
   await gameStore.play_turn(cardId)
+  await scrollToResolutionContext()
   
   // If run just completed, update outcome
   if (gameStore.isRunComplete) {
     gameStore.get_run_outcome()
   }
+}
+
+async function scrollToResolutionContext() {
+  await nextTick()
+
+  const targetElement = aftershockAlertRef.value ?? turnResolutionPanelRef.value
+  if (!targetElement) {
+    return
+  }
+
+  const topOffset = getScrollTopOffset()
+  const elementTop = targetElement.getBoundingClientRect().top + window.scrollY
+  const scrollTop = Math.max(0, elementTop - topOffset)
+
+  window.scrollTo({
+    top: scrollTop,
+    behavior: 'smooth'
+  })
+}
+
+function getScrollTopOffset() {
+  if (window.matchMedia(`(max-width: ${SMALL_MOBILE_BREAKPOINT_PX}px)`).matches) {
+    return SCROLL_OFFSET_SMALL_MOBILE_PX
+  }
+
+  if (window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`).matches) {
+    return SCROLL_OFFSET_MOBILE_PX
+  }
+
+  return SCROLL_OFFSET_DESKTOP_PX
 }
 
 function goToEndScreen() {
