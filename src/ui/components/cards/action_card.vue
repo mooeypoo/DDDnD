@@ -1,75 +1,76 @@
 <template>
-  <button
-    class="action-card"
-    :class="{ selected: isSelected, disabled: isDisabled }"
-    :disabled="isDisabled"
-    @click="$emit('select')"
-  >
-    <!-- Future: Card art slot -->
-    <div class="card-art-slot">
-      <div class="card-type-badge">Action</div>
+  <article class="action-card" :class="{ disabled: isDisabled }">
+    <header class="card-header">
+      <h3 class="card-title">{{ card.name }}</h3>
+    </header>
+
+    <p class="card-description">{{ summaryText }}</p>
+
+    <!-- Delayed Effects Badge (Prominent) -->
+    <div v-if="card.delayed_effect_refs.length" class="aftershock-badge-prominent">
+      <span class="aftershock-icon">⚡</span>
+      <span class="aftershock-text">
+        {{ card.delayed_effect_refs.length }} Aftershock{{ card.delayed_effect_refs.length > 1 ? 's' : '' }}
+      </span>
     </div>
-    
-    <div class="card-content">
-      <div class="card-header">
-        <h3 class="card-title">{{ card.name }}</h3>
-      </div>
-      
-      <div class="card-body">
-        <p class="card-description">{{ card.description }}</p>
-        
-        <p v-if="card.flavor_text" class="card-flavor">
-          <span class="flavor-quote">"</span>{{ card.flavor_text }}<span class="flavor-quote">"</span>
-        </p>
-        
-        <div v-if="card.score_changes.length > 0" class="card-effects">
-          <div class="effects-label">Immediate Effects</div>
-          <div class="effects-list">
-            <span 
-              v-for="(change, idx) in card.score_changes" 
-              :key="idx"
-              class="effect-badge"
-              :class="change.delta > 0 ? 'positive' : 'negative'"
-            >
-              {{ formatScoreName(change.score_id) }} {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
-            </span>
-          </div>
-        </div>
-        
-        <div v-if="card.delayed_effect_refs.length > 0" class="card-aftershocks">
-          <div class="aftershock-badge">
-            <span class="aftershock-icon">⚡</span>
-            <span class="aftershock-count">{{ card.delayed_effect_refs.length }}</span>
-            <span class="aftershock-label">Aftershock{{ card.delayed_effect_refs.length > 1 ? 's' : '' }}</span>
-          </div>
-        </div>
-      </div>
+
+    <!-- Primary Effects -->
+    <div class="primary-effects" v-if="card.score_changes.length">
+      <span
+        v-for="change in primaryEffects"
+        :key="`${change.score_id}-${change.delta}`"
+        class="effect-chip"
+        :class="change.delta > 0 ? 'positive' : 'negative'"
+      >
+        <span class="metric-icon" :class="metricPresentation(change.score_id).colorClass">
+          {{ metricPresentation(change.score_id).icon }}
+        </span>
+        {{ metricPresentation(change.score_id).label }} {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
+      </span>
+      <span v-if="remainingEffects > 0" class="effect-chip more-effects">
+        +{{ remainingEffects }} more
+      </span>
     </div>
-    
-    <div v-if="isSelected" class="selected-overlay">
-      <span class="selected-indicator">✓ Selected</span>
-    </div>
-  </button>
+
+    <footer class="card-controls">
+      <button class="card-button card-button-secondary" type="button" :disabled="isDisabled" @click="$emit('showDetails')">
+        View Details
+      </button>
+      <button class="card-button card-button-primary" type="button" :disabled="isDisabled" @click="$emit('play', card.id)">
+        {{ isDisabled ? 'Resolving...' : 'Play This Card' }}
+      </button>
+    </footer>
+  </article>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Card } from '@/domains/content/model'
+import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 
-defineProps<{
+const props = defineProps<{
   card: Card
-  isSelected?: boolean
   isDisabled?: boolean
 }>()
 
 defineEmits<{
-  select: []
+  play: [cardId: string]
+  showDetails: []
 }>()
 
-function formatScoreName(scoreId: string): string {
-  return scoreId
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
+const primaryEffects = computed(() => props.card.score_changes.slice(0, 3))
+const remainingEffects = computed(() => Math.max(props.card.score_changes.length - primaryEffects.value.length, 0))
+const summaryText = computed(() => {
+  const compact = props.card.flavor_text?.trim() || props.card.description
+  if (compact.length <= 120) {
+    return compact
+  }
+
+  return `${compact.slice(0, 117).trimEnd()}...`
+})
+
+function metricPresentation(scoreId: string) {
+  return getMetricPresentation(scoreId)
 }
 </script>
 
@@ -78,228 +79,186 @@ function formatScoreName(scoreId: string): string {
   background: var(--card-bg);
   border: 2px solid var(--card-border);
   border-radius: var(--radius-xl);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  text-align: left;
-  width: 100%;
+  padding: var(--space-lg);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  position: relative;
-  backdrop-filter: blur(10px);
+  gap: var(--space-md);
+  transition: all var(--transition-base);
 }
 
-.action-card:hover:not(:disabled) {
+.action-card:hover:not(.disabled) {
   border-color: var(--card-border-hover);
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
-.action-card.selected {
-  border-color: var(--color-primary);
-  background: var(--color-danger-bg);
-  box-shadow: 0 6px 24px var(--color-primary-glow);
-  transform: translateY(-4px);
-}
-
-.action-card:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.action-card:disabled:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-/* Card Art Slot */
-.card-art-slot {
-  height: 100px;
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
-  display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  padding: var(--space-md);
-  position: relative;
-  overflow: hidden;
-}
-
-.card-art-slot::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
-}
-
-.card-type-badge {
-  background: rgba(0, 0, 0, 0.4);
-  color: var(--color-text-bright);
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-md);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  position: relative;
-  z-index: 1;
-  backdrop-filter: blur(4px);
-}
-
-/* Card Content */
-.card-content {
-  padding: var(--space-xl);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  flex: 1;
+.action-card.disabled {
+  opacity: 0.7;
 }
 
 .card-header {
-  padding-bottom: var(--space-md);
-  border-bottom: 1px solid var(--color-border-default);
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-md);
 }
 
 .card-title {
-  color: var(--color-primary);
-  font-size: var(--text-lg);
   margin: 0;
+  color: var(--color-text-bright);
+  font-size: var(--text-lg);
   font-weight: var(--font-bold);
 }
 
-.card-body {
+.effect-type-icons {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  flex: 1;
+  gap: var(--space-xs);
+}
+
+.type-icon {
+  font-size: var(--text-base);
+  background: var(--color-bg-overlay);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-sm);
 }
 
 .card-description {
-  color: var(--color-text-primary);
-  line-height: var(--leading-relaxed);
   margin: 0;
+  color: var(--color-text-secondary);
   font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
 }
 
-.card-flavor {
-  color: var(--color-text-secondary);
-  font-style: italic;
-  font-size: var(--text-xs);
-  margin: 0;
-  line-height: var(--leading-snug);
-  padding: var(--space-md);
-  background: var(--color-bg-overlay);
-  border-radius: var(--radius-md);
-  border-left: 2px solid var(--color-border-default);
-}
-
-.flavor-quote {
-  color: var(--color-primary);
-  font-size: var(--text-base);
-  font-weight: var(--font-bold);
-}
-
-.card-effects {
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--color-border-default);
-}
-
-.effects-label {
-  color: var(--color-text-secondary);
-  font-size: var(--text-xs);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: var(--space-sm);
-  font-weight: var(--font-semibold);
-}
-
-.effects-list {
+.primary-effects {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-sm);
 }
 
-.effect-badge {
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-md);
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  border: 1px solid;
-}
-
-.effect-badge.positive {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-  border-color: var(--color-success);
-}
-
-.effect-badge.negative {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-  border-color: var(--color-danger);
-}
-
-.card-aftershocks {
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--color-border-default);
-}
-
-.aftershock-badge {
+.effect-chip {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-default);
   font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  border: 1px solid var(--color-warning);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  background: var(--color-bg-overlay);
+}
+
+.effect-chip.positive {
+  border-color: var(--color-success);
+}
+
+.effect-chip.negative {
+  border-color: var(--color-danger);
+}
+
+.effect-chip.more-effects {
+  color: var(--color-text-secondary);
+}
+
+.metric-icon {
+  display: inline-flex;
+}
+
+.metric-maintainability,
+.metric-domain-clarity {
+  color: var(--color-success);
+}
+
+.metric-delivery-confidence {
+  color: var(--color-info);
+}
+
+.metric-developer-morale {
+  color: var(--color-warning);
+}
+
+.metric-user-trust {
+  color: var(--color-primary);
+}
+
+.metric-budget,
+.metric-generic {
+  color: var(--color-text-secondary);
+}
+
+.card-controls {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: auto;
+}
+
+.card-button {
+  flex: 1;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  border: 2px solid var(--color-border-default);
+}
+
+.card-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.card-button-secondary {
+  background: var(--color-bg-overlay);
+  color: var(--color-text-primary);
+}
+
+.card-button-secondary:hover:not(:disabled) {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-focus);
+}
+
+.card-button-primary {
+  background: var(--color-primary);
+  color: var(--color-text-bright);
+  border-color: var(--color-primary);
+}
+
+.card-button-primary:hover:not(:disabled) {
+  background: var(--color-primary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--color-primary-glow);
+}
+
+.aftershock-badge-prominent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: linear-gradient(135deg, var(--color-warning-bg) 0%, rgba(243, 156, 18, 0.1) 100%);
+  border: 2px solid var(--color-warning);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.2);
+  }
+  50% {
+    box-shadow: 0 2px 16px rgba(243, 156, 18, 0.4);
+  }
 }
 
 .aftershock-icon {
-  font-size: var(--text-base);
+  font-size: var(--text-2xl);
+  line-height: 1;
 }
 
-.aftershock-count {
-  font-size: var(--text-base);
-}
-
-.aftershock-label {
-  font-weight: var(--font-semibold);
-}
-
-/* Selected Overlay */
-.selected-overlay {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  padding: var(--space-sm) var(--space-lg);
-  border-bottom-left-radius: var(--radius-lg);
-  font-size: var(--text-sm);
+.aftershock-text {
+  color: var(--color-warning);
   font-weight: var(--font-bold);
-  box-shadow: var(--shadow-md);
-  z-index: 10;
-}
-
-.selected-indicator {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .card-content {
-    padding: var(--space-lg);
-  }
-  
-  .card-art-slot {
-    height: 80px;
-  }
+  font-size: var(--text-sm);
 }
 </style>

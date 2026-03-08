@@ -23,6 +23,9 @@
           <div class="scenario-card">
             <div class="scenario-badge">Single Player Campaign</div>
             <h3 class="scenario-name">The Monolith of Mild Despair</h3>
+            <p class="scenario-short-summary">
+              Stabilize a tangled legacy monolith before delivery confidence collapses.
+            </p>
             <p class="scenario-description">
               A legacy monolith is slowing delivery and blurring domain boundaries. 
               You inherit a codebase where every change touches everything. 
@@ -308,8 +311,20 @@ async function startRun() {
 .scenario-description {
   color: var(--color-text-primary);
   line-height: var(--leading-relaxed);
-  margin: 0 0 var(--space-xl) 0;
+  margin: 0 0 var(--space-lg) 0;
   font-size: var(--text-base);
+}
+
+.scenario-short-summary {
+  color: var(--color-text-secondary);
+  line-height: var(--leading-snug);
+  margin: 0 0 var(--space-md) 0;
+  font-size: var(--text-sm);
+  font-style: italic;
+  padding: var(--space-md);
+  background: var(--color-bg-overlay);
+  border-left: 2px solid var(--color-primary);
+  border-radius: var(--radius-md);
 }
 
 .scenario-stats {

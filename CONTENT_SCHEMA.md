@@ -81,6 +81,7 @@ The file must include matching metadata:
 A scenario defines:
 
 - scenario metadata
+- compact summary (`short_description`, optional)
 - starting score values
 - stakeholder ids
 - available cards
@@ -117,6 +118,9 @@ Stakeholders include:
 Reaction rules belong to stakeholders.
 
 Scenarios reference stakeholders, not rules directly.
+
+The `short_description` field is intended for compact UI surfaces such as banners and selection summaries.
+When omitted, UI may fall back to other descriptive fields.
 
 ---
 

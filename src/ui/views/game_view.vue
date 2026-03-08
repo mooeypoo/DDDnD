@@ -2,28 +2,36 @@
   <div class="game-view">
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
+    <CardDetailsModal 
+      v-if="modalCardId && modalCard" 
+      :isOpen="!!modalCardId" 
+      :card="modalCard" 
+      :isDisabled="gameStore.isPlayingTurn"
+      @close="modalCardId = null" 
+      @play="handlePlayCard"
+    />
     
     <div class="game-container">
-      <!-- Header -->
+      <!-- Scenario Banner (new) -->
+      <ScenarioBanner
+        v-if="scenario"
+        :title="scenario.name"
+        :short-description="resolveScenarioShortDescription(scenario)"
+        :description="scenario.description"
+        :current-turn="gameStore.currentTurn"
+        :max-turns="gameStore.maxTurns"
+      />
+
+      <!-- Header (compact) -->
       <header class="game-header">
-        <div class="header-content">
-          <div class="scenario-info">
-            <h1 class="scenario-title">{{ scenario?.name || 'DDDnD' }}</h1>
-            <div class="turn-badge">
-              <span class="turn-label">Turn</span>
-              <span class="turn-current">{{ gameStore.currentTurn }}</span>
-              <span class="turn-separator">/</span>
-              <span class="turn-max">{{ gameStore.maxTurns }}</span>
-            </div>
-          </div>
-        </div>
-        
         <div class="header-actions">
-          <button class="icon-button" @click="gameStore.openRulesModal" title="Rules">
+          <button class="icon-button" @click="gameStore.openRulesModal">
             <span class="button-icon">📖</span>
+            <span class="button-label">Rules</span>
           </button>
-          <button class="icon-button" @click="gameStore.openAboutModal" title="About">
+          <button class="icon-button" @click="gameStore.openAboutModal">
             <span class="button-icon">ℹ️</span>
+            <span class="button-label">About</span>
           </button>
         </div>
       </header>
@@ -45,6 +53,15 @@
         
         <!-- Center: Cards & Actions -->
         <main class="game-center">
+          <!-- Turn Briefing -->
+          <TurnBriefingPanel
+            v-if="gameStore.turnBriefing"
+            :event-title="currentEventTitle"
+            :narrative-description="currentEventDescription"
+            :available-actions="gameStore.turnBriefing.available_action_card_ids.length"
+            :pending-aftershocks="gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length"
+          />
+
           <!-- Aftershocks Warning -->
           <div 
             v-if="gameStore.turnBriefing && gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 0"
@@ -80,24 +97,10 @@
                 v-for="card in availableCards" 
                 :key="card.id + '-v' + card.version"
                 :card="card"
-                :isSelected="selectedCardId === card.id"
                 :isDisabled="gameStore.isPlayingTurn"
-                @select="selectCard(card.id)"
+                @showDetails="handleShowDetails(card.id)"
+                @play="handlePlayCard"
               />
-            </div>
-            
-            <div class="play-controls">
-              <button 
-                class="btn-play-card"
-                :disabled="!selectedCardId || gameStore.isPlayingTurn"
-                @click="playSelectedCard"
-              >
-                <span v-if="gameStore.isPlayingTurn" class="btn-spinner"></span>
-                <span class="btn-text">
-                  {{ gameStore.isPlayingTurn ? 'Resolving Turn...' : 'Play Selected Card' }}
-                </span>
-                <span v-if="!gameStore.isPlayingTurn && selectedCardId" class="btn-icon">→</span>
-              </button>
             </div>
           </div>
           
@@ -123,19 +126,31 @@ import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { Card } from '@/domains/content/model'
 import { versionRefKey } from '@/domains/content/model'
+import { resolveScenarioShortDescription } from '@/ui/composables/scenario_presentation'
 import ScorePanel from '@/ui/components/scores/score_panel.vue'
 import StakeholderPanel from '@/ui/components/stakeholders/stakeholder_panel.vue'
 import ActionCard from '@/ui/components/cards/action_card.vue'
 import TurnResolutionPanel from '@/ui/components/turn/turn_resolution_panel.vue'
+import ScenarioBanner from '@/ui/components/scenario/scenario_banner.vue'
+import TurnBriefingPanel from '@/ui/components/turn/turn_briefing_panel.vue'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
+import CardDetailsModal from '@/ui/components/cards/card_details_modal.vue'
 
 const router = useRouter()
 const gameStore = useGameStore()
 
-const selectedCardId = ref<string | null>(null)
+const modalCardId = ref<string | null>(null)
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
+
+const currentEventTitle = computed(() => {
+  return 'Choose Your Architectural Move'
+})
+
+const currentEventDescription = computed(() => {
+  return 'The system awaits your decision. Select a card to take your next action.'
+})
 
 const availableCards = computed(() => {
   if (!gameStore.turnBriefing || !gameStore.scenarioBundle) {
@@ -153,6 +168,14 @@ const availableCards = computed(() => {
   return cards
 })
 
+const modalCard = computed(() => {
+  if (!modalCardId.value || !gameStore.scenarioBundle) {
+    return null
+  }
+  
+  return availableCards.value.find(card => card.id === modalCardId.value) || null
+})
+
 onMounted(() => {
   // If no active run, redirect to setup
   if (!gameStore.hasActiveRun) {
@@ -160,15 +183,13 @@ onMounted(() => {
   }
 })
 
-function selectCard(cardId: string) {
-  selectedCardId.value = cardId
+function handleShowDetails(cardId: string) {
+  modalCardId.value = cardId
 }
 
-async function playSelectedCard() {
-  if (!selectedCardId.value) return
-  
-  await gameStore.play_turn(selectedCardId.value)
-  selectedCardId.value = null
+async function handlePlayCard(cardId: string) {
+  modalCardId.value = null
+  await gameStore.play_turn(cardId)
   
   // If run just completed, update outcome
   if (gameStore.isRunComplete) {
@@ -201,70 +222,16 @@ function goToEndScreen() {
   gap: var(--space-xl);
 }
 
-/* Header */
+/* Header (compact) */
 .game-header {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
+  background: transparent;
+  border: none;
+  padding: 0;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(10px);
-}
-
-.header-content {
-  flex: 1;
-}
-
-.scenario-info {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xl);
-  flex-wrap: wrap;
-}
-
-.scenario-title {
-  color: var(--color-primary);
-  font-size: var(--text-2xl);
-  margin: 0;
-  font-weight: var(--font-bold);
-}
-
-.turn-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
-  background: var(--color-bg-overlay);
-  padding: var(--space-sm) var(--space-lg);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-default);
-}
-
-.turn-label {
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.turn-current {
-  color: var(--color-primary);
-  font-size: var(--text-xl);
-  font-weight: var(--font-black);
-}
-
-.turn-separator {
-  color: var(--color-text-muted);
-  font-size: var(--text-lg);
-}
-
-.turn-max {
-  color: var(--color-text-secondary);
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .header-actions {
@@ -276,14 +243,16 @@ function goToEndScreen() {
   background: var(--color-bg-overlay);
   border: 2px solid var(--color-border-default);
   color: var(--color-text-primary);
-  width: 2.75rem;
-  height: 2.75rem;
+  padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-base);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-xs);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
 }
 
 .icon-button:hover {
@@ -294,6 +263,11 @@ function goToEndScreen() {
 
 .button-icon {
   font-size: var(--text-lg);
+  line-height: 1;
+}
+
+.button-label {
+  white-space: nowrap;
 }
 
 /* Main Game Layout */

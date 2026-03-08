@@ -3,6 +3,7 @@
   "version": 1,
   "name": "The Monolith of Mild Despair",
   "description": "A legacy monolith is slowing delivery and blurring domain boundaries",
+  "short_description": "Stabilize a tangled legacy monolith before delivery confidence collapses.",
   "flavor_text": "You inherit a codebase where every change touches everything",
   "max_turns": 8,
   "starting_scores": {

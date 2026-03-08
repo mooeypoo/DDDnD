@@ -126,6 +126,7 @@ export const mockScenarios: Record<string, Scenario> = {
     version: 1,
     name: 'Test Scenario',
     description: 'A minimal test scenario for validating the content system',
+    short_description: 'A compact validation scenario for content tests',
     flavor_text: 'Testing the content loading pipeline',
     max_turns: 10,
     starting_scores: {

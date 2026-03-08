@@ -11,7 +11,10 @@
         class="score-item"
       >
         <div class="score-header">
-          <span class="score-name">{{ formatScoreName(scoreId) }}</span>
+          <span class="score-name-wrapper">
+            <span class="score-icon">{{ getMetricIcon(scoreId as string) }}</span>
+            <span class="score-name">{{ formatScoreName(scoreId as string) }}</span>
+          </span>
           <span class="score-value" :class="getScoreClass(value)">{{ Math.round(value) }}</span>
         </div>
         <div class="score-bar-container">
@@ -29,9 +32,15 @@
 </template>
 
 <script setup lang="ts">
+import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+
 defineProps<{
   scores: Record<string, number>
 }>()
+
+function getMetricIcon(scoreId: string): string {
+  return getMetricPresentation(scoreId).icon
+}
 
 function formatScoreName(scoreId: string): string {
   return scoreId
@@ -88,6 +97,16 @@ function getScoreClass(value: number): string {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.score-name-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.score-icon {
+  font-size: var(--text-lg);
 }
 
 .score-name {

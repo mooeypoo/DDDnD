@@ -160,6 +160,7 @@ export interface OutcomeArchetype extends ContentMetadata {
 export interface Scenario extends ContentMetadata {
   name: string
   description: string
+  short_description?: string
   flavor_text?: string
   max_turns: number
   starting_scores: Record<string, number>
