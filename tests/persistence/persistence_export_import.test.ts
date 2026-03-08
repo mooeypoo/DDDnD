@@ -149,6 +149,8 @@ describe('Persistence export/import', () => {
     expect(exportPayload.turn_history).toHaveLength(1)
     expect(exportPayload.action_sequence).toHaveLength(1)
     expect(exportPayload.outcome_snapshot.run_status).toBe('in_progress')
+    expect(exportPayload.outcome_snapshot.archetype).toBeTruthy()
+    expect(['success', 'partial_success', 'failure']).toContain(exportPayload.outcome_snapshot.tier)
   })
 
   it('exact-run deserialization round-trips correctly for valid input', () => {

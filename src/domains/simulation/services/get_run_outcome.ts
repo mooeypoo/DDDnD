@@ -20,9 +20,25 @@
 
 import { ScenarioBundle } from '@/domains/content/model'
 import { GameState } from '../model'
-import { classifyRunOutcome, RunCompletionReason } from '../rules'
+import { classifyRunOutcome, OutcomeArchetypeId, RunCompletionReason } from '../rules'
+
+export type RunOutcomeTier = 'success' | 'partial_success' | 'failure'
+
+export interface RunOutcomeSnapshot {
+  tier: RunOutcomeTier
+  archetype: OutcomeArchetypeId
+  run_status: 'completed_failure' | 'completed_max_turns' | 'completed_success'
+  completion_reason: RunCompletionReason
+  turns_completed: number
+  max_turns: number
+  score_average: number
+  matched_failure_conditions: string[]
+}
 
 export interface RunOutcome {
+  tier: RunOutcomeTier
+  archetype: OutcomeArchetypeId
+  outcome_snapshot: RunOutcomeSnapshot
   has_outcome: boolean
   completion_reason: RunCompletionReason
   scenario_id: string
@@ -32,8 +48,27 @@ export interface RunOutcome {
   max_turns: number
   matched_failure_conditions: string[]
   selected_tier_id: string | null
-  selected_archetype_id: string | null
+  selected_archetype_id: OutcomeArchetypeId
   score_average: number
+}
+
+function classifyRunOutcomeTier(
+  runStatus: RunOutcomeSnapshot['run_status'],
+  scoreAverage: number
+): RunOutcomeTier {
+  if (runStatus === 'completed_failure') {
+    return 'failure'
+  }
+
+  if (scoreAverage >= 60) {
+    return 'success'
+  }
+
+  if (scoreAverage < 35) {
+    return 'failure'
+  }
+
+  return 'partial_success'
 }
 
 export function getRunOutcome(
@@ -45,7 +80,23 @@ export function getRunOutcome(
     return null
   }
 
+  const tier = classifyRunOutcomeTier(classified.run_status, classified.score_average)
+  const archetype = classified.selected_archetype_id
+  const outcomeSnapshot: RunOutcomeSnapshot = {
+    tier,
+    archetype,
+    run_status: classified.run_status,
+    completion_reason: classified.completion_reason,
+    turns_completed: classified.turns_completed,
+    max_turns: classified.max_turns,
+    score_average: classified.score_average,
+    matched_failure_conditions: [...classified.matched_failure_conditions]
+  }
+
   return {
+    tier,
+    archetype,
+    outcome_snapshot: outcomeSnapshot,
     has_outcome: classified.has_outcome,
     completion_reason: classified.completion_reason,
     scenario_id: classified.scenario_id,

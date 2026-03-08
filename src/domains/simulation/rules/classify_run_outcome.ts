@@ -1,6 +1,7 @@
 import { ScenarioBundle } from '@/domains/content/model'
 import { GameState, RunAnalytics } from '../model'
 import { evaluateNumericCondition } from './condition_evaluator'
+import { classifyOutcomeArchetype, OutcomeArchetypeId } from './classify_outcome_archetype'
 
 export type RunCompletionReason = 'failure_condition_met' | 'max_turns_reached'
 
@@ -14,7 +15,7 @@ export interface RunOutcomeClassification {
   max_turns: number
   matched_failure_conditions: string[]
   selected_tier_id: string | null
-  selected_archetype_id: string | null
+  selected_archetype_id: OutcomeArchetypeId
   score_average: number
   analytics_snapshot: RunAnalytics
 }
@@ -55,8 +56,8 @@ function classifyTierId(scoreAverage: number, scenarioBundle: ScenarioBundle): s
   return null
 }
 
-function selectArchetypeId(_gameState: GameState, _scenarioBundle: ScenarioBundle): string | null {
-  return null
+function selectArchetypeId(gameState: GameState, _scenarioBundle: ScenarioBundle): OutcomeArchetypeId {
+  return classifyOutcomeArchetype({ game_state: gameState })
 }
 
 export function classifyRunOutcome(

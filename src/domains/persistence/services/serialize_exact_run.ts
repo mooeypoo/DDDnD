@@ -1,4 +1,5 @@
 import { GameState } from '@/domains/simulation/model'
+import { classifyOutcomeArchetype, OutcomeArchetypeId } from '@/domains/simulation/rules'
 import { RunStatus, VersionedContentRef } from '@/shared/contracts'
 
 export const EXACT_RUN_EXPORT_TYPE = 'exact_run' as const
@@ -13,6 +14,8 @@ export interface ExactRunSeedInfo {
 }
 
 export interface ExactRunOutcomeSnapshot {
+  tier: 'success' | 'partial_success' | 'failure'
+  archetype: OutcomeArchetypeId
   run_status: RunStatus
   turns_completed: number
   max_turns: number
@@ -48,17 +51,40 @@ function computeScoreAverage(scores: Record<string, number>): number | null {
   return total / scoreValues.length
 }
 
+function classifySnapshotTier(runStatus: RunStatus, scoreAverage: number | null): 'success' | 'partial_success' | 'failure' {
+  if (runStatus === 'completed_failure') {
+    return 'failure'
+  }
+
+  if (scoreAverage === null) {
+    return 'partial_success'
+  }
+
+  if (scoreAverage >= 60) {
+    return 'success'
+  }
+
+  if (scoreAverage < 35) {
+    return 'failure'
+  }
+
+  return 'partial_success'
+}
+
 function buildOutcomeSnapshot(gameState: GameState): ExactRunOutcomeSnapshot {
   const isCompleted = gameState.progress.run_status !== 'in_progress'
   const lastHistoryEntry = gameState.history.at(-1)
+  const scoreAverage = computeScoreAverage(gameState.scores)
 
   return {
+    tier: classifySnapshotTier(gameState.progress.run_status, scoreAverage),
+    archetype: classifyOutcomeArchetype({ game_state: gameState }),
     run_status: gameState.progress.run_status,
     turns_completed: gameState.run_analytics.turns_completed,
     max_turns: gameState.progress.max_turns,
     final_turn_number: lastHistoryEntry?.turn_number ?? null,
     is_completed: isCompleted,
-    score_average: computeScoreAverage(gameState.scores)
+    score_average: scoreAverage
   }
 }
 

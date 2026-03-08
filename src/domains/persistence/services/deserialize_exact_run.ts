@@ -44,6 +44,14 @@ function isOutcomeSnapshot(value: unknown): value is ExactRunOutcomeSnapshot {
     return false
   }
 
+  const hasValidTier =
+    value.tier === 'success' || value.tier === 'partial_success' || value.tier === 'failure'
+  const hasValidArchetype = typeof value.archetype === 'string' && value.archetype.length > 0
+
+  if (!hasValidTier || !hasValidArchetype) {
+    return false
+  }
+
   if (
     value.run_status !== 'in_progress' &&
     value.run_status !== 'completed_success' &&

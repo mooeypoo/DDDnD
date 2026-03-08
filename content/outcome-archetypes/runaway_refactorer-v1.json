@@ -1,0 +1,7 @@
+{
+  "id": "runaway_refactorer",
+  "version": 1,
+  "name": "The Runaway Refactorer",
+  "description": "You pursued architectural purity at the expense of delivery",
+  "flavor_text": "Perfect code ships never"
+}
