@@ -81,6 +81,7 @@
 <script setup lang="ts">
 import type { Card } from '@/domains/content/model/content_types';
 import { getMetricPresentation } from '@/ui/composables/metric_presentation';
+import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation';
 import type { ArtworkMeta } from '@/ui/types/artwork'
 
 interface Props {
@@ -113,13 +114,7 @@ function getMetricLabel(scoreId: string): string {
 }
 
 function formatStakeholderName(stakeholderId: string): string {
-  if (props.stakeholderNames[stakeholderId]) {
-    return props.stakeholderNames[stakeholderId];
-  }
-  return stakeholderId
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  return resolveStakeholderName(stakeholderId, props.stakeholderNames);
 }
 
 function handlePlay(): void {

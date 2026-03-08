@@ -49,6 +49,7 @@
           <StakeholderPanel 
             v-if="gameStore.gameState"
             :stakeholders="gameStore.gameState.stakeholders"
+            :stakeholderNames="stakeholderNames"
           />
         </aside>
         
@@ -81,6 +82,7 @@
           <TurnResolutionPanel 
             v-if="gameStore.lastTurnResolution && gameStore.lastTurnResolution.turn_resolution_context"
             :turnResolution="gameStore.lastTurnResolution.turn_resolution_context"
+            :stakeholderNames="stakeholderNames"
           />
           
           <!-- Available Actions -->
@@ -128,6 +130,7 @@ import { useGameStore } from '@/ui/stores/game_store'
 import type { Card } from '@/domains/content/model'
 import { versionRefKey } from '@/domains/content/model'
 import { resolveScenarioShortDescription } from '@/ui/composables/scenario_presentation'
+import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
 import ScorePanel from '@/ui/components/scores/score_panel.vue'
 import StakeholderPanel from '@/ui/components/stakeholders/stakeholder_panel.vue'
 import ActionCard from '@/ui/components/cards/action_card.vue'
@@ -178,13 +181,7 @@ const modalCard = computed(() => {
 })
 
 const stakeholderNames = computed((): Record<string, string> => {
-  const bundle = gameStore.scenarioBundle
-  if (!bundle) return {}
-  const names: Record<string, string> = {}
-  for (const [id, stakeholder] of bundle.stakeholders) {
-    names[id] = stakeholder.name
-  }
-  return names
+  return buildStakeholderNamesMap(gameStore.scenarioBundle)
 })
 
 onMounted(() => {

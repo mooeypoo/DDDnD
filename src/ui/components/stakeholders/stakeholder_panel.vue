@@ -37,16 +37,15 @@
 
 <script setup lang="ts">
 import type { StakeholderSnapshot } from '@/domains/simulation/model'
+import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 
-defineProps<{
+const props = defineProps<{
   stakeholders: StakeholderSnapshot
+  stakeholderNames?: Record<string, string>
 }>()
 
 function formatStakeholderName(stakeholderId: string): string {
-  return stakeholderId
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
+  return resolveStakeholderName(stakeholderId, props.stakeholderNames)
 }
 
 function getSatisfactionLabel(value: number): string {

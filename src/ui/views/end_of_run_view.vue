@@ -161,6 +161,10 @@ import { useGameStore } from '@/ui/stores/game_store'
 import type { OutcomeArchetypeId } from '@/domains/simulation/rules'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
+import {
+  buildStakeholderNamesMap,
+  formatStakeholderName as resolveStakeholderName
+} from '@/ui/composables/stakeholder_presentation'
 
 const router = useRouter()
 const gameStore = useGameStore()
@@ -235,11 +239,12 @@ function formatScoreName(scoreId: string): string {
     .join(' ')
 }
 
+const stakeholderNames = computed((): Record<string, string> => {
+  return buildStakeholderNamesMap(gameStore.scenarioBundle)
+})
+
 function formatStakeholderName(stakeholderId: string): string {
-  return stakeholderId
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
+  return resolveStakeholderName(stakeholderId, stakeholderNames.value)
 }
 
 function getScoreClass(value: number): string {
