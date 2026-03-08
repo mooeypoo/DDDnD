@@ -2,6 +2,30 @@
   <div class="run-setup-view">
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
+
+    <div
+      v-if="gameStore.isLoadingBundle"
+      class="setup-loading-overlay"
+      role="status"
+      aria-live="polite"
+      aria-label="Preparing your run"
+    >
+      <div class="setup-loading-panel">
+        <p class="setup-loading-eyebrow">Preparing Your Run</p>
+        <h2 class="setup-loading-title">Setting up your quest...</h2>
+        <p class="setup-loading-description">
+          Gathering scenario data, shuffling decisions, and briefing your first turn.
+        </p>
+
+        <div class="setup-loading-orbit" aria-hidden="true">
+          <span class="orbit-dot dot-1"></span>
+          <span class="orbit-dot dot-2"></span>
+          <span class="orbit-dot dot-3"></span>
+        </div>
+
+        <p class="setup-loading-footnote">This can take a few seconds on mobile.</p>
+      </div>
+    </div>
     
     <div class="setup-container">
       <!-- Header -->
@@ -262,6 +286,97 @@ async function startRun() {
     var(--color-bg-medium) 100%
   );
   padding: var(--space-2xl);
+}
+
+.setup-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: var(--surface-overlay);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+}
+
+.setup-loading-panel {
+  width: min(560px, 100%);
+  background: var(--surface-modal);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-overlay);
+  padding: var(--space-2xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-lg);
+}
+
+.setup-loading-eyebrow {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: var(--font-semibold);
+}
+
+.setup-loading-title {
+  margin: 0;
+  color: var(--color-text-bright);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+}
+
+.setup-loading-description {
+  margin: 0;
+  color: var(--color-text-primary);
+  line-height: var(--leading-relaxed);
+  max-width: 42ch;
+}
+
+.setup-loading-orbit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+}
+
+.orbit-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: orbitPulse 1.1s ease-in-out infinite;
+}
+
+.dot-2 {
+  animation-delay: 0.15s;
+}
+
+.dot-3 {
+  animation-delay: 0.3s;
+}
+
+.setup-loading-footnote {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+@keyframes orbitPulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0.45;
+  }
+  50% {
+    transform: translateY(-6px) scale(1);
+    opacity: 1;
+  }
 }
 
 .setup-container {
@@ -746,6 +861,15 @@ async function startRun() {
   .run-setup-view {
     padding: var(--space-xl);
   }
+
+  .setup-loading-panel {
+    padding: var(--space-xl);
+    gap: var(--space-md);
+  }
+
+  .setup-loading-title {
+    font-size: var(--text-xl);
+  }
   
   .setup-title {
     font-size: var(--text-3xl);
@@ -774,6 +898,14 @@ async function startRun() {
 @media (max-width: 480px) {
   .run-setup-view {
     padding: var(--space-lg);
+  }
+
+  .setup-loading-overlay {
+    padding: var(--space-lg);
+  }
+
+  .setup-loading-panel {
+    border-radius: var(--radius-lg);
   }
   
   .quest-stats {
