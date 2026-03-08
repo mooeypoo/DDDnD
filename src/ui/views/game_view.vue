@@ -54,6 +54,8 @@
             :narrative-description="currentEventDescription"
             :available-actions="gameStore.turnBriefing.available_action_card_ids.length"
             :pending-aftershocks="gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length"
+            :current-turn="gameStore.currentTurn"
+            :total-turns="gameStore.maxTurns"
           />
 
           <!-- Aftershocks Warning -->

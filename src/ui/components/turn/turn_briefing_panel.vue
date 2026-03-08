@@ -22,11 +22,24 @@
         {{ pendingAftershocks || 'No' }} aftershock{{ pendingAftershocks === 1 ? '' : 's' }} pending
       </span>
     </div>
+
+    <!-- Low Turns Warning -->
+    <div v-if="isLowTurns" class="low-turns-warning">
+      <div class="warning-icon">⏰</div>
+      <div class="warning-content">
+        <div class="warning-title">Turns Running Low</div>
+        <div class="warning-message">
+          Only {{ turnsRemaining }} turn{{ turnsRemaining === 1 ? '' : 's' }} remaining. Make your choices count!
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <script setup lang="ts">
-withDefaults(
+import { computed } from 'vue'
+
+const props = withDefaults(
   defineProps<{
     eventTitle: string
     narrativeDescription: string
@@ -37,6 +50,17 @@ withDefaults(
   }>(),
   {}
 )
+
+const turnsRemaining = computed(() => {
+  if (props.currentTurn && props.totalTurns) {
+    return props.totalTurns - props.currentTurn + 1
+  }
+  return 0
+})
+
+const isLowTurns = computed(() => {
+  return turnsRemaining.value > 0 && turnsRemaining.value <= 3
+})
 </script>
 
 <style scoped>
@@ -139,6 +163,52 @@ withDefaults(
 
 .badge-icon {
   font-size: var(--text-sm);
+}
+
+.low-turns-warning {
+  display: flex;
+  gap: var(--space-md);
+  background: linear-gradient(135deg, var(--effect-warning-bg), rgba(255, 152, 0, 0.06));
+  border: 2px solid var(--effect-warning-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-lg);
+  align-items: flex-start;
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+.warning-icon {
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+}
+
+.warning-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  flex: 1;
+}
+
+.warning-title {
+  font-weight: var(--font-semibold);
+  color: var(--effect-warning);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.warning-message {
+  color: var(--effect-warning);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+@keyframes pulse-warning {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
 }
 
 @media (max-width: 768px) {
