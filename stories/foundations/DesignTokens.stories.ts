@@ -318,7 +318,7 @@ export const SpacingRadiusShadow: Story = {
             { token: '--space-12', px: '48px', w: 48 },
           ]
             .map(
-              ({ token, px, w }) => `
+              ({ token: _token, px, w }) => `
             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem;">
               <div style="width: ${w}px; height: ${w}px; background: var(--text-accent); border-radius: 3px; opacity: 0.7;"></div>
               <span style="font-size: 0.625rem; color: var(--text-muted); font-family: var(--font-mono);">${px}</span>
@@ -339,7 +339,7 @@ export const SpacingRadiusShadow: Story = {
             { token: '--radius-full', r: '9999px' },
           ]
             .map(
-              ({ token, r }) => `
+              ({ token: _token, r }) => `
             <div style="display: flex; flex-direction: column; align-items: center; gap: 0.375rem;">
               <div style="width: 56px; height: 44px; background: var(--surface-card); border: 1px solid var(--border-card); border-radius: ${r};"></div>
               <span style="font-size: 0.625rem; color: var(--text-muted); font-family: var(--font-mono);">${r}</span>

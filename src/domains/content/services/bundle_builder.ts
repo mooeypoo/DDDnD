@@ -24,10 +24,7 @@ import {
   versionRefKey,
   ScenarioBundle,
   createEmptyBundle,
-  addToBundle,
-  Stakeholder,
-  Card,
-  Event
+  addToBundle
 } from '../model'
 import { ContentProvider } from './content_provider'
 

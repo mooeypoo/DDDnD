@@ -12,7 +12,7 @@
  * Once a bundle passes validation, the simulation can trust its structure.
  */
 
-import { ScenarioBundle, VersionRef, versionRefKey } from '../model'
+import { ScenarioBundle, versionRefKey } from '../model'
 
 /**
  * Validation error details.

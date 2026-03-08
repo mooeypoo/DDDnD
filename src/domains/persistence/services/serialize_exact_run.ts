@@ -73,7 +73,9 @@ function classifySnapshotTier(runStatus: RunStatus, scoreAverage: number | null)
 
 function buildOutcomeSnapshot(gameState: GameState): ExactRunOutcomeSnapshot {
   const isCompleted = gameState.progress.run_status !== 'in_progress'
-  const lastHistoryEntry = gameState.history.at(-1)
+  const lastHistoryEntry = gameState.history.length > 0
+    ? gameState.history[gameState.history.length - 1]
+    : undefined
   const scoreAverage = computeScoreAverage(gameState.scores)
 
   return {

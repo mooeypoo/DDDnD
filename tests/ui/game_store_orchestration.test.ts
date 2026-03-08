@@ -7,7 +7,7 @@ vi.mock('@/ui/services/quest_loader', async () => {
   )
   return {
     ...actual,
-    loadQuestDisplayModels: vi.fn(async (scenarioRefs) =>
+    loadQuestDisplayModels: vi.fn(async (scenarioRefs: Array<{ id: string; version: number }>) =>
       scenarioRefs.map((ref) => ({
         id: ref.id,
         version: ref.version,
