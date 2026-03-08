@@ -127,7 +127,7 @@ const primaryButtonText = computed(() => {
   }
 
   if (props.availability.unavailable_reason === 'usage_limit_reached') {
-    return 'Used'
+    return 'Used Up'
   }
 
   if (props.availability.unavailable_reason === 'cooldown_active') {
@@ -141,7 +141,7 @@ const availabilityDetails = computed(() => {
   const details: string[] = []
 
   if (props.card.usage_limit === 1) {
-    details.push('One-time use.')
+    details.push('One-time intervention (usable once per run).')
   } else if (props.card.usage_limit !== undefined && props.card.usage_limit !== null) {
     details.push(`Usage limit: ${props.card.usage_limit}.`)
   }
@@ -166,15 +166,15 @@ const availabilityStatusText = computed(() => {
   }
 
   if (props.availability.unavailable_reason === 'usage_limit_reached') {
-    return 'This card has already been fully used this run.'
+    return 'Unavailable: this card has already been fully used this run.'
   }
 
   if (props.availability.unavailable_reason === 'cooldown_active') {
     const turns = props.availability.turns_until_available
-    return `Available in ${turns} turn${turns === 1 ? '' : 's'}.`
+    return `Unavailable: on cooldown for ${turns} more turn${turns === 1 ? '' : 's'}.`
   }
 
-  return 'Requirements are not currently met.'
+  return 'Unavailable: requirements are not currently met.'
 })
 
 function getMetricIcon(scoreId: string): string {

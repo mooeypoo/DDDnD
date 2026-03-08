@@ -1,0 +1,34 @@
+{
+  "id": "fortify_observability_stack",
+  "version": 1,
+  "name": "Fortify Observability Stack",
+  "description": "Invest in tracing, alerting, and diagnostics across critical services",
+  "flavor_text": "If we can see it, we can fix it",
+  "usage_limit": 2,
+  "cooldown_turns": 2,
+  "style_tags": ["infrastructure", "platform", "stability"],
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 4
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 2
+    },
+    {
+      "score_id": "budget",
+      "delta": -4
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "user_trust_recovers",
+      "version": 1
+    }
+  ]
+}

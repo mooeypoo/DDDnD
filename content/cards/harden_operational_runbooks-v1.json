@@ -1,0 +1,37 @@
+{
+  "id": "harden_operational_runbooks",
+  "version": 1,
+  "name": "Harden Operational Runbooks",
+  "description": "Codify service response playbooks so incidents are faster and less chaotic",
+  "flavor_text": "Panic is not an operating model",
+  "cooldown_turns": 1,
+  "style_tags": ["stability", "documentation", "infrastructure"],
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 5
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 4
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 3
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -1
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "user_trust_recovers",
+      "version": 1
+    }
+  ]
+}

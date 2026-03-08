@@ -25,7 +25,8 @@ function buildAvailabilityBundle(): ScenarioBundle {
       { id: 'steady_improvement', version: 1 },
       { id: 'single_big_bet', version: 1 },
       { id: 'stabilize_on_call', version: 1 },
-      { id: 'controlled_rollout', version: 1 }
+      { id: 'controlled_rollout', version: 1 },
+      { id: 'tactical_cleanup', version: 1 }
     ],
     event_refs: []
   }
@@ -76,6 +77,15 @@ function buildAvailabilityBundle(): ScenarioBundle {
       description: 'Limited intervention with a short cooldown.',
       usage_limit: 2,
       cooldown_turns: 1,
+      score_changes: [{ score_id: 'architecture_health', delta: 2 }],
+      delayed_effect_refs: []
+    },
+    {
+      id: 'tactical_cleanup',
+      version: 1,
+      name: 'Tactical Cleanup',
+      description: 'Limited card that should remain immediately reusable until uses are exhausted.',
+      usage_limit: 2,
       score_changes: [{ score_id: 'architecture_health', delta: 2 }],
       delayed_effect_refs: []
     }
@@ -165,5 +175,29 @@ describe('card availability rules', () => {
     expect(turnFourSummary?.uses_remaining).toBe(0)
 
     expect(() => engine.play_turn('controlled_rollout')).toThrow('Action usage limit reached')
+  })
+
+  it('supports limited-use cards without cooldown and exhausts exactly at the limit', () => {
+    const engine = create_engine({ scenario_bundle: buildAvailabilityBundle(), seed: 'availability-limited-seed' })
+    engine.create_run()
+
+    const beforeUse = findActionSummary(engine, 'tactical_cleanup')
+    expect(beforeUse?.is_playable).toBe(true)
+    expect(beforeUse?.turns_until_available).toBe(0)
+    expect(beforeUse?.uses_remaining).toBe(2)
+
+    engine.play_turn('tactical_cleanup')
+
+    const afterFirstUse = findActionSummary(engine, 'tactical_cleanup')
+    expect(afterFirstUse?.is_playable).toBe(true)
+    expect(afterFirstUse?.turns_until_available).toBe(0)
+    expect(afterFirstUse?.uses_remaining).toBe(1)
+
+    engine.play_turn('tactical_cleanup')
+
+    const afterSecondUse = findActionSummary(engine, 'tactical_cleanup')
+    expect(afterSecondUse?.is_playable).toBe(false)
+    expect(afterSecondUse?.unavailable_reason).toBe('usage_limit_reached')
+    expect(afterSecondUse?.uses_remaining).toBe(0)
   })
 })

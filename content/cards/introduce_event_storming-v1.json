@@ -4,22 +4,24 @@
   "name": "Introduce Event Storming",
   "description": "Map out business processes and domain events collaboratively",
   "flavor_text": "Sticky notes and sharpies can solve anything",
+  "usage_limit": 1,
+  "style_tags": ["team", "process", "high-impact"],
   "score_changes": [
     {
       "score_id": "domain_clarity",
-      "delta": 12
+      "delta": 10
     },
     {
       "score_id": "team_morale",
-      "delta": 4
+      "delta": 5
     },
     {
       "score_id": "delivery_confidence",
-      "delta": -5
+      "delta": -4
     },
     {
       "score_id": "budget",
-      "delta": -7
+      "delta": -6
     }
   ],
   "delayed_effect_refs": [

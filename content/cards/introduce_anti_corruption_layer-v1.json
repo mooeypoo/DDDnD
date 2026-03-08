@@ -4,20 +4,20 @@
   "name": "Introduce Anti-Corruption Layer",
   "description": "Add translation layer to protect clean code from messy dependencies",
   "flavor_text": "Build a buffer zone between the clean and the chaotic",
-  "usage_limit": 2,
-  "cooldown_turns": 1,
+  "usage_limit": 1,
+  "style_tags": ["architecture", "integration", "high-impact"],
   "score_changes": [
     {
       "score_id": "maintainability",
-      "delta": 8
+      "delta": 9
     },
     {
       "score_id": "domain_clarity",
-      "delta": 4
+      "delta": 5
     },
     {
       "score_id": "delivery_confidence",
-      "delta": -5
+      "delta": -6
     },
     {
       "score_id": "budget",

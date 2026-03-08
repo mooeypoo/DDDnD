@@ -4,18 +4,29 @@
   "name": "Establish Team Ownership",
   "description": "Assign clear ownership of domain areas to specific teams",
   "flavor_text": "You break it, you own it",
+  "usage_limit": 2,
+  "cooldown_turns": 1,
+  "style_tags": ["team", "organizational", "alignment"],
   "score_changes": [
     {
       "score_id": "domain_clarity",
-      "delta": 5
+      "delta": 4
     },
     {
       "score_id": "team_morale",
-      "delta": 6
+      "delta": 5
     },
     {
       "score_id": "delivery_confidence",
-      "delta": 4
+      "delta": 3
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 3
+    },
+    {
+      "score_id": "budget",
+      "delta": -2
     }
   ],
   "delayed_effect_refs": [

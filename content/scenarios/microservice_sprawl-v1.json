@@ -38,7 +38,11 @@
     { "id": "add_integration_tests", "version": 1 },
     { "id": "refactor_core_aggregate", "version": 1 },
     { "id": "establish_team_ownership", "version": 1 },
-    { "id": "introduce_event_storming", "version": 1 }
+    { "id": "introduce_event_storming", "version": 1 },
+    { "id": "coordinate_service_contracts", "version": 1 },
+    { "id": "clarify_cross_team_handoffs", "version": 1 },
+    { "id": "fortify_observability_stack", "version": 1 },
+    { "id": "refactor_module", "version": 1 }
   ],
   "event_refs": [
     { "id": "critical_bug_discovered", "version": 1 },

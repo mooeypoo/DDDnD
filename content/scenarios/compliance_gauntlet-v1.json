@@ -39,7 +39,11 @@
     { "id": "add_integration_tests", "version": 1 },
     { "id": "refactor_core_aggregate", "version": 1 },
     { "id": "establish_team_ownership", "version": 1 },
-    { "id": "introduce_event_storming", "version": 1 }
+    { "id": "introduce_event_storming", "version": 1 },
+    { "id": "launch_compliance_audit_trail", "version": 1 },
+    { "id": "harden_operational_runbooks", "version": 1 },
+    { "id": "align_budget_with_architecture", "version": 1 },
+    { "id": "pay_down_incident_backlog", "version": 1 }
   ],
   "event_refs": [
     { "id": "critical_bug_discovered", "version": 1 },

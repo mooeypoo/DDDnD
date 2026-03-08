@@ -1,0 +1,37 @@
+{
+  "id": "clarify_cross_team_handoffs",
+  "version": 1,
+  "name": "Clarify Cross-Team Handoffs",
+  "description": "Define ownership boundaries and operational handoff checkpoints between teams",
+  "flavor_text": "No more mystery tickets bouncing forever",
+  "usage_limit": 2,
+  "style_tags": ["team", "workflow", "alignment"],
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 4
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 4
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 2
+    },
+    {
+      "score_id": "budget",
+      "delta": -2
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "team_energized",
+      "version": 1
+    }
+  ]
+}

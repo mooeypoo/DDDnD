@@ -1,0 +1,37 @@
+{
+  "id": "pay_down_incident_backlog",
+  "version": 1,
+  "name": "Pay Down Incident Backlog",
+  "description": "Pause non-critical roadmap work to remove chronic reliability hazards",
+  "flavor_text": "Boring reliability is still reliability",
+  "usage_limit": 1,
+  "style_tags": ["refactor", "stability", "high-impact"],
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 9
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 6
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -7
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "refactoring_payoff",
+      "version": 1
+    }
+  ]
+}

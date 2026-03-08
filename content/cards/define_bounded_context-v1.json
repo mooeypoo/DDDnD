@@ -4,10 +4,15 @@
   "name": "Define Bounded Context",
   "description": "Identify and document a clear domain boundary within the monolith",
   "flavor_text": "Let's draw some lines in the sand",
+  "style_tags": ["boundary", "architecture", "incremental"],
   "score_changes": [
     {
       "score_id": "domain_clarity",
-      "delta": 8
+      "delta": 6
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 2
     },
     {
       "score_id": "delivery_confidence",

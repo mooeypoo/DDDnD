@@ -1,0 +1,33 @@
+{
+  "id": "scale_incident_command",
+  "version": 1,
+  "name": "Scale Incident Command",
+  "description": "Stand up a repeatable incident command loop for high-pressure outages",
+  "flavor_text": "Calm procedure beats heroic improvisation",
+  "cooldown_turns": 2,
+  "style_tags": ["stability", "process", "infrastructure"],
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 5
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -2
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "user_trust_recovers",
+      "version": 1
+    }
+  ]
+}

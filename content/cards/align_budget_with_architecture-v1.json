@@ -1,0 +1,33 @@
+{
+  "id": "align_budget_with_architecture",
+  "version": 1,
+  "name": "Align Budget With Architecture",
+  "description": "Negotiate funding around long-term system risk instead of only feature velocity",
+  "flavor_text": "The budget is a design decision too",
+  "usage_limit": 2,
+  "cooldown_turns": 1,
+  "style_tags": ["cost-control", "organizational", "process"],
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": 8
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 1
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -2
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": -1
+    }
+  ],
+  "delayed_effect_refs": []
+}

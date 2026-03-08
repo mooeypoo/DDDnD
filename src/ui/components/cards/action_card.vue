@@ -81,6 +81,8 @@
         class="card-button card-button-primary"
         type="button"
         :disabled="isCardDisabled"
+        :title="playButtonHint"
+        :aria-label="playButtonHint"
         @click="$emit('play', card.id)"
       >
         {{ primaryButtonLabel }}
@@ -154,6 +156,26 @@ const availability = computed(() => props.availability)
 const isOneTimeCard = computed(() => availability.value?.usage_limit === 1)
 const hasCooldown = computed(() => (availability.value?.cooldown_turns ?? 0) > 0)
 const isCardDisabled = computed(() => props.isDisabled || (availability.value ? !availability.value.is_playable : false))
+const playButtonHint = computed(() => {
+  if (props.isDisabled) {
+    return 'Turn is resolving.'
+  }
+
+  if (!availability.value || availability.value.is_playable) {
+    return `Play ${props.card.name}`
+  }
+
+  if (availability.value.unavailable_reason === 'usage_limit_reached') {
+    return 'Unavailable: usage limit reached for this run.'
+  }
+
+  if (availability.value.unavailable_reason === 'cooldown_active') {
+    const turns = availability.value.turns_until_available
+    return `Unavailable: on cooldown for ${turns} more turn${turns === 1 ? '' : 's'}.`
+  }
+
+  return 'Unavailable: requirements are not currently met.'
+})
 const primaryButtonLabel = computed(() => {
   if (props.isDisabled) {
     return 'Resolving…'
@@ -164,7 +186,7 @@ const primaryButtonLabel = computed(() => {
   }
 
   if (availability.value.unavailable_reason === 'usage_limit_reached') {
-    return 'Used'
+    return 'Used Up'
   }
 
   if (availability.value.unavailable_reason === 'cooldown_active') {
@@ -183,15 +205,15 @@ const availabilityStatusText = computed(() => {
   }
 
   if (availability.value.unavailable_reason === 'usage_limit_reached') {
-    return 'Used'
+    return 'Unavailable: used up for this run.'
   }
 
   if (availability.value.unavailable_reason === 'cooldown_active') {
     const turns = availability.value.turns_until_available
-    return `Available in ${turns} turn${turns === 1 ? '' : 's'}`
+    return `Unavailable: on cooldown for ${turns} turn${turns === 1 ? '' : 's'}`
   }
 
-  return 'Requirements not met'
+  return 'Unavailable: requirements not met'
 })
 const summaryText = computed(() => {
   const compact = props.card.flavor_text?.trim() || props.card.description

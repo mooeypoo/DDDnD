@@ -5,22 +5,27 @@
   "description": "Restructure a key business entity with proper encapsulation",
   "flavor_text": "Let's make this thing actually represent the domain",
   "usage_limit": 1,
+  "style_tags": ["refactor", "architecture", "high-impact"],
   "score_changes": [
     {
       "score_id": "domain_clarity",
-      "delta": 6
-    },
-    {
-      "score_id": "maintainability",
       "delta": 7
     },
     {
+      "score_id": "maintainability",
+      "delta": 8
+    },
+    {
       "score_id": "delivery_confidence",
-      "delta": -6
+      "delta": -7
     },
     {
       "score_id": "team_morale",
-      "delta": -3
+      "delta": -2
+    },
+    {
+      "score_id": "budget",
+      "delta": -4
     }
   ],
   "delayed_effect_refs": [

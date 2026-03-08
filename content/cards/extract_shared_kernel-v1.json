@@ -4,17 +4,24 @@
   "name": "Extract Shared Kernel",
   "description": "Pull out common code into a well-defined shared module",
   "flavor_text": "Some coupling is okay if we're honest about it",
+  "usage_limit": 2,
+  "cooldown_turns": 2,
+  "style_tags": ["architecture", "integration", "high-impact"],
   "score_changes": [
     {
       "score_id": "maintainability",
-      "delta": 6
+      "delta": 7
     },
     {
       "score_id": "domain_clarity",
-      "delta": 5
+      "delta": 3
     },
     {
       "score_id": "delivery_confidence",
+      "delta": -5
+    },
+    {
+      "score_id": "budget",
       "delta": -4
     }
   ],

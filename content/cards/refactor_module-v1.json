@@ -4,13 +4,27 @@
   "name": "Refactor Core Module",
   "description": "Clean up a messy module to improve maintainability",
   "flavor_text": "Time to pay down some of that technical debt",
+  "cooldown_turns": 1,
+  "style_tags": ["refactor", "incremental", "safe"],
   "score_changes": [
     {
-      "score_id": "technical_debt",
-      "delta": -5
+      "score_id": "maintainability",
+      "delta": 4
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -2
     },
     {
       "score_id": "team_morale",
+      "delta": -1
+    },
+    {
+      "score_id": "budget",
       "delta": -2
     }
   ],

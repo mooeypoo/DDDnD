@@ -98,6 +98,22 @@
     {
       "id": "introduce_event_storming",
       "version": 1
+    },
+    {
+      "id": "refactor_module",
+      "version": 1
+    },
+    {
+      "id": "clarify_cross_team_handoffs",
+      "version": 1
+    },
+    {
+      "id": "harden_operational_runbooks",
+      "version": 1
+    },
+    {
+      "id": "pay_down_incident_backlog",
+      "version": 1
     }
   ],
   "event_refs": [

@@ -102,11 +102,35 @@ describe('MVP content pack', () => {
     expect(bundle.scores.size).toBe(6)
     expect(bundle.stakeholders.size).toBe(4)
     expect(bundle.stakeholder_reaction_rules.size).toBe(8)
-    expect(bundle.cards.size).toBe(10)
+    expect(bundle.cards.size).toBe(14)
     expect(bundle.events.size).toBe(5)
-    expect(bundle.delayed_effects.size).toBe(7)
+    expect(bundle.delayed_effects.size).toBe(8)
     expect(bundle.outcome_tiers.size).toBe(5)
     expect(bundle.outcome_archetypes.size).toBe(5)
+  })
+
+  it('loads mixed card availability profiles from authored content', async () => {
+    const contentRoot = path.resolve(__dirname, '../../content')
+    const provider = createFileContentProvider(contentRoot)
+
+    const bundle = await buildScenarioBundle('monolith_of_mild_despair', 1, provider)
+
+    const oneTimeCard = bundle.cards.get('hold_architecture_workshop-v1')
+    const cooldownCard = bundle.cards.get('ship_quick_fix-v1')
+    const limitedCard = bundle.cards.get('add_integration_tests-v1')
+    const reusableCard = bundle.cards.get('define_bounded_context-v1')
+
+    expect(oneTimeCard?.usage_limit).toBe(1)
+    expect(oneTimeCard?.cooldown_turns ?? 0).toBe(0)
+
+    expect(cooldownCard?.cooldown_turns).toBe(2)
+    expect(cooldownCard?.usage_limit).toBe(3)
+
+    expect(limitedCard?.usage_limit).toBe(3)
+    expect(limitedCard?.cooldown_turns).toBe(1)
+
+    expect(reusableCard?.usage_limit ?? null).toBeNull()
+    expect(reusableCard?.cooldown_turns ?? 0).toBe(0)
   })
 
   it('resolves stakeholder rules and delayed effects transitively with no missing references', async () => {
@@ -192,5 +216,27 @@ describe('MVP content pack', () => {
       expect(scoreIds.has('team_morale')).toBe(true)
       expect(scoreIds.has('developer_morale')).toBe(false)
     }
+  })
+
+  it('exposes scenario-fit card pools for different strategic pressures', async () => {
+    const contentRoot = path.resolve(__dirname, '../../content')
+    const provider = createFileContentProvider(contentRoot)
+
+    const monolithBundle = await buildScenarioBundle('monolith_of_mild_despair', 1, provider)
+    const startupBundle = await buildScenarioBundle('startup_hypergrowth', 1, provider)
+    const complianceBundle = await buildScenarioBundle('compliance_gauntlet', 1, provider)
+    const sprawlBundle = await buildScenarioBundle('microservice_sprawl', 1, provider)
+
+    expect(monolithBundle.cards.has('pay_down_incident_backlog-v1')).toBe(true)
+    expect(monolithBundle.cards.has('launch_compliance_audit_trail-v1')).toBe(false)
+
+    expect(startupBundle.cards.has('fortify_observability_stack-v1')).toBe(true)
+    expect(startupBundle.cards.has('scale_incident_command-v1')).toBe(true)
+
+    expect(complianceBundle.cards.has('launch_compliance_audit_trail-v1')).toBe(true)
+    expect(complianceBundle.cards.has('align_budget_with_architecture-v1')).toBe(true)
+
+    expect(sprawlBundle.cards.has('coordinate_service_contracts-v1')).toBe(true)
+    expect(sprawlBundle.cards.has('refactor_module-v1')).toBe(true)
   })
 })

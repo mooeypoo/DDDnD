@@ -4,22 +4,25 @@
   "name": "Add Integration Tests",
   "description": "Build confidence with automated testing across boundaries",
   "flavor_text": "If we're going to refactor, we need a safety net",
+  "usage_limit": 3,
+  "cooldown_turns": 1,
+  "style_tags": ["safe", "integration", "process"],
   "score_changes": [
     {
       "score_id": "delivery_confidence",
-      "delta": 7
+      "delta": 6
     },
     {
       "score_id": "maintainability",
-      "delta": 4
+      "delta": 5
     },
     {
       "score_id": "user_trust",
-      "delta": 3
+      "delta": 2
     },
     {
       "score_id": "budget",
-      "delta": -5
+      "delta": -4
     }
   ],
   "delayed_effect_refs": []
