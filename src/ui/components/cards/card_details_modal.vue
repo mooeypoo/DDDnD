@@ -36,7 +36,7 @@
             <li v-for="(change, index) in card.stakeholder_changes" :key="index" class="stakeholder-item">
               <span class="stakeholder-mood">{{ change.delta > 0 ? '😊' : '😞' }}</span>
               <span class="stakeholder-text">
-                {{ change.stakeholder_id }}: {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
+                {{ formatStakeholderName(change.stakeholder_id) }}: {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
               </span>
             </li>
           </ul>
@@ -67,6 +67,7 @@ interface Props {
   isOpen: boolean;
   card: Card;
   isDisabled?: boolean;
+  stakeholderNames?: Record<string, string>;
 }
 
 interface Emits {
@@ -76,6 +77,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   isDisabled: false,
+  stakeholderNames: () => ({}),
 });
 
 const emit = defineEmits<Emits>();
@@ -86,6 +88,16 @@ function getMetricIcon(scoreId: string): string {
 
 function getMetricLabel(scoreId: string): string {
   return getMetricPresentation(scoreId).label;
+}
+
+function formatStakeholderName(stakeholderId: string): string {
+  if (props.stakeholderNames[stakeholderId]) {
+    return props.stakeholderNames[stakeholderId];
+  }
+  return stakeholderId
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 }
 
 function handlePlay(): void {
@@ -101,24 +113,25 @@ function handlePlay(): void {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--surface-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--z-modal);
   padding: var(--space-md);
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
-  background: var(--color-bg-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: var(--surface-modal);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-overlay);
   max-width: 600px;
   width: 100%;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--border-accent);
 }
 
 .modal-header {
@@ -126,22 +139,24 @@ function handlePlay(): void {
   align-items: center;
   justify-content: space-between;
   padding: var(--space-lg);
-  border-bottom: 1px solid var(--color-border-default);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .modal-title {
   margin: 0;
+  font-family: var(--font-heading);
   font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  color: var(--color-text-bright);
+  font-weight: var(--font-semibold);
+  color: var(--text-bright);
+  letter-spacing: var(--tracking-tight);
 }
 
 .close-button {
-  background: none;
-  border: none;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
   font-size: var(--text-3xl);
   line-height: 1;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -150,12 +165,13 @@ function handlePlay(): void {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  transition: all var(--transition-base);
+  transition: all var(--transition-fast);
 }
 
 .close-button:hover {
-  background: var(--color-bg-overlay);
-  color: var(--color-text-bright);
+  background: var(--bg-overlay);
+  border-color: var(--border-focus);
+  color: var(--text-bright);
 }
 
 .modal-body {
@@ -169,7 +185,7 @@ function handlePlay(): void {
 
 .card-description {
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-size: var(--text-base);
   line-height: var(--leading-relaxed);
 }
@@ -182,15 +198,17 @@ function handlePlay(): void {
 
 .section-title {
   margin: 0;
-  font-size: var(--text-lg);
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
   font-weight: var(--font-semibold);
-  color: var(--color-text-bright);
+  color: var(--text-bright);
+  letter-spacing: var(--tracking-tight);
 }
 
 .section-description {
   margin: 0;
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-style: italic;
 }
 
@@ -209,9 +227,9 @@ function handlePlay(): void {
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
-  background: var(--color-bg-overlay);
+  background: var(--bg-inset);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--border-subtle);
 }
 
 .effect-icon {
@@ -220,19 +238,19 @@ function handlePlay(): void {
 }
 
 .effect-text {
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
 }
 
 .delayed-effect-name {
   font-weight: var(--font-semibold);
-  color: var(--color-warning);
+  color: var(--effect-warning);
   font-size: var(--text-sm);
 }
 
 .delayed-effect-description {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-size: var(--text-sm);
   margin-left: var(--space-xs);
 }
@@ -242,9 +260,9 @@ function handlePlay(): void {
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
-  background: var(--color-bg-overlay);
+  background: var(--bg-inset);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--border-subtle);
 }
 
 .stakeholder-mood {
@@ -253,7 +271,7 @@ function handlePlay(): void {
 }
 
 .stakeholder-text {
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-size: var(--text-sm);
 }
 
@@ -261,7 +279,7 @@ function handlePlay(): void {
   display: flex;
   gap: var(--space-md);
   padding: var(--space-lg);
-  border-top: 1px solid var(--color-border-default);
+  border-top: 1px solid var(--border-subtle);
 }
 
 .modal-button {
@@ -271,8 +289,8 @@ function handlePlay(): void {
   font-weight: var(--font-semibold);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all var(--transition-base);
-  border: 2px solid var(--color-border-default);
+  transition: all var(--transition-hover);
+  border: 1px solid var(--border-card);
 }
 
 .modal-button:disabled {
@@ -281,50 +299,36 @@ function handlePlay(): void {
 }
 
 .modal-button-secondary {
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
+  background: var(--bg-inset);
+  color: var(--text-primary);
 }
 
 .modal-button-secondary:hover:not(:disabled) {
-  background: var(--color-bg-surface);
-  border-color: var(--color-border-focus);
+  background: var(--bg-overlay);
+  border-color: var(--border-focus);
+  color: var(--text-bright);
 }
 
 .modal-button-primary {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  border-color: var(--color-primary);
+  background: var(--text-accent);
+  color: var(--text-inverse);
+  border-color: var(--text-accent);
+  font-weight: var(--font-bold);
 }
 
 .modal-button-primary:hover:not(:disabled) {
   background: var(--color-primary-light);
+  border-color: var(--color-primary-light);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--color-primary-glow);
+  box-shadow: 0 4px 16px var(--color-primary-glow);
 }
 
 /* Metric color classes */
-.metric-domain-clarity {
-  color: var(--color-success);
-}
-
-.metric-maintainability {
-  color: var(--color-info);
-}
-
-.metric-delivery-confidence {
-  color: var(--color-info);
-}
-
-.metric-developer-morale {
-  color: var(--color-warning);
-}
-
-.metric-user-trust {
-  color: var(--color-primary);
-}
-
-.metric-budget,
-.metric-generic {
-  color: var(--color-text-secondary);
-}
+.metric-domain-clarity      { color: var(--metric-domain-clarity);      }
+.metric-maintainability     { color: var(--metric-maintainability);     }
+.metric-delivery-confidence { color: var(--metric-delivery-confidence); }
+.metric-developer-morale    { color: var(--metric-developer-morale);    }
+.metric-user-trust          { color: var(--metric-user-trust);          }
+.metric-budget              { color: var(--metric-budget);              }
+.metric-generic             { color: var(--text-secondary);             }
 </style>

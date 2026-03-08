@@ -76,24 +76,29 @@ function metricPresentation(scoreId: string) {
 
 <style scoped>
 .action-card {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
+  background: var(--surface-card);
+  border: 1px solid var(--border-card);
   border-radius: var(--radius-xl);
   padding: var(--space-lg);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  transition: all var(--transition-base);
+  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-inset-ridge), var(--shadow-card);
+  transition:
+    border-color var(--transition-hover),
+    box-shadow   var(--transition-hover),
+    transform    var(--transition-hover);
 }
 
 .action-card:hover:not(.disabled) {
-  border-color: var(--card-border-hover);
+  border-color: var(--border-focus);
+  box-shadow: var(--shadow-card-hover);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
 }
 
 .action-card.disabled {
-  opacity: 0.7;
+  opacity: 0.65;
 }
 
 .card-header {
@@ -105,9 +110,11 @@ function metricPresentation(scoreId: string) {
 
 .card-title {
   margin: 0;
-  color: var(--color-text-bright);
+  color: var(--text-bright);
+  font-family: var(--font-heading);
   font-size: var(--text-lg);
-  font-weight: var(--font-bold);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .effect-type-icons {
@@ -117,17 +124,18 @@ function metricPresentation(scoreId: string) {
 
 .type-icon {
   font-size: var(--text-base);
-  background: var(--color-bg-overlay);
-  border: 1px solid var(--color-border-default);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 0 var(--space-sm);
 }
 
 .card-description {
   margin: 0;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
+  font-family: var(--font-body);
 }
 
 .primary-effects {
@@ -142,50 +150,41 @@ function metricPresentation(scoreId: string) {
   gap: var(--space-xs);
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--border-subtle);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
-  color: var(--color-text-primary);
-  background: var(--color-bg-overlay);
+  color: var(--text-primary);
+  background: var(--bg-inset);
 }
 
 .effect-chip.positive {
-  border-color: var(--color-success);
+  border-color: var(--effect-positive-border);
+  background: var(--effect-positive-bg);
+  color: var(--effect-positive);
 }
 
 .effect-chip.negative {
-  border-color: var(--color-danger);
+  border-color: var(--effect-negative-border);
+  background: var(--effect-negative-bg);
+  color: var(--effect-negative);
 }
 
 .effect-chip.more-effects {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
+  border-color: var(--border-subtle);
 }
 
 .metric-icon {
   display: inline-flex;
 }
 
-.metric-maintainability,
-.metric-domain-clarity {
-  color: var(--color-success);
-}
-
-.metric-delivery-confidence {
-  color: var(--color-info);
-}
-
-.metric-developer-morale {
-  color: var(--color-warning);
-}
-
-.metric-user-trust {
-  color: var(--color-primary);
-}
-
-.metric-budget,
-.metric-generic {
-  color: var(--color-text-secondary);
-}
+.metric-maintainability  { color: var(--metric-maintainability);     }
+.metric-domain-clarity   { color: var(--metric-domain-clarity);       }
+.metric-delivery-confidence { color: var(--metric-delivery-confidence); }
+.metric-developer-morale { color: var(--metric-developer-morale);    }
+.metric-user-trust       { color: var(--metric-user-trust);           }
+.metric-budget           { color: var(--metric-budget);               }
+.metric-generic          { color: var(--text-secondary);              }
 
 .card-controls {
   display: flex;
@@ -200,8 +199,8 @@ function metricPresentation(scoreId: string) {
   font-weight: var(--font-semibold);
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all var(--transition-base);
-  border: 2px solid var(--color-border-default);
+  transition: all var(--transition-hover);
+  border: 1px solid var(--border-card);
 }
 
 .card-button:disabled {
@@ -210,44 +209,47 @@ function metricPresentation(scoreId: string) {
 }
 
 .card-button-secondary {
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
+  background: var(--bg-inset);
+  color: var(--text-primary);
 }
 
 .card-button-secondary:hover:not(:disabled) {
-  background: var(--color-bg-surface);
-  border-color: var(--color-border-focus);
+  background: var(--bg-overlay);
+  border-color: var(--border-focus);
+  color: var(--text-bright);
 }
 
 .card-button-primary {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  border-color: var(--color-primary);
+  background: var(--text-accent);
+  color: var(--text-inverse);
+  border-color: var(--text-accent);
+  font-weight: var(--font-bold);
 }
 
 .card-button-primary:hover:not(:disabled) {
   background: var(--color-primary-light);
+  border-color: var(--color-primary-light);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px var(--color-primary-glow);
+  box-shadow: 0 4px 16px var(--color-primary-glow);
 }
 
 .aftershock-badge-prominent {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  background: linear-gradient(135deg, var(--color-warning-bg) 0%, rgba(243, 156, 18, 0.1) 100%);
-  border: 2px solid var(--color-warning);
+  background: var(--effect-warning-bg);
+  border: 1px solid var(--effect-warning-border);
   border-radius: var(--radius-lg);
   padding: var(--space-md);
-  animation: pulseGlow 2s ease-in-out infinite;
+  animation: pulseGlow 2.5s var(--ease-standard) infinite;
 }
 
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 2px 8px rgba(243, 156, 18, 0.2);
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.15);
   }
   50% {
-    box-shadow: 0 2px 16px rgba(243, 156, 18, 0.4);
+    box-shadow: 0 2px 20px rgba(251, 191, 36, 0.35);
   }
 }
 
@@ -257,8 +259,8 @@ function metricPresentation(scoreId: string) {
 }
 
 .aftershock-text {
-  color: var(--color-warning);
-  font-weight: var(--font-bold);
+  color: var(--effect-warning);
+  font-weight: var(--font-semibold);
   font-size: var(--text-sm);
 }
 </style>

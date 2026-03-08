@@ -39,28 +39,29 @@ const severityLabel = computed(() => {
 
 <style scoped>
 .event-card {
-  background: linear-gradient(180deg, rgba(22, 33, 62, 0.9) 0%, rgba(26, 26, 46, 0.95) 100%);
-  border: 2px solid var(--color-border-default);
-  border-left-width: 6px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-card);
+  border-left-width: 4px;
+  border-left-color: var(--border-card);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-card);
 }
 
 .event-card.severity-low {
-  border-left-color: var(--color-info);
+  border-left-color: var(--effect-neutral);
 }
 
 .event-card.severity-medium {
-  border-left-color: var(--color-warning);
+  border-left-color: var(--effect-warning);
 }
 
 .event-card.severity-high,
 .event-card.severity-critical {
-  border-left-color: var(--color-danger);
+  border-left-color: var(--effect-negative);
 }
 
 .event-header {
@@ -72,18 +73,18 @@ const severityLabel = computed(() => {
 
 .event-label {
   margin: 0;
-  color: var(--color-text-secondary);
-  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--tracking-widest);
   font-weight: var(--font-semibold);
 }
 
 .event-severity {
   border-radius: var(--radius-full);
-  border: 1px solid var(--color-border-default);
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-inset);
+  color: var(--text-secondary);
   padding: var(--space-xs) var(--space-md);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
@@ -91,14 +92,16 @@ const severityLabel = computed(() => {
 
 .event-title {
   margin: 0;
-  color: var(--color-text-bright);
+  color: var(--text-bright);
+  font-family: var(--font-heading);
   font-size: var(--text-xl);
-  font-weight: var(--font-bold);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .event-description {
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
 }
@@ -113,10 +116,10 @@ const severityLabel = computed(() => {
 }
 
 .highlight-item {
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  background: var(--color-bg-overlay);
-  color: var(--color-text-secondary);
+  background: var(--bg-inset);
+  color: var(--text-secondary);
   font-size: var(--text-xs);
   font-weight: var(--font-medium);
   padding: var(--space-xs) var(--space-sm);

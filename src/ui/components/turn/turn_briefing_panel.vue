@@ -25,14 +25,15 @@ defineProps<{
 
 <style scoped>
 .turn-briefing-panel {
-  background: var(--panel-bg);
-  border: 2px solid var(--panel-border);
+  background: var(--surface-panel);
+  border: 1px solid var(--border-panel);
+  border-left: 3px solid var(--border-accent);
   border-radius: var(--radius-xl);
   padding: var(--panel-padding);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-panel);
 }
 
 .briefing-header {
@@ -43,23 +44,25 @@ defineProps<{
 
 .briefing-label {
   margin: 0;
-  color: var(--color-text-secondary);
-  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--tracking-widest);
   font-weight: var(--font-semibold);
 }
 
 .briefing-title {
   margin: 0;
-  color: var(--color-text-bright);
+  color: var(--text-bright);
+  font-family: var(--font-heading);
   font-size: var(--text-xl);
-  font-weight: var(--font-bold);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .briefing-description {
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
 }
@@ -71,9 +74,9 @@ defineProps<{
 }
 
 .meta-badge {
-  background: var(--color-bg-overlay);
-  border: 1px solid var(--color-border-default);
-  color: var(--color-text-secondary);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
   border-radius: var(--radius-full);
   padding: var(--space-xs) var(--space-md);
   font-size: var(--text-xs);

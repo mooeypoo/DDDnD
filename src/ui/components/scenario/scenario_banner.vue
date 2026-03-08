@@ -45,14 +45,14 @@ const isExpanded = ref(false)
 
 <style scoped>
 .scenario-banner {
-  background: var(--card-bg);
-  border: 2px solid var(--color-border-primary);
+  background: var(--surface-panel);
+  border: 1px solid var(--border-accent);
   border-radius: var(--radius-xl);
   padding: var(--space-lg) var(--space-xl);
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-panel);
 }
 
 .banner-main {
@@ -62,24 +62,26 @@ const isExpanded = ref(false)
 }
 
 .banner-label {
-  color: var(--color-text-secondary);
+  color: var(--text-muted);
   margin: 0;
-  font-size: var(--text-xs);
-  letter-spacing: 0.05em;
+  font-size: var(--text-2xs);
+  letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
   font-weight: var(--font-semibold);
 }
 
 .banner-title {
-  color: var(--color-text-bright);
+  color: var(--text-bright);
   margin: 0;
+  font-family: var(--font-heading);
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .banner-summary {
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
 }
@@ -96,55 +98,56 @@ const isExpanded = ref(false)
   display: inline-flex;
   align-items: center;
   gap: var(--space-sm);
-  background: var(--color-bg-overlay);
-  border: 1px solid var(--color-border-default);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-full);
   padding: var(--space-xs) var(--space-md);
 }
 
 .turn-label {
-  color: var(--color-text-secondary);
-  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
   text-transform: uppercase;
   font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-wider);
 }
 
 .turn-value {
-  color: var(--color-primary);
+  color: var(--text-accent);
   font-weight: var(--font-black);
   font-size: var(--text-base);
 }
 
 .turn-divider,
 .turn-max {
-  color: var(--color-text-secondary);
+  color: var(--text-muted);
   font-size: var(--text-sm);
 }
 
 .expand-button {
-  border: 1px solid var(--color-border-default);
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-inset);
+  color: var(--text-secondary);
   border-radius: var(--radius-md);
   padding: var(--space-xs) var(--space-md);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: all var(--transition-fast);
 }
 
 .expand-button:hover {
-  border-color: var(--color-border-focus);
-  color: var(--color-text-bright);
+  border-color: var(--border-focus);
+  color: var(--text-bright);
 }
 
 .banner-description {
   margin: 0;
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
   padding-top: var(--space-sm);
-  border-top: 1px solid var(--color-border-default);
+  border-top: 1px solid var(--border-subtle);
 }
 
 @media (max-width: 768px) {

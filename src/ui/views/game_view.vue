@@ -7,6 +7,7 @@
       :isOpen="!!modalCardId" 
       :card="modalCard" 
       :isDisabled="gameStore.isPlayingTurn"
+      :stakeholderNames="stakeholderNames"
       @close="modalCardId = null" 
       @play="handlePlayCard"
     />
@@ -174,6 +175,16 @@ const modalCard = computed(() => {
   }
   
   return availableCards.value.find(card => card.id === modalCardId.value) || null
+})
+
+const stakeholderNames = computed((): Record<string, string> => {
+  const bundle = gameStore.scenarioBundle
+  if (!bundle) return {}
+  const names: Record<string, string> = {}
+  for (const [id, stakeholder] of bundle.stakeholders) {
+    names[id] = stakeholder.name
+  }
+  return names
 })
 
 onMounted(() => {

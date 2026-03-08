@@ -40,44 +40,48 @@ const archetypeIcon = computed(() => {
 
 <style scoped>
 .outcome-panel {
-  background: var(--card-bg);
-  border: 2px solid var(--color-border-default);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-card);
   border-radius: var(--radius-xl);
   padding: var(--space-xl);
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-card);
 }
 
 .outcome-panel.mood-calm {
-  border-color: var(--color-info);
+  border-color: var(--border-neutral, rgba(96, 165, 250, 0.35));
 }
 
 .outcome-panel.mood-tense {
-  border-color: var(--color-warning);
+  border-color: var(--border-warning, rgba(251, 191, 36, 0.40));
 }
 
 .outcome-panel.mood-victorious {
-  border-color: var(--color-success);
+  border-color: var(--border-positive, rgba(52, 211, 153, 0.40));
+  box-shadow: var(--shadow-card), var(--shadow-glow-positive);
 }
 
 .outcome-label {
   margin: 0;
-  color: var(--color-text-secondary);
-  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: var(--tracking-widest);
   font-weight: var(--font-semibold);
 }
 
 .outcome-title {
   margin: 0;
-  color: var(--color-text-bright);
+  color: var(--text-bright);
+  font-family: var(--font-heading);
   display: flex;
   align-items: center;
   gap: var(--space-sm);
   font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .outcome-icon {
@@ -86,7 +90,7 @@ const archetypeIcon = computed(() => {
 
 .outcome-summary {
   margin: 0;
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
 }

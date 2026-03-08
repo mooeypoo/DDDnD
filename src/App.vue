@@ -22,9 +22,7 @@ const showFooter = computed(() => {
 <style>
 @import './ui/styles/design-system.css';
 
-* {
-  box-sizing: border-box;
-}
+/* base resets, typography, tokens, and focus ring are in design-system.css */
 
 html,
 body,
@@ -35,40 +33,25 @@ body,
   min-height: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  font-family: var(--font-sans);
-  background: var(--color-bg-darkest);
-  color: var(--color-text-primary);
-  line-height: var(--leading-normal);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background: var(--bg-page);
+  color: var(--text-primary);
 }
 
 .app-shell {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background:
+    radial-gradient(ellipse 120% 50% at 50% -10%, rgba(20, 27, 50, 0.55) 0%, transparent 65%),
+    var(--bg-page);
 }
 
 .app-main {
   flex: 1;
-}
-
-/* Improved default heading styles */
-h1, h2, h3, h4, h5, h6 {
-  margin: 0;
-  font-weight: var(--font-bold);
-  line-height: var(--leading-tight);
-}
-
-/* Improved focus styles */
-:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
 }
 </style>

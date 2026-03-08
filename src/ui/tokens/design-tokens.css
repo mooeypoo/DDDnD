@@ -1,0 +1,399 @@
+/**
+ * DDDnD Design Tokens
+ *
+ * Semantic token system for the DM Console / Tabletop Strategy Interface.
+ * Visual direction: tactical clarity, arcane engineering, dark-first, restrained fantasy.
+ *
+ * Token categories:
+ *   1.  Background / Surface
+ *   2.  Text
+ *   3.  Border
+ *   4.  Metric / Semantic Accent
+ *   5.  Typography
+ *   6.  Spacing
+ *   7.  Radius
+ *   8.  Shadow
+ *   9.  Motion
+ *   10. Z-Index
+ *   11. Layout
+ *   12. Component aliases (for backward compat)
+ */
+
+/* ─── Google Fonts ──────────────────────────────────────────── */
+/* Cinzel: dignified Roman-carved heading font — arcane authority without kitsch  */
+/* Inter:  modern sans for body legibility                                        */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@400;500;600;700;900&display=swap');
+
+:root {
+
+  /* ═══════════════════════════════════════════════════════════
+     1. BACKGROUND / SURFACE TOKENS
+     Layered elevation model: page → panel → card → overlay → modal
+     ═══════════════════════════════════════════════════════════ */
+
+  /** Deepest tabletop field — page background */
+  --bg-page:             #0b0e1a;
+  /** Slightly warmer field for secondary layouts */
+  --bg-secondary:        #0f1422;
+  /** Console panel surface — slightly raised from page */
+  --surface-panel:       #141b2d;
+  /** Card surface — the tactile artifact layer */
+  --surface-card:        #192031;
+  /** Elevated card / hovered state */
+  --surface-elevated:    #1e2840;
+  /** Overlay scrim behind modals */
+  --surface-overlay:     rgba(7, 10, 20, 0.76);
+  /** Modal / dialog surface — focused and layered */
+  --surface-modal:       #17203a;
+
+  /** Transparent overlay for inset regions */
+  --bg-overlay:          rgba(0, 0, 0, 0.22);
+  /** Stronger overlay for nested insets */
+  --bg-overlay-strong:   rgba(0, 0, 0, 0.42);
+  /** Inset well background */
+  --bg-inset:            rgba(0, 0, 0, 0.18);
+
+
+  /* ═══════════════════════════════════════════════════════════
+     2. TEXT TOKENS
+     ═══════════════════════════════════════════════════════════ */
+
+  /** High-contrast text: headings, primary values */
+  --text-bright:         #edf0f7;
+  /** Standard body text */
+  --text-primary:        #c8d0e0;
+  /** Supporting / label text */
+  --text-secondary:      #7a8aa4;
+  /** De-emphasised / metadata */
+  --text-muted:          #4d5b72;
+  /** Arcane accent — purple undertone for emphasis */
+  --text-accent:         #a989fa;
+  /** Inverse for light surfaces (rare) */
+  --text-inverse:        #0b0e1a;
+
+
+  /* ═══════════════════════════════════════════════════════════
+     3. BORDER TOKENS
+     Thin, engraved panel vocabulary. Keep borders light.
+     ═══════════════════════════════════════════════════════════ */
+
+  /** Hairline separator between regions */
+  --border-subtle:       rgba(255, 255, 255, 0.06);
+  /** Panel boundary */
+  --border-panel:        rgba(255, 255, 255, 0.09);
+  /** Card boundary */
+  --border-card:         rgba(255, 255, 255, 0.11);
+  /** Arcane accent border — modal headers, hover states */
+  --border-accent:       rgba(169, 137, 250, 0.38);
+  /** Keyboard focus ring color */
+  --border-focus:        rgba(99, 179, 237, 0.70);
+
+  /** Effect-state borders (used alongside chip/badge bg) */
+  --border-positive:     rgba(52, 211, 153, 0.40);
+  --border-negative:     rgba(248, 113, 113, 0.40);
+  --border-warning:      rgba(251, 191, 36,  0.40);
+  --border-neutral:      rgba(96, 165, 250,  0.35);
+
+
+  /* ═══════════════════════════════════════════════════════════
+     4. METRIC / SEMANTIC ACCENT TOKENS
+     Gameplay metrics: used in icons, meters, chips.
+     Do NOT flood surfaces — accent only.
+     ═══════════════════════════════════════════════════════════ */
+
+  /* Metric identity colors */
+  --metric-maintainability:        #34d399;   /* calm teal-green  */
+  --metric-delivery-confidence:    #60a5fa;   /* clear blue       */
+  --metric-developer-morale:       #fbbf24;   /* warm amber       */
+  --metric-user-trust:             #a989fa;   /* arcane purple    */
+  --metric-budget:                 #94a3b8;   /* cool slate       */
+  --metric-domain-clarity:         #2dd4bf;   /* fresh teal       */
+
+  /* Effect state colors */
+  --effect-positive:        #34d399;
+  --effect-positive-bg:     rgba(52,  211, 153, 0.11);
+  --effect-positive-border: rgba(52,  211, 153, 0.32);
+
+  --effect-negative:        #f87171;
+  --effect-negative-bg:     rgba(248, 113, 113, 0.11);
+  --effect-negative-border: rgba(248, 113, 113, 0.32);
+
+  --effect-warning:         #fbbf24;
+  --effect-warning-bg:      rgba(251, 191, 36,  0.10);
+  --effect-warning-border:  rgba(251, 191, 36,  0.30);
+
+  --effect-neutral:         #60a5fa;
+  --effect-neutral-bg:      rgba(96,  165, 250, 0.10);
+  --effect-neutral-border:  rgba(96,  165, 250, 0.28);
+
+  /* Status semantics (DRY aliases used for satisfaction & scores) */
+  --status-critical:   var(--effect-negative);
+  --status-warning:    var(--effect-warning);
+  --status-neutral:    var(--effect-neutral);
+  --status-positive:   var(--effect-positive);
+
+  /* Score range tiers */
+  --score-critical:    var(--effect-negative);
+  --score-low:         var(--effect-warning);
+  --score-medium:      var(--metric-delivery-confidence);
+  --score-high:        var(--effect-positive);
+
+  /* Stakeholder satisfaction */
+  --satisfaction-critical:   var(--effect-negative);
+  --satisfaction-concerned:  var(--effect-warning);
+  --satisfaction-neutral:    var(--metric-delivery-confidence);
+  --satisfaction-supportive: var(--effect-positive);
+
+
+  /* ═══════════════════════════════════════════════════════════
+     5. TYPOGRAPHY TOKENS
+     Heading: Cinzel — dignified, carved, not kitschy
+     Body:    Inter — modern, legible
+     Mono:    for debug/code surfaces
+     ═══════════════════════════════════════════════════════════ */
+
+  --font-heading: 'Cinzel', 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+  --font-body:    'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+
+  /* Backward compat alias */
+  --font-sans: var(--font-body);
+
+  /* Size scale */
+  --text-2xs:  0.625rem;    /* 10px */
+  --text-xs:   0.75rem;     /* 12px */
+  --text-sm:   0.875rem;    /* 14px */
+  --text-base: 1rem;        /* 16px */
+  --text-lg:   1.125rem;    /* 18px */
+  --text-xl:   1.25rem;     /* 20px */
+  --text-2xl:  1.5rem;      /* 24px */
+  --text-3xl:  2rem;        /* 32px */
+  --text-4xl:  2.5rem;      /* 40px */
+  --text-5xl:  3rem;        /* 48px */
+  --text-6xl:  4rem;        /* 64px */
+
+  /* Weight scale */
+  --font-normal:   400;
+  --font-medium:   500;
+  --font-semibold: 600;
+  --font-bold:     700;
+  --font-black:    900;
+
+  /* Line-height scale */
+  --leading-none:    1;
+  --leading-tight:   1.2;
+  --leading-snug:    1.35;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.65;
+  --leading-loose:   1.8;
+
+  /* Letter-spacing */
+  --tracking-tighter: -0.03em;
+  --tracking-tight:   -0.01em;
+  --tracking-normal:   0;
+  --tracking-wide:     0.04em;
+  --tracking-wider:    0.08em;
+  --tracking-widest:   0.12em;
+
+
+  /* ═══════════════════════════════════════════════════════════
+     6. SPACING TOKENS  (8px base grid)
+     ═══════════════════════════════════════════════════════════ */
+
+  --space-1:   0.25rem;    /*  4px */
+  --space-2:   0.5rem;     /*  8px */
+  --space-3:   0.75rem;    /* 12px */
+  --space-4:   1rem;       /* 16px */
+  --space-5:   1.25rem;    /* 20px */
+  --space-6:   1.5rem;     /* 24px */
+  --space-8:   2rem;       /* 32px */
+  --space-10:  2.5rem;     /* 40px */
+  --space-12:  3rem;       /* 48px */
+  --space-16:  4rem;       /* 64px */
+
+  /* Named aliases for readability in component CSS */
+  --space-xs:  var(--space-1);
+  --space-sm:  var(--space-2);
+  --space-md:  var(--space-3);
+  --space-lg:  var(--space-4);
+  --space-xl:  var(--space-6);
+  --space-2xl: var(--space-8);
+  --space-3xl: var(--space-10);
+  --space-4xl: var(--space-12);
+  --space-5xl: var(--space-16);
+
+
+  /* ═══════════════════════════════════════════════════════════
+     7. RADIUS TOKENS
+     Tactile modern surfaces — avoid sharp dashboard corners.
+     ═══════════════════════════════════════════════════════════ */
+
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
+  --radius-2xl:  16px;
+  --radius-3xl:  24px;
+  --radius-full: 9999px;
+
+
+  /* ═══════════════════════════════════════════════════════════
+     8. SHADOW TOKENS  (elevation hierarchy)
+     Shadows reinforce layer depth, not decoration.
+     ═══════════════════════════════════════════════════════════ */
+
+  /** Console panel — lowest intentional elevation */
+  --shadow-panel:
+    0 1px 3px  rgba(0, 0, 0, 0.45),
+    0 2px 12px rgba(0, 0, 0, 0.28);
+
+  /** Card — tactile artifact above the panel surface */
+  --shadow-card:
+    0 2px 8px  rgba(0, 0, 0, 0.45),
+    0 4px 20px rgba(0, 0, 0, 0.22);
+
+  /** Card hovered — subtle lift + focus ring hint */
+  --shadow-card-hover:
+    0 4px 16px rgba(0, 0, 0, 0.55),
+    0 8px 32px rgba(0, 0, 0, 0.28),
+    0 0 0 1px rgba(99, 179, 237, 0.13);
+
+  /** Overlay / modal — highest elevation, most dramatic */
+  --shadow-overlay:
+    0 8px 48px rgba(0, 0, 0, 0.65),
+    0 2px 12px rgba(0, 0, 0, 0.45);
+
+  /** Inset ridge — engraved section header feel */
+  --shadow-inset-ridge:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.20);
+
+  /** Arcane accent glow — used sparingly on key UI accents */
+  --shadow-glow-accent:
+    0 0 24px rgba(169, 137, 250, 0.22),
+    0 0 48px rgba(169, 137, 250, 0.10);
+
+  /** Positive metric glow */
+  --shadow-glow-positive:
+    0 0 12px rgba(52, 211, 153, 0.28);
+
+  /* Backward compat aliases */
+  --shadow-sm:  var(--shadow-panel);
+  --shadow-md:  var(--shadow-panel);
+  --shadow-lg:  var(--shadow-card);
+  --shadow-xl:  var(--shadow-overlay);
+  --shadow-glow-primary:  var(--shadow-glow-accent);
+  --shadow-glow-subtle:   var(--shadow-glow-accent);
+
+
+  /* ═══════════════════════════════════════════════════════════
+     9. MOTION TOKENS
+     Subtle and intentional. Modern, not flashy.
+     ═══════════════════════════════════════════════════════════ */
+
+  --duration-instant: 80ms;
+  --duration-fast:    140ms;
+  --duration-base:    220ms;
+  --duration-slow:    340ms;
+  --duration-modal:   260ms;
+  --duration-bar:     700ms;   /* score/health bar fill animation */
+
+  --ease-standard:   cubic-bezier(0.2, 0, 0, 1);       /* smooth general */
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);        /* enter / appear  */
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);        /* exit / dismiss  */
+  --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1); /* card hover lift */
+
+  /* Compound transition aliases */
+  --transition-fast:   var(--duration-fast)  var(--ease-standard);
+  --transition-base:   var(--duration-base)  var(--ease-standard);
+  --transition-slow:   var(--duration-slow)  var(--ease-standard);
+  --transition-hover:  var(--duration-fast)  var(--ease-spring);
+  --transition-modal:  var(--duration-modal) var(--ease-decelerate);
+
+
+  /* ═══════════════════════════════════════════════════════════
+     10. Z-INDEX TOKENS
+     ═══════════════════════════════════════════════════════════ */
+
+  --z-base:    0;
+  --z-raised:  10;
+  --z-sticky:  100;
+  --z-overlay: 400;
+  --z-modal:   800;
+  --z-tooltip: 1200;
+  --z-toast:   1600;
+
+  /* Backward compat */
+  --z-dropdown: var(--z-sticky);
+
+
+  /* ═══════════════════════════════════════════════════════════
+     11. LAYOUT TOKENS
+     ═══════════════════════════════════════════════════════════ */
+
+  --layout-content-max:  1200px;
+  --layout-panel-max:    480px;
+  --layout-card-min:     280px;
+
+
+  /* ═══════════════════════════════════════════════════════════
+     12. COMPONENT ALIASES
+     High-value semantic shortcuts consumed by components.
+     ═══════════════════════════════════════════════════════════ */
+
+  /* Cards */
+  --card-bg:            var(--surface-card);
+  --card-border:        var(--border-card);
+  --card-border-hover:  var(--border-focus);
+  --card-padding:       var(--space-xl);
+  --card-radius:        var(--radius-xl);
+
+  /* Panels */
+  --panel-bg:      var(--surface-panel);
+  --panel-border:  var(--border-panel);
+  --panel-padding: var(--space-xl);
+
+  /* Buttons */
+  --button-radius:     var(--radius-lg);
+  --button-padding-x:  var(--space-xl);
+  --button-padding-y:  var(--space-md);
+
+  /* Focus ring */
+  --focus-ring:        0 0 0 2px var(--bg-page), 0 0 0 4px var(--border-focus);
+
+
+  /* ═══════════════════════════════════════════════════════════
+     BACKWARD COMPAT: Old palette variable names
+     Components still using the old naming keep working.
+     ═══════════════════════════════════════════════════════════ */
+
+  --color-primary:        var(--text-accent);
+  --color-primary-light:  #c4a8ff;
+  --color-primary-dark:   #7c5cd6;
+  --color-primary-glow:   rgba(169, 137, 250, 0.40);
+
+  --color-bg-darkest:       var(--bg-page);
+  --color-bg-dark:          var(--bg-secondary);
+  --color-bg-medium:        var(--surface-panel);
+  --color-bg-surface:       var(--surface-card);
+  --color-bg-surface-solid: var(--surface-modal);
+  --color-bg-overlay:       var(--bg-overlay);
+
+  --color-text-primary:   var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted:     var(--text-muted);
+  --color-text-bright:    var(--text-bright);
+
+  --color-border-default: var(--border-card);
+  --color-border-focus:   var(--border-focus);
+  --color-border-primary: var(--border-accent);
+
+  --color-success:     var(--effect-positive);
+  --color-success-bg:  var(--effect-positive-bg);
+  --color-warning:     var(--effect-warning);
+  --color-warning-bg:  var(--effect-warning-bg);
+  --color-danger:      var(--effect-negative);
+  --color-danger-bg:   var(--effect-negative-bg);
+  --color-info:        var(--effect-neutral);
+  --color-info-bg:     var(--effect-neutral-bg);
+}

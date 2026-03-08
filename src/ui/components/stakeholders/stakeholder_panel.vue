@@ -66,18 +66,19 @@ function getSatisfactionClass(value: number): string {
 
 <style scoped>
 .stakeholder-panel {
-  background: var(--panel-bg);
-  border: 2px solid var(--panel-border);
+  background: var(--surface-panel);
+  border: 1px solid var(--border-panel);
   border-radius: var(--radius-xl);
   padding: var(--panel-padding);
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-panel);
 }
 
 .panel-title {
-  color: var(--color-primary);
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
   margin: 0 0 var(--space-lg) 0;
   display: flex;
   align-items: center;
@@ -96,18 +97,18 @@ function getSatisfactionClass(value: number): string {
 
 .stakeholder-item {
   padding: var(--space-md);
-  background: var(--color-bg-overlay);
+  background: var(--bg-inset);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  transition: all var(--transition-base);
+  transition: all var(--transition-fast);
 }
 
 .stakeholder-item:hover {
-  background: rgba(0, 0, 0, 0.3);
-  border-color: var(--color-border-focus);
+  background: var(--bg-overlay);
+  border-color: var(--border-card);
 }
 
 .stakeholder-header {
@@ -123,7 +124,7 @@ function getSatisfactionClass(value: number): string {
 }
 
 .stakeholder-name {
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-weight: var(--font-semibold);
   font-size: var(--text-sm);
 }
@@ -133,75 +134,43 @@ function getSatisfactionClass(value: number): string {
   font-weight: var(--font-semibold);
 }
 
-.satisfaction-label.critical {
-  color: var(--satisfaction-critical);
-}
-
-.satisfaction-label.concerned {
-  color: var(--satisfaction-concerned);
-}
-
-.satisfaction-label.neutral {
-  color: var(--satisfaction-neutral);
-}
-
-.satisfaction-label.supportive {
-  color: var(--satisfaction-supportive);
-}
+.satisfaction-label.critical  { color: var(--satisfaction-critical);   }
+.satisfaction-label.concerned  { color: var(--satisfaction-concerned);   }
+.satisfaction-label.neutral    { color: var(--satisfaction-neutral);    }
+.satisfaction-label.supportive { color: var(--satisfaction-supportive); }
 
 .satisfaction-value {
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   font-weight: var(--font-black);
+  font-family: var(--font-mono);
   min-width: 2.5rem;
   text-align: right;
 }
 
-.satisfaction-value.critical {
-  color: var(--satisfaction-critical);
-}
-
-.satisfaction-value.concerned {
-  color: var(--satisfaction-concerned);
-}
-
-.satisfaction-value.neutral {
-  color: var(--satisfaction-neutral);
-}
-
-.satisfaction-value.supportive {
-  color: var(--satisfaction-supportive);
-}
+.satisfaction-value.critical  { color: var(--satisfaction-critical);   }
+.satisfaction-value.concerned  { color: var(--satisfaction-concerned);   }
+.satisfaction-value.neutral    { color: var(--satisfaction-neutral);    }
+.satisfaction-value.supportive { color: var(--satisfaction-supportive); }
 
 .satisfaction-bar-container {
-  height: 8px;
-  background: var(--color-bg-overlay);
-  border-radius: var(--radius-md);
+  height: 6px;
+  background: var(--bg-overlay-strong);
+  border-radius: var(--radius-full);
   overflow: hidden;
   position: relative;
 }
 
 .satisfaction-bar {
   height: 100%;
-  border-radius: var(--radius-md);
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-bar) cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
 
-.satisfaction-bar.critical {
-  background: var(--satisfaction-critical);
-}
-
-.satisfaction-bar.concerned {
-  background: var(--satisfaction-concerned);
-}
-
-.satisfaction-bar.neutral {
-  background: var(--satisfaction-neutral);
-}
-
-.satisfaction-bar.supportive {
-  background: var(--satisfaction-supportive);
-}
+.satisfaction-bar.critical  { background: var(--satisfaction-critical);   }
+.satisfaction-bar.concerned  { background: var(--satisfaction-concerned);   }
+.satisfaction-bar.neutral    { background: var(--satisfaction-neutral);    }
+.satisfaction-bar.supportive { background: var(--satisfaction-supportive); }
 
 .bar-glow {
   position: absolute;

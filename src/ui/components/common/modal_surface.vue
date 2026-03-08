@@ -41,29 +41,30 @@ const emit = defineEmits<{
   align-items: center;
   justify-content: center;
   padding: var(--space-xl);
-  background: rgba(0, 0, 0, 0.65);
+  background: var(--surface-overlay);
   z-index: var(--z-modal);
+  backdrop-filter: blur(4px);
 }
 
 .modal-surface {
   width: min(680px, 100%);
   max-height: min(88vh, 900px);
   overflow: auto;
-  background: var(--color-bg-surface-solid);
-  border: 2px solid var(--color-border-primary);
+  background: var(--surface-modal);
+  border: 1px solid var(--border-accent);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-overlay);
 }
 
 .modal-surface-header,
 .modal-surface-footer {
   padding: var(--space-lg) var(--space-xl);
-  border-bottom: 1px solid var(--color-border-default);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .modal-surface-footer {
   border-bottom: none;
-  border-top: 1px solid var(--color-border-default);
+  border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: flex-end;
   gap: var(--space-sm);
@@ -71,7 +72,7 @@ const emit = defineEmits<{
 
 .modal-surface-body {
   padding: var(--space-xl);
-  color: var(--color-text-primary);
+  color: var(--text-primary);
 }
 
 .modal-surface-header {
@@ -83,25 +84,29 @@ const emit = defineEmits<{
 
 .modal-surface-title {
   margin: 0;
-  color: var(--color-text-bright);
+  color: var(--text-bright);
+  font-family: var(--font-heading);
   font-size: var(--text-xl);
-  font-weight: var(--font-bold);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
 }
 
 .modal-surface-close {
-  border: 1px solid var(--color-border-default);
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-inset);
+  color: var(--text-secondary);
   border-radius: var(--radius-md);
   width: 32px;
   height: 32px;
   cursor: pointer;
   font-size: var(--text-xl);
   line-height: 1;
+  transition: all var(--transition-fast);
 }
 
 .modal-surface-close:hover {
-  border-color: var(--color-border-focus);
-  color: var(--color-text-bright);
+  border-color: var(--border-focus);
+  color: var(--text-bright);
+  background: var(--bg-overlay);
 }
 </style>

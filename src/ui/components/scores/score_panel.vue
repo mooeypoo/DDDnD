@@ -59,18 +59,19 @@ function getScoreClass(value: number): string {
 
 <style scoped>
 .score-panel {
-  background: var(--panel-bg);
-  border: 2px solid var(--panel-border);
+  background: var(--surface-panel);
+  border: 1px solid var(--border-panel);
   border-radius: var(--radius-xl);
   padding: var(--panel-padding);
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-panel);
 }
 
 .panel-title {
-  color: var(--color-primary);
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
   margin: 0 0 var(--space-lg) 0;
   display: flex;
   align-items: center;
@@ -110,64 +111,43 @@ function getScoreClass(value: number): string {
 }
 
 .score-name {
-  color: var(--color-text-primary);
+  color: var(--text-primary);
   font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
+  font-weight: var(--font-medium);
 }
 
 .score-value {
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   font-weight: var(--font-black);
+  font-family: var(--font-mono);
   min-width: 2.5rem;
   text-align: right;
 }
 
-.score-value.critical {
-  color: var(--score-critical);
-}
-
-.score-value.low {
-  color: var(--score-low);
-}
-
-.score-value.medium {
-  color: var(--score-medium);
-}
-
-.score-value.high {
-  color: var(--score-high);
-}
+.score-value.critical { color: var(--score-critical); }
+.score-value.low      { color: var(--score-low);      }
+.score-value.medium   { color: var(--score-medium);   }
+.score-value.high     { color: var(--score-high);     }
 
 .score-bar-container {
-  height: 10px;
-  background: var(--color-bg-overlay);
-  border-radius: var(--radius-md);
+  height: 8px;
+  background: var(--bg-overlay-strong);
+  border-radius: var(--radius-full);
   overflow: hidden;
   position: relative;
 }
 
 .score-bar {
   height: 100%;
-  border-radius: var(--radius-md);
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-bar) cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
 
-.score-bar.critical {
-  background: var(--score-critical);
-}
-
-.score-bar.low {
-  background: var(--score-low);
-}
-
-.score-bar.medium {
-  background: var(--score-medium);
-}
-
-.score-bar.high {
-  background: var(--score-high);
-}
+.score-bar.critical { background: var(--score-critical); }
+.score-bar.low      { background: var(--score-low);      }
+.score-bar.medium   { background: var(--score-medium);   }
+.score-bar.high     { background: var(--score-high);     }
 
 .score-bar-glow {
   position: absolute;

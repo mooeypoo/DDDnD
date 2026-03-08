@@ -8,9 +8,10 @@ const preview: Preview = {
     backgrounds: {
       default: 'DM Console',
       values: [
-        { name: 'DM Console', value: 'linear-gradient(135deg, #0f0c29 0%, #16213e 50%, #1a1a2e 100%)' },
-        { name: 'Surface', value: '#16213e' },
-        { name: 'Night', value: '#0f0c29' }
+        { name: 'DM Console',  value: '#0b0e1a' },
+        { name: 'Panel',       value: '#141b2d' },
+        { name: 'Card',        value: '#192031' },
+        { name: 'Light Check', value: '#f0f0f0' }
       ]
     },
     layout: 'centered',
