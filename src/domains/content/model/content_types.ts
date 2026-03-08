@@ -85,6 +85,8 @@ export interface Card extends ContentMetadata {
   score_changes: ScoreChange[]
   stakeholder_changes?: StakeholderChange[]
   delayed_effect_refs: VersionRef[]
+  usage_limit?: number | null
+  cooldown_turns?: number
   requirements?: NumericCondition[]
   style_tags?: string[]
 }

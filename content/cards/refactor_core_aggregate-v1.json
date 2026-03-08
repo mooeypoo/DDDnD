@@ -4,6 +4,7 @@
   "name": "Refactor Core Aggregate",
   "description": "Restructure a key business entity with proper encapsulation",
   "flavor_text": "Let's make this thing actually represent the domain",
+  "usage_limit": 1,
   "score_changes": [
     {
       "score_id": "domain_clarity",

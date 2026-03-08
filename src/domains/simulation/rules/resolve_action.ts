@@ -2,6 +2,7 @@ import { Card, ScenarioBundle, versionRefKey } from '@/domains/content/model'
 import { ScoreChangeRecord, StakeholderChangeRecord, VersionedContentRef } from '@/shared/contracts'
 import { ActionResolutionRecord, createDelayedEffectInstance, DelayedEffectInstance, GameState } from '../model'
 import { ConditionEvaluationState, evaluateNumericCondition } from './condition_evaluator'
+import { getCardAvailability } from './card_availability'
 
 export interface ResolveActionResult {
   action_resolution: ActionResolutionRecord
@@ -67,6 +68,29 @@ function assertActionRequirements(
   }
 }
 
+function assertActionAvailability(
+  actionRef: VersionedContentRef,
+  card: Card,
+  gameState: GameState,
+  conditionState: ConditionEvaluationState
+): void {
+  const availability = getCardAvailability(gameState, actionRef, card, conditionState)
+
+  if (availability.is_playable) {
+    return
+  }
+
+  if (availability.unavailable_reason === 'usage_limit_reached') {
+    throw new Error(`Action usage limit reached for card: ${card.id}-v${card.version}`)
+  }
+
+  if (availability.unavailable_reason === 'cooldown_active') {
+    throw new Error(`Action is on cooldown for card: ${card.id}-v${card.version}`)
+  }
+
+  throw new Error(`Action requirements are not met for card: ${card.id}-v${card.version}`)
+}
+
 export function resolveAction(
   actionId: string,
   gameState: GameState,
@@ -75,6 +99,7 @@ export function resolveAction(
 ): ResolveActionResult {
   const { actionRef, card } = findCardFromActionId(actionId, gameState, scenarioBundle)
   assertActionRequirements(card, conditionState)
+  assertActionAvailability(actionRef, card, gameState, conditionState)
 
   const scoreChanges = toScoreChanges(card.score_changes)
   const stakeholderChanges = toStakeholderChanges(card.stakeholder_changes)

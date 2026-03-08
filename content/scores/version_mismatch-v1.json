@@ -1,6 +1,6 @@
 {
   "id": "version_mismatch",
-  "version": 2,
+  "version": 1,
   "name": "Version Mismatch Score",
   "description": "This score has a version that doesn't match its filename",
   "default_value": 0

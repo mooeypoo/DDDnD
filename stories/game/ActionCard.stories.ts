@@ -25,7 +25,79 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
+const reusableAvailability = {
+  card_id: 'safe_incremental_change',
+  card_version: 1,
+  short_summary: 'Reusable card with no usage limit or cooldown.',
+  is_playable: true,
+  unavailable_reason: null,
+  usage_limit: null,
+  uses_remaining: null,
+  times_used: 0,
+  cooldown_turns: 0,
+  available_on_turn: 1,
+  turns_until_available: 0
+} as const
+
+const oneTimeAvailability = {
+  ...reusableAvailability,
+  usage_limit: 1,
+  uses_remaining: 1
+} as const
+
+const cooldownAvailability = {
+  ...reusableAvailability,
+  cooldown_turns: 2,
+  times_used: 1,
+  available_on_turn: 4,
+  turns_until_available: 0
+} as const
+
+const onCooldownAvailability = {
+  ...cooldownAvailability,
+  is_playable: false,
+  unavailable_reason: 'cooldown_active' as const,
+  turns_until_available: 2
+}
+
 export const Summary: Story = {}
+
+export const ReusableCard: Story = {
+  args: {
+    card: cardMocks.safeIncrementalChange,
+    availability: reusableAvailability
+  }
+}
+
+export const OneTimeCard: Story = {
+  args: {
+    card: {
+      ...cardMocks.riskyRefactor,
+      usage_limit: 1
+    },
+    availability: oneTimeAvailability
+  }
+}
+
+export const CooldownCard: Story = {
+  args: {
+    card: {
+      ...cardMocks.infrastructureMove,
+      cooldown_turns: 2
+    },
+    availability: cooldownAvailability
+  }
+}
+
+export const OnCooldownCard: Story = {
+  args: {
+    card: {
+      ...cardMocks.infrastructureMove,
+      cooldown_turns: 2
+    },
+    availability: onCooldownAvailability
+  }
+}
 
 export const WithTags: Story = {
   args: {

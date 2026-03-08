@@ -100,6 +100,8 @@ Cards may include:
 - immediate score changes
 - stakeholder changes
 - delayed effects
+- usage limits (`usage_limit`)
+- cooldown windows (`cooldown_turns`)
 - descriptive flavor text
 
 Cards must remain understandable to readers.

@@ -131,5 +131,7 @@ describe('Content Domain Integration', () => {
     expect(refactorCard?.flavor_text).toBeDefined()
     expect(refactorCard?.score_changes).toHaveLength(2)
     expect(refactorCard?.delayed_effect_refs).toHaveLength(1)
+    expect(refactorCard?.usage_limit).toBeUndefined()
+    expect(refactorCard?.cooldown_turns).toBeUndefined()
   })
 })

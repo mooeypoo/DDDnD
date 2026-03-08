@@ -49,6 +49,14 @@ export class BundleValidationError extends Error {
  */
 export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult {
   const errors: ValidationError[] = []
+
+  function isPositiveInteger(value: number): boolean {
+    return Number.isInteger(value) && value > 0
+  }
+
+  function isNonNegativeInteger(value: number): boolean {
+    return Number.isInteger(value) && value >= 0
+  }
   
   // Validate scenario references scores that exist
   for (const scoreRef of bundle.scenario.score_refs) {
@@ -114,6 +122,22 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
   
   // Validate cards reference delayed effects that exist
   for (const [cardKey, card] of bundle.cards) {
+    if (card.usage_limit !== undefined && card.usage_limit !== null && !isPositiveInteger(card.usage_limit)) {
+      errors.push({
+        type: 'invalid_card_usage_limit',
+        message: `Card ${cardKey} has invalid usage_limit; expected a positive integer or null`,
+        details: { cardKey, usage_limit: card.usage_limit }
+      })
+    }
+
+    if (card.cooldown_turns !== undefined && !isNonNegativeInteger(card.cooldown_turns)) {
+      errors.push({
+        type: 'invalid_card_cooldown_turns',
+        message: `Card ${cardKey} has invalid cooldown_turns; expected a non-negative integer`,
+        details: { cardKey, cooldown_turns: card.cooldown_turns }
+      })
+    }
+
     for (const effectRef of card.delayed_effect_refs) {
       const key = versionRefKey(effectRef)
       if (!bundle.delayed_effects.has(key)) {

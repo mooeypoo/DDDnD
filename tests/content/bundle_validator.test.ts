@@ -269,5 +269,67 @@ describe('Bundle Validator', () => {
       expect(result.valid).toBe(false)
       expect(result.errors.length).toBeGreaterThanOrEqual(3)
     })
+
+    it('should detect invalid card usage_limit values', () => {
+      const scenario: Scenario = {
+        id: 'test',
+        version: 1,
+        name: 'Test',
+        description: 'Test scenario',
+        max_turns: 10,
+        starting_scores: {},
+        score_refs: [],
+        stakeholder_refs: [],
+        card_refs: [],
+        event_refs: []
+      }
+      const bundle = createEmptyBundle(scenario)
+
+      bundle.cards.set('test_card-v1', {
+        id: 'test_card',
+        version: 1,
+        name: 'Test Card',
+        description: 'Test',
+        usage_limit: 0,
+        score_changes: [],
+        delayed_effect_refs: []
+      })
+
+      const result = validateScenarioBundle(bundle)
+
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((error) => error.type === 'invalid_card_usage_limit')).toBe(true)
+    })
+
+    it('should detect invalid card cooldown_turns values', () => {
+      const scenario: Scenario = {
+        id: 'test',
+        version: 1,
+        name: 'Test',
+        description: 'Test scenario',
+        max_turns: 10,
+        starting_scores: {},
+        score_refs: [],
+        stakeholder_refs: [],
+        card_refs: [],
+        event_refs: []
+      }
+      const bundle = createEmptyBundle(scenario)
+
+      bundle.cards.set('test_card-v1', {
+        id: 'test_card',
+        version: 1,
+        name: 'Test Card',
+        description: 'Test',
+        cooldown_turns: -1,
+        score_changes: [],
+        delayed_effect_refs: []
+      })
+
+      const result = validateScenarioBundle(bundle)
+
+      expect(result.valid).toBe(false)
+      expect(result.errors.some((error) => error.type === 'invalid_card_cooldown_turns')).toBe(true)
+    })
   })
 })

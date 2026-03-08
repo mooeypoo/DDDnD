@@ -1,5 +1,5 @@
 <template>
-  <article class="action-card" :class="[`category-${categoryId}`, { disabled: isDisabled }]" tabindex="0">
+  <article class="action-card" :class="[`category-${categoryId}`, { disabled: isCardDisabled }]" tabindex="0">
 
     <!-- Category accent strip — 3 px color bar clipped by card border-radius -->
     <div class="card-accent-strip" aria-hidden="true"></div>
@@ -51,6 +51,22 @@
       </span>
     </div>
 
+    <div v-if="availability" class="availability-section">
+      <div class="availability-badges">
+        <span v-if="isOneTimeCard" class="indicator-badge indicator-availability">One-time</span>
+        <span v-if="hasCooldown" class="indicator-badge indicator-availability">
+          Cooldown: {{ availability.cooldown_turns }} turn{{ availability.cooldown_turns === 1 ? '' : 's' }}
+        </span>
+        <span
+          v-if="availability.usage_limit !== null && availability.usage_limit > 1"
+          class="indicator-badge indicator-availability"
+        >
+          Uses: {{ availability.uses_remaining ?? 0 }}/{{ availability.usage_limit }}
+        </span>
+      </div>
+      <p v-if="availabilityStatusText" class="availability-status">{{ availabilityStatusText }}</p>
+    </div>
+
     <footer class="card-controls">
       <button
         class="card-button card-button-inspect"
@@ -64,10 +80,10 @@
       <button
         class="card-button card-button-primary"
         type="button"
-        :disabled="isDisabled"
+        :disabled="isCardDisabled"
         @click="$emit('play', card.id)"
       >
-        {{ isDisabled ? 'Resolving…' : 'Play' }}
+        {{ primaryButtonLabel }}
       </button>
     </footer>
   </article>
@@ -76,12 +92,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Card } from '@/domains/content/model'
+import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import type { ArtworkMeta } from '@/ui/types/artwork'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 
 const props = defineProps<{
   card: Card
   isDisabled?: boolean
+  availability?: TurnBriefingActionSummary
   /** Optional artwork metadata. Renders a thumbnail in the card header when illustration_url is present. */
   artwork?: ArtworkMeta
 }>()
@@ -132,6 +150,49 @@ const remainingEffects = computed(() => Math.max(props.card.score_changes.length
 const hasIndicators = computed(() =>
   props.card.delayed_effect_refs.length > 0 || (props.card.stakeholder_changes?.length ?? 0) > 0
 )
+const availability = computed(() => props.availability)
+const isOneTimeCard = computed(() => availability.value?.usage_limit === 1)
+const hasCooldown = computed(() => (availability.value?.cooldown_turns ?? 0) > 0)
+const isCardDisabled = computed(() => props.isDisabled || (availability.value ? !availability.value.is_playable : false))
+const primaryButtonLabel = computed(() => {
+  if (props.isDisabled) {
+    return 'Resolving…'
+  }
+
+  if (!availability.value || availability.value.is_playable) {
+    return 'Play'
+  }
+
+  if (availability.value.unavailable_reason === 'usage_limit_reached') {
+    return 'Used'
+  }
+
+  if (availability.value.unavailable_reason === 'cooldown_active') {
+    return 'On Cooldown'
+  }
+
+  return 'Unavailable'
+})
+const availabilityStatusText = computed(() => {
+  if (!availability.value || availability.value.is_playable) {
+    if (availability.value?.usage_limit !== null && availability.value?.usage_limit !== undefined) {
+      return `Uses remaining: ${availability.value.uses_remaining ?? 0}`
+    }
+
+    return ''
+  }
+
+  if (availability.value.unavailable_reason === 'usage_limit_reached') {
+    return 'Used'
+  }
+
+  if (availability.value.unavailable_reason === 'cooldown_active') {
+    const turns = availability.value.turns_until_available
+    return `Available in ${turns} turn${turns === 1 ? '' : 's'}`
+  }
+
+  return 'Requirements not met'
+})
 const summaryText = computed(() => {
   const compact = props.card.flavor_text?.trim() || props.card.description
   if (compact.length <= 120) {
@@ -353,6 +414,12 @@ function metricPresentation(scoreId: string) {
   color: var(--effect-neutral);
 }
 
+.indicator-availability {
+  background: var(--bg-inset);
+  border-color: var(--border-subtle);
+  color: var(--text-secondary);
+}
+
 .indicator-icon {
   font-size: var(--text-base);
   line-height: 1;
@@ -362,6 +429,25 @@ function metricPresentation(scoreId: string) {
   display: flex;
   gap: var(--space-sm);
   margin-top: auto;
+}
+
+.availability-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.availability-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.availability-status {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
 }
 
 .card-button {

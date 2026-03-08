@@ -97,6 +97,25 @@ describe('game_store orchestration', () => {
     expect(store.lastTurnResolution?.turn_resolution_context.selected_action.id).toBe(actionId)
   })
 
+  it('exposes card availability data in turn briefing summaries', async () => {
+    const store = useGameStore()
+
+    await store.start_new_run({
+      scenario_id: 'monolith_of_mild_despair',
+      scenario_version: 1,
+      seed: 'store-seed-availability'
+    })
+
+    const summary = store.turnBriefing?.available_action_summaries[0]
+
+    expect(summary).toBeDefined()
+    expect(summary?.is_playable).toBe(true)
+    expect(summary?.usage_limit).toBeNull()
+    expect(summary?.cooldown_turns).toBe(0)
+    expect(summary?.turns_until_available).toBe(0)
+    expect(summary?.uses_remaining).toBeNull()
+  })
+
   it('opening/closing modals changes only UI state and does not reset the run', async () => {
     const store = useGameStore()
 

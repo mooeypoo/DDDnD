@@ -4,6 +4,7 @@
   "name": "Ship Quick Fix",
   "description": "Bypass architecture work to deliver a feature fast",
   "flavor_text": "Sometimes good enough is good enough... right?",
+  "cooldown_turns": 2,
   "score_changes": [
     {
       "score_id": "delivery_confidence",

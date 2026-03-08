@@ -29,8 +29,20 @@ export interface StakeholderRuntimeState {
 
 export type StakeholderSnapshot = Record<string, StakeholderRuntimeState>
 
+export interface CardUsageRuntimeState {
+  times_used: number
+  available_on_turn: number
+}
+
+export type CardUsageStateSnapshot = Record<string, CardUsageRuntimeState>
+
+function toVersionedRefKey(ref: VersionedContentRef): string {
+  return `${ref.id}-v${ref.version}`
+}
+
 export interface ActionState {
   available_action_refs: VersionedContentRef[]
+  card_usage_state: CardUsageStateSnapshot
   selected_action_ref: VersionedContentRef | null
   actions_played: number
   played_action_refs: VersionedContentRef[]
@@ -96,6 +108,14 @@ export function createInitialGameState(input: CreateInitialGameStateInput): Game
     }
   }
 
+  const cardUsageState: CardUsageStateSnapshot = {}
+  for (const actionRef of input.available_action_refs) {
+    cardUsageState[toVersionedRefKey(actionRef)] = {
+      times_used: 0,
+      available_on_turn: 1
+    }
+  }
+
   return {
     meta: {
       run_id: input.run_id,
@@ -116,6 +136,7 @@ export function createInitialGameState(input: CreateInitialGameStateInput): Game
     stakeholders,
     action_state: {
       available_action_refs: [...input.available_action_refs],
+      card_usage_state: cardUsageState,
       selected_action_ref: null,
       actions_played: 0,
       played_action_refs: []

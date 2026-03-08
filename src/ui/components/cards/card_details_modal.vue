@@ -59,6 +59,14 @@
               </li>
             </ul>
           </div>
+
+          <div v-if="availabilityDetails.length > 0 || availabilityStatusText" class="detail-section">
+            <h3 class="section-title">Availability</h3>
+            <ul v-if="availabilityDetails.length > 0" class="availability-list">
+              <li v-for="detail in availabilityDetails" :key="detail" class="availability-item">{{ detail }}</li>
+            </ul>
+            <p v-if="availabilityStatusText" class="availability-status-text">{{ availabilityStatusText }}</p>
+          </div>
         </div>
 
         <div class="modal-footer">
@@ -67,10 +75,10 @@
           </button>
           <button
             class="modal-button modal-button-primary"
-            :disabled="isDisabled"
+            :disabled="isPlayDisabled"
             @click="handlePlay"
           >
-            {{ isDisabled ? 'Resolving…' : 'Play This Card' }}
+            {{ primaryButtonText }}
           </button>
         </div>
       </div>
@@ -79,7 +87,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { Card } from '@/domains/content/model/content_types';
+import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation';
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation';
 import type { ArtworkMeta } from '@/ui/types/artwork'
@@ -88,6 +98,7 @@ interface Props {
   isOpen: boolean;
   card: Card;
   isDisabled?: boolean;
+  availability?: TurnBriefingActionSummary;
   stakeholderNames?: Record<string, string>;
   /** Optional artwork for the modal illustration frame. Renders an image when illustration_url is present. */
   artwork?: ArtworkMeta
@@ -104,6 +115,67 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<Emits>();
+
+const isPlayDisabled = computed(() => props.isDisabled || (props.availability ? !props.availability.is_playable : false))
+const primaryButtonText = computed(() => {
+  if (props.isDisabled) {
+    return 'Resolving…'
+  }
+
+  if (!props.availability || props.availability.is_playable) {
+    return 'Play This Card'
+  }
+
+  if (props.availability.unavailable_reason === 'usage_limit_reached') {
+    return 'Used'
+  }
+
+  if (props.availability.unavailable_reason === 'cooldown_active') {
+    return 'On Cooldown'
+  }
+
+  return 'Unavailable'
+})
+
+const availabilityDetails = computed(() => {
+  const details: string[] = []
+
+  if (props.card.usage_limit === 1) {
+    details.push('One-time use.')
+  } else if (props.card.usage_limit !== undefined && props.card.usage_limit !== null) {
+    details.push(`Usage limit: ${props.card.usage_limit}.`)
+  }
+
+  if ((props.card.cooldown_turns ?? 0) > 0) {
+    const turns = props.card.cooldown_turns ?? 0
+    details.push(`Cooldown: ${turns} turn${turns === 1 ? '' : 's'} after each use.`)
+  }
+
+  if (props.availability?.usage_limit !== null && props.availability?.usage_limit !== undefined) {
+    details.push(
+      `Uses remaining: ${props.availability.uses_remaining ?? 0}/${props.availability.usage_limit}.`
+    )
+  }
+
+  return details
+})
+
+const availabilityStatusText = computed(() => {
+  if (!props.availability || props.availability.is_playable) {
+    return ''
+  }
+
+  if (props.availability.unavailable_reason === 'usage_limit_reached') {
+    return 'This card has already been fully used this run.'
+  }
+
+  if (props.availability.unavailable_reason === 'cooldown_active') {
+    const turns = props.availability.turns_until_available
+    return `Available in ${turns} turn${turns === 1 ? '' : 's'}.`
+  }
+
+  return 'Requirements are not currently met.'
+})
 
 function getMetricIcon(scoreId: string): string {
   return getMetricPresentation(scoreId).icon;
@@ -376,6 +448,26 @@ function handlePlay(): void {
 
 .stakeholder-name {
   color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+}
+
+.availability-list {
+  margin: 0;
+  padding-left: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.availability-item {
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+}
+
+.availability-status-text {
+  margin: 0;
+  color: var(--text-secondary);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
 }

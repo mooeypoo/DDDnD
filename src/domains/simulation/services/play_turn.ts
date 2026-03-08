@@ -32,11 +32,13 @@ import {
   applyStakeholderChanges,
   buildTurnHistoryEntry,
   classifyRunOutcome,
+  getCardNextAvailableTurn,
   resolveAction,
   resolveArchitecturalAftershocks,
   resolveEvent,
   resolveStakeholderRules
 } from '../rules'
+import { versionRefKey } from '@/domains/content/model'
 
 export interface PlayTurnResult {
   game_state: GameState
@@ -232,6 +234,25 @@ export function playTurn(
     total_stakeholder_changes: totalStakeholderChanges
   }
 
+  const selectedCardKey = versionRefKey(actionResult.selected_action_ref)
+  const selectedCard = scenarioBundle.cards.get(selectedCardKey)
+  const cardUsageState = gameState.action_state.card_usage_state ?? {}
+  const selectedCardUsageState = cardUsageState[selectedCardKey] ?? {
+    times_used: 0,
+    available_on_turn: 1
+  }
+  const selectedCardCooldownTurns = selectedCard?.cooldown_turns ?? 0
+  const nextCardUsageState = {
+    ...cardUsageState,
+    [selectedCardKey]: {
+      times_used: selectedCardUsageState.times_used + 1,
+      available_on_turn: getCardNextAvailableTurn(
+        gameState.progress.current_turn,
+        selectedCardCooldownTurns
+      )
+    }
+  }
+
   const nextGameState: GameState = {
     ...tentativeGameState,
     meta: {
@@ -248,6 +269,7 @@ export function playTurn(
     },
     action_state: {
       ...gameState.action_state,
+      card_usage_state: nextCardUsageState,
       selected_action_ref: actionResult.selected_action_ref,
       actions_played: gameState.action_state.actions_played + 1,
       played_action_refs: [...gameState.action_state.played_action_refs, actionResult.selected_action_ref]

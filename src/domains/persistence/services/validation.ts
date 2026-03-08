@@ -50,6 +50,25 @@ function isVersionedContentRefArray(value: unknown): value is VersionedContentRe
   return Array.isArray(value) && value.every(isVersionedContentRef)
 }
 
+function isCardUsageStateSnapshot(value: unknown): boolean {
+  if (!isObject(value)) {
+    return false
+  }
+
+  return Object.entries(value).every(([cardKey, cardUsage]) => {
+    if (!cardKey || !isObject(cardUsage)) {
+      return false
+    }
+
+    return (
+      isNumber(cardUsage.times_used) &&
+      cardUsage.times_used >= 0 &&
+      isNumber(cardUsage.available_on_turn) &&
+      cardUsage.available_on_turn >= 1
+    )
+  })
+}
+
 function isScoreSnapshot(value: unknown): value is ScoreSnapshot {
   if (!isObject(value)) {
     return false
@@ -132,6 +151,7 @@ function isActionState(value: unknown): value is ActionState {
 
   return (
     isVersionedContentRefArray(value.available_action_refs) &&
+    (value.card_usage_state === undefined || isCardUsageStateSnapshot(value.card_usage_state)) &&
     (value.selected_action_ref === null || isVersionedContentRef(value.selected_action_ref)) &&
     isNumber(value.actions_played) &&
     isVersionedContentRefArray(value.played_action_refs)

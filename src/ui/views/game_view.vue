@@ -7,6 +7,7 @@
       :isOpen="!!modalCardId" 
       :card="modalCard" 
       :isDisabled="gameStore.isPlayingTurn"
+      :availability="modalCardAvailability"
       :stakeholderNames="stakeholderNames"
       @close="modalCardId = null" 
       @play="handlePlayCard"
@@ -96,11 +97,12 @@
             
             <div class="actions-grid">
               <ActionCard 
-                v-for="card in availableCards" 
-                :key="card.id + '-v' + card.version"
-                :card="card"
+                v-for="entry in availableCardEntries" 
+                :key="entry.card.id + '-v' + entry.card.version"
+                :card="entry.card"
+                :availability="entry.availability"
                 :isDisabled="gameStore.isPlayingTurn"
-                @showDetails="handleShowDetails(card.id)"
+                @showDetails="handleShowDetails(entry.card.id)"
                 @play="handlePlayCard"
               />
             </div>
@@ -128,6 +130,7 @@ import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { Card } from '@/domains/content/model'
 import { versionRefKey } from '@/domains/content/model'
+import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import { resolveScenarioShortDescription } from '@/ui/composables/scenario_presentation'
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
 import ScorePanel from '@/ui/components/scores/score_panel.vue'
@@ -164,16 +167,29 @@ const currentEventDescription = computed(() => {
   return 'The system awaits your decision. Select a card to take your next action.'
 })
 
-const availableCards = computed(() => {
+const availabilitySummaryByKey = computed(() => {
+  const entries = new Map<string, TurnBriefingActionSummary>()
+
+  for (const summary of gameStore.turnBriefing?.available_action_summaries ?? []) {
+    entries.set(versionRefKey({ id: summary.card_id, version: summary.card_version }), summary)
+  }
+
+  return entries
+})
+
+const availableCardEntries = computed(() => {
   if (!gameStore.turnBriefing || !gameStore.scenarioBundle) {
     return []
   }
   
-  const cards: Card[] = []
+  const cards: Array<{ card: Card; availability: TurnBriefingActionSummary | undefined }> = []
   for (const actionRef of gameStore.gameState?.action_state.available_action_refs || []) {
     const card = gameStore.scenarioBundle.cards.get(versionRefKey(actionRef))
     if (card) {
-      cards.push(card)
+      cards.push({
+        card,
+        availability: availabilitySummaryByKey.value.get(versionRefKey(actionRef))
+      })
     }
   }
   
@@ -185,7 +201,15 @@ const modalCard = computed(() => {
     return null
   }
   
-  return availableCards.value.find(card => card.id === modalCardId.value) || null
+  return availableCardEntries.value.find((entry) => entry.card.id === modalCardId.value)?.card || null
+})
+
+const modalCardAvailability = computed(() => {
+  if (!modalCardId.value) {
+    return undefined
+  }
+
+  return availableCardEntries.value.find((entry) => entry.card.id === modalCardId.value)?.availability
 })
 
 const stakeholderNames = computed((): Record<string, string> => {

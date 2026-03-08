@@ -1,6 +1,7 @@
 export * from './apply_score_changes'
 export * from './apply_stakeholder_changes'
 export * from './build_turn_history_entry'
+export * from './card_availability'
 export * from './classify_outcome_archetype'
 export * from './classify_run_outcome'
 export * from './condition_evaluator'
