@@ -1,21 +1,35 @@
 <template>
   <div class="stakeholder-panel">
-    <h3 class="panel-title">Stakeholders</h3>
+    <h3 class="panel-title">
+      <span class="title-icon">👥</span>
+      Stakeholders
+    </h3>
     <div class="stakeholders-list">
       <div 
         v-for="(data, stakeholderId) in stakeholders" 
         :key="stakeholderId"
         class="stakeholder-item"
-        :class="getSatisfactionClass(data.satisfaction)"
       >
-        <div class="stakeholder-info">
-          <div class="stakeholder-name">{{ formatStakeholderName(stakeholderId) }}</div>
-          <div class="satisfaction-label">{{ getSatisfactionLabel(data.satisfaction) }}</div>
+        <div class="stakeholder-header">
+          <div class="stakeholder-info">
+            <div class="stakeholder-name">{{ formatStakeholderName(stakeholderId) }}</div>
+            <div class="satisfaction-label" :class="getSatisfactionClass(data.satisfaction)">
+              {{ getSatisfactionLabel(data.satisfaction) }}
+            </div>
+          </div>
+          <div class="satisfaction-value" :class="getSatisfactionClass(data.satisfaction)">
+            {{ Math.round(data.satisfaction) }}
+          </div>
         </div>
-        <div class="satisfaction-meter">
-          <div class="meter-fill" :style="{ width: data.satisfaction + '%' }"></div>
+        <div class="satisfaction-bar-container">
+          <div 
+            class="satisfaction-bar" 
+            :class="getSatisfactionClass(data.satisfaction)" 
+            :style="{ width: data.satisfaction + '%' }"
+          >
+            <div class="bar-glow"></div>
+          </div>
         </div>
-        <div class="satisfaction-value">{{ Math.round(data.satisfaction) }}</div>
       </div>
     </div>
   </div>
@@ -52,111 +66,165 @@ function getSatisfactionClass(value: number): string {
 
 <style scoped>
 .stakeholder-panel {
-  background: rgba(22, 33, 62, 0.6);
-  border: 2px solid rgba(139, 146, 168, 0.3);
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: var(--panel-bg);
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  padding: var(--panel-padding);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
 }
 
 .panel-title {
-  color: #e94560;
-  font-size: 1.25rem;
-  margin: 0 0 1rem 0;
+  color: var(--color-primary);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  margin: 0 0 var(--space-lg) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.title-icon {
+  font-size: var(--text-2xl);
 }
 
 .stakeholders-list {
-  display: grid;
-  gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
 }
 
 .stakeholder-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  gap: 0.5rem;
-  padding: 0.75rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  padding: var(--space-md);
+  background: var(--color-bg-overlay);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  transition: all var(--transition-base);
+}
+
+.stakeholder-item:hover {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: var(--color-border-focus);
+}
+
+.stakeholder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .stakeholder-info {
-  grid-column: 1;
-  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
 }
 
 .stakeholder-name {
-  color: #e0e0e0;
-  font-weight: 600;
-  font-size: 0.95rem;
+  color: var(--color-text-primary);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
 }
 
 .satisfaction-label {
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
 }
 
-.stakeholder-item.critical .satisfaction-label {
-  color: #e94560;
+.satisfaction-label.critical {
+  color: var(--satisfaction-critical);
 }
 
-.stakeholder-item.concerned .satisfaction-label {
-  color: #f39c12;
+.satisfaction-label.concerned {
+  color: var(--satisfaction-concerned);
 }
 
-.stakeholder-item.neutral .satisfaction-label {
-  color: #3498db;
+.satisfaction-label.neutral {
+  color: var(--satisfaction-neutral);
 }
 
-.stakeholder-item.supportive .satisfaction-label {
-  color: #2ecc71;
-}
-
-.satisfaction-meter {
-  grid-column: 1;
-  grid-row: 2;
-  height: 6px;
-  background: rgba(139, 146, 168, 0.2);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.meter-fill {
-  height: 100%;
-  transition: width 0.5s, background 0.3s;
-  border-radius: 3px;
-}
-
-.stakeholder-item.critical .meter-fill {
-  background: #e94560;
-}
-
-.stakeholder-item.concerned .meter-fill {
-  background: #f39c12;
-}
-
-.stakeholder-item.neutral .meter-fill {
-  background: #3498db;
-}
-
-.stakeholder-item.supportive .meter-fill {
-  background: #2ecc71;
+.satisfaction-label.supportive {
+  color: var(--satisfaction-supportive);
 }
 
 .satisfaction-value {
-  grid-column: 2;
-  grid-row: 1 / 3;
-  color: #e0e0e0;
-  font-size: 1.25rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-black);
   min-width: 2.5rem;
-  justify-content: flex-end;
+  text-align: right;
 }
 
-@media (max-width: 640px) {
+.satisfaction-value.critical {
+  color: var(--satisfaction-critical);
+}
+
+.satisfaction-value.concerned {
+  color: var(--satisfaction-concerned);
+}
+
+.satisfaction-value.neutral {
+  color: var(--satisfaction-neutral);
+}
+
+.satisfaction-value.supportive {
+  color: var(--satisfaction-supportive);
+}
+
+.satisfaction-bar-container {
+  height: 8px;
+  background: var(--color-bg-overlay);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+}
+
+.satisfaction-bar {
+  height: 100%;
+  border-radius: var(--radius-md);
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.satisfaction-bar.critical {
+  background: var(--satisfaction-critical);
+}
+
+.satisfaction-bar.concerned {
+  background: var(--satisfaction-concerned);
+}
+
+.satisfaction-bar.neutral {
+  background: var(--satisfaction-neutral);
+}
+
+.satisfaction-bar.supportive {
+  background: var(--satisfaction-supportive);
+}
+
+.bar-glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 100%);
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 768px) {
   .stakeholder-panel {
-    padding: 1rem;
+    padding: var(--space-lg);
   }
 }
 </style>

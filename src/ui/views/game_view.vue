@@ -5,23 +5,28 @@
     
     <div class="game-container">
       <!-- Header -->
-      <div class="game-header">
+      <header class="game-header">
         <div class="header-content">
-          <h1 class="scenario-title">{{ scenario?.name || 'DDDnD' }}</h1>
-          <div class="turn-info">
-            Turn {{ gameStore.currentTurn }} / {{ gameStore.maxTurns }}
+          <div class="scenario-info">
+            <h1 class="scenario-title">{{ scenario?.name || 'DDDnD' }}</h1>
+            <div class="turn-badge">
+              <span class="turn-label">Turn</span>
+              <span class="turn-current">{{ gameStore.currentTurn }}</span>
+              <span class="turn-separator">/</span>
+              <span class="turn-max">{{ gameStore.maxTurns }}</span>
+            </div>
           </div>
         </div>
         
         <div class="header-actions">
           <button class="icon-button" @click="gameStore.openRulesModal" title="Rules">
-            📖
+            <span class="button-icon">📖</span>
           </button>
           <button class="icon-button" @click="gameStore.openAboutModal" title="About">
-            ℹ️
+            <span class="button-icon">ℹ️</span>
           </button>
         </div>
-      </div>
+      </header>
       
       <!-- Main Game Area -->
       <div class="game-main">
@@ -43,12 +48,14 @@
           <!-- Aftershocks Warning -->
           <div 
             v-if="gameStore.turnBriefing && gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 0"
-            class="aftershock-warning"
+            class="aftershock-alert"
           >
-            <div class="warning-icon">⚡</div>
-            <div class="warning-text">
-              <strong>{{ gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length }} Architectural Aftershock(s)</strong> 
-              will resolve this turn
+            <div class="alert-icon">⚡</div>
+            <div class="alert-content">
+              <div class="alert-title">Architectural Aftershocks Incoming</div>
+              <div class="alert-message">
+                {{ gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length }} delayed effect{{ gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 1 ? 's' : '' }} will resolve this turn
+              </div>
             </div>
           </div>
           
@@ -59,8 +66,14 @@
           />
           
           <!-- Available Actions -->
-          <div v-if="!gameStore.isRunComplete" class="actions-section">
-            <h2 class="section-title">Choose Your Next Move</h2>
+          <div v-if="!gameStore.isRunComplete" class="play-area">
+            <div class="play-area-header">
+              <h2 class="play-area-title">
+                <span class="title-icon">🎴</span>
+                Choose Your Next Move
+              </h2>
+              <p class="play-area-hint">Select a card to play this turn</p>
+            </div>
             
             <div class="actions-grid">
               <ActionCard 
@@ -73,23 +86,29 @@
               />
             </div>
             
-            <div class="play-action">
+            <div class="play-controls">
               <button 
-                class="play-button"
+                class="btn-play-card"
                 :disabled="!selectedCardId || gameStore.isPlayingTurn"
                 @click="playSelectedCard"
               >
-                {{ gameStore.isPlayingTurn ? 'Resolving...' : 'Play Card' }}
+                <span v-if="gameStore.isPlayingTurn" class="btn-spinner"></span>
+                <span class="btn-text">
+                  {{ gameStore.isPlayingTurn ? 'Resolving Turn...' : 'Play Selected Card' }}
+                </span>
+                <span v-if="!gameStore.isPlayingTurn && selectedCardId" class="btn-icon">→</span>
               </button>
             </div>
           </div>
           
           <!-- Run Complete Message -->
-          <div v-else class="run-complete">
-            <h2>Run Complete!</h2>
-            <p>Your architectural journey has reached its conclusion.</p>
-            <button class="primary-button" @click="goToEndScreen">
-              View Results
+          <div v-else class="run-complete-card">
+            <div class="complete-icon">🏁</div>
+            <h2 class="complete-title">Run Complete!</h2>
+            <p class="complete-message">Your architectural journey has reached its conclusion.</p>
+            <button class="btn-view-results" @click="goToEndScreen">
+              <span class="btn-text">View Results</span>
+              <span class="btn-icon">→</span>
             </button>
           </div>
         </main>
@@ -165,199 +184,357 @@ function goToEndScreen() {
 <style scoped>
 .game-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0c29 0%, #16213e 50%, #1a1a2e 100%);
+  background: linear-gradient(135deg, 
+    var(--color-bg-darkest) 0%, 
+    var(--color-bg-dark) 50%, 
+    var(--color-bg-medium) 100%
+  );
+  padding-bottom: var(--space-2xl);
 }
 
 .game-container {
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
 }
 
+/* Header */
 .game-header {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  background: rgba(22, 33, 62, 0.6);
-  border-radius: 12px;
-  margin-bottom: 1.5rem;
-  border: 2px solid rgba(139, 146, 168, 0.3);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
 }
 
 .header-content {
+  flex: 1;
+}
+
+.scenario-info {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: var(--space-xl);
+  flex-wrap: wrap;
 }
 
 .scenario-title {
-  color: #e94560;
-  font-size: 1.5rem;
+  color: var(--color-primary);
+  font-size: var(--text-2xl);
   margin: 0;
+  font-weight: var(--font-bold);
 }
 
-.turn-info {
-  color: #8b92a8;
-  font-size: 1.125rem;
-  font-weight: 600;
+.turn-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-bg-overlay);
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+}
+
+.turn-label {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.turn-current {
+  color: var(--color-primary);
+  font-size: var(--text-xl);
+  font-weight: var(--font-black);
+}
+
+.turn-separator {
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}
+
+.turn-max {
+  color: var(--color-text-secondary);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
 }
 
 .header-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-sm);
 }
 
 .icon-button {
-  background: rgba(139, 146, 168, 0.2);
-  border: 2px solid rgba(139, 146, 168, 0.3);
-  color: #e0e0e0;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 6px;
+  background: var(--color-bg-overlay);
+  border: 2px solid var(--color-border-default);
+  color: var(--color-text-primary);
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 1.25rem;
+  transition: all var(--transition-base);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .icon-button:hover {
-  background: rgba(139, 146, 168, 0.3);
-  border-color: rgba(233, 69, 96, 0.5);
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-focus);
+  transform: translateY(-1px);
 }
 
+.button-icon {
+  font-size: var(--text-lg);
+}
+
+/* Main Game Layout */
 .game-main {
   display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 1.5rem;
+  grid-template-columns: 340px 1fr;
+  gap: var(--space-xl);
+  align-items: start;
 }
 
 .game-sidebar {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-xl);
+  position: sticky;
+  top: var(--space-lg);
 }
 
 .game-center {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-xl);
+  min-width: 0;
 }
 
-.aftershock-warning {
+/* Aftershock Alert */
+.aftershock-alert {
+  background: linear-gradient(135deg, var(--color-warning-bg) 0%, rgba(243, 156, 18, 0.05) 100%);
+  border: 2px solid var(--color-warning);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
   display: flex;
   align-items: center;
-  gap: 1rem;
-  background: rgba(243, 156, 18, 0.15);
-  border: 2px solid #f39c12;
-  border-radius: 12px;
-  padding: 1rem 1.25rem;
+  gap: var(--space-lg);
+  box-shadow: 0 4px 16px rgba(243, 156, 18, 0.2);
+  animation: pulseGlow 2s ease-in-out infinite;
 }
 
-.warning-icon {
-  font-size: 2rem;
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 4px 16px rgba(243, 156, 18, 0.2);
+  }
+  50% {
+    box-shadow: 0 4px 24px rgba(243, 156, 18, 0.4);
+  }
 }
 
-.warning-text {
-  color: #e0e0e0;
-  font-size: 1rem;
+.alert-icon {
+  font-size: var(--text-5xl);
+  line-height: 1;
+  animation: bounce 1s ease-in-out infinite;
 }
 
-.warning-text strong {
-  color: #f39c12;
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
 }
 
-.actions-section {
-  background: rgba(22, 33, 62, 0.6);
-  border: 2px solid rgba(139, 146, 168, 0.3);
-  border-radius: 12px;
-  padding: 1.5rem;
+.alert-content {
+  flex: 1;
 }
 
-.section-title {
-  color: #e94560;
-  font-size: 1.5rem;
-  margin: 0 0 1.25rem 0;
+.alert-title {
+  color: var(--color-warning);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-xs);
+}
+
+.alert-message {
+  color: var(--color-text-primary);
+  font-size: var(--text-base);
+}
+
+/* Play Area */
+.play-area {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+}
+
+.play-area-header {
+  margin-bottom: var(--space-xl);
+}
+
+.play-area-title {
+  color: var(--color-text-bright);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin: 0 0 var(--space-sm) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.title-icon {
+  font-size: var(--text-3xl);
+}
+
+.play-area-hint {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  margin: 0;
+  font-style: italic;
 }
 
 .actions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
 }
 
-.play-action {
+.play-controls {
   display: flex;
   justify-content: center;
-  padding-top: 1rem;
-  border-top: 2px solid rgba(139, 146, 168, 0.2);
+  padding-top: var(--space-xl);
+  border-top: 2px solid var(--color-border-default);
 }
 
-.play-button {
-  background: #e94560;
-  color: white;
+.btn-play-card {
+  background: var(--color-primary);
+  color: var(--color-text-bright);
   border: none;
-  padding: 1rem 3rem;
-  font-size: 1.25rem;
-  font-weight: 700;
-  border-radius: 8px;
+  padding: var(--space-lg) var(--space-4xl);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  border-radius: var(--button-radius);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all var(--transition-slow);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-md);
+  box-shadow: 0 4px 16px var(--color-primary-glow);
+  min-width: 280px;
+  justify-content: center;
 }
 
-.play-button:hover:not(:disabled) {
-  background: #d63851;
+.btn-play-card:hover:not(:disabled) {
+  background: var(--color-primary-light);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(233, 69, 96, 0.4);
+  box-shadow: 0 6px 24px var(--color-primary-glow);
 }
 
-.play-button:disabled {
-  background: #5a5a6e;
+.btn-play-card:disabled {
+  background: var(--color-text-muted);
   cursor: not-allowed;
   opacity: 0.6;
+  transform: none;
+  box-shadow: none;
 }
 
-.run-complete {
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--color-text-bright);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+/* Run Complete Card */
+.run-complete-card {
+  background: var(--card-bg);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5xl) var(--space-3xl);
   text-align: center;
-  padding: 3rem 2rem;
-  background: rgba(22, 33, 62, 0.6);
-  border: 2px solid rgba(233, 69, 96, 0.3);
-  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+  backdrop-filter: blur(10px);
 }
 
-.run-complete h2 {
-  color: #e94560;
-  font-size: 2rem;
-  margin: 0 0 1rem 0;
+.complete-icon {
+  font-size: 5rem;
+  margin-bottom: var(--space-xl);
+  animation: celebrate 1s ease-in-out;
 }
 
-.run-complete p {
-  color: #e0e0e0;
-  font-size: 1.125rem;
-  margin: 0 0 2rem 0;
+@keyframes celebrate {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.2) rotate(-10deg);
+  }
+  75% {
+    transform: scale(1.2) rotate(10deg);
+  }
 }
 
-.primary-button {
-  background: #e94560;
-  color: white;
+.complete-title {
+  color: var(--color-primary);
+  font-size: var(--text-4xl);
+  font-weight: var(--font-black);
+  margin: 0 0 var(--space-lg) 0;
+}
+
+.complete-message {
+  color: var(--color-text-primary);
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-3xl) 0;
+  line-height: var(--leading-relaxed);
+}
+
+.btn-view-results {
+  background: var(--color-primary);
+  color: var(--color-text-bright);
   border: none;
-  padding: 1rem 2.5rem;
-  font-size: 1.125rem;
-  font-weight: 700;
-  border-radius: 8px;
+  padding: var(--space-lg) var(--space-4xl);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  border-radius: var(--button-radius);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all var(--transition-slow);
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-md);
+  box-shadow: 0 4px 16px var(--color-primary-glow);
 }
 
-.primary-button:hover {
-  background: #d63851;
+.btn-view-results:hover {
+  background: var(--color-primary-light);
   transform: translateY(-2px);
+  box-shadow: 0 6px 24px var(--color-primary-glow);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .game-main {
+    grid-template-columns: 300px 1fr;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -366,7 +543,11 @@ function goToEndScreen() {
   }
   
   .game-sidebar {
+    position: static;
     order: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-lg);
   }
   
   .game-center {
@@ -376,30 +557,63 @@ function goToEndScreen() {
 
 @media (max-width: 768px) {
   .game-container {
-    padding: 0.75rem;
+    padding: var(--space-md);
   }
   
-  .header-content {
+  .game-header {
+    flex-direction: column;
+    gap: var(--space-lg);
+    align-items: stretch;
+  }
+  
+  .scenario-info {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: var(--space-md);
+  }
+  
+  .header-actions {
+    justify-content: center;
   }
   
   .scenario-title {
-    font-size: 1.25rem;
-  }
-  
-  .turn-info {
-    font-size: 1rem;
+    font-size: var(--text-xl);
   }
   
   .actions-grid {
     grid-template-columns: 1fr;
   }
   
-  .play-button {
+  .play-area {
+    padding: var(--space-xl);
+  }
+  
+  .btn-play-card {
     width: 100%;
-    max-width: 320px;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-container {
+    padding: var(--space-sm);
+  }
+  
+  .game-header {
+    padding: var(--space-lg);
+  }
+  
+  .play-area {
+    padding: var(--space-lg);
+  }
+  
+  .aftershock-alert {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .alert-icon {
+    font-size: var(--text-4xl);
   }
 }
 </style>

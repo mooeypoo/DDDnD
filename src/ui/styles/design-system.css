@@ -1,0 +1,229 @@
+/**
+ * DDDnD Design System
+ * 
+ * A modern, playful design system for the DDDnD game.
+ * Provides CSS custom properties for colors, spacing, typography, and components.
+ */
+
+:root {
+  /* === Color Palette === */
+  
+  /* Brand Colors */
+  --color-primary: #e94560;
+  --color-primary-light: #ff5a7a;
+  --color-primary-dark: #d63851;
+  --color-primary-glow: rgba(233, 69, 96, 0.5);
+  
+  /* Background Colors */
+  --color-bg-darkest: #0f0c29;
+  --color-bg-dark: #16213e;
+  --color-bg-medium: #1a1a2e;
+  --color-bg-surface: rgba(22, 33, 62, 0.6);
+  --color-bg-surface-solid: #16213e;
+  --color-bg-overlay: rgba(0, 0, 0, 0.2);
+  
+  /* Text Colors */
+  --color-text-primary: #e0e0e0;
+  --color-text-secondary: #8b92a8;
+  --color-text-muted: #6b7280;
+  --color-text-bright: #ffffff;
+  
+  /* Border Colors */
+  --color-border-default: rgba(139, 146, 168, 0.3);
+  --color-border-focus: rgba(233, 69, 96, 0.5);
+  --color-border-primary: rgba(233, 69, 96, 0.3);
+  
+  /* Status Colors */
+  --color-success: #2ecc71;
+  --color-success-bg: rgba(46, 204, 113, 0.2);
+  --color-warning: #f39c12;
+  --color-warning-bg: rgba(243, 156, 18, 0.15);
+  --color-danger: #e94560;
+  --color-danger-bg: rgba(233, 69, 96, 0.15);
+  --color-info: #3498db;
+  --color-info-bg: rgba(52, 152, 219, 0.2);
+  
+  /* === Spacing Scale === */
+  --space-xs: 0.25rem;      /* 4px */
+  --space-sm: 0.5rem;       /* 8px */
+  --space-md: 0.75rem;      /* 12px */
+  --space-lg: 1rem;         /* 16px */
+  --space-xl: 1.5rem;       /* 24px */
+  --space-2xl: 2rem;        /* 32px */
+  --space-3xl: 2.5rem;      /* 40px */
+  --space-4xl: 3rem;        /* 48px */
+  --space-5xl: 4rem;        /* 64px */
+  
+  /* === Typography === */
+  
+  /* Font Families */
+  --font-sans: 'Inter', 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  
+  /* Font Sizes */
+  --text-xs: 0.75rem;       /* 12px */
+  --text-sm: 0.875rem;      /* 14px */
+  --text-base: 1rem;        /* 16px */
+  --text-lg: 1.125rem;      /* 18px */
+  --text-xl: 1.25rem;       /* 20px */
+  --text-2xl: 1.5rem;       /* 24px */
+  --text-3xl: 2rem;         /* 32px */
+  --text-4xl: 2.5rem;       /* 40px */
+  --text-5xl: 3rem;         /* 48px */
+  --text-6xl: 4rem;         /* 64px */
+  
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-black: 900;
+  
+  /* Line Heights */
+  --leading-tight: 1.2;
+  --leading-snug: 1.4;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.6;
+  --leading-loose: 1.8;
+  
+  /* === Border Radius === */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+  
+  /* === Shadows === */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-glow-primary: 0 0 20px var(--color-primary-glow), 0 0 40px rgba(233, 69, 96, 0.3);
+  --shadow-glow-subtle: 0 4px 16px var(--color-primary-glow);
+  
+  /* === Transitions === */
+  --transition-fast: 150ms ease-in-out;
+  --transition-base: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+  
+  /* === Z-Index Scale === */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 500;
+  --z-modal: 1000;
+  --z-toast: 2000;
+  
+  /* === Component Specific === */
+  
+  /* Cards */
+  --card-bg: var(--color-bg-surface);
+  --card-border: var(--color-border-default);
+  --card-border-hover: var(--color-border-focus);
+  --card-padding: var(--space-xl);
+  --card-radius: var(--radius-xl);
+  
+  /* Panels */
+  --panel-bg: var(--color-bg-surface);
+  --panel-border: var(--color-border-default);
+  --panel-padding: var(--space-xl);
+  
+  /* Buttons */
+  --button-radius: var(--radius-lg);
+  --button-padding-x: var(--space-xl);
+  --button-padding-y: var(--space-md);
+  
+  /* Score Indicators */
+  --score-critical: var(--color-danger);
+  --score-low: var(--color-warning);
+  --score-medium: var(--color-info);
+  --score-high: var(--color-success);
+  
+  /* Stakeholder Satisfaction */
+  --satisfaction-critical: var(--color-danger);
+  --satisfaction-concerned: var(--color-warning);
+  --satisfaction-neutral: var(--color-info);
+  --satisfaction-supportive: var(--color-success);
+}
+
+/* === Utility Classes === */
+
+/* Background Gradients */
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--color-bg-darkest) 0%, var(--color-bg-dark) 50%, var(--color-bg-medium) 100%);
+}
+
+/* Text Utilities */
+.text-glow {
+  text-shadow: var(--shadow-glow-primary);
+}
+
+/* Card Base */
+.card-base {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  transition: all var(--transition-slow);
+}
+
+.card-base:hover {
+  border-color: var(--card-border-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Panel Base */
+.panel-base {
+  background: var(--panel-bg);
+  border: 2px solid var(--panel-border);
+  border-radius: var(--radius-xl);
+  padding: var(--panel-padding);
+}
+
+/* Badge Base */
+.badge-base {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+/* Status Badge Variants */
+.badge-success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.badge-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.badge-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.badge-info {
+  background: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  :root {
+    --card-padding: var(--space-lg);
+    --panel-padding: var(--space-lg);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --text-3xl: 1.75rem;
+    --text-4xl: 2rem;
+    --text-5xl: 2.5rem;
+  }
+}

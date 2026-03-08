@@ -5,45 +5,66 @@
     
     <div class="welcome-container">
       <div class="hero-section">
-        <div class="logo-placeholder">
-          <!-- Future: Hero artwork/illustration goes here -->
-          <div class="logo-text">DDDnD</div>
+        <!-- Logo / Hero Visual Area -->
+        <div class="hero-visual">
+          <!-- Future: Hero artwork/illustration slot -->
+          <div class="logo-container">
+            <div class="logo-text">DDDnD</div>
+            <div class="logo-subtitle">Domain-Driven Design nD</div>
+          </div>
         </div>
         
-        <h1 class="title">Domain-Driven Design nD</h1>
-        
-        <p class="tagline">
-          A narrative simulation about making architectural decisions in legacy software systems
-        </p>
-        
-        <div class="intro-text">
-          <p>
-            You inherit a struggling codebase where every change touches everything. 
-            As the systems architect, you must balance domain clarity, delivery speed, 
-            stakeholder satisfaction, and developer morale—all before time runs out.
-          </p>
-          <p>
-            Every decision involves tradeoffs. Every card has consequences. 
-            Can you refactor the monolith before it collapses?
-          </p>
-        </div>
-        
-        <div class="cta-section">
-          <button class="start-button" @click="goToSetup">
-            Start Game
-          </button>
+        <!-- Hero Content -->
+        <div class="hero-content">
+          <h1 class="hero-title">Refactor the Monolith. Save the System.</h1>
           
-          <div class="secondary-links">
-            <button class="text-button" @click="gameStore.openAboutModal">
-              What is this?
+          <p class="hero-tagline">
+            A narrative simulation about architectural decisions, technical debt, 
+            and the humans who manage both
+          </p>
+          
+          <div class="hero-description">
+            <div class="description-card">
+              <p>
+                You inherit a struggling codebase where every change touches everything. 
+                As the systems architect, you must balance domain clarity, delivery speed, 
+                stakeholder satisfaction, and developer morale—all before time runs out.
+              </p>
+              <p class="description-emphasis">
+                Every decision involves tradeoffs. Every card has consequences. 
+                Can you refactor the monolith before it collapses?
+              </p>
+            </div>
+          </div>
+          
+          <!-- CTA Section -->
+          <div class="cta-section">
+            <button class="btn-start-game" @click="goToSetup">
+              <span class="btn-icon">🎲</span>
+              <span class="btn-text">Start Your Journey</span>
             </button>
-            <span class="separator">·</span>
-            <button class="text-button" @click="gameStore.openRulesModal">
-              Rules
-            </button>
+            
+            <div class="helper-links">
+              <button class="link-button" @click="gameStore.openAboutModal">
+                <span class="link-icon">ℹ️</span>
+                What is this?
+              </button>
+              <span class="link-separator">•</span>
+              <button class="link-button" @click="gameStore.openRulesModal">
+                <span class="link-icon">📖</span>
+                How to play
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      
+      <!-- Footer attribution -->
+      <footer class="welcome-footer">
+        <p class="footer-text">
+          A playful exploration of software architecture patterns and tradeoffs
+        </p>
+      </footer>
     </div>
   </div>
 </template>
@@ -65,176 +86,312 @@ function goToSetup() {
 <style scoped>
 .welcome-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0c29 0%, #16213e 50%, #1a1a2e 100%);
+  background: linear-gradient(135deg, 
+    var(--color-bg-darkest) 0%, 
+    var(--color-bg-dark) 50%, 
+    var(--color-bg-medium) 100%
+  );
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: var(--space-2xl);
+  position: relative;
 }
 
 .welcome-container {
-  max-width: 800px;
+  max-width: 900px;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xl);
 }
 
 .hero-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xl);
   text-align: center;
 }
 
-.logo-placeholder {
-  margin-bottom: 2rem;
+/* Hero Visual / Logo */
+.hero-visual {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 160px;
+  min-height: 180px;
+  position: relative;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  animation: fadeInUp 0.8s ease-out;
 }
 
 .logo-text {
-  font-size: 5rem;
-  font-weight: 900;
-  color: #e94560;
-  text-shadow: 
-    0 0 20px rgba(233, 69, 96, 0.5),
-    0 0 40px rgba(233, 69, 96, 0.3);
+  font-size: clamp(3.5rem, 8vw, 6rem);
+  font-weight: var(--font-black);
+  color: var(--color-primary);
+  text-shadow: var(--shadow-glow-primary);
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.logo-subtitle {
+  font-size: var(--text-xl);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-medium);
   letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.9;
 }
 
-.title {
-  font-size: 2.5rem;
-  color: #e0e0e0;
-  margin: 0 0 1rem 0;
-  font-weight: 700;
+/* Hero Content */
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl);
+  animation: fadeInUp 1s ease-out 0.2s both;
 }
 
-.tagline {
-  font-size: 1.25rem;
-  color: #8b92a8;
-  margin: 0 0 2rem 0;
+.hero-title {
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  color: var(--color-text-bright);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+  margin: 0;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.hero-tagline {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
   font-style: italic;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.intro-text {
-  background: rgba(22, 33, 62, 0.6);
-  border-radius: 12px;
-  padding: 2rem;
-  margin: 2rem 0;
-  border: 2px solid rgba(233, 69, 96, 0.2);
+.hero-description {
+  max-width: 750px;
+  margin: 0 auto;
 }
 
-.intro-text p {
-  color: #e0e0e0;
-  line-height: 1.7;
-  margin: 0 0 1rem 0;
-  font-size: 1.05rem;
+.description-card {
+  background: var(--card-bg);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
 }
 
-.intro-text p:last-child {
+.description-card p {
+  color: var(--color-text-primary);
+  line-height: var(--leading-relaxed);
+  margin: 0 0 var(--space-lg) 0;
+  font-size: var(--text-base);
+}
+
+.description-card p:last-child {
   margin-bottom: 0;
 }
 
-.cta-section {
-  margin-top: 2.5rem;
+.description-emphasis {
+  color: var(--color-text-bright);
+  font-weight: var(--font-semibold);
 }
 
-.start-button {
-  background: #e94560;
-  color: white;
+/* CTA Section */
+.cta-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xl);
+  margin-top: var(--space-lg);
+}
+
+.btn-start-game {
+  background: var(--color-primary);
+  color: var(--color-text-bright);
   border: none;
-  padding: 1rem 3rem;
-  font-size: 1.25rem;
-  font-weight: 700;
-  border-radius: 8px;
+  padding: var(--space-lg) var(--space-4xl);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  border-radius: var(--button-radius);
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 16px rgba(233, 69, 96, 0.4);
+  transition: all var(--transition-slow);
+  box-shadow: 0 4px 16px var(--color-primary-glow);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-md);
+  position: relative;
+  overflow: hidden;
 }
 
-.start-button:hover {
-  background: #d63851;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px rgba(233, 69, 96, 0.6);
+.btn-start-game::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
 }
 
-.start-button:active {
-  transform: translateY(0);
+.btn-start-game:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
-.secondary-links {
-  margin-top: 1.5rem;
+.btn-start-game:hover {
+  background: var(--color-primary-light);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 24px var(--color-primary-glow);
+}
+
+.btn-start-game:active {
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  font-size: var(--text-2xl);
+  position: relative;
+  z-index: 1;
+}
+
+.btn-text {
+  position: relative;
+  z-index: 1;
+}
+
+.helper-links {
   display: flex;
   align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
   justify-content: center;
-  gap: 0.5rem;
 }
 
-.text-button {
+.link-button {
   background: none;
   border: none;
-  color: #8b92a8;
-  font-size: 1rem;
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
   cursor: pointer;
-  transition: color 0.2s;
-  text-decoration: underline;
+  transition: color var(--transition-base);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
 }
 
-.text-button:hover {
-  color: #e94560;
+.link-button:hover {
+  color: var(--color-primary);
+  background: var(--color-bg-overlay);
 }
 
-.separator {
-  color: #8b92a8;
+.link-icon {
+  font-size: var(--text-lg);
+}
+
+.link-separator {
+  color: var(--color-text-muted);
   user-select: none;
 }
 
+/* Footer */
+.welcome-footer {
+  text-align: center;
+  padding-top: var(--space-2xl);
+  border-top: 1px solid var(--color-border-default);
+  animation: fadeIn 1.2s ease-out 0.4s both;
+}
+
+.footer-text {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-style: italic;
+  margin: 0;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .welcome-view {
-    padding: 1rem;
+    padding: var(--space-xl);
   }
   
-  .logo-text {
-    font-size: 3.5rem;
+  .hero-visual {
+    min-height: 140px;
   }
   
-  .title {
-    font-size: 2rem;
+  .description-card {
+    padding: var(--space-xl);
   }
   
-  .tagline {
-    font-size: 1.1rem;
-  }
-  
-  .intro-text {
-    padding: 1.5rem;
-  }
-  
-  .intro-text p {
-    font-size: 1rem;
-  }
-  
-  .start-button {
-    font-size: 1.1rem;
-    padding: 0.875rem 2.5rem;
+  .description-card p {
+    font-size: var(--text-sm);
   }
 }
 
 @media (max-width: 480px) {
-  .logo-text {
-    font-size: 2.5rem;
+  .welcome-view {
+    padding: var(--space-lg);
   }
   
-  .title {
-    font-size: 1.5rem;
+  .hero-section {
+    gap: var(--space-2xl);
   }
   
-  .tagline {
-    font-size: 1rem;
+  .hero-content {
+    gap: var(--space-xl);
   }
   
-  .start-button {
+  .btn-start-game {
     width: 100%;
-    max-width: 320px;
+    max-width: 340px;
+    padding: var(--space-lg) var(--space-2xl);
+    font-size: var(--text-lg);
+  }
+  
+  .helper-links {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .link-separator {
+    display: none;
   }
 }
 </style>

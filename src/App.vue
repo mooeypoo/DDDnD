@@ -9,6 +9,8 @@ import { RouterView } from 'vue-router'
 </script>
 
 <style>
+@import './ui/styles/design-system.css';
+
 * {
   box-sizing: border-box;
 }
@@ -23,8 +25,29 @@ body,
 }
 
 body {
-  font-family: 'Inter', 'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-  background: #0f0c29;
-  color: #e0e0e0;
+  font-family: var(--font-sans);
+  background: var(--color-bg-darkest);
+  color: var(--color-text-primary);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Improved default heading styles */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  font-weight: var(--font-bold);
+  line-height: var(--leading-tight);
+}
+
+/* Improved focus styles */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 </style>

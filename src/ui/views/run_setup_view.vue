@@ -4,38 +4,61 @@
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
     
     <div class="setup-container">
-      <div class="setup-header">
-        <h1>Prepare Your Run</h1>
-        <p class="subtitle">Choose your role and prepare to face the architectural chaos</p>
-      </div>
+      <!-- Header -->
+      <header class="setup-header">
+        <h1 class="setup-title">Prepare Your Run</h1>
+        <p class="setup-subtitle">Choose your role and prepare to face the architectural chaos</p>
+      </header>
       
       <div class="setup-content">
         <!-- Scenario Info (MVP has only one scenario) -->
-        <div class="section scenario-section">
-          <h2>Scenario</h2>
+        <section class="setup-section scenario-section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <span class="section-icon">🏛️</span>
+              Scenario
+            </h2>
+          </div>
+          
           <div class="scenario-card">
-            <h3>The Monolith of Mild Despair</h3>
+            <div class="scenario-badge">Single Player Campaign</div>
+            <h3 class="scenario-name">The Monolith of Mild Despair</h3>
             <p class="scenario-description">
               A legacy monolith is slowing delivery and blurring domain boundaries. 
-              You inherit a codebase where every change touches everything.
+              You inherit a codebase where every change touches everything. 
+              Can you bring order to the chaos before time runs out?
             </p>
-            <div class="scenario-meta">
-              <span class="meta-item">8 turns</span>
-              <span class="meta-separator">·</span>
-              <span class="meta-item">4 stakeholders</span>
-              <span class="meta-separator">·</span>
-              <span class="meta-item">10 action cards</span>
+            
+            <div class="scenario-stats">
+              <div class="stat-item">
+                <span class="stat-icon">🎯</span>
+                <span class="stat-label">8 Turns</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">👥</span>
+                <span class="stat-label">4 Stakeholders</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-icon">🎴</span>
+                <span class="stat-label">10 Action Cards</span>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
         
         <!-- Class Selection -->
-        <div class="section class-section">
-          <h2>Choose Your Class</h2>
-          <p class="section-hint">Classes are cosmetic for MVP, but shape your identity</p>
+        <section class="setup-section class-section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <span class="section-icon">⚔️</span>
+              Choose Your Class
+            </h2>
+            <p class="section-hint">Your architectural archetype (cosmetic for MVP)</p>
+          </div>
           
           <div v-if="isLoadingClasses" class="loading-state">
-            Loading classes...
+            <div class="loading-spinner"></div>
+            <p>Loading classes...</p>
           </div>
           
           <div v-else class="class-grid">
@@ -46,20 +69,36 @@
               :class="{ selected: selectedClass?.id === classOption.id }"
               @click="selectClass(classOption)"
             >
-              <div class="class-icon">
-                <!-- Future: Class icon/image -->
-                {{ classOption.name.charAt(0) }}
+              <div class="class-visual">
+                <!-- Future: Class icon/illustration slot -->
+                <div class="class-icon-placeholder">
+                  <span class="class-initial">{{ classOption.name.charAt(0) }}</span>
+                </div>
               </div>
-              <h3>{{ classOption.name }}</h3>
-              <p>{{ classOption.description }}</p>
-              <p class="class-flavor">{{ classOption.flavor_text }}</p>
+              
+              <div class="class-info">
+                <h3 class="class-name">{{ classOption.name }}</h3>
+                <p class="class-description">{{ classOption.description }}</p>
+                <p class="class-flavor">{{ classOption.flavor_text }}</p>
+              </div>
+              
+              <div v-if="selectedClass?.id === classOption.id" class="selected-indicator">
+                ✓ Selected
+              </div>
             </button>
           </div>
-        </div>
+        </section>
         
         <!-- Optional Character Name -->
-        <div class="section name-section">
-          <h2>Character Name (Optional)</h2>
+        <section class="setup-section name-section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <span class="section-icon">✏️</span>
+              Character Name
+            </h2>
+            <p class="section-hint">Optional - Give your architect a name</p>
+          </div>
+          
           <input 
             v-model="characterName"
             type="text"
@@ -67,33 +106,40 @@
             placeholder="The Desperate Architect"
             maxlength="50"
           />
-        </div>
+        </section>
         
         <!-- Action Buttons -->
         <div class="actions-section">
-          <button class="secondary-button" @click="goBack">
-            Back
+          <button class="btn-secondary" @click="goBack">
+            <span class="btn-icon">←</span>
+            <span>Back</span>
           </button>
           
           <button 
-            class="primary-button" 
+            class="btn-primary" 
             :disabled="!selectedClass || gameStore.isLoadingBundle"
             @click="startRun"
           >
-            {{ gameStore.isLoadingBundle ? 'Loading...' : 'Begin the Journey' }}
+            <span class="btn-text">
+              {{ gameStore.isLoadingBundle ? 'Loading...' : 'Begin the Journey' }}
+            </span>
+            <span v-if="!gameStore.isLoadingBundle" class="btn-icon">→</span>
           </button>
         </div>
       </div>
       
-      <div class="setup-footer">
-        <button class="text-button" @click="gameStore.openAboutModal">
+      <!-- Footer Links -->
+      <footer class="setup-footer">
+        <button class="link-button" @click="gameStore.openAboutModal">
+          <span class="link-icon">ℹ️</span>
           What is this?
         </button>
-        <span class="separator">·</span>
-        <button class="text-button" @click="gameStore.openRulesModal">
+        <span class="link-separator">•</span>
+        <button class="link-button" @click="gameStore.openRulesModal">
+          <span class="link-icon">📖</span>
           Rules
         </button>
-      </div>
+      </footer>
     </div>
   </div>
 </template>
@@ -152,249 +198,419 @@ async function startRun() {
 <style scoped>
 .run-setup-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0c29 0%, #16213e 50%, #1a1a2e 100%);
-  padding: 2rem;
+  background: linear-gradient(135deg, 
+    var(--color-bg-darkest) 0%, 
+    var(--color-bg-dark) 50%, 
+    var(--color-bg-medium) 100%
+  );
+  padding: var(--space-2xl);
 }
 
 .setup-container {
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3xl);
 }
 
+/* Header */
 .setup-header {
   text-align: center;
-  margin-bottom: 3rem;
+  animation: fadeInUp 0.6s ease-out;
 }
 
-.setup-header h1 {
-  font-size: 2.5rem;
-  color: #e94560;
-  margin: 0 0 0.5rem 0;
+.setup-title {
+  font-size: var(--text-4xl);
+  color: var(--color-primary);
+  margin: 0 0 var(--space-md) 0;
+  font-weight: var(--font-black);
+  text-shadow: var(--shadow-glow-subtle);
 }
 
-.subtitle {
-  color: #8b92a8;
-  font-size: 1.1rem;
+.setup-subtitle {
+  color: var(--color-text-secondary);
+  font-size: var(--text-lg);
   margin: 0;
+  font-style: italic;
 }
 
+/* Content */
 .setup-content {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--space-3xl);
+  animation: fadeInUp 0.8s ease-out 0.2s both;
 }
 
-.section h2 {
-  color: #e94560;
-  font-size: 1.5rem;
-  margin: 0 0 1rem 0;
+.setup-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.section-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.section-title {
+  color: var(--color-text-bright);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.section-icon {
+  font-size: var(--text-3xl);
 }
 
 .section-hint {
-  color: #8b92a8;
-  font-size: 0.95rem;
-  margin: -0.5rem 0 1rem 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  margin: 0;
+  font-style: italic;
 }
 
+/* Scenario Card */
 .scenario-card {
-  background: rgba(22, 33, 62, 0.6);
-  border: 2px solid rgba(233, 69, 96, 0.3);
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: var(--card-bg);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
 }
 
-.scenario-card h3 {
-  color: #e0e0e0;
-  font-size: 1.5rem;
-  margin: 0 0 0.75rem 0;
+.scenario-badge {
+  display: inline-block;
+  background: var(--color-primary-dark);
+  color: var(--color-text-bright);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-lg);
+}
+
+.scenario-name {
+  color: var(--color-text-bright);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin: 0 0 var(--space-lg) 0;
 }
 
 .scenario-description {
-  color: #c0c0c0;
-  line-height: 1.6;
-  margin: 0 0 1rem 0;
+  color: var(--color-text-primary);
+  line-height: var(--leading-relaxed);
+  margin: 0 0 var(--space-xl) 0;
+  font-size: var(--text-base);
 }
 
-.scenario-meta {
+.scenario-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  color: #8b92a8;
-  font-size: 0.9rem;
+  gap: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-border-default);
 }
 
-.meta-separator {
-  user-select: none;
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
 }
 
+.stat-icon {
+  font-size: var(--text-lg);
+}
+
+/* Loading State */
 .loading-state {
   text-align: center;
-  padding: 2rem;
-  color: #8b92a8;
+  padding: var(--space-4xl);
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
 }
 
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border-default);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Class Grid */
 .class-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-lg);
 }
 
 .class-card {
-  background: rgba(22, 33, 62, 0.6);
-  border: 2px solid rgba(139, 146, 168, 0.3);
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all var(--transition-slow);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.class-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  border-radius: var(--radius-xl);
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+  z-index: -1;
 }
 
 .class-card:hover {
-  border-color: rgba(233, 69, 96, 0.5);
+  border-color: var(--card-border-hover);
   transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(233, 69, 96, 0.2);
+  box-shadow: var(--shadow-lg);
 }
 
 .class-card.selected {
-  border-color: #e94560;
-  background: rgba(233, 69, 96, 0.1);
-  box-shadow: 0 4px 16px rgba(233, 69, 96, 0.3);
+  border-color: var(--color-primary);
+  background: var(--color-danger-bg);
+  box-shadow: 0 4px 20px var(--color-primary-glow);
 }
 
-.class-icon {
-  width: 60px;
-  height: 60px;
+.class-visual {
+  margin-bottom: var(--space-lg);
+}
+
+.class-icon-placeholder {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: rgba(233, 69, 96, 0.2);
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  font-weight: 700;
-  color: #e94560;
-  margin: 0 auto 1rem auto;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
+  transition: transform var(--transition-slow);
 }
 
-.class-card h3 {
-  color: #e0e0e0;
-  font-size: 1.1rem;
-  margin: 0 0 0.5rem 0;
+.class-card:hover .class-icon-placeholder {
+  transform: scale(1.1);
 }
 
-.class-card p {
-  color: #c0c0c0;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  margin: 0 0 0.5rem 0;
+.class-initial {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-black);
+  color: var(--color-text-bright);
+}
+
+.class-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.class-name {
+  color: var(--color-text-bright);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  margin: 0;
+}
+
+.class-description {
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  margin: 0;
 }
 
 .class-flavor {
-  color: #8b92a8 !important;
+  color: var(--color-text-secondary);
   font-style: italic;
-  font-size: 0.85rem !important;
+  font-size: var(--text-xs);
+  margin: 0;
+  line-height: var(--leading-snug);
 }
 
+.selected-indicator {
+  margin-top: var(--space-md);
+  padding: var(--space-sm);
+  background: var(--color-primary);
+  color: var(--color-text-bright);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+}
+
+/* Name Input */
 .name-input {
   width: 100%;
-  max-width: 400px;
-  padding: 0.75rem 1rem;
-  background: rgba(22, 33, 62, 0.6);
-  border: 2px solid rgba(139, 146, 168, 0.3);
-  border-radius: 8px;
-  color: #e0e0e0;
-  font-size: 1rem;
-  transition: border-color 0.2s;
+  max-width: 500px;
+  padding: var(--space-lg) var(--space-xl);
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  font-size: var(--text-base);
+  transition: all var(--transition-base);
+  font-family: var(--font-sans);
 }
 
 .name-input:focus {
   outline: none;
-  border-color: #e94560;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-danger-bg);
 }
 
 .name-input::placeholder {
-  color: #8b92a8;
+  color: var(--color-text-secondary);
 }
 
+/* Action Buttons */
 .actions-section {
   display: flex;
-  gap: 1rem;
+  gap: var(--space-lg);
   justify-content: center;
-  margin-top: 1rem;
+  align-items: center;
+  margin-top: var(--space-lg);
+  flex-wrap: wrap;
 }
 
-.primary-button,
-.secondary-button {
-  padding: 0.875rem 2rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 8px;
+.btn-primary,
+.btn-secondary {
+  padding: var(--space-lg) var(--space-3xl);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  border-radius: var(--button-radius);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--transition-slow);
   border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-md);
+  font-family: var(--font-sans);
 }
 
-.primary-button {
-  background: #e94560;
-  color: white;
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-text-bright);
+  box-shadow: 0 4px 12px var(--color-primary-glow);
 }
 
-.primary-button:hover:not(:disabled) {
-  background: #d63851;
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-light);
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--color-primary-glow);
 }
 
-.primary-button:disabled {
-  background: #5a5a6e;
+.btn-primary:disabled {
+  background: var(--color-text-muted);
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
 }
 
-.secondary-button {
-  background: rgba(139, 146, 168, 0.2);
-  color: #e0e0e0;
-  border: 2px solid rgba(139, 146, 168, 0.3);
+.btn-secondary {
+  background: var(--color-bg-overlay);
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-border-default);
 }
 
-.secondary-button:hover {
-  background: rgba(139, 146, 168, 0.3);
-  border-color: rgba(139, 146, 168, 0.5);
+.btn-secondary:hover {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-focus);
 }
 
+.btn-icon {
+  font-size: var(--text-xl);
+}
+
+/* Footer */
 .setup-footer {
-  margin-top: 2rem;
   text-align: center;
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-border-default);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: var(--space-md);
+  flex-wrap: wrap;
 }
 
-.text-button {
+.link-button {
   background: none;
   border: none;
-  color: #8b92a8;
-  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
   cursor: pointer;
-  transition: color 0.2s;
-  text-decoration: underline;
+  transition: color var(--transition-base);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
 }
 
-.text-button:hover {
-  color: #e94560;
+.link-button:hover {
+  color: var(--color-primary);
+  background: var(--color-bg-overlay);
 }
 
-.separator {
-  color: #8b92a8;
+.link-icon {
+  font-size: var(--text-base);
+}
+
+.link-separator {
+  color: var(--color-text-muted);
   user-select: none;
 }
 
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .run-setup-view {
-    padding: 1rem;
+    padding: var(--space-xl);
   }
   
-  .setup-header h1 {
-    font-size: 2rem;
+  .setup-title {
+    font-size: var(--text-3xl);
   }
   
   .class-grid {
@@ -402,12 +618,25 @@ async function startRun() {
   }
   
   .actions-section {
-    flex-direction: column;
+    flex-direction: column-reverse;
+    width: 100%;
   }
   
-  .primary-button,
-  .secondary-button {
+  .btn-primary,
+  .btn-secondary {
     width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .run-setup-view {
+    padding: var(--space-lg);
+  }
+  
+  .scenario-stats {
+    flex-direction: column;
+    gap: var(--space-md);
   }
 }
 </style>

@@ -4,111 +4,152 @@
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
     
     <div class="end-container">
-      <div class="outcome-main">
-        <!-- Outcome Header -->
-        <div class="outcome-header">
-          <h1 class="outcome-title">Run Complete</h1>
-          <div v-if="outcome" class="outcome-tier" :class="outcome.tier">
-            {{ formatTier(outcome.tier) }}
+      <!-- Outcome Hero -->
+      <div class="outcome-hero">
+        <div class="hero-decoration">
+          <!-- Future: Celebratory artwork slot -->
+          <div class="celebration-icon">🎊</div>
+        </div>
+        
+        <h1 class="outcome-title">Journey Complete</h1>
+        
+        <div v-if="outcome" class="outcome-tier-badge" :class="getTierClass(outcome.tier)">
+          <span class="tier-label">{{ formatTier(outcome.tier) }}</span>
+        </div>
+      </div>
+      
+      <!-- Archetype Display -->
+      <div v-if="outcome" class="archetype-card">
+        <div class="archetype-visual">
+          <!-- Future: Archetype illustration slot -->
+          <div class="archetype-icon-wrapper">
+            <span class="archetype-icon">{{ getArchetypeIcon(outcome.archetype) }}</span>
           </div>
         </div>
         
-        <!-- Archetype Display -->
-        <div v-if="outcome" class="archetype-section">
-          <div class="archetype-icon-placeholder">
-            <!-- Future: Archetype illustration -->
-            <div class="archetype-icon">{{ getArchetypeIcon(outcome.archetype) }}</div>
-          </div>
-          
+        <div class="archetype-content">
+          <div class="archetype-label">Your Archetype</div>
           <h2 class="archetype-name">{{ formatArchetype(outcome.archetype) }}</h2>
           <p class="archetype-description">
             {{ getArchetypeDescription(outcome.archetype) }}
           </p>
         </div>
+      </div>
+      
+      <!-- Run Summary Stats -->
+      <div class="summary-card">
+        <h3 class="card-title">
+          <span class="title-icon">📊</span>
+          Run Summary
+        </h3>
         
-        <!-- Run Summary -->
-        <div class="summary-section">
-          <h3 class="section-title">Run Summary</h3>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-label">Turns Completed</div>
+            <div class="stat-value">{{ outcome?.turns_completed || 0 }}<span class="stat-max">/{{ outcome?.max_turns || 0 }}</span></div>
+          </div>
           
-          <div class="summary-grid">
-            <div class="summary-item">
-              <div class="summary-label">Turns Completed</div>
-              <div class="summary-value">{{ outcome?.turns_completed || 0 }} / {{ outcome?.max_turns || 0 }}</div>
-            </div>
-            
-            <div class="summary-item">
-              <div class="summary-label">Average Score</div>
-              <div class="summary-value">{{ Math.round(outcome?.score_average || 0) }}</div>
-            </div>
-            
-            <div class="summary-item">
-              <div class="summary-label">Completion</div>
-              <div class="summary-value">{{ formatCompletionReason(outcome?.completion_reason) }}</div>
-            </div>
+          <div class="stat-box">
+            <div class="stat-label">Avg. Score</div>
+            <div class="stat-value">{{ Math.round(outcome?.score_average || 0) }}</div>
           </div>
-        </div>
-        
-        <!-- Final Scores -->
-        <div v-if="gameStore.gameState" class="scores-section">
-          <h3 class="section-title">Final Scores</h3>
-          <div class="final-scores-grid">
-            <div 
-              v-for="(value, scoreId) in gameStore.gameState.scores" 
-              :key="scoreId"
-              class="final-score-item"
-            >
-              <div class="score-name">{{ formatScoreName(scoreId) }}</div>
-              <div class="score-bar">
-                <div class="score-fill" :class="getScoreClass(value)" :style="{ width: value + '%' }"></div>
-              </div>
-              <div class="score-value">{{ Math.round(value) }}</div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Stakeholder Final State -->
-        <div v-if="gameStore.gameState" class="stakeholders-section">
-          <h3 class="section-title">Stakeholder Relations</h3>
-          <div class="stakeholders-grid">
-            <div 
-              v-for="(data, stakeholderId) in gameStore.gameState.stakeholders" 
-              :key="stakeholderId"
-              class="stakeholder-final-item"
-            >
-              <div class="stakeholder-name">{{ formatStakeholderName(stakeholderId) }}</div>
-              <div class="stakeholder-satisfaction" :class="getSatisfactionClass(data.satisfaction)">
-                {{ Math.round(data.satisfaction) }} - {{ getSatisfactionLabel(data.satisfaction) }}
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Share Placeholder -->
-        <div class="share-section">
-          <h3 class="section-title">Share Your Journey</h3>
-          <div class="share-placeholder">
-            <p>Share functionality coming soon!</p>
-            <p class="share-hint">Export and sharing features will be added in a future update.</p>
-          </div>
-        </div>
-        
-        <!-- Actions -->
-        <div class="actions-section">
-          <button class="secondary-button" @click="goHome">
-            Return Home
-          </button>
           
-          <button class="primary-button" @click="playAgain">
-            Play Again
-          </button>
-        </div>
-
-        <div class="footer-links">
-          <button class="text-button" @click="gameStore.openAboutModal">What is this?</button>
-          <span class="separator">·</span>
-          <button class="text-button" @click="gameStore.openRulesModal">Rules</button>
+          <div class="stat-box">
+            <div class="stat-label">Completion</div>
+            <div class="stat-value stat-completion">{{ formatCompletionReason(outcome?.completion_reason) }}</div>
+          </div>
         </div>
       </div>
+      
+      <!-- Final Scores -->
+      <div v-if="gameStore.gameState" class="scores-card">
+        <h3 class="card-title">
+          <span class="title-icon">📈</span>
+          Final System Health
+        </h3>
+        
+        <div class="scores-list">
+          <div 
+            v-for="(value, scoreId) in gameStore.gameState.scores" 
+            :key="scoreId"
+            class="score-row"
+          >
+            <div class="score-header">
+              <span class="score-name">{{ formatScoreName(scoreId) }}</span>
+              <span class="score-value" :class="getScoreClass(value)">{{ Math.round(value) }}</span>
+            </div>
+            <div class="score-bar">
+              <div class="score-fill" :class="getScoreClass(value)" :style="{ width: value + '%' }"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Stakeholder Final State -->
+      <div v-if="gameStore.gameState" class="stakeholders-card">
+        <h3 class="card-title">
+          <span class="title-icon">👥</span>
+          Stakeholder Relations
+        </h3>
+        
+        <div class="stakeholders-list">
+          <div 
+            v-for="(data, stakeholderId) in gameStore.gameState.stakeholders" 
+            :key="stakeholderId"
+            class="stakeholder-row"
+          >
+            <div class="stakeholder-info">
+              <span class="stakeholder-name">{{ formatStakeholderName(stakeholderId) }}</span>
+              <span class="stakeholder-label" :class="getSatisfactionClass(data.satisfaction)">
+                {{ getSatisfactionLabel(data.satisfaction) }}
+              </span>
+            </div>
+            <div class="stakeholder-value" :class="getSatisfactionClass(data.satisfaction)">
+              {{ Math.round(data.satisfaction) }}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Share Placeholder -->
+      <div class="share-card">
+        <h3 class="card-title">
+          <span class="title-icon">📤</span>
+          Share Your Journey
+        </h3>
+        
+        <div class="share-placeholder">
+          <div class="placeholder-icon">🔗</div>
+          <p class="placeholder-text">Sharing functionality coming soon!</p>
+          <p class="placeholder-hint">Export and share your architectural journey with others</p>
+        </div>
+      </div>
+      
+      <!-- Actions -->
+      <div class="actions-area">
+        <button class="btn-secondary" @click="goHome">
+          <span class="btn-icon">🏠</span>
+          <span>Return Home</span>
+        </button>
+        
+        <button class="btn-primary" @click="playAgain">
+          <span class="btn-text">Play Again</span>
+          <span class="btn-icon">🔄</span>
+        </button>
+      </div>
+
+      <!-- Footer Links -->
+      <footer class="footer-links">
+        <button class="link-button" @click="gameStore.openAboutModal">
+          <span class="link-icon">ℹ️</span>
+          What is this?
+        </button>
+        <span class="link-separator">•</span>
+        <button class="link-button" @click="gameStore.openRulesModal">
+          <span class="link-icon">📖</span>
+          Rules
+        </button>
+      </footer>
     </div>
   </div>
 </template>
@@ -142,6 +183,10 @@ function formatTier(tier: string): string {
   return tier.charAt(0).toUpperCase() + tier.slice(1)
 }
 
+function getTierClass(tier: string): string {
+  return `tier-${tier.replace('_', '-')}`
+}
+
 function formatArchetype(archetype: OutcomeArchetypeId): string {
   return archetype
     .split('_')
@@ -162,22 +207,22 @@ function getArchetypeIcon(archetype: OutcomeArchetypeId): string {
 
 function getArchetypeDescription(archetype: OutcomeArchetypeId): string {
   const descriptions: Record<OutcomeArchetypeId, string> = {
-    'boundary_builder': 'You focused on establishing clear domain boundaries and architectural structure.',
-    'firefighter': 'You responded to immediate crises and kept the system running under pressure.',
-    'runaway_refactorer': 'You pursued aggressive refactoring, sometimes at the cost of delivery speed.',
-    'stakeholder_whisperer': 'You skillfully navigated organizational politics and stakeholder relationships.',
-    'system_stabilizer': 'You brought balance and stability to a chaotic system.'
+    'boundary_builder': 'You focused on establishing clear domain boundaries and architectural structure, laying the foundation for sustainable growth.',
+    'firefighter': 'You responded swiftly to immediate crises and kept the system running under pressure, saving the day when it mattered most.',
+    'runaway_refactorer': 'You pursued aggressive refactoring and technical excellence, sometimes at the cost of delivery speed.',
+    'stakeholder_whisperer': 'You skillfully navigated organizational politics and stakeholder relationships, building consensus for change.',
+    'system_stabilizer': 'You brought balance and stability to a chaotic system, carefully managing competing priorities.'
   }
-  return descriptions[archetype] || 'Your architectural journey was unique.'
+  return descriptions[archetype] || 'Your architectural journey was unique and shaped by the choices you made.'
 }
 
 function formatCompletionReason(reason?: string): string {
   if (!reason) return 'Unknown'
   
   const formatted: Record<string, string> = {
-    'max_turns': 'Max Turns',
+    'max_turns': 'Time Limit',
     'success': 'Victory',
-    'failure': 'System Collapse'
+    'failure': 'Collapse'
   }
   
   return formatted[reason] || reason
@@ -232,349 +277,545 @@ function playAgain() {
 <style scoped>
 .end-of-run-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, #0f0c29 0%, #16213e 50%, #1a1a2e 100%);
-  padding: 2rem;
+  background: linear-gradient(135deg, 
+    var(--color-bg-darkest) 0%, 
+    var(--color-bg-dark) 50%, 
+    var(--color-bg-medium) 100%
+  );
+  padding: var(--space-3xl) var(--space-2xl);
 }
 
 .end-container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
-}
-
-.outcome-main {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: var(--space-2xl);
+  animation: fadeInUp 0.6s ease-out;
 }
 
-.outcome-header {
+/* Outcome Hero */
+.outcome-hero {
   text-align: center;
-  padding: 2rem;
-  background: rgba(22, 33, 62, 0.6);
-  border-radius: 12px;
-  border: 2px solid rgba(233, 69, 96, 0.3);
+  padding: var(--space-4xl) var(--space-2xl);
+  background: var(--card-bg);
+  border: 2px solid var(--color-border-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-decoration {
+  margin-bottom: var(--space-xl);
+}
+
+.celebration-icon {
+  font-size: 4rem;
+  animation: celebrate 1.5s ease-in-out;
 }
 
 .outcome-title {
-  color: #e0e0e0;
-  font-size: 2.5rem;
-  margin: 0 0 1rem 0;
+  color: var(--color-text-bright);
+  font-size: var(--text-5xl);
+  margin: 0 0 var(--space-xl) 0;
+  font-weight: var(--font-black);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.outcome-tier {
-  display: inline-block;
-  padding: 0.75rem 2rem;
-  border-radius: 8px;
-  font-size: 1.5rem;
-  font-weight: 700;
+.outcome-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-lg) var(--space-3xl);
+  border-radius: var(--radius-lg);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-black);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  box-shadow: var(--shadow-lg);
 }
 
-.outcome-tier.success {
-  background: rgba(46, 204, 113, 0.2);
-  color: #2ecc71;
-  border: 2px solid #2ecc71;
+.tier-success {
+  background: linear-gradient(135deg, var(--color-success) 0%, #27ae60 100%);
+  color: white;
 }
 
-.outcome-tier.partial_success {
-  background: rgba(52, 152, 219, 0.2);
-  color: #3498db;
-  border: 2px solid #3498db;
+.tier-partial-success {
+  background: linear-gradient(135deg, var(--color-info) 0%, #2980b9 100%);
+  color: white;
 }
 
-.outcome-tier.failure {
-  background: rgba(233, 69, 96, 0.2);
-  color: #e94560;
-  border: 2px solid #e94560;
+.tier-failure {
+  background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-primary-dark) 100%);
+  color: white;
 }
 
-.archetype-section {
+/* Archetype Card */
+.archetype-card {
+  background: var(--card-bg);
+  border: 2px solid var(--color-border-default);
+  border-radius: var(--radius-xl);
+  padding: var(--space-3xl);
   text-align: center;
-  padding: 2rem;
-  background: rgba(22, 33, 62, 0.6);
-  border-radius: 12px;
-  border: 2px solid rgba(139, 146, 168, 0.3);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
 }
 
-.archetype-icon-placeholder {
-  margin-bottom: 1.5rem;
+.archetype-visual {
+  margin-bottom: var(--space-2xl);
+}
+
+.archetype-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+  box-shadow: 0 8px 24px var(--color-primary-glow);
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+@keyframes iconPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .archetype-icon {
-  font-size: 5rem;
-  display: inline-block;
+  font-size: 4rem;
+}
+
+.archetype-label {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-sm);
 }
 
 .archetype-name {
-  color: #e94560;
-  font-size: 2rem;
-  margin: 0 0 1rem 0;
+  color: var(--color-primary);
+  font-size: var(--text-3xl);
+  font-weight: var(--font-black);
+  margin: 0 0 var(--space-lg) 0;
 }
 
 .archetype-description {
-  color: #c0c0c0;
-  font-size: 1.125rem;
-  line-height: 1.6;
+  color: var(--color-text-primary);
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
   margin: 0;
-  max-width: 600px;
+  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
 }
 
-.summary-section,
-.scores-section,
-.stakeholders-section,
-.share-section {
-  background: rgba(22, 33, 62, 0.6);
-  border-radius: 12px;
-  border: 2px solid rgba(139, 146, 168, 0.3);
-  padding: 1.5rem;
+/* Card Base Styles */
+.summary-card,
+.scores-card,
+.stakeholders-card,
+.share-card {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(10px);
 }
 
-.section-title {
-  color: #e94560;
-  font-size: 1.5rem;
-  margin: 0 0 1.25rem 0;
+.card-title {
+  color: var(--color-text-bright);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin: 0 0 var(--space-xl) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
 }
 
-.summary-grid {
+.title-icon {
+  font-size: var(--text-3xl);
+}
+
+/* Summary Stats */
+.stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
+  gap: var(--space-xl);
 }
 
-.summary-item {
+.stat-box {
   text-align: center;
+  padding: var(--space-xl);
+  background: var(--color-bg-overlay);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
 }
 
-.summary-label {
-  color: #8b92a8;
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
+.stat-label {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-sm);
+  font-weight: var(--font-semibold);
 }
 
-.summary-value {
-  color: #e0e0e0;
-  font-size: 1.75rem;
-  font-weight: 700;
+.stat-value {
+  color: var(--color-text-bright);
+  font-size: var(--text-4xl);
+  font-weight: var(--font-black);
 }
 
-.final-scores-grid {
-  display: grid;
-  gap: 1rem;
+.stat-max {
+  color: var(--color-text-secondary);
+  font-size: var(--text-2xl);
 }
 
-.final-score-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: auto auto;
-  gap: 0.5rem;
+.stat-completion {
+  font-size: var(--text-2xl);
+}
+
+/* Scores List */
+.scores-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.score-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.score-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
 
 .score-name {
-  color: #e0e0e0;
-  font-size: 1rem;
-  font-weight: 500;
+  color: var(--color-text-primary);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+}
+
+.score-value {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-black);
+}
+
+.score-value.critical {
+  color: var(--score-critical);
+}
+
+.score-value.low {
+  color: var(--score-low);
+}
+
+.score-value.medium {
+  color: var(--score-medium);
+}
+
+.score-value.high {
+  color: var(--score-high);
 }
 
 .score-bar {
-  grid-column: 1;
-  grid-row: 2;
   height: 12px;
-  background: rgba(139, 146, 168, 0.2);
-  border-radius: 6px;
+  background: var(--color-bg-overlay);
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
 .score-fill {
   height: 100%;
-  border-radius: 6px;
-  transition: width 0.5s;
+  border-radius: var(--radius-md);
+  transition: width 1s ease-out;
 }
 
 .score-fill.critical {
-  background: #e94560;
+  background: var(--score-critical);
 }
 
 .score-fill.low {
-  background: #f39c12;
+  background: var(--score-low);
 }
 
 .score-fill.medium {
-  background: #3498db;
+  background: var(--score-medium);
 }
 
 .score-fill.high {
-  background: #2ecc71;
+  background: var(--score-high);
 }
 
-.score-value {
-  grid-column: 2;
-  grid-row: 1 / 3;
-  color: #e0e0e0;
-  font-size: 1.75rem;
-  font-weight: 700;
-  min-width: 3rem;
-  text-align: right;
+/* Stakeholders List */
+.stakeholders-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
 }
 
-.stakeholders-grid {
-  display: grid;
-  gap: 1rem;
-}
-
-.stakeholder-final-item {
+.stakeholder-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  padding: var(--space-lg);
+  background: var(--color-bg-overlay);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-default);
+}
+
+.stakeholder-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
 }
 
 .stakeholder-name {
-  color: #e0e0e0;
-  font-weight: 600;
-  font-size: 1rem;
+  color: var(--color-text-primary);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-base);
 }
 
-.stakeholder-satisfaction {
-  font-weight: 600;
-  font-size: 1rem;
+.stakeholder-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
 }
 
-.stakeholder-satisfaction.critical {
-  color: #e94560;
+.stakeholder-label.critical {
+  color: var(--satisfaction-critical);
 }
 
-.stakeholder-satisfaction.concerned {
-  color: #f39c12;
+.stakeholder-label.concerned {
+  color: var(--satisfaction-concerned);
 }
 
-.stakeholder-satisfaction.neutral {
-  color: #3498db;
+.stakeholder-label.neutral {
+  color: var(--satisfaction-neutral);
 }
 
-.stakeholder-satisfaction.supportive {
-  color: #2ecc71;
+.stakeholder-label.supportive {
+  color: var(--satisfaction-supportive);
 }
 
+.stakeholder-value {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-black);
+}
+
+.stakeholder-value.critical {
+  color: var(--satisfaction-critical);
+}
+
+.stakeholder-value.concerned {
+  color: var(--satisfaction-concerned);
+}
+
+.stakeholder-value.neutral {
+  color: var(--satisfaction-neutral);
+}
+
+.stakeholder-value.supportive {
+  color: var(--satisfaction-supportive);
+}
+
+/* Share Placeholder */
 .share-placeholder {
   text-align: center;
-  padding: 2rem;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  border: 2px dashed rgba(139, 146, 168, 0.3);
+  padding: var(--space-4xl) var(--space-2xl);
+  background: var(--color-bg-overlay);
+  border-radius: var(--radius-lg);
+  border: 2px dashed var(--color-border-default);
 }
 
-.share-placeholder p {
-  color: #8b92a8;
-  margin: 0 0 0.5rem 0;
+.placeholder-icon {
+  font-size: var(--text-5xl);
+  margin-bottom: var(--space-lg);
+  opacity: 0.5;
 }
 
-.share-hint {
-  font-size: 0.9rem;
+.placeholder-text {
+  color: var(--color-text-secondary);
+  font-size: var(--text-lg);
+  margin: 0 0 var(--space-sm) 0;
+  font-weight: var(--font-semibold);
+}
+
+.placeholder-hint {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
   font-style: italic;
+  margin: 0;
 }
 
-.actions-section {
+/* Actions */
+.actions-area {
   display: flex;
-  gap: 1rem;
+  gap: var(--space-lg);
   justify-content: center;
-  padding-top: 1rem;
+  padding-top: var(--space-lg);
+  flex-wrap: wrap;
 }
 
-.footer-links {
-  text-align: center;
-  display: flex;
+.btn-primary,
+.btn-secondary {
+  padding: var(--space-lg) var(--space-4xl);
+  font-size: var(--text-lg);
+  font-weight: var(--font-bold);
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  transition: all var(--transition-slow);
+  border: none;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.text-button {
-  background: none;
-  border: none;
-  color: #8b92a8;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: color 0.2s;
-  text-decoration: underline;
-}
-
-.text-button:hover {
-  color: #e94560;
-}
-
-.separator {
-  color: #8b92a8;
-  user-select: none;
-}
-
-.primary-button,
-.secondary-button {
-  padding: 1rem 2.5rem;
-  font-size: 1.125rem;
-  font-weight: 600;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
+  gap: var(--space-md);
   text-transform: uppercase;
 }
 
-.primary-button {
-  background: #e94560;
-  color: white;
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-text-bright);
+  box-shadow: 0 4px 12px var(--color-primary-glow);
 }
 
-.primary-button:hover {
-  background: #d63851;
+.btn-primary:hover {
+  background: var(--color-primary-light);
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--color-primary-glow);
 }
 
-.secondary-button {
-  background: rgba(139, 146, 168, 0.2);
-  color: #e0e0e0;
-  border: 2px solid rgba(139, 146, 168, 0.3);
+.btn-secondary {
+  background: var(--color-bg-overlay);
+  color: var(--color-text-primary);
+  border: 2px solid var(--color-border-default);
 }
 
-.secondary-button:hover {
-  background: rgba(139, 146, 168, 0.3);
-  border-color: rgba(139, 146, 168, 0.5);
+.btn-secondary:hover {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border-focus);
 }
 
+.btn-icon {
+  font-size: var(--text-xl);
+}
+
+/* Footer Links */
+.footer-links {
+  text-align: center;
+  padding-top: var(--space-xl);
+  border-top: 1px solid var(--color-border-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: color var(--transition-base);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+.link-button:hover {
+  color: var(--color-primary);
+  background: var(--color-bg-overlay);
+}
+
+.link-icon {
+  font-size: var(--text-base);
+}
+
+.link-separator {
+  color: var(--color-text-muted);
+  user-select: none;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes celebrate {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.2) rotate(-15deg);
+  }
+  75% {
+    transform: scale(1.2) rotate(15deg);
+  }
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
   .end-of-run-view {
-    padding: 1rem;
+    padding: var(--space-xl) var(--space-lg);
   }
   
   .outcome-title {
-    font-size: 2rem;
+    font-size: var(--text-4xl);
   }
   
-  .outcome-tier {
-    font-size: 1.25rem;
-    padding: 0.625rem 1.5rem;
+  .outcome-tier-badge {
+    font-size: var(--text-xl);
+    padding: var(--space-md) var(--space-2xl);
   }
   
   .archetype-name {
-    font-size: 1.5rem;
+    font-size: var(--text-2xl);
   }
   
-  .summary-grid {
+  .stats-grid {
     grid-template-columns: 1fr;
   }
   
-  .actions-section {
-    flex-direction: column;
+  .actions-area {
+    flex-direction: column-reverse;
+    width: 100%;
   }
   
-  .primary-button,
-  .secondary-button {
+  .btn-primary,
+  .btn-secondary {
     width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .archetype-icon-wrapper {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .archetype-icon {
+    font-size: 3rem;
   }
 }
 </style>
