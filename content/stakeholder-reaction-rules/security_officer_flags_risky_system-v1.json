@@ -13,5 +13,11 @@
       "score_id": "delivery_confidence",
       "delta": -3
     }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "security_officer",
+      "delta": -6
+    }
   ]
-}
+  }

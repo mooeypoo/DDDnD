@@ -9,5 +9,11 @@
       "score_id": "team_morale",
       "delta": -5
     }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "lead_developer",
+      "delta": -5
+    }
   ]
 }

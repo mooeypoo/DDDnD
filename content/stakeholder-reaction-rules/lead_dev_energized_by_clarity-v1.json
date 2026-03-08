@@ -13,5 +13,11 @@
       "score_id": "maintainability",
       "delta": 3
     }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "lead_developer",
+      "delta": 7
+    }
   ]
 }

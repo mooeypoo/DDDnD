@@ -13,5 +13,11 @@
       "score_id": "delivery_confidence",
       "delta": -2
     }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "cfo",
+      "delta": -7
+    }
   ]
 }

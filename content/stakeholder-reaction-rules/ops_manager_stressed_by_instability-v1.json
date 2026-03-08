@@ -13,5 +13,11 @@
       "score_id": "team_morale",
       "delta": -2
     }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "operations_manager",
+      "delta": -7
+    }
   ]
 }
