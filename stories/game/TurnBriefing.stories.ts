@@ -11,7 +11,9 @@ const meta: Meta<typeof TurnBriefingPanel> = {
     eventTitle: eventMocks.surpriseGrowth.name,
     narrativeDescription: eventMocks.surpriseGrowth.description,
     availableActions: 4,
-    pendingAftershocks: 1
+    pendingAftershocks: 1,
+    currentTurn: 3,
+    totalTurns: 8
   }
 }
 
@@ -25,7 +27,9 @@ export const CalmSessionNote: Story = {
     narrativeDescription:
       'Team ownership is clearer this turn. You have room to choose a deliberate, low-risk architecture move.',
     availableActions: 3,
-    pendingAftershocks: 0
+    pendingAftershocks: 0,
+    currentTurn: 2,
+    totalTurns: 8
   }
 }
 
@@ -34,6 +38,20 @@ export const PressureTurn: Story = {
     eventTitle: eventMocks.productionIncident.name,
     narrativeDescription: eventMocks.productionIncident.description,
     availableActions: 5,
-    pendingAftershocks: 2
+    pendingAftershocks: 2,
+    currentTurn: 6,
+    totalTurns: 8
+  }
+}
+
+export const FinalTurn: Story = {
+  args: {
+    eventTitle: 'Last Stand',
+    narrativeDescription:
+      'The board demands a final answer. What you choose now defines the legacy of this system for years to come.',
+    availableActions: 4,
+    pendingAftershocks: 3,
+    currentTurn: 8,
+    totalTurns: 8
   }
 }

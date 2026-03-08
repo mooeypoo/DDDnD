@@ -38,3 +38,13 @@ export const BurnoutWarning: Story = {
     highlights: ['Developer morale -9', 'Leadership concern rising']
   }
 }
+
+export const SurpriseGrowth: Story = {
+  name: 'Surprise Growth (Low Severity)',
+  args: {
+    title: eventMocks.surpriseGrowth.name,
+    description: eventMocks.surpriseGrowth.description,
+    severity: 'low',
+    highlights: ['Budget +6', 'Delivery confidence -4', 'Aftershock: integration complexity']
+  }
+}

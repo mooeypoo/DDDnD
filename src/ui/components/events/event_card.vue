@@ -1,8 +1,8 @@
 <template>
   <article class="event-card" :class="`severity-${severity}`">
     <header class="event-header">
-      <p class="event-label">System Event</p>
-      <span class="event-severity">{{ severityLabel }}</span>
+      <p class="event-label">⚠️ System Event</p>
+      <span class="event-severity" :class="`severity-badge-${severity}`">{{ severityLabel }}</span>
     </header>
 
     <h3 class="event-title">{{ title }}</h3>
@@ -39,7 +39,7 @@ const severityLabel = computed(() => {
 
 <style scoped>
 .event-card {
-  background: var(--surface-card);
+  background: var(--surface-elevated);
   border: 1px solid var(--border-card);
   border-left-width: 4px;
   border-left-color: var(--border-card);
@@ -59,9 +59,13 @@ const severityLabel = computed(() => {
   border-left-color: var(--effect-warning);
 }
 
-.event-card.severity-high,
+.event-card.severity-high {
+  border-left-color: var(--effect-negative);
+}
+
 .event-card.severity-critical {
   border-left-color: var(--effect-negative);
+  background: color-mix(in srgb, var(--surface-elevated) 92%, var(--effect-negative) 8%);
 }
 
 .event-header {
@@ -83,11 +87,35 @@ const severityLabel = computed(() => {
 .event-severity {
   border-radius: var(--radius-full);
   border: 1px solid var(--border-subtle);
-  background: var(--bg-inset);
-  color: var(--text-secondary);
-  padding: var(--space-xs) var(--space-md);
+  padding: 2px var(--space-md);
   font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.severity-badge-low {
+  background: var(--effect-neutral-bg);
+  border-color: var(--effect-neutral-border);
+  color: var(--effect-neutral);
+}
+
+.severity-badge-medium {
+  background: var(--effect-warning-bg);
+  border-color: var(--effect-warning-border);
+  color: var(--effect-warning);
+}
+
+.severity-badge-high {
+  background: var(--effect-negative-bg);
+  border-color: var(--effect-negative-border);
+  color: var(--effect-negative);
+}
+
+.severity-badge-critical {
+  background: var(--effect-negative);
+  border-color: var(--effect-negative);
+  color: #fff;
 }
 
 .event-title {

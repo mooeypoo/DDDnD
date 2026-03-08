@@ -1,18 +1,16 @@
 <template>
-  <article class="action-card" :class="{ disabled: isDisabled }">
+  <article class="action-card" :class="{ disabled: isDisabled }" tabindex="0">
+
+    <!-- Style tags -->
+    <div v-if="card.style_tags?.length" class="card-tags">
+      <span v-for="tag in card.style_tags" :key="tag" class="card-tag">{{ tag }}</span>
+    </div>
+
     <header class="card-header">
       <h3 class="card-title">{{ card.name }}</h3>
     </header>
 
     <p class="card-description">{{ summaryText }}</p>
-
-    <!-- Delayed Effects Badge (Prominent) -->
-    <div v-if="card.delayed_effect_refs.length" class="aftershock-badge-prominent">
-      <span class="aftershock-icon">⚡</span>
-      <span class="aftershock-text">
-        {{ card.delayed_effect_refs.length }} Aftershock{{ card.delayed_effect_refs.length > 1 ? 's' : '' }}
-      </span>
-    </div>
 
     <!-- Primary Effects -->
     <div class="primary-effects" v-if="card.score_changes.length">
@@ -25,19 +23,43 @@
         <span class="metric-icon" :class="metricPresentation(change.score_id).colorClass">
           {{ metricPresentation(change.score_id).icon }}
         </span>
-        {{ metricPresentation(change.score_id).label }} {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
+        {{ metricPresentation(change.score_id).label }}
+        <span class="chip-delta">{{ change.delta > 0 ? '+' : '' }}{{ change.delta }}</span>
       </span>
       <span v-if="remainingEffects > 0" class="effect-chip more-effects">
         +{{ remainingEffects }} more
       </span>
     </div>
 
+    <!-- Compact indicators: aftershocks · stakeholders -->
+    <div class="card-indicators" v-if="hasIndicators">
+      <span v-if="card.delayed_effect_refs.length" class="indicator-badge indicator-aftershock">
+        <span class="indicator-icon">⚡</span>
+        {{ card.delayed_effect_refs.length }} Aftershock{{ card.delayed_effect_refs.length > 1 ? 's' : '' }}
+      </span>
+      <span v-if="card.stakeholder_changes?.length" class="indicator-badge indicator-stakeholders">
+        <span class="indicator-icon">👥</span>
+        {{ card.stakeholder_changes.length }} Stakeholder{{ card.stakeholder_changes.length > 1 ? 's' : '' }}
+      </span>
+    </div>
+
     <footer class="card-controls">
-      <button class="card-button card-button-secondary" type="button" :disabled="isDisabled" @click="$emit('showDetails')">
-        View Details
+      <button
+        class="card-button card-button-inspect"
+        type="button"
+        :disabled="isDisabled"
+        @click="$emit('showDetails')"
+        aria-label="Inspect card details"
+      >
+        Inspect
       </button>
-      <button class="card-button card-button-primary" type="button" :disabled="isDisabled" @click="$emit('play', card.id)">
-        {{ isDisabled ? 'Resolving...' : 'Play This Card' }}
+      <button
+        class="card-button card-button-primary"
+        type="button"
+        :disabled="isDisabled"
+        @click="$emit('play', card.id)"
+      >
+        {{ isDisabled ? 'Resolving…' : 'Play' }}
       </button>
     </footer>
   </article>
@@ -60,6 +82,9 @@ defineEmits<{
 
 const primaryEffects = computed(() => props.card.score_changes.slice(0, 3))
 const remainingEffects = computed(() => Math.max(props.card.score_changes.length - primaryEffects.value.length, 0))
+const hasIndicators = computed(() =>
+  props.card.delayed_effect_refs.length > 0 || (props.card.stakeholder_changes?.length ?? 0) > 0
+)
 const summaryText = computed(() => {
   const compact = props.card.flavor_text?.trim() || props.card.description
   if (compact.length <= 120) {
@@ -152,9 +177,14 @@ function metricPresentation(scoreId: string) {
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
   font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
+  font-weight: var(--font-medium);
   color: var(--text-primary);
   background: var(--bg-inset);
+}
+
+.chip-delta {
+  font-weight: var(--font-bold);
+  font-variant-numeric: tabular-nums;
 }
 
 .effect-chip.positive {
@@ -186,6 +216,59 @@ function metricPresentation(scoreId: string) {
 .metric-budget           { color: var(--metric-budget);               }
 .metric-generic          { color: var(--text-secondary);              }
 
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.card-tag {
+  font-size: var(--text-2xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 1px var(--space-sm);
+}
+
+.card-indicators {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-xs);
+}
+
+.indicator-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  border-radius: var(--radius-full);
+  padding: var(--space-xs) var(--space-sm);
+  border: 1px solid transparent;
+}
+
+.indicator-aftershock {
+  background: var(--effect-warning-bg);
+  border-color: var(--effect-warning-border);
+  color: var(--effect-warning);
+}
+
+.indicator-stakeholders {
+  background: var(--effect-neutral-bg);
+  border-color: var(--effect-neutral-border);
+  color: var(--effect-neutral);
+}
+
+.indicator-icon {
+  font-size: var(--text-base);
+  line-height: 1;
+}
+
 .card-controls {
   display: flex;
   gap: var(--space-sm);
@@ -208,15 +291,19 @@ function metricPresentation(scoreId: string) {
   cursor: not-allowed;
 }
 
-.card-button-secondary {
-  background: var(--bg-inset);
-  color: var(--text-primary);
+.card-button-inspect {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-subtle);
+  flex: 0 0 auto;
+  padding-left: var(--space-lg);
+  padding-right: var(--space-lg);
 }
 
-.card-button-secondary:hover:not(:disabled) {
-  background: var(--bg-overlay);
-  border-color: var(--border-focus);
-  color: var(--text-bright);
+.card-button-inspect:hover:not(:disabled) {
+  background: var(--bg-inset);
+  border-color: var(--border-card);
+  color: var(--text-primary);
 }
 
 .card-button-primary {
@@ -233,34 +320,8 @@ function metricPresentation(scoreId: string) {
   box-shadow: 0 4px 16px var(--color-primary-glow);
 }
 
-.aftershock-badge-prominent {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  background: var(--effect-warning-bg);
-  border: 1px solid var(--effect-warning-border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-md);
-  animation: pulseGlow 2.5s var(--ease-standard) infinite;
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.15);
-  }
-  50% {
-    box-shadow: 0 2px 20px rgba(251, 191, 36, 0.35);
-  }
-}
-
-.aftershock-icon {
-  font-size: var(--text-2xl);
-  line-height: 1;
-}
-
-.aftershock-text {
-  color: var(--effect-warning);
-  font-weight: var(--font-semibold);
-  font-size: var(--text-sm);
+.action-card:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-card-hover), var(--focus-ring);
 }
 </style>
