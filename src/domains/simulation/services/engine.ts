@@ -44,6 +44,7 @@ interface EngineStateContainer {
 
 export interface SimulationEngine {
   create_run(): GameState
+  restore_run(game_state: GameState): GameState
   get_turn_briefing(): TurnBriefing
   play_turn(action_id: string): PlayTurnResult
   get_run_outcome(): RunOutcome | null
@@ -73,6 +74,11 @@ export function create_engine(input: CreateEngineInput): SimulationEngine {
   return {
     create_run: () => {
       engineState.game_state = createRun(engineState.scenario_bundle, engineState.seed)
+      return engineState.game_state
+    },
+
+    restore_run: (game_state: GameState) => {
+      engineState.game_state = game_state
       return engineState.game_state
     },
 

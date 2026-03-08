@@ -26,6 +26,8 @@ import type {
 import type { ScenarioBundle, VersionRef, PlayerClass } from '@/domains/content/model'
 import { createContentProvider, buildScenarioBundle } from '@/domains/content'
 import { create_engine } from '@/domains/simulation'
+import { createLocalStorageSaveAdapter } from '@/domains/persistence/adapters'
+import { serializeSaveFile, deserializeSaveFile } from '@/domains/persistence/services'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { loadQuestDisplayModels } from '@/ui/services/quest_loader'
 import { AVAILABLE_QUESTS } from '@/ui/config/available_quests'
@@ -39,6 +41,8 @@ export interface RunSetupOptions {
 }
 
 export const useGameStore = defineStore('game', () => {
+  const saveAdapter = createLocalStorageSaveAdapter()
+
   // Core state
   const engine = ref<SimulationEngine | null>(null)
   const gameState = ref<GameState | null>(null)
@@ -80,6 +84,16 @@ export const useGameStore = defineStore('game', () => {
       scenario_bundle: bundle,
       seed
     })
+  }
+
+  function persist_run_state() {
+    if (!gameState.value) {
+      return
+    }
+
+    const payload = serializeSaveFile(gameState.value)
+    const serializedPayload = JSON.stringify(payload)
+    saveAdapter.save_serialized_save_file(serializedPayload)
   }
   
   /**
@@ -151,6 +165,7 @@ export const useGameStore = defineStore('game', () => {
       }
       
       gameState.value = initialState
+      persist_run_state()
       
       // Get initial turn briefing
       refresh_turn_briefing()
@@ -192,6 +207,7 @@ export const useGameStore = defineStore('game', () => {
       // Update state
       gameState.value = result.game_state
       lastTurnResolution.value = result
+      persist_run_state()
       
       // Refresh briefing for next turn
       if (!isRunComplete.value) {
@@ -231,6 +247,60 @@ export const useGameStore = defineStore('game', () => {
     turnBriefing.value = null
     lastTurnResolution.value = null
     runOutcome.value = null
+    saveAdapter.clear_saved_run()
+  }
+
+  async function restore_saved_run(): Promise<boolean> {
+    const loaded = saveAdapter.load_serialized_save_file()
+    if (!loaded.ok || !loaded.value) {
+      return false
+    }
+
+    let parsedPayload: unknown
+    try {
+      parsedPayload = JSON.parse(loaded.value)
+    } catch {
+      saveAdapter.clear_saved_run()
+      return false
+    }
+
+    const restored = deserializeSaveFile(parsedPayload)
+    if (!restored.ok) {
+      saveAdapter.clear_saved_run()
+      return false
+    }
+
+    try {
+      const provider = createContentProvider()
+      const bundle = await buildScenarioBundle(
+        restored.value.game_state.scenario_ref.id,
+        restored.value.game_state.scenario_ref.version,
+        provider
+      )
+
+      initialize_engine(bundle, restored.value.game_state.meta.seed)
+
+      if (!engine.value) {
+        return false
+      }
+
+      engine.value.restore_run(restored.value.game_state)
+      gameState.value = restored.value.game_state
+      lastTurnResolution.value = null
+
+      if (isRunComplete.value) {
+        turnBriefing.value = null
+        runOutcome.value = engine.value.get_run_outcome()
+      } else {
+        refresh_turn_briefing()
+        runOutcome.value = null
+      }
+
+      return true
+    } catch {
+      reset()
+      return false
+    }
   }
   
   // Modal actions
@@ -280,6 +350,7 @@ export const useGameStore = defineStore('game', () => {
     refresh_turn_briefing,
     play_turn,
     get_run_outcome,
+    restore_saved_run,
     reset,
     openAboutModal,
     closeAboutModal,
