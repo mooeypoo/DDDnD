@@ -1,9 +1,8 @@
 <template>
   <section class="outcome-panel" :class="[`mood-${mood}`, `archetype-${archetype}`]">
-    <!-- Artwork frame — placeholder for future archetype artwork -->
+    <!-- Artwork frame — reserved for future archetype portrait illustrations -->
     <div class="artwork-frame" aria-hidden="true">
       <div class="artwork-icon">{{ archetypeIcon }}</div>
-      <p class="artwork-placeholder-label">Archetype Portrait</p>
     </div>
 
     <div class="outcome-body">
@@ -68,7 +67,7 @@ const tierDisplay = computed(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-inset-ridge), var(--shadow-card);
   transition: box-shadow var(--transition-base), border-color var(--transition-base);
 }
 
@@ -134,11 +133,7 @@ const tierDisplay = computed(() => {
 }
 
 .artwork-placeholder-label {
-  margin: 0;
-  font-size: var(--text-2xs);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  color: var(--text-muted);
+  display: none;
 }
 
 /* Body content */

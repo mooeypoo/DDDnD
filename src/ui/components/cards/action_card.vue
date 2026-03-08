@@ -1,5 +1,8 @@
 <template>
-  <article class="action-card" :class="{ disabled: isDisabled }" tabindex="0">
+  <article class="action-card" :class="[`category-${categoryId}`, { disabled: isDisabled }]" tabindex="0">
+
+    <!-- Category accent strip — 3 px color bar clipped by card border-radius -->
+    <div class="card-accent-strip" aria-hidden="true"></div>
 
     <!-- Style tags -->
     <div v-if="card.style_tags?.length" class="card-tags">
@@ -80,6 +83,42 @@ defineEmits<{
   showDetails: []
 }>()
 
+/**
+ * Map card style_tags to a visual category identifier.
+ * The first recognised tag wins; falls back to 'default'.
+ */
+const TAG_TO_CATEGORY: Record<string, string> = {
+  refactor:       'refactor',
+  architecture:   'refactor',
+  boundary:       'refactor',
+  incremental:    'refactor',
+  safe:           'refactor',
+  'high-impact':  'refactor',
+  infrastructure: 'infrastructure',
+  stability:      'infrastructure',
+  integration:    'infrastructure',
+  platform:       'infrastructure',
+  team:           'team',
+  alignment:      'team',
+  organizational: 'team',
+  people:         'team',
+  process:        'process',
+  workflow:       'process',
+  documentation:  'process',
+  'short-term':   'fix',
+  'cost-control': 'fix',
+  quick:          'fix',
+  patch:          'fix',
+}
+
+const categoryId = computed(() => {
+  for (const tag of (props.card.style_tags ?? [])) {
+    const cat = TAG_TO_CATEGORY[tag.toLowerCase()]
+    if (cat) return cat
+  }
+  return 'default'
+})
+
 const primaryEffects = computed(() => props.card.score_changes.slice(0, 3))
 const remainingEffects = computed(() => Math.max(props.card.score_changes.length - primaryEffects.value.length, 0))
 const hasIndicators = computed(() =>
@@ -105,20 +144,41 @@ function metricPresentation(scoreId: string) {
   border: 1px solid var(--border-card);
   border-radius: var(--radius-xl);
   padding: var(--space-lg);
+  padding-top: calc(var(--space-lg) + 3px); /* compensation for accent strip */
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  box-shadow: var(--shadow-card);
   box-shadow: var(--shadow-inset-ridge), var(--shadow-card);
+  position: relative;
+  overflow: hidden;
   transition:
     border-color var(--transition-hover),
     box-shadow   var(--transition-hover),
     transform    var(--transition-hover);
 }
 
+/* Per-category accent color via CSS custom property */
+.action-card.category-refactor      { --category-accent: var(--category-refactor);      }
+.action-card.category-infrastructure { --category-accent: var(--category-infrastructure); }
+.action-card.category-team          { --category-accent: var(--category-team);          }
+.action-card.category-process       { --category-accent: var(--category-process);       }
+.action-card.category-fix           { --category-accent: var(--category-fix);           }
+.action-card.category-default       { --category-accent: var(--border-subtle);          }
+
+/* Top accent strip — clipped inside border-radius by overflow:hidden */
+.card-accent-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--category-accent, var(--border-subtle));
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
 .action-card:hover:not(.disabled) {
   border-color: var(--border-focus);
-  box-shadow: var(--shadow-card-hover);
+  box-shadow: var(--shadow-inset-ridge), var(--shadow-card-hover);
   transform: translateY(-2px);
 }
 
@@ -227,11 +287,12 @@ function metricPresentation(scoreId: string) {
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--category-accent, var(--text-muted));
   background: var(--bg-inset);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--category-accent, var(--border-subtle));
   border-radius: var(--radius-full);
   padding: 1px var(--space-sm);
+  opacity: 0.75;
 }
 
 .card-indicators {

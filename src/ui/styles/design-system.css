@@ -70,11 +70,16 @@ a:hover {
   min-height: 100vh;
 }
 
-/* Subtle tabletop field gradient for the page background */
+/* Subtle tabletop field — combines depth gradient with a fine dot grid.
+ * The SVG dot grid (28×28, 1 px dots at 3 % opacity) evokes a tactile
+ * tabletop surface or engineering blueprint without visual noise. */
 .bg-tabletop {
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(20, 27, 45, 0.6) 0%, transparent 70%),
-    var(--bg-page);
+  background-color: var(--bg-page);
+  background-image:
+    radial-gradient(ellipse 120% 50% at 50% -8%, rgba(20, 27, 50, 0.55) 0%, transparent 65%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ccircle cx='1' cy='1' r='0.75' fill='rgba(255%2C255%2C255%2C0.030)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat, repeat;
+  background-position: center top, 0 0;
 }
 
 
@@ -175,6 +180,45 @@ a:hover {
   background: var(--effect-neutral-bg);
   color: var(--effect-neutral);
   border-color: var(--effect-neutral-border);
+}
+
+
+/* ─── Artwork slot ──────────────────────────────────────────── */
+/* Reserved region for future AI-generated artwork.
+ * Layout is stable when the slot is empty — no placeholder text.
+ * Artwork images should fill the region via object-fit: cover.   */
+
+.artwork-slot {
+  width: 100%;
+  min-height: var(--artwork-min-height);
+  background: var(--artwork-bg);
+  border-bottom: 1px solid var(--artwork-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.artwork-slot img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+/* ─── Console panel surface ──────────────────────────────────── */
+/* Elevates a panel to feel like a section of a DM console:
+ * engraved rim light at the top, deeper shadow below.           */
+
+.panel-console {
+  box-shadow:
+    var(--shadow-panel),
+    var(--shadow-inset-ridge);
 }
 
 

@@ -10,6 +10,9 @@
           <button class="close-button" @click="emit('close')" aria-label="Close modal">×</button>
         </div>
 
+        <!-- Artwork frame — reserved for future card illustration; stable when empty -->
+        <div class="modal-artwork-frame" aria-hidden="true"></div>
+
         <div class="modal-body">
           <p class="card-description">{{ card.description }}</p>
 
@@ -166,6 +169,7 @@ function handlePlay(): void {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-accent);
+  overflow: hidden;
 }
 
 .modal-header {
@@ -175,6 +179,33 @@ function handlePlay(): void {
   gap: var(--space-md);
   padding: var(--space-lg);
   border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Artwork frame — ambient gradient region between header and body.
+ * Receives future AI-generated card illustrations.
+ * Layout is stable when empty: no placeholder text, fixed height. */
+.modal-artwork-frame {
+  width: 100%;
+  min-height: var(--artwork-min-height-sm);
+  background:
+    linear-gradient(180deg,
+      rgba(169, 137, 250, 0.07) 0%,
+      rgba(169, 137, 250, 0.02) 60%,
+      transparent 100%),
+    var(--bg-overlay);
+  border-bottom: 1px solid var(--artwork-border);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-artwork-frame img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .modal-header-copy {

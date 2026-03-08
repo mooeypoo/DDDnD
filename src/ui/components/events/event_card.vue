@@ -1,5 +1,11 @@
 <template>
   <article class="event-card" :class="`severity-${severity}`">
+
+    <!-- Optional artwork region: accepts future event illustrations via named slot -->
+    <div v-if="$slots.artwork" class="event-artwork" aria-hidden="true">
+      <slot name="artwork" />
+    </div>
+
     <header class="event-header">
       <p class="event-label">⚠️ System Event</p>
       <span class="event-severity" :class="`severity-badge-${severity}`">{{ severityLabel }}</span>
@@ -48,7 +54,29 @@ const severityLabel = computed(() => {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-inset-ridge), var(--shadow-card);
+  overflow: hidden;
+}
+
+/* Artwork region — collapses when slot is not populated */
+.event-artwork {
+  width: calc(100% + var(--space-xl) * 2);
+  min-height: var(--artwork-min-height-sm);
+  margin: calc(-1 * var(--space-xl)) calc(-1 * var(--space-xl)) 0;
+  position: relative;
+  overflow: hidden;
+  background: var(--artwork-bg);
+  border-bottom: 1px solid var(--artwork-border);
+  flex-shrink: 0;
+}
+
+.event-artwork img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .event-card.severity-low {

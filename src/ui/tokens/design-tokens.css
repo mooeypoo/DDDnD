@@ -396,4 +396,58 @@
   --color-danger-bg:   var(--effect-negative-bg);
   --color-info:        var(--effect-neutral);
   --color-info-bg:     var(--effect-neutral-bg);
+
+
+  /* ═══════════════════════════════════════════════════════════
+     13. CARD CATEGORY ACCENT TOKENS
+     Lightweight visual identity for card archetypes.
+     Applied as accent strips, chip tints, and tag colors.
+     Do NOT use as large surface fills — accent only.
+     ═══════════════════════════════════════════════════════════ */
+
+  /* refactor / architecture — structural improvement, clean seams */
+  --category-refactor:              #34d399;
+  --category-refactor-bg:           rgba(52, 211, 153, 0.07);
+  --category-refactor-border:       rgba(52, 211, 153, 0.22);
+
+  /* infrastructure / platform — reliability, deployment, migration */
+  --category-infrastructure:        #60a5fa;
+  --category-infrastructure-bg:     rgba(96, 165, 250, 0.07);
+  --category-infrastructure-border: rgba(96, 165, 250, 0.22);
+
+  /* team / organizational — people, alignment, culture */
+  --category-team:                  #fbbf24;
+  --category-team-bg:               rgba(251, 191, 36, 0.07);
+  --category-team-border:           rgba(251, 191, 36, 0.22);
+
+  /* process / workflow — documentation, ceremonies, management */
+  --category-process:               #a989fa;
+  --category-process-bg:            rgba(169, 137, 250, 0.07);
+  --category-process-border:        rgba(169, 137, 250, 0.22);
+
+  /* short-term / fix — reactive, cost-cutting, patch work */
+  --category-fix:                   #fb923c;
+  --category-fix-bg:                rgba(251, 146, 60, 0.07);
+  --category-fix-border:            rgba(251, 146, 60, 0.22);
+
+  /* default — unclassified cards */
+  --category-default:               var(--text-secondary);
+  --category-default-bg:            var(--bg-inset);
+  --category-default-border:        var(--border-subtle);
+
+
+  /* ═══════════════════════════════════════════════════════════
+     14. ARTWORK FRAME TOKENS
+     Reserved regions for future AI-generated artwork.
+     Frames must remain stable and visually clean when empty.
+     ═══════════════════════════════════════════════════════════ */
+
+  /** Background fill for empty artwork regions */
+  --artwork-bg:          rgba(0, 0, 0, 0.28);
+  /** Lower boundary line of artwork regions */
+  --artwork-border:      rgba(255, 255, 255, 0.06);
+  /** Minimum height for card artwork slots */
+  --artwork-min-height:  140px;
+  /** Minimum height for compact artwork slots (modal, event) */
+  --artwork-min-height-sm: 90px;
 }

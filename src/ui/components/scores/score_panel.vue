@@ -81,7 +81,7 @@ const overallHealth = computed(() => {
   border: 1px solid var(--border-panel);
   border-radius: var(--radius-xl);
   padding: var(--panel-padding);
-  box-shadow: var(--shadow-panel);
+  box-shadow: var(--shadow-panel), var(--shadow-inset-ridge);
 }
 
 .panel-header {

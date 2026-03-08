@@ -52,7 +52,7 @@ const isExpanded = ref(false)
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  box-shadow: var(--shadow-panel);
+  box-shadow: var(--shadow-panel), var(--shadow-inset-ridge);
 }
 
 .banner-main {

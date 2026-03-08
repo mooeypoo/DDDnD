@@ -49,7 +49,7 @@ withDefaults(
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  box-shadow: var(--shadow-panel);
+  box-shadow: var(--shadow-panel), var(--shadow-inset-ridge);
   position: relative;
 }
 
