@@ -12,7 +12,7 @@
         
         <!-- Hero Content -->
         <div class="hero-content">
-          <h1 class="hero-title">Refactor the Monolith. Save the System.</h1>
+          <h1 class="hero-title">Choose Your Quest. Shape the System.</h1>
           
           <p class="hero-tagline">
             A narrative simulation about architectural decisions, technical debt, 
@@ -22,13 +22,13 @@
           <div class="hero-description">
             <div class="description-card">
               <p>
-                You inherit a struggling codebase where every change touches everything. 
-                As the systems architect, you must balance domain clarity, delivery speed, 
-                stakeholder satisfaction, and developer morale—all before time runs out.
+                Enter a realm of software systems where each quest presents a different architectural challenge.
+                As the systems architect, you will wield decision cards to balance domain clarity, delivery pace,
+                stakeholder trust, and team resilience before the final turn.
               </p>
               <p class="description-emphasis">
-                Every decision involves tradeoffs. Every card has consequences. 
-                Can you refactor the monolith before it collapses?
+                Every choice has tradeoffs. Every card has consequences.
+                Can you guide your system to a worthy ending?
               </p>
             </div>
           </div>
