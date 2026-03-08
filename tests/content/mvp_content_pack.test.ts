@@ -17,6 +17,42 @@ import { ContentProvider } from '@/domains/content/services/content_provider'
 import { buildScenarioBundle } from '@/domains/content/services/bundle_builder'
 import { assertValidBundle } from '@/domains/content/services/bundle_validator'
 
+function collectScoreIds(bundle: Awaited<ReturnType<typeof buildScenarioBundle>>): Set<string> {
+  const scoreIds = new Set<string>()
+
+  Object.keys(bundle.scenario.starting_scores).forEach((scoreId) => scoreIds.add(scoreId))
+
+  for (const scoreRef of bundle.scenario.score_refs) {
+    scoreIds.add(scoreRef.id)
+  }
+
+  for (const card of bundle.cards.values()) {
+    for (const scoreChange of card.score_changes) {
+      scoreIds.add(scoreChange.score_id)
+    }
+  }
+
+  for (const event of bundle.events.values()) {
+    for (const scoreChange of event.score_changes) {
+      scoreIds.add(scoreChange.score_id)
+    }
+  }
+
+  for (const delayedEffect of bundle.delayed_effects.values()) {
+    for (const scoreChange of delayedEffect.score_changes) {
+      scoreIds.add(scoreChange.score_id)
+    }
+  }
+
+  for (const rule of bundle.stakeholder_reaction_rules.values()) {
+    for (const scoreChange of rule.score_changes) {
+      scoreIds.add(scoreChange.score_id)
+    }
+  }
+
+  return scoreIds
+}
+
 function createFileContentProvider(contentRoot: string): ContentProvider {
   async function loadJson<T extends { id: string; version: number }>(
     directory: string,
@@ -98,6 +134,63 @@ describe('MVP content pack', () => {
         const key = `${delayedEffectRef.id}-v${delayedEffectRef.version}`
         expect(bundle.delayed_effects.has(key)).toBe(true)
       }
+    }
+  })
+
+  it('builds and validates all integrated scenario bundles', async () => {
+    const contentRoot = path.resolve(__dirname, '../../content')
+    const provider = createFileContentProvider(contentRoot)
+
+    const integratedScenarios: VersionRef[] = [
+      { id: 'monolith_of_mild_despair', version: 1 },
+      { id: 'microservice_sprawl', version: 1 },
+      { id: 'compliance_gauntlet', version: 1 },
+      { id: 'startup_hypergrowth', version: 1 }
+    ]
+
+    for (const scenarioRef of integratedScenarios) {
+      const bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
+      expect(() => assertValidBundle(bundle)).not.toThrow()
+    }
+  })
+
+  it('resolves newly added stakeholder reaction rules through scenario references', async () => {
+    const contentRoot = path.resolve(__dirname, '../../content')
+    const provider = createFileContentProvider(contentRoot)
+
+    const complianceBundle = await buildScenarioBundle('compliance_gauntlet', 1, provider)
+    const startupBundle = await buildScenarioBundle('startup_hypergrowth', 1, provider)
+
+    expect(complianceBundle.stakeholders.has('security_officer-v1')).toBe(true)
+    expect(complianceBundle.stakeholder_reaction_rules.has('security_officer_flags_risky_system-v1')).toBe(
+      true
+    )
+    expect(
+      complianceBundle.stakeholder_reaction_rules.has('security_officer_supports_clear_boundaries-v1')
+    ).toBe(true)
+
+    expect(startupBundle.stakeholders.has('cfo-v1')).toBe(true)
+    expect(startupBundle.stakeholder_reaction_rules.has('cfo_cuts_spending_when_budget_low-v1')).toBe(true)
+    expect(startupBundle.stakeholder_reaction_rules.has('cfo_rewards_predictable_delivery-v1')).toBe(true)
+  })
+
+  it('uses team_morale consistently and excludes developer_morale in integrated bundles', async () => {
+    const contentRoot = path.resolve(__dirname, '../../content')
+    const provider = createFileContentProvider(contentRoot)
+
+    const integratedScenarios: VersionRef[] = [
+      { id: 'monolith_of_mild_despair', version: 1 },
+      { id: 'microservice_sprawl', version: 1 },
+      { id: 'compliance_gauntlet', version: 1 },
+      { id: 'startup_hypergrowth', version: 1 }
+    ]
+
+    for (const scenarioRef of integratedScenarios) {
+      const bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
+      const scoreIds = collectScoreIds(bundle)
+
+      expect(scoreIds.has('team_morale')).toBe(true)
+      expect(scoreIds.has('developer_morale')).toBe(false)
     }
   })
 })

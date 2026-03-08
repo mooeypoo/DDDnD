@@ -10,7 +10,7 @@
     "domain_clarity": 30,
     "maintainability": 38,
     "delivery_confidence": 45,
-    "developer_morale": 50,
+    "team_morale": 50,
     "user_trust": 55,
     "budget": 60
   },
@@ -28,7 +28,7 @@
       "version": 1
     },
     {
-      "id": "developer_morale",
+      "id": "team_morale",
       "version": 1
     },
     {

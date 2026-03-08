@@ -24,11 +24,17 @@ export const AVAILABLE_QUESTS: VersionRef[] = [
   {
     id: 'monolith_of_mild_despair',
     version: 1
+  },
+  {
+    id: 'microservice_sprawl',
+    version: 1
+  },
+  {
+    id: 'compliance_gauntlet',
+    version: 1
+  },
+  {
+    id: 'startup_hypergrowth',
+    version: 1
   }
-  // Future quests can be added here as they are authored
-  // Example:
-  // {
-  //   id: 'microservice_migration_maze',
-  //   version: 1
-  // }
 ]

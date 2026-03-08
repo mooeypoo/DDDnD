@@ -1,7 +1,0 @@
-{
-  "id": "developer_morale",
-  "version": 1,
-  "name": "Developer Morale",
-  "description": "Team satisfaction and motivation levels",
-  "default_value": 50
-}

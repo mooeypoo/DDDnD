@@ -23,7 +23,7 @@ interface ArchetypeMetrics {
 
 const ARCHITECTURE_SCORE_IDS = ['domain_clarity', 'maintainability'] as const
 const DELIVERY_AND_BUDGET_SCORE_IDS = ['delivery_confidence', 'budget'] as const
-const STABILITY_SCORE_IDS = ['user_trust', 'developer_morale'] as const
+const STABILITY_SCORE_IDS = ['user_trust', 'team_morale'] as const
 
 function sumDeltas(deltas: Record<string, number>, scoreIds: readonly string[]): number {
   return scoreIds.reduce((sum, scoreId) => sum + (deltas[scoreId] ?? 0), 0)

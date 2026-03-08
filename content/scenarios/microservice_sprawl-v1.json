@@ -1,0 +1,64 @@
+{
+  "id": "microservice_sprawl",
+  "version": 1,
+  "name": "Microservice Sprawl",
+  "description": "The monolith was split apart, then split apart again, and now nobody is quite sure where anything belongs",
+  "short_description": "Restore clarity to a fragmented service landscape before coordination failure becomes the norm.",
+  "flavor_text": "Every service has a boundary. Very few of them make sense",
+  "max_turns": 9,
+  "starting_scores": {
+    "domain_clarity": 25,
+    "maintainability": 40,
+    "delivery_confidence": 48,
+    "team_morale": 55,
+    "user_trust": 52,
+    "budget": 65
+  },
+  "score_refs": [
+    { "id": "domain_clarity", "version": 1 },
+    { "id": "maintainability", "version": 1 },
+    { "id": "delivery_confidence", "version": 1 },
+    { "id": "team_morale", "version": 1 },
+    { "id": "user_trust", "version": 1 },
+    { "id": "budget", "version": 1 }
+  ],
+  "stakeholder_refs": [
+    { "id": "cto", "version": 1 },
+    { "id": "lead_developer", "version": 1 },
+    { "id": "tech_lead", "version": 1 },
+    { "id": "operations_manager", "version": 1 }
+  ],
+  "card_refs": [
+    { "id": "define_bounded_context", "version": 1 },
+    { "id": "extract_shared_kernel", "version": 1 },
+    { "id": "document_ubiquitous_language", "version": 1 },
+    { "id": "introduce_anti_corruption_layer", "version": 1 },
+    { "id": "ship_quick_fix", "version": 1 },
+    { "id": "hold_architecture_workshop", "version": 1 },
+    { "id": "add_integration_tests", "version": 1 },
+    { "id": "refactor_core_aggregate", "version": 1 },
+    { "id": "establish_team_ownership", "version": 1 },
+    { "id": "introduce_event_storming", "version": 1 }
+  ],
+  "event_refs": [
+    { "id": "critical_bug_discovered", "version": 1 },
+    { "id": "customer_praises_reliability", "version": 1 },
+    { "id": "urgent_feature_request", "version": 1 },
+    { "id": "team_member_discovers_pattern", "version": 1 },
+    { "id": "dependency_breaks_unexpectedly", "version": 1 }
+  ],
+  "outcome_tier_refs": [
+    { "id": "triumph", "version": 1 },
+    { "id": "success", "version": 1 },
+    { "id": "survival", "version": 1 },
+    { "id": "struggle", "version": 1 },
+    { "id": "collapse", "version": 1 }
+  ],
+  "outcome_archetype_refs": [
+    { "id": "boundary_builder", "version": 1 },
+    { "id": "firefighter", "version": 1 },
+    { "id": "system_stabilizer", "version": 1 },
+    { "id": "stakeholder_whisperer", "version": 1 },
+    { "id": "runaway_refactorer", "version": 1 }
+  ]
+}

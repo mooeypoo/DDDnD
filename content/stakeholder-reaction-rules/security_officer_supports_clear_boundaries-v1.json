@@ -1,0 +1,17 @@
+{
+  "id": "security_officer_supports_clear_boundaries",
+  "version": 1,
+  "name": "Security Officer Supports Clear Boundaries",
+  "description": "The security officer backs boundary work when clarity improves",
+  "condition_description": "Domain clarity >= 60",
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 5
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 2
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "security_officer",
+  "version": 1,
+  "name": "Security Officer",
+  "description": "Risk-focused leader concerned with user trust, system clarity, and avoiding preventable incidents",
+  "reaction_rule_refs": [
+    {
+      "id": "security_officer_flags_risky_system",
+      "version": 1
+    },
+    {
+      "id": "security_officer_supports_clear_boundaries",
+      "version": 1
+    }
+  ]
+}

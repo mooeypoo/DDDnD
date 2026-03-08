@@ -23,7 +23,7 @@ export const eventMocks: Record<string, Event> = {
     name: 'Stakeholder Panic',
     description: 'Leadership requests daily updates and immediate guarantees.',
     score_changes: [
-      { score_id: 'developer_morale', delta: -5 },
+      { score_id: 'team_morale', delta: -5 },
       { score_id: 'delivery_confidence', delta: -3 }
     ],
     stakeholder_changes: [{ stakeholder_id: 'leadership_team', delta: -8 }],
@@ -61,7 +61,7 @@ export const eventMocks: Record<string, Event> = {
     name: 'Team Burnout Warning',
     description: 'Sustained on-call pressure starts degrading focus and retention.',
     score_changes: [
-      { score_id: 'developer_morale', delta: -9 },
+      { score_id: 'team_morale', delta: -9 },
       { score_id: 'delivery_confidence', delta: -2 }
     ],
     stakeholder_changes: [{ stakeholder_id: 'lead_engineer', delta: -5 }],

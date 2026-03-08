@@ -1,0 +1,17 @@
+{
+  "id": "cfo_cuts_spending_when_budget_low",
+  "version": 1,
+  "name": "CFO Cuts Spending When Budget Is Low",
+  "description": "The CFO tightens spending when the budget gets dangerously low",
+  "condition_description": "Budget < 35",
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -2
+    }
+  ]
+}

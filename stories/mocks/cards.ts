@@ -27,7 +27,7 @@ export const cardMocks: Record<string, Card> = {
       { score_id: 'domain_clarity', delta: 10 },
       { score_id: 'maintainability', delta: 8 },
       { score_id: 'delivery_confidence', delta: -9 },
-      { score_id: 'developer_morale', delta: -3 }
+      { score_id: 'team_morale', delta: -3 }
     ],
     stakeholder_changes: [
       { stakeholder_id: 'vp_product', delta: -5 },
@@ -44,7 +44,7 @@ export const cardMocks: Record<string, Card> = {
     flavor_text: 'Shared language turns meetings into decisions instead of debates.',
     score_changes: [
       { score_id: 'domain_clarity', delta: 5 },
-      { score_id: 'developer_morale', delta: 7 }
+      { score_id: 'team_morale', delta: 7 }
     ],
     stakeholder_changes: [
       { stakeholder_id: 'leadership_team', delta: 2 },

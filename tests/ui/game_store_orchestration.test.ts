@@ -2,22 +2,24 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
 vi.mock('@/ui/services/quest_loader', async () => {
-  const actual = await vi.importActual<typeof import('@/ui/services/quest_loader')>('@/ui/services/quest_loader')
+  const actual = await vi.importActual<typeof import('@/ui/services/quest_loader')>(
+    '@/ui/services/quest_loader'
+  )
   return {
     ...actual,
-    loadQuestDisplayModels: vi.fn(async () => [
-      {
-        id: 'monolith_of_mild_despair',
-        version: 1,
-        name: 'The Monolith of Mild Despair',
-        description: 'A legacy monolith is slowing delivery and blurring domain boundaries',
-        shortDescription: 'Stabilize a tangled legacy monolith before delivery confidence collapses.',
-        flavorText: 'You inherit a codebase where every change touches everything',
+    loadQuestDisplayModels: vi.fn(async (scenarioRefs) =>
+      scenarioRefs.map((ref) => ({
+        id: ref.id,
+        version: ref.version,
+        name: `${ref.id} name`,
+        description: `${ref.id} description`,
+        shortDescription: `${ref.id} short`,
+        flavorText: `${ref.id} flavor`,
         turnCount: 8,
         stakeholderCount: 4,
         actionCardCount: 10
-      }
-    ])
+      }))
+    )
   }
 })
 
@@ -31,13 +33,15 @@ vi.mock('@/domains/content', async () => {
   return {
     ...actual,
     createContentProvider: vi.fn(() => createMockContentProvider()),
-    buildScenarioBundle: vi.fn(async () =>
+    buildScenarioBundle: vi.fn(async (_scenarioId: string, _scenarioVersion: number) =>
       realBuildScenarioBundle('test_scenario', 1, createMockContentProvider())
     )
   }
 })
 
 import { useGameStore } from '@/ui/stores/game_store'
+import { buildScenarioBundle } from '@/domains/content'
+import { AVAILABLE_QUESTS } from '@/ui/config/available_quests'
 
 describe('game_store orchestration', () => {
   beforeEach(() => {
@@ -62,6 +66,11 @@ describe('game_store orchestration', () => {
     expect(store.turnBriefing?.turn_number).toBe(1)
     expect(store.lastTurnResolution).toBeNull()
     expect(store.runOutcome).toBeNull()
+    expect(buildScenarioBundle).toHaveBeenCalledWith(
+      'monolith_of_mild_despair',
+      1,
+      expect.any(Object)
+    )
   })
 
   it('playing a turn updates game_state, turn_resolution, and turn_briefing', async () => {
@@ -128,13 +137,13 @@ describe('game_store orchestration', () => {
 
     await store.load_available_quests()
 
-    expect(store.availableQuests).toHaveLength(1)
-    expect(store.availableQuests[0].id).toBe('monolith_of_mild_despair')
-    expect(store.availableQuests[0].version).toBe(1)
-    expect(store.availableQuests[0].name).toBe('The Monolith of Mild Despair')
-    expect(store.availableQuests[0].turnCount).toBe(8)
-    expect(store.availableQuests[0].stakeholderCount).toBeGreaterThan(0)
-    expect(store.availableQuests[0].actionCardCount).toBeGreaterThan(0)
+    expect(store.availableQuests).toHaveLength(AVAILABLE_QUESTS.length)
+    expect(store.availableQuests.map((quest) => quest.id)).toEqual(
+      AVAILABLE_QUESTS.map((questRef) => questRef.id)
+    )
+    expect(store.availableQuests.every((quest) => quest.turnCount > 0)).toBe(true)
+    expect(store.availableQuests.every((quest) => quest.stakeholderCount > 0)).toBe(true)
+    expect(store.availableQuests.every((quest) => quest.actionCardCount > 0)).toBe(true)
   })
 })
 

@@ -1,0 +1,17 @@
+{
+  "id": "cfo_rewards_predictable_delivery",
+  "version": 1,
+  "name": "CFO Rewards Predictable Delivery",
+  "description": "The CFO loosens the purse strings when delivery becomes dependable",
+  "condition_description": "Delivery confidence > 65",
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": 6
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 2
+    }
+  ]
+}

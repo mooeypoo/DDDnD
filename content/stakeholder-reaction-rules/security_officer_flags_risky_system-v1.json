@@ -1,0 +1,17 @@
+{
+  "id": "security_officer_flags_risky_system",
+  "version": 1,
+  "name": "Security Officer Flags Risky System",
+  "description": "The security officer escalates concerns when user trust falls too low",
+  "condition_description": "User trust < 45",
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": -4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ]
+}

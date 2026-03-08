@@ -66,7 +66,7 @@ describe('Simulation model runtime structures', () => {
         domain_clarity: 30,
         maintainability: 38,
         delivery_confidence: 45,
-        developer_morale: 50,
+        team_morale: 50,
         user_trust: 55,
         budget: 60
       },
@@ -155,7 +155,7 @@ describe('Simulation model runtime structures', () => {
         domain_clarity: 38,
         maintainability: 46,
         delivery_confidence: 43,
-        developer_morale: 50,
+        team_morale: 50,
         user_trust: 47,
         budget: 55
       },

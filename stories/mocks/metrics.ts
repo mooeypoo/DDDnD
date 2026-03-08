@@ -5,7 +5,7 @@ export const metricStates: Record<'healthy' | 'unstable' | 'nearCollapse', Metri
     domain_clarity: 78,
     maintainability: 74,
     delivery_confidence: 69,
-    developer_morale: 72,
+    team_morale: 72,
     user_trust: 76,
     budget: 61
   },
@@ -13,7 +13,7 @@ export const metricStates: Record<'healthy' | 'unstable' | 'nearCollapse', Metri
     domain_clarity: 49,
     maintainability: 41,
     delivery_confidence: 38,
-    developer_morale: 44,
+    team_morale: 44,
     user_trust: 35,
     budget: 52
   },
@@ -21,7 +21,7 @@ export const metricStates: Record<'healthy' | 'unstable' | 'nearCollapse', Metri
     domain_clarity: 19,
     maintainability: 15,
     delivery_confidence: 21,
-    developer_morale: 12,
+    team_morale: 12,
     user_trust: 9,
     budget: 28
   }

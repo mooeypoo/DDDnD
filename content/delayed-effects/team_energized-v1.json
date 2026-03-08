@@ -6,7 +6,7 @@
   "turns_until_resolution": 1,
   "score_changes": [
     {
-      "score_id": "developer_morale",
+      "score_id": "team_morale",
       "delta": 8
     },
     {

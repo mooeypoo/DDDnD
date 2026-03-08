@@ -1,0 +1,16 @@
+{
+  "id": "cfo",
+  "version": 1,
+  "name": "Chief Financial Officer",
+  "description": "Finance leader focused on budget discipline, predictable delivery, and visible return on investment",
+  "reaction_rule_refs": [
+    {
+      "id": "cfo_cuts_spending_when_budget_low",
+      "version": 1
+    },
+    {
+      "id": "cfo_rewards_predictable_delivery",
+      "version": 1
+    }
+  ]
+}

@@ -6,7 +6,7 @@
   "condition_description": "Delivery confidence < 40",
   "score_changes": [
     {
-      "score_id": "developer_morale",
+      "score_id": "team_morale",
       "delta": -5
     },
     {

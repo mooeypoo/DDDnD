@@ -15,10 +15,10 @@ const METRIC_PRESENTATION: Record<string, MetricPresentation> = {
     colorClass: 'metric-delivery-confidence',
     label: 'Delivery Confidence'
   },
-  developer_morale: {
+  team_morale: {
     icon: '😌',
     colorClass: 'metric-developer-morale',
-    label: 'Developer Morale'
+    label: 'Team Morale'
   },
   user_trust: {
     icon: '🤝',
