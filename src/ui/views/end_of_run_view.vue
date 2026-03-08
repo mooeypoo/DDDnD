@@ -172,6 +172,9 @@ const gameStore = useGameStore()
 const outcome = computed(() => gameStore.runOutcome)
 
 onMounted(() => {
+  // Scroll to top when end screen loads
+  window.scrollTo(0, 0)
+  
   if (!gameStore.hasActiveRun || !gameStore.isRunComplete) {
     router.push('/')
     return
