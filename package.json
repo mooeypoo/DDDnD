@@ -8,6 +8,9 @@
     "type": "git",
     "url": "https://github.com/mooeypoo/DDDnD.git"
   },
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
