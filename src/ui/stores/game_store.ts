@@ -26,6 +26,9 @@ import type {
 import type { ScenarioBundle, VersionRef, PlayerClass } from '@/domains/content/model'
 import { createContentProvider, buildScenarioBundle } from '@/domains/content'
 import { create_engine } from '@/domains/simulation'
+import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
+import { loadQuestDisplayModels } from '@/ui/services/quest_loader'
+import { AVAILABLE_QUESTS } from '@/ui/config/available_quests'
 
 export interface RunSetupOptions {
   scenario_id: string
@@ -51,6 +54,10 @@ export const useGameStore = defineStore('game', () => {
   // Loading state
   const isLoadingBundle = ref(false)
   const isPlayingTurn = ref(false)
+  const isLoadingQuests = ref(false)
+  
+  // Available quests (loaded from config and content)
+  const availableQuests = ref<QuestDisplayModel[]>([])
   
   // Available classes (loaded from content)
   const availableClasses = ref<PlayerClass[]>([])
@@ -94,6 +101,19 @@ export const useGameStore = defineStore('game', () => {
     )
     
     availableClasses.value = classes
+  }
+  
+  /**
+   * Load available quests from the UI config and scenario content
+   */
+  async function load_available_quests() {
+    isLoadingQuests.value = true
+    try {
+      const quests = await loadQuestDisplayModels(AVAILABLE_QUESTS)
+      availableQuests.value = quests
+    } finally {
+      isLoadingQuests.value = false
+    }
   }
   
   /**
@@ -238,11 +258,13 @@ export const useGameStore = defineStore('game', () => {
     turnBriefing,
     lastTurnResolution,
     runOutcome,
+    availableQuests,
     availableClasses,
     isAboutModalOpen,
     isRulesModalOpen,
     isLoadingBundle,
     isPlayingTurn,
+    isLoadingQuests,
     
     // Computed
     hasActiveRun,
@@ -252,6 +274,7 @@ export const useGameStore = defineStore('game', () => {
     
     // Actions
     initialize_engine,
+    load_available_quests,
     load_available_classes,
     start_new_run,
     refresh_turn_briefing,

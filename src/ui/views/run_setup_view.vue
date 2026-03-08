@@ -14,8 +14,8 @@
       </header>
       
       <div class="setup-content">
-        <!-- Scenario Info (MVP has only one scenario) -->
-        <section class="setup-section scenario-section">
+        <!-- Quest Selection (data-driven from scenario content) -->
+        <section class="setup-section quest-section">
           <div class="section-header">
             <h2 class="section-title">
               <span class="section-icon">🏛️</span>
@@ -23,32 +23,58 @@
             </h2>
           </div>
           
-          <div class="scenario-card">
-            <div class="scenario-badge">Single Player Campaign</div>
-            <h3 class="scenario-name">The Monolith of Mild Despair</h3>
-            <p class="scenario-short-summary">
-              Stabilize a tangled legacy monolith before delivery confidence collapses.
-            </p>
-            <p class="scenario-description">
-              A legacy monolith is slowing delivery and blurring domain boundaries. 
-              You inherit a codebase where every change touches everything. 
-              Can you bring order to the chaos before time runs out?
-            </p>
-            
-            <div class="scenario-stats">
-              <div class="stat-item">
-                <span class="stat-icon">🎯</span>
-                <span class="stat-label">8 Turns</span>
+          <div v-if="isLoadingQuests" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading quests...</p>
+          </div>
+          
+          <div v-else-if="gameStore.availableQuests.length === 0" class="empty-state">
+            <p>No quests available. Please check your content directory.</p>
+          </div>
+          
+          <div v-else class="quest-grid">
+            <button 
+              v-for="quest in gameStore.availableQuests" 
+              :key="`${quest.id}-v${quest.version}`"
+              class="quest-card"
+              :class="{ selected: selectedQuest?.id === quest.id && selectedQuest?.version === quest.version }"
+              @click="selectQuest(quest)"
+            >
+              <div class="quest-badge">Official Campaign</div>
+              
+              <h3 class="quest-name">{{ quest.name }}</h3>
+              
+              <p v-if="quest.shortDescription" class="quest-short-summary">
+                {{ quest.shortDescription }}
+              </p>
+              
+              <p class="quest-description">
+                {{ quest.description }}
+              </p>
+              
+              <p v-if="quest.flavorText" class="quest-flavor">
+                {{ quest.flavorText }}
+              </p>
+              
+              <div v-if="quest.turnCount || quest.stakeholderCount || quest.actionCardCount" class="quest-stats">
+                <div v-if="quest.turnCount" class="stat-item">
+                  <span class="stat-icon">🎯</span>
+                  <span class="stat-label">{{ quest.turnCount }} Turns</span>
+                </div>
+                <div v-if="quest.stakeholderCount" class="stat-item">
+                  <span class="stat-icon">👥</span>
+                  <span class="stat-label">{{ quest.stakeholderCount }} Stakeholders</span>
+                </div>
+                <div v-if="quest.actionCardCount" class="stat-item">
+                  <span class="stat-icon">🎴</span>
+                  <span class="stat-label">{{ quest.actionCardCount }} Action Cards</span>
+                </div>
               </div>
-              <div class="stat-item">
-                <span class="stat-icon">👥</span>
-                <span class="stat-label">4 Stakeholders</span>
+              
+              <div v-if="selectedQuest?.id === quest.id && selectedQuest?.version === quest.version" class="selected-indicator">
+                ✓ Selected
               </div>
-              <div class="stat-item">
-                <span class="stat-icon">🎴</span>
-                <span class="stat-label">10 Action Cards</span>
-              </div>
-            </div>
+            </button>
           </div>
         </section>
         
@@ -123,7 +149,7 @@
           
           <button 
             class="btn-primary" 
-            :disabled="!selectedClass || gameStore.isLoadingBundle"
+            :disabled="!selectedClass || !selectedQuest || gameStore.isLoadingBundle"
             @click="startRun"
           >
             <span class="btn-text">
@@ -155,6 +181,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { PlayerClass } from '@/domains/content/model'
+import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
@@ -163,10 +190,13 @@ const router = useRouter()
 const gameStore = useGameStore()
 
 const selectedClass = ref<PlayerClass | null>(null)
+const selectedQuest = ref<QuestDisplayModel | null>(null)
 const characterName = ref('')
 const isLoadingClasses = ref(false)
+const isLoadingQuests = ref(false)
 
 onMounted(async () => {
+  // Load available classes if not already loaded
   if (gameStore.availableClasses.length === 0) {
     isLoadingClasses.value = true
     try {
@@ -175,10 +205,31 @@ onMounted(async () => {
       isLoadingClasses.value = false
     }
   }
+  
+  // Load available quests if not already loaded
+  if (gameStore.availableQuests.length === 0) {
+    isLoadingQuests.value = true
+    try {
+      await gameStore.load_available_quests()
+      // Auto-select first quest if available
+      if (gameStore.availableQuests.length > 0) {
+        selectedQuest.value = gameStore.availableQuests[0]
+      }
+    } finally {
+      isLoadingQuests.value = false
+    }
+  } else if (gameStore.availableQuests.length > 0 && !selectedQuest.value) {
+    // If quests were already loaded but we don't have a selection, auto-select first
+    selectedQuest.value = gameStore.availableQuests[0]
+  }
 })
 
 function selectClass(classOption: PlayerClass) {
   selectedClass.value = classOption
+}
+
+function selectQuest(quest: QuestDisplayModel) {
+  selectedQuest.value = quest
 }
 
 function goBack() {
@@ -186,11 +237,11 @@ function goBack() {
 }
 
 async function startRun() {
-  if (!selectedClass.value) return
+  if (!selectedClass.value || !selectedQuest.value) return
   
   await gameStore.start_new_run({
-    scenario_id: 'monolith_of_mild_despair',
-    scenario_version: 1,
+    scenario_id: selectedQuest.value.id,
+    scenario_version: selectedQuest.value.version,
     selected_class_ref: {
       id: selectedClass.value.id,
       version: selectedClass.value.version
@@ -288,17 +339,56 @@ async function startRun() {
   font-style: italic;
 }
 
-/* Scenario Card */
-.scenario-card {
-  background: var(--card-bg);
-  border: 2px solid var(--color-border-primary);
-  border-radius: var(--radius-xl);
-  padding: var(--space-2xl);
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(10px);
+/* Quest Grid and Cards */
+.quest-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--space-lg);
 }
 
-.scenario-badge {
+.quest-card {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  cursor: pointer;
+  transition: all var(--transition-slow);
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  font-family: var(--font-sans);
+}
+
+.quest-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  border-radius: var(--radius-xl);
+  opacity: 0;
+  transition: opacity var(--transition-slow);
+  z-index: -1;
+}
+
+.quest-card:hover {
+  border-color: var(--card-border-hover);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.quest-card.selected {
+  border-color: var(--color-primary);
+  background: var(--color-danger-bg);
+  box-shadow: 0 4px 20px var(--color-primary-glow);
+}
+
+.quest-badge {
   display: inline-block;
   background: var(--color-primary-dark);
   color: var(--color-text-bright);
@@ -308,27 +398,27 @@ async function startRun() {
   font-weight: var(--font-semibold);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: var(--space-lg);
+  align-self: flex-start;
 }
 
-.scenario-name {
+.quest-name {
   color: var(--color-text-bright);
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   font-weight: var(--font-bold);
-  margin: 0 0 var(--space-lg) 0;
+  margin: 0;
 }
 
-.scenario-description {
+.quest-description {
   color: var(--color-text-primary);
   line-height: var(--leading-relaxed);
-  margin: 0 0 var(--space-lg) 0;
+  margin: 0;
   font-size: var(--text-base);
 }
 
-.scenario-short-summary {
+.quest-short-summary {
   color: var(--color-text-secondary);
   line-height: var(--leading-snug);
-  margin: 0 0 var(--space-md) 0;
+  margin: 0;
   font-size: var(--text-sm);
   font-style: italic;
   padding: var(--space-md);
@@ -337,12 +427,35 @@ async function startRun() {
   border-radius: var(--radius-md);
 }
 
-.scenario-stats {
+.quest-flavor {
+  color: var(--color-text-secondary);
+  font-style: italic;
+  font-size: var(--text-sm);
+  margin: 0;
+  line-height: var(--leading-snug);
+}
+
+.quest-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-xl);
-  padding-top: var(--space-lg);
+  gap: var(--space-lg);
+  padding-top: var(--space-md);
   border-top: 1px solid var(--color-border-default);
+  margin-top: auto;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: var(--space-4xl);
+  color: var(--color-text-secondary);
+  background: var(--card-bg);
+  border: 2px dashed var(--card-border);
+  border-radius: var(--radius-xl);
+}
+
+.empty-state p {
+  margin: 0;
 }
 
 .stat-item {
@@ -642,6 +755,10 @@ async function startRun() {
     grid-template-columns: 1fr;
   }
   
+  .quest-grid {
+    grid-template-columns: 1fr;
+  }
+  
   .actions-section {
     flex-direction: column-reverse;
     width: 100%;
@@ -659,7 +776,7 @@ async function startRun() {
     padding: var(--space-lg);
   }
   
-  .scenario-stats {
+  .quest-stats {
     flex-direction: column;
     gap: var(--space-md);
   }

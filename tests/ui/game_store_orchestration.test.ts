@@ -1,6 +1,26 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
+vi.mock('@/ui/services/quest_loader', async () => {
+  const actual = await vi.importActual<typeof import('@/ui/services/quest_loader')>('@/ui/services/quest_loader')
+  return {
+    ...actual,
+    loadQuestDisplayModels: vi.fn(async () => [
+      {
+        id: 'monolith_of_mild_despair',
+        version: 1,
+        name: 'The Monolith of Mild Despair',
+        description: 'A legacy monolith is slowing delivery and blurring domain boundaries',
+        shortDescription: 'Stabilize a tangled legacy monolith before delivery confidence collapses.',
+        flavorText: 'You inherit a codebase where every change touches everything',
+        turnCount: 8,
+        stakeholderCount: 4,
+        actionCardCount: 10
+      }
+    ])
+  }
+})
+
 vi.mock('@/domains/content', async () => {
   const actual = await vi.importActual<typeof import('@/domains/content')>('@/domains/content')
   const { buildScenarioBundle: realBuildScenarioBundle } = await vi.importActual<
@@ -10,7 +30,7 @@ vi.mock('@/domains/content', async () => {
 
   return {
     ...actual,
-    createContentProvider: vi.fn(() => ({})),
+    createContentProvider: vi.fn(() => createMockContentProvider()),
     buildScenarioBundle: vi.fn(async () =>
       realBuildScenarioBundle('test_scenario', 1, createMockContentProvider())
     )
@@ -100,4 +120,21 @@ describe('game_store orchestration', () => {
     expect(store.gameState?.progress.current_turn).toBe(turnBefore)
     expect(store.turnBriefing?.turn_number).toBe(briefingTurnBefore)
   })
+
+  it('loads available quests from the UI config', async () => {
+    const store = useGameStore()
+
+    expect(store.availableQuests).toHaveLength(0)
+
+    await store.load_available_quests()
+
+    expect(store.availableQuests).toHaveLength(1)
+    expect(store.availableQuests[0].id).toBe('monolith_of_mild_despair')
+    expect(store.availableQuests[0].version).toBe(1)
+    expect(store.availableQuests[0].name).toBe('The Monolith of Mild Despair')
+    expect(store.availableQuests[0].turnCount).toBe(8)
+    expect(store.availableQuests[0].stakeholderCount).toBeGreaterThan(0)
+    expect(store.availableQuests[0].actionCardCount).toBeGreaterThan(0)
+  })
 })
+
