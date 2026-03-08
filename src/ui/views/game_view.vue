@@ -12,8 +12,14 @@
       @play="handlePlayCard"
     />
     
+    <!-- Game Masthead -->
+    <GameMasthead 
+      @show-rules="gameStore.openRulesModal"
+      @show-about="gameStore.openAboutModal"
+    />
+    
     <div class="game-container">
-      <!-- Scenario Banner (new) -->
+      <!-- Scenario Banner -->
       <ScenarioBanner
         v-if="scenario"
         :title="scenario.name"
@@ -22,20 +28,6 @@
         :current-turn="gameStore.currentTurn"
         :max-turns="gameStore.maxTurns"
       />
-
-      <!-- Header (compact) -->
-      <header class="game-header">
-        <div class="header-actions">
-          <button class="icon-button" @click="gameStore.openRulesModal">
-            <span class="button-icon">📖</span>
-            <span class="button-label">Rules</span>
-          </button>
-          <button class="icon-button" @click="gameStore.openAboutModal">
-            <span class="button-icon">ℹ️</span>
-            <span class="button-label">About</span>
-          </button>
-        </div>
-      </header>
       
       <!-- Main Game Area -->
       <div class="game-main">
@@ -129,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { Card } from '@/domains/content/model'
@@ -145,6 +137,7 @@ import TurnBriefingPanel from '@/ui/components/turn/turn_briefing_panel.vue'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import CardDetailsModal from '@/ui/components/cards/card_details_modal.vue'
+import GameMasthead from '@/ui/components/branding/game_masthead.vue'
 
 const router = useRouter()
 const gameStore = useGameStore()
@@ -202,7 +195,19 @@ onMounted(() => {
   if (!gameStore.hasActiveRun) {
     router.push('/play')
   }
+  
+  // Listen for reset event from masthead
+  window.addEventListener('reset-run', handleResetRun)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('reset-run', handleResetRun)
+})
+
+function handleResetRun() {
+  gameStore.reset()
+  router.push('/play')
+}
 
 function handleShowDetails(cardId: string) {
   modalCardId.value = cardId
@@ -272,54 +277,6 @@ function goToEndScreen() {
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
-}
-
-/* Header (compact) */
-.game-header {
-  background: transparent;
-  border: none;
-  padding: 0;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  box-shadow: none;
-  backdrop-filter: none;
-}
-
-.header-actions {
-  display: flex;
-  gap: var(--space-sm);
-}
-
-.icon-button {
-  background: var(--color-bg-overlay);
-  border: 2px solid var(--color-border-default);
-  color: var(--color-text-primary);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-xs);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-}
-
-.icon-button:hover {
-  background: var(--color-bg-surface);
-  border-color: var(--color-border-focus);
-  transform: translateY(-1px);
-}
-
-.button-icon {
-  font-size: var(--text-lg);
-  line-height: 1;
-}
-
-.button-label {
-  white-space: nowrap;
 }
 
 /* Main Game Layout */

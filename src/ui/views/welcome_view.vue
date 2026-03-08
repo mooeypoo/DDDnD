@@ -7,11 +7,7 @@
       <div class="hero-section">
         <!-- Logo / Hero Visual Area -->
         <div class="hero-visual">
-          <!-- Future: Hero artwork/illustration slot -->
-          <div class="logo-container">
-            <div class="logo-text">DDDnD</div>
-            <div class="logo-subtitle">Domain-Driven Design nD</div>
-          </div>
+          <GameLogo size="large" />
         </div>
         
         <!-- Hero Content -->
@@ -74,6 +70,7 @@ import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
+import GameLogo from '@/ui/components/branding/game_logo.vue'
 
 const router = useRouter()
 const gameStore = useGameStore()
@@ -118,33 +115,9 @@ function goToSetup() {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 180px;
-  position: relative;
-}
-
-.logo-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
+  min-height: 120px;
+  padding: var(--space-xl) 0;
   animation: fadeInUp 0.8s ease-out;
-}
-
-.logo-text {
-  font-size: clamp(3.5rem, 8vw, 6rem);
-  font-weight: var(--font-black);
-  color: var(--color-primary);
-  text-shadow: var(--shadow-glow-primary);
-  letter-spacing: 0.05em;
-  line-height: 1;
-}
-
-.logo-subtitle {
-  font-size: var(--text-xl);
-  color: var(--color-text-secondary);
-  font-weight: var(--font-medium);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  opacity: 0.9;
 }
 
 /* Hero Content */

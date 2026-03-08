@@ -6,6 +6,9 @@
     <div class="setup-container">
       <!-- Header -->
       <header class="setup-header">
+        <div class="header-logo">
+          <GameLogo size="medium" />
+        </div>
         <h1 class="setup-title">Prepare Your Run</h1>
         <p class="setup-subtitle">Choose your role and prepare to face the architectural chaos</p>
       </header>
@@ -16,7 +19,7 @@
           <div class="section-header">
             <h2 class="section-title">
               <span class="section-icon">🏛️</span>
-              Scenario
+              Choose a Quest
             </h2>
           </div>
           
@@ -154,6 +157,7 @@ import { useGameStore } from '@/ui/stores/game_store'
 import type { PlayerClass } from '@/domains/content/model'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
+import GameLogo from '@/ui/components/branding/game_logo.vue'
 
 const router = useRouter()
 const gameStore = useGameStore()
@@ -221,6 +225,12 @@ async function startRun() {
 .setup-header {
   text-align: center;
   animation: fadeInUp 0.6s ease-out;
+}
+
+.header-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-xl);
 }
 
 .setup-title {
