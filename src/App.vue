@@ -1,11 +1,22 @@
 <template>
-  <div id="app">
-    <RouterView />
+  <div id="app" class="app-shell">
+    <main class="app-main">
+      <RouterView />
+    </main>
+    <SiteFooter v-if="showFooter" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
+import SiteFooter from '@/ui/components/common/site_footer.vue'
+
+const route = useRoute()
+
+const showFooter = computed(() => {
+  return route.name === 'welcome' || route.name === 'play' || route.name === 'game' || route.name === 'end'
+})
 </script>
 
 <style>
@@ -31,6 +42,16 @@ body {
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
 }
 
 /* Improved default heading styles */

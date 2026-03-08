@@ -33,6 +33,14 @@
           Balance competing priorities before time runs out. Your outcome will be classified 
           by both success tier and play style archetype.
         </p>
+
+        <h3>Creator</h3>
+        <p class="creator-credit">
+          Made by
+          <a href="https://moriel.tech" target="_blank" rel="noopener noreferrer">Moriel Schottlender</a>
+          ·
+          <a href="https://github.com/mooeypoo/DDDnD" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </p>
         
         <p class="credits">
           A game about software architecture, technical debt, and the humans who manage both.
@@ -193,6 +201,21 @@ function close() {
 .modal-body li strong {
   color: var(--color-text-primary);
   font-weight: var(--font-semibold);
+}
+
+.creator-credit {
+  margin-top: var(--space-sm);
+}
+
+.creator-credit a {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.creator-credit a:hover,
+.creator-credit a:focus-visible {
+  color: var(--color-primary);
 }
 
 .credits {
