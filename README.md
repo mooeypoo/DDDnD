@@ -1,4 +1,4 @@
-# DDDnD - Domain-Driven Design nD
+# DDDnD - Domain-Driven Design & Dragons
 
 A humorous simulation game about software architecture decision making using concepts from Domain-Driven Design.
 

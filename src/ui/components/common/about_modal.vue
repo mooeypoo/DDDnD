@@ -9,7 +9,7 @@
       <div class="modal-body">
         <h3>What is DDDnD?</h3>
         <p>
-          <strong>DDDnD</strong> (Domain-Driven Design nD) is a narrative simulation game 
+          <strong>DDDnD</strong> (Domain-Driven Design & Dragons) is a narrative simulation game 
           about making architectural decisions in legacy software systems.
         </p>
         
