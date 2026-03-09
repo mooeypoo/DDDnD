@@ -318,6 +318,8 @@
   --z-base:    0;
   --z-raised:  10;
   --z-sticky:  100;
+  --z-hud:     200;
+  --z-drawer:  300;
   --z-overlay: 400;
   --z-modal:   800;
   --z-tooltip: 1200;
@@ -360,6 +362,17 @@
 
   /* Focus ring */
   --focus-ring:        0 0 0 2px var(--bg-page), 0 0 0 4px var(--border-focus);
+
+  /* HUD bar */
+  --hud-height:        52px;
+  --hud-bg:            rgba(11, 14, 26, 0.92);
+  --hud-border:        rgba(169, 137, 250, 0.18);
+
+  /* Bottom drawer */
+  --drawer-handle-height: 48px;
+  --drawer-bg:         rgba(15, 20, 34, 0.97);
+  --drawer-border:     rgba(169, 137, 250, 0.22);
+  --drawer-max-height: 70vh;
 
 
   /* ═══════════════════════════════════════════════════════════

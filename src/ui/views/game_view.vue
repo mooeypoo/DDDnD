@@ -18,9 +18,18 @@
       @show-rules="gameStore.openRulesModal"
       @show-about="gameStore.openAboutModal"
     />
+
+    <!-- Sticky HUD Bar: scores, stakeholders, turn counter -->
+    <GameHudBar
+      :current-turn="gameStore.currentTurn"
+      :max-turns="gameStore.maxTurns"
+      :scores="gameStore.turnBriefing?.current_scores"
+      :stakeholders="gameStore.gameState?.stakeholders"
+      :stakeholder-names="stakeholderNames"
+    />
     
-    <div class="game-container">
-      <!-- Scenario Banner -->
+    <div class="game-container" :class="{ 'drawer-open': isSatchelOpen }">
+      <!-- Compact Scenario Banner -->
       <ScenarioBanner
         v-if="scenario"
         :title="scenario.name"
@@ -29,131 +38,76 @@
         :current-turn="gameStore.currentTurn"
         :max-turns="gameStore.maxTurns"
       />
-      
-      <!-- Main Game Area -->
-      <div class="game-main">
-        <!-- Left Sidebar: Scores & Stakeholders -->
-        <aside class="game-sidebar">
-          <div class="sidebar-shell score-shell">
-            <p class="sidebar-label">System Ledger</p>
-            <ScorePanel 
-              v-if="gameStore.turnBriefing"
-              :scores="gameStore.turnBriefing.current_scores"
-            />
-          </div>
 
-          <div class="sidebar-shell stakeholders-shell">
-            <p class="sidebar-label">Stakeholder Pulse</p>
-            <StakeholderPanel 
-              v-if="gameStore.gameState"
-              :stakeholders="gameStore.gameState.stakeholders"
-              :stakeholderNames="stakeholderNames"
-            />
+      <!-- Main Content Area (full-width, no sidebar) -->
+      <main class="game-main">
+        <!-- Turn Briefing -->
+        <TurnBriefingPanel
+          v-if="gameStore.turnBriefing"
+          :event-title="currentEventTitle"
+          :narrative-description="currentEventDescription"
+          :available-actions="gameStore.turnBriefing.available_action_card_ids.length"
+          :pending-aftershocks="gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length"
+          :current-turn="gameStore.currentTurn"
+          :total-turns="gameStore.maxTurns"
+        />
+
+        <!-- Aftershocks Warning -->
+        <div 
+          v-if="gameStore.turnBriefing && gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 0"
+          ref="aftershockAlertRef"
+          class="aftershock-alert"
+        >
+          <div class="alert-icon">⚡</div>
+          <div class="alert-content">
+            <div class="alert-title">Architectural Aftershocks Incoming</div>
+            <div class="alert-message">
+              {{ gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length }} delayed effect{{ gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 1 ? 's' : '' }} will resolve this turn
+            </div>
           </div>
-        </aside>
+        </div>
         
-        <!-- Center: Cards & Actions -->
-        <main class="game-center">
-          <!-- Turn Briefing -->
-          <TurnBriefingPanel
-            v-if="gameStore.turnBriefing"
-            :event-title="currentEventTitle"
-            :narrative-description="currentEventDescription"
-            :available-actions="gameStore.turnBriefing.available_action_card_ids.length"
-            :pending-aftershocks="gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length"
-            :current-turn="gameStore.currentTurn"
-            :total-turns="gameStore.maxTurns"
+        <!-- Last Turn Resolution -->
+        <div
+          v-if="gameStore.lastTurnResolution && gameStore.lastTurnResolution.turn_resolution_context"
+          ref="turnResolutionPanelRef"
+        >
+          <TurnResolutionPanel 
+            :turnResolution="gameStore.lastTurnResolution.turn_resolution_context"
+            :stakeholderNames="stakeholderNames"
           />
-
-          <!-- Aftershocks Warning -->
-          <div 
-            v-if="gameStore.turnBriefing && gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 0"
-            ref="aftershockAlertRef"
-            class="aftershock-alert"
-          >
-            <div class="alert-icon">⚡</div>
-            <div class="alert-content">
-              <div class="alert-title">Architectural Aftershocks Incoming</div>
-              <div class="alert-message">
-                {{ gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length }} delayed effect{{ gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 1 ? 's' : '' }} will resolve this turn
-              </div>
-            </div>
-          </div>
-          
-          <!-- Last Turn Resolution -->
-          <div
-            v-if="gameStore.lastTurnResolution && gameStore.lastTurnResolution.turn_resolution_context"
-            ref="turnResolutionPanelRef"
-          >
-            <TurnResolutionPanel 
-              :turnResolution="gameStore.lastTurnResolution.turn_resolution_context"
-              :stakeholderNames="stakeholderNames"
-            />
-          </div>
-          
-          <!-- Available Actions -->
-          <div v-if="!gameStore.isRunComplete" class="play-area">
-            <div class="play-area-header">
-              <div>
-                <h2 class="play-area-title">
-                  <span class="title-icon">🎒</span>
-                  Action Satchel
-                </h2>
-                <p class="play-area-hint">Choose your next architectural move</p>
-              </div>
-              <button
-                v-if="hasHiddenCards"
-                type="button"
-                class="satchel-toggle"
-                :aria-expanded="isSatchelExpanded"
-                @click="toggleSatchel"
-              >
-                {{ isSatchelExpanded ? 'Collapse' : 'Expand' }}
-              </button>
-            </div>
-
-            <div class="satchel-shell" :class="{ expanded: isSatchelExpanded }">
-              <div class="satchel-mouth" aria-hidden="true"></div>
-
-              <div class="actions-grid">
-                <ActionCard 
-                  v-for="entry in visibleCardEntries" 
-                  :key="entry.card.id + '-v' + entry.card.version"
-                  :card="entry.card"
-                  :availability="entry.availability"
-                  :isDisabled="gameStore.isPlayingTurn"
-                  @showDetails="handleShowDetails(entry.card.id)"
-                  @play="handlePlayCard"
-                />
-              </div>
-            </div>
-
-            <button
-              v-if="hasHiddenCards"
-              type="button"
-              class="satchel-expand-button"
-              @click="toggleSatchel"
-            >
-              {{ isSatchelExpanded ? 'Show fewer cards' : `Open satchel (+${hiddenCardCount})` }}
-            </button>
-
-            <p v-else class="satchel-footer-note">All action cards are currently in your satchel.</p>
-
-          </div>
-          
-          <!-- Run Complete Message -->
-          <div v-else class="run-complete-card">
-            <div class="complete-icon">🏁</div>
-            <h2 class="complete-title">Run Complete!</h2>
-            <p class="complete-message">Your architectural journey has reached its conclusion.</p>
-            <button class="btn-view-results" @click="goToEndScreen">
-              <span class="btn-text">View Results</span>
-              <span class="btn-icon">→</span>
-            </button>
-          </div>
-        </main>
-      </div>
+        </div>
+        
+        <!-- Run Complete Message -->
+        <div v-if="gameStore.isRunComplete" class="run-complete-card">
+          <div class="complete-icon">🏁</div>
+          <h2 class="complete-title">Run Complete!</h2>
+          <p class="complete-message">Your architectural journey has reached its conclusion.</p>
+          <button class="btn-view-results" @click="goToEndScreen">
+            <span class="btn-text">View Results</span>
+            <span class="btn-icon">→</span>
+          </button>
+        </div>
+      </main>
     </div>
+
+    <!-- Bottom Drawer: Card Satchel -->
+    <CardSatchelDrawer
+      v-if="!gameStore.isRunComplete"
+      v-model:isOpen="isSatchelOpen"
+      :totalCards="availableCardEntries.length"
+      :playableCards="playableCardCount"
+    >
+      <ActionCard 
+        v-for="entry in availableCardEntries" 
+        :key="entry.card.id + '-v' + entry.card.version"
+        :card="entry.card"
+        :availability="entry.availability"
+        :isDisabled="gameStore.isPlayingTurn"
+        @showDetails="handleShowDetails(entry.card.id)"
+        @play="handlePlayCard"
+      />
+    </CardSatchelDrawer>
   </div>
 </template>
 
@@ -166,14 +120,14 @@ import { versionRefKey } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import { resolveScenarioShortDescription } from '@/ui/composables/scenario_presentation'
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
-import ScorePanel from '@/ui/components/scores/score_panel.vue'
-import StakeholderPanel from '@/ui/components/stakeholders/stakeholder_panel.vue'
 import ActionCard from '@/ui/components/cards/action_card.vue'
+import CardSatchelDrawer from '@/ui/components/cards/card_satchel_drawer.vue'
 import TurnResolutionPanel from '@/ui/components/turn/turn_resolution_panel.vue'
 import ScenarioBanner from '@/ui/components/scenario/scenario_banner.vue'
 import TurnBriefingPanel from '@/ui/components/turn/turn_briefing_panel.vue'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
+import GameHudBar from '@/ui/components/common/game_hud_bar.vue'
 import CardDetailsModal from '@/ui/components/cards/card_details_modal.vue'
 import GameMasthead from '@/ui/components/branding/game_masthead.vue'
 
@@ -183,26 +137,22 @@ const gameStore = useGameStore()
 const modalCardId = ref<string | null>(null)
 const aftershockAlertRef = ref<HTMLElement | null>(null)
 const turnResolutionPanelRef = ref<HTMLElement | null>(null)
+const isSatchelOpen = ref(false)
 
 const SMALL_MOBILE_BREAKPOINT_PX = 480
 const MOBILE_BREAKPOINT_PX = 768
-const SCROLL_OFFSET_DESKTOP_PX = 80
-const SCROLL_OFFSET_MOBILE_PX = 100
-const SCROLL_OFFSET_SMALL_MOBILE_PX = 125
-const MOBILE_ACTION_PREVIEW_COUNT = 2
-const DESKTOP_ACTION_PREVIEW_COUNT = 4
-
-const viewportWidth = ref(typeof window === 'undefined' ? 1280 : window.innerWidth)
-const isSatchelExpanded = ref(false)
+const SCROLL_OFFSET_DESKTOP_PX = 120
+const SCROLL_OFFSET_MOBILE_PX = 140
+const SCROLL_OFFSET_SMALL_MOBILE_PX = 160
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
 
 const currentEventTitle = computed(() => {
-  return 'Choose Your Architectural Move'
+  return 'The Realm Awaits Your Command'
 })
 
 const currentEventDescription = computed(() => {
-  return 'The system awaits your decision. Select a card to take your next action.'
+  return 'Your party looks to you for guidance. Open your Action Satchel below and choose an architectural scroll to shape the fate of this system.'
 })
 
 const availabilitySummaryByKey = computed(() => {
@@ -234,26 +184,10 @@ const availableCardEntries = computed(() => {
   return cards
 })
 
-const collapsedCardLimit = computed(() => {
-  return viewportWidth.value <= MOBILE_BREAKPOINT_PX
-    ? MOBILE_ACTION_PREVIEW_COUNT
-    : DESKTOP_ACTION_PREVIEW_COUNT
-})
-
-const hasHiddenCards = computed(() => {
-  return availableCardEntries.value.length > collapsedCardLimit.value
-})
-
-const hiddenCardCount = computed(() => {
-  return Math.max(0, availableCardEntries.value.length - collapsedCardLimit.value)
-})
-
-const visibleCardEntries = computed(() => {
-  if (!hasHiddenCards.value || isSatchelExpanded.value) {
-    return availableCardEntries.value
-  }
-
-  return availableCardEntries.value.slice(0, collapsedCardLimit.value)
+const playableCardCount = computed(() => {
+  return availableCardEntries.value.filter(
+    entry => !entry.availability || entry.availability.is_playable
+  ).length
 })
 
 const modalCard = computed(() => {
@@ -284,12 +218,10 @@ onMounted(() => {
   
   // Listen for reset event from masthead
   window.addEventListener('reset-run', handleResetRun)
-  window.addEventListener('resize', handleWindowResize)
 })
 
 onUnmounted(() => {
   window.removeEventListener('reset-run', handleResetRun)
-  window.removeEventListener('resize', handleWindowResize)
 })
 
 function handleResetRun() {
@@ -301,16 +233,9 @@ function handleShowDetails(cardId: string) {
   modalCardId.value = cardId
 }
 
-function handleWindowResize() {
-  viewportWidth.value = window.innerWidth
-}
-
-function toggleSatchel() {
-  isSatchelExpanded.value = !isSatchelExpanded.value
-}
-
 async function handlePlayCard(cardId: string) {
   modalCardId.value = null
+  isSatchelOpen.value = false
   await gameStore.play_turn(cardId)
   await scrollToResolutionContext()
   
@@ -363,63 +288,24 @@ function goToEndScreen() {
     var(--color-bg-dark) 50%, 
     var(--color-bg-medium) 100%
   );
-  padding-bottom: var(--space-2xl);
+  /* Reserve space at bottom for the drawer handle */
+  padding-bottom: calc(var(--drawer-handle-height) + var(--space-lg));
 }
 
 .game-container {
-  max-width: 1600px;
+  max-width: 900px;
   margin: 0 auto;
   padding: var(--space-lg);
   display: flex;
   flex-direction: column;
-  gap: var(--space-xl);
+  gap: var(--space-lg);
 }
 
-/* Main Game Layout */
+/* Main game area — single column, full width */
 .game-main {
-  display: grid;
-  grid-template-columns: 340px minmax(0, 1fr);
-  gap: var(--space-xl);
-  align-items: start;
-}
-
-.game-sidebar {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  position: sticky;
-  top: var(--space-lg);
-}
-
-.sidebar-shell {
-  padding: var(--space-md);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-xl);
-  background: linear-gradient(180deg, var(--surface-panel) 0%, var(--bg-secondary) 100%);
-  box-shadow: var(--shadow-panel);
-}
-
-.score-shell {
-  border-color: var(--border-accent);
-}
-
-.stakeholders-shell {
-  border-color: var(--border-panel);
-}
-
-.sidebar-label {
-  margin: 0 0 var(--space-sm) 0;
-  color: var(--text-secondary);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-}
-
-.game-center {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xl);
   min-width: 0;
 }
 
@@ -428,16 +314,17 @@ function goToEndScreen() {
   background: linear-gradient(135deg, var(--effect-warning-bg) 0%, var(--surface-panel) 100%);
   border: 1px solid var(--effect-warning-border);
   border-radius: var(--radius-xl);
-  padding: var(--space-lg);
+  padding: var(--space-md) var(--space-lg);
   display: flex;
   align-items: center;
-  gap: var(--space-lg);
+  gap: var(--space-md);
   box-shadow: var(--shadow-panel);
 }
 
 .alert-icon {
-  font-size: var(--text-4xl);
+  font-size: var(--text-2xl);
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .alert-content {
@@ -446,7 +333,7 @@ function goToEndScreen() {
 
 .alert-title {
   color: var(--effect-warning);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--font-bold);
   margin-bottom: var(--space-xs);
 }
@@ -456,190 +343,40 @@ function goToEndScreen() {
   font-size: var(--text-sm);
 }
 
-/* Play Area */
-.play-area {
-  background: linear-gradient(180deg, var(--surface-card) 0%, var(--surface-panel) 100%);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-2xl);
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-card);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.play-area-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-lg);
-}
-
-.play-area-title {
-  color: var(--text-bright);
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  margin: 0 0 var(--space-xs) 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.title-icon {
-  font-size: var(--text-2xl);
-}
-
-.play-area-hint {
-  color: var(--text-secondary);
-  font-size: var(--text-sm);
-  margin: 0;
-}
-
-.satchel-toggle,
-.satchel-expand-button {
-  appearance: none;
-  border: 1px solid var(--border-accent);
-  background: var(--bg-overlay-strong);
-  color: var(--text-bright);
-  border-radius: var(--radius-full);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-  padding: var(--space-sm) var(--space-lg);
-  cursor: pointer;
-  transition: border-color var(--transition-hover), background var(--transition-hover), transform var(--transition-hover);
-}
-
-.satchel-toggle:hover,
-.satchel-expand-button:hover {
-  border-color: var(--border-focus);
-  background: var(--bg-overlay);
-  transform: translateY(-1px);
-}
-
-.satchel-shell {
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-panel);
-  background: linear-gradient(180deg, var(--bg-page) 0%, var(--bg-secondary) 100%);
-  padding: var(--space-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-}
-
-.satchel-mouth {
-  width: clamp(120px, 26%, 180px);
-  height: 6px;
-  border-radius: var(--radius-full);
-  background: linear-gradient(90deg, transparent 0%, var(--border-accent) 50%, transparent 100%);
-  margin-inline: auto;
-}
-
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: var(--space-lg);
-}
-
-.satchel-footer-note {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-wide);
-  text-transform: uppercase;
-}
-
-.play-controls {
-  display: flex;
-  justify-content: center;
-  padding-top: var(--space-xl);
-  border-top: 2px solid var(--color-border-default);
-}
-
-.btn-play-card {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  border: none;
-  padding: var(--space-lg) var(--space-4xl);
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  border-radius: var(--button-radius);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-md);
-  box-shadow: 0 4px 16px var(--color-primary-glow);
-  min-width: 280px;
-  justify-content: center;
-}
-
-.btn-play-card:hover:not(:disabled) {
-  background: var(--color-primary-light);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px var(--color-primary-glow);
-}
-
-.btn-play-card:disabled {
-  background: var(--color-text-muted);
-  cursor: not-allowed;
-  opacity: 0.6;
-  transform: none;
-  box-shadow: none;
-}
-
-.btn-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid var(--color-text-bright);
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
 /* Run Complete Card */
 .run-complete-card {
   background: var(--card-bg);
   border: 2px solid var(--color-border-primary);
   border-radius: var(--radius-xl);
-  padding: var(--space-5xl) var(--space-3xl);
+  padding: var(--space-4xl) var(--space-2xl);
   text-align: center;
   box-shadow: var(--shadow-xl);
   backdrop-filter: blur(10px);
 }
 
 .complete-icon {
-  font-size: 5rem;
-  margin-bottom: var(--space-xl);
+  font-size: 4rem;
+  margin-bottom: var(--space-lg);
   animation: celebrate 1s ease-in-out;
 }
 
 @keyframes celebrate {
-  0%, 100% {
-    transform: scale(1) rotate(0deg);
-  }
-  25% {
-    transform: scale(1.2) rotate(-10deg);
-  }
-  75% {
-    transform: scale(1.2) rotate(10deg);
-  }
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.2) rotate(-10deg); }
+  75% { transform: scale(1.2) rotate(10deg); }
 }
 
 .complete-title {
   color: var(--color-primary);
-  font-size: var(--text-4xl);
+  font-size: var(--text-3xl);
   font-weight: var(--font-black);
-  margin: 0 0 var(--space-lg) 0;
+  margin: 0 0 var(--space-md) 0;
 }
 
 .complete-message {
   color: var(--color-text-primary);
-  font-size: var(--text-lg);
-  margin: 0 0 var(--space-3xl) 0;
+  font-size: var(--text-base);
+  margin: 0 0 var(--space-2xl) 0;
   line-height: var(--leading-relaxed);
 }
 
@@ -647,8 +384,8 @@ function goToEndScreen() {
   background: var(--color-primary);
   color: var(--color-text-bright);
   border: none;
-  padding: var(--space-lg) var(--space-4xl);
-  font-size: var(--text-xl);
+  padding: var(--space-md) var(--space-3xl);
+  font-size: var(--text-lg);
   font-weight: var(--font-bold);
   border-radius: var(--button-radius);
   cursor: pointer;
@@ -656,7 +393,7 @@ function goToEndScreen() {
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
-  gap: var(--space-md);
+  gap: var(--space-sm);
   box-shadow: 0 4px 16px var(--color-primary-glow);
 }
 
@@ -666,106 +403,31 @@ function goToEndScreen() {
   box-shadow: 0 6px 24px var(--color-primary-glow);
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .game-main {
-    grid-template-columns: 300px 1fr;
-  }
-}
-
-@media (max-width: 1024px) {
-  .game-main {
-    grid-template-columns: 1fr;
-  }
-  
-  .game-sidebar {
-    position: static;
-    order: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-lg);
-  }
-  
-  .game-center {
-    order: 1;
-  }
-}
-
+/* Responsive */
 @media (max-width: 768px) {
   .game-container {
     padding: var(--space-md);
-  }
-  
-  .game-header {
-    flex-direction: column;
-    gap: var(--space-lg);
-    align-items: stretch;
-  }
-  
-  .scenario-info {
-    flex-direction: column;
-    align-items: flex-start;
     gap: var(--space-md);
   }
-  
-  .header-actions {
-    justify-content: center;
-  }
-  
-  .scenario-title {
-    font-size: var(--text-xl);
-  }
-  
-  .play-area {
-    padding: var(--space-lg);
-  }
 
-  .play-area-header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .satchel-toggle,
-  .satchel-expand-button {
-    width: 100%;
-    justify-content: center;
-    text-align: center;
-  }
-
-  .actions-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .btn-play-card {
-    width: 100%;
-    min-width: 0;
+  .aftershock-alert {
+    padding: var(--space-md);
   }
 }
 
 @media (max-width: 480px) {
   .game-container {
     padding: var(--space-sm);
-  }
-  
-  .game-header {
-    padding: var(--space-lg);
-  }
-  
-  .play-area {
-    padding: var(--space-lg);
+    gap: var(--space-sm);
   }
 
-  .sidebar-shell {
-    padding: var(--space-sm);
-  }
-  
   .aftershock-alert {
     flex-direction: column;
     text-align: center;
   }
-  
-  .alert-icon {
-    font-size: var(--text-4xl);
+
+  .complete-title {
+    font-size: var(--text-2xl);
   }
 }
 </style>
