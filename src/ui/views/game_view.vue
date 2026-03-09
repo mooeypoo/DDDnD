@@ -41,9 +41,20 @@
 
       <!-- Main Content Area (full-width, no sidebar) -->
       <main class="game-main">
-        <!-- Turn Briefing -->
+        <!-- Run Complete Message (shown at top when run ends) -->
+        <div v-if="gameStore.isRunComplete" class="run-complete-card">
+          <div class="complete-icon">🏁</div>
+          <h2 class="complete-title">Run Complete!</h2>
+          <p class="complete-message">Your architectural journey has reached its conclusion.</p>
+          <button class="btn-view-results" @click="goToEndScreen">
+            <span class="btn-text">View Results</span>
+            <span class="btn-icon">→</span>
+          </button>
+        </div>
+
+        <!-- Turn Briefing (hidden when run complete) -->
         <TurnBriefingPanel
-          v-if="gameStore.turnBriefing"
+          v-if="gameStore.turnBriefing && !gameStore.isRunComplete"
           :event-title="currentEventTitle"
           :narrative-description="currentEventDescription"
           :available-actions="gameStore.turnBriefing.available_action_card_ids.length"
@@ -52,9 +63,9 @@
           :total-turns="gameStore.maxTurns"
         />
 
-        <!-- Aftershocks Warning -->
+        <!-- Aftershocks Warning (hidden when run complete) -->
         <div 
-          v-if="gameStore.turnBriefing && gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 0"
+          v-if="gameStore.turnBriefing && !gameStore.isRunComplete && gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 0"
           ref="aftershockAlertRef"
           class="aftershock-alert"
         >
@@ -76,17 +87,6 @@
             :turnResolution="gameStore.lastTurnResolution.turn_resolution_context"
             :stakeholderNames="stakeholderNames"
           />
-        </div>
-        
-        <!-- Run Complete Message -->
-        <div v-if="gameStore.isRunComplete" class="run-complete-card">
-          <div class="complete-icon">🏁</div>
-          <h2 class="complete-title">Run Complete!</h2>
-          <p class="complete-message">Your architectural journey has reached its conclusion.</p>
-          <button class="btn-view-results" @click="goToEndScreen">
-            <span class="btn-text">View Results</span>
-            <span class="btn-icon">→</span>
-          </button>
         </div>
       </main>
     </div>
@@ -268,9 +268,11 @@ async function handlePlayCard(cardId: string) {
   await gameStore.play_turn(cardId)
   await scrollToResolutionContext()
   
-  // If run just completed, update outcome
+  // If run just completed, update outcome and scroll to top
   if (gameStore.isRunComplete) {
     gameStore.get_run_outcome()
+    await nextTick()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 }
 
