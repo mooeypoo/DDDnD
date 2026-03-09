@@ -72,9 +72,9 @@
       </div>
     </div>
 
-    <!-- Footer -->
-    <div class="card-footer">
-      <span class="footer-text">dddnd.com</span>
+    <!-- Footer: site domain (only shown when VITE_SITE_URL is configured at build time) -->
+    <div v-if="siteDomain" class="card-footer">
+      <span class="footer-text">{{ siteDomain }}</span>
     </div>
   </section>
 </template>
@@ -92,6 +92,17 @@ const cardRef = ref<HTMLElement | null>(null)
 
 // Expose the card element for external image export
 defineExpose({ cardRef })
+
+// Derive display domain from build-time env variable (hostname only, no scheme)
+const siteDomain = computed(() => {
+  const raw = import.meta.env.VITE_SITE_URL as string | undefined
+  if (!raw) return ''
+  try {
+    return new URL(raw).hostname
+  } catch {
+    return ''
+  }
+})
 
 // ─── Display helpers ─────────────────────────────────────────
 

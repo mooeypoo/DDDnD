@@ -342,14 +342,14 @@ describe('decodeSharePayload — error handling', () => {
 describe('buildShareUrl', () => {
   it('builds a valid share URL', () => {
     const payload = createSamplePayload()
-    const url = buildShareUrl(payload, 'https://dddnd.com')
+    const url = buildShareUrl(payload, 'https://example.com')
 
-    expect(url).toMatch(/^https:\/\/dddnd\.com\/share\?d=/)
+    expect(url).toMatch(/^https:\/\/example\.com\/share\?d=/)
   })
 
   it('produces a URL whose query param can be decoded back', () => {
     const payload = createSamplePayload()
-    const url = buildShareUrl(payload, 'https://dddnd.com')
+    const url = buildShareUrl(payload, 'https://example.com')
 
     const urlObj = new URL(url)
     const encoded = urlObj.searchParams.get('d')!
