@@ -3,6 +3,7 @@ import WelcomeView from '@/ui/views/welcome_view.vue'
 import RunSetupView from '@/ui/views/run_setup_view.vue'
 import GameView from '@/ui/views/game_view.vue'
 import EndOfRunView from '@/ui/views/end_of_run_view.vue'
+import ShareView from '@/ui/views/share_view.vue'
 import { useGameStore } from '@/ui/stores/game_store'
 
 const router = createRouter({
@@ -27,6 +28,11 @@ const router = createRouter({
       path: '/end',
       name: 'end',
       component: EndOfRunView
+    },
+    {
+      path: '/share',
+      name: 'share',
+      component: ShareView
     }
   ]
 })

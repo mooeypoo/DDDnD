@@ -111,18 +111,38 @@
         </div>
       </div>
       
-      <!-- Share Placeholder -->
+      <!-- Share Controls -->
       <div class="share-card">
         <h3 class="card-title">
           <span class="title-icon">📤</span>
           Share Your Journey
         </h3>
         
-        <div class="share-placeholder">
-          <div class="placeholder-icon">🔗</div>
-          <p class="placeholder-text">Sharing functionality coming soon!</p>
-          <p class="placeholder-hint">Export and share your architectural journey with others</p>
+        <div class="share-controls">
+          <button class="share-btn share-btn-copy" @click="copyShareLink">
+            <span class="share-btn-icon">🔗</span>
+            <span>{{ copyButtonLabel }}</span>
+          </button>
+
+          <button class="share-btn share-btn-download" @click="downloadShareCard">
+            <span class="share-btn-icon">🖼️</span>
+            <span>Download Result Card</span>
+          </button>
+
+          <button
+            v-if="hasNativeShare"
+            class="share-btn share-btn-native"
+            @click="nativeShare"
+          >
+            <span class="share-btn-icon">📲</span>
+            <span>Share…</span>
+          </button>
         </div>
+      </div>
+
+      <!-- Hidden card for image export -->
+      <div class="offscreen-card-wrapper" aria-hidden="true">
+        <ShareResultCard v-if="sharePayload" ref="shareCardRef" :payload="sharePayload" />
       </div>
       
       <!-- Actions -->
@@ -155,21 +175,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { OutcomeArchetypeId } from '@/domains/simulation/rules'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
+import ShareResultCard from '@/ui/components/results/share_result_card.vue'
 import {
   buildStakeholderNamesMap,
   formatStakeholderName as resolveStakeholderName
 } from '@/ui/composables/stakeholder_presentation'
+import { buildSharePayload } from '@/domains/reporting/services/build_share_payload'
+import { buildShareUrl, type SharePayload } from '@/domains/reporting/services'
 
 const router = useRouter()
 const gameStore = useGameStore()
 
 const outcome = computed(() => gameStore.runOutcome)
+
+const sharePayload = ref<SharePayload | null>(null)
+const copyButtonLabel = ref('Copy Share Link')
+const shareCardRef = ref<InstanceType<typeof ShareResultCard> | null>(null)
+const hasNativeShare = typeof navigator !== 'undefined' && !!navigator.share
 
 onMounted(() => {
   // Scroll to top when end screen loads
@@ -182,6 +210,14 @@ onMounted(() => {
   
   if (!gameStore.runOutcome) {
     gameStore.get_run_outcome()
+  }
+
+  // Build share payload from canonical outcome and game state
+  if (gameStore.runOutcome && gameStore.gameState) {
+    sharePayload.value = buildSharePayload({
+      run_outcome: gameStore.runOutcome,
+      game_state: gameStore.gameState
+    })
   }
 })
 
@@ -279,6 +315,131 @@ function goHome() {
 function playAgain() {
   gameStore.reset()
   router.push('/play')
+}
+
+// ─── Share actions ─────────────────────────────────
+
+function getShareUrl(): string | null {
+  if (!sharePayload.value) return null
+  return buildShareUrl(sharePayload.value, window.location.origin)
+}
+
+async function copyShareLink() {
+  const url = getShareUrl()
+  if (!url) return
+
+  try {
+    await navigator.clipboard.writeText(url)
+    copyButtonLabel.value = 'Copied!'
+    setTimeout(() => { copyButtonLabel.value = 'Copy Share Link' }, 2000)
+  } catch {
+    // Fallback: select from a temporary textarea
+    const textarea = document.createElement('textarea')
+    textarea.value = url
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    copyButtonLabel.value = 'Copied!'
+    setTimeout(() => { copyButtonLabel.value = 'Copy Share Link' }, 2000)
+  }
+}
+
+async function nativeShare() {
+  const url = getShareUrl()
+  if (!url || !navigator.share) return
+
+  try {
+    await navigator.share({
+      title: 'My DDDnD Quest Result',
+      text: sharePayload.value
+        ? `I completed a DDDnD quest as the ${sharePayload.value.arch.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}!`
+        : 'Check out my DDDnD quest result!',
+      url
+    })
+  } catch {
+    // User cancelled or share failed — no action needed
+  }
+}
+
+async function downloadShareCard() {
+  const el = shareCardRef.value?.cardRef
+  if (!el) return
+
+  try {
+    const canvas = await renderElementToCanvas(el)
+    const dataUrl = canvas.toDataURL('image/png')
+    const link = document.createElement('a')
+    link.download = 'dddnd-result.png'
+    link.href = dataUrl
+    link.click()
+  } catch {
+    // Image export failed — silently degrade
+  }
+}
+
+/**
+ * Lightweight client-side element-to-canvas renderer.
+ *
+ * Uses the SVG foreignObject technique:
+ *   1. Serialize the DOM subtree to XHTML
+ *   2. Wrap it in an SVG foreignObject
+ *   3. Draw the SVG onto a canvas
+ *
+ * Limitations: external images and some CSS features
+ * may not render — acceptable for a share card.
+ */
+function renderElementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
+  return new Promise((resolve, reject) => {
+    const width = el.offsetWidth
+    const height = el.offsetHeight
+    const scale = 2 // retina-quality
+
+    // Clone and inline computed styles for the card
+    const clone = el.cloneNode(true) as HTMLElement
+    inlineComputedStyles(el, clone)
+
+    const serializer = new XMLSerializer()
+    const xhtml = serializer.serializeToString(clone)
+
+    const svgMarkup = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+        <foreignObject width="100%" height="100%">
+          ${xhtml}
+        </foreignObject>
+      </svg>`
+
+    const img = new Image()
+    img.onload = () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = width * scale
+      canvas.height = height * scale
+      const ctx = canvas.getContext('2d')!
+      ctx.scale(scale, scale)
+      ctx.drawImage(img, 0, 0)
+      resolve(canvas)
+    }
+    img.onerror = reject
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgMarkup)
+  })
+}
+
+function inlineComputedStyles(source: Element, target: Element) {
+  const computed = window.getComputedStyle(source)
+  const targetEl = target as HTMLElement
+  for (let i = 0; i < computed.length; i++) {
+    const prop = computed[i]
+    targetEl.style.setProperty(prop, computed.getPropertyValue(prop))
+  }
+  const sourceChildren = source.children
+  const targetChildren = target.children
+  for (let i = 0; i < sourceChildren.length; i++) {
+    if (targetChildren[i]) {
+      inlineComputedStyles(sourceChildren[i], targetChildren[i])
+    }
+  }
 }
 </script>
 
@@ -637,33 +798,56 @@ function playAgain() {
   color: var(--satisfaction-supportive);
 }
 
-/* Share Placeholder */
-.share-placeholder {
-  text-align: center;
-  padding: var(--space-4xl) var(--space-2xl);
-  background: var(--color-bg-overlay);
-  border-radius: var(--radius-lg);
-  border: 2px dashed var(--color-border-default);
+/* Share Controls */
+.share-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
 }
 
-.placeholder-icon {
-  font-size: var(--text-5xl);
-  margin-bottom: var(--space-lg);
-  opacity: 0.5;
-}
-
-.placeholder-text {
-  color: var(--color-text-secondary);
-  font-size: var(--text-lg);
-  margin: 0 0 var(--space-sm) 0;
+.share-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg) var(--space-xl);
+  font-size: var(--text-base);
   font-weight: var(--font-semibold);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  background: var(--color-bg-overlay);
+  color: var(--color-text-primary);
 }
 
-.placeholder-hint {
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  font-style: italic;
-  margin: 0;
+.share-btn:hover {
+  background: var(--color-bg-overlay);
+  border-color: var(--color-primary);
+  color: var(--color-text-bright);
+}
+
+.share-btn-icon {
+  font-size: var(--text-xl);
+}
+
+.share-btn-copy:hover {
+  border-color: var(--color-primary);
+}
+
+.share-btn-download:hover {
+  border-color: var(--color-info);
+}
+
+.share-btn-native:hover {
+  border-color: var(--color-success);
+}
+
+/* Offscreen card for image export */
+.offscreen-card-wrapper {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  pointer-events: none;
 }
 
 /* Actions */

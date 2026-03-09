@@ -15,7 +15,7 @@ import SiteFooter from '@/ui/components/common/site_footer.vue'
 const route = useRoute()
 
 const showFooter = computed(() => {
-  return route.name === 'welcome' || route.name === 'play' || route.name === 'game' || route.name === 'end'
+  return route.name === 'welcome' || route.name === 'play' || route.name === 'game' || route.name === 'end' || route.name === 'share'
 })
 </script>
 
