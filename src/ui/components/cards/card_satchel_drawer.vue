@@ -1,12 +1,12 @@
 <template>
-  <div class="satchel-drawer" :class="{ open: isOpen }">
-    <!-- Backdrop overlay (mobile full-screen) -->
+  <div class="satchel-drawer">
+    <!-- Backdrop overlay — click anywhere to close -->
     <Transition name="drawer-backdrop">
       <div v-if="isOpen" class="drawer-backdrop" @click="close"></div>
     </Transition>
 
-    <!-- Drawer container -->
-    <div class="drawer-container" :class="{ open: isOpen }">
+    <!-- Drawer panel: always rendered, slid off-screen when closed -->
+    <div class="drawer-panel" :class="{ open: isOpen }">
       <!-- Handle bar: always visible at bottom -->
       <button
         class="drawer-handle"
@@ -26,24 +26,20 @@
         <span class="handle-chevron" :class="{ flipped: isOpen }">▲</span>
       </button>
 
-      <!-- Drawer body -->
-      <Transition name="drawer-slide">
-        <div v-if="isOpen" id="satchel-content" class="drawer-body" role="region" aria-label="Action cards">
-          <div class="drawer-scroll">
-            <div class="drawer-inner">
-              <p class="drawer-hint">Review your available scrolls of architecture and choose your next move.</p>
+      <!-- Drawer body: scrollable content area -->
+      <div id="satchel-content" class="drawer-body" role="region" aria-label="Action cards">
+        <div class="drawer-inner">
+          <p class="drawer-hint">Review your available scrolls of architecture and choose your next move.</p>
 
-              <div class="cards-grid">
-                <slot></slot>
-              </div>
-
-              <p v-if="totalCards === 0" class="drawer-empty">
-                No action cards are currently available.
-              </p>
-            </div>
+          <div class="cards-grid">
+            <slot></slot>
           </div>
+
+          <p v-if="totalCards === 0" class="drawer-empty">
+            No action cards are currently available.
+          </p>
         </div>
-      </Transition>
+      </div>
     </div>
   </div>
 </template>
@@ -69,6 +65,13 @@ function close() {
 </script>
 
 <style scoped>
+/*
+  Drawer uses transform: translateY() for the slide animation.
+  The panel is always full-height; when closed it's pushed down
+  so only the handle peeks above the viewport bottom.
+  This keeps a fixed layout so overflow-y scroll always works.
+*/
+
 .satchel-drawer {
   position: fixed;
   bottom: 0;
@@ -78,6 +81,7 @@ function close() {
   pointer-events: none;
 }
 
+/* Backdrop */
 .drawer-backdrop {
   position: fixed;
   inset: 0;
@@ -86,21 +90,26 @@ function close() {
   pointer-events: auto;
 }
 
-.drawer-container {
+/* The sliding panel */
+.drawer-panel {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: calc(var(--z-drawer) + 1);
   pointer-events: auto;
+
   display: flex;
   flex-direction: column;
-  max-height: var(--drawer-max-height);
-  transition: max-height var(--duration-slow) var(--ease-standard);
+  height: var(--drawer-max-height);
+
+  /* Closed: push down so only the handle is visible */
+  transform: translateY(calc(100% - var(--drawer-handle-height)));
+  transition: transform var(--duration-slow) var(--ease-standard);
 }
 
-.drawer-container:not(.open) {
-  max-height: var(--drawer-handle-height);
+.drawer-panel.open {
+  transform: translateY(0);
 }
 
 /* Handle */
@@ -132,7 +141,6 @@ function close() {
   display: none;
 }
 
-/* Show handle grip on mobile for swipe affordance */
 @media (max-width: 768px) {
   .handle-grip {
     display: block;
@@ -201,17 +209,12 @@ function close() {
   transform: rotate(180deg);
 }
 
-/* Drawer body */
+/* Drawer body — always in DOM, scrollable */
 .drawer-body {
   background: var(--drawer-bg);
   border-top: 1px solid var(--border-subtle);
   flex: 1;
   min-height: 0;
-  overflow: hidden;
-}
-
-.drawer-scroll {
-  height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -260,27 +263,6 @@ function close() {
 }
 .drawer-backdrop-enter-from,
 .drawer-backdrop-leave-to {
-  opacity: 0;
-}
-
-/* Drawer body slide transitions */
-.drawer-slide-enter-active {
-  transition: max-height var(--duration-slow) var(--ease-decelerate),
-              opacity var(--duration-base) var(--ease-decelerate);
-  max-height: var(--drawer-max-height);
-  overflow: hidden;
-}
-.drawer-slide-leave-active {
-  transition: max-height var(--duration-slow) var(--ease-accelerate),
-              opacity var(--duration-fast) var(--ease-accelerate);
-  overflow: hidden;
-}
-.drawer-slide-enter-from {
-  max-height: 0;
-  opacity: 0;
-}
-.drawer-slide-leave-to {
-  max-height: 0;
   opacity: 0;
 }
 </style>
