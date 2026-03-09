@@ -31,6 +31,9 @@
         <div class="drawer-inner">
           <p class="drawer-hint">Review your available scrolls of architecture and choose your next move.</p>
 
+          <!-- Toolbar slot (filter / sort controls) -->
+          <slot name="toolbar"></slot>
+
           <div class="cards-grid">
             <slot></slot>
           </div>

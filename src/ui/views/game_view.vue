@@ -98,8 +98,18 @@
       :totalCards="availableCardEntries.length"
       :playableCards="playableCardCount"
     >
-      <ActionCard 
-        v-for="entry in availableCardEntries" 
+      <template #toolbar>
+        <SatchelToolbar
+          v-if="availableCardEntries.length > 0"
+          :availableCategories="availableCategories"
+          :affectedMetrics="affectedMetrics"
+          v-model:activeCategory="satchelCategory"
+          v-model:activeSort="satchelSort"
+        />
+      </template>
+
+      <ActionCard
+        v-for="entry in filteredSortedCards"
         :key="entry.card.id + '-v' + entry.card.version"
         :card="entry.card"
         :availability="entry.availability"
@@ -122,6 +132,7 @@ import { resolveScenarioShortDescription } from '@/ui/composables/scenario_prese
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
 import ActionCard from '@/ui/components/cards/action_card.vue'
 import CardSatchelDrawer from '@/ui/components/cards/card_satchel_drawer.vue'
+import SatchelToolbar from '@/ui/components/cards/satchel_toolbar.vue'
 import TurnResolutionPanel from '@/ui/components/turn/turn_resolution_panel.vue'
 import ScenarioBanner from '@/ui/components/scenario/scenario_banner.vue'
 import TurnBriefingPanel from '@/ui/components/turn/turn_briefing_panel.vue'
@@ -130,6 +141,13 @@ import RulesModal from '@/ui/components/common/rules_modal.vue'
 import GameHudBar from '@/ui/components/common/game_hud_bar.vue'
 import CardDetailsModal from '@/ui/components/cards/card_details_modal.vue'
 import GameMasthead from '@/ui/components/branding/game_masthead.vue'
+import {
+  filterByCategory,
+  sortCards,
+  getAvailableCategories,
+  getAffectedMetrics,
+} from '@/ui/composables/card_filter_sort'
+import type { CategoryFilter, SortOption } from '@/ui/composables/card_filter_sort'
 
 const router = useRouter()
 const gameStore = useGameStore()
@@ -138,6 +156,8 @@ const modalCardId = ref<string | null>(null)
 const aftershockAlertRef = ref<HTMLElement | null>(null)
 const turnResolutionPanelRef = ref<HTMLElement | null>(null)
 const isSatchelOpen = ref(false)
+const satchelCategory = ref<CategoryFilter>('all')
+const satchelSort = ref<SortOption>('default')
 
 const SMALL_MOBILE_BREAKPOINT_PX = 480
 const MOBILE_BREAKPOINT_PX = 768
@@ -188,6 +208,15 @@ const playableCardCount = computed(() => {
   return availableCardEntries.value.filter(
     entry => !entry.availability || entry.availability.is_playable
   ).length
+})
+
+// -- Satchel filter & sort --
+const availableCategories = computed(() => getAvailableCategories(availableCardEntries.value))
+const affectedMetrics = computed(() => getAffectedMetrics(availableCardEntries.value))
+
+const filteredSortedCards = computed(() => {
+  const filtered = filterByCategory(availableCardEntries.value, satchelCategory.value)
+  return sortCards(filtered, satchelSort.value)
 })
 
 const modalCard = computed(() => {

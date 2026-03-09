@@ -97,6 +97,7 @@ import type { Card } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import type { ArtworkMeta } from '@/ui/types/artwork'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { resolveCategory } from '@/ui/composables/card_filter_sort'
 
 const props = defineProps<{
   card: Card
@@ -113,39 +114,9 @@ defineEmits<{
 
 /**
  * Map card style_tags to a visual category identifier.
- * The first recognised tag wins; falls back to 'default'.
+ * Uses the shared resolveCategory helper from card_filter_sort.
  */
-const TAG_TO_CATEGORY: Record<string, string> = {
-  refactor:       'refactor',
-  architecture:   'refactor',
-  boundary:       'refactor',
-  incremental:    'refactor',
-  safe:           'refactor',
-  'high-impact':  'refactor',
-  infrastructure: 'infrastructure',
-  stability:      'infrastructure',
-  integration:    'infrastructure',
-  platform:       'infrastructure',
-  team:           'team',
-  alignment:      'team',
-  organizational: 'team',
-  people:         'team',
-  process:        'process',
-  workflow:       'process',
-  documentation:  'process',
-  'short-term':   'fix',
-  'cost-control': 'fix',
-  quick:          'fix',
-  patch:          'fix',
-}
-
-const categoryId = computed(() => {
-  for (const tag of (props.card.style_tags ?? [])) {
-    const cat = TAG_TO_CATEGORY[tag.toLowerCase()]
-    if (cat) return cat
-  }
-  return 'default'
-})
+const categoryId = computed(() => resolveCategory(props.card.style_tags ?? []))
 
 const primaryEffects = computed(() => props.card.score_changes.slice(0, 3))
 const remainingEffects = computed(() => Math.max(props.card.score_changes.length - primaryEffects.value.length, 0))
