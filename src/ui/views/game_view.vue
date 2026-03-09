@@ -12,6 +12,18 @@
       @close="modalCardId = null" 
       @play="handlePlayCard"
     />
+
+    <RunIntroSplash
+      :isOpen="gameStore.isIntroSplashOpen"
+      :playerName="playerDisplayName"
+      :playerClassName="playerClassName"
+      :scenarioName="scenario?.name"
+      :scores="gameStore.gameState?.scores ?? {}"
+      :stakeholders="gameStore.gameState?.stakeholders ?? {}"
+      :stakeholderNames="stakeholderNames"
+      :maxTurns="gameStore.maxTurns"
+      @start="gameStore.dismissIntroSplash"
+    />
     
     <!-- Game Masthead -->
     <GameMasthead 
@@ -141,6 +153,7 @@ import RulesModal from '@/ui/components/common/rules_modal.vue'
 import GameHudBar from '@/ui/components/common/game_hud_bar.vue'
 import CardDetailsModal from '@/ui/components/cards/card_details_modal.vue'
 import GameMasthead from '@/ui/components/branding/game_masthead.vue'
+import RunIntroSplash from '@/ui/components/common/run_intro_splash.vue'
 import {
   filterByCategory,
   sortCards,
@@ -166,6 +179,17 @@ const SCROLL_OFFSET_MOBILE_PX = 140
 const SCROLL_OFFSET_SMALL_MOBILE_PX = 160
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
+
+const playerDisplayName = computed(() => gameStore.gameState?.player_profile.display_name)
+
+const playerClassName = computed(() => {
+  const classRef = gameStore.gameState?.player_profile.selected_class_ref
+  if (!classRef) return undefined
+  const found = gameStore.availableClasses.find(
+    c => c.id === classRef.id && c.version === classRef.version
+  )
+  return found?.name
+})
 
 const currentEventTitle = computed(() => {
   return 'The Realm Awaits Your Command'

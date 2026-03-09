@@ -54,6 +54,7 @@ export const useGameStore = defineStore('game', () => {
   // UI Modal state
   const isAboutModalOpen = ref(false)
   const isRulesModalOpen = ref(false)
+  const isIntroSplashOpen = ref(false)
   
   // Loading state
   const isLoadingBundle = ref(false)
@@ -173,6 +174,9 @@ export const useGameStore = defineStore('game', () => {
       // Reset resolution and outcome
       lastTurnResolution.value = null
       runOutcome.value = null
+
+      // Show intro splash for the new run
+      isIntroSplashOpen.value = true
       
     } finally {
       isLoadingBundle.value = false
@@ -319,6 +323,10 @@ export const useGameStore = defineStore('game', () => {
   function closeRulesModal() {
     isRulesModalOpen.value = false
   }
+
+  function dismissIntroSplash() {
+    isIntroSplashOpen.value = false
+  }
   
   return {
     // State
@@ -332,6 +340,7 @@ export const useGameStore = defineStore('game', () => {
     availableClasses,
     isAboutModalOpen,
     isRulesModalOpen,
+    isIntroSplashOpen,
     isLoadingBundle,
     isPlayingTurn,
     isLoadingQuests,
@@ -355,6 +364,7 @@ export const useGameStore = defineStore('game', () => {
     openAboutModal,
     closeAboutModal,
     openRulesModal,
-    closeRulesModal
+    closeRulesModal,
+    dismissIntroSplash
   }
 })
