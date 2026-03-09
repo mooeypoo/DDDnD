@@ -162,7 +162,11 @@
                 <text x="10" y="14" text-anchor="middle" fill="var(--text-accent)" font-size="11" font-weight="bold">i</text>
               </svg>
             </span>
-            <p class="hint-text">
+            <p class="hint-text hint-text-wide">
+              Both scores and stakeholder status are always visible in the
+              <strong>sidebar</strong> on the left side of the screen, fully expanded at a glance.
+            </p>
+            <p class="hint-text hint-text-narrow">
               Both scores and stakeholder status are always visible in the
               <strong>HUD bar</strong> at the top of the screen. Tap either section
               to expand the full breakdown at any time.
@@ -615,6 +619,24 @@ function getSatisfactionClass(value: number): string {
 
 .hint-text strong {
   color: var(--text-bright);
+}
+
+/* Show sidebar hint on wide screens, HUD bar hint on narrow screens */
+.hint-text-wide {
+  display: none;
+}
+
+.hint-text-narrow {
+  display: block;
+}
+
+@media (min-width: 1100px) {
+  .hint-text-wide {
+    display: block;
+  }
+  .hint-text-narrow {
+    display: none;
+  }
 }
 
 /* ─── Action blurb ─── */

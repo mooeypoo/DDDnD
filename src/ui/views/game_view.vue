@@ -31,14 +31,26 @@
       @show-about="gameStore.openAboutModal"
     />
 
-    <!-- Sticky HUD Bar: scores, stakeholders, turn counter -->
+    <!-- Sticky HUD Bar: scores, stakeholders, turn counter (narrow screens only) -->
     <GameHudBar
+      v-if="!isWideScreen"
       :current-turn="gameStore.currentTurn"
       :max-turns="gameStore.maxTurns"
       :scores="gameStore.turnBriefing?.current_scores"
       :stakeholders="gameStore.gameState?.stakeholders"
       :stakeholder-names="stakeholderNames"
     />
+
+    <div class="game-layout" :class="{ 'layout-wide': isWideScreen }">
+      <!-- Desktop Sidebar HUD (wide screens only) -->
+      <GameHudSidebar
+        v-if="isWideScreen"
+        :current-turn="gameStore.currentTurn"
+        :max-turns="gameStore.maxTurns"
+        :scores="gameStore.turnBriefing?.current_scores"
+        :stakeholders="gameStore.gameState?.stakeholders"
+        :stakeholder-names="stakeholderNames"
+      />
     
     <div class="game-container" :class="{ 'drawer-open': isSatchelOpen }">
       <!-- Compact Scenario Banner -->
@@ -102,6 +114,7 @@
         </div>
       </main>
     </div>
+    </div>
 
     <!-- Bottom Drawer: Card Satchel -->
     <CardSatchelDrawer
@@ -151,6 +164,7 @@ import TurnBriefingPanel from '@/ui/components/turn/turn_briefing_panel.vue'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import GameHudBar from '@/ui/components/common/game_hud_bar.vue'
+import GameHudSidebar from '@/ui/components/common/game_hud_sidebar.vue'
 import CardDetailsModal from '@/ui/components/cards/card_details_modal.vue'
 import GameMasthead from '@/ui/components/branding/game_masthead.vue'
 import RunIntroSplash from '@/ui/components/common/run_intro_splash.vue'
@@ -171,9 +185,11 @@ const turnResolutionPanelRef = ref<HTMLElement | null>(null)
 const isSatchelOpen = ref(false)
 const satchelCategory = ref<CategoryFilter>('all')
 const satchelSort = ref<SortOption>('default')
+const isWideScreen = ref(false)
 
 const SMALL_MOBILE_BREAKPOINT_PX = 480
 const MOBILE_BREAKPOINT_PX = 768
+const WIDE_SCREEN_BREAKPOINT_PX = 1100
 const SCROLL_OFFSET_DESKTOP_PX = 120
 const SCROLL_OFFSET_MOBILE_PX = 140
 const SCROLL_OFFSET_SMALL_MOBILE_PX = 160
@@ -263,6 +279,12 @@ const stakeholderNames = computed((): Record<string, string> => {
   return buildStakeholderNamesMap(gameStore.scenarioBundle)
 })
 
+let wideScreenQuery: MediaQueryList | null = null
+
+function handleWideScreenChange(e: MediaQueryListEvent | MediaQueryList) {
+  isWideScreen.value = e.matches
+}
+
 onMounted(() => {
   // If no active run, redirect to setup
   if (!gameStore.hasActiveRun) {
@@ -271,10 +293,16 @@ onMounted(() => {
   
   // Listen for reset event from masthead
   window.addEventListener('reset-run', handleResetRun)
+
+  // Track wide-screen breakpoint for sidebar layout
+  wideScreenQuery = window.matchMedia(`(min-width: ${WIDE_SCREEN_BREAKPOINT_PX}px)`)
+  isWideScreen.value = wideScreenQuery.matches
+  wideScreenQuery.addEventListener('change', handleWideScreenChange)
 })
 
 onUnmounted(() => {
   window.removeEventListener('reset-run', handleResetRun)
+  wideScreenQuery?.removeEventListener('change', handleWideScreenChange)
 })
 
 function handleResetRun() {
@@ -347,6 +375,17 @@ function goToEndScreen() {
   padding-bottom: calc(var(--drawer-handle-height) + var(--space-lg));
 }
 
+/* ─── Two-column layout wrapper ─── */
+.game-layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.game-layout.layout-wide {
+  flex-direction: row;
+  min-height: calc(100vh - 60px); /* subtract approximate masthead height */
+}
+
 .game-container {
   max-width: 900px;
   margin: 0 auto;
@@ -354,6 +393,13 @@ function goToEndScreen() {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  flex: 1;
+  min-width: 0;
+}
+
+/* When sidebar is present, center content within remaining space */
+.layout-wide .game-container {
+  margin: 0 auto;
 }
 
 /* Main game area — single column, full width */
