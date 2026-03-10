@@ -1,5 +1,11 @@
 # DDDnD - Domain-Driven Design & Dragons
 
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/mooeypoo)
+[![CI](https://github.com/mooeypoo/DDDnD/actions/workflows/ci.yml/badge.svg)](https://github.com/mooeypoo/DDDnD/actions/workflows/ci.yml)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/a40f2bc1-e69f-4833-b140-10ce0858b6fd/deploy-status)](https://app.netlify.com/sites/dddnd/deploys)
+
+**Play now:** [dddnd.app](https://dddnd.app)
+
 A humorous simulation game about software architecture decision making using concepts from Domain-Driven Design.
 
 Players act as a systems architect trying to improve a struggling software system, balancing architecture quality, developer morale, stakeholder satisfaction, delivery confidence, user trust, and budget — every decision involves tradeoffs.
