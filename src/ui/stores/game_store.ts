@@ -269,7 +269,7 @@ export const useGameStore = defineStore('game', () => {
         // Advance tutorial to run_end trigger
         tutorial.advanceToTrigger('run_end')
         // Show tutorial completion splash if in tutorial mode
-        if (tutorial.isTutorialMode) {
+        if (tutorial.isTutorialMode.value) {
           isTutorialCompleteSplashOpen.value = true
         }
       }
