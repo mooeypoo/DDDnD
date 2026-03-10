@@ -12,9 +12,26 @@
         </div>
         
         <h1 class="outcome-title">Journey Complete</h1>
-        
-        <div v-if="outcome" class="outcome-tier-badge" :class="getTierClass(outcome.tier)">
-          <span class="tier-label">{{ formatTier(outcome.tier) }}</span>
+
+        <!-- Player Identity -->
+        <div class="player-identity">
+          <ClassPortrait :classId="playerClassId" :className="playerClassName" size="lg" />
+          <div class="player-identity-text">
+            <div v-if="playerDisplayName" class="player-display-name">{{ playerDisplayName }}</div>
+            <div class="player-class-label" :style="{ color: playerAccentColor }">{{ playerClassName }}</div>
+          </div>
+        </div>
+
+        <!-- Outcome Tier -->
+        <div v-if="outcome" class="outcome-tier-badge" :class="getTierClass(displayTierId)">
+          <span class="tier-icon">{{ getTierIcon(displayTierId) }}</span>
+          <span class="tier-label">{{ formatTier(displayTierId) }}</span>
+        </div>
+
+        <!-- Quest Name -->
+        <div v-if="scenarioName" class="quest-banner">
+          <span class="quest-banner-label">Quest</span>
+          <span class="quest-banner-name">{{ scenarioName }}</span>
         </div>
       </div>
       
@@ -182,6 +199,8 @@ import type { OutcomeArchetypeId } from '@/domains/simulation/rules'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import ShareResultCard from '@/ui/components/results/share_result_card.vue'
+import ClassPortrait from '@/ui/components/common/class_portrait.vue'
+import { getClassAccentColor } from '@/ui/composables/class_artwork'
 import {
   buildStakeholderNamesMap,
   formatStakeholderName as resolveStakeholderName
@@ -193,6 +212,25 @@ const router = useRouter()
 const gameStore = useGameStore()
 
 const outcome = computed(() => gameStore.runOutcome)
+
+const playerClassId = computed(() => gameStore.gameState?.player_profile.selected_class_ref?.id)
+
+const playerClassName = computed(() => {
+  const classId = playerClassId.value
+  if (!classId) return 'Adventurer'
+  return classId
+    .split('_')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ')
+})
+
+const playerDisplayName = computed(() => gameStore.gameState?.player_profile.display_name)
+
+const playerAccentColor = computed(() => getClassAccentColor(playerClassId.value))
+
+const scenarioName = computed(() => gameStore.scenarioBundle?.scenario?.name)
+
+const displayTierId = computed(() => outcome.value?.selected_tier_id ?? outcome.value?.tier ?? 'failure')
 
 const sharePayload = ref<SharePayload | null>(null)
 const copyButtonLabel = ref('Copy Share Link')
@@ -222,8 +260,29 @@ onMounted(() => {
 })
 
 function formatTier(tier: string): string {
-  if (tier === 'partial_success') return 'Partial Success'
-  return tier.charAt(0).toUpperCase() + tier.slice(1)
+  const labels: Record<string, string> = {
+    triumph: 'Triumph',
+    success: 'Success',
+    survival: 'Survival',
+    struggle: 'Struggle',
+    collapse: 'Collapse',
+    partial_success: 'Partial Success',
+    failure: 'Failure'
+  }
+  return labels[tier] ?? tier.charAt(0).toUpperCase() + tier.slice(1)
+}
+
+function getTierIcon(tier: string): string {
+  const icons: Record<string, string> = {
+    triumph: '🏆',
+    success: '✓',
+    survival: '🛡️',
+    struggle: '⚠️',
+    collapse: '💀',
+    partial_success: '✓',
+    failure: '💀'
+  }
+  return icons[tier] ?? '🎯'
 }
 
 function getTierClass(tier: string): string {
@@ -388,29 +447,33 @@ async function downloadShareCard() {
  *   2. Wrap it in an SVG foreignObject
  *   3. Draw the SVG onto a canvas
  *
- * Limitations: external images and some CSS features
- * may not render — acceptable for a share card.
+ * Images referenced by URL are converted to inline data URLs
+ * before serialization so they survive the foreignObject context.
  */
-function renderElementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
+async function renderElementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
+  const width = el.offsetWidth
+  const height = el.offsetHeight
+  const scale = 2 // retina-quality
+
+  // Clone and inline computed styles for the card
+  const clone = el.cloneNode(true) as HTMLElement
+  inlineComputedStyles(el, clone)
+
+  // Convert <img> sources to inline data URLs so they render
+  // inside the foreignObject (URL-based images won't load in a data-URI SVG)
+  await inlineImageSources(clone)
+
+  const serializer = new XMLSerializer()
+  const xhtml = serializer.serializeToString(clone)
+
+  const svgMarkup = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+      <foreignObject width="100%" height="100%">
+        ${xhtml}
+      </foreignObject>
+    </svg>`
+
   return new Promise((resolve, reject) => {
-    const width = el.offsetWidth
-    const height = el.offsetHeight
-    const scale = 2 // retina-quality
-
-    // Clone and inline computed styles for the card
-    const clone = el.cloneNode(true) as HTMLElement
-    inlineComputedStyles(el, clone)
-
-    const serializer = new XMLSerializer()
-    const xhtml = serializer.serializeToString(clone)
-
-    const svgMarkup = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-        <foreignObject width="100%" height="100%">
-          ${xhtml}
-        </foreignObject>
-      </svg>`
-
     const img = new Image()
     img.onload = () => {
       const canvas = document.createElement('canvas')
@@ -424,6 +487,31 @@ function renderElementToCanvas(el: HTMLElement): Promise<HTMLCanvasElement> {
     img.onerror = reject
     img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgMarkup)
   })
+}
+
+/**
+ * Fetch image sources and convert them to inline data URLs.
+ * Necessary for the foreignObject→canvas technique because images
+ * referenced by URL won't load inside a data-URI SVG context.
+ */
+async function inlineImageSources(el: HTMLElement): Promise<void> {
+  const images = el.querySelectorAll('img')
+  await Promise.all(Array.from(images).map(async (img) => {
+    const src = img.getAttribute('src')
+    if (!src || src.startsWith('data:')) return
+    try {
+      const response = await fetch(src)
+      const blob = await response.blob()
+      const dataUrl = await new Promise<string>((resolve) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result as string)
+        reader.readAsDataURL(blob)
+      })
+      img.setAttribute('src', dataUrl)
+    } catch {
+      // If conversion fails, leave original src — it may not render in the export
+    }
+  }))
 }
 
 function inlineComputedStyles(source: Element, target: Element) {
@@ -493,9 +581,39 @@ function inlineComputedStyles(source: Element, target: Element) {
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Player Identity */
+.player-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.player-identity-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.player-display-name {
+  color: var(--color-text-bright);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+}
+
+.player-class-label {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .outcome-tier-badge {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-md);
   padding: var(--space-lg) var(--space-3xl);
   border-radius: var(--radius-lg);
   font-size: var(--text-2xl);
@@ -505,19 +623,73 @@ function inlineComputedStyles(source: Element, target: Element) {
   box-shadow: var(--shadow-lg);
 }
 
+.tier-icon {
+  font-size: var(--text-3xl);
+}
+
+.tier-triumph {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.25) 0%, rgba(16, 185, 129, 0.35) 100%);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
+}
+
 .tier-success {
-  background: linear-gradient(135deg, var(--color-success) 0%, #27ae60 100%);
-  color: white;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.18) 0%, rgba(16, 185, 129, 0.25) 100%);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.tier-survival {
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.18) 0%, rgba(59, 130, 246, 0.25) 100%);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.3);
 }
 
 .tier-partial-success {
-  background: linear-gradient(135deg, var(--color-info) 0%, #2980b9 100%);
-  color: white;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.18) 0%, rgba(59, 130, 246, 0.25) 100%);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.3);
+}
+
+.tier-struggle {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.18) 0%, rgba(245, 158, 11, 0.25) 100%);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.tier-collapse {
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.18) 0%, rgba(239, 68, 68, 0.25) 100%);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
 }
 
 .tier-failure {
-  background: linear-gradient(135deg, var(--color-danger) 0%, var(--color-primary-dark) 100%);
-  color: white;
+  background: linear-gradient(135deg, rgba(248, 113, 113, 0.18) 0%, rgba(239, 68, 68, 0.25) 100%);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
+
+/* Quest Banner */
+.quest-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  margin-top: var(--space-xl);
+  font-size: var(--text-lg);
+}
+
+.quest-banner-label {
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+}
+
+.quest-banner-name {
+  color: var(--color-text-primary);
+  font-weight: var(--font-semibold);
 }
 
 /* Archetype Card */
