@@ -43,7 +43,27 @@ export interface PerRunTelemetry {
   events_triggered: string[]
   reactions_triggered: string[]
   score_average: number | null
+  /** Score snapshot at the end of each turn, indexed by turn (0-based). */
+  score_snapshots_by_turn: Record<string, number>[]
 }
+
+/** Frequency of individual cards appearing in the opening (first 3 cards played). */
+export type OpeningCardFrequency = Record<string, number>
+
+/** Frequency of exact opening card sequences (e.g. "card_a > card_b > card_c"). */
+export type OpeningSequenceFrequency = Record<string, number>
+
+/** Average score values by turn index, keyed by score ID. */
+export type AverageScoreByTurn = Record<string, number[]>
+
+/** Frequency of unordered card pairs co-occurring in successful runs. */
+export type WinningCardPairs = Record<string, number>
+
+/**
+ * Fraction of successful runs ending with a given score below a threshold.
+ * Keyed by check label (e.g. "delivery_confidence_below_30").
+ */
+export type SuccessfulLowScoreRates = Record<string, number>
 
 export interface AggregateTelemetry {
   total_runs: number
@@ -56,6 +76,16 @@ export interface AggregateTelemetry {
   event_frequency: Record<string, number>
   reaction_frequency: Record<string, number>
   archetype_distribution: Record<string, number>
+  /** Strategy-fingerprint telemetry: opening card frequency */
+  opening_card_frequency: OpeningCardFrequency
+  /** Strategy-fingerprint telemetry: opening sequence frequency */
+  opening_sequence_frequency: OpeningSequenceFrequency
+  /** Strategy-fingerprint telemetry: average score by turn */
+  average_score_by_turn: AverageScoreByTurn
+  /** Strategy-fingerprint telemetry: winning card pairs */
+  winning_card_pairs: WinningCardPairs
+  /** Strategy-fingerprint telemetry: successful low-score rates */
+  successful_low_score_rates: SuccessfulLowScoreRates
 }
 
 export interface SimulationReport {
@@ -91,6 +121,7 @@ function executeRun(
   const cardsPlayed: string[] = []
   const eventsTriggered: string[] = []
   const reactionsTriggered: string[] = []
+  const scoreSnapshotsByTurn: Record<string, number>[] = []
 
   // Use a per-run PRNG for card selection (separate from engine random)
   const selectionRandom = createSeededRandom(`${runSeed}__selection`)
@@ -112,8 +143,11 @@ function executeRun(
     gameState = result.game_state
     cardsPlayed.push(chosen.card_id)
 
-    // Track events from turn history
+    // Capture end-of-turn score snapshot for trajectory tracking
     const turnEntry = result.turn_history_entry
+    scoreSnapshotsByTurn.push({ ...turnEntry.end_of_turn_scores })
+
+    // Track events from turn history
     if (turnEntry.event_resolution?.selected_event) {
       eventsTriggered.push(turnEntry.event_resolution.selected_event.id)
     }
@@ -148,11 +182,46 @@ function executeRun(
     cards_played: cardsPlayed,
     events_triggered: eventsTriggered,
     reactions_triggered: reactionsTriggered,
-    score_average: outcome?.score_average ?? null
+    score_average: outcome?.score_average ?? null,
+    score_snapshots_by_turn: scoreSnapshotsByTurn
   }
 }
 
+// ── Strategy fingerprint constants ──────────────────────────────
+
+/** Number of opening cards to track for strategy fingerprinting. */
+const OPENING_CARD_COUNT = 3
+
+/** Low-score success thresholds: score_id → threshold value. */
+const LOW_SCORE_THRESHOLDS: Array<{ score_id: string; threshold: number; label: string }> = [
+  { score_id: 'delivery_confidence', threshold: 30, label: 'delivery_confidence_below_30' },
+  { score_id: 'budget', threshold: 0, label: 'budget_below_0' },
+  { score_id: 'user_trust', threshold: 25, label: 'user_trust_below_25' },
+  { score_id: 'team_morale', threshold: 25, label: 'team_morale_below_25' },
+  { score_id: 'domain_clarity', threshold: 20, label: 'domain_clarity_below_20' },
+  { score_id: 'maintainability', threshold: 20, label: 'maintainability_below_20' }
+]
+
 // ── Aggregate computation ───────────────────────────────────────
+
+function computeOpeningCards(cardsPlayed: string[]): string[] {
+  return cardsPlayed.slice(0, OPENING_CARD_COUNT)
+}
+
+function formatOpeningSequenceKey(openingCards: string[]): string {
+  return openingCards.join(' > ')
+}
+
+function computeWinningCardPairsForRun(cardsPlayed: string[]): string[] {
+  const uniqueCards = [...new Set(cardsPlayed)].sort()
+  const pairs: string[] = []
+  for (let i = 0; i < uniqueCards.length; i++) {
+    for (let j = i + 1; j < uniqueCards.length; j++) {
+      pairs.push(`${uniqueCards[i]} + ${uniqueCards[j]}`)
+    }
+  }
+  return pairs
+}
 
 function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry {
   const total = perRun.length
@@ -228,6 +297,94 @@ function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry {
     }
   }
 
+  // ── Strategy fingerprint: opening cards ─────────────────────
+
+  const openingCardFrequency: OpeningCardFrequency = {}
+  const openingSequenceFrequency: OpeningSequenceFrequency = {}
+
+  for (const run of perRun) {
+    const opening = computeOpeningCards(run.cards_played)
+
+    // Individual card frequency in opening positions
+    for (const cardId of opening) {
+      openingCardFrequency[cardId] = (openingCardFrequency[cardId] ?? 0) + 1
+    }
+
+    // Exact sequence frequency
+    if (opening.length > 0) {
+      const seqKey = formatOpeningSequenceKey(opening)
+      openingSequenceFrequency[seqKey] = (openingSequenceFrequency[seqKey] ?? 0) + 1
+    }
+  }
+
+  // ── Strategy fingerprint: average score by turn ─────────────
+
+  const averageScoreByTurn: AverageScoreByTurn = {}
+
+  if (perRun.length > 0) {
+    // Determine max turn count across all runs
+    const maxTurnCount = Math.max(...perRun.map((r) => r.score_snapshots_by_turn.length))
+
+    // Collect all score IDs from the first run's first snapshot
+    const scoreIds = new Set<string>()
+    for (const run of perRun) {
+      for (const snapshot of run.score_snapshots_by_turn) {
+        for (const scoreId of Object.keys(snapshot)) {
+          scoreIds.add(scoreId)
+        }
+      }
+    }
+
+    for (const scoreId of scoreIds) {
+      const turnAverages: number[] = []
+      for (let turn = 0; turn < maxTurnCount; turn++) {
+        const values: number[] = []
+        for (const run of perRun) {
+          if (turn < run.score_snapshots_by_turn.length) {
+            const value = run.score_snapshots_by_turn[turn][scoreId]
+            if (value !== undefined) {
+              values.push(value)
+            }
+          }
+        }
+        turnAverages.push(values.length > 0 ? average(values) : 0)
+      }
+      averageScoreByTurn[scoreId] = turnAverages
+    }
+  }
+
+  // ── Strategy fingerprint: winning card pairs ────────────────
+
+  const winningCardPairs: WinningCardPairs = {}
+  const successfulRuns = perRun.filter((r) => r.outcome_tier === 'success')
+
+  for (const run of successfulRuns) {
+    const pairs = computeWinningCardPairsForRun(run.cards_played)
+    for (const pair of pairs) {
+      winningCardPairs[pair] = (winningCardPairs[pair] ?? 0) + 1
+    }
+  }
+
+  // ── Strategy fingerprint: successful low-score rates ────────
+
+  const successfulLowScoreRates: SuccessfulLowScoreRates = {}
+  const successCount = successfulRuns.length
+
+  if (successCount > 0) {
+    for (const check of LOW_SCORE_THRESHOLDS) {
+      const matchingRuns = successfulRuns.filter((r) => {
+        const scoreValue = r.final_scores[check.score_id]
+        return scoreValue !== undefined && scoreValue < check.threshold
+      })
+      successfulLowScoreRates[check.label] = matchingRuns.length / successCount
+    }
+  } else {
+    // No successful runs — all rates are 0
+    for (const check of LOW_SCORE_THRESHOLDS) {
+      successfulLowScoreRates[check.label] = 0
+    }
+  }
+
   return {
     total_runs: total,
     outcome_distribution: outcomeDistribution,
@@ -238,7 +395,12 @@ function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry {
     card_usage: cardUsage,
     event_frequency: eventFrequency,
     reaction_frequency: reactionFrequency,
-    archetype_distribution: archetypeDistribution
+    archetype_distribution: archetypeDistribution,
+    opening_card_frequency: openingCardFrequency,
+    opening_sequence_frequency: openingSequenceFrequency,
+    average_score_by_turn: averageScoreByTurn,
+    winning_card_pairs: winningCardPairs,
+    successful_low_score_rates: successfulLowScoreRates
   }
 }
 

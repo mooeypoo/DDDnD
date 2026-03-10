@@ -204,6 +204,77 @@ function printFormattedReport(report: any) {
     }
   }
 
+  // Opening card frequency (strategy fingerprint)
+  if (Object.keys(agg.opening_card_frequency).length > 0) {
+    console.log('')
+    console.log('── Opening Card Frequency ──────────────────────────────')
+    const sortedOpening = Object.entries(agg.opening_card_frequency).sort(
+      ([, a], [, b]) => (b as number) - (a as number)
+    )
+    for (const [cardId, count] of sortedOpening) {
+      const pct = (((count as number) / report.total_runs) * 100).toFixed(1)
+      console.log(`  ${cardId.padEnd(40)} ${String(count).padStart(4)}  (${pct}%)`)
+    }
+  }
+
+  // Opening sequence frequency (strategy fingerprint)
+  if (Object.keys(agg.opening_sequence_frequency).length > 0) {
+    console.log('')
+    console.log('── Opening Sequence Frequency (top 15) ─────────────────')
+    const sortedSeqs = Object.entries(agg.opening_sequence_frequency)
+      .sort(([, a], [, b]) => (b as number) - (a as number))
+      .slice(0, 15)
+    for (const [seq, count] of sortedSeqs) {
+      const pct = (((count as number) / report.total_runs) * 100).toFixed(1)
+      console.log(`  ${seq.padEnd(60)} ${String(count).padStart(4)}  (${pct}%)`)
+    }
+  }
+
+  // Average score by turn (strategy fingerprint)
+  if (Object.keys(agg.average_score_by_turn).length > 0) {
+    console.log('')
+    console.log('── Average Score by Turn ───────────────────────────────')
+    const scoreIds = Object.keys(agg.average_score_by_turn).sort()
+    const maxTurns = Math.max(...Object.values(agg.average_score_by_turn).map((t) => t.length))
+
+    // Header row
+    const turnHeaders = Array.from({ length: maxTurns }, (_, i) => `T${i + 1}`.padStart(6)).join('')
+    console.log(`  ${'Score'.padEnd(24)} ${turnHeaders}`)
+
+    for (const scoreId of scoreIds) {
+      const values = agg.average_score_by_turn[scoreId]
+      const valueStr = values.map((v) => v.toFixed(1).padStart(6)).join('')
+      console.log(`  ${scoreId.padEnd(24)} ${valueStr}`)
+    }
+  }
+
+  // Winning card pairs (strategy fingerprint)
+  if (Object.keys(agg.winning_card_pairs).length > 0) {
+    console.log('')
+    console.log('── Winning Card Pairs (top 15) ─────────────────────────')
+    const sortedPairs = Object.entries(agg.winning_card_pairs)
+      .sort(([, a], [, b]) => (b as number) - (a as number))
+      .slice(0, 15)
+    const successCount = Object.values(agg.outcome_distribution).reduce(
+      (sum, v) => sum + (v as number), 0
+    )
+    for (const [pair, count] of sortedPairs) {
+      const pct = successCount > 0
+        ? (((count as number) / (agg.outcome_distribution['success'] ?? 1)) * 100).toFixed(1)
+        : '0.0'
+      console.log(`  ${pair.padEnd(50)} ${String(count).padStart(4)}  (${pct}%)`)
+    }
+  }
+
+  // Successful low-score rates (strategy fingerprint)
+  if (Object.keys(agg.successful_low_score_rates).length > 0) {
+    console.log('')
+    console.log('── Successful Low-Score Rates ──────────────────────────')
+    for (const [label, rate] of Object.entries(agg.successful_low_score_rates)) {
+      console.log(`  ${label.padEnd(40)} ${((rate as number) * 100).toFixed(1)}%`)
+    }
+  }
+
   console.log('')
 }
 
