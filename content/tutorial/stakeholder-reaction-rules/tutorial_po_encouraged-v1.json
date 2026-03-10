@@ -1,0 +1,14 @@
+{
+  "id": "tutorial_po_encouraged",
+  "version": 1,
+  "name": "Product Owner Encouraged",
+  "description": "The Product Owner is pleased when stakeholder trust is strong.",
+  "condition_description": "stakeholder_trust >= 55",
+  "score_changes": [
+    { "score_id": "stakeholder_trust", "delta": 3 }
+  ],
+  "stakeholder_changes": [
+    { "stakeholder_id": "tutorial_product_owner", "delta": 5 }
+  ],
+  "priority": 2
+}

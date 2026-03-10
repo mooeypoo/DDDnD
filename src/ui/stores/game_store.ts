@@ -29,8 +29,11 @@ import { create_engine } from '@/domains/simulation'
 import { createLocalStorageSaveAdapter } from '@/domains/persistence/adapters'
 import { serializeSaveFile, deserializeSaveFile } from '@/domains/persistence/services'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
-import { loadQuestDisplayModels } from '@/ui/services/quest_loader'
+import { loadQuestDisplayModels, loadTutorialQuestDisplayModels } from '@/ui/services/quest_loader'
 import { AVAILABLE_QUESTS } from '@/ui/config/available_quests'
+import { AVAILABLE_TUTORIALS } from '@/ui/config/available_tutorials'
+import { createTutorialContentProvider } from '@/domains/content/services/tutorial_content_provider'
+import { useTutorialState } from '@/ui/composables/tutorial_state'
 
 export interface RunSetupOptions {
   scenario_id: string
@@ -38,6 +41,8 @@ export interface RunSetupOptions {
   selected_class_ref?: VersionRef
   character_name?: string
   seed?: string
+  /** When true, loads content from the tutorial namespace */
+  is_tutorial?: boolean
 }
 
 export const useGameStore = defineStore('game', () => {
@@ -55,6 +60,7 @@ export const useGameStore = defineStore('game', () => {
   const isAboutModalOpen = ref(false)
   const isRulesModalOpen = ref(false)
   const isIntroSplashOpen = ref(false)
+  const isTutorialCompleteSplashOpen = ref(false)
   
   // Loading state
   const isLoadingBundle = ref(false)
@@ -63,6 +69,13 @@ export const useGameStore = defineStore('game', () => {
   
   // Available quests (loaded from config and content)
   const availableQuests = ref<QuestDisplayModel[]>([])
+  
+  // Available tutorial quests
+  const availableTutorials = ref<QuestDisplayModel[]>([])
+  const isLoadingTutorials = ref(false)
+
+  // Tutorial state composable
+  const tutorial = useTutorialState()
   
   // Available classes (loaded from content)
   const availableClasses = ref<PlayerClass[]>([])
@@ -130,6 +143,19 @@ export const useGameStore = defineStore('game', () => {
       isLoadingQuests.value = false
     }
   }
+
+  /**
+   * Load available tutorial quests from the tutorial content namespace
+   */
+  async function load_available_tutorials() {
+    isLoadingTutorials.value = true
+    try {
+      const tutorials = await loadTutorialQuestDisplayModels(AVAILABLE_TUTORIALS)
+      availableTutorials.value = tutorials
+    } finally {
+      isLoadingTutorials.value = false
+    }
+  }
   
   /**
    * Start a new run
@@ -138,8 +164,10 @@ export const useGameStore = defineStore('game', () => {
     isLoadingBundle.value = true
     
     try {
-      // Load scenario bundle
-      const provider = createContentProvider()
+      // Load scenario bundle (from tutorial or main content namespace)
+      const provider = options.is_tutorial
+        ? createTutorialContentProvider()
+        : createContentProvider()
       const bundle = await buildScenarioBundle(
         options.scenario_id,
         options.scenario_version,
@@ -167,16 +195,24 @@ export const useGameStore = defineStore('game', () => {
       
       gameState.value = initialState
       persist_run_state()
-      
-      // Get initial turn briefing
-      refresh_turn_briefing()
+
+      // Initialize tutorial mode BEFORE first turn briefing so triggers work
+      if (options.is_tutorial && bundle.scenario) {
+        await tutorial.initTutorial(bundle.scenario)
+      } else {
+        tutorial.resetTutorial()
+      }
       
       // Reset resolution and outcome
       lastTurnResolution.value = null
       runOutcome.value = null
 
-      // Show intro splash for the new run
+      // Show intro splash BEFORE turn briefing so tutorial triggers
+      // don't fire prematurely (turn_start is gated on splash being closed)
       isIntroSplashOpen.value = true
+
+      // Get initial turn briefing (turn_start trigger is deferred while splash is open)
+      refresh_turn_briefing()
       
     } finally {
       isLoadingBundle.value = false
@@ -192,6 +228,13 @@ export const useGameStore = defineStore('game', () => {
     }
     
     turnBriefing.value = engine.value.get_turn_briefing()
+
+    // Advance tutorial to turn_start trigger (skip during initial setup
+    // when intro splash is still showing — dismissIntroSplash handles that)
+    if (!isIntroSplashOpen.value) {
+      const turnNow = gameState.value?.progress.current_turn ?? 1
+      tutorial.advanceToTrigger('turn_start', turnNow)
+    }
   }
   
   /**
@@ -213,12 +256,22 @@ export const useGameStore = defineStore('game', () => {
       lastTurnResolution.value = result
       persist_run_state()
       
+      // Advance tutorial to turn_end trigger for the just-completed turn
+      const completedTurn = (gameState.value?.progress.current_turn ?? 2) - 1
+      tutorial.advanceToTrigger('turn_end', completedTurn > 0 ? completedTurn : 1)
+
       // Refresh briefing for next turn
       if (!isRunComplete.value) {
         refresh_turn_briefing()
       } else {
         // Get final outcome
         runOutcome.value = engine.value.get_run_outcome()
+        // Advance tutorial to run_end trigger
+        tutorial.advanceToTrigger('run_end')
+        // Show tutorial completion splash if in tutorial mode
+        if (tutorial.isTutorialMode) {
+          isTutorialCompleteSplashOpen.value = true
+        }
       }
       
       return result
@@ -251,6 +304,8 @@ export const useGameStore = defineStore('game', () => {
     turnBriefing.value = null
     lastTurnResolution.value = null
     runOutcome.value = null
+    isTutorialCompleteSplashOpen.value = false
+    tutorial.resetTutorial()
     saveAdapter.clear_saved_run()
   }
 
@@ -326,6 +381,11 @@ export const useGameStore = defineStore('game', () => {
 
   function dismissIntroSplash() {
     isIntroSplashOpen.value = false
+    // Fire run_start tutorial trigger, then record turn_start so the next
+    // step auto-advances when the run_start hint is dismissed
+    tutorial.advanceToTrigger('run_start')
+    const turnNow = gameState.value?.progress.current_turn ?? 1
+    tutorial.advanceToTrigger('turn_start', turnNow)
   }
   
   return {
@@ -337,13 +397,16 @@ export const useGameStore = defineStore('game', () => {
     lastTurnResolution,
     runOutcome,
     availableQuests,
+    availableTutorials,
     availableClasses,
     isAboutModalOpen,
     isRulesModalOpen,
     isIntroSplashOpen,
+    isTutorialCompleteSplashOpen,
     isLoadingBundle,
     isPlayingTurn,
     isLoadingQuests,
+    isLoadingTutorials,
     
     // Computed
     hasActiveRun,
@@ -351,9 +414,13 @@ export const useGameStore = defineStore('game', () => {
     currentTurn,
     maxTurns,
     
+    // Tutorial
+    tutorial,
+    
     // Actions
     initialize_engine,
     load_available_quests,
+    load_available_tutorials,
     load_available_classes,
     start_new_run,
     refresh_turn_briefing,

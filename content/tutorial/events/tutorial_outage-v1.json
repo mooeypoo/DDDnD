@@ -1,0 +1,14 @@
+{
+  "id": "tutorial_outage",
+  "version": 1,
+  "name": "Production Outage",
+  "description": "A critical service goes down. System health and stakeholder trust suffer. The team scrambles.",
+  "flavor_text": "The on-call pager has entered the arena.",
+  "score_changes": [
+    { "score_id": "system_health", "delta": -10 },
+    { "score_id": "stakeholder_trust", "delta": -5 },
+    { "score_id": "team_capacity", "delta": -5 }
+  ],
+  "delayed_effect_refs": [],
+  "occurrence_weight": 1
+}

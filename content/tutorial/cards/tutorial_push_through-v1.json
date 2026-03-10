@@ -1,0 +1,14 @@
+{
+  "id": "tutorial_push_through",
+  "version": 1,
+  "name": "Push Through the Crunch",
+  "description": "Force rapid delivery despite system strain. Gains trust but exhausts the team and damages system health.",
+  "flavor_text": "The candle burns brightest just before it melts onto the keyboard.",
+  "score_changes": [
+    { "score_id": "stakeholder_trust", "delta": 12 },
+    { "score_id": "team_capacity", "delta": -15 },
+    { "score_id": "system_health", "delta": -8 }
+  ],
+  "delayed_effect_refs": [],
+  "style_tags": ["process"]
+}

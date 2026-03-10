@@ -1,0 +1,9 @@
+{
+  "id": "tutorial_mentor",
+  "version": 1,
+  "name": "The Mentor",
+  "description": "A patient senior architect who remembers being new. Watches system health above all else.",
+  "reaction_rule_refs": [
+    { "id": "tutorial_mentor_concerned", "version": 1 }
+  ]
+}

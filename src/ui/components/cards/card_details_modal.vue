@@ -4,7 +4,7 @@
       <div class="modal-content" @click.stop role="dialog" aria-modal="true" :aria-labelledby="'modal-title-' + card.id">
         <div class="modal-header">
           <div class="modal-header-copy">
-            <p class="modal-eyebrow">Architecture Card</p>
+            <p class="modal-eyebrow">Action Card</p>
             <h2 class="modal-title" :id="'modal-title-' + card.id">{{ card.name }}</h2>
           </div>
           <button class="close-button" @click="emit('close')" aria-label="Close modal">×</button>
@@ -67,7 +67,7 @@
             <h3 class="section-title"><span class="section-icon">⚡</span> Architectural Aftershocks</h3>
             <div class="aftershock-notice">
               <p class="aftershock-text">
-                This card triggers
+                This action triggers
                 <strong>{{ card.delayed_effect_refs.length }} aftershock{{ card.delayed_effect_refs.length > 1 ? 's' : '' }}</strong>
                 that will activate in future turns.
               </p>
@@ -125,6 +125,8 @@ interface Props {
   isOpen: boolean;
   card: Card;
   isDisabled?: boolean;
+  /** Tutorial: this card is locked (another card is required) */
+  isTutorialLocked?: boolean;
   availability?: TurnBriefingActionSummary;
   stakeholderNames?: Record<string, string>;
   /** Current game scores — used to compute adjusted card effects under coupling rules. */
@@ -145,14 +147,18 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-const isPlayDisabled = computed(() => props.isDisabled || (props.availability ? !props.availability.is_playable : false))
+const isPlayDisabled = computed(() => props.isDisabled || props.isTutorialLocked || (props.availability ? !props.availability.is_playable : false))
 const primaryButtonText = computed(() => {
   if (props.isDisabled) {
     return 'Resolving…'
   }
 
+  if (props.isTutorialLocked) {
+    return '🔒 Locked'
+  }
+
   if (!props.availability || props.availability.is_playable) {
-    return 'Play This Card'
+    return 'Play This Action'
   }
 
   if (props.availability.unavailable_reason === 'usage_limit_reached') {
@@ -195,7 +201,7 @@ const availabilityStatusText = computed(() => {
   }
 
   if (props.availability.unavailable_reason === 'usage_limit_reached') {
-    return 'Unavailable: this card has already been fully used this run.'
+    return 'Unavailable: this action has already been fully used this run.'
   }
 
   if (props.availability.unavailable_reason === 'cooldown_active') {

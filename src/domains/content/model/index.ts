@@ -7,3 +7,4 @@
 export * from './content_types'
 export * from './scenario_bundle'
 export * from './version_ref'
+export * from './tutorial_types'

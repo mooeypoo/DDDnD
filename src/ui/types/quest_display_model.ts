@@ -30,6 +30,10 @@ export interface QuestDisplayModel {
   turnCount: number
   stakeholderCount: number
   actionCardCount: number
+
+  // Tutorial metadata (only present for tutorial quests)
+  isTutorial?: boolean
+  tutorialOrder?: number
 }
 
 /**

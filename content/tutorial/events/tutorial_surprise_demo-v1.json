@@ -1,0 +1,13 @@
+{
+  "id": "tutorial_surprise_demo",
+  "version": 1,
+  "name": "Surprise Demo Day",
+  "description": "Leadership calls a sudden demo. Stakeholder trust dips as the pressure mounts.",
+  "flavor_text": "The calendar invite appeared 30 minutes ago. Good luck.",
+  "score_changes": [
+    { "score_id": "stakeholder_trust", "delta": -5 },
+    { "score_id": "team_capacity", "delta": -3 }
+  ],
+  "delayed_effect_refs": [],
+  "occurrence_weight": 1
+}

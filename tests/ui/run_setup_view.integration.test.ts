@@ -9,7 +9,8 @@ const pushSpy = vi.fn()
 let storeMock: any
 
 vi.mock('vue-router', () => ({
-  useRouter: () => ({ push: pushSpy })
+  useRouter: () => ({ push: pushSpy }),
+  useRoute: () => ({ query: {} })
 }))
 
 vi.mock('@/ui/stores/game_store', () => ({
@@ -55,6 +56,9 @@ describe('run_setup_view quest integration', () => {
       availableClasses: [makeClass('boundary_mage', 'Boundary Mage')],
       load_available_quests: vi.fn().mockResolvedValue(undefined),
       load_available_classes: vi.fn().mockResolvedValue(undefined),
+      load_available_tutorials: vi.fn().mockResolvedValue(undefined),
+      availableTutorials: [],
+      isLoadingTutorials: false,
       start_new_run: vi.fn().mockResolvedValue(undefined),
       openAboutModal: vi.fn(),
       closeAboutModal: vi.fn(),
@@ -90,7 +94,8 @@ describe('run_setup_view quest integration', () => {
         id: 'boundary_mage',
         version: 1
       },
-      character_name: undefined
+      character_name: undefined,
+      is_tutorial: false
     })
     expect(pushSpy).toHaveBeenCalledWith('/game')
   })

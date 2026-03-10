@@ -1,0 +1,9 @@
+{
+  "id": "stakeholder_trust",
+  "version": 1,
+  "name": "Stakeholder Trust",
+  "description": "How much confidence stakeholders have in the engineering team. Higher is better.",
+  "default_value": 50,
+  "min_value": 0,
+  "max_value": 100
+}

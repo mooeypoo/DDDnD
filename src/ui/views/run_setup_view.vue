@@ -33,11 +33,111 @@
         <div class="header-logo">
           <GameLogo size="medium" />
         </div>
-        <h1 class="setup-title">Prepare Your Run</h1>
-        <p class="setup-subtitle">Choose your role and prepare to face the architectural chaos</p>
+        <h1 class="setup-title">Welcome, Architect</h1>
+        <p class="setup-subtitle">
+          Choose a quest and lead a beleaguered domain through architectural chaos.
+        </p>
+        <p v-if="gameStore.availableTutorials.length > 0" class="setup-tutorial-hint">
+          First time here? Try a <button class="link-btn" @click="activeTab = 'tutorials'">guided tutorial</button> to learn the ropes.
+        </p>
+        <nav class="header-utility-nav" aria-label="Utility links">
+          <button class="link-button" @click="gameStore.openAboutModal">
+            <span class="link-icon">ℹ️</span>
+            What is this?
+          </button>
+          <span class="link-separator">•</span>
+          <button class="link-button" @click="gameStore.openRulesModal">
+            <span class="link-icon">📖</span>
+            Rules
+          </button>
+        </nav>
       </header>
+
+      <!-- Tab Toggle -->
+      <nav class="tab-toggle" role="tablist" aria-label="Setup mode">
+        <button
+          class="tab-btn"
+          :class="{ active: activeTab === 'quests' }"
+          role="tab"
+          :aria-selected="activeTab === 'quests'"
+          @click="activeTab = 'quests'"
+        >
+          <span class="tab-icon">🏛️</span>
+          <span class="tab-label">Quests</span>
+        </button>
+        <button
+          class="tab-btn"
+          :class="{ active: activeTab === 'tutorials' }"
+          role="tab"
+          :aria-selected="activeTab === 'tutorials'"
+          @click="activeTab = 'tutorials'"
+        >
+          <span class="tab-icon">📖</span>
+          <span class="tab-label">Tutorials</span>
+        </button>
+      </nav>
       
       <div class="setup-content">
+        <!-- ═══ TUTORIALS TAB ═══ -->
+        <template v-if="activeTab === 'tutorials'">
+        <!-- Tutorial Section -->
+        <section class="setup-section tutorial-section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <span class="section-icon">📖</span>
+              Guided Tutorials
+            </h2>
+            <p class="section-hint">Learn the game mechanics step by step — click a tutorial to begin immediately</p>
+          </div>
+
+          <div v-if="isLoadingTutorials" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading tutorials...</p>
+          </div>
+
+          <div v-else-if="gameStore.availableTutorials.length === 0" class="empty-state">
+            <p>No tutorials available.</p>
+          </div>
+
+          <div v-else class="quest-grid tutorial-grid">
+            <button
+              v-for="tutorial in gameStore.availableTutorials"
+              :key="`${tutorial.id}-v${tutorial.version}`"
+              class="quest-card tutorial-card"
+              :class="{ selected: selectedQuest?.id === tutorial.id && selectedQuest?.version === tutorial.version }"
+              @click="launchTutorial(tutorial)"
+            >
+              <div class="quest-badge tutorial-badge">Tutorial {{ tutorial.tutorialOrder ?? '' }}</div>
+
+              <h3 class="quest-name">{{ tutorial.name }}</h3>
+
+              <p v-if="tutorial.shortDescription" class="quest-short-summary">
+                {{ tutorial.shortDescription }}
+              </p>
+
+              <p class="quest-description">{{ tutorial.description }}</p>
+
+              <div v-if="tutorial.turnCount" class="quest-stats">
+                <div class="stat-item">
+                  <span class="stat-icon">🎯</span>
+                  <span class="stat-label">{{ tutorial.turnCount }} Turns</span>
+                </div>
+                <div v-if="tutorial.actionCardCount" class="stat-item">
+                  <span class="stat-icon">🎴</span>
+                  <span class="stat-label">{{ tutorial.actionCardCount }} Actions</span>
+                </div>
+              </div>
+
+              <div v-if="selectedQuest?.id === tutorial.id && selectedQuest?.version === tutorial.version" class="selected-indicator">
+                ✓ Selected
+              </div>
+            </button>
+          </div>
+        </section>
+        </template>
+
+        <!-- ═══ QUESTS TAB ═══ -->
+        <template v-if="activeTab === 'quests'">
         <!-- Quest Selection (data-driven from scenario content) -->
         <section class="setup-section quest-section">
           <div class="section-header">
@@ -177,32 +277,22 @@
             @click="startRun"
           >
             <span class="btn-text">
-              {{ gameStore.isLoadingBundle ? 'Loading...' : 'Begin the Journey' }}
+              {{ gameStore.isLoadingBundle ? 'Loading...' : (selectedQuest?.isTutorial ? 'Start Tutorial' : 'Begin the Journey') }}
             </span>
             <span v-if="!gameStore.isLoadingBundle" class="btn-icon">→</span>
           </button>
         </div>
+        </template>
       </div>
       
-      <!-- Footer Links -->
-      <footer class="setup-footer">
-        <button class="link-button" @click="gameStore.openAboutModal">
-          <span class="link-icon">ℹ️</span>
-          What is this?
-        </button>
-        <span class="link-separator">•</span>
-        <button class="link-button" @click="gameStore.openRulesModal">
-          <span class="link-icon">📖</span>
-          Rules
-        </button>
-      </footer>
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { PlayerClass } from '@/domains/content/model'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
@@ -211,13 +301,16 @@ import RulesModal from '@/ui/components/common/rules_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 
 const router = useRouter()
+const route = useRoute()
 const gameStore = useGameStore()
 
 const selectedClass = ref<PlayerClass | null>(null)
 const selectedQuest = ref<QuestDisplayModel | null>(null)
 const characterName = ref('')
+const activeTab = ref<'tutorials' | 'quests'>('quests')
 const isLoadingClasses = ref(false)
 const isLoadingQuests = ref(false)
+const isLoadingTutorials = ref(false)
 
 onMounted(async () => {
   // Load available classes if not already loaded
@@ -229,21 +322,48 @@ onMounted(async () => {
       isLoadingClasses.value = false
     }
   }
+
+  // Load tutorials
+  if (gameStore.availableTutorials.length === 0) {
+    isLoadingTutorials.value = true
+    try {
+      await gameStore.load_available_tutorials()
+    } finally {
+      isLoadingTutorials.value = false
+    }
+  }
   
   // Load available quests if not already loaded
   if (gameStore.availableQuests.length === 0) {
     isLoadingQuests.value = true
     try {
       await gameStore.load_available_quests()
-      // Auto-select first quest if available
-      if (gameStore.availableQuests.length > 0) {
-        selectedQuest.value = gameStore.availableQuests[0]
-      }
     } finally {
       isLoadingQuests.value = false
     }
-  } else if (gameStore.availableQuests.length > 0 && !selectedQuest.value) {
-    // If quests were already loaded but we don't have a selection, auto-select first
+  }
+
+  // Handle tutorial query param from welcome page
+  const tutorialParam = route.query.tutorial as string | undefined
+  if (tutorialParam && gameStore.availableTutorials.length > 0) {
+    const targetOrder = tutorialParam === 'basics' ? 1 : tutorialParam === 'advanced' ? 2 : null
+    if (targetOrder !== null) {
+      const match = gameStore.availableTutorials.find(t => t.tutorialOrder === targetOrder)
+      if (match) {
+        await launchTutorial(match)
+        return
+      }
+    }
+  }
+
+  // Switch to tutorials tab if navigated with ?tab=tutorials
+  const tabParam = route.query.tab as string | undefined
+  if (tabParam === 'tutorials' && gameStore.availableTutorials.length > 0) {
+    activeTab.value = 'tutorials'
+  }
+
+  // Auto-select first quest if no tutorial was pre-selected
+  if (!selectedQuest.value && gameStore.availableQuests.length > 0) {
     selectedQuest.value = gameStore.availableQuests[0]
   }
 })
@@ -270,9 +390,31 @@ async function startRun() {
       id: selectedClass.value.id,
       version: selectedClass.value.version
     },
-    character_name: characterName.value || undefined
+    character_name: characterName.value || undefined,
+    is_tutorial: selectedQuest.value.isTutorial ?? false
   })
   
+  router.push('/game')
+}
+
+/**
+ * Launch a tutorial directly — skips class selection, picks the first class,
+ * and starts the run immediately.
+ */
+async function launchTutorial(quest: QuestDisplayModel) {
+  const fallbackClass = gameStore.availableClasses[0]
+  if (!fallbackClass) return
+
+  await gameStore.start_new_run({
+    scenario_id: quest.id,
+    scenario_version: quest.version,
+    selected_class_ref: {
+      id: fallbackClass.id,
+      version: fallbackClass.version
+    },
+    is_tutorial: true
+  })
+
   router.push('/game')
 }
 </script>
@@ -412,6 +554,76 @@ async function startRun() {
   font-size: var(--text-lg);
   margin: 0;
   font-style: italic;
+}
+
+.setup-tutorial-hint {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin: var(--space-xs) 0 0;
+}
+
+.link-btn {
+  all: unset;
+  cursor: pointer;
+  color: var(--text-accent);
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
+.link-btn:hover {
+  color: var(--color-text-primary);
+}
+
+/* Tab Toggle */
+.tab-toggle {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-sm);
+  background: var(--color-bg-overlay);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xs);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  border: 2px solid transparent;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.tab-btn:hover:not(.active) {
+  color: var(--color-text-primary);
+  background: var(--color-bg-surface);
+}
+
+.tab-btn.active {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary);
+  color: var(--color-text-bright);
+  box-shadow: 0 2px 8px var(--color-primary-glow);
+}
+
+.tab-icon {
+  font-size: var(--text-lg);
+}
+
+.tab-label {
+  letter-spacing: 0.03em;
 }
 
 /* Content */
@@ -804,16 +1016,13 @@ async function startRun() {
   font-size: var(--text-xl);
 }
 
-/* Footer */
-.setup-footer {
-  text-align: center;
-  padding-top: var(--space-xl);
-  border-top: 1px solid var(--color-border-default);
+/* Header utility nav */
+.header-utility-nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-md);
-  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
 }
 
 .link-button {
@@ -854,6 +1063,20 @@ async function startRun() {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Tutorial badge and card accent */
+.tutorial-badge {
+  background: var(--color-bg-overlay, rgba(0, 0, 0, 0.3));
+  border: 1px solid var(--color-primary, #e94560);
+}
+
+.tutorial-card.selected {
+  border-color: var(--color-primary);
+}
+
+.tutorial-grid {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
 
 /* Responsive Design */
@@ -911,6 +1134,15 @@ async function startRun() {
   .quest-stats {
     flex-direction: column;
     gap: var(--space-md);
+  }
+
+  .tab-toggle {
+    max-width: 100%;
+  }
+
+  .tab-btn {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--text-sm);
   }
 }
 </style>

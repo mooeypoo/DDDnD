@@ -1,0 +1,15 @@
+{
+  "id": "tutorial_plan_ahead",
+  "version": 1,
+  "name": "Plan Ahead",
+  "description": "Invest time in upfront planning. Raises Code Clarity and System Health now, and triggers a larger delayed payoff later.",
+  "flavor_text": "Today's planning is tomorrow's clarity.",
+  "score_changes": [
+    { "score_id": "code_clarity", "delta": 5 },
+    { "score_id": "system_health", "delta": 5 }
+  ],
+  "delayed_effect_refs": [
+    { "id": "tutorial_planning_payoff", "version": 1 }
+  ],
+  "style_tags": ["process"]
+}

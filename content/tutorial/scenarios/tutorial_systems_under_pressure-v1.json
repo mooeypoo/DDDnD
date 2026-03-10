@@ -1,0 +1,47 @@
+{
+  "id": "tutorial_systems_under_pressure",
+  "version": 1,
+  "name": "Systems Under Pressure: The Coupling Crucible",
+  "description": "Discover what happens when systems are under stress. Learn about tradeoffs, coupling between system dimensions, and why letting scores collapse makes everything harder.",
+  "short_description": "Learn about tradeoffs, system coupling, and collapse states.",
+  "flavor_text": "In a healthy system, improvements flow freely. In a collapsing one, every gain is diminished.",
+  "is_tutorial": true,
+  "tutorial_order": 2,
+  "tutorial_script_ref": { "id": "tutorial_pressure_script", "version": 1 },
+  "max_turns": 5,
+  "starting_scores": {
+    "system_health": 30,
+    "team_capacity": 25,
+    "code_clarity": 35,
+    "stakeholder_trust": 45
+  },
+  "score_refs": [
+    { "id": "system_health", "version": 1 },
+    { "id": "team_capacity", "version": 1 },
+    { "id": "code_clarity", "version": 1 },
+    { "id": "stakeholder_trust", "version": 1 }
+  ],
+  "stakeholder_refs": [
+    { "id": "tutorial_mentor", "version": 1 },
+    { "id": "tutorial_product_owner", "version": 1 }
+  ],
+  "card_refs": [
+    { "id": "tutorial_quick_patch", "version": 1 },
+    { "id": "tutorial_deep_refactor", "version": 1 },
+    { "id": "tutorial_stabilize_system", "version": 1 },
+    { "id": "tutorial_push_through", "version": 1 },
+    { "id": "tutorial_clean_up_code", "version": 1 },
+    { "id": "tutorial_rest_the_team", "version": 1 }
+  ],
+  "event_refs": [
+    { "id": "tutorial_outage", "version": 1 },
+    { "id": "tutorial_surprise_demo", "version": 1 }
+  ],
+  "outcome_tier_refs": [
+    { "id": "tutorial_success", "version": 1 },
+    { "id": "tutorial_done", "version": 1 }
+  ],
+  "outcome_archetype_refs": [
+    { "id": "tutorial_learner", "version": 1 }
+  ]
+}

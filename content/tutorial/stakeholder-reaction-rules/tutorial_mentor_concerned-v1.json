@@ -1,0 +1,12 @@
+{
+  "id": "tutorial_mentor_concerned",
+  "version": 1,
+  "name": "Mentor Concerned",
+  "description": "The Mentor grows worried when system health drops too low.",
+  "condition_description": "system_health < 35",
+  "score_changes": [],
+  "stakeholder_changes": [
+    { "stakeholder_id": "tutorial_mentor", "delta": -5 }
+  ],
+  "priority": 1
+}

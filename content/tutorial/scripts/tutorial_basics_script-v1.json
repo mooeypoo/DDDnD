@@ -1,0 +1,60 @@
+{
+  "id": "tutorial_basics_script",
+  "version": 1,
+  "name": "Basics Tutorial Script",
+  "description": "Step-by-step guided walkthrough of the core game mechanics.",
+  "steps": [
+    {
+      "id": "welcome",
+      "trigger": { "type": "run_start" },
+      "title": "Hail, Apprentice Architect!",
+      "message": "In DDDnD, you are the Domain Architect — a strategic hero who shapes software realms through tough decisions. Each turn you'll cast an Action Scroll that shifts your realm's vital scores. Manage tradeoffs wisely, and the realm prospers. Let us begin your training!",
+      "highlight": null
+    },
+    {
+      "id": "play_plan_ahead",
+      "trigger": { "type": "turn_start", "turn": 1 },
+      "title": "Cast Your First Scroll",
+      "message": "Your Action Satchel holds the scrolls available this turn. Each scroll affects your realm's scores — some rise, others may fall. For your first incantation, play the glowing scroll: Plan Ahead. It strengthens Code Clarity and System Health and plants a delayed boon that arrives in two turns.",
+      "highlight": "satchel",
+      "required_card_id": "tutorial_plan_ahead"
+    },
+    {
+      "id": "scores_explained",
+      "trigger": { "type": "turn_end", "turn": 1 },
+      "title": "The Realm Responds!",
+      "message": "Behold the score bars — Code Clarity and System Health have risen! These scores are the lifeblood of your realm. Every scroll carries tradeoffs: bolstering one pillar may weaken another. Your planning also conjured an Architectural Aftershock — a delayed effect that will materialize on Turn 3.",
+      "highlight": "scores"
+    },
+    {
+      "id": "play_ship_feature",
+      "trigger": { "type": "turn_start", "turn": 2 },
+      "title": "Win the Court's Favor",
+      "message": "Powerful stakeholders watch over your realm. When scores cross certain thresholds, stakeholders react — granting boons or imposing penalties. Now play Ship a Feature to raise Stakeholder Trust and earn the Product Owner's blessing!",
+      "highlight": "satchel",
+      "required_card_id": "tutorial_ship_a_feature"
+    },
+    {
+      "id": "stakeholder_reacted",
+      "trigger": { "type": "turn_end", "turn": 2 },
+      "title": "A Patron Smiles Upon You!",
+      "message": "The Product Owner has granted you a boon! Stakeholders each have hidden rules — cross their thresholds and they'll reward or punish you. Keeping the court satisfied (or at least not hostile) is a pillar of your strategy.",
+      "highlight": "stakeholders"
+    },
+    {
+      "id": "play_clean_up",
+      "trigger": { "type": "turn_start", "turn": 3 },
+      "title": "Aftershock Arrives!",
+      "message": "Remember the delayed boon from Turn 1? It has materialized as an Architectural Aftershock — check the alert below. Past decisions echo forward in time, for good or ill. Now play Clean Up the Code to finish your quest strong!",
+      "highlight": "aftershocks",
+      "required_card_id": "tutorial_clean_up_code"
+    },
+    {
+      "id": "tutorial_complete",
+      "trigger": { "type": "run_end" },
+      "title": "Quest Complete, Apprentice!",
+      "message": "Well fought! You've mastered the core loop: cast scrolls to shape scores, earn stakeholder favor, and plan for aftershocks that echo through time. Every decision carries tradeoffs — that is the heart of Domain Architecture. The real quests await!",
+      "highlight": null
+    }
+  ]
+}

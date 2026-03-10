@@ -71,6 +71,18 @@
             </p>
           </header>
 
+          <!-- Tutorial callout (only shown for tutorials) -->
+          <div v-if="isTutorial" class="tutorial-callout">
+            <span class="tutorial-callout-icon" aria-hidden="true">📖</span>
+            <div class="tutorial-callout-content">
+              <span class="tutorial-callout-title">This is a Guided Tutorial</span>
+              <p class="tutorial-callout-text">
+                Helpful tips will appear as you play to explain key concepts.
+                Follow the guidance — there are no wrong answers here.
+              </p>
+            </div>
+          </div>
+
           <!-- Divider -->
           <div class="splash-divider" aria-hidden="true">
             <svg viewBox="0 0 200 12" class="divider-svg" xmlns="http://www.w3.org/2000/svg">
@@ -228,6 +240,7 @@ const props = defineProps<{
   stakeholders: StakeholderSnapshot
   stakeholderNames?: Record<string, string>
   maxTurns: number
+  isTutorial?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -412,6 +425,42 @@ function getSatisfactionClass(value: number): string {
 .splash-divider {
   display: flex;
   justify-content: center;
+}
+
+/* ─── Tutorial Callout ─── */
+.tutorial-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: rgba(100, 180, 255, 0.08);
+  border: 1px solid rgba(100, 180, 255, 0.25);
+  border-radius: var(--radius-md);
+}
+
+.tutorial-callout-icon {
+  font-size: var(--text-xl);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.tutorial-callout-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.tutorial-callout-title {
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  color: var(--text-accent);
+}
+
+.tutorial-callout-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
 }
 
 .divider-svg {

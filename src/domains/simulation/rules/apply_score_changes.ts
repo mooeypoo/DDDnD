@@ -24,6 +24,7 @@ interface CouplingRule {
 }
 
 const SYSTEM_COUPLING_RULES: readonly CouplingRule[] = [
+  // Main campaign coupling rules
   {
     trigger_score_id: 'delivery_confidence',
     threshold: 25,
@@ -41,6 +42,19 @@ const SYSTEM_COUPLING_RULES: readonly CouplingRule[] = [
     threshold: 25,
     affected_score_ids: ['delivery_confidence'],
     multiplier: 0.7
+  },
+  // Tutorial coupling rules (tutorial score IDs don't overlap with campaign)
+  {
+    trigger_score_id: 'team_capacity',
+    threshold: 25,
+    affected_score_ids: ['code_clarity', 'system_health'],
+    multiplier: 0.7
+  },
+  {
+    trigger_score_id: 'system_health',
+    threshold: 25,
+    affected_score_ids: ['team_capacity'],
+    multiplier: 0.75
   }
 ]
 
@@ -65,7 +79,10 @@ export function getActiveCouplingEffects(
   scores: Record<string, number>
 ): ActiveCouplingEffect[] {
   return SYSTEM_COUPLING_RULES
-    .filter(rule => (scores[rule.trigger_score_id] ?? 0) < rule.threshold)
+    .filter(rule => {
+      const value = scores[rule.trigger_score_id]
+      return value !== undefined && value < rule.threshold
+    })
     .map(rule => ({
       trigger_score_id: rule.trigger_score_id,
       threshold: rule.threshold,
@@ -91,7 +108,10 @@ export function computeCouplingMultiplier(
       continue
     }
 
-    const triggerValue = currentScores[rule.trigger_score_id] ?? 0
+    const triggerValue = currentScores[rule.trigger_score_id]
+    if (triggerValue === undefined) {
+      continue // score not part of this scenario
+    }
     if (triggerValue < rule.threshold) {
       multiplier *= rule.multiplier
     }

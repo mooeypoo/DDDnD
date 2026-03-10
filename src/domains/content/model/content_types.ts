@@ -173,6 +173,12 @@ export interface Scenario extends ContentMetadata {
   outcome_tier_refs?: VersionRef[]
   outcome_archetype_refs?: VersionRef[]
   failure_conditions?: NumericCondition[]
+  /** Tutorial-only: marks this scenario as a tutorial quest */
+  is_tutorial?: boolean
+  /** Tutorial-only: ordering among tutorials (1 = basics, 2 = advanced, etc.) */
+  tutorial_order?: number
+  /** Tutorial-only: reference to the tutorial script content file */
+  tutorial_script_ref?: VersionRef
 }
 
 /**

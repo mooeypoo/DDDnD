@@ -23,11 +23,11 @@
             <div class="description-card">
               <p>
                 Enter a realm of software systems where each quest presents a different architectural challenge.
-                As the systems architect, you will wield decision cards to balance domain clarity, delivery pace,
+                As the systems architect, you will wield action cards to balance domain clarity, delivery pace,
                 stakeholder trust, and team resilience before the final turn.
               </p>
               <p class="description-emphasis">
-                Every choice has tradeoffs. Every card has consequences.
+                Every choice has tradeoffs. Every action has consequences.
                 Can you guide your system to a worthy ending?
               </p>
             </div>
@@ -35,10 +35,23 @@
           
           <!-- CTA Section -->
           <div class="cta-section">
-            <button class="btn-start-game" @click="goToSetup">
+            <button class="btn-start-game" @click="goToSetup()">
               <span class="btn-icon">🎲</span>
               <span class="btn-text">Start Your Journey</span>
             </button>
+
+            <div class="tutorial-links">
+              <span class="tutorial-links-label">New here?</span>
+              <button class="link-button tutorial-link" @click="goToSetup('basics')">
+                <span class="link-icon">📖</span>
+                Basics Tutorial
+              </button>
+              <span class="link-separator">•</span>
+              <button class="link-button tutorial-link" @click="goToSetup('advanced')">
+                <span class="link-icon">⚙️</span>
+                Advanced Tutorial
+              </button>
+            </div>
             
             <div class="helper-links">
               <button class="link-button" @click="gameStore.openAboutModal">
@@ -75,8 +88,12 @@ import GameLogo from '@/ui/components/branding/game_logo.vue'
 const router = useRouter()
 const gameStore = useGameStore()
 
-function goToSetup() {
-  router.push('/play')
+function goToSetup(tutorialType?: string) {
+  if (tutorialType) {
+    router.push({ path: '/play', query: { tutorial: tutorialType } })
+  } else {
+    router.push('/play')
+  }
 }
 </script>
 
@@ -281,6 +298,26 @@ function goToSetup() {
 .link-separator {
   color: var(--color-text-muted);
   user-select: none;
+}
+
+/* Tutorial Links */
+.tutorial-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tutorial-links-label {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-style: italic;
+}
+
+.tutorial-link {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
 }
 
 /* Footer */

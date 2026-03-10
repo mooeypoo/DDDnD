@@ -56,6 +56,17 @@ const COLLAPSE_DISPLAY: Record<string, { title: string; description: string; ico
     title: 'Trust Collapse',
     description: 'Delivery improvements reduced.',
     icon: '🤝'
+  },
+  // Tutorial collapse states
+  team_capacity: {
+    title: 'Capacity Collapse',
+    description: 'Code and system improvements are less effective.',
+    icon: '🫠'
+  },
+  system_health: {
+    title: 'System Collapse',
+    description: 'Team recovery improvements reduced.',
+    icon: '🏚️'
   }
 }
 

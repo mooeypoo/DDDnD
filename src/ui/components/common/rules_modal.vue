@@ -21,7 +21,7 @@
             resolve. The consequences of your earlier choices arrive.
           </li>
           <li>
-            <strong>Player Action</strong> — Your chosen card takes effect, shifting scores 
+            <strong>Player Action</strong> — Your chosen action takes effect, shifting scores 
             and stakeholder moods.
           </li>
           <li>
@@ -63,7 +63,7 @@
         <p>
           Some spells echo through time. A refactoring may slow delivery now but improve 
           clarity two turns later. A quick fix may buy time today and spawn bugs tomorrow. 
-          Aftershock icons on cards warn you that delayed effects are in play.
+          Aftershock icons on action cards warn you that delayed effects are in play.
         </p>
 
         <h3>🔗 System Coupling</h3>
@@ -87,14 +87,14 @@
         </ul>
         <p>
           Watch for ⚠️ collapse warnings in the System Ledger. When active, 
-          card previews will show the adjusted values. Stabilize the collapsing 
+          action card previews will show the adjusted values. Stabilize the collapsing 
           dimension first—or your other efforts will be in vain.
         </p>
 
-        <h3>🏆 Cards & Resources</h3>
+        <h3>🏆 Actions & Resources</h3>
         <p>
-          Some cards can only be played a limited number of times per run. Others require 
-          a cooldown between uses. Choose wisely—powerful cards are scarce, and the dungeon 
+          Some actions can only be played a limited number of times per run. Others require 
+          a cooldown between uses. Choose wisely—powerful actions are scarce, and the dungeon 
           is long.
         </p>
 

@@ -1,0 +1,11 @@
+{
+  "id": "tutorial_patch_debt",
+  "version": 1,
+  "name": "Patch Debt Accumulates",
+  "description": "Quick patches create hidden complexity. System health degrades.",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    { "score_id": "system_health", "delta": -10 },
+    { "score_id": "code_clarity", "delta": -5 }
+  ]
+}

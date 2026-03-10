@@ -1,5 +1,15 @@
 <template>
-  <article class="action-card" :class="[`category-${categoryId}`, { disabled: isCardDisabled }]" tabindex="0">
+  <article class="action-card" :class="[`category-${categoryId}`, { disabled: isCardDisabled, 'tutorial-locked': isTutorialLocked, 'tutorial-highlighted': isTutorialHighlighted }]" tabindex="0">
+
+    <!-- Tutorial lock overlay -->
+    <div v-if="isTutorialLocked" class="tutorial-lock-overlay" aria-hidden="true">
+      <span class="tutorial-lock-icon">🔒</span>
+    </div>
+
+    <!-- Tutorial highlight badge -->
+    <div v-if="isTutorialHighlighted" class="tutorial-play-badge" aria-label="Tutorial: play this card">
+      <span class="tutorial-play-icon">👆</span> Play This Card!
+    </div>
 
     <!-- Category accent strip — 3 px color bar clipped by card border-radius -->
     <div class="card-accent-strip" aria-hidden="true"></div>
@@ -119,7 +129,7 @@
         type="button"
         :disabled="isDisabled"
         @click="$emit('showDetails')"
-        aria-label="Inspect card details"
+        aria-label="Inspect action card details"
       >
         Inspect
       </button>
@@ -149,6 +159,10 @@ import { getAdjustedScoreChanges, hasActiveCoupling } from '@/ui/composables/sys
 const props = defineProps<{
   card: Card
   isDisabled?: boolean
+  /** Tutorial: this card cannot be played (another card is required) */
+  isTutorialLocked?: boolean
+  /** Tutorial: this is the card the player should play */
+  isTutorialHighlighted?: boolean
   availability?: TurnBriefingActionSummary
   /** Current game scores — used to show adjusted effects under coupling rules. */
   scores?: Record<string, number>
@@ -209,7 +223,7 @@ const hasIndicators = computed(() =>
 const availability = computed(() => props.availability)
 const isOneTimeCard = computed(() => availability.value?.usage_limit === 1)
 const hasCooldown = computed(() => (availability.value?.cooldown_turns ?? 0) > 0)
-const isCardDisabled = computed(() => props.isDisabled || (availability.value ? !availability.value.is_playable : false))
+const isCardDisabled = computed(() => props.isDisabled || props.isTutorialLocked || (availability.value ? !availability.value.is_playable : false))
 const playButtonHint = computed(() => {
   if (props.isDisabled) {
     return 'Turn is resolving.'
@@ -329,6 +343,79 @@ function metricPresentation(scoreId: string) {
 
 .action-card.disabled {
   opacity: 0.65;
+}
+
+/* -- Tutorial card guidance -- */
+.action-card.tutorial-locked {
+  opacity: 0.4;
+  filter: grayscale(0.5);
+  pointer-events: none;
+}
+
+.action-card.tutorial-highlighted {
+  border-color: var(--color-primary, #e94560);
+  box-shadow:
+    var(--shadow-inset-ridge),
+    0 0 12px rgba(233, 69, 96, 0.4),
+    0 0 30px rgba(233, 69, 96, 0.15);
+  animation: tutorial-pulse 2s ease-in-out infinite;
+}
+
+@keyframes tutorial-pulse {
+  0%, 100% {
+    box-shadow:
+      var(--shadow-inset-ridge),
+      0 0 12px rgba(233, 69, 96, 0.4),
+      0 0 30px rgba(233, 69, 96, 0.15);
+  }
+  50% {
+    box-shadow:
+      var(--shadow-inset-ridge),
+      0 0 18px rgba(233, 69, 96, 0.6),
+      0 0 45px rgba(233, 69, 96, 0.25);
+  }
+}
+
+.tutorial-lock-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.tutorial-lock-icon {
+  font-size: 2rem;
+  opacity: 0.5;
+}
+
+.tutorial-play-badge {
+  position: absolute;
+  top: var(--space-sm, 8px);
+  right: var(--space-sm, 8px);
+  background: var(--color-primary, #e94560);
+  color: var(--color-text-bright, #fff);
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: var(--font-bold, 700);
+  padding: var(--space-xs, 4px) var(--space-sm, 8px);
+  border-radius: var(--radius-md, 8px);
+  z-index: 3;
+  animation: badge-bounce 1.5s ease-in-out infinite;
+  white-space: nowrap;
+}
+
+.tutorial-play-icon {
+  margin-right: 2px;
+}
+
+@keyframes badge-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 
 .card-header {

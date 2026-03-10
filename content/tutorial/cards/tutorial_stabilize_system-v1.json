@@ -1,0 +1,14 @@
+{
+  "id": "tutorial_stabilize_system",
+  "version": 1,
+  "name": "Stabilize the System",
+  "description": "Focus entirely on system stability. Recovers system health, but no flashy results for stakeholders.",
+  "flavor_text": "Quiet heroism rarely makes the newsletter.",
+  "score_changes": [
+    { "score_id": "system_health", "delta": 12 },
+    { "score_id": "team_capacity", "delta": -8 },
+    { "score_id": "stakeholder_trust", "delta": -2 }
+  ],
+  "delayed_effect_refs": [],
+  "style_tags": ["infrastructure"]
+}

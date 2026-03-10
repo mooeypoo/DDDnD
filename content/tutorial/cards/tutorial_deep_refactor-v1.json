@@ -1,0 +1,16 @@
+{
+  "id": "tutorial_deep_refactor",
+  "version": 1,
+  "name": "Deep Refactor",
+  "description": "A major cleanup of tangled code. High cost now, big payoff later. Drains team capacity significantly.",
+  "flavor_text": "Untangling the spaghetti, one strand at a time.",
+  "score_changes": [
+    { "score_id": "code_clarity", "delta": 15 },
+    { "score_id": "team_capacity", "delta": -20 },
+    { "score_id": "stakeholder_trust", "delta": -5 }
+  ],
+  "delayed_effect_refs": [
+    { "id": "tutorial_refactor_payoff", "version": 1 }
+  ],
+  "style_tags": ["refactor"]
+}

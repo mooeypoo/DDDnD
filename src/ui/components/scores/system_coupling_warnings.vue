@@ -25,7 +25,7 @@ const props = defineProps<{
 
 const warnings = computed(() => getCollapseWarnings(props.scores))
 
-const couplingTooltip = `When parts of the system collapse, improvements become less effective.\n\nLow delivery confidence makes architecture work harder to apply.\nLow team morale weakens maintainability improvements.\nLow user trust disrupts delivery.`
+const couplingTooltip = `When parts of the system collapse below critical thresholds, positive improvements to coupled scores are diminished.`
 </script>
 
 <style scoped>

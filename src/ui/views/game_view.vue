@@ -7,6 +7,7 @@
       :isOpen="!!modalCardId" 
       :card="modalCard" 
       :isDisabled="gameStore.isPlayingTurn"
+      :isTutorialLocked="isTutorialCardLocked(modalCardId)"
       :availability="modalCardAvailability"
       :stakeholderNames="stakeholderNames"
       :scores="gameStore.turnBriefing?.current_scores"
@@ -23,13 +24,28 @@
       :stakeholders="gameStore.gameState?.stakeholders ?? {}"
       :stakeholderNames="stakeholderNames"
       :maxTurns="gameStore.maxTurns"
+      :isTutorial="gameStore.tutorial.isTutorialMode"
       @start="gameStore.dismissIntroSplash"
+    />
+
+    <TutorialCompleteSplash
+      :isOpen="gameStore.isTutorialCompleteSplashOpen"
+      :currentScenarioId="scenario?.id ?? ''"
+      :availableTutorials="gameStore.availableTutorials"
+      @launchTutorial="handleLaunchAnotherTutorial"
+      @startRealGame="handleStartRealGame"
     />
     
     <!-- Game Masthead -->
     <GameMasthead 
       @show-rules="gameStore.openRulesModal"
       @show-about="gameStore.openAboutModal"
+    />
+
+    <!-- Tutorial Exit Bar -->
+    <TutorialExitBar
+      :isTutorial="gameStore.tutorial.isTutorialMode"
+      @leave="handleLeaveTutorial"
     />
 
     <!-- Sticky HUD Bar: scores, stakeholders, turn counter (narrow screens only) -->
@@ -66,12 +82,26 @@
 
       <!-- Main Content Area (full-width, no sidebar) -->
       <main class="game-main">
+        <!-- Tutorial Hint Panel -->
+        <TutorialHintPanel
+          v-if="gameStore.tutorial.isTutorialMode"
+          :isVisible="gameStore.tutorial.isHintVisible"
+          :step="gameStore.tutorial.currentStep"
+          :stepNumber="gameStore.tutorial.currentStepNumber"
+          :totalSteps="gameStore.tutorial.totalSteps"
+          @dismiss="gameStore.tutorial.dismissCurrentHint"
+        />
+
         <!-- Run Complete Message (shown at top when run ends) -->
         <div v-if="gameStore.isRunComplete" class="run-complete-card">
           <div class="complete-icon">🏁</div>
           <h2 class="complete-title">Run Complete!</h2>
           <p class="complete-message">Your architectural journey has reached its conclusion.</p>
-          <button class="btn-view-results" @click="goToEndScreen">
+          <button
+            class="btn-view-results"
+            :disabled="gameStore.tutorial.isTutorialMode"
+            @click="goToEndScreen"
+          >
             <span class="btn-text">View Results</span>
             <span class="btn-icon">→</span>
           </button>
@@ -86,6 +116,7 @@
           :pending-aftershocks="gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length"
           :current-turn="gameStore.currentTurn"
           :total-turns="gameStore.maxTurns"
+          :isTutorial="gameStore.tutorial.isTutorialMode"
         />
 
         <!-- Aftershocks Warning (hidden when run complete) -->
@@ -140,6 +171,8 @@
         :card="entry.card"
         :availability="entry.availability"
         :isDisabled="gameStore.isPlayingTurn"
+        :isTutorialLocked="isTutorialCardLocked(entry.card.id)"
+        :isTutorialHighlighted="isTutorialCardHighlighted(entry.card.id)"
         :scores="gameStore.turnBriefing?.current_scores"
         @showDetails="handleShowDetails(entry.card.id)"
         @play="handlePlayCard"
@@ -155,6 +188,7 @@ import { useGameStore } from '@/ui/stores/game_store'
 import type { Card } from '@/domains/content/model'
 import { versionRefKey } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
+import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { resolveScenarioShortDescription } from '@/ui/composables/scenario_presentation'
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
 import ActionCard from '@/ui/components/cards/action_card.vue'
@@ -170,6 +204,9 @@ import GameHudSidebar from '@/ui/components/common/game_hud_sidebar.vue'
 import CardDetailsModal from '@/ui/components/cards/card_details_modal.vue'
 import GameMasthead from '@/ui/components/branding/game_masthead.vue'
 import RunIntroSplash from '@/ui/components/common/run_intro_splash.vue'
+import TutorialHintPanel from '@/ui/components/tutorial/tutorial_hint_panel.vue'
+import TutorialExitBar from '@/ui/components/tutorial/tutorial_exit_bar.vue'
+import TutorialCompleteSplash from '@/ui/components/tutorial/tutorial_complete_splash.vue'
 import {
   filterByCategory,
   sortCards,
@@ -261,6 +298,17 @@ const filteredSortedCards = computed(() => {
   return sortCards(filtered, satchelSort.value)
 })
 
+// -- Tutorial card guidance --
+const tutorialRequiredCardId = computed(() => gameStore.tutorial.requiredCardId ?? null)
+
+function isTutorialCardLocked(cardId: string): boolean {
+  return tutorialRequiredCardId.value !== null && cardId !== tutorialRequiredCardId.value
+}
+
+function isTutorialCardHighlighted(cardId: string): boolean {
+  return tutorialRequiredCardId.value !== null && cardId === tutorialRequiredCardId.value
+}
+
 const modalCard = computed(() => {
   if (!modalCardId.value || !gameStore.scenarioBundle) {
     return null
@@ -308,6 +356,39 @@ onUnmounted(() => {
 })
 
 function handleResetRun() {
+  gameStore.reset()
+  router.push('/play')
+}
+
+function handleLeaveTutorial() {
+  gameStore.reset()
+  router.push('/play')
+}
+
+async function handleLaunchAnotherTutorial(tutorial: QuestDisplayModel) {
+  gameStore.isTutorialCompleteSplashOpen = false
+  gameStore.reset()
+
+  const fallbackClass = gameStore.availableClasses[0]
+  if (!fallbackClass) {
+    router.push('/play')
+    return
+  }
+
+  await gameStore.start_new_run({
+    scenario_id: tutorial.id,
+    scenario_version: tutorial.version,
+    selected_class_ref: {
+      id: fallbackClass.id,
+      version: fallbackClass.version,
+    },
+    is_tutorial: true,
+  })
+  // Stay on /game — the new run is already active
+}
+
+function handleStartRealGame() {
+  gameStore.isTutorialCompleteSplashOpen = false
   gameStore.reset()
   router.push('/play')
 }
@@ -504,6 +585,13 @@ function goToEndScreen() {
   background: var(--color-primary-light);
   transform: translateY(-2px);
   box-shadow: 0 6px 24px var(--color-primary-glow);
+}
+
+.btn-view-results:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none;
 }
 
 /* Responsive */

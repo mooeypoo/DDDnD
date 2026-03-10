@@ -47,6 +47,7 @@ const props = withDefaults(
     pendingAftershocks: number
     currentTurn?: number
     totalTurns?: number
+    isTutorial?: boolean
   }>(),
   {}
 )
@@ -59,6 +60,7 @@ const turnsRemaining = computed(() => {
 })
 
 const isLowTurns = computed(() => {
+  if (props.isTutorial) return false
   return turnsRemaining.value > 0 && turnsRemaining.value <= 3
 })
 </script>

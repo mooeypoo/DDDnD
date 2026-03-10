@@ -1,0 +1,11 @@
+{
+  "id": "tutorial_planning_payoff",
+  "version": 1,
+  "name": "Planning Pays Off",
+  "description": "The upfront planning work starts bearing fruit. System health improves.",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    { "score_id": "system_health", "delta": 10 },
+    { "score_id": "code_clarity", "delta": 5 }
+  ]
+}

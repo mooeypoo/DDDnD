@@ -1,0 +1,59 @@
+{
+  "id": "tutorial_pressure_script",
+  "version": 1,
+  "name": "Systems Under Pressure Tutorial Script",
+  "description": "Step-by-step guidance for the advanced tutorial about system coupling and collapse.",
+  "steps": [
+    {
+      "id": "pressure_welcome",
+      "trigger": { "type": "run_start" },
+      "title": "A Realm in Peril",
+      "message": "This domain is wounded — its foundations crumble and the team is stretched thin. In DDDnD, when scores drop below critical thresholds, the system enters a collapse state that weakens everything you do. Study the score bars: your challenge begins here.",
+      "highlight": "scores"
+    },
+    {
+      "id": "tradeoffs_intro",
+      "trigger": { "type": "turn_start", "turn": 1 },
+      "title": "A Tempting Shortcut",
+      "message": "Sometimes you must deliver despite a crumbling system. Play Push Through the Crunch — it wins stakeholder favor but exhausts the team and damages system health. Watch what happens when scores cross critical thresholds.",
+      "highlight": "satchel",
+      "required_card_id": "tutorial_push_through"
+    },
+    {
+      "id": "coupling_warning",
+      "trigger": { "type": "turn_end", "turn": 1 },
+      "title": "The Curse of Coupling",
+      "message": "Team Capacity and System Health have both fallen below their critical thresholds — collapse warnings are now active! When a score collapses, positive gains to coupled scores are diminished. The system's rot drags everything down with it.",
+      "highlight": "coupling"
+    },
+    {
+      "id": "collapse_effects",
+      "trigger": { "type": "turn_start", "turn": 2 },
+      "title": "Diminished Magic",
+      "message": "Look at your scrolls carefully — some positive effects now show reduced values. That's coupling at work: your incantations are weakened because the underlying system is unstable. You must stabilize the foundation before you can make real progress.",
+      "highlight": "satchel"
+    },
+    {
+      "id": "debt_accumulation",
+      "trigger": { "type": "turn_start", "turn": 3 },
+      "title": "Debts Come Due",
+      "message": "Quick patches cast in haste often conjure future debts. If Architectural Aftershocks are inbound, they represent delayed consequences of past choices. In the real quests, managing this tension — short-term survival versus long-term health — is where strategy lives.",
+      "highlight": "aftershocks"
+    },
+    {
+      "id": "recovery_strategy",
+      "trigger": { "type": "turn_start", "turn": 4 },
+      "title": "Breaking the Curse",
+      "message": "To escape a collapse, you must raise the fallen score above its threshold. Play Rest the Team to invest in recovery — it won't dazzle the stakeholders, but it will lift Team Capacity out of collapse and restore your scrolls' full potency.",
+      "highlight": "satchel",
+      "required_card_id": "tutorial_rest_the_team"
+    },
+    {
+      "id": "pressure_complete",
+      "trigger": { "type": "run_end" },
+      "title": "Trial by Fire Complete!",
+      "message": "You've survived the crucible of system coupling. In the real quests, these forces create deep strategic tension — you cannot simply optimize one dimension and neglect the rest. The realm demands balance, and balance demands wisdom. Onward, Architect!",
+      "highlight": null
+    }
+  ]
+}

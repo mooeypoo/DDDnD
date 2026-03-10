@@ -1,0 +1,11 @@
+{
+  "id": "tutorial_refactor_payoff",
+  "version": 1,
+  "name": "Refactoring Bears Fruit",
+  "description": "The deep refactoring work makes everything easier. Team capacity and system health improve.",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    { "score_id": "system_health", "delta": 12 },
+    { "score_id": "team_capacity", "delta": 8 }
+  ]
+}

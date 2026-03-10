@@ -168,6 +168,40 @@ Humor is encouraged.
 
 ---
 
+# Tutorial System
+
+The game includes an optional tutorial system that teaches new players the core mechanics.
+
+## Tutorial Quests
+
+Two tutorial quests are provided:
+
+1. **Basics Tutorial** — Introduces scores, action cards, stakeholders, events, and aftershocks over 3 turns.
+2. **Systems Under Pressure** — Demonstrates system coupling, trade-offs, and collapse mechanics over 5 turns.
+
+## Tutorial Content Isolation
+
+All tutorial content lives under `content/tutorial/`. Tutorial content never mixes with main gameplay content. The tutorial content provider loads from this separate namespace.
+
+## Guided Hints
+
+Each tutorial scenario references a **tutorial script** — a JSON file defining step-by-step hints. Each step has:
+
+- a **trigger** (`run_start`, `turn_start`, `turn_end`, `run_end`) that determines when it appears
+- a **highlight** indicating which UI area to draw attention to
+- a **title** and **message** explaining the concept
+
+Hints are driven entirely by content — they are not hard-coded in the UI.
+
+## Adding a New Tutorial
+
+1. Create scenario, cards, scores, events, stakeholders, and other content JSON files under `content/tutorial/`.
+2. Create a tutorial script JSON under `content/tutorial/scripts/`.
+3. Set `is_tutorial: true`, `tutorial_order`, and `tutorial_script_ref` on the scenario.
+4. Add the scenario's `VersionRef` to `src/ui/config/available_tutorials.ts`.
+
+---
+
 # Implementation Notes
 
 The underlying simulation engine is implemented in TypeScript.

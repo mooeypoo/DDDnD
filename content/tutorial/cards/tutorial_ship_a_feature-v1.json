@@ -1,0 +1,13 @@
+{
+  "id": "tutorial_ship_a_feature",
+  "version": 1,
+  "name": "Ship a Feature",
+  "description": "Deliver a feature to stakeholders. Builds trust but drains the team a bit.",
+  "flavor_text": "Stakeholders like visible progress, even if the code weeps.",
+  "score_changes": [
+    { "score_id": "stakeholder_trust", "delta": 10 },
+    { "score_id": "team_capacity", "delta": -8 }
+  ],
+  "delayed_effect_refs": [],
+  "style_tags": ["process"]
+}

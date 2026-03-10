@@ -1,0 +1,42 @@
+{
+  "id": "tutorial_basics",
+  "version": 1,
+  "name": "First Steps: The Apprentice's Trial",
+  "description": "Learn the fundamentals of guiding a system. Pick actions, watch scores shift, and see how stakeholders react to your decisions.",
+  "short_description": "Learn the core mechanics: actions, scores, stakeholders, events, and delayed effects.",
+  "flavor_text": "Every great architect started by learning to read the blueprints.",
+  "is_tutorial": true,
+  "tutorial_order": 1,
+  "tutorial_script_ref": { "id": "tutorial_basics_script", "version": 1 },
+  "max_turns": 3,
+  "starting_scores": {
+    "system_health": 50,
+    "team_capacity": 60,
+    "code_clarity": 40,
+    "stakeholder_trust": 45
+  },
+  "score_refs": [
+    { "id": "system_health", "version": 1 },
+    { "id": "team_capacity", "version": 1 },
+    { "id": "code_clarity", "version": 1 },
+    { "id": "stakeholder_trust", "version": 1 }
+  ],
+  "stakeholder_refs": [
+    { "id": "tutorial_mentor", "version": 1 },
+    { "id": "tutorial_product_owner", "version": 1 }
+  ],
+  "card_refs": [
+    { "id": "tutorial_clean_up_code", "version": 1 },
+    { "id": "tutorial_ship_a_feature", "version": 1 },
+    { "id": "tutorial_plan_ahead", "version": 1 },
+    { "id": "tutorial_rest_the_team", "version": 1 }
+  ],
+  "event_refs": [],
+  "outcome_tier_refs": [
+    { "id": "tutorial_success", "version": 1 },
+    { "id": "tutorial_done", "version": 1 }
+  ],
+  "outcome_archetype_refs": [
+    { "id": "tutorial_learner", "version": 1 }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "tutorial_rest_the_team",
+  "version": 1,
+  "name": "Rest the Team",
+  "description": "Give the team breathing room. Restores team capacity at the cost of short-term progress.",
+  "flavor_text": "Even adventurers need to rest at the tavern.",
+  "score_changes": [
+    { "score_id": "team_capacity", "delta": 30 },
+    { "score_id": "stakeholder_trust", "delta": -3 }
+  ],
+  "delayed_effect_refs": [],
+  "style_tags": ["team"]
+}

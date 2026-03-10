@@ -1,0 +1,10 @@
+{
+  "id": "tutorial_product_owner",
+  "version": 1,
+  "name": "The Product Owner",
+  "description": "Needs features shipped, but understands that sustainable delivery matters. Responds to team capacity and stakeholder trust.",
+  "reaction_rule_refs": [
+    { "id": "tutorial_po_frustrated", "version": 1 },
+    { "id": "tutorial_po_encouraged", "version": 1 }
+  ]
+}

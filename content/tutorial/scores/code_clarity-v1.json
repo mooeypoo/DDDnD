@@ -1,0 +1,9 @@
+{
+  "id": "code_clarity",
+  "version": 1,
+  "name": "Code Clarity",
+  "description": "How readable and understandable the codebase is. Higher means easier to work with.",
+  "default_value": 40,
+  "min_value": 0,
+  "max_value": 100
+}

@@ -318,3 +318,27 @@ They must include enough information to:
 - expose a stable summary of the current or final outcome
 
 Exact-run exports are not yet required to be a full archival dump of all possible internal engine metadata.
+
+---
+
+## Tutorial Architecture
+
+Tutorial content is architecturally isolated from main game content.
+
+### Content Namespace
+
+Tutorial content resides under `content/tutorial/` with the same directory structure as main content (`scenarios/`, `cards/`, `scores/`, `events/`, etc.). The `TutorialContentProvider` extends `ContentProvider` with the base path `/content/tutorial`, ensuring tutorial resources never collide with main content.
+
+### Tutorial Scripts
+
+Tutorial scripts (`content/tutorial/scripts/`) define guided hint sequences. Each script is an ordered list of steps with lifecycle triggers. Scripts are loaded by the `TutorialContentProvider.loadTutorialScript()` method.
+
+### UI Integration
+
+The `useTutorialState()` composable manages tutorial mode as module-level reactive state. It tracks the current script, step index, and hint visibility. The game store advances tutorial triggers at lifecycle boundaries (intro dismissed → `run_start`, briefing refreshed → `turn_start`, turn resolved → `turn_end`, run complete → `run_end`).
+
+### Boundary Rules
+
+- Tutorial content provider **extends** the main content provider — it does not modify it.
+- Tutorial state composable is UI-only — it does not touch the simulation engine.
+- The simulation engine processes tutorial scenarios identically to normal scenarios — no special-casing.

@@ -1,0 +1,9 @@
+{
+  "id": "team_capacity",
+  "version": 1,
+  "name": "Team Capacity",
+  "description": "How much bandwidth the team has for new work. Higher means the team is less overloaded.",
+  "default_value": 50,
+  "min_value": 0,
+  "max_value": 100
+}

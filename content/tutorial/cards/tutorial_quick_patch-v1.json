@@ -1,0 +1,15 @@
+{
+  "id": "tutorial_quick_patch",
+  "version": 1,
+  "name": "Apply a Quick Patch",
+  "description": "A fast fix that buys time but accumulates hidden debt. System health drops later.",
+  "flavor_text": "A bandage on a wound that needs stitches.",
+  "score_changes": [
+    { "score_id": "stakeholder_trust", "delta": 5 },
+    { "score_id": "team_capacity", "delta": 5 }
+  ],
+  "delayed_effect_refs": [
+    { "id": "tutorial_patch_debt", "version": 1 }
+  ],
+  "style_tags": ["fix"]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "tutorial_clean_up_code",
+  "version": 1,
+  "name": "Clean Up the Code",
+  "description": "Spend time improving code readability. Increases code clarity and system health, but takes team capacity.",
+  "flavor_text": "Sometimes the best decision is the unglamorous one.",
+  "score_changes": [
+    { "score_id": "code_clarity", "delta": 12 },
+    { "score_id": "system_health", "delta": 8 },
+    { "score_id": "team_capacity", "delta": -5 }
+  ],
+  "delayed_effect_refs": [],
+  "style_tags": ["refactor"]
+}
