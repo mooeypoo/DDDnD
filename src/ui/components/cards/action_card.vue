@@ -23,16 +23,25 @@
     <!-- Primary Effects -->
     <div class="primary-effects" v-if="card.score_changes.length">
       <span
-        v-for="change in primaryEffects"
+        v-for="(change, idx) in primaryEffects"
         :key="`${change.score_id}-${change.delta}`"
         class="effect-chip"
-        :class="change.delta > 0 ? 'positive' : 'negative'"
+        :class="[
+          change.delta > 0 ? 'positive' : 'negative',
+          { 'chip-modified': showAdjusted && adjustedPrimaryEffects[idx]?.is_modified }
+        ]"
       >
         <span class="metric-icon" :class="metricPresentation(change.score_id).colorClass">
           {{ metricPresentation(change.score_id).icon }}
         </span>
         {{ metricPresentation(change.score_id).label }}
-        <span class="chip-delta">{{ change.delta > 0 ? '+' : '' }}{{ change.delta }}</span>
+        <template v-if="showAdjusted && adjustedPrimaryEffects[idx]?.is_modified">
+          <span class="chip-delta">{{ adjustedPrimaryEffects[idx].adjusted_delta > 0 ? '+' : '' }}{{ adjustedPrimaryEffects[idx].adjusted_delta }}</span>
+          <span class="chip-base-delta">{{ change.delta > 0 ? '+' : '' }}{{ change.delta }}</span>
+        </template>
+        <template v-else>
+          <span class="chip-delta">{{ change.delta > 0 ? '+' : '' }}{{ change.delta }}</span>
+        </template>
       </span>
       <span v-if="remainingEffects > 0" class="effect-chip more-effects">
         +{{ remainingEffects }} more
@@ -98,11 +107,14 @@ import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import type { ArtworkMeta } from '@/ui/types/artwork'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import { resolveCategory } from '@/ui/composables/card_filter_sort'
+import { getAdjustedScoreChanges, hasActiveCoupling } from '@/ui/composables/system_coupling'
 
 const props = defineProps<{
   card: Card
   isDisabled?: boolean
   availability?: TurnBriefingActionSummary
+  /** Current game scores — used to show adjusted effects under coupling rules. */
+  scores?: Record<string, number>
   /** Optional artwork metadata. Renders a thumbnail in the card header when illustration_url is present. */
   artwork?: ArtworkMeta
 }>()
@@ -120,6 +132,15 @@ const categoryId = computed(() => resolveCategory(props.card.style_tags ?? []))
 
 const primaryEffects = computed(() => props.card.score_changes.slice(0, 3))
 const remainingEffects = computed(() => Math.max(props.card.score_changes.length - primaryEffects.value.length, 0))
+
+const adjustedPrimaryEffects = computed(() => {
+  if (!props.scores || !hasActiveCoupling(props.scores)) return []
+  return getAdjustedScoreChanges(primaryEffects.value, props.scores)
+})
+
+const showAdjusted = computed(() =>
+  adjustedPrimaryEffects.value.some(e => e.is_modified)
+)
 const hasIndicators = computed(() =>
   props.card.delayed_effect_refs.length > 0 || (props.card.stakeholder_changes?.length ?? 0) > 0
 )
@@ -344,6 +365,18 @@ function metricPresentation(scoreId: string) {
 .effect-chip.more-effects {
   color: var(--text-secondary);
   border-color: var(--border-subtle);
+}
+
+.chip-modified {
+  border-color: rgba(255, 100, 50, 0.3);
+  background: rgba(255, 100, 50, 0.06);
+}
+
+.chip-base-delta {
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
 }
 
 .metric-icon {

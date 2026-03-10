@@ -35,6 +35,9 @@
           :stakeholderNames="stakeholderNames"
         />
       </div>
+
+      <!-- System coupling collapse warnings -->
+      <SystemCouplingWarnings v-if="scores" :scores="scores" />
     </div>
   </div>
 </template>
@@ -44,6 +47,7 @@ import { computed } from 'vue'
 import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import ScoreHud from '@/ui/components/scores/score_hud.vue'
 import StakeholderHud from '@/ui/components/stakeholders/stakeholder_hud.vue'
+import SystemCouplingWarnings from '@/ui/components/scores/system_coupling_warnings.vue'
 
 const props = defineProps<{
   currentTurn: number

@@ -9,6 +9,7 @@
       :isDisabled="gameStore.isPlayingTurn"
       :availability="modalCardAvailability"
       :stakeholderNames="stakeholderNames"
+      :scores="gameStore.turnBriefing?.current_scores"
       @close="modalCardId = null" 
       @play="handlePlayCard"
     />
@@ -139,6 +140,7 @@
         :card="entry.card"
         :availability="entry.availability"
         :isDisabled="gameStore.isPlayingTurn"
+        :scores="gameStore.turnBriefing?.current_scores"
         @showDetails="handleShowDetails(entry.card.id)"
         @play="handlePlayCard"
       />

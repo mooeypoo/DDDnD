@@ -42,6 +42,9 @@
           </div>
         </div>
       </div>
+
+      <!-- System coupling warnings -->
+      <SystemCouplingWarnings v-if="scores" :scores="scores" />
     </div>
 
     <!-- Stakeholders panel — always expanded -->
@@ -84,6 +87,7 @@ import { computed } from 'vue'
 import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
+import SystemCouplingWarnings from '@/ui/components/scores/system_coupling_warnings.vue'
 
 const props = defineProps<{
   currentTurn: number

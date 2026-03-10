@@ -45,6 +45,37 @@ const SYSTEM_COUPLING_RULES: readonly CouplingRule[] = [
 ]
 
 /**
+ * Describes a coupling rule that is currently active given the system state.
+ * Returned by getActiveCouplingEffects for UI display purposes.
+ */
+export interface ActiveCouplingEffect {
+  trigger_score_id: string
+  threshold: number
+  current_value: number
+  affected_score_ids: readonly string[]
+  multiplier: number
+}
+
+/**
+ * Return the subset of coupling rules that are currently triggered
+ * given the provided scores. This is a read-only query intended for
+ * UI display — it does not modify any state.
+ */
+export function getActiveCouplingEffects(
+  scores: Record<string, number>
+): ActiveCouplingEffect[] {
+  return SYSTEM_COUPLING_RULES
+    .filter(rule => (scores[rule.trigger_score_id] ?? 0) < rule.threshold)
+    .map(rule => ({
+      trigger_score_id: rule.trigger_score_id,
+      threshold: rule.threshold,
+      current_value: scores[rule.trigger_score_id] ?? 0,
+      affected_score_ids: rule.affected_score_ids,
+      multiplier: rule.multiplier
+    }))
+}
+
+/**
  * Compute the effective multiplier for a score based on the current system state.
  * When multiple coupling rules affect the same score, their multipliers stack
  * multiplicatively (e.g. 0.7 * 0.75 = 0.525).

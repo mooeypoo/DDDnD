@@ -37,6 +37,32 @@
             </ul>
           </div>
 
+          <!-- Adjusted effects under system coupling -->
+          <div v-if="hasAnyModifiedEffect" class="detail-section coupling-adjusted-section">
+            <h3 class="section-title"><span class="section-icon">⚠️</span> Adjusted Effects</h3>
+            <p class="coupling-note">System coupling is reducing some gains.</p>
+            <ul class="effect-list">
+              <li
+                v-for="(adj, index) in adjustedEffects"
+                :key="'adj-' + index"
+                class="effect-item"
+                :class="{ 'effect-modified': adj.is_modified }"
+              >
+                <span class="effect-icon" :class="`metric-${adj.score_id.replace(/_/g, '-')}`">
+                  {{ getMetricIcon(adj.score_id) }}
+                </span>
+                <span class="effect-label">{{ getMetricLabel(adj.score_id) }}</span>
+                <span class="delta-value" :class="adj.adjusted_delta > 0 ? 'positive' : 'negative'">
+                  {{ adj.adjusted_delta > 0 ? '+' : '' }}{{ adj.adjusted_delta }}
+                </span>
+                <span v-if="adj.is_modified" class="modifier-badge">
+                  was {{ adj.base_delta > 0 ? '+' : '' }}{{ adj.base_delta }}
+                </span>
+              </li>
+            </ul>
+            <p class="coupling-reason">{{ couplingReasonText }}</p>
+          </div>
+
           <div v-if="card.delayed_effect_refs && card.delayed_effect_refs.length > 0" class="detail-section">
             <h3 class="section-title"><span class="section-icon">⚡</span> Architectural Aftershocks</h3>
             <div class="aftershock-notice">
@@ -92,6 +118,7 @@ import type { Card } from '@/domains/content/model/content_types';
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation';
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation';
+import { getAdjustedScoreChanges, getCollapseWarnings } from '@/ui/composables/system_coupling'
 import type { ArtworkMeta } from '@/ui/types/artwork'
 
 interface Props {
@@ -100,6 +127,8 @@ interface Props {
   isDisabled?: boolean;
   availability?: TurnBriefingActionSummary;
   stakeholderNames?: Record<string, string>;
+  /** Current game scores — used to compute adjusted card effects under coupling rules. */
+  scores?: Record<string, number>;
   /** Optional artwork for the modal illustration frame. Renders an image when illustration_url is present. */
   artwork?: ArtworkMeta
 }
@@ -193,6 +222,26 @@ function handlePlay(): void {
   emit('play', props.card.id);
   emit('close');
 }
+
+// -- Coupling adjustment display --
+
+const adjustedEffects = computed(() => {
+  if (!props.scores) return []
+  return getAdjustedScoreChanges(props.card.score_changes, props.scores)
+})
+
+const hasAnyModifiedEffect = computed(() =>
+  adjustedEffects.value.some(e => e.is_modified)
+)
+
+const activeWarnings = computed(() => {
+  if (!props.scores) return []
+  return getCollapseWarnings(props.scores)
+})
+
+const couplingReasonText = computed(() =>
+  activeWarnings.value.map(w => w.description).join(' ')
+)
 </script>
 
 <style scoped>
@@ -528,4 +577,41 @@ function handlePlay(): void {
 .metric-user-trust          { color: var(--metric-user-trust);          }
 .metric-budget              { color: var(--metric-budget);              }
 .metric-generic             { color: var(--text-secondary);             }
+
+/* -- System coupling adjusted effects -- */
+
+.coupling-adjusted-section {
+  border: 1px solid rgba(255, 100, 50, 0.25);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  background: rgba(255, 100, 50, 0.04);
+}
+
+.coupling-note {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--score-critical);
+  font-weight: var(--font-semibold);
+}
+
+.effect-modified {
+  border-color: rgba(255, 100, 50, 0.3);
+  background: rgba(255, 100, 50, 0.06);
+}
+
+.modifier-badge {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-decoration: line-through;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.coupling-reason {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.4;
+}
 </style>

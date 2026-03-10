@@ -62,6 +62,31 @@
           Balance all metrics before reaching the maximum turn limit. Your outcome is determined by 
           final scores, stakeholder satisfaction, and the path you took.
         </p>
+
+        <h3>System Coupling</h3>
+        <p>
+          When parts of the system collapse, improvements become less effective. 
+          This represents the real-world difficulty of making progress when foundational 
+          systems are failing.
+        </p>
+        <ul>
+          <li>
+            <strong>Delivery Collapse</strong> — When delivery confidence drops very low, 
+            architecture work (domain clarity, maintainability) becomes harder to apply.
+          </li>
+          <li>
+            <strong>Morale Collapse</strong> — When team morale drops very low, 
+            maintainability improvements are weakened.
+          </li>
+          <li>
+            <strong>Trust Collapse</strong> — When user trust drops very low, 
+            delivery improvements are disrupted.
+          </li>
+        </ul>
+        <p>
+          Watch for ⚠️ collapse warnings in the System Ledger. When active, 
+          card effect previews will show the adjusted values.
+        </p>
         
         <p class="tip">
           <strong>Tip:</strong> Every choice involves tradeoffs. There's no single right answer.
