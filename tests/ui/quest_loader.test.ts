@@ -30,7 +30,8 @@ const mockScenario: Scenario = {
 describe('quest loader', () => {
   // Suppress expected console.error output from tests that deliberately
   // trigger loading failures (the production code logs them for debugging).
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let consoleErrorSpy: any
 
   beforeEach(() => {
     consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
