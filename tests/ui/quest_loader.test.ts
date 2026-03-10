@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Scenario } from '@/domains/content/model'
 import { loadQuestDisplayModel, loadQuestDisplayModels } from '@/ui/services/quest_loader'
 
@@ -28,6 +28,18 @@ const mockScenario: Scenario = {
 }
 
 describe('quest loader', () => {
+  // Suppress expected console.error output from tests that deliberately
+  // trigger loading failures (the production code logs them for debugging).
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>
+
+  beforeEach(() => {
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore()
+  })
+
   it('loads a single quest and transforms it to display model', async () => {
     const mockProvider = {
       loadScenario: vi.fn().mockResolvedValue(mockScenario),
@@ -96,6 +108,8 @@ describe('quest loader', () => {
     expect(quests[0].id).toBe('test_scenario')
     expect(quests[1].id).toBe('another_scenario')
     expect(mockProvider.loadScenario).toHaveBeenCalledTimes(3)
+    // Verify the failure was logged
+    expect(consoleErrorSpy).toHaveBeenCalledOnce()
   })
 
   it('handles gracefully when all quests fail to load', async () => {
@@ -122,6 +136,8 @@ describe('quest loader', () => {
     )
 
     expect(quests).toHaveLength(0)
+    // Verify both failures were logged
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(2)
   })
 
   it('derives stats from scenario content', async () => {
