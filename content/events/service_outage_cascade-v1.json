@@ -1,0 +1,23 @@
+{
+  "id": "service_outage_cascade",
+  "version": 1,
+  "name": "Service Outage Cascade",
+  "description": "A failure in one service triggers a chain reaction of downstream outages",
+  "flavor_text": "Turns out everything really was connected to everything.",
+  "occurrence_weight": 4,
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": -9
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -5
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    }
+  ],
+  "delayed_effect_refs": []
+}

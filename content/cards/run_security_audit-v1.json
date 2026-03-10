@@ -1,0 +1,33 @@
+{
+  "id": "run_security_audit",
+  "version": 1,
+  "name": "Run Security Audit",
+  "description": "Commission a thorough review of system boundaries, data flows, and access controls",
+  "flavor_text": "Let's find out what we don't know before someone else does.",
+  "usage_limit": 1,
+  "style_tags": ["security", "process", "high-impact"],
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 5
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -5
+    },
+    {
+      "score_id": "budget",
+      "delta": -7
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "audit_findings_surface",
+      "version": 1
+    }
+  ]
+}

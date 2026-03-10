@@ -11,6 +11,10 @@
     {
       "id": "vp_product_worried_about_users",
       "version": 1
+    },
+    {
+      "id": "vp_product_celebrates_user_growth",
+      "version": 1
     }
   ]
 }

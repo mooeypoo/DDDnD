@@ -114,6 +114,18 @@
     {
       "id": "pay_down_incident_backlog",
       "version": 1
+    },
+    {
+      "id": "negotiate_technical_runway",
+      "version": 1
+    },
+    {
+      "id": "spike_on_migration_strategy",
+      "version": 1
+    },
+    {
+      "id": "absorb_emergency_production_fix",
+      "version": 1
     }
   ],
   "event_refs": [
@@ -134,7 +146,11 @@
       "version": 1
     },
     {
-      "id": "dependency_breaks_unexpectedly",
+      "id": "key_engineer_leaves",
+      "version": 1
+    },
+    {
+      "id": "customer_escalation",
       "version": 1
     }
   ],

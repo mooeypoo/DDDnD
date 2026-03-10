@@ -1,0 +1,21 @@
+{
+  "id": "knowledge_gap_widens",
+  "version": 1,
+  "name": "Knowledge Gap Widens",
+  "description": "With a key contributor gone, the team struggles to maintain velocity and institutional knowledge erodes",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": -6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -3
+    }
+  ]
+}

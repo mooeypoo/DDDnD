@@ -1,0 +1,23 @@
+{
+  "id": "regulatory_compliance_deadline",
+  "version": 1,
+  "name": "Regulatory Compliance Deadline",
+  "description": "A new regulation requires system changes before a hard deadline, diverting engineering effort",
+  "flavor_text": "The auditors are coming. Ready or not.",
+  "occurrence_weight": 3,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -6
+    },
+    {
+      "score_id": "budget",
+      "delta": -5
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 3
+    }
+  ],
+  "delayed_effect_refs": []
+}

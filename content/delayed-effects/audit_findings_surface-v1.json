@@ -1,0 +1,21 @@
+{
+  "id": "audit_findings_surface",
+  "version": 1,
+  "name": "Audit Findings Surface",
+  "description": "The security audit reveals issues that must be addressed, but the clarity gained improves long-term planning",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 5
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ]
+}

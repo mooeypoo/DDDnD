@@ -1,0 +1,23 @@
+{
+  "id": "tech_lead_appreciates_clean_code",
+  "version": 1,
+  "name": "Tech Lead Appreciates Clean Code",
+  "description": "The tech lead is energized when maintainability improves",
+  "condition_description": "Maintainability > 60",
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 3
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "tech_lead",
+      "delta": 6
+    }
+  ]
+}

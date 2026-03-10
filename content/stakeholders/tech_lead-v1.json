@@ -7,6 +7,10 @@
     {
       "id": "concerned_about_debt",
       "version": 1
+    },
+    {
+      "id": "tech_lead_appreciates_clean_code",
+      "version": 1
     }
   ]
 }

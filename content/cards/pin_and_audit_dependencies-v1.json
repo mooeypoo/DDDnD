@@ -1,0 +1,33 @@
+{
+  "id": "pin_and_audit_dependencies",
+  "version": 1,
+  "name": "Pin and Audit Dependencies",
+  "description": "Lock dependency versions and review the supply chain for known vulnerabilities and license risks",
+  "flavor_text": "You'd be surprised what's hiding in node_modules.",
+  "usage_limit": 1,
+  "style_tags": ["safe", "security", "process"],
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 4
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -2
+    },
+    {
+      "score_id": "budget",
+      "delta": -4
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "dependency_stability_improves",
+      "version": 1
+    }
+  ]
+}

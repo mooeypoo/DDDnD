@@ -1,0 +1,23 @@
+{
+  "id": "surprise_budget_cut",
+  "version": 1,
+  "name": "Surprise Budget Cut",
+  "description": "Finance has announced an unexpected budget reduction for the engineering department",
+  "flavor_text": "Apparently 'investing in quality' wasn't in the quarterly forecast.",
+  "occurrence_weight": 4,
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": -10
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": []
+}

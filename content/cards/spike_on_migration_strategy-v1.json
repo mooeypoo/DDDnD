@@ -1,0 +1,34 @@
+{
+  "id": "spike_on_migration_strategy",
+  "version": 1,
+  "name": "Spike on Migration Strategy",
+  "description": "Time-box an investigation into how the system could be restructured without a risky big-bang rewrite",
+  "flavor_text": "Two devs, one whiteboard, three days. Let's see what's possible.",
+  "usage_limit": 2,
+  "cooldown_turns": 2,
+  "style_tags": ["architecture", "investigation", "incremental"],
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 5
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "improved_clarity",
+      "version": 1
+    }
+  ]
+}

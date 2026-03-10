@@ -1,0 +1,38 @@
+{
+  "id": "negotiate_technical_runway",
+  "version": 1,
+  "name": "Negotiate Technical Runway",
+  "description": "Convince leadership to allocate dedicated time for architecture improvements before the next feature push",
+  "flavor_text": "We need two sprints. Trust us.",
+  "usage_limit": 2,
+  "cooldown_turns": 3,
+  "style_tags": ["strategic", "leadership", "process"],
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": -6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 6
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "refactoring_payoff",
+      "version": 1
+    }
+  ]
+}

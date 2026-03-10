@@ -1,0 +1,28 @@
+{
+  "id": "key_engineer_leaves",
+  "version": 1,
+  "name": "Key Engineer Leaves",
+  "description": "A senior engineer with deep system knowledge has resigned, taking critical institutional memory with them",
+  "flavor_text": "Their last commit message was just 'good luck'.",
+  "occurrence_weight": 4,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -7
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -5
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "knowledge_gap_widens",
+      "version": 1
+    }
+  ]
+}

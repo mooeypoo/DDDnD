@@ -1,0 +1,38 @@
+{
+  "id": "absorb_emergency_production_fix",
+  "version": 1,
+  "name": "Absorb Emergency Production Fix",
+  "description": "Drop everything and patch the production issue, accepting the architecture cost to keep users happy",
+  "flavor_text": "Hotfix deployed. We'll clean it up later. Probably.",
+  "usage_limit": 3,
+  "cooldown_turns": 1,
+  "style_tags": ["reactive", "quick", "patch"],
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 4
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -5
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": -2
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "technical_debt_accumulates",
+      "version": 1
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "vp_product_celebrates_user_growth",
+  "version": 1,
+  "name": "VP Product Celebrates User Growth",
+  "description": "VP Product is supportive when user trust is healthy",
+  "condition_description": "User trust > 65",
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": 4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 3
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "vp_product",
+      "delta": 5
+    }
+  ]
+}

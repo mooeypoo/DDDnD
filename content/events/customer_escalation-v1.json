@@ -1,0 +1,23 @@
+{
+  "id": "customer_escalation",
+  "version": 1,
+  "name": "Customer Escalation",
+  "description": "A major customer threatens to leave unless reliability and feature delivery improve",
+  "flavor_text": "Their VP just emailed our VP. It's that kind of day.",
+  "occurrence_weight": 5,
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": -6
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": []
+}
