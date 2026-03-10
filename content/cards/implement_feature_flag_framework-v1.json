@@ -1,0 +1,28 @@
+{
+  "id": "implement_feature_flag_framework",
+  "version": 1,
+  "name": "Implement Feature Flag Framework",
+  "description": "Set up a feature-flag system so risky changes can be toggled without redeploying",
+  "flavor_text": "Ship dark, flip the switch when you're ready",
+  "usage_limit": 1,
+  "style_tags": ["architecture", "infrastructure", "safe"],
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 7
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 3
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -3
+    },
+    {
+      "score_id": "budget",
+      "delta": -4
+    }
+  ],
+  "delayed_effect_refs": []
+}

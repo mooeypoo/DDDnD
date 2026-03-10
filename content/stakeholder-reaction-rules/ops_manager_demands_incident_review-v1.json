@@ -1,0 +1,24 @@
+{
+  "id": "ops_manager_demands_incident_review",
+  "version": 1,
+  "name": "Ops Manager Demands Incident Review",
+  "description": "The operations manager demands a full incident review when user trust craters, halting feature work",
+  "condition_description": "User trust < 25",
+  "priority": 50,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -5
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "operations_manager",
+      "delta": -10
+    }
+  ]
+}

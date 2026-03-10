@@ -1,0 +1,21 @@
+{
+  "id": "contractor_knowledge_leaves",
+  "version": 1,
+  "name": "Contractor Knowledge Leaves",
+  "description": "When the contractor's engagement ends, their specialized knowledge walks out the door with them",
+  "turns_until_resolution": 3,
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": -5
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -3
+    }
+  ]
+}

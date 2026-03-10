@@ -1,0 +1,17 @@
+{
+  "id": "api_migration_friction",
+  "version": 1,
+  "name": "API Migration Friction",
+  "description": "Downstream consumers struggle to adapt to the deprecated API's removal, causing temporary delivery friction",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -5
+    },
+    {
+      "score_id": "user_trust",
+      "delta": -3
+    }
+  ]
+}

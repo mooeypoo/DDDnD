@@ -1,0 +1,24 @@
+{
+  "id": "cfo_alarmed_by_overspending",
+  "version": 1,
+  "name": "CFO Alarmed by Overspending",
+  "description": "The CFO escalates to the board when budget reaches crisis levels, freezing non-essential spending",
+  "condition_description": "Budget < 20",
+  "priority": 50,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -4
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "cfo",
+      "delta": -10
+    }
+  ]
+}

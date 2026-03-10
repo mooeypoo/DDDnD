@@ -45,7 +45,9 @@
     { "id": "align_budget_with_architecture", "version": 1 },
     { "id": "pay_down_incident_backlog", "version": 1 },
     { "id": "run_security_audit", "version": 1 },
-    { "id": "pin_and_audit_dependencies", "version": 1 }
+    { "id": "pin_and_audit_dependencies", "version": 1 },
+    { "id": "implement_feature_flag_framework", "version": 1 },
+    { "id": "automate_deployment_pipeline", "version": 1 }
   ],
   "event_refs": [
     { "id": "critical_bug_discovered", "version": 1 },
@@ -54,7 +56,8 @@
     { "id": "team_member_discovers_pattern", "version": 1 },
     { "id": "regulatory_compliance_deadline", "version": 1 },
     { "id": "key_engineer_leaves", "version": 1 },
-    { "id": "customer_escalation", "version": 1 }
+    { "id": "customer_escalation", "version": 1 },
+    { "id": "data_breach_reported", "version": 1 }
   ],
   "outcome_tier_refs": [
     { "id": "triumph", "version": 1 },

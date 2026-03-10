@@ -45,7 +45,10 @@
     { "id": "scale_incident_command", "version": 1 },
     { "id": "clarify_cross_team_handoffs", "version": 1 },
     { "id": "negotiate_technical_runway", "version": 1 },
-    { "id": "absorb_emergency_production_fix", "version": 1 }
+    { "id": "absorb_emergency_production_fix", "version": 1 },
+    { "id": "implement_feature_flag_framework", "version": 1 },
+    { "id": "hire_specialized_contractor", "version": 1 },
+    { "id": "automate_deployment_pipeline", "version": 1 }
   ],
   "event_refs": [
     { "id": "critical_bug_discovered", "version": 1 },
@@ -55,7 +58,8 @@
     { "id": "dependency_breaks_unexpectedly", "version": 1 },
     { "id": "surprise_budget_cut", "version": 1 },
     { "id": "key_engineer_leaves", "version": 1 },
-    { "id": "customer_escalation", "version": 1 }
+    { "id": "customer_escalation", "version": 1 },
+    { "id": "data_breach_reported", "version": 1 }
   ],
   "outcome_tier_refs": [
     { "id": "triumph", "version": 1 },

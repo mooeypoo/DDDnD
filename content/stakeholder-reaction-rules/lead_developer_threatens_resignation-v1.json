@@ -1,0 +1,24 @@
+{
+  "id": "lead_developer_threatens_resignation",
+  "version": 1,
+  "name": "Lead Developer Threatens Resignation",
+  "description": "The lead developer threatens to quit when code quality reaches an all-time low",
+  "condition_description": "Maintainability < 20",
+  "priority": 50,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "lead_developer",
+      "delta": -12
+    }
+  ]
+}

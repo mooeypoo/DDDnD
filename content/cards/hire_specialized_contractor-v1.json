@@ -1,0 +1,30 @@
+{
+  "id": "hire_specialized_contractor",
+  "version": 1,
+  "name": "Hire Specialized Contractor",
+  "description": "Bring in an expert contractor to tackle a hard problem fast—but their knowledge leaves when they do",
+  "flavor_text": "A mercenary solution for a mercenary timeline",
+  "usage_limit": 2,
+  "cooldown_turns": 3,
+  "style_tags": ["short-term", "quick", "expensive"],
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 8
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 3
+    },
+    {
+      "score_id": "budget",
+      "delta": -9
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "contractor_knowledge_leaves",
+      "version": 1
+    }
+  ]
+}

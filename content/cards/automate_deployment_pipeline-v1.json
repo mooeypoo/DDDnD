@@ -1,0 +1,33 @@
+{
+  "id": "automate_deployment_pipeline",
+  "version": 1,
+  "name": "Automate Deployment Pipeline",
+  "description": "Invest in CI/CD automation to make deployments fast, safe, and repeatable",
+  "flavor_text": "If it hurts, do it more often—until it doesn't",
+  "usage_limit": 1,
+  "style_tags": ["infrastructure", "automation", "high-impact"],
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 8
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 2
+    },
+    {
+      "score_id": "budget",
+      "delta": -7
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "refactoring_payoff",
+      "version": 1
+    }
+  ]
+}

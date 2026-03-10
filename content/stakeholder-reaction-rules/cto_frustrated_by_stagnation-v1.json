@@ -1,0 +1,24 @@
+{
+  "id": "cto_frustrated_by_stagnation",
+  "version": 1,
+  "name": "CTO Frustrated by Stagnation",
+  "description": "The CTO loses confidence in the team's ability to deliver when domain clarity stays critically low",
+  "condition_description": "Domain clarity < 25",
+  "priority": 50,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "cto",
+      "delta": -10
+    }
+  ]
+}

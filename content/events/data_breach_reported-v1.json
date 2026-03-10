@@ -1,0 +1,28 @@
+{
+  "id": "data_breach_reported",
+  "version": 1,
+  "name": "Data Breach Reported",
+  "description": "A security breach exposes customer data, triggering regulatory scrutiny and eroding user trust",
+  "flavor_text": "The CISO's pager just went off. So did the lawyers'.",
+  "occurrence_weight": 3,
+  "trigger_condition_description": "User trust < 40",
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": -10
+    },
+    {
+      "score_id": "budget",
+      "delta": -7
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": []
+}

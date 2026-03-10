@@ -11,6 +11,10 @@
     {
       "id": "ops_manager_confident_in_stability",
       "version": 1
+    },
+    {
+      "id": "ops_manager_demands_incident_review",
+      "version": 1
     }
   ]
 }

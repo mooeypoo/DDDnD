@@ -1,0 +1,33 @@
+{
+  "id": "host_cross_team_retrospective",
+  "version": 1,
+  "name": "Host Cross-Team Retrospective",
+  "description": "Bring multiple teams together to reflect on recent delivery and surface systemic issues",
+  "flavor_text": "The retrospective no one wanted to attend—but everyone needed",
+  "cooldown_turns": 2,
+  "style_tags": ["team", "alignment", "process"],
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 6
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    },
+    {
+      "score_id": "budget",
+      "delta": -2
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "team_energized",
+      "version": 1
+    }
+  ]
+}

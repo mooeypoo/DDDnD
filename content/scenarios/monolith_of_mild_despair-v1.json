@@ -126,6 +126,18 @@
     {
       "id": "absorb_emergency_production_fix",
       "version": 1
+    },
+    {
+      "id": "deprecate_legacy_api",
+      "version": 1
+    },
+    {
+      "id": "host_cross_team_retrospective",
+      "version": 1
+    },
+    {
+      "id": "automate_deployment_pipeline",
+      "version": 1
     }
   ],
   "event_refs": [
