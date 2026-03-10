@@ -43,8 +43,45 @@
           <span class="chip-delta">{{ change.delta > 0 ? '+' : '' }}{{ change.delta }}</span>
         </template>
       </span>
-      <span v-if="remainingEffects > 0" class="effect-chip more-effects">
-        +{{ remainingEffects }} more
+      <span v-if="remainingEffects > 0" class="more-effects-wrapper">
+        <button
+          ref="moreChipRef"
+          type="button"
+          class="effect-chip more-effects"
+          :aria-label="`${remainingEffects} more effect${remainingEffects > 1 ? 's' : ''} — click to inspect`"
+          @click.stop="$emit('showDetails')"
+          @mouseenter="openPreview"
+          @mouseleave="closePreview"
+          @focus="openPreview"
+          @blur="closePreview"
+        >
+          +{{ remainingEffects }} more
+        </button>
+        <Teleport to="body">
+          <Transition name="tooltip">
+            <div
+              v-if="showMorePreview"
+              class="more-effects-tooltip"
+              role="tooltip"
+              :style="{ top: tooltipPos.top + 'px', left: tooltipPos.left + 'px' }"
+              @mouseenter="showMorePreview = true"
+              @mouseleave="closePreview"
+            >
+              <span class="tooltip-title">Hidden Effects</span>
+              <ul class="tooltip-effect-list">
+                <li v-for="change in hiddenEffects" :key="`hidden-${change.score_id}-${change.delta}`" class="tooltip-effect-item">
+                  <span class="metric-icon" :class="metricPresentation(change.score_id).colorClass">
+                    {{ metricPresentation(change.score_id).icon }}
+                  </span>
+                  <span class="tooltip-effect-label">{{ metricPresentation(change.score_id).label }}</span>
+                  <span class="tooltip-effect-delta" :class="change.delta > 0 ? 'positive' : 'negative'">
+                    {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </Transition>
+        </Teleport>
       </span>
     </div>
 
@@ -101,7 +138,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import type { Card } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import type { ArtworkMeta } from '@/ui/types/artwork'
@@ -131,7 +168,32 @@ defineEmits<{
 const categoryId = computed(() => resolveCategory(props.card.style_tags ?? []))
 
 const primaryEffects = computed(() => props.card.score_changes.slice(0, 3))
-const remainingEffects = computed(() => Math.max(props.card.score_changes.length - primaryEffects.value.length, 0))
+const hiddenEffects = computed(() => props.card.score_changes.slice(3))
+const remainingEffects = computed(() => hiddenEffects.value.length)
+
+const showMorePreview = ref(false)
+const moreChipRef = ref<HTMLElement | null>(null)
+const tooltipPos = ref({ top: 0, left: 0 })
+
+function updateTooltipPosition() {
+  if (!moreChipRef.value) return
+  const rect = moreChipRef.value.getBoundingClientRect()
+  tooltipPos.value = {
+    top: rect.top,
+    left: rect.left + rect.width / 2
+  }
+}
+
+function openPreview() {
+  updateTooltipPosition()
+  showMorePreview.value = true
+  // Re-position after render in case layout shifted
+  nextTick(updateTooltipPosition)
+}
+
+function closePreview() {
+  showMorePreview.value = false
+}
 
 const adjustedPrimaryEffects = computed(() => {
   if (!props.scores || !hasActiveCoupling(props.scores)) return []
@@ -362,10 +424,31 @@ function metricPresentation(scoreId: string) {
   color: var(--effect-negative);
 }
 
+.more-effects-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
 .effect-chip.more-effects {
   color: var(--text-secondary);
   border-color: var(--border-subtle);
+  cursor: pointer;
+  transition:
+    border-color var(--transition-hover),
+    background   var(--transition-hover),
+    color        var(--transition-hover);
 }
+
+.effect-chip.more-effects:hover,
+.effect-chip.more-effects:focus-visible {
+  border-color: var(--border-focus);
+  background: var(--bg-inset);
+  color: var(--text-primary);
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Hidden-effects tooltip styles are in the non-scoped block below (teleported to body) */
 
 .chip-modified {
   border-color: rgba(255, 100, 50, 0.3);
@@ -524,5 +607,95 @@ function metricPresentation(scoreId: string) {
 .action-card:focus-visible {
   outline: none;
   box-shadow: var(--shadow-card-hover), var(--focus-ring);
+}
+</style>
+
+<!-- Non-scoped styles for the teleported tooltip (rendered at <body> level) -->
+<style>
+.more-effects-tooltip {
+  position: fixed;
+  transform: translateX(-50%) translateY(-100%) translateY(-8px);
+  z-index: 9999;
+  min-width: 180px;
+  max-width: 260px;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--surface-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card-hover);
+  pointer-events: auto;
+}
+
+.more-effects-tooltip .tooltip-title {
+  display: block;
+  font-size: var(--text-2xs);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.more-effects-tooltip .tooltip-effect-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.more-effects-tooltip .tooltip-effect-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+}
+
+.more-effects-tooltip .tooltip-effect-label {
+  flex: 1;
+}
+
+.more-effects-tooltip .tooltip-effect-delta {
+  font-weight: var(--font-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.more-effects-tooltip .tooltip-effect-delta.positive {
+  color: var(--effect-positive);
+}
+
+.more-effects-tooltip .tooltip-effect-delta.negative {
+  color: var(--effect-negative);
+}
+
+.more-effects-tooltip .metric-icon {
+  display: inline-flex;
+}
+
+/* Tooltip enter/leave transition */
+.tooltip-enter-active,
+.tooltip-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.tooltip-enter-from,
+.tooltip-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-100%) translateY(-4px);
+}
+
+.tooltip-enter-to,
+.tooltip-leave-from {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-100%) translateY(-8px);
+}
+
+/* On small screens, hide the hover tooltip — tap goes straight to inspect */
+@media (hover: none) {
+  .more-effects-tooltip {
+    display: none;
+  }
 }
 </style>
