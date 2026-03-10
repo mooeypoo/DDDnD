@@ -16,8 +16,9 @@ Players act as a systems architect trying to improve a struggling software syste
 - 7 stakeholders with 20 reaction rules (including escalation triggers)
 - 12 events including conditional triggers
 - 13 delayed effects (architectural aftershocks)
+- System coupling rules (collapse mechanics that penalize neglected dimensions)
 - Outcome classification (tiers and archetypes)
-- Automated simulation runner with telemetry reporting
+- Automated simulation runner with telemetry and strategy-fingerprint analysis
 - Save/load/export system
 - Storybook component library
 - Shareable end-of-run results
@@ -212,8 +213,10 @@ Critical areas covered by tests:
 - Stakeholder rule evaluation
 - Delayed effect scheduling and resolution
 - Card cooldown and usage limit enforcement
+- System coupling rules
 - Export/import round-trip
 - Run determinism (same seed + actions = same result)
+- Strategy-fingerprint telemetry correctness
 - Content expansion packs (Pass A and Pass B)
 
 ### Simulation Runner
@@ -250,6 +253,11 @@ The telemetry report includes:
 - **Card usage** — How often each card was played across all runs
 - **Event frequency** — How often each event triggered
 - **Reaction frequency** — How often each stakeholder reaction fired
+- **Opening card frequency** — How often each card appears in the first 3 plays
+- **Opening sequence frequency** — Most common exact opening card sequences
+- **Average score by turn** — Per-score average trajectory across all runs
+- **Winning card pairs** — Most common card co-occurrences in successful runs
+- **Successful low-score rates** — Fraction of wins with critically low scores (identifies non-binding constraints)
 
 Simulations are deterministic: the same seed produces identical results.
 

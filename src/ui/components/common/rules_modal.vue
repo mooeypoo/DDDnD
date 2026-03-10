@@ -7,89 +7,107 @@
       </div>
       
       <div class="modal-body">
-        <h3>How to Play</h3>
+        <h3>⚔️ How to Play</h3>
         <p>
-          Each turn, you select one <strong>action card</strong> representing an architectural 
-          decision. The system then evolves through several phases.
+          Each turn, you play one <strong>action card</strong>—an architectural spell that 
+          reshapes the system. Then the world reacts: aftershocks resolve, events strike, 
+          and stakeholders pass judgment.
         </p>
         
-        <h3>Turn Resolution Phases</h3>
+        <h3>🔄 Turn Phases</h3>
         <ol>
           <li>
-            <strong>Architectural Aftershocks</strong> - Delayed effects from previous turns resolve
+            <strong>Architectural Aftershocks</strong> — Delayed effects from past decisions 
+            resolve. The consequences of your earlier choices arrive.
           </li>
           <li>
-            <strong>Player Action</strong> - Your selected card resolves, affecting scores and stakeholders
+            <strong>Player Action</strong> — Your chosen card takes effect, shifting scores 
+            and stakeholder moods.
           </li>
           <li>
-            <strong>System Event</strong> - A random event may occur (bug discovered, urgent request, etc.)
+            <strong>System Event</strong> — The dungeon fights back. A random event may 
+            trigger: a critical bug, a customer escalation, or worse.
           </li>
           <li>
-            <strong>Stakeholder Resolution</strong> - Stakeholders react to the current state
+            <strong>Stakeholder Resolution</strong> — The powers that be react to the current 
+            state of the system. Keeping them satisfied is half the battle.
           </li>
           <li>
-            <strong>Turn Wrap-Up</strong> - Turn ends, progress recorded
+            <strong>Turn Wrap-Up</strong> — Scores settle. History is recorded. The next 
+            turn awaits.
           </li>
         </ol>
         
-        <h3>Scores</h3>
+        <h3>📊 The System Ledger</h3>
         <p>
-          Track different aspects of system health:
+          Six scores track the health of your system. Neglect any dimension and the 
+          consequences compound:
         </p>
         <ul>
-          <li><strong>Domain Clarity</strong> - How well bounded contexts are defined</li>
-          <li><strong>Maintainability</strong> - Code quality and ease of change</li>
-          <li><strong>Delivery Confidence</strong> - Team's ability to ship reliably</li>
-          <li><strong>Developer Morale</strong> - Team satisfaction and energy</li>
-          <li><strong>User Trust</strong> - End-user confidence in the system</li>
-          <li><strong>Budget</strong> - Financial runway remaining</li>
+          <li><strong>Domain Clarity</strong> — How well your bounded contexts are defined</li>
+          <li><strong>Maintainability</strong> — Code quality and ease of change</li>
+          <li><strong>Delivery Confidence</strong> — Your team's ability to ship reliably</li>
+          <li><strong>Team Morale</strong> — Developer satisfaction and energy</li>
+          <li><strong>User Trust</strong> — End-user confidence in the system</li>
+          <li><strong>Budget</strong> — Financial runway remaining</li>
         </ul>
         
-        <h3>Stakeholders</h3>
+        <h3>👥 Stakeholders</h3>
         <p>
-          Organizational forces with their own priorities. Their satisfaction (0-100) affects 
-          their reactions and can influence scores and events.
+          Powerful figures with their own priorities. Each has a satisfaction level (0–100) 
+          that determines their reaction. Let a stakeholder grow unhappy and they'll 
+          actively work against you—draining morale, cutting budgets, or undermining trust.
         </p>
         
-        <h3>Architectural Aftershocks</h3>
+        <h3>💥 Architectural Aftershocks</h3>
         <p>
-          Some decisions have <em>delayed consequences</em>. For example, refactoring may initially 
-          slow delivery but improve clarity later. These appear at the start of future turns.
-        </p>
-        
-        <h3>Winning</h3>
-        <p>
-          Balance all metrics before reaching the maximum turn limit. Your outcome is determined by 
-          final scores, stakeholder satisfaction, and the path you took.
+          Some spells echo through time. A refactoring may slow delivery now but improve 
+          clarity two turns later. A quick fix may buy time today and spawn bugs tomorrow. 
+          Aftershock icons on cards warn you that delayed effects are in play.
         </p>
 
-        <h3>System Coupling</h3>
+        <h3>🔗 System Coupling</h3>
         <p>
-          When parts of the system collapse, improvements become less effective. 
-          This represents the real-world difficulty of making progress when foundational 
-          systems are failing.
+          Beware the cascade. When a core dimension collapses below a critical threshold, 
+          the rot spreads—positive gains in related areas are reduced:
         </p>
         <ul>
           <li>
-            <strong>Delivery Collapse</strong> — When delivery confidence drops very low, 
-            architecture work (domain clarity, maintainability) becomes harder to apply.
+            <strong>Delivery Collapse</strong> — When delivery confidence is critically low, 
+            gains to domain clarity and maintainability are weakened.
           </li>
           <li>
-            <strong>Morale Collapse</strong> — When team morale drops very low, 
-            maintainability improvements are weakened.
+            <strong>Morale Collapse</strong> — When team morale is critically low, 
+            maintainability gains are reduced.
           </li>
           <li>
-            <strong>Trust Collapse</strong> — When user trust drops very low, 
-            delivery improvements are disrupted.
+            <strong>Trust Collapse</strong> — When user trust is critically low, 
+            delivery confidence gains are reduced.
           </li>
         </ul>
         <p>
           Watch for ⚠️ collapse warnings in the System Ledger. When active, 
-          card effect previews will show the adjusted values.
+          card previews will show the adjusted values. Stabilize the collapsing 
+          dimension first—or your other efforts will be in vain.
+        </p>
+
+        <h3>🏆 Cards & Resources</h3>
+        <p>
+          Some cards can only be played a limited number of times per run. Others require 
+          a cooldown between uses. Choose wisely—powerful cards are scarce, and the dungeon 
+          is long.
+        </p>
+
+        <h3>🎯 Winning</h3>
+        <p>
+          Balance all six dimensions before your turns run out. Your final outcome is 
+          classified by <strong>tier</strong> (how well you did) and <strong>archetype</strong> 
+          (what kind of architect you became).
         </p>
         
         <p class="tip">
-          <strong>Tip:</strong> Every choice involves tradeoffs. There's no single right answer.
+          <strong>Tip:</strong> There is no single path to victory. Every choice is a tradeoff. 
+          The architect who tries to fix everything may end up fixing nothing.
         </p>
       </div>
       

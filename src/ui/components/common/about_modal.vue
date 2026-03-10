@@ -9,30 +9,36 @@
       <div class="modal-body">
         <h3>What is DDDnD?</h3>
         <p>
-          <strong>DDDnD</strong> (Domain-Driven Design & Dragons) is a narrative simulation game 
-          about making architectural decisions in legacy software systems.
+          <strong>DDDnD</strong> (Domain-Driven Design & Dragons) is a turn-based strategy game 
+          where the dungeon is a software system — and the monsters are technical debt, 
+          organizational chaos, and impossible deadlines.
         </p>
         
         <p>
-          You play as a systems architect trying to improve a struggling codebase. 
-          Every turn, you'll choose an architectural intervention—defining bounded contexts, 
-          refactoring aggregates, or shipping quick fixes—and face the consequences.
+          You are a systems architect — part wizard, part diplomat, part battle-hardened 
+          adventurer — thrust into a codebase on the brink. Each turn, you'll play action cards to refactor modules, 
+          define bounded contexts, appease stakeholders, or ship desperate quick fixes. 
+          Every decision has consequences. Some arrive immediately. Others lurk for turns, 
+          waiting to strike.
+        </p>
+
+        <h3>The Quest</h3>
+        <p>
+          Choose a scenario—a cursed monolith, a sprawling microservice dungeon, a compliance 
+          labyrinth, or a hypergrowth gauntlet—and try to stabilize the system before time 
+          runs out. Your final outcome depends on the scores you maintain, the stakeholders 
+          you manage, and the architectural path you carve.
         </p>
         
         <h3>Core Concepts</h3>
         <ul>
-          <li><strong>Action Cards</strong> - Architectural decisions you can make</li>
-          <li><strong>Scores</strong> - Metrics tracking system health (clarity, maintainability, trust, etc.)</li>
-          <li><strong>Stakeholders</strong> - Organizational forces reacting to your choices</li>
-          <li><strong>Architectural Aftershocks</strong> - Delayed consequences of your decisions</li>
-          <li><strong>Events</strong> - Unexpected pressures that emerge during gameplay</li>
+          <li><strong>Action Cards</strong> — Spells of architecture. Each one reshapes the system.</li>
+          <li><strong>Scores</strong> — Six dimensions of system health. Neglect any at your peril.</li>
+          <li><strong>Stakeholders</strong> — Powerful NPCs with their own agendas. Keep them satisfied—or face their wrath.</li>
+          <li><strong>Architectural Aftershocks</strong> — Delayed consequences. Today's shortcut is tomorrow's crisis.</li>
+          <li><strong>System Coupling</strong> — Let a dimension collapse, and the rot spreads. Progress elsewhere is weakened.</li>
+          <li><strong>Events</strong> — Random encounters: production fires, customer escalations, and surprise departures.</li>
         </ul>
-        
-        <h3>Winning</h3>
-        <p>
-          Balance competing priorities before time runs out. Your outcome will be classified 
-          by both success tier and play style archetype.
-        </p>
 
         <h3>Creator</h3>
         <p class="creator-credit">
