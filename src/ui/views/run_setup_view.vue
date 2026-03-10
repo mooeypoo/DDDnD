@@ -226,10 +226,11 @@
               @click="selectClass(classOption)"
             >
               <div class="class-visual">
-                <!-- Future: Class icon/illustration slot -->
-                <div class="class-icon-placeholder">
-                  <span class="class-initial">{{ classOption.name.charAt(0) }}</span>
-                </div>
+                <ClassPortrait
+                  :classId="classOption.id"
+                  :className="classOption.name"
+                  size="lg"
+                />
               </div>
               
               <div class="class-info">
@@ -299,6 +300,7 @@ import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
+import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -871,27 +873,14 @@ async function launchTutorial(quest: QuestDisplayModel) {
   margin-bottom: var(--space-lg);
 }
 
-.class-icon-placeholder {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
+.class-visual {
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin: 0 auto;
-  box-shadow: 0 4px 12px rgba(233, 69, 96, 0.3);
   transition: transform var(--transition-slow);
 }
 
-.class-card:hover .class-icon-placeholder {
-  transform: scale(1.1);
-}
-
-.class-initial {
-  font-size: var(--text-3xl);
-  font-weight: var(--font-black);
-  color: var(--color-text-bright);
+.class-card:hover .class-visual {
+  transform: scale(1.08);
 }
 
 .class-info {

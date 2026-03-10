@@ -73,3 +73,14 @@ export type CardArtworkKey =
   | 'refactor_action'
   | 'infrastructure_investment'
   | 'quick_patch'
+
+/**
+ * Player class illustration keys for class portrait artwork.
+ * These map directly to player class IDs from content.
+ */
+export type ClassArtworkKey =
+  | 'boundary_mage'
+  | 'stakeholder_bard'
+  | 'reliability_cleric'
+  | 'legacy_ranger'
+  | 'delivery_rogue'

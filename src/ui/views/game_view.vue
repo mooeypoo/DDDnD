@@ -19,6 +19,7 @@
       :isOpen="gameStore.isIntroSplashOpen"
       :playerName="playerDisplayName"
       :playerClassName="playerClassName"
+      :playerClassId="playerClassId"
       :scenarioName="scenario?.name"
       :scores="gameStore.gameState?.scores ?? {}"
       :stakeholders="gameStore.gameState?.stakeholders ?? {}"
@@ -67,6 +68,9 @@
         :scores="gameStore.turnBriefing?.current_scores"
         :stakeholders="gameStore.gameState?.stakeholders"
         :stakeholder-names="stakeholderNames"
+        :player-class-id="playerClassId"
+        :player-class-name="playerClassName"
+        :player-name="playerDisplayName"
       />
     
     <div class="game-container" :class="{ 'drawer-open': isSatchelOpen }">
@@ -244,6 +248,10 @@ const playerClassName = computed(() => {
     c => c.id === classRef.id && c.version === classRef.version
   )
   return found?.name
+})
+
+const playerClassId = computed(() => {
+  return gameStore.gameState?.player_profile.selected_class_ref?.id
 })
 
 const currentEventTitle = computed(() => {

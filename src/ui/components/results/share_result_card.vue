@@ -25,8 +25,15 @@
 
     <!-- Player Info -->
     <div class="player-info">
-      <div v-if="payload.name" class="player-name">{{ payload.name }}</div>
-      <div class="player-class">{{ classDisplayName }}</div>
+      <ClassPortrait
+        :classId="payload.cls"
+        :className="classDisplayName"
+        size="sm"
+      />
+      <div class="player-info-text">
+        <div v-if="payload.name" class="player-name">{{ payload.name }}</div>
+        <div class="player-class">{{ classDisplayName }}</div>
+      </div>
     </div>
 
     <!-- Quest Info -->
@@ -83,6 +90,7 @@
 import { computed, ref } from 'vue'
 import type { SharePayload } from '@/domains/reporting/services/share_payload'
 import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'
+import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 
 const props = defineProps<{
   payload: SharePayload
@@ -301,8 +309,17 @@ function scoreClass(value: number): string {
 /* ─── Player Info ─────────────────────────────────── */
 
 .player-info {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm, 8px);
   padding: var(--space-sm, 8px) var(--space-xl, 20px);
+}
+
+.player-info-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .player-name {

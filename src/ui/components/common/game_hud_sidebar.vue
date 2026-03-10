@@ -1,5 +1,20 @@
 <template>
   <aside class="hud-sidebar" role="complementary" aria-label="Game status sidebar">
+    <!-- Player class portrait -->
+    <div v-if="playerClassId" class="sidebar-section sidebar-player">
+      <div class="player-identity">
+        <ClassPortrait
+          :classId="playerClassId"
+          :className="playerClassName"
+          size="md"
+        />
+        <div class="player-identity-text">
+          <span v-if="playerName" class="player-display-name">{{ playerName }}</span>
+          <span v-if="playerClassName" class="player-class-label">{{ playerClassName }}</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Turn tracker -->
     <div class="sidebar-section sidebar-turn">
       <div class="section-header">
@@ -90,6 +105,7 @@ import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import SystemCouplingWarnings from '@/ui/components/scores/system_coupling_warnings.vue'
+import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 
 const props = defineProps<{
   currentTurn: number
@@ -97,7 +113,10 @@ const props = defineProps<{
   scores?: Record<string, number>
   stakeholders?: StakeholderSnapshot
   stakeholderNames?: Record<string, string>
-}>()
+  playerClassId?: string
+  playerClassName?: string
+  playerName?: string
+}>()  
 
 const turnProgress = computed(() => {
   if (!props.maxTurns) return 0
@@ -218,6 +237,39 @@ function getSatisfactionClass(value: number): string {
 
 .sidebar-section:last-child {
   border-bottom: none;
+}
+
+/* ─── Player Identity ─── */
+.sidebar-player {
+  align-items: center;
+  text-align: center;
+}
+
+.player-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.player-identity-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.player-display-name {
+  color: var(--text-bright);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+.player-class-label {
+  color: var(--text-accent);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  letter-spacing: var(--tracking-wide);
 }
 
 .section-header {

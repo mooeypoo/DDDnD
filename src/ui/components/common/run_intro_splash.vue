@@ -61,14 +61,23 @@
 
           <!-- Welcome header -->
           <header class="splash-header">
-            <p class="splash-eyebrow">Quest Briefing</p>
-            <h2 class="splash-title">
-              {{ welcomeHeading }}
-            </h2>
-            <p class="splash-flavor">
-              {{ scenarioName ? `The realm of "${scenarioName}" awaits your command.` : 'A troubled realm awaits your command.' }}
-              Read well, brave architect — knowledge is the sharpest blade.
-            </p>
+            <ClassPortrait
+              v-if="playerClassId"
+              class="splash-portrait"
+              :classId="playerClassId"
+              :className="playerClassName"
+              size="lg"
+            />
+            <div class="splash-header-text">
+              <p class="splash-eyebrow">Quest Briefing</p>
+              <h2 class="splash-title">
+                {{ welcomeHeading }}
+              </h2>
+              <p class="splash-flavor">
+                {{ scenarioName ? `The realm of "${scenarioName}" awaits your command.` : 'A troubled realm awaits your command.' }}
+                Read well, brave architect — knowledge is the sharpest blade.
+              </p>
+            </div>
           </header>
 
           <!-- Tutorial callout (only shown for tutorials) -->
@@ -230,11 +239,13 @@ import { computed } from 'vue'
 import type { StakeholderSnapshot, ScoreSnapshot } from '@/domains/simulation/model'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
+import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 
 const props = defineProps<{
   isOpen: boolean
   playerName?: string
   playerClassName?: string
+  playerClassId?: string
   scenarioName?: string
   scores: ScoreSnapshot
   stakeholders: StakeholderSnapshot
@@ -391,6 +402,30 @@ function getSatisfactionClass(value: number): string {
 /* ─── Header ─── */
 .splash-header {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.splash-header-text {
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .splash-header {
+    flex-direction: row;
+    text-align: left;
+    align-items: center;
+  }
+
+  .splash-header-text {
+    text-align: left;
+  }
+
+  .splash-header-text .splash-flavor {
+    margin-inline: 0;
+  }
 }
 
 .splash-eyebrow {

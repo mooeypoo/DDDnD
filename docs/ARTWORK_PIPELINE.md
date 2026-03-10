@@ -40,13 +40,28 @@ The style should feel like:
 | Card: Infrastructure Investment | `#60a5fa` blue      | Platform, reliability          |
 | Card: Quick Patch              | `#fb923c` orange     | Reactive fix, tech debt        |
 | Scenario Hero                  | Multi-accent         | System overview                |
+| Class: Boundary Mage           | `#9f7aea` purple     | Domain boundaries, context mapping |
+| Class: Stakeholder Bard        | `#fbbf24` gold       | Communication, diplomacy       |
+| Class: Reliability Cleric      | `#60a5fa` blue       | System stability, healing      |
+| Class: Legacy Ranger           | `#34d399` green      | Ancient codebases, navigation  |
+| Class: Delivery Rogue          | `#f97316` orange     | Speed, agility, shipping       |
 
-**Avoid:**
+**Avoid (general rule):**
 - Cartoon fantasy elements (dragons, wizards, swords)
 - Bright or pastel color schemes
 - Generic medieval imagery
 - Decorative fills covering text content
 - Full photographic realism
+
+**Exception — Player Class Portraits:**
+Player class artwork uses **pixel-character fantasy-style** character representations.
+This is an intentional style exception for class portraits only. The pixel art style
+connects to the D&D fantasy theming of the game while remaining distinct from the
+technical blueprint aesthetic used elsewhere. Class portraits render at 120x120 SVG
+viewBox and use the same dark background (`#0b0e1a`), grid lines, corner marks,
+and accent color system as the rest of the artwork pipeline, but depict recognizable
+fantasy character silhouettes (hooded mages, armored clerics, cloaked rangers, etc.)
+rather than abstract schematics. Characters use non-descript gender design.
 
 ---
 
@@ -60,6 +75,12 @@ src/assets/artwork/
     system_stabilizer.svg
     stakeholder_whisperer.svg
     runaway_refactorer.svg
+  classes/              ← player class pixel-character portraits (120x120 SVG)
+    boundary_mage.svg
+    stakeholder_bard.svg
+    reliability_cleric.svg
+    legacy_ranger.svg
+    delivery_rogue.svg
   events/               ← event scene illustrations (320x180 SVG)
     system_incident.svg
     audit_pressure.svg
@@ -105,6 +126,11 @@ Artwork is always **optional**. Every component renders fully without artwork me
 | `EventCard`       | `illustrationUrl`| Full-bleed scene above title    | Region collapses entirely   |
 | `OutcomePanel`    | `portraitUrl`    | Archetype portrait frame        | Emoji icon shown instead    |
 | `ScenarioBanner`  | `heroUrl`        | Full-bleed hero above content   | Region absent, no gap       |
+| `ClassPortrait`   | `classId`        | Circular pixel-art portrait     | First letter fallback       |
+| `RunSetupView`    | via `ClassPortrait` | Class selection card visual  | First letter fallback       |
+| `RunIntroSplash`  | `playerClassId`  | Portrait above welcome heading  | No portrait shown           |
+| `GameHudSidebar`  | `playerClassId`  | Player identity section at top  | Section hidden              |
+| `ShareResultCard` | via `payload.cls`| Inline portrait in player info  | First letter fallback       |
 
 The `EventCard` and `ScenarioBanner` use named CSS variables from the design token system:
 
@@ -162,6 +188,13 @@ Accent color: [ACCENT FROM TABLE ABOVE]
 **Scenario hero:**
 - An epic wide-angle system architecture map showing 5 distinct domains, the monolith at center, interconnection lines, and incident indicators
 
+**Player class portraits** (pixel-character style — see Style Exception above):
+- `boundary_mage`: Robed mage with pointed hat, staff with glowing crystal, boundary partition lines flanking the character. Purple accent. Casting rune fragments from one hand.
+- `stakeholder_bard`: Elegant bard with feathered beret, lute, and flowing cape. Gold accent. Musical notes floating from gesturing hand. Doublet with ornate buttons.
+- `reliability_cleric`: Hooded cleric with circlet/halo, shield with cross emblem, and healing radiance from raised hand. Blue accent. Light chest plate over vestments.
+- `legacy_ranger`: Hooded ranger with bow, quiver, belt pouches, and tattered cloak. Green accent. Scar across face (veteran). Map scroll at hip. Ancient code trace lines in background.
+- `delivery_rogue`: Cowled rogue with dual daggers, cross-body straps, tool-laden belt. Orange accent. Speed lines and sprint particles. CI/CD pipeline trace in background.
+
 ---
 
 ## Integration with Storybook
@@ -213,6 +246,11 @@ Per project architecture rules:
 | `archetypes/system_stabilizer`     | Placeholder | SVG    |
 | `archetypes/stakeholder_whisperer` | Placeholder | SVG    |
 | `archetypes/runaway_refactorer`    | Placeholder | SVG    |
+| `classes/boundary_mage`            | Complete    | SVG    |
+| `classes/stakeholder_bard`         | Complete    | SVG    |
+| `classes/reliability_cleric`       | Complete    | SVG    |
+| `classes/legacy_ranger`            | Complete    | SVG    |
+| `classes/delivery_rogue`           | Complete    | SVG    |
 | `events/system_incident`           | Placeholder | SVG    |
 | `events/audit_pressure`            | Placeholder | SVG    |
 | `events/scaling_crisis`            | Placeholder | SVG    |
@@ -221,6 +259,6 @@ Per project architecture rules:
 | `cards/quick_patch`                | Placeholder | SVG    |
 | `scenarios/hero`                   | Placeholder | SVG    |
 
-All current assets are hand-authored placeholder SVGs following the arcane engineering
-blueprint style. They establish the visual identity and integration scaffolding.
-Replace with generated artwork as assets are produced.
+Archetype, event, card, and scenario assets are hand-authored placeholder SVGs following
+the arcane engineering blueprint style. Class portraits are complete pixel-character SVGs.
+Replace placeholders with generated artwork as assets are produced.
