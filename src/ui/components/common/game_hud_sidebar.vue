@@ -59,22 +59,24 @@
           :key="stakeholderId"
           class="sidebar-stakeholder"
         >
-          <div class="stakeholder-header">
+          <div class="stakeholder-name-row">
             <span class="stakeholder-icon">{{ getStakeholderIcon(stakeholderId as string) }}</span>
             <span class="stakeholder-name">{{ formatName(stakeholderId as string) }}</span>
+          </div>
+          <div class="stakeholder-meter-row">
             <span class="stakeholder-label" :class="getSatisfactionClass(data.satisfaction)">
               {{ getSatisfactionLabel(data.satisfaction) }}
             </span>
+            <div class="stakeholder-bar-track">
+              <div
+                class="stakeholder-bar-fill"
+                :class="getSatisfactionClass(data.satisfaction)"
+                :style="{ width: data.satisfaction + '%' }"
+              ></div>
+            </div>
             <span class="stakeholder-value" :class="getSatisfactionClass(data.satisfaction)">
               {{ Math.round(data.satisfaction) }}
             </span>
-          </div>
-          <div class="stakeholder-bar-track">
-            <div
-              class="stakeholder-bar-fill"
-              :class="getSatisfactionClass(data.satisfaction)"
-              :style="{ width: data.satisfaction + '%' }"
-            ></div>
           </div>
         </div>
       </div>
@@ -396,7 +398,7 @@ function getSatisfactionClass(value: number): string {
   border: 1px solid var(--border-subtle);
 }
 
-.stakeholder-header {
+.stakeholder-name-row {
   display: flex;
   align-items: center;
   gap: var(--space-xs);
@@ -411,10 +413,12 @@ function getSatisfactionClass(value: number): string {
   color: var(--text-primary);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+
+.stakeholder-meter-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
 }
 
 .stakeholder-label {
@@ -445,6 +449,7 @@ function getSatisfactionClass(value: number): string {
 .stakeholder-value.supportive { color: var(--satisfaction-supportive); }
 
 .stakeholder-bar-track {
+  flex: 1;
   height: 4px;
   background: var(--bg-overlay-strong);
   border-radius: var(--radius-full);
