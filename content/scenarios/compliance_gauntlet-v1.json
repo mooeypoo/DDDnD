@@ -8,10 +8,10 @@
   "max_turns": 12,
   "starting_scores": {
     "domain_clarity": 50,
-    "maintainability": 48,
-    "delivery_confidence": 42,
-    "team_morale": 45,
-    "user_trust": 60,
+    "maintainability": 44,
+    "delivery_confidence": 38,
+    "team_morale": 40,
+    "user_trust": 55,
     "budget": 50
   },
   "score_refs": [

@@ -7,11 +7,11 @@
   "score_changes": [
     {
       "score_id": "domain_clarity",
-      "delta": 10
+      "delta": 7
     },
     {
       "score_id": "maintainability",
-      "delta": 5
+      "delta": 3
     }
   ]
 }

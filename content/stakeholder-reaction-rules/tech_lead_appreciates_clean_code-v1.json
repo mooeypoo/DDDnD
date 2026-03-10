@@ -3,21 +3,21 @@
   "version": 1,
   "name": "Tech Lead Appreciates Clean Code",
   "description": "The tech lead is energized when maintainability improves",
-  "condition_description": "Maintainability > 60",
+  "condition_description": "Maintainability > 65",
   "score_changes": [
     {
       "score_id": "team_morale",
-      "delta": 4
+      "delta": 2
     },
     {
       "score_id": "delivery_confidence",
-      "delta": 3
+      "delta": 2
     }
   ],
   "stakeholder_changes": [
     {
       "stakeholder_id": "tech_lead",
-      "delta": 6
+      "delta": 4
     }
   ]
 }

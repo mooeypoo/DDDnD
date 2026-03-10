@@ -8,11 +8,11 @@
   "score_changes": [
     {
       "score_id": "budget",
-      "delta": -10
+      "delta": -7
     },
     {
       "score_id": "team_morale",
-      "delta": -4
+      "delta": -2
     },
     {
       "score_id": "delivery_confidence",

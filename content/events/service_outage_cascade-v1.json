@@ -8,11 +8,11 @@
   "score_changes": [
     {
       "score_id": "user_trust",
-      "delta": -9
+      "delta": -7
     },
     {
       "score_id": "team_morale",
-      "delta": -5
+      "delta": -4
     },
     {
       "score_id": "delivery_confidence",

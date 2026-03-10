@@ -96,7 +96,7 @@ describe('Pass A content expansion', () => {
         version: 1
       })
 
-      expect(rule.condition_description).toBe('Maintainability > 60')
+      expect(rule.condition_description).toBe('Maintainability > 65')
       expect(rule.score_changes.length).toBeGreaterThan(0)
       expect(rule.stakeholder_changes).toEqual(
         expect.arrayContaining([
@@ -130,7 +130,7 @@ describe('Pass A content expansion', () => {
         version: 1
       })
 
-      expect(rule.condition_description).toBe('User trust > 65')
+      expect(rule.condition_description).toBe('User trust > 70')
       for (const change of rule.score_changes) {
         expect(change.delta).toBeGreaterThan(0)
       }
@@ -169,10 +169,10 @@ describe('Pass A content expansion', () => {
         })
       ).toBe(false)
 
-      // Positive fires when maintainability > 60
+      // Positive fires when maintainability > 65
       expect(
         evaluateNumericCondition(posCond!, {
-          scores: { maintainability: 65 },
+          scores: { maintainability: 70 },
           stakeholders: {}
         })
       ).toBe(true)

@@ -238,7 +238,7 @@ npm run simulate -- --scenario microservice_sprawl --runs 10 --seed xyz --json -
 
 # Run all scenarios and save reports
 for s in monolith_of_mild_despair microservice_sprawl compliance_gauntlet startup_hypergrowth; do
-  npm run simulate -- --scenario "$s" --runs 300 --seed balance-pass > "/tmp/sim-${s}.md"
+  npm run simulate -- --scenario "$s" --runs 300 --seed balance-pass > "./temp/sim-${s}.md"
 done
 ```
 

@@ -10,9 +10,9 @@
     "domain_clarity": 35,
     "maintainability": 45,
     "delivery_confidence": 55,
-    "team_morale": 60,
+    "team_morale": 65,
     "user_trust": 50,
-    "budget": 70
+    "budget": 75
   },
   "score_refs": [
     { "id": "domain_clarity", "version": 1 },

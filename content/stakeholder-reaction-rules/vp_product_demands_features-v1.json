@@ -7,17 +7,17 @@
   "score_changes": [
     {
       "score_id": "team_morale",
-      "delta": -5
+      "delta": -3
     },
     {
       "score_id": "delivery_confidence",
-      "delta": -3
+      "delta": -2
     }
   ],
   "stakeholder_changes": [
     {
       "stakeholder_id": "vp_product",
-      "delta": -7
+      "delta": -5
     }
   ]
 }

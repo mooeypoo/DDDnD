@@ -4,7 +4,7 @@
   "name": "Regulatory Compliance Deadline",
   "description": "A new regulation requires system changes before a hard deadline, diverting engineering effort",
   "flavor_text": "The auditors are coming. Ready or not.",
-  "occurrence_weight": 3,
+  "occurrence_weight": 5,
   "score_changes": [
     {
       "score_id": "delivery_confidence",

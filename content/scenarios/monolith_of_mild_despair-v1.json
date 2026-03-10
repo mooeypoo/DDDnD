@@ -5,14 +5,14 @@
   "description": "A legacy monolith is slowing delivery and blurring domain boundaries",
   "short_description": "Stabilize a tangled legacy monolith before delivery confidence collapses.",
   "flavor_text": "You inherit a codebase where every change touches everything",
-  "max_turns": 8,
+  "max_turns": 10,
   "starting_scores": {
     "domain_clarity": 30,
     "maintainability": 38,
-    "delivery_confidence": 45,
+    "delivery_confidence": 50,
     "team_morale": 50,
     "user_trust": 55,
-    "budget": 60
+    "budget": 65
   },
   "score_refs": [
     {
@@ -137,6 +137,10 @@
     },
     {
       "id": "automate_deployment_pipeline",
+      "version": 1
+    },
+    {
+      "id": "align_budget_with_architecture",
       "version": 1
     }
   ],

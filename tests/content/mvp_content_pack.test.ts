@@ -98,11 +98,11 @@ describe('MVP content pack', () => {
     expect(() => assertValidBundle(bundle)).not.toThrow()
 
     expect(bundle.scenario.id).toBe('monolith_of_mild_despair')
-    expect(bundle.scenario.max_turns).toBe(8)
+    expect(bundle.scenario.max_turns).toBe(10)
     expect(bundle.scores.size).toBe(6)
     expect(bundle.stakeholders.size).toBe(4)
     expect(bundle.stakeholder_reaction_rules.size).toBe(12)
-    expect(bundle.cards.size).toBe(20)
+    expect(bundle.cards.size).toBe(21)
     expect(bundle.events.size).toBe(6)
     expect(bundle.delayed_effects.size).toBe(9)
     expect(bundle.outcome_tiers.size).toBe(5)

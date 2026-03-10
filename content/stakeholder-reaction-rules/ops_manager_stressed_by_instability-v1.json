@@ -7,7 +7,7 @@
   "score_changes": [
     {
       "score_id": "user_trust",
-      "delta": -3
+      "delta": -2
     },
     {
       "score_id": "team_morale",
@@ -17,7 +17,7 @@
   "stakeholder_changes": [
     {
       "stakeholder_id": "operations_manager",
-      "delta": -7
+      "delta": -5
     }
   ]
 }

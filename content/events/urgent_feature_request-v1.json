@@ -4,15 +4,15 @@
   "name": "Urgent Feature Request",
   "description": "Leadership demands a new feature be delivered immediately",
   "flavor_text": "The roadmap just changed again",
-  "occurrence_weight": 7,
+  "occurrence_weight": 5,
   "score_changes": [
     {
       "score_id": "delivery_confidence",
-      "delta": -6
+      "delta": -4
     },
     {
       "score_id": "team_morale",
-      "delta": -4
+      "delta": -3
     },
     {
       "score_id": "budget",
