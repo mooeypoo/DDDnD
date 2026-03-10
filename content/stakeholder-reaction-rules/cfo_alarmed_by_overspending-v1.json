@@ -3,7 +3,7 @@
   "version": 1,
   "name": "CFO Alarmed by Overspending",
   "description": "The CFO escalates to the board when budget reaches crisis levels, freezing non-essential spending",
-  "condition_description": "Budget < 20",
+  "condition_description": "Budget < 25",
   "priority": 50,
   "score_changes": [
     {

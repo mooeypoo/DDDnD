@@ -2,16 +2,16 @@
   "id": "vp_product_demands_features",
   "version": 1,
   "name": "VP Product Demands Features",
-  "description": "VP Product pressures the team when delivery confidence is low",
-  "condition_description": "Delivery confidence < 40",
+  "description": "VP Product pressures the team when delivery confidence drops to critical levels",
+  "condition_description": "Delivery confidence < 30",
   "score_changes": [
     {
       "score_id": "team_morale",
-      "delta": -3
+      "delta": -2
     },
     {
       "score_id": "delivery_confidence",
-      "delta": -2
+      "delta": -1
     }
   ],
   "stakeholder_changes": [

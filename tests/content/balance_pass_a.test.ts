@@ -184,8 +184,8 @@ describe('Balance pass A — telemetry-informed tuning', () => {
 
       expect(rule.score_changes).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ score_id: 'team_morale', delta: -3 }),
-          expect.objectContaining({ score_id: 'delivery_confidence', delta: -2 })
+          expect.objectContaining({ score_id: 'team_morale', delta: -2 }),
+          expect.objectContaining({ score_id: 'delivery_confidence', delta: -1 })
         ])
       )
       expect(rule.stakeholder_changes).toEqual(

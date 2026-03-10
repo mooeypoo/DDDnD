@@ -7,11 +7,11 @@
   "score_changes": [
     {
       "score_id": "budget",
-      "delta": -5
+      "delta": -3
     },
     {
       "score_id": "team_morale",
-      "delta": -3
+      "delta": -2
     }
   ],
   "stakeholder_changes": [
