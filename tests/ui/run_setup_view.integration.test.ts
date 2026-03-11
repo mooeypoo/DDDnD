@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
 import type { PlayerClass } from '@/domains/content/model'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
