@@ -138,6 +138,11 @@
 
         <!-- ═══ QUESTS TAB ═══ -->
         <template v-if="activeTab === 'quests'">
+        <!-- Prominent note for tutorials -->
+        <div v-if="gameStore.availableTutorials.length > 0 && !getTutorialsComplete()" class="tutorials-note-glow">
+          <span class="note-icon">✨</span>
+          Need a hand? Try the <button class="link-btn" @click="activeTab = 'tutorials'">guided tutorials</button> for a step-by-step intro!
+        </div>
         <!-- Quest Selection (data-driven from scenario content) -->
         <section class="setup-section quest-section">
           <div class="section-header">
@@ -292,7 +297,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+
+import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { PlayerClass } from '@/domains/content/model'
@@ -309,7 +315,17 @@ const gameStore = useGameStore()
 const selectedClass = ref<PlayerClass | null>(null)
 const selectedQuest = ref<QuestDisplayModel | null>(null)
 const characterName = ref('')
-const activeTab = ref<'tutorials' | 'quests'>('quests')
+// Default to 'tutorials' unless tutorialsComplete is set in localStorage
+const TUTORIALS_COMPLETE_KEY = 'dddnd.tutorialsComplete'
+const getTutorialsComplete = () => {
+  try {
+    return localStorage.getItem(TUTORIALS_COMPLETE_KEY) === 'true'
+  } catch { return false }
+}
+const setTutorialsComplete = () => {
+  try { localStorage.setItem(TUTORIALS_COMPLETE_KEY, 'true') } catch {}
+}
+const activeTab = ref<'tutorials' | 'quests'>(getTutorialsComplete() ? 'quests' : 'tutorials')
 const isLoadingClasses = ref(false)
 const isLoadingQuests = ref(false)
 const isLoadingTutorials = ref(false)
@@ -370,6 +386,13 @@ onMounted(async () => {
   }
 })
 
+// If user switches to quests tab after being in tutorials, mark tutorials as complete
+watch(activeTab, (tab, prev) => {
+  if (tab === 'quests' && prev === 'tutorials' && !getTutorialsComplete()) {
+    setTutorialsComplete()
+  }
+})
+
 function selectClass(classOption: PlayerClass) {
   selectedClass.value = classOption
 }
@@ -418,6 +441,8 @@ async function launchTutorial(quest: QuestDisplayModel) {
   })
 
   router.push('/game')
+  // Mark tutorials as complete when a tutorial is finished and user returns to quests
+  setTutorialsComplete()
 }
 </script>
 
