@@ -30,7 +30,7 @@
           you manage, and the architectural path you carve.
         </p>
         
-        <h3>Core Concepts</h3>
+        <h3>Core Game Concepts</h3>
         <ul>
           <li><strong>Action Cards</strong> — Spells of architecture. Each one reshapes the system.</li>
           <li><strong>Scores</strong> — Six dimensions of system health. Neglect any at your peril.</li>
@@ -39,6 +39,35 @@
           <li><strong>System Coupling</strong> — Let a dimension collapse, and the rot spreads. Progress elsewhere is weakened.</li>
           <li><strong>Events</strong> — Random encounters: production fires, customer escalations, and surprise departures.</li>
         </ul>
+
+        <h3>Quick Architecture Concepts</h3>
+        <ul class="quick-concepts">
+          <li>
+            <strong>
+              <a href="https://en.wikipedia.org/wiki/Domain-driven_design" target="_blank" rel="noopener noreferrer">
+                Domain-Driven Design
+                <span class="external-link-indicator" aria-label="Opens in new tab">↗</span>
+              </a>
+            </strong> — A way of designing software by focusing on the core business domain and its logic.
+          </li>
+          <li>
+            <strong>
+              <a href="https://en.wikipedia.org/wiki/Systems_architecture" target="_blank" rel="noopener noreferrer">
+                Systems Architecture
+                <span class="external-link-indicator" aria-label="Opens in new tab">↗</span>
+              </a>
+            </strong> — The structure and organization of complex software or hardware systems.
+          </li>
+          <li>
+            <strong>
+              <a href="https://en.wikipedia.org/wiki/Systems_thinking" target="_blank" rel="noopener noreferrer">
+                Systems Thinking
+                <span class="external-link-indicator" aria-label="Opens in new tab">↗</span>
+              </a>
+            </strong> — Understanding how parts of a system interact and influence each other as a whole.
+          </li>
+        </ul>
+
 
         <h3>Creator</h3>
         <p class="creator-credit">
