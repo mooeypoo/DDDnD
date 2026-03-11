@@ -10,9 +10,15 @@
         <span class="button-label">Rules</span>
       </button>
       
+
       <button class="nav-button" @click="$emit('show-about')" aria-label="About this game">
         <span class="button-icon">ℹ️</span>
         <span class="button-label">About</span>
+      </button>
+
+      <button class="nav-button" @click="$emit('show-dungeon-master')" aria-label="Dungeon Master social links">
+        <span class="button-icon">🧙‍♂️</span>
+        <span class="button-label">Dungeon Master</span>
       </button>
       
       <button 
@@ -54,6 +60,7 @@ import GameLogo from './game_logo.vue'
 defineEmits<{
   'show-rules': []
   'show-about': []
+  'show-dungeon-master': []
   'reset-run': []
 }>()
 
@@ -79,6 +86,7 @@ function confirmReset() {
 <style scoped>
 .game-masthead {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-md) var(--space-lg);
@@ -271,6 +279,7 @@ function confirmReset() {
 @media (max-width: 768px) {
   .game-masthead {
     padding: var(--space-sm) var(--space-md);
+    justify-content: center;
   }
   
   .masthead-right {

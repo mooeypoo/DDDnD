@@ -69,14 +69,8 @@
         </ul>
 
 
-        <h3>Creator</h3>
-        <p class="creator-credit">
-          Made by
-          <a href="https://moriel.tech" target="_blank" rel="noopener noreferrer">Moriel Schottlender</a>
-          ·
-          <a href="https://github.com/mooeypoo/DDDnD" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </p>
-        
+        <h3>Dungeon Master</h3>
+        <SocialLinksPanel />
         <p class="credits">
           A game about software architecture, technical debt, and the humans who manage both.
         </p>
@@ -90,6 +84,7 @@
 </template>
 
 <script setup lang="ts">
+import SocialLinksPanel from './social_links_panel.vue'
 defineProps<{
   isOpen: boolean
 }>()

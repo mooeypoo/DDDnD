@@ -2,6 +2,7 @@
   <div class="game-view">
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
+    <DungeonMasterModal :isOpen="gameStore.isDungeonMasterModalOpen" @close="gameStore.closeDungeonMasterModal" />
     <CardDetailsModal 
       v-if="modalCardId && modalCard" 
       :isOpen="!!modalCardId" 
@@ -41,6 +42,7 @@
     <GameMasthead 
       @show-rules="gameStore.openRulesModal"
       @show-about="gameStore.openAboutModal"
+      @show-dungeon-master="gameStore.openDungeonMasterModal"
     />
 
     <!-- Tutorial Exit Bar -->
@@ -203,6 +205,7 @@ import ScenarioBanner from '@/ui/components/scenario/scenario_banner.vue'
 import TurnBriefingPanel from '@/ui/components/turn/turn_briefing_panel.vue'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
+import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 import GameHudBar from '@/ui/components/common/game_hud_bar.vue'
 import GameHudSidebar from '@/ui/components/common/game_hud_sidebar.vue'
 import CardDetailsModal from '@/ui/components/cards/card_details_modal.vue'

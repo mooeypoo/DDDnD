@@ -2,6 +2,7 @@
   <div class="welcome-view">
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
+    <DungeonMasterModal :isOpen="gameStore.isDungeonMasterModalOpen" @close="gameStore.closeDungeonMasterModal" />
     
     <div class="welcome-container">
       <div class="hero-section">
@@ -63,6 +64,11 @@
                 <span class="link-icon">📖</span>
                 How to play
               </button>
+              <span class="link-separator">•</span>
+              <button class="link-button" @click="gameStore.openDungeonMasterModal">
+                <span class="link-icon">🧙‍♂️</span>
+                Dungeon Master
+              </button>
             </div>
           </div>
         </div>
@@ -84,7 +90,7 @@ import { useGameStore } from '@/ui/stores/game_store'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
-
+import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 const router = useRouter()
 const gameStore = useGameStore()
 

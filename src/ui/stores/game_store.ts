@@ -59,9 +59,10 @@ export const useGameStore = defineStore('game', () => {
   // UI Modal state
   const isAboutModalOpen = ref(false)
   const isRulesModalOpen = ref(false)
+  const isDungeonMasterModalOpen = ref(false)
   const isIntroSplashOpen = ref(false)
   const isTutorialCompleteSplashOpen = ref(false)
-  
+
   // Loading state
   const isLoadingBundle = ref(false)
   const isPlayingTurn = ref(false)
@@ -379,6 +380,14 @@ export const useGameStore = defineStore('game', () => {
     isRulesModalOpen.value = false
   }
 
+  function openDungeonMasterModal() {
+    isDungeonMasterModalOpen.value = true
+  }
+  
+  function closeDungeonMasterModal() {
+    isDungeonMasterModalOpen.value = false
+  }
+
   function dismissIntroSplash() {
     isIntroSplashOpen.value = false
     // Fire run_start tutorial trigger, then record turn_start so the next
@@ -402,6 +411,7 @@ export const useGameStore = defineStore('game', () => {
     isAboutModalOpen,
     isRulesModalOpen,
     isIntroSplashOpen,
+    isDungeonMasterModalOpen,
     isTutorialCompleteSplashOpen,
     isLoadingBundle,
     isPlayingTurn,
@@ -432,6 +442,8 @@ export const useGameStore = defineStore('game', () => {
     closeAboutModal,
     openRulesModal,
     closeRulesModal,
+    openDungeonMasterModal,
+    closeDungeonMasterModal,
     dismissIntroSplash
   }
 })

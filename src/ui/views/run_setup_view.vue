@@ -2,7 +2,7 @@
   <div class="run-setup-view">
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
-
+    <DungeonMasterModal :isOpen="gameStore.isDungeonMasterModalOpen" @close="gameStore.closeDungeonMasterModal" />
     <div
       v-if="gameStore.isLoadingBundle"
       class="setup-loading-overlay"
@@ -49,6 +49,11 @@
           <button class="link-button" @click="gameStore.openRulesModal">
             <span class="link-icon">📖</span>
             Rules
+          </button>
+          <span class="link-separator">•</span>
+          <button class="link-button" @click="gameStore.openDungeonMasterModal">
+            <span class="link-icon">🧙‍♂️</span>
+            Dungeon Master
           </button>
         </nav>
       </header>
@@ -305,6 +310,7 @@ import type { PlayerClass } from '@/domains/content/model'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
+import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 
