@@ -43,6 +43,8 @@ function makeClass(id: string, name: string): PlayerClass {
 
 describe('run_setup_view quest integration', () => {
   beforeEach(() => {
+    // Ensure the default tab is 'quests' for tests
+    localStorage.setItem('dddnd.tutorialsComplete', 'true')
     pushSpy.mockReset()
 
     storeMock = {
@@ -65,6 +67,11 @@ describe('run_setup_view quest integration', () => {
       openRulesModal: vi.fn(),
       closeRulesModal: vi.fn()
     }
+  })
+
+  afterEach(() => {
+    // Clean up localStorage to avoid side effects
+    localStorage.removeItem('dddnd.tutorialsComplete')
   })
 
   it('renders one quest card per configured quest', async () => {
