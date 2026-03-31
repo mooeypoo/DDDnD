@@ -135,9 +135,10 @@ State changes should be visible even when the avatar renders small.
 
 Required baseline states for direction work:
 
+- supportive: reassuring, collaborative posture with open shoulder line
 - neutral/default: attentive, readable, calm
-- active: engaged posture, forward intent, heightened focus
-- stressed: tension visible in shoulders, brow, and mouth shape
+- concerned: cautious posture, visible uncertainty or tension build-up
+- upset: high-tension posture with clearly escalated emotional intensity
 
 State design rules:
 
@@ -216,7 +217,7 @@ This document does not:
 - define simulation behavior
 - define stakeholder domain schema
 - authorize content/schema changes
-- require immediate SVG production in this step
+- require immediate asset production in this step
 
 This phase is direction lock only.
 No asset batch should start until this direction is accepted and referenced by planning docs.

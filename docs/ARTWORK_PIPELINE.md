@@ -169,7 +169,9 @@ src/assets/presentation/
       delivery_rogue.svg
     stakeholder-avatar-roles/
       oracle.webp
-      oracle_stressed.webp
+      oracle_supportive.webp
+      oracle_concerned.webp
+      oracle_upset.webp
   action-effect-icons/
     cards/
       refactor_action.svg
@@ -202,14 +204,14 @@ During migration, keep legacy files until all references are moved and validated
 - The filename (without extension) must exactly match the registry key used in `presentation_asset_registry.ts`.
 - Category is encoded by directory — do not add category prefixes to filenames.
 - Use descriptive names that match game content identifiers where applicable.
-- Avatar role state variants append a suffix: `{role_id}_active`, `{role_id}_stressed` (extension follows category format policy).
+- Avatar role state variants append a suffix: `{role_id}_supportive`, `{role_id}_concerned`, `{role_id}_upset` (extension follows category format policy). The neutral/default state uses no suffix.
 
 | Good                         | Bad                          | Reason                          |
 |------------------------------|------------------------------|---------------------------------|
 | `boundary_mage.svg`          | `playerClass_boundaryMage.svg` | No category prefix, no camelCase |
 | `system_incident.svg`        | `SystemIncident.svg`         | No PascalCase                   |
 | `boundary_builder.svg`       | `archetype_boundaryBuilder.svg` | No legacy terminology         |
-| `tech_lead_active.webp`      | `techLead-active.webp`       | Underscore prefix, no hyphens   |
+| `tech_lead_concerned.webp`   | `techLead-concerned.webp`    | Underscore prefix, no hyphens   |
 
 ### Format by Category
 
@@ -360,17 +362,18 @@ Authoring conventions:
 - One raster asset per role for default/neutral state (`.webp` preferred)
 - Do not encode identifying features that would imply a specific named character
 
-**Posture and expression state variants** (additive, not required until roles are defined):
+**Posture and expression state variants** (required for MVP role coverage):
 
 | State key   | Filename suffix  | When used                                               |
 |-------------|------------------|---------------------------------------------------------|
-| default     | *(none)*         | Standard gameplay display                               |
-| active      | `_active`        | Stakeholder is actively reacting to the current turn    |
-| stressed    | `_stressed`      | Stakeholder mood score is critically low                |
+| neutral     | *(none)*         | Standard gameplay display baseline                      |
+| supportive  | `_supportive`    | Positive/supportive reaction state                      |
+| concerned   | `_concerned`     | Cautious or uncertain reaction state                    |
+| upset       | `_upset`         | Escalated negative reaction state                       |
 
-File example: `tech_lead.webp`, `tech_lead_active.webp`, `tech_lead_stressed.webp`
+File example: `tech_lead.webp`, `tech_lead_supportive.webp`, `tech_lead_concerned.webp`, `tech_lead_upset.webp`
 
-Only the default (no suffix) variant is required. State variants may be added independently without modifying the registry structure — the registry key remains the role ID; state resolution is handled by the component or composable.
+State variants may be added without modifying the registry key structure — the registry key remains the base role ID; state resolution is handled by the component or composable.
 
 ### Ending Visual Conventions
 
@@ -391,7 +394,7 @@ Authoring conventions:
 Path: `src/assets/presentation/action-effect-icons/`
 ViewBox: `0 0 320 180`
 
-Currently only `cards/` is populated. `effects/` and `icons/` are reserved for future iconography.
+Currently only `cards/` is populated in-repo. `effects/` and `icons/` are available for MVP and later iconography/effect marker additions.
 
 Card illustration conventions:
 - Blueprint schematic representing the card's conceptual mechanism (see Subject Descriptions)

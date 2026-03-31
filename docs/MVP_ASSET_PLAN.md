@@ -1,280 +1,268 @@
 # MVP Asset Plan
 
 Date: 2026-03-31
-Status: Approved — pending art execution
+Status: Approved for implementation planning (no asset generation in this document)
 
-This document specifies the initial hybrid asset batch required for the redesigned presentation system.
-It is a concrete delivery checklist, not a design exploration.
+This document defines the concrete initial MVP asset batch for the UI presentation redesign under the approved hybrid raster/SVG strategy.
+It is scoped to unblock Storybook validation and the first playable vertical slice without overproducing assets.
 
 Canonical companions:
 
-- [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md) — authoring rules, format policy (raster vs SVG), sizing specs, naming, registry workflow
-- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) — redesign phasing
-- [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) — canonical direction for scene composition, avatar role art direction, and anti-goals
-- [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md) — required pre-implementation concept packet and approval checklist
-- [AGENT.md](../AGENT.md) — work routing and required-reading policy
+- [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md) — hybrid format policy, naming, placement, registry workflow
+- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) — redesign phase coordination
+- [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) — fantasy-tech visual direction and anti-goals
+- [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md) — concept gate and posture/expression matrix requirements
+- [AGENT.md](../AGENT.md) — routing and architecture boundaries
 
 Implementation prerequisite:
 
-- Complete and approve [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md) before starting final implementation assets in this plan.
+- Complete and approve [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md) before creating final implementation assets.
 
 ---
 
-## Scope and Constraints
+## 1. Scope and MVP Target
 
-**In scope for this plan:**
-- Scenario scene backdrops (replaces the single `default_run_scene` placeholder)
-- Event scene illustrations (production-quality pass on existing placeholders)
-- Initial `avatarRole` bust set
-- Minimal UI surface accent elements
+### In scope for this plan
 
-**Not in scope:**
-- `playerClass` portraits — these are already complete (5 of 5)
-- `endingType` visuals — existing placeholders are sufficient as stubs until Phase 3 of the redesign
-- Card action illustrations — existing placeholders are sufficient as stubs until Phase 2
-- Tutorial assets
+- Scene backdrops for scenario and event presentation surfaces.
+- Stakeholder `avatarRole` character/state asset set with required mood coverage.
+- Shared UI surface assets for the redesigned presentation language.
+- Minimal SVG icons/effect markers required to support readability and reactive cues.
 
-**Style direction summary:**
-- Fantasy-tech and pixel-adventure-inspired
-- Scene-based presentation (place/stage composition), not panel-style diagram composition
-- Pixel-readable: clean enough to read at 80×80 or smaller; no detail that blurs to noise at small sizes
-- Hybrid format strategy:
-	- PNG/WebP for scenario/event scene backdrops and stakeholder `avatarRole` character/state art
-	- SVG for UI surfaces, frames, icons, badges, reusable ornaments, and simple effect markers
-- Dark substrate: `#0b0e1a` background, selective luminous accents
-- Expressive at small sizes: strong silhouette, high contrast, recognisable form without labelling
-- Clean enough for browser UI: no visual noise that competes with game information; artwork is always decorative chrome
+### Explicitly out of scope
 
----
+- `playerClass` portraits (already complete).
+- `endingType` visual production pass (scheduled later).
+- Gameplay or simulation logic changes.
+- Tutorial asset expansion.
 
-## 1. Scenario Scene Backdrops
+### Style direction lock (all categories)
 
-**Path:** `src/assets/presentation/scenes/scenario/`
-**Canvas target:** `800x200`
-**Format:** WebP preferred (`.png` fallback acceptable)
-**Style:** Fantasy-tech environmental stage composition (see `docs/SCENE_VISUAL_DIRECTION.md`)
-
-One scene per scenario atmosphere. Scenes are tagged by atmosphere type, not by scenario ID, so they remain reusable if new scenario JSON is added later.
-
-The scene pool must cover all four shipped scenarios plus provide a generic fallback for unknown atmosphere tags.
-
-### Scene catalog
-
-| File                        | Atmosphere tag       | Used for scenario(s)        | Accent        | Description                                                                                             |
-|-----------------------------|----------------------|-----------------------------|---------------|---------------------------------------------------------------------------------------------------------|
-| `default_run_scene.webp`     | `generic`            | Fallback / any untagged     | Multi-accent  | Neutral fantasy-tech operations hall with modular structures and open staging space                     |
-| `legacy_architecture.webp`   | `legacy`             | Monolith of Mild Despair    | `#d97706` amber | Ancient fortress-workshop built around one massive core structure and cramped passageways               |
-| `distributed_chaos.webp`     | `distributed`        | Microservice Sprawl         | `#60a5fa` blue → `#f87171` red | Fragmented skybridge district with many small towers and unstable connective routes      |
-| `hypergrowth_velocity.webp`  | `hypergrowth`        | Startup Hypergrowth         | `#f97316` orange | Vertical launch-yard skyline with overload pressure in motion through the environment                   |
-| `compliance_pressure.webp`   | `compliance`         | Compliance Gauntlet         | `#fbbf24` gold | Inspection tribunal chamber with layered checkpoints and ceremonial scrutiny atmosphere                 |
-
-`default_run_scene` exists as a placeholder concept — it gets a production-quality raster art pass as part of this batch.
-
-### Scene authoring rules (all scenario scenes)
-
-- Compositions must be readable and meaningful at 200px rendered height (full-bleed in ScenarioBanner)
-- Keep left-center lightly detailed — it may be partially obscured by run summary text
-- No text that duplicates UI labels; avoid text-heavy baked-in art
-- Use the listed accent color as the primary luminous element; secondary elements use that color at 20–40% opacity
-- Keep subject, midground, and ambient layers distinct in source art so later iteration remains safe
+- Fantasy-tech.
+- Pixel-adventure-inspired.
+- Readable in browser UI at small and medium sizes.
+- Scene-based composition, not corporate/dashboard-like diagrams.
+- Expressive at small sizes.
+- Suitable for dynamic actor placement and overlay-safe UI.
+- Clean and reusable for implementation.
 
 ---
 
-## 2. Event Scene Illustrations
+## 2. Hybrid Format Classification
 
-**Path:** `src/assets/presentation/scenes/events/`
-**Canvas target:** `320x180`
-**Format:** WebP preferred (`.png` fallback acceptable)
-**Style:** Fantasy-tech scene vignette (event as place/moment, not infographic)
+Use this default format model for MVP unless a specific exception is documented in this file.
 
-The three existing event scene files are in placeholder state. This batch replaces them with production-quality art. A generic fallback scene is added for custom events.
+### Raster (PNG/WebP; WebP preferred)
 
-### Event scene catalog
+- Scenario scene backdrops.
+- Event scene backdrops.
+- Stakeholder `avatarRole` character/state art.
+- Any other illustrative scenic/character artwork added during this MVP pass.
 
-| File                    | Event type          | Status    | Accent              | Description                                                                                            |
-|-------------------------|---------------------|-----------|---------------------|--------------------------------------------------------------------------------------------------------|
-| `system_incident.webp`   | `system_incident`   | Replace   | `#f87171` red       | Breached control chamber with cascading hazard cues and emergency glow                                 |
-| `audit_pressure.webp`    | `audit_pressure`    | Replace   | `#d97706` amber     | Formal inspection corridor with scrutiny devices and constrained movement paths                        |
-| `scaling_crisis.webp`    | `scaling_crisis`    | Replace   | `#60a5fa` → `#f87171` | Overloaded transit nexus where throughput pressure is visible in the environment                    |
-| `generic_disruption.webp`| `generic` / fallback| **New**  | `#a78bfa` muted purple | Neutral disturbance scene with interrupted energy flow and no domain-specific labeling                 |
+### SVG
 
-### Event scene authoring rules
+- UI surfaces and frames.
+- Icons.
+- Badges.
+- Reusable ornaments.
+- Simple effect markers.
 
-- Must be recognisable and readable at 90px rendered height (compact frame in CardDetailsModal)
-- Subject should occupy the center-top 60% of the frame — card text appears below the image
-- `generic_disruption.webp` must be visually neutral enough to not conflict with any event's color theme when shown as a fallback
+No exceptions are defined for the MVP batch in this plan.
 
 ---
 
-## 3. Avatar Role Set
+## 3. Initial Scene Set for MVP
 
-**Path:** `src/assets/presentation/avatars/stakeholder-avatar-roles/`
-**Canvas target:** `80x80` (authoring source may be larger)
-**Format:** WebP preferred (`.png` fallback acceptable)
-**Style:** Pixel-character fantasy — bust/head-and-shoulders only
+Recommended practical count for MVP: **9 raster scene assets**.
 
-Avatar roles are UI-only visual identities assigned to stakeholders at runtime. They do not map 1:1 to named stakeholders. Multiple stakeholders may receive the same avatar role in one run if they share an archetype.
+- 5 scenario atmosphere scenes (`800x200`) for run-level backdrops.
+- 4 event scenes (`320x180`) for event/card surfaces, including a generic fallback.
 
-The five roles below cover all seven shipped stakeholders through loose assignment. Assignment logic lives in the UI layer and is not defined here.
+### Scenario scene backdrops (raster)
 
-### Role catalog
+Path: `src/assets/presentation/scenes/scenario/`
+Canvas: `800x200`
+Format: `.webp` preferred (`.png` fallback acceptable)
 
-| Role ID       | Fantasy concept             | Accent              | Character description                                                                         | Covers (not binding)                       |
-|---------------|-----------------------------|---------------------|-----------------------------------------------------------------------------------------------|--------------------------------------------|
-| `oracle`      | Visionary seer              | `#9f7aea` purple    | Cowled figure with glowing crystal orb, seeing apparatus or multiple lenses, robes with rune trim  | `cto`                                  |
-| `chronicler`  | Record-keeper               | `#fbbf24` gold      | Beret-like cap, small scroll/tablet held open, quill or stylus in hand, light travel cloak        | `vp_product`                           |
-| `warden`      | System guardian             | `#60a5fa` blue      | Helm with visor, pauldron visible at shoulder, shield crest or emblem motif on chest               | `operations_manager`, `security_officer` |
-| `artificer`   | Builder and craftsperson    | `#34d399` green     | Goggles pushed up on forehead, work apron, tool loops at chest, calibration ruler motif            | `lead_developer`, `tech_lead`          |
-| `chancellor`  | Administrative authority    | `#fb923c` amber     | Tricorn-style formal hat, high collar, visible ledger or seal, one hand raised in authority gesture | `cfo`                                 |
+| File | Type | Atmosphere tag | Primary use |
+|---|---|---|---|
+| `default_run_scene.webp` | Scenario fallback | `generic` | Unknown or untagged scenario IDs |
+| `legacy_architecture.webp` | Scenario specific | `legacy` | `monolith_of_mild_despair` |
+| `distributed_chaos.webp` | Scenario specific | `distributed` | `microservice_sprawl` |
+| `hypergrowth_velocity.webp` | Scenario specific | `hypergrowth` | `startup_hypergrowth` |
+| `compliance_pressure.webp` | Scenario specific | `compliance` | `compliance_gauntlet` |
 
-### Variant coverage
+### Event scene backdrops (raster)
 
-**MVP requirement:** `default` state raster asset for all five roles.
+Path: `src/assets/presentation/scenes/events/`
+Canvas: `320x180`
+Format: `.webp` preferred (`.png` fallback acceptable)
 
-**Priority state expansions** (add in the first art pass after `default` is validated):
+| File | Type | Event tag | Primary use |
+|---|---|---|---|
+| `system_incident.webp` | Event specific | `system_incident` | Incident and fault events |
+| `audit_pressure.webp` | Event specific | `audit_pressure` | Compliance and audit events |
+| `scaling_crisis.webp` | Event specific | `scaling_crisis` | Throughput/load pressure events |
+| `generic_disruption.webp` | Event fallback | `generic` | Unknown/custom event tags |
 
-| Role          | `_stressed` priority | Justification                                                        |
-|---------------|----------------------|----------------------------------------------------------------------|
-| `warden`      | High                 | Operations Manager and Security Officer both have explicit stress reactions in gameplay |
-| `artificer`   | High                 | Lead Developer has a "threatens resignation" reaction — stressed state needed for dramatic readability |
-| `oracle`      | Medium               | CTO has "frustrated by stagnation" — expressed via stressed state    |
-| `chronicler`  | Low                  | VP Product reactions are growth/celebration-focused; stress less visible |
-| `chancellor`  | Low                  | CFO appears in one scenario; stress state lower priority for MVP    |
+Scene composition requirements:
 
-**`_active` state** is deferred entirely past MVP. During gameplay, active reactions can be communicated through UI overlay rather than asset variants.
-
-### Avatar role authoring rules
-
-- Background: `#0b0e1a`, same as playerClass portraits
-- Subtle grid overlay at 20px spacing, role accent color at 6% opacity
-- Subject centered, head and shoulders occupying y=8 to y=60 region (leave y=0–8 and y=60–80 clear for circular-crop safety)
-- Character silhouette must read clearly at 40×40px rendered (circular thumbnail in stakeholder sidebar)
-- Non-descript gender design — use costume, tool, and posture to convey role; no gender-specific features
-- Corner bracket marks at all four corners (same pattern as playerClass portraits)
-- Single light source: top-centre (character is lit from above)
-- Pixel element size: 2×2 blocks; features at the face level may use 1×1 for legibility
-
-**`_stressed` variant rules:**
-- Same pose/costume structure as `default`; distinct pixel changes only — do not re-author the base character
-- Visible differences: furrowed brow (2px pixel shift on brow group), reduced glow on accents, stress indicator element (e.g., warden: cracked shield emblem; artificer: sparking tool; oracle: clouded orb)
-- Do not change background, costume, or overall pose — identifiability at a glance must be preserved
+- Place/stage composition with clear foreground/midground/background.
+- Overlay-safe negative space for cards, labels, and meters.
+- Readable at 200px height (scenario) and 90px height (event card frame).
+- No text-heavy labels that duplicate UI content.
 
 ---
 
-## 4. UI Surface Assets
+## 4. Initial `avatarRole` Set for MVP
 
-**Path:** `src/assets/presentation/ui-surfaces/`
-**Style:** Arcane engineering blueprint — decorative, not figurative
+Recommended practical count for MVP: **6 `avatarRole` identities**.
 
-UI surface assets are optional chrome elements that reinforce visual identity without carrying game information. Every component must remain fully readable if all surface assets are absent.
+Rationale: six roles reduce visible repetition in stakeholder casting and align with the concept packet baseline.
 
-### MVP surface asset catalog
+Path: `src/assets/presentation/avatars/stakeholder-avatar-roles/`
+Runtime canvas target: `80x80` (source may be authored at higher resolution)
+Format: `.webp` preferred (`.png` fallback acceptable)
 
-| File                     | Purpose                                                   | ViewBox       | Accent          |
-|--------------------------|-----------------------------------------------------------|---------------|-----------------|
-| `card_frame_corner.svg`  | Corner bracket accent for action/event card panel borders | `0 0 24 24`  | Neutral `#4b5563` with 1px glow |
-| `panel_divider.svg`      | Horizontal rule between panel sections                    | `0 0 320 8`  | Neutral, dashed blueprint style |
+### Role IDs
 
-Only these two surface assets are required for MVP. Both are micro-elements — they serve as repeatable decoration primitives, not standalone illustrations.
+- `oracle`
+- `chronicler`
+- `warden`
+- `artificer`
+- `chancellor`
+- `envoy`
 
-**`card_frame_corner.svg` authoring:**
-- A right-angle bracket formed from two thin lines (1px stroke) plus a 3×3 accent dot at the vertex
-- Designed to be rotated 90°/180°/270° via CSS `transform` for all four corners of a panel
-- No fill, stroke only — inherits color via CSS `currentColor` where possible, or hardcoded to `#4b5563` at base
+### Required state coverage per `avatarRole`
 
-**`panel_divider.svg` authoring:**
-- 1px dashed horizontal line spanning the full 320 unit width
-- Blueprint tick marks at 0, 160, and 320 unit positions
-- Small `×` annotation glyph at center (monospace, 5px cap height)
-- No fill — stroke-only composition
+Every role requires all four states in MVP:
 
----
+- supportive
+- neutral
+- concerned
+- upset
 
-## 5. Delivery Checklist
+Filename convention per role:
 
-Tasks are ordered by dependency: scenes first (needed for scenario and event components), then avatar roles (needed for stakeholder sidebar), then surface accents (can be added last without blocking other UI work).
+- neutral: `{role_id}.webp`
+- supportive: `{role_id}_supportive.webp`
+- concerned: `{role_id}_concerned.webp`
+- upset: `{role_id}_upset.webp`
 
-### Phase A — Scene backdrops (unblocks ScenarioBanner and EventCard production passes)
+Example set for `oracle`:
 
-- [ ] `scenes/scenario/legacy_architecture.webp` — new
-- [ ] `scenes/scenario/distributed_chaos.webp` — new
-- [ ] `scenes/scenario/hypergrowth_velocity.webp` — new
-- [ ] `scenes/scenario/compliance_pressure.webp` — new
-- [ ] `scenes/scenario/default_run_scene.webp` — production-quality pass (replace placeholder)
-- [ ] `scenes/events/system_incident.webp` — production-quality pass (replace placeholder)
-- [ ] `scenes/events/audit_pressure.webp` — production-quality pass (replace placeholder)
-- [ ] `scenes/events/scaling_crisis.webp` — production-quality pass (replace placeholder)
-- [ ] `scenes/events/generic_disruption.webp` — new
+- `oracle.webp`
+- `oracle_supportive.webp`
+- `oracle_concerned.webp`
+- `oracle_upset.webp`
 
-### Phase B — Avatar role defaults (unblocks stakeholder UI and scene-model prototype)
+Total planned `avatarRole` files for MVP: **24 raster files** (6 roles × 4 states).
 
-- [ ] `avatars/stakeholder-avatar-roles/oracle.webp`
-- [ ] `avatars/stakeholder-avatar-roles/chronicler.webp`
-- [ ] `avatars/stakeholder-avatar-roles/warden.webp`
-- [ ] `avatars/stakeholder-avatar-roles/artificer.webp`
-- [ ] `avatars/stakeholder-avatar-roles/chancellor.webp`
+Avatar readability and expression requirements:
 
-### Phase C — Avatar role stressed variants (adds expressiveness after Phase B validates)
-
-- [ ] `avatars/stakeholder-avatar-roles/warden_stressed.webp`
-- [ ] `avatars/stakeholder-avatar-roles/artificer_stressed.webp`
-- [ ] `avatars/stakeholder-avatar-roles/oracle_stressed.webp`
-
-### Phase D — UI surface accents (final visual polish layer)
-
-- [ ] `ui-surfaces/card_frame_corner.svg`
-- [ ] `ui-surfaces/panel_divider.svg`
+- Preserve role identity across all states.
+- Change posture/expression first; avoid costume replacement.
+- Keep silhouettes recognizable at 40x40 circular thumbnail size.
+- Maintain clean contrast on `#0b0e1a` background.
 
 ---
 
-## 6. Registry and Code Changes Required
+## 5. Shared UI Surface Assets (SVG)
 
-Each new asset added in this batch requires a corresponding update to the presentation registry.
+Recommended practical count for MVP: **4 SVG surface assets**.
 
-Registry keys remain extension-agnostic (`default_run_scene`, `oracle`, etc.). The import path extension follows category format policy.
+Path: `src/assets/presentation/ui-surfaces/`
+Format: `.svg`
 
-When all Phase A assets are complete:
-- Update `SCENE_ASSETS.scenario` in `presentation_asset_registry.ts` with 4 new scenario keys
-- Update `SCENE_ASSETS.events` with `generic_disruption`
-- Add `ScenarioSceneAssetId` union type: `'default_run_scene' | 'legacy_architecture' | 'distributed_chaos' | 'hypergrowth_velocity' | 'compliance_pressure'`
-- Add `EventSceneAssetId` entry for `'generic_disruption'`
+| File | Purpose | ViewBox |
+|---|---|---|
+| `card_frame_corner.svg` | Rotatable corner bracket primitive for cards/panels | `0 0 24 24` |
+| `panel_divider.svg` | Section separator line with blueprint ticks | `0 0 320 8` |
+| `scene_label_plate.svg` | Small frame plate behind short runtime labels/chips | `0 0 120 24` |
+| `avatar_state_ring.svg` | Reusable circular ring ornament around avatar thumbnails | `0 0 88 88` |
 
-When Phase B assets are complete:
-- Populate `STAKEHOLDER_AVATAR_ROLE_ASSETS` with five role keys
-- Add `AvatarRoleAssetId` union type: `'oracle' | 'chronicler' | 'warden' | 'artificer' | 'chancellor'`
+Surface design constraints:
 
-When Phase C stressed variants are added:
-- The registry does not need a separate key per variant — variants are resolved by composable logic (`{role_id}_stressed`) and `STAKEHOLDER_AVATAR_ROLE_ASSETS` remains an indexed lookup by base role ID
-- Stressed variant resolution: composable appends `_stressed` to role ID and falls back to default if not present
-
-When Phase D surface assets are complete:
-- Populate `UI_SURFACE_ASSETS` with `card_frame_corner` and `panel_divider` keys
-
-See [docs/ARTWORK_PIPELINE.md — How to Add a New Asset](ARTWORK_PIPELINE.md#how-to-add-a-new-asset) for the full procedure.
+- Decorative only; never required for gameplay readability.
+- Reusable, transform-safe, low visual noise.
+- Must remain legible on desktop and mobile.
 
 ---
 
-## 7. Atmosphere Tag Mapping (Reference)
+## 6. MVP Icons and Effect Markers (SVG)
 
-This table shows how scenario IDs map to scene atmosphere tags at runtime. This mapping belongs in **UI-layer code** (`src/ui/config/` or a dedicated composable), not in content JSON.
+Recommended practical count for MVP: **6 SVG micro-assets**.
 
-| Scenario ID               | Atmosphere tag   | Scene file                  |
-|---------------------------|------------------|-----------------------------|
-| `monolith_of_mild_despair`| `legacy`         | `legacy_architecture.webp`   |
-| `microservice_sprawl`     | `distributed`    | `distributed_chaos.webp`     |
-| `startup_hypergrowth`     | `hypergrowth`    | `hypergrowth_velocity.webp`  |
-| `compliance_gauntlet`     | `compliance`     | `compliance_pressure.webp`   |
-| *(any unrecognised ID)*   | `generic`        | `default_run_scene.webp`     |
+Path roots:
 
-This mapping is UI-only. The simulation does not know about atmosphere tags. If new scenario JSON is added, the atmosphere tag mapping in the UI layer is updated independently of content authoring.
+- `src/assets/presentation/action-effect-icons/icons/`
+- `src/assets/presentation/action-effect-icons/effects/`
+
+Format: `.svg`
+
+### Icon set (interface cues)
+
+- `state_supportive.svg`
+- `state_neutral.svg`
+- `state_concerned.svg`
+- `state_upset.svg`
+
+### Effect markers (simple overlay cues)
+
+- `signal_ping.svg`
+- `stress_crack.svg`
+
+Usage intent:
+
+- State icons can accompany compact stakeholder indicators.
+- Effect markers provide simple, reusable overlays without introducing heavy illustration assets.
 
 ---
 
-## 8. Future Expansion Notes
+## 7. Folder Placement and Naming Summary
 
-These items are explicitly out of scope for this MVP batch but should inform authoring decisions so new art is compatible:
+All filenames are `snake_case`, and registry keys remain extension-agnostic.
 
-- **Additional avatarRole `_active` variants** — reserved for post-MVP expressiveness work. Author the `default` busts in a neutral-to-slightly-positive expression. Do not lock the pose in a way that prevents a companion `_active` version from being authored later.
-- **Additional `avatarRole` additions** — as custom content packs introduce new stakeholder types, new roles can be added to `stakeholder-avatar-roles/` and the registry independently. The 5 MVP roles are generic enough to be reassigned to new stakeholders via the UI mapping layer.
-- **Additional scene atmosphere tags** — new scenario JSON may introduce tags not yet represented. The `default_run_scene.webp` fallback handles these gracefully. First-class scenes can be added to the pool on-demand.
-- **Ending visual production pass** — ending visuals are currently placeholders and scheduled for production-quality art in Phase 3 of the redesign (not this batch).
+### Raster assets
+
+- `src/assets/presentation/scenes/scenario/*.webp`
+- `src/assets/presentation/scenes/events/*.webp`
+- `src/assets/presentation/avatars/stakeholder-avatar-roles/*.webp`
+
+### SVG assets
+
+- `src/assets/presentation/ui-surfaces/*.svg`
+- `src/assets/presentation/action-effect-icons/icons/*.svg`
+- `src/assets/presentation/action-effect-icons/effects/*.svg`
+
+State suffix policy for `avatarRole`:
+
+- base: no suffix (`neutral`)
+- `_supportive`
+- `_concerned`
+- `_upset`
+
+---
+
+## 8. Practical MVP Slice Recommendation
+
+To unblock Storybook and the first playable vertical slice without overproduction, implement in this order:
+
+1. **Scene core (9 raster files)**
+2. **`avatarRole` core for 6 roles × neutral only (6 raster files)**
+3. **Shared UI surface core (4 SVG files)**
+4. **State expansion for `avatarRole` (18 raster files: supportive/concerned/upset)**
+5. **Icons/effect markers (6 SVG files)**
+
+This sequence enables early UI validation fast, then adds expressive depth.
+
+---
+
+## 9. Registry and Integration Notes (UI-only)
+
+- Keep all mapping and state resolution in UI-layer config/composables.
+- Do not add presentation references to simulation/domain/content files.
+- Import paths may vary by extension, but registry keys stay stable (`default_run_scene`, `oracle`, etc.).
+- For `avatarRole` states, composable logic appends suffixes (`_supportive`, `_concerned`, `_upset`) and falls back to base role file when needed.
+
+No gameplay or simulation behavior changes are authorized by this plan.
