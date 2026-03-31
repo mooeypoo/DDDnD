@@ -1,6 +1,6 @@
 # Artwork Pipeline
 
-This document is the canonical reference for SVG authoring, asset organization, naming, and runtime integration in DDDnD.
+This document is the canonical reference for asset authoring, format policy, organization, naming, and runtime integration in DDDnD.
 
 Canonical companions:
 
@@ -8,7 +8,7 @@ Canonical companions:
 - [ARCHITECTURE.md](../ARCHITECTURE.md) — domain separation and UI ownership boundaries
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) — redesign phasing and presentation coordination
 - [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) — canonical gameplay scene composition and stakeholder avatar role art direction
-- [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md) — required concept packet and approval checklist before implementation SVG production
+- [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md) — required concept packet and approval checklist before implementation asset production
 - [docs/STORYBOOK.md](STORYBOOK.md) — UI prototyping workflow boundaries
 
 ---
@@ -41,7 +41,7 @@ The end-of-run outcome classification shown on the results screen. Each `endingT
 
 A UI-only fantasy visual role assigned to a stakeholder by the presentation layer. Avatar roles are not domain entities; they are view-model concerns only.
 
-- File key format: `{role_id}.svg` — e.g., `tech_lead.svg` (future)
+- File key format: `{role_id}` with raster deliverables by default (e.g., `tech_lead.webp`)
 - Resolved at runtime via `STAKEHOLDER_AVATAR_ROLE_ASSETS` from `presentation_asset_registry.ts`
 - No one-to-one mapping to named stakeholders
 - Stakeholder content JSON must not reference `avatarRole` IDs
@@ -60,7 +60,24 @@ This pipeline document remains canonical for asset organization, naming, SVG tec
 
 If style guidance here conflicts with scene/avatar direction in `SCENE_VISUAL_DIRECTION.md`, the scene/avatar direction document takes priority.
 
-Before implementation SVG production for MVP scene and `avatarRole` assets begins, complete and approve the concept packet in [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md).
+Before implementation production for MVP scene and `avatarRole` assets begins, complete and approve the concept packet in [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md).
+
+---
+
+## Hybrid Format Strategy (Required)
+
+Choose asset format by purpose.
+
+- Use PNG/WebP for illustrative scenic/character assets where atmosphere, readability, and composition matter most.
+- Use SVG for reusable interface/chrome assets where clean scaling, structure, and transformability matter most.
+
+Default format policy for this repository:
+
+- Scene backdrops (scenario and event): PNG/WebP
+- Stakeholder `avatarRole` character and state art: PNG/WebP
+- UI surfaces, frames, icons, badges, reusable ornaments, simple effect markers: SVG
+- `playerClass` portraits: SVG (existing pixel-character pipeline)
+- `endingType` visuals: SVG unless a redesign explicitly introduces raster variants
 
 ---
 
@@ -138,11 +155,11 @@ src/assets/presentation/
   ui-surfaces/
   scenes/
     scenario/
-      default_run_scene.svg
+      default_run_scene.webp
     events/
-      system_incident.svg
-      audit_pressure.svg
-      scaling_crisis.svg
+      system_incident.webp
+      audit_pressure.webp
+      scaling_crisis.webp
   avatars/
     player-classes/
       boundary_mage.svg
@@ -151,6 +168,8 @@ src/assets/presentation/
       legacy_ranger.svg
       delivery_rogue.svg
     stakeholder-avatar-roles/
+      oracle.webp
+      oracle_stressed.webp
   action-effect-icons/
     cards/
       refactor_action.svg
@@ -183,22 +202,38 @@ During migration, keep legacy files until all references are moved and validated
 - The filename (without extension) must exactly match the registry key used in `presentation_asset_registry.ts`.
 - Category is encoded by directory — do not add category prefixes to filenames.
 - Use descriptive names that match game content identifiers where applicable.
-- Avatar role state variants append a suffix: `{role_id}_active.svg`, `{role_id}_stressed.svg`.
+- Avatar role state variants append a suffix: `{role_id}_active`, `{role_id}_stressed` (extension follows category format policy).
 
 | Good                         | Bad                          | Reason                          |
 |------------------------------|------------------------------|---------------------------------|
 | `boundary_mage.svg`          | `playerClass_boundaryMage.svg` | No category prefix, no camelCase |
 | `system_incident.svg`        | `SystemIncident.svg`         | No PascalCase                   |
 | `boundary_builder.svg`       | `archetype_boundaryBuilder.svg` | No legacy terminology         |
-| `tech_lead_active.svg`       | `techLead-active.svg`        | Underscore prefix, no hyphens   |
+| `tech_lead_active.webp`      | `techLead-active.webp`       | Underscore prefix, no hyphens   |
 
-**Preferred format:** SVG for all vector-based illustration work.
+### Format by Category
 
-**Raster assets:** If AI-generated raster images are used, target minimum 640×360px for card thumbnails and 1200×300px for scenario heroes. Use WebP format.
+| Category                           | Default format | Notes |
+|------------------------------------|----------------|-------|
+| `scenes/scenario`                  | PNG/WebP       | Atmospheric backdrop illustration |
+| `scenes/events`                    | PNG/WebP       | Atmospheric vignette illustration |
+| `avatars/stakeholder-avatar-roles` | PNG/WebP       | Character and state art |
+| `ui-surfaces`                      | SVG            | Reusable UI/chrome primitives |
+| `action-effect-icons`              | SVG            | Interface iconography and simple effect markers |
+| `avatars/player-classes`           | SVG            | Existing pixel portrait pipeline |
+| `ending-visuals`                   | SVG            | Existing endingType visual pipeline |
+
+Raster output guidance:
+
+- Prefer WebP as the default delivery format.
+- Provide PNG alternatives only when transparency or pipeline constraints require it.
+- Target minimum 640x360 for 16:9 scene/event compositions and 160x160 for `avatarRole` bust source files before runtime scaling.
 
 ---
 
 ## SVG Authoring Requirements
+
+These requirements apply to SVG categories only.
 
 ### Export Requirements
 
@@ -215,20 +250,20 @@ All SVGs must meet these criteria before being added to the repository:
 - Readable whitespace formatting is preferred (do not minify). Version-control readability matters.
 - All `id` attributes must be unique within the file. When copying patterns between files, rename IDs to prevent collisions if files are ever inlined together.
 
-### viewBox and Dimension Specifications
+### Canvas and Dimension Specifications
 
 | Category                  | viewBox          | Aspect ratio | Notes                                         |
 |---------------------------|------------------|--------------|-----------------------------------------------|
 | Player class portrait     | `0 0 120 120`    | 1:1          | Square; rendered in circular crop context     |
 | Ending visual             | `0 0 320 180`    | 16:9         | Wide composition; ending results screen       |
-| Event scene               | `0 0 320 180`    | 16:9         | Wide composition; above EventCard content     |
+| Event scene (raster)      | `320x180`        | 16:9         | Deliver as PNG/WebP; above EventCard content  |
 | Card action illustration  | `0 0 320 180`    | 16:9         | Wide composition; ActionCard thumbnail frame  |
-| Scenario hero / backdrop  | `0 0 800 200`    | 4:1          | Very wide; ScenarioBanner full-bleed          |
-| Avatar role bust (future) | `0 0 80 80`      | 1:1          | Small circular-crop-safe bust; stakeholder UI |
+| Scenario hero / backdrop (raster) | `800x200` | 4:1 | Deliver as PNG/WebP; ScenarioBanner full-bleed |
+| Avatar role bust (raster) | `80x80`          | 1:1          | Deliver as PNG/WebP; stakeholder UI thumbnail |
 | Logo mark                 | `0 0 [natural]`  | Varies       | Follow the natural glyph proportions          |
 | UI surface elements       | `0 0 [natural]`  | Varies       | Size to intended panel or frame use           |
 
-Do not deviate from these viewBox values for existing categories. If a new category is introduced, define its viewBox specification here before authoring assets.
+Do not deviate from these canvas/viewBox values for existing categories. If a new category is introduced, define its specification here before authoring assets.
 
 ### Layer and Group Naming
 
@@ -276,19 +311,20 @@ SVGs in this project are currently static. However, authoring them in an animati
 ### Scene Assets
 
 Path: `src/assets/presentation/scenes/`
-ViewBox: `0 0 320 180`
+Canvas: `320x180` for event scenes, `800x200` for scenario backdrops
 
 Scene types:
 - `scenario/` — one per scenario; represents the backdrop of the run. Used in `ScenarioBanner` as a full-bleed hero. Wider compositions exist at `0 0 800 200`.
 - `events/` — one per event type; rendered as an illustration frame above `EventCard` content.
 
 Authoring conventions:
-- Compositions should be wide-format blueprint schematics (see Style Direction).
+- Compositions should be wide-format atmospheric scenes (see Style Direction).
 - Represent the conceptual "space" of the theme — not a literal moment or character.
 - Keep the center-left region visually light (no dense detail) — it may be partially obscured by card text in some layouts.
 - Must be recognizable and readable at 90px rendered height (compact frame in modals).
 - No text in the image that directly duplicates card UI labels. Background annotations (monospace technical labels) are acceptable as stylistic elements.
 - Use the accent color for the event domain (see Color System table) as the primary highlight element.
+- Deliver in PNG/WebP by default. SVG scene files are transitional and should not be used as the default target format for new scene production.
 
 ### Player Class Portrait Conventions
 
@@ -313,7 +349,7 @@ One SVG per class. No state variants exist for `playerClass` portraits.
 ### Avatar Role Conventions
 
 Path: `src/assets/presentation/avatars/stakeholder-avatar-roles/`
-ViewBox: `0 0 80 80`
+Canvas: `80x80` runtime target (authoring may be at higher source resolution)
 
 Avatar roles are UI-only. They are assigned by the presentation layer at runtime and do not map to named stakeholders. Content JSON must never reference avatar role IDs.
 
@@ -321,7 +357,7 @@ Authoring conventions:
 - Subject centered in frame; head occupying the upper half (y=0 to y=40 region)
 - Design must be safe for circular clip-path (`border-radius: 50%`) — keep subject 6px clear of all edges
 - Single consistent lighting source: top-left
-- One SVG per role for default/neutral state
+- One raster asset per role for default/neutral state (`.webp` preferred)
 - Do not encode identifying features that would imply a specific named character
 
 **Posture and expression state variants** (additive, not required until roles are defined):
@@ -332,7 +368,7 @@ Authoring conventions:
 | active      | `_active`        | Stakeholder is actively reacting to the current turn    |
 | stressed    | `_stressed`      | Stakeholder mood score is critically low                |
 
-File example: `tech_lead.svg`, `tech_lead_active.svg`, `tech_lead_stressed.svg`
+File example: `tech_lead.webp`, `tech_lead_active.webp`, `tech_lead_stressed.webp`
 
 Only the default (no suffix) variant is required. State variants may be added independently without modifying the registry structure — the registry key remains the role ID; state resolution is handled by the component or composable.
 
@@ -380,15 +416,15 @@ Runtime and Storybook code must resolve asset URLs through the centralized regis
 
 Registry file: `src/ui/config/presentation_asset_registry.ts`
 
-**Do not add new direct per-component imports** from SVG file paths when a registry key exists or can be added.
+**Do not add new direct per-component imports** from asset file paths when a registry key exists or can be added.
 
 ### How to Add a New Asset
 
-1. Create the SVG file in the correct canonical directory under `src/assets/presentation/`. Follow the naming, viewBox, and authoring requirements above.
+1. Create the asset file in the correct canonical directory under `src/assets/presentation/`. Follow the category format policy, naming, and sizing/authoring requirements above.
 2. Open `src/ui/config/presentation_asset_registry.ts`.
 3. Add a Vite URL import at the top of the file:
    ```typescript
-   import myNewAssetUrl from '@/assets/presentation/category/my_new_asset.svg?url'
+  import myNewAssetUrl from '@/assets/presentation/category/my_new_asset.webp?url'
    ```
 4. Add the key to the appropriate typed record or `as const` object in the registry:
    ```typescript
@@ -405,9 +441,9 @@ Registry file: `src/ui/config/presentation_asset_registry.ts`
 
 ### How to Modify an Asset
 
-1. Replace the SVG file at its canonical path in `src/assets/presentation/`.
+1. Replace the asset file at its canonical path in `src/assets/presentation/`.
 2. Do not rename the file. Renaming requires a registry key update and is treated the same as removing and re-adding.
-3. Confirm the viewBox dimension has not changed. If it has, check all components that consume this asset for layout impact.
+3. Confirm the category canvas/viewBox specification has not changed. If it has, check all components that consume this asset for layout impact.
 4. Run Storybook visually to confirm the asset renders correctly in its component context.
 5. Update the **Current Asset Status** table (change `Placeholder` to `Complete` if applicable).
 
@@ -422,7 +458,7 @@ Only remove an asset when all of the following are true:
 Steps:
 1. Remove the import line from `presentation_asset_registry.ts`.
 2. Remove the key from the relevant registry record.
-3. Remove the SVG file from `src/assets/presentation/`.
+3. Remove the asset file from `src/assets/presentation/`.
 4. Remove the row from the **Current Asset Status** table.
 5. Run `npm run type-check` to confirm no TypeScript errors.
 
@@ -595,10 +631,10 @@ Asset reference policy:
 | Category            | Asset key                      | File                                               | Status      |
 |---------------------|--------------------------------|-----------------------------------------------------|-------------|
 | branding            | `logo_mark`                    | `branding/logo_mark.svg`                           | Complete    |
-| scenes / scenario   | `default_run_scene`            | `scenes/scenario/default_run_scene.svg`            | Placeholder |
-| scenes / events     | `system_incident`              | `scenes/events/system_incident.svg`                | Placeholder |
-| scenes / events     | `audit_pressure`               | `scenes/events/audit_pressure.svg`                 | Placeholder |
-| scenes / events     | `scaling_crisis`               | `scenes/events/scaling_crisis.svg`                 | Placeholder |
+| scenes / scenario   | `default_run_scene`            | `scenes/scenario/default_run_scene.webp`           | Planned (raster target) |
+| scenes / events     | `system_incident`              | `scenes/events/system_incident.webp`               | Planned (raster target) |
+| scenes / events     | `audit_pressure`               | `scenes/events/audit_pressure.webp`                | Planned (raster target) |
+| scenes / events     | `scaling_crisis`               | `scenes/events/scaling_crisis.webp`                | Planned (raster target) |
 | avatars / classes   | `boundary_mage`                | `avatars/player-classes/boundary_mage.svg`         | Complete    |
 | avatars / classes   | `stakeholder_bard`             | `avatars/player-classes/stakeholder_bard.svg`      | Complete    |
 | avatars / classes   | `reliability_cleric`           | `avatars/player-classes/reliability_cleric.svg`    | Complete    |
@@ -615,7 +651,7 @@ Asset reference policy:
 | ending visuals      | `runaway_refactorer`           | `ending-visuals/runaway_refactorer.svg`            | Placeholder |
 | ui-surfaces         | *(none yet)*                   | `ui-surfaces/`                                     | Reserved    |
 
-Replace `Placeholder` entries with `Complete` once a production-quality asset is authored and validated in Storybook.
+Replace `Planned` or `Placeholder` entries with `Complete` once a production-quality asset is authored and validated in Storybook.
 
 ### Legacy Assets (`src/assets/artwork/`) — Transitional
 
@@ -633,10 +669,10 @@ These files are preserved during migration. Do not add new assets here. See Regi
 | `classes/reliability_cleric.svg`       | `avatars/player-classes/reliability_cleric.svg`                       | Transitional |
 | `classes/legacy_ranger.svg`            | `avatars/player-classes/legacy_ranger.svg`                            | Transitional |
 | `classes/delivery_rogue.svg`           | `avatars/player-classes/delivery_rogue.svg`                           | Transitional |
-| `events/system_incident.svg`           | `scenes/events/system_incident.svg`                                   | Transitional |
-| `events/audit_pressure.svg`            | `scenes/events/audit_pressure.svg`                                    | Transitional |
-| `events/scaling_crisis.svg`            | `scenes/events/scaling_crisis.svg`                                    | Transitional |
+| `events/system_incident.svg`           | `scenes/events/system_incident.webp`                                  | Transitional |
+| `events/audit_pressure.svg`            | `scenes/events/audit_pressure.webp`                                   | Transitional |
+| `events/scaling_crisis.svg`            | `scenes/events/scaling_crisis.webp`                                   | Transitional |
 | `cards/refactor_action.svg`            | `action-effect-icons/cards/refactor_action.svg`                       | Transitional |
 | `cards/infrastructure_investment.svg`  | `action-effect-icons/cards/infrastructure_investment.svg`             | Transitional |
 | `cards/quick_patch.svg`                | `action-effect-icons/cards/quick_patch.svg`                           | Transitional |
-| `scenarios/hero.svg`                   | `scenes/scenario/default_run_scene.svg`                               | Transitional |
+| `scenarios/hero.svg`                   | `scenes/scenario/default_run_scene.webp`                              | Transitional |

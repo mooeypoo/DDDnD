@@ -31,11 +31,11 @@ Read these on top of the base set when applicable.
 - [docs/LOGO_AND_MASTHEAD_IMPLEMENTATION.md](docs/LOGO_AND_MASTHEAD_IMPLEMENTATION.md)
 - [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md)
 
-### Asset / SVG work
+### Asset / artwork work (hybrid raster + SVG)
 
-- [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md) — canonical reference for all SVG/asset work: folder structure, naming conventions, viewBox specs, layer naming, animation-safe grouping, category conventions (scene, playerClass portrait, avatarRole, endingType visual), registry workflow, and agent procedures for adding/modifying/removing assets
+- [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md) — canonical reference for all presentation asset work: hybrid format policy (raster vs SVG), folder structure, naming conventions, sizing specs, layer/group rules, category conventions (scene, playerClass portrait, avatarRole, endingType visual), registry workflow, and agent procedures for adding/modifying/removing assets
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical gameplay scene and stakeholder avatar visual direction (scene-based fantasy-tech direction, composition and negative-space rules, explicit anti-goals)
-- [docs/MVP_CONCEPT_ART_PACKET.md](docs/MVP_CONCEPT_ART_PACKET.md) — required concept-art packet and approval checklist before implementation SVG creation
+- [docs/MVP_CONCEPT_ART_PACKET.md](docs/MVP_CONCEPT_ART_PACKET.md) — required concept-art packet and approval checklist before implementation asset creation
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
 
 ### Storybook / UI prototyping work
@@ -98,9 +98,15 @@ Legacy references may remain where already established, but do not expand that t
 
 ---
 
-# Asset and SVG Rules
+# Asset Format Rules
 
 Asset work must follow [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md).
+
+Hybrid strategy for new presentation work:
+
+- Use PNG/WebP for illustrative scene backdrops and stakeholder `avatarRole` character/state art.
+- Use SVG for UI surfaces, frames, icons, badges, reusable ornaments, and simple effect markers.
+- Choose format by purpose: raster for atmosphere/composition-heavy illustration, SVG for reusable interface/chrome structure.
 
 Required practices:
 

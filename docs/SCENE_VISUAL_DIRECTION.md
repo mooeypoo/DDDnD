@@ -39,9 +39,15 @@ The redesigned gameplay presentation is:
 - fantasy-tech
 - pixel-adventure-inspired
 - scene-based, not panel-based
-- readable in SVG/browser UI
+- readable in browser UI at gameplay sizes
 - expressive and legible at small sizes
 - suitable for dynamic actor placement
+
+Format direction (required):
+
+- Scene backdrops and stakeholder `avatarRole` character/state art use raster deliverables (PNG/WebP) in the presentation pipeline.
+- SVG remains the preferred format for reusable interface/chrome elements (frames, icons, badges, ornaments, simple effect markers).
+- Choose format by purpose: atmosphere/composition-heavy illustration uses raster; reusable structural UI assets use SVG.
 
 The scene should feel like a place the player is currently in, not a chart they are inspecting.
 
@@ -92,7 +98,7 @@ Scene art can include fantasy-tech motifs, but those motifs must support a world
 - Use light, fog, runic glow, dust, banners, machinery, or terrain cues to establish location.
 - Keep atmosphere coherent across scenarios so screens feel like one game world.
 
-### SVG/browser readability
+### Browser readability
 
 - Prefer clean shape stacks and restrained line complexity.
 - Limit tiny decorative strokes that collapse at small render sizes.
@@ -196,7 +202,7 @@ Before delivering any scene/avatar asset proposal, verify:
 3. Overlay-safe negative space exists and is intentional.
 4. Avatar roles are generic `avatarRole` visuals, not business-role portraits.
 5. Expressions/postures are legible at small sizes.
-6. SVG/browser rendering remains clean and readable.
+6. Rendering remains clean and readable at gameplay sizes in browser UI.
 7. Anti-goals are not violated.
 
 If any check fails, revise before implementation.

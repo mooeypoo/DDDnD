@@ -2,9 +2,9 @@
 
 Date: 2026-03-31
 Status: Required pre-implementation packet for presentation asset production
-Scope: Concept definition and approval only (no final SVG implementation files)
+Scope: Concept definition and approval only (no final implementation files)
 
-This document defines the minimum concept-art packet that must be completed and approved before creating implementation SVG assets for the redesigned presentation system.
+This document defines the minimum concept-art packet that must be completed and approved before creating implementation assets for the redesigned presentation system.
 
 Canonical companions:
 
@@ -18,7 +18,7 @@ Canonical companions:
 
 ## 1. Purpose
 
-The concept packet exists to lock visual intent before production SVG implementation work starts.
+The concept packet exists to lock visual intent before production implementation work starts.
 
 It prevents:
 
@@ -26,7 +26,7 @@ It prevents:
 - inconsistent `avatarRole` readability
 - expensive implementation rework caused by unclear art direction
 
-This packet is a gate. If the checklist is incomplete, do not start final SVG assets.
+This packet is a gate. If the checklist is incomplete, do not start final assets.
 
 ---
 
@@ -43,7 +43,7 @@ This scope is intentionally practical for MVP while still anchoring visual direc
 
 ---
 
-## 3. Scene Concept Set (Design + Approval Before SVG)
+## 3. Scene Concept Set (Design + Approval Before Implementation)
 
 All scenes must follow [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md): place/stage composition, overlay-safe negative space, small-size legibility.
 
@@ -72,7 +72,7 @@ Approval gate for each scene:
 
 ---
 
-## 4. Initial `avatarRole` Concept Set (Design + Approval Before SVG)
+## 4. Initial `avatarRole` Concept Set (Design + Approval Before Implementation)
 
 `avatarRole` visuals are generic fantasy-tech roles, not domain-specific business portraits.
 
@@ -92,7 +92,7 @@ Notes:
 
 ### Minimum concept coverage per `avatarRole`
 
-Each role concept must include all of the following before implementation SVG work:
+Each role concept must include all of the following before implementation work:
 
 - silhouette / overall look sheet
 - one base standing pose (neutral-ready stance)
@@ -139,7 +139,7 @@ Pass criteria:
 
 ## 6. Shared UI Surface Language Board
 
-A small shared reference board for UI surfaces is required before implementation SVG assets.
+A small shared reference board for UI surfaces is required before implementation assets.
 
 Decision: yes, this board is required for MVP.
 
@@ -159,7 +159,7 @@ Board constraints:
 
 ## 7. Approval Checklist (Pre-Implementation Gate)
 
-Use this checklist before any final SVG implementation task is started.
+Use this checklist before any final implementation task is started.
 
 - [ ] 5 scene concepts complete and approved
 - [ ] Scene overlay-safe zones documented for each concept
@@ -169,7 +169,7 @@ Use this checklist before any final SVG implementation task is started.
 - [ ] Cross-role posture/expression matrix complete
 - [ ] UI surface language board complete (scroll/codex/panel)
 - [ ] Anti-goal review passed against [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md)
-- [ ] Packet approved before final SVG implementation begins
+- [ ] Packet approved before final implementation begins
 
 ---
 
@@ -177,7 +177,7 @@ Use this checklist before any final SVG implementation task is started.
 
 This packet does not include:
 
-- final production SVG files
+- final production files
 - runtime registry wiring changes
 - implementation component changes
 - gameplay/simulation logic changes

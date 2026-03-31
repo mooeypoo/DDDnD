@@ -12,14 +12,14 @@ Primary goals:
 - Improve readability and information hierarchy during runs.
 - Present stronger visual identity consistency across screens.
 - Separate presentation concerns from domain/simulation concerns with stricter boundaries.
-- Create a scalable art and SVG asset pipeline that supports ongoing content growth.
+- Create a scalable hybrid asset pipeline (raster + SVG) that supports ongoing content growth.
 - Ensure desktop and mobile experiences are both first-class.
 
 Why replace the current UI presentation:
 
 - Existing presentation patterns were delivered incrementally and now need a unified redesign pass.
 - Current visual and interaction patterns are not yet consistent enough across gameplay and surrounding screens.
-- Asset handling needs cleanup and a simpler, more maintainable SVG workflow.
+- Asset handling needs cleanup and a simpler, more maintainable hybrid workflow.
 - Upcoming scene-based presentation requires explicit UI-layer modeling that does not alter simulation/domain entities.
 
 ## 2) Approved Terminology (Required for New Work)
@@ -58,8 +58,17 @@ In scope:
 
 - Gameplay screen redesign.
 - Broader UI redesign for surrounding screens and modals.
-- Asset cleanup and SVG pipeline rewrite.
+- Asset cleanup and hybrid asset pipeline rewrite.
 - Desktop and mobile support.
+
+### Hybrid Asset Strategy (Required)
+
+Asset format is selected by purpose, not by category name alone.
+
+- Use PNG/WebP for scene backdrops and stakeholder `avatarRole` character/state art.
+- Use SVG for UI surfaces, frames, icons, badges, reusable ornaments, and simple effect markers.
+- For atmosphere-driven scenic/character illustration where composition and mood carry meaning, default to raster deliverables.
+- For reusable UI chrome and structured interface elements where clean scaling and editability matter most, default to SVG.
 
 Planned later phase (not in initial execution scope):
 
@@ -79,7 +88,7 @@ This plan inherits and must comply with existing canonical rules:
 - ARCHITECTURE.md: domain responsibilities and UI role.
 - GAME_DESIGN.md: gameplay intent and UX requirements.
 - docs/SCENE_VISUAL_DIRECTION.md: canonical gameplay scene composition and stakeholder avatar role visual direction.
-- docs/MVP_CONCEPT_ART_PACKET.md: required concept packet gate before implementation SVG production for MVP scene and avatarRole assets.
+- docs/MVP_CONCEPT_ART_PACKET.md: required concept packet gate before implementation asset production for MVP scene and avatarRole assets.
 - docs/ARTWORK_PIPELINE.md: visual identity and asset constraints.
 - docs/QUEST_SELECTION_IMPLEMENTATION.md: UI-owned configuration and transformation patterns.
 - docs/LOGO_AND_MASTHEAD_IMPLEMENTATION.md: current branding/navigation integration patterns.
@@ -97,7 +106,7 @@ Stable rules should live in canonical docs:
 - Scene and stakeholder avatar visual direction: [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md)
 - MVP concept packet gate for scene/avatar implementation: [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md)
 - Storybook workflow boundaries: [docs/STORYBOOK.md](STORYBOOK.md)
-- Artwork/SVG constraints and asset policy: [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md)
+- Artwork and asset format policy: [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md)
 
 ## 6) Phased Implementation Plan
 
@@ -106,7 +115,7 @@ Stable rules should live in canonical docs:
 - Publish this terminology set across active UI workstreams.
 - Add a short naming note to relevant implementation docs when touched.
 - Confirm that new tasks avoid introducing new generic archetype usage.
-- Complete and approve the MVP concept-art packet before implementation SVG asset creation begins.
+- Complete and approve the MVP concept-art packet before implementation asset creation begins.
 
 Exit criteria:
 
@@ -148,16 +157,16 @@ Exit criteria:
 - Surrounding screens/modals match gameplay redesign language and interaction patterns.
 - Accessibility and responsive behavior validated for core flows.
 
-### Phase 4: Asset Cleanup and SVG Pipeline Rewrite
+### Phase 4: Asset Cleanup and Hybrid Pipeline Rewrite
 
-- Consolidate and normalize SVG assets and naming conventions.
+- Consolidate and normalize asset formats, naming conventions, and category usage.
 - Refactor asset-loading paths for clarity and maintainability.
 - Update artwork pipeline documentation where implementation details change.
 
 Exit criteria:
 
 - Asset inventory is clean, predictable, and documented.
-- SVG flow supports ongoing scene/avatar expansion without ad hoc additions.
+- Hybrid raster/SVG flow supports ongoing scene/avatar expansion without ad hoc additions.
 
 ### Phase 5: Tutorial Redesign (Later)
 
@@ -181,6 +190,6 @@ The redesign is successful when:
 - New terminology is consistently used in active UI work.
 - Scene and avatarRole presentation model is fully UI-owned.
 - Gameplay and surrounding screens are coherently redesigned for desktop and mobile.
-- Asset and SVG workflows are cleaned up and maintainable.
+- Asset workflows are cleaned up and maintainable under the hybrid raster/SVG strategy.
 - Tutorial redesign follows in a controlled later phase.
 - Simulation/domain behavior remains unchanged unless explicitly planned elsewhere.
