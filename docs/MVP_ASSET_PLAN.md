@@ -11,7 +11,12 @@ Canonical companions:
 - [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md) — authoring rules, viewBox specs, naming, registry workflow
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) — redesign phasing
 - [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) — canonical direction for scene composition, avatar role art direction, and anti-goals
+- [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md) — required pre-implementation concept packet and approval checklist
 - [AGENT.md](../AGENT.md) — work routing and required-reading policy
+
+Implementation prerequisite:
+
+- Complete and approve [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md) before starting final SVG implementation assets in this plan.
 
 ---
 

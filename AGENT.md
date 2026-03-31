@@ -26,6 +26,7 @@ Read these on top of the base set when applicable.
 
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical visual direction for scene composition, stakeholder avatar role art direction, overlay-safe negative space, and anti-goals (supersedes older futuristic/corporate/diagram-first styling assumptions)
+- [docs/MVP_CONCEPT_ART_PACKET.md](docs/MVP_CONCEPT_ART_PACKET.md) — required pre-implementation concept packet gate for MVP scene and `avatarRole` asset production
 - [docs/QUEST_SELECTION_IMPLEMENTATION.md](docs/QUEST_SELECTION_IMPLEMENTATION.md)
 - [docs/LOGO_AND_MASTHEAD_IMPLEMENTATION.md](docs/LOGO_AND_MASTHEAD_IMPLEMENTATION.md)
 - [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md)
@@ -34,6 +35,7 @@ Read these on top of the base set when applicable.
 
 - [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md) — canonical reference for all SVG/asset work: folder structure, naming conventions, viewBox specs, layer naming, animation-safe grouping, category conventions (scene, playerClass portrait, avatarRole, endingType visual), registry workflow, and agent procedures for adding/modifying/removing assets
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical gameplay scene and stakeholder avatar visual direction (scene-based fantasy-tech direction, composition and negative-space rules, explicit anti-goals)
+- [docs/MVP_CONCEPT_ART_PACKET.md](docs/MVP_CONCEPT_ART_PACKET.md) — required concept-art packet and approval checklist before implementation SVG creation
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
 - [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) — initial asset batch: scene catalog, avatarRole set, variant schedule, delivery checklist
 
@@ -41,6 +43,7 @@ Read these on top of the base set when applicable.
 
 - [docs/STORYBOOK.md](docs/STORYBOOK.md)
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) (if story visual direction, scene composition, or `avatarRole` presentation is touched)
+- [docs/MVP_CONCEPT_ART_PACKET.md](docs/MVP_CONCEPT_ART_PACKET.md) (if creating concept packets or expression references that will drive presentation assets)
 - [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md) (if visuals/artwork are touched)
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md) (if presentation direction is touched)
 

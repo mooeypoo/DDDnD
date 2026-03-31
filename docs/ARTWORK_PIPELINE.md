@@ -8,6 +8,7 @@ Canonical companions:
 - [ARCHITECTURE.md](../ARCHITECTURE.md) — domain separation and UI ownership boundaries
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) — redesign phasing and presentation coordination
 - [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) — canonical gameplay scene composition and stakeholder avatar role art direction
+- [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md) — required concept packet and approval checklist before implementation SVG production
 - [docs/STORYBOOK.md](STORYBOOK.md) — UI prototyping workflow boundaries
 - [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md) — concrete MVP asset batch: scene catalog, avatarRole set, variant coverage, delivery checklist
 
@@ -59,6 +60,8 @@ For gameplay scene composition and stakeholder avatar role art direction, follow
 This pipeline document remains canonical for asset organization, naming, SVG technical constraints, viewBox standards, and registry workflow.
 
 If style guidance here conflicts with scene/avatar direction in `SCENE_VISUAL_DIRECTION.md`, the scene/avatar direction document takes priority.
+
+Before implementation SVG production for MVP scene and `avatarRole` assets begins, complete and approve the concept packet in [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md).
 
 ---
 
