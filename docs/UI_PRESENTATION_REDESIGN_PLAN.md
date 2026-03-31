@@ -78,6 +78,7 @@ This plan inherits and must comply with existing canonical rules:
 - AGENT.md: simulation/UI separation and non-negotiable domain boundaries.
 - ARCHITECTURE.md: domain responsibilities and UI role.
 - GAME_DESIGN.md: gameplay intent and UX requirements.
+- docs/SCENE_VISUAL_DIRECTION.md: canonical gameplay scene composition and stakeholder avatar role visual direction.
 - docs/ARTWORK_PIPELINE.md: visual identity and asset constraints.
 - docs/QUEST_SELECTION_IMPLEMENTATION.md: UI-owned configuration and transformation patterns.
 - docs/LOGO_AND_MASTHEAD_IMPLEMENTATION.md: current branding/navigation integration patterns.
@@ -92,6 +93,7 @@ Stable rules should live in canonical docs:
 
 - Architecture and domain separation: [ARCHITECTURE.md](../ARCHITECTURE.md)
 - Required-reading and routing expectations: [AGENT.md](../AGENT.md)
+- Scene and stakeholder avatar visual direction: [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md)
 - Storybook workflow boundaries: [docs/STORYBOOK.md](STORYBOOK.md)
 - Artwork/SVG constraints and asset policy: [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md)
 

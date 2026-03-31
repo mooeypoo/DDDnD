@@ -10,6 +10,7 @@ Canonical companions:
 
 - [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md) — authoring rules, viewBox specs, naming, registry workflow
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) — redesign phasing
+- [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) — canonical direction for scene composition, avatar role art direction, and anti-goals
 - [AGENT.md](../AGENT.md) — work routing and required-reading policy
 
 ---
@@ -29,7 +30,8 @@ Canonical companions:
 - Tutorial assets
 
 **Style direction summary:**
-- Fantasy-tech: pixel-art characters (avatarRole busts); arcane engineering blueprint (scene and surface assets)
+- Fantasy-tech and pixel-adventure-inspired
+- Scene-based presentation (place/stage composition), not panel-style diagram composition
 - Pixel-readable: clean enough to read at 80×80 or smaller; no detail that blurs to noise at small sizes
 - SVG-based: all assets hand-authored as SVG; no raster bitmaps in this batch
 - Dark substrate: `#0b0e1a` background, selective luminous accents
@@ -42,7 +44,7 @@ Canonical companions:
 
 **Path:** `src/assets/presentation/scenes/scenario/`
 **ViewBox:** `0 0 800 200`
-**Style:** Arcane engineering blueprint — wide schematic composition
+**Style:** Fantasy-tech environmental stage composition (see `docs/SCENE_VISUAL_DIRECTION.md`)
 
 One scene per scenario atmosphere. Scenes are tagged by atmosphere type, not by scenario ID, so they remain reusable if new scenario JSON is added later.
 
@@ -52,11 +54,11 @@ The scene pool must cover all four shipped scenarios plus provide a generic fall
 
 | File                        | Atmosphere tag       | Used for scenario(s)        | Accent        | Description                                                                                             |
 |-----------------------------|----------------------|-----------------------------|---------------|---------------------------------------------------------------------------------------------------------|
-| `default_run_scene.svg`     | `generic`            | Fallback / any untagged     | Multi-accent  | Neutral system architecture overview: five domain regions, interconnect lines, no incident indicators   |
-| `legacy_architecture.svg`   | `legacy`             | Monolith of Mild Despair    | `#d97706` amber | Monolithic slab at center, tight coupling lines, archaeological annotation layers overlaid              |
-| `distributed_chaos.svg`     | `distributed`        | Microservice Sprawl         | `#60a5fa` blue → `#f87171` red | Dense microservice node graph, overlapping service boundaries, ambiguous data paths   |
-| `hypergrowth_velocity.svg`  | `hypergrowth`        | Startup Hypergrowth         | `#f97316` orange | Ascending load curve, traffic amplifier diagram, momentum arrows with speed-line patterns              |
-| `compliance_pressure.svg`   | `compliance`         | Compliance Gauntlet         | `#fbbf24` gold | Layered inspection schema, audit checklist overlay, stacked document-review frame                      |
+| `default_run_scene.svg`     | `generic`            | Fallback / any untagged     | Multi-accent  | Neutral fantasy-tech operations hall with modular structures and open staging space                     |
+| `legacy_architecture.svg`   | `legacy`             | Monolith of Mild Despair    | `#d97706` amber | Ancient fortress-workshop built around one massive core structure and cramped passageways               |
+| `distributed_chaos.svg`     | `distributed`        | Microservice Sprawl         | `#60a5fa` blue → `#f87171` red | Fragmented skybridge district with many small towers and unstable connective routes      |
+| `hypergrowth_velocity.svg`  | `hypergrowth`        | Startup Hypergrowth         | `#f97316` orange | Vertical launch-yard skyline with overload pressure in motion through the environment                   |
+| `compliance_pressure.svg`   | `compliance`         | Compliance Gauntlet         | `#fbbf24` gold | Inspection tribunal chamber with layered checkpoints and ceremonial scrutiny atmosphere                 |
 
 `default_run_scene.svg` exists as a placeholder — it gets a production-quality art pass as part of this batch.
 
@@ -64,9 +66,9 @@ The scene pool must cover all four shipped scenarios plus provide a generic fall
 
 - Compositions must be readable and meaningful at 200px rendered height (full-bleed in ScenarioBanner)
 - Keep left-center lightly detailed — it may be partially obscured by run summary text
-- No text that duplicates UI labels; monospace blueprint annotations are acceptable stylistic elements
+- No text that duplicates UI labels; avoid text-heavy baked-in art
 - Use the listed accent color as the primary luminous element; secondary elements use that color at 20–40% opacity
-- `<g id="scene-subject">` wraps the primary schematic; `<g id="scene-ambient">` wraps background grid and atmosphere
+- `<g id="scene-subject">` wraps the primary stage focal element; `<g id="scene-ambient">` wraps atmosphere and background composition
 
 ---
 
@@ -74,7 +76,7 @@ The scene pool must cover all four shipped scenarios plus provide a generic fall
 
 **Path:** `src/assets/presentation/scenes/events/`
 **ViewBox:** `0 0 320 180`
-**Style:** Arcane engineering blueprint
+**Style:** Fantasy-tech scene vignette (event as place/moment, not infographic)
 
 The three existing event scene files are in placeholder state. This batch replaces them with production-quality art. A generic fallback scene is added for custom events.
 
@@ -82,10 +84,10 @@ The three existing event scene files are in placeholder state. This batch replac
 
 | File                    | Event type          | Status    | Accent              | Description                                                                                            |
 |-------------------------|---------------------|-----------|---------------------|--------------------------------------------------------------------------------------------------------|
-| `system_incident.svg`   | `system_incident`   | Replace   | `#f87171` red       | Fault propagation stack-trace, cascading failure map, error node blast pattern                         |
-| `audit_pressure.svg`    | `audit_pressure`    | Replace   | `#d97706` amber     | Compliance inspection layering, stacked document review, inspection lens as focal element              |
-| `scaling_crisis.svg`    | `scaling_crisis`    | Replace   | `#60a5fa` → `#f87171` | Traffic congestion network, load balancer at capacity, service overload indicator                   |
-| `generic_disruption.svg`| `generic` / fallback| **New**  | `#a78bfa` muted purple | Ambiguous disruption diagram — broken circuit, interrupted signal path, suitable for unknown event types |
+| `system_incident.svg`   | `system_incident`   | Replace   | `#f87171` red       | Breached control chamber with cascading hazard cues and emergency glow                                 |
+| `audit_pressure.svg`    | `audit_pressure`    | Replace   | `#d97706` amber     | Formal inspection corridor with scrutiny devices and constrained movement paths                        |
+| `scaling_crisis.svg`    | `scaling_crisis`    | Replace   | `#60a5fa` → `#f87171` | Overloaded transit nexus where throughput pressure is visible in the environment                    |
+| `generic_disruption.svg`| `generic` / fallback| **New**  | `#a78bfa` muted purple | Neutral disturbance scene with interrupted energy flow and no domain-specific labeling                 |
 
 ### Event scene authoring rules
 

@@ -7,6 +7,7 @@ Canonical companions:
 - [AGENT.md](../AGENT.md) — work routing, architecture rules, and required-reading policy
 - [ARCHITECTURE.md](../ARCHITECTURE.md) — domain separation and UI ownership boundaries
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) — redesign phasing and presentation coordination
+- [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) — canonical gameplay scene composition and stakeholder avatar role art direction
 - [docs/STORYBOOK.md](STORYBOOK.md) — UI prototyping workflow boundaries
 - [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md) — concrete MVP asset batch: scene catalog, avatarRole set, variant coverage, delivery checklist
 
@@ -48,6 +49,16 @@ A UI-only fantasy visual role assigned to a stakeholder by the presentation laye
 - TypeScript ID type: `AvatarRoleAssetId` (to be defined when first assets are added)
 
 **Do not use `archetype` in new work.** Legacy references may remain in existing code but must not be expanded.
+
+---
+
+## Visual Direction Precedence
+
+For gameplay scene composition and stakeholder avatar role art direction, follow [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md).
+
+This pipeline document remains canonical for asset organization, naming, SVG technical constraints, viewBox standards, and registry workflow.
+
+If style guidance here conflicts with scene/avatar direction in `SCENE_VISUAL_DIRECTION.md`, the scene/avatar direction document takes priority.
 
 ---
 

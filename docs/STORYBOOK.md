@@ -7,6 +7,7 @@ Canonical companions:
 - [AGENT.md](../AGENT.md) for required reading and task routing
 - [ARCHITECTURE.md](../ARCHITECTURE.md) for domain boundaries
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) for presentation roadmap
+- [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) for scene composition and `avatarRole` art-direction rules
 - [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md) for SVG/artwork constraints
 
 ## Purpose
@@ -37,6 +38,7 @@ Storybook is **not** part of gameplay rules and is **not** part of the deployed 
 - Keep Storybook stories presentational and mock-driven
 - Avoid router/store/engine coupling in stories unless explicitly needed
 - Keep scene selection, `avatarRole` assignment, and ending presentation labels as UI concerns only
+- For gameplay scene presentation, `avatarRole` visuals, and overlay-aware composition in stories, follow [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md)
 - Use approved presentation terms in new stories/docs: `playerClass`, `endingType`, `avatarRole`
 - Avoid introducing new generic `archetype` terminology in Storybook-facing documentation
 
