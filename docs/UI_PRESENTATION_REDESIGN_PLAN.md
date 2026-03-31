@@ -84,6 +84,17 @@ This plan inherits and must comply with existing canonical rules:
 
 This plan does not redefine those rules; it applies them to a coordinated redesign.
 
+### Permanent Rule Homes
+
+Use this plan as the coordinator and phased roadmap.
+
+Stable rules should live in canonical docs:
+
+- Architecture and domain separation: [ARCHITECTURE.md](../ARCHITECTURE.md)
+- Required-reading and routing expectations: [AGENT.md](../AGENT.md)
+- Storybook workflow boundaries: [docs/STORYBOOK.md](STORYBOOK.md)
+- Artwork/SVG constraints and asset policy: [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md)
+
 ## 6) Phased Implementation Plan
 
 ### Phase 0: Alignment and Vocabulary Freeze

@@ -23,7 +23,7 @@ Players act as a systems architect trying to improve a struggling software syste
 - 12 events including conditional triggers
 - 13 delayed effects (architectural aftershocks)
 - System coupling rules (collapse mechanics that penalize neglected dimensions)
-- Outcome classification (tiers and archetypes)
+- Outcome classification (tiers and legacy archetype criteria, presented as ending types in UI)
 - Automated simulation runner with telemetry and strategy-fingerprint analysis
 - Save/load/export system
 - Storybook component library
@@ -253,7 +253,7 @@ done
 
 The telemetry report includes:
 
-- **Outcomes** — Win rate, outcome tier distribution, archetype distribution
+- **Outcomes** — Win rate, outcome tier distribution, legacy archetype criteria distribution (can be presented as ending types in UI)
 - **Scores** — Average final values for each score
 - **Stakeholders** — Average final satisfaction per stakeholder
 - **Card usage** — How often each card was played across all runs
@@ -274,6 +274,9 @@ Simulations are deterministic: the same seed produces identical results.
 - [GAME_DESIGN.md](./GAME_DESIGN.md) — Game design and mechanics
 - [CONTENT_SCHEMA.md](./CONTENT_SCHEMA.md) — Content file structure
 - [CONTENT_VERSIONING.md](./CONTENT_VERSIONING.md) — Versioning rules
+- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](./docs/UI_PRESENTATION_REDESIGN_PLAN.md) — UI redesign roadmap and coordination
+- [docs/ARTWORK_PIPELINE.md](./docs/ARTWORK_PIPELINE.md) — SVG/artwork system and constraints
+- [docs/STORYBOOK.md](./docs/STORYBOOK.md) — Storybook workflow boundaries
 
 ## Tech Stack
 

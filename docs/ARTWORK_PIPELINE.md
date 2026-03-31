@@ -2,6 +2,13 @@
 
 This document describes the visual identity system and illustration workflow for DDDnD.
 
+Canonical companions:
+
+- [AGENT.md](../AGENT.md) for work routing and non-negotiable boundaries
+- [ARCHITECTURE.md](../ARCHITECTURE.md) for domain separation and UI ownership
+- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) for redesign phasing and presentation coordination
+- [docs/STORYBOOK.md](STORYBOOK.md) for UI prototyping workflow boundaries
+
 ---
 
 ## Style Direction
@@ -28,11 +35,11 @@ The style should feel like:
 
 | Content type         | Accent color     | Semantic meaning                   |
 |----------------------|------------------|------------------------------------|
-| Archetype: Boundary Builder    | `#9f7aea` purple     | Domain structure, containment  |
-| Archetype: Firefighter         | `#f97316` orange     | Emergency, reactive systems    |
-| Archetype: System Stabilizer   | `#60a5fa` blue       | Balance, equilibrium           |
-| Archetype: Stakeholder Whisperer | `#fbbf24` gold     | Communication, relationship    |
-| Archetype: Runaway Refactorer  | `#34d399` green      | Transformation, improvement    |
+| Ending Type: Boundary Builder    | `#9f7aea` purple     | Domain structure, containment  |
+| Ending Type: Firefighter         | `#f97316` orange     | Emergency, reactive systems    |
+| Ending Type: System Stabilizer   | `#60a5fa` blue       | Balance, equilibrium           |
+| Ending Type: Stakeholder Whisperer | `#fbbf24` gold     | Communication, relationship    |
+| Ending Type: Runaway Refactorer  | `#34d399` green      | Transformation, improvement    |
 | Event: System Incident         | `#f87171` red        | Fault, crisis, propagation     |
 | Event: Audit Pressure          | `#d97706` amber      | Inspection, compliance         |
 | Event: Scaling Crisis          | `#60a5fa` → `#f87171` | Load, overload transition     |
@@ -63,13 +70,21 @@ and accent color system as the rest of the artwork pipeline, but depict recogniz
 fantasy character silhouettes (hooded mages, armored clerics, cloaked rangers, etc.)
 rather than abstract schematics. Characters use non-descript gender design.
 
+Terminology note for new work:
+
+- use `playerClass` for player-selected class visuals
+- use `endingType` for end-of-run outcome visuals
+- use `avatarRole` for UI-only stakeholder fantasy role visuals
+
+Legacy folder names and content identifiers may still include `archetypes` while compatibility is maintained.
+
 ---
 
 ## Asset Organization
 
 ```
 src/assets/artwork/
-  archetypes/           ← archetype portrait illustrations (320x180 SVG)
+  archetypes/           ← legacy folder for ending-type portrait illustrations (320x180 SVG)
     boundary_builder.svg
     firefighter.svg
     system_stabilizer.svg
@@ -124,7 +139,7 @@ Artwork is always **optional**. Every component renders fully without artwork me
 | `ActionCard`      | `artwork`        | Small thumbnail in card header  | Header shows title only     |
 | `CardDetailsModal`| `artwork`        | Illustration frame (90px tall)  | Frame shows ambient gradient|
 | `EventCard`       | `illustrationUrl`| Full-bleed scene above title    | Region collapses entirely   |
-| `OutcomePanel`    | `portraitUrl`    | Archetype portrait frame        | Emoji icon shown instead    |
+| `OutcomePanel`    | `portraitUrl`    | Ending-type portrait frame      | Emoji icon shown instead    |
 | `ScenarioBanner`  | `heroUrl`        | Full-bleed hero above content   | Region absent, no gap       |
 | `ClassPortrait`   | `classId`        | Circular pixel-art portrait     | First letter fallback       |
 | `RunSetupView`    | via `ClassPortrait` | Class selection card visual  | First letter fallback       |
@@ -234,6 +249,8 @@ Per project architecture rules:
 - Content JSON files (`/content/`) must **not** include artwork URLs or paths
 - Simulation logic must **not** reference artwork
 - Components must render correctly with and without artwork
+
+Scene selection and stakeholder `avatarRole` assignment are UI presentation concerns and must not be implemented in simulation/domain logic.
 
 ---
 

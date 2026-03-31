@@ -1,5 +1,12 @@
 # DDDnD Logo & Masthead Implementation
 
+Canonical companions:
+
+- [AGENT.md](../AGENT.md) for routing and required terminology
+- [ARCHITECTURE.md](../ARCHITECTURE.md) for UI/domain boundaries
+- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) for redesign coordination
+- [docs/STORYBOOK.md](STORYBOOK.md) for Storybook workflow constraints
+
 ## Overview
 
 This implementation adds a comprehensive game identity and navigation layer to the DDDnD application, including:

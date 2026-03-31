@@ -2,6 +2,13 @@
 
 Storybook is set up in this repository as a **development/design tool only**.
 
+Canonical companions:
+
+- [AGENT.md](../AGENT.md) for required reading and task routing
+- [ARCHITECTURE.md](../ARCHITECTURE.md) for domain boundaries
+- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) for presentation roadmap
+- [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md) for SVG/artwork constraints
+
 ## Purpose
 
 Use Storybook for:
@@ -28,6 +35,9 @@ Storybook is **not** part of gameplay rules and is **not** part of the deployed 
 - Keep simulation logic in `src/domains/simulation`
 - Keep Storybook stories presentational and mock-driven
 - Avoid router/store/engine coupling in stories unless explicitly needed
+- Keep scene selection, `avatarRole` assignment, and ending presentation labels as UI concerns only
+- Use approved presentation terms in new stories/docs: `playerClass`, `endingType`, `avatarRole`
+- Avoid introducing new generic `archetype` terminology in Storybook-facing documentation
 
 ## Runtime separation
 
