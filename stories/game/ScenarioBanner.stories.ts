@@ -1,9 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import ScenarioBanner from '@/ui/components/scenario/scenario_banner.vue'
+import { SCENE_ASSETS } from '@/ui/config/presentation_asset_registry'
 import { scenarioMocks } from '../mocks/scenarios'
 
-import scenarioHeroUrl from '@/assets/artwork/scenarios/hero.svg?url'
+const scenarioHeroUrl = SCENE_ASSETS.scenario.default_run_scene
 
 const meta: Meta<typeof ScenarioBanner> = {
   title: 'Game/ScenarioBanner',

@@ -29,6 +29,7 @@ Storybook is **not** part of gameplay rules and is **not** part of the deployed 
 - `.storybook/` – Storybook configuration
 - `stories/` – Story files grouped by Foundations/Game/Results/Overlays
 - `stories/mocks/` – typed mock state for visual iteration
+- `src/ui/config/presentation_asset_registry.ts` – centralized presentation asset URLs for stories and runtime
 
 ## Boundaries
 

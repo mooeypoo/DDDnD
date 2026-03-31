@@ -6,18 +6,10 @@
  * must render gracefully without artwork.
  */
 
-import boundaryMageSvg from '@/assets/artwork/classes/boundary_mage.svg'
-import stakeholderBardSvg from '@/assets/artwork/classes/stakeholder_bard.svg'
-import reliabilityClericSvg from '@/assets/artwork/classes/reliability_cleric.svg'
-import legacyRangerSvg from '@/assets/artwork/classes/legacy_ranger.svg'
-import deliveryRogueSvg from '@/assets/artwork/classes/delivery_rogue.svg'
+import { PLAYER_CLASS_ASSETS } from '@/ui/config/presentation_asset_registry'
 
 const CLASS_PORTRAIT_MAP: Record<string, string> = {
-  boundary_mage: boundaryMageSvg,
-  stakeholder_bard: stakeholderBardSvg,
-  reliability_cleric: reliabilityClericSvg,
-  legacy_ranger: legacyRangerSvg,
-  delivery_rogue: deliveryRogueSvg,
+  ...PLAYER_CLASS_ASSETS,
 }
 
 /**

@@ -20,7 +20,7 @@ export interface ArtworkMeta {
   /**
    * Absolute or relative URL of the illustration image.
    * Used to render artwork regions (card illustration, event scene,
-   * archetype portrait, scenario hero).
+   * ending visual, scenario hero).
    */
   illustration_url?: string
 
@@ -47,15 +47,20 @@ export interface ArtworkMeta {
 }
 
 /**
- * Archetype IDs used as keys for artwork lookup maps.
- * Mirrors the OutcomeArchetypeId union from simulation rules.
+ * Ending visual IDs used as keys for artwork lookup maps.
+ * Current values mirror legacy outcome identifiers for compatibility.
  */
-export type ArchetypeArtworkKey =
+export type EndingTypeArtworkKey =
   | 'boundary_builder'
   | 'firefighter'
   | 'system_stabilizer'
   | 'stakeholder_whisperer'
   | 'runaway_refactorer'
+
+/**
+ * Legacy alias retained for compatibility with existing code paths.
+ */
+export type ArchetypeArtworkKey = EndingTypeArtworkKey
 
 /**
  * Event illustration keys for known event artwork themes.

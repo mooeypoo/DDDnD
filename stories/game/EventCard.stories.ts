@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import EventCard from '@/ui/components/events/event_card.vue'
+import { SCENE_ASSETS } from '@/ui/config/presentation_asset_registry'
 import { eventMocks } from '../mocks/events'
 
-import systemIncidentUrl from '@/assets/artwork/events/system_incident.svg?url'
-import auditPressureUrl from '@/assets/artwork/events/audit_pressure.svg?url'
-import scalingCrisisUrl from '@/assets/artwork/events/scaling_crisis.svg?url'
+const systemIncidentUrl = SCENE_ASSETS.events.system_incident
+const auditPressureUrl = SCENE_ASSETS.events.audit_pressure
+const scalingCrisisUrl = SCENE_ASSETS.events.scaling_crisis
 
 const meta: Meta<typeof EventCard> = {
   title: 'Game/EventCard',

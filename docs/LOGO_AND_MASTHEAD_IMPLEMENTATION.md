@@ -147,7 +147,9 @@ The welcome page now has a professional branded identity block at the top of the
 ## Logo Asset Wiring
 
 ### Original Asset
-The SVG logo already existed at `src/assets/logo.svg` from prior work.
+The SVG logo originally existed at `src/assets/logo.svg` from prior work.
+
+Canonical path for new presentation work is now `src/assets/presentation/branding/logo_mark.svg` via `src/ui/config/presentation_asset_registry.ts`.
 
 ### Integration Approach
 Rather than importing the SVG file as an external asset, the logo is **embedded directly in the Vue component** (`logo_sigil.vue`). This approach:

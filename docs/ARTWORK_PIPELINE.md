@@ -82,6 +82,43 @@ Legacy folder names and content identifiers may still include `archetypes` while
 
 ## Asset Organization
 
+Canonical presentation asset root (new work):
+
+```
+src/assets/presentation/
+  branding/
+    logo_mark.svg
+  ui-surfaces/
+  scenes/
+    scenario/
+      default_run_scene.svg
+    events/
+      system_incident.svg
+      audit_pressure.svg
+      scaling_crisis.svg
+  avatars/
+    player-classes/
+      boundary_mage.svg
+      stakeholder_bard.svg
+      reliability_cleric.svg
+      legacy_ranger.svg
+      delivery_rogue.svg
+    stakeholder-avatar-roles/
+  action-effect-icons/
+    cards/
+      refactor_action.svg
+      infrastructure_investment.svg
+      quick_patch.svg
+  ending-visuals/
+    boundary_builder.svg
+    firefighter.svg
+    system_stabilizer.svg
+    stakeholder_whisperer.svg
+    runaway_refactorer.svg
+```
+
+Legacy compatibility root (transition period):
+
 ```
 src/assets/artwork/
   archetypes/           ← legacy folder for ending-type portrait illustrations (320x180 SVG)
@@ -108,6 +145,8 @@ src/assets/artwork/
     hero.svg
 ```
 
+During migration, keep legacy files until all references are moved and validated.
+
 **Preferred format:** SVG for all vector-based illustration work.
 
 **Raster assets:** If AI-generated raster images are used, target minimum 640×360px for card thumbnails and 1200×300px for scenario heroes. Use WebP format.
@@ -115,6 +154,14 @@ src/assets/artwork/
 ---
 
 ## Architecture Model
+
+### Centralized Asset Registry
+
+Runtime and Storybook asset URL lookup should use:
+
+- `src/ui/config/presentation_asset_registry.ts`
+
+Do not add new direct per-component imports from asset file paths when a registry key can be used.
 
 ### ArtworkMeta Type
 
@@ -183,7 +230,7 @@ Accent color: [ACCENT FROM TABLE ABOVE]
 
 ### Subject descriptions by category
 
-**Archetype portraits:**
+**Ending visuals (legacy IDs retained):**
 - `boundary_builder`: Domain boundary diagram with interlocking context regions, separation walls, clean data flow arrows
 - `firefighter`: Circuit breaker schematic with fault indicators and emergency response symbols
 - `system_stabilizer`: Load balance diagram with equal weight distribution and equilibrium axis
@@ -252,9 +299,15 @@ Per project architecture rules:
 
 Scene selection and stakeholder `avatarRole` assignment are UI presentation concerns and must not be implemented in simulation/domain logic.
 
+Asset reference policy:
+
+- Prefer registry-based references over direct file imports.
+- New assets should be added under `src/assets/presentation/` first.
+- Legacy `src/assets/artwork/` paths are transitional and should be retired incrementally.
+
 ---
 
-## Current Asset Status
+## Current Asset Status (Legacy Folder View)
 
 | Asset                              | Status      | Format |
 |------------------------------------|-------------|--------|
