@@ -37,7 +37,6 @@ Read these on top of the base set when applicable.
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical gameplay scene and stakeholder avatar visual direction (scene-based fantasy-tech direction, composition and negative-space rules, explicit anti-goals)
 - [docs/MVP_CONCEPT_ART_PACKET.md](docs/MVP_CONCEPT_ART_PACKET.md) — required concept-art packet and approval checklist before implementation SVG creation
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
-- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) — initial asset batch: scene catalog, avatarRole set, variant schedule, delivery checklist
 
 ### Storybook / UI prototyping work
 

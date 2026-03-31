@@ -10,7 +10,6 @@ Canonical companions:
 - [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) — canonical gameplay scene composition and stakeholder avatar role art direction
 - [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md) — required concept packet and approval checklist before implementation SVG production
 - [docs/STORYBOOK.md](STORYBOOK.md) — UI prototyping workflow boundaries
-- [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md) — concrete MVP asset batch: scene catalog, avatarRole set, variant coverage, delivery checklist
 
 ---
 
@@ -596,35 +595,25 @@ Asset reference policy:
 | Category            | Asset key                      | File                                               | Status      |
 |---------------------|--------------------------------|-----------------------------------------------------|-------------|
 | branding            | `logo_mark`                    | `branding/logo_mark.svg`                           | Complete    |
-| scenes / scenario   | `default_run_scene`            | `scenes/scenario/default_run_scene.svg`            | Placeholder — MVP pass pending |
-| scenes / scenario   | `legacy_architecture`          | `scenes/scenario/legacy_architecture.svg`          | Planned     |
-| scenes / scenario   | `distributed_chaos`            | `scenes/scenario/distributed_chaos.svg`            | Planned     |
-| scenes / scenario   | `hypergrowth_velocity`         | `scenes/scenario/hypergrowth_velocity.svg`         | Planned     |
-| scenes / scenario   | `compliance_pressure`          | `scenes/scenario/compliance_pressure.svg`          | Planned     |
-| scenes / events     | `system_incident`              | `scenes/events/system_incident.svg`                | Placeholder — MVP pass pending |
-| scenes / events     | `audit_pressure`               | `scenes/events/audit_pressure.svg`                 | Placeholder — MVP pass pending |
-| scenes / events     | `scaling_crisis`               | `scenes/events/scaling_crisis.svg`                 | Placeholder — MVP pass pending |
-| scenes / events     | `generic_disruption`           | `scenes/events/generic_disruption.svg`             | Planned     |
+| scenes / scenario   | `default_run_scene`            | `scenes/scenario/default_run_scene.svg`            | Placeholder |
+| scenes / events     | `system_incident`              | `scenes/events/system_incident.svg`                | Placeholder |
+| scenes / events     | `audit_pressure`               | `scenes/events/audit_pressure.svg`                 | Placeholder |
+| scenes / events     | `scaling_crisis`               | `scenes/events/scaling_crisis.svg`                 | Placeholder |
 | avatars / classes   | `boundary_mage`                | `avatars/player-classes/boundary_mage.svg`         | Complete    |
 | avatars / classes   | `stakeholder_bard`             | `avatars/player-classes/stakeholder_bard.svg`      | Complete    |
 | avatars / classes   | `reliability_cleric`           | `avatars/player-classes/reliability_cleric.svg`    | Complete    |
 | avatars / classes   | `legacy_ranger`                | `avatars/player-classes/legacy_ranger.svg`         | Complete    |
 | avatars / classes   | `delivery_rogue`               | `avatars/player-classes/delivery_rogue.svg`        | Complete    |
-| avatars / roles     | `oracle`                       | `avatars/stakeholder-avatar-roles/oracle.svg`      | Planned     |
-| avatars / roles     | `chronicler`                   | `avatars/stakeholder-avatar-roles/chronicler.svg`  | Planned     |
-| avatars / roles     | `warden`                       | `avatars/stakeholder-avatar-roles/warden.svg`      | Planned     |
-| avatars / roles     | `artificer`                    | `avatars/stakeholder-avatar-roles/artificer.svg`   | Planned     |
-| avatars / roles     | `chancellor`                   | `avatars/stakeholder-avatar-roles/chancellor.svg`  | Planned     |
-| action icons / cards| `refactor_action`              | `action-effect-icons/cards/refactor_action.svg`    | Placeholder — Phase 2 pass pending |
-| action icons / cards| `infrastructure_investment`    | `action-effect-icons/cards/infrastructure_investment.svg` | Placeholder — Phase 2 pass pending |
-| action icons / cards| `quick_patch`                  | `action-effect-icons/cards/quick_patch.svg`        | Placeholder — Phase 2 pass pending |
-| ending visuals      | `boundary_builder`             | `ending-visuals/boundary_builder.svg`              | Placeholder — Phase 3 pass pending |
-| ending visuals      | `firefighter`                  | `ending-visuals/firefighter.svg`                   | Placeholder — Phase 3 pass pending |
-| ending visuals      | `system_stabilizer`            | `ending-visuals/system_stabilizer.svg`             | Placeholder — Phase 3 pass pending |
-| ending visuals      | `stakeholder_whisperer`        | `ending-visuals/stakeholder_whisperer.svg`         | Placeholder — Phase 3 pass pending |
-| ending visuals      | `runaway_refactorer`           | `ending-visuals/runaway_refactorer.svg`            | Placeholder — Phase 3 pass pending |
-| ui-surfaces         | `card_frame_corner`            | `ui-surfaces/card_frame_corner.svg`                | Planned     |
-| ui-surfaces         | `panel_divider`                | `ui-surfaces/panel_divider.svg`                    | Planned     |
+| avatars / roles     | *(none yet)*                   | `avatars/stakeholder-avatar-roles/`                | Reserved    |
+| action icons / cards| `refactor_action`              | `action-effect-icons/cards/refactor_action.svg`    | Placeholder |
+| action icons / cards| `infrastructure_investment`    | `action-effect-icons/cards/infrastructure_investment.svg` | Placeholder |
+| action icons / cards| `quick_patch`                  | `action-effect-icons/cards/quick_patch.svg`        | Placeholder |
+| ending visuals      | `boundary_builder`             | `ending-visuals/boundary_builder.svg`              | Placeholder |
+| ending visuals      | `firefighter`                  | `ending-visuals/firefighter.svg`                   | Placeholder |
+| ending visuals      | `system_stabilizer`            | `ending-visuals/system_stabilizer.svg`             | Placeholder |
+| ending visuals      | `stakeholder_whisperer`        | `ending-visuals/stakeholder_whisperer.svg`         | Placeholder |
+| ending visuals      | `runaway_refactorer`           | `ending-visuals/runaway_refactorer.svg`            | Placeholder |
+| ui-surfaces         | *(none yet)*                   | `ui-surfaces/`                                     | Reserved    |
 
 Replace `Placeholder` entries with `Complete` once a production-quality asset is authored and validated in Storybook.
 
