@@ -33,6 +33,7 @@ Read these on top of the base set when applicable.
 
 - [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md) — canonical reference for all SVG/asset work: folder structure, naming conventions, viewBox specs, layer naming, animation-safe grouping, category conventions (scene, playerClass portrait, avatarRole, endingType visual), registry workflow, and agent procedures for adding/modifying/removing assets
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
+- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) — initial asset batch: scene catalog, avatarRole set, variant schedule, delivery checklist
 
 ### Storybook / UI prototyping work
 

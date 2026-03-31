@@ -44,6 +44,21 @@ export type EventSceneAssetId =
   | 'system_incident'
   | 'audit_pressure'
   | 'scaling_crisis'
+  | 'generic_disruption'
+
+export type ScenarioSceneAssetId =
+  | 'default_run_scene'
+  | 'legacy_architecture'
+  | 'distributed_chaos'
+  | 'hypergrowth_velocity'
+  | 'compliance_pressure'
+
+export type AvatarRoleAssetId =
+  | 'oracle'
+  | 'chronicler'
+  | 'warden'
+  | 'artificer'
+  | 'chancellor'
 
 export const BRANDING_ASSETS = {
   logo_mark: logoMarkUrl,
@@ -56,7 +71,7 @@ export const UI_SURFACE_ASSETS = {
 export const SCENE_ASSETS = {
   scenario: {
     default_run_scene: defaultRunSceneUrl,
-  },
+  } as Record<ScenarioSceneAssetId, string>,
   events: {
     system_incident: systemIncidentSceneUrl,
     audit_pressure: auditPressureSceneUrl,
@@ -64,8 +79,8 @@ export const SCENE_ASSETS = {
   } as Record<EventSceneAssetId, string>,
 } as const
 
-export const STAKEHOLDER_AVATAR_ROLE_ASSETS: Record<string, string> = {
-  // Filled as avatarRole assets are authored.
+export const STAKEHOLDER_AVATAR_ROLE_ASSETS: Partial<Record<AvatarRoleAssetId, string>> = {
+  // Populated as avatarRole assets are authored per docs/MVP_ASSET_PLAN.md.
 }
 
 export const PLAYER_CLASS_ASSETS: Record<PlayerClassAssetId, string> = {
