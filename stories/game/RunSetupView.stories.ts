@@ -4,6 +4,8 @@ import RunSetupView from '@/ui/views/run_setup_view.vue'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 
+// vue-router is provided globally by .storybook/preview.ts
+
 const meta: Meta<typeof RunSetupView> = {
   title: 'Views/RunSetupView',
   component: RunSetupView,
@@ -12,7 +14,6 @@ const meta: Meta<typeof RunSetupView> = {
     layout: 'fullscreen'
   },
   beforeEach() {
-    // Create a fresh Pinia instance for this story
     setActivePinia(createPinia())
   }
 }

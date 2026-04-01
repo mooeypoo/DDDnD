@@ -1,0 +1,143 @@
+<template>
+  <Transition name="surface-fade">
+    <div v-if="isOpen" class="surface-overlay" @click="handleBackdropClick">
+      <aside
+        class="surface-side-panel"
+        :class="[`side-${side}`]"
+        role="dialog"
+        aria-modal="true"
+        :aria-labelledby="titleId"
+        @click.stop
+      >
+        <header class="surface-header">
+          <h2 :id="titleId" class="surface-title">{{ title }}</h2>
+          <button class="surface-close" type="button" :aria-label="closeLabel" @click="emit('close')">×</button>
+        </header>
+
+        <div class="surface-body">
+          <slot />
+        </div>
+
+        <footer v-if="$slots.footer" class="surface-footer">
+          <slot name="footer" />
+        </footer>
+      </aside>
+    </div>
+  </Transition>
+</template>
+
+<script setup lang="ts">
+import { computed, onMounted, onUnmounted } from 'vue'
+
+const props = withDefaults(
+  defineProps<{
+    isOpen: boolean
+    title: string
+    side?: 'left' | 'right'
+    closeOnBackdrop?: boolean
+    closeLabel?: string
+  }>(),
+  {
+    side: 'right',
+    closeOnBackdrop: true,
+    closeLabel: 'Close side panel',
+  }
+)
+
+const emit = defineEmits<{ close: [] }>()
+
+const titleId = computed(() => `surface-side-title-${props.title.toLowerCase().replace(/\s+/g, '-')}`)
+
+function handleBackdropClick() {
+  if (props.closeOnBackdrop) {
+    emit('close')
+  }
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  if (props.isOpen && event.key === 'Escape') {
+    emit('close')
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', handleKeydown))
+onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
+</script>
+
+<style scoped>
+.surface-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--bg-overlay-strong);
+  backdrop-filter: blur(2px);
+  display: flex;
+}
+
+.surface-side-panel {
+  width: min(100%, 420px);
+  height: 100%;
+  background: var(--surface-panel);
+  border-left: 1px solid var(--border-panel);
+  border-right: 1px solid var(--border-panel);
+  box-shadow: var(--shadow-overlay);
+  display: flex;
+  flex-direction: column;
+}
+
+.surface-side-panel.side-right {
+  margin-left: auto;
+}
+
+.surface-side-panel.side-left {
+  margin-right: auto;
+}
+
+.surface-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-lg);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.surface-title {
+  margin: 0;
+  color: var(--text-bright);
+  font-size: var(--text-lg);
+}
+
+.surface-close {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-inset);
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.surface-body {
+  flex: 1;
+  overflow: auto;
+  padding: var(--space-lg);
+}
+
+.surface-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+}
+
+.surface-fade-enter-active,
+.surface-fade-leave-active {
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.surface-fade-enter-from,
+.surface-fade-leave-to {
+  opacity: 0;
+}
+</style>

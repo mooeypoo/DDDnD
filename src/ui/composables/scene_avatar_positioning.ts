@@ -42,9 +42,9 @@ export const SCENE_ACTOR_PLACEMENTS: Record<SceneActorSlot, SceneActorPlacement>
   },
   far: {
     slot: 'far',
-    leftPercent: 50,
+    leftPercent: 62,
     floorPercent: 68,
-    scale: 0.74,
+    scale: 0.72,
     zIndex: 2,
   },
 }

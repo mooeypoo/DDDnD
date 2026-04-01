@@ -70,3 +70,16 @@ The current gameplay shell intentionally defers the following:
 - Event/message presentation may later move to richer reusable overlay/surface cards.
 
 These are presentation-layer follow-ups only; no simulation/domain changes are implied.
+
+## 7. Temporary Surface Components
+
+Current modal/side/drawer/frame surfaces are intentionally temporary structural shells.
+They standardize spacing, layering, and accessibility behavior while final art is prepared.
+
+Future SVG chrome integration should attach only at frame edges and ornament slots, not in core content layouts:
+
+- Modal and side panel: corner caps, top crest, and close-button ring treatment.
+- Drawer panel: handle ornament and lip frame only.
+- Frame container: border filigree and titleplate accents.
+
+Keep chrome as optional decorative layers so gameplay text and controls remain readable and unchanged.
