@@ -4,7 +4,7 @@ import ScenarioBanner from '@/ui/components/scenario/scenario_banner.vue'
 import { SCENE_ASSETS } from '@/ui/config/presentation_asset_registry'
 import { scenarioMocks } from '../mocks/scenarios'
 
-const scenarioHeroUrl = SCENE_ASSETS.scenario.default_run_scene
+const scenarioHeroUrl = SCENE_ASSETS.backgrounds.fortified_monolith_hall
 
 const meta: Meta<typeof ScenarioBanner> = {
   title: 'Game/ScenarioBanner',

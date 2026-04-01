@@ -1,10 +1,5 @@
 import logoMarkUrl from '@/assets/presentation/branding/logo_mark.svg?url'
 
-import defaultRunSceneUrl from '@/assets/presentation/scenes/scenario/default_run_scene.svg?url'
-import systemIncidentSceneUrl from '@/assets/presentation/scenes/events/system_incident.svg?url'
-import auditPressureSceneUrl from '@/assets/presentation/scenes/events/audit_pressure.svg?url'
-import scalingCrisisSceneUrl from '@/assets/presentation/scenes/events/scaling_crisis.svg?url'
-
 import boundaryMagePortraitUrl from '@/assets/presentation/avatars/player-classes/boundary_mage.svg?url'
 import stakeholderBardPortraitUrl from '@/assets/presentation/avatars/player-classes/stakeholder_bard.svg?url'
 import reliabilityClericPortraitUrl from '@/assets/presentation/avatars/player-classes/reliability_cleric.svg?url'
@@ -20,6 +15,25 @@ import firefighterEndingUrl from '@/assets/presentation/ending-visuals/firefight
 import systemStabilizerEndingUrl from '@/assets/presentation/ending-visuals/system_stabilizer.svg?url'
 import stakeholderWhispererEndingUrl from '@/assets/presentation/ending-visuals/stakeholder_whisperer.svg?url'
 import runawayRefactorerEndingUrl from '@/assets/presentation/ending-visuals/runaway_refactorer.svg?url'
+
+import {
+  AVATAR_ROLE_ASSETS,
+  DEFAULT_AVATAR_MOOD,
+  DEFAULT_AVATAR_ROLE_ID,
+  getAvatarRoleAssetUrl,
+} from '@/ui/config/presentation_avatar_registry'
+import {
+  DEFAULT_SCENE_BACKGROUND_ID,
+  EVENT_SCENE_ASSETS,
+  SCENE_BACKGROUND_ASSETS,
+  getSceneBackgroundAssetUrl,
+} from '@/ui/config/presentation_scene_registry'
+import type {
+  AvatarMood,
+  AvatarRoleId,
+  EventSceneAssetId,
+  SceneBackgroundId,
+} from '@/ui/config/presentation_asset_types'
 
 export type PlayerClassAssetId =
   | 'boundary_mage'
@@ -40,11 +54,6 @@ export type CardArtworkAssetId =
   | 'infrastructure_investment'
   | 'quick_patch'
 
-export type EventSceneAssetId =
-  | 'system_incident'
-  | 'audit_pressure'
-  | 'scaling_crisis'
-
 export const BRANDING_ASSETS = {
   logo_mark: logoMarkUrl,
 } as const
@@ -54,18 +63,25 @@ export const UI_SURFACE_ASSETS = {
 } as const
 
 export const SCENE_ASSETS = {
-  scenario: {
-    default_run_scene: defaultRunSceneUrl,
-  },
-  events: {
-    system_incident: systemIncidentSceneUrl,
-    audit_pressure: auditPressureSceneUrl,
-    scaling_crisis: scalingCrisisSceneUrl,
-  } as Record<EventSceneAssetId, string>,
+  backgrounds: SCENE_BACKGROUND_ASSETS,
+  events: EVENT_SCENE_ASSETS as Record<EventSceneAssetId, string>,
 } as const
 
-export const STAKEHOLDER_AVATAR_ROLE_ASSETS: Record<string, string> = {
-  // Filled as avatarRole assets are authored.
+export const STAKEHOLDER_AVATAR_ROLE_ASSETS: Record<AvatarRoleId, Record<AvatarMood, string>> =
+  AVATAR_ROLE_ASSETS
+
+export {
+  DEFAULT_SCENE_BACKGROUND_ID,
+  DEFAULT_AVATAR_ROLE_ID,
+  DEFAULT_AVATAR_MOOD,
+  getSceneBackgroundAssetUrl,
+  getAvatarRoleAssetUrl,
+}
+
+export type {
+  SceneBackgroundId,
+  AvatarRoleId,
+  AvatarMood,
 }
 
 export const PLAYER_CLASS_ASSETS: Record<PlayerClassAssetId, string> = {
