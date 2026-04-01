@@ -275,7 +275,9 @@ Simulations are deterministic: the same seed produces identical results.
 - [CONTENT_SCHEMA.md](./CONTENT_SCHEMA.md) — Content file structure
 - [CONTENT_VERSIONING.md](./CONTENT_VERSIONING.md) — Versioning rules
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](./docs/UI_PRESENTATION_REDESIGN_PLAN.md) — UI redesign roadmap and coordination
-- [docs/ARTWORK_PIPELINE.md](./docs/ARTWORK_PIPELINE.md) — SVG/artwork system and constraints
+- [docs/SCENE_VISUAL_DIRECTION.md](./docs/SCENE_VISUAL_DIRECTION.md) — Canonical scene/avatar art direction
+- [docs/MVP_ASSET_PLAN.md](./docs/MVP_ASSET_PLAN.md) — Canonical redesign asset strategy
+- [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](./docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md) — Coding-agent implementation constraints
 - [docs/STORYBOOK.md](./docs/STORYBOOK.md) — Storybook workflow boundaries
 
 ## Tech Stack

@@ -25,26 +25,25 @@ Read these on top of the base set when applicable.
 ### UI / presentation work
 
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
-- [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical visual direction for scene composition, stakeholder avatar role art direction, overlay-safe negative space, and anti-goals (supersedes older futuristic/corporate/diagram-first styling assumptions)
-- [docs/MVP_CONCEPT_ART_PACKET.md](docs/MVP_CONCEPT_ART_PACKET.md) — required pre-implementation concept packet gate for MVP scene and `avatarRole` asset production
+- [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical visual direction for scene composition and stakeholder avatarRole art direction
+- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md)
+- [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
 - [docs/QUEST_SELECTION_IMPLEMENTATION.md](docs/QUEST_SELECTION_IMPLEMENTATION.md)
-- [docs/LOGO_AND_MASTHEAD_IMPLEMENTATION.md](docs/LOGO_AND_MASTHEAD_IMPLEMENTATION.md)
-- [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md)
 
 ### Asset / artwork work (hybrid raster + SVG)
 
-- [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md) — canonical reference for all presentation asset work: hybrid format policy (raster vs SVG), folder structure, naming conventions, sizing specs, layer/group rules, category conventions (scene, playerClass portrait, avatarRole, endingType visual), registry workflow, and agent procedures for adding/modifying/removing assets
-- [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical gameplay scene and stakeholder avatar visual direction (scene-based fantasy-tech direction, composition and negative-space rules, explicit anti-goals)
-- [docs/MVP_CONCEPT_ART_PACKET.md](docs/MVP_CONCEPT_ART_PACKET.md) — required concept-art packet and approval checklist before implementation asset creation
+- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) — canonical strategy for raster scene/avatar assets and SVG chrome split
+- [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical scene/avatar art direction and anti-goals
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
+- [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
 
 ### Storybook / UI prototyping work
 
 - [docs/STORYBOOK.md](docs/STORYBOOK.md)
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) (if story visual direction, scene composition, or `avatarRole` presentation is touched)
-- [docs/MVP_CONCEPT_ART_PACKET.md](docs/MVP_CONCEPT_ART_PACKET.md) (if creating concept packets or expression references that will drive presentation assets)
-- [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md) (if visuals/artwork are touched)
+- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) (if visuals/artwork are touched)
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md) (if presentation direction is touched)
+- [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
 
 ### Content / schema work
 
@@ -100,7 +99,7 @@ Legacy references may remain where already established, but do not expand that t
 
 # Asset Format Rules
 
-Asset work must follow [docs/ARTWORK_PIPELINE.md](docs/ARTWORK_PIPELINE.md).
+Asset work must follow [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md).
 
 Hybrid strategy for new presentation work:
 

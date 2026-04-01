@@ -1,223 +1,76 @@
 # Scene Visual Direction
 
-Date: 2026-03-31
-Status: Canonical direction for gameplay scene composition and stakeholder avatar art direction
-Scope: Presentation redesign visual language only (no simulation/domain changes)
-
-This document locks the intended visual direction for the redesigned gameplay presentation.
-It exists to prevent another failed asset batch caused by mixed style assumptions.
-
-Canonical companions:
-
-- [AGENT.md](../AGENT.md)
-- [ARCHITECTURE.md](../ARCHITECTURE.md)
-- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md)
-- [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md)
-- [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md)
-- [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md)
-
----
+Date: 2026-04-01
+Status: Canonical art direction for current redesign baseline
 
 ## 1. Purpose
 
-Use this document when creating or reviewing:
+Use this document for visual direction of:
 
-- scenario scene backgrounds
-- event scene backgrounds
-- stakeholder avatar role artwork
-- scene composition guidance for gameplay overlays
+- scenario and event scene backgrounds
+- stakeholder avatarRole visuals
+- scene/avatar composition decisions in gameplay UI
 
-This is a durable instruction document for future agents and human contributors.
-If scene/avatar art guidance conflicts with older docs, this document takes priority for visual direction.
+This is presentation-only guidance.
+No simulation or domain logic changes are implied.
 
----
+## 2. Current Art Direction
 
-## 2. Visual Direction (Required)
+Direction lock:
 
-The redesigned gameplay presentation is:
+- fantasy-tech world framing
+- scene-as-place composition, not dashboard composition
+- readable at gameplay sizes on desktop and mobile
+- expressive silhouette-first avatars with clear mood readability
 
-- fantasy-tech
-- pixel-adventure-inspired
-- scene-based, not panel-based
-- readable in browser UI at gameplay sizes
-- expressive and legible at small sizes
-- suitable for dynamic actor placement
+Required format usage:
 
-Format direction (required):
+- Raster (PNG/WebP): scene backgrounds and avatarRole mood art.
+- SVG: UI chrome, frames, icons, badges, ornaments, and effect markers.
 
-- Scene backdrops and stakeholder `avatarRole` character/state art use raster deliverables (PNG/WebP) in the presentation pipeline.
-- SVG remains the preferred format for reusable interface/chrome elements (frames, icons, badges, ornaments, simple effect markers).
-- Choose format by purpose: atmosphere/composition-heavy illustration uses raster; reusable structural UI assets use SVG.
+## 3. Scene Direction
 
-The scene should feel like a place the player is currently in, not a chart they are inspecting.
+Every scene should read as a place/stage the run happens in.
 
-### Distinction from the previous style
+Required composition traits:
 
-The previous style leaned futuristic, corporate, and diagrammatic.
-The redesigned style deliberately moves away from that.
+- clear foreground/midground/background layers
+- intentional low-detail overlay-safe zones
+- restrained detail density to protect text readability
+- visual hierarchy that survives compact card rendering
 
-New direction:
+Known scene backdrop set already available:
 
-- environmental stage composition over dashboard composition
-- character-led readability over abstract topology
-- atmosphere and mood over interface-like infographics
-- sparse, intentional detail that supports game UI overlays
+- Fortified Monolith Hall
+- Strategic War Room
+- Archive / Library Chamber
 
----
+## 4. Avatar Direction
 
-## 3. Core Art Principle: Place or Stage, Not Infographic
+avatarRole visuals are UI-only reusable roles.
+They are not domain entities and not literal portraits of named stakeholders.
 
-Every scene asset must depict a place, stage, or playable backdrop.
-It must not read as a standalone explainer graphic.
+Required mood set per role:
 
-Good mental model:
+- happy
+- neutral
+- concerned
+- angry
 
-- "Where are the actors standing right now?"
-- "What environment frames the current tension?"
+Implementation asset source is individual transparent PNG mood files.
+Mood sheets may exist as references only.
 
-Bad mental model:
+## 5. Explicit Anti-Goals
 
-- "What architecture concept diagram can I draw here?"
+Do not move back toward the rejected style:
 
-Scene art can include fantasy-tech motifs, but those motifs must support a world-space composition.
+- dashboard-like data graphics
+- abstract topology infographic scenes
+- observability-console visual language
+- text-heavy baked-in labels in scene art
 
----
+## 6. Companion Docs
 
-## 4. Scene Background Direction
-
-### Composition
-
-- Build scenes with a clear foreground, midground, and background.
-- Reserve a stable "overlay-safe" region where UI text/cards can sit without visual conflict.
-- Avoid uniform detail density. Use negative space intentionally.
-- Keep major silhouette shapes broad and readable before adding accents.
-
-### Atmosphere
-
-- Shared mood: mystical systems world, adventurous but tense, not sterile enterprise tooling.
-- Use light, fog, runic glow, dust, banners, machinery, or terrain cues to establish location.
-- Keep atmosphere coherent across scenarios so screens feel like one game world.
-
-### Browser readability
-
-- Prefer clean shape stacks and restrained line complexity.
-- Limit tiny decorative strokes that collapse at small render sizes.
-- Ensure visual hierarchy survives at compact UI sizes and mobile widths.
-
----
-
-## 5. Stakeholder Avatar Role Direction
-
-Stakeholder visuals are generic fantasy `avatarRole` representations.
-They are not domain-specific business-role illustrations.
-
-Required interpretation:
-
-- roles are reusable visual archetypes in the UI layer
-- roles are not literal portraits of named stakeholders
-- roles should communicate attitude, posture, and emotional readability first
-
-Do not draw office-job caricatures (for example: "CFO with spreadsheet").
-Translate role intent into fantasy-tech persona silhouettes that remain reusable.
-
-### Role clarity at small sizes
-
-- Each avatar must be identifiable at thumbnail scale.
-- Prioritize strong head/shoulder silhouette and one signature prop.
-- Keep facial features simple but expressive.
-
----
-
-## 6. Posture and Expression States
-
-Posture and expression must communicate gameplay mood quickly.
-State changes should be visible even when the avatar renders small.
-
-Required baseline states for direction work:
-
-- supportive: reassuring, collaborative posture with open shoulder line
-- neutral/default: attentive, readable, calm
-- concerned: cautious posture, visible uncertainty or tension build-up
-- upset: high-tension posture with clearly escalated emotional intensity
-
-State design rules:
-
-- preserve role identity across states (same character role, different emotion)
-- change expression and pose first; avoid swapping costume identity
-- use contrast and silhouette shifts, not tiny facial micro-detail
-
----
-
-## 7. Composition and Negative Space Rules for UI Overlays
-
-Scene artwork must be built as a presentation substrate for dynamic overlays.
-
-Required composition rules:
-
-- include predictable low-detail regions for cards, labels, and meters
-- avoid placing focal faces or crucial props where overlays are likely to appear
-- frame key scene subjects away from overlay-heavy zones
-- maintain enough empty visual breathing room to keep text readable
-
-A scene is successful only if gameplay UI remains primary and effortless to read.
-
----
-
-## 8. Shared Visual Atmosphere Across Scene and Avatars
-
-Scene backgrounds and avatar roles must feel authored for the same world.
-
-Consistency anchors:
-
-- similar lighting logic and value contrast
-- compatible texture density (not noisy scenes with ultra-flat avatars)
-- aligned fantasy-tech motifs (runes, relic machinery, magical infrastructure)
-- cohesive color behavior that supports, not overwhelms, gameplay information
-
----
-
-## 9. Explicit Anti-Goals
-
-Do not produce assets in these directions:
-
-- not corporate dashboard graphics
-- not abstract neon topology diagrams
-- not text-heavy baked-in artwork
-- not observability-style interface art
-- not tiny unreadable character illustrations
-
-Additional anti-goals:
-
-- not scene art that functions as a labeled process diagram
-- not avatar art dependent on domain-specific office props for meaning
-- not dense detail fields that destroy overlay readability
-
----
-
-## 10. Practical Delivery Checklist for Agents
-
-Before delivering any scene/avatar asset proposal, verify:
-
-1. The piece reads as a place/stage, not an infographic.
-2. The style feels fantasy-tech and pixel-adventure-inspired.
-3. Overlay-safe negative space exists and is intentional.
-4. Avatar roles are generic `avatarRole` visuals, not business-role portraits.
-5. Expressions/postures are legible at small sizes.
-6. Rendering remains clean and readable at gameplay sizes in browser UI.
-7. Anti-goals are not violated.
-
-If any check fails, revise before implementation.
-
----
-
-## 11. Non-Goals of This Document
-
-This document does not:
-
-- define simulation behavior
-- define stakeholder domain schema
-- authorize content/schema changes
-- require immediate asset production in this step
-
-This phase is direction lock only.
-No asset batch should start until this direction is accepted and referenced by planning docs.
+- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md)
+- [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md)
+- [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)

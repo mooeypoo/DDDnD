@@ -1,195 +1,62 @@
-# UI Presentation Redesign Plan
+# UI Presentation Redesign Baseline
 
-Date: 2026-03-31
-Status: Planning only (no implementation in this document)
+Date: 2026-04-01
+Status: Active baseline for pre-release UI redesign
 
-## 1) Purpose and Goals
+This is the canonical screen-composition and scope document for the redesign branch.
+It replaces exploratory direction and migration-phase planning docs.
 
-The current UI is being replaced to establish a clearer, more coherent presentation layer across the full player journey (setup, gameplay, overlays/modals, and results), while preserving the existing deterministic simulation behavior.
-
-Primary goals:
-
-- Improve readability and information hierarchy during runs.
-- Present stronger visual identity consistency across screens.
-- Separate presentation concerns from domain/simulation concerns with stricter boundaries.
-- Create a scalable hybrid asset pipeline (raster + SVG) that supports ongoing content growth.
-- Ensure desktop and mobile experiences are both first-class.
-
-Why replace the current UI presentation:
-
-- Existing presentation patterns were delivered incrementally and now need a unified redesign pass.
-- Current visual and interaction patterns are not yet consistent enough across gameplay and surrounding screens.
-- Asset handling needs cleanup and a simpler, more maintainable hybrid workflow.
-- Upcoming scene-based presentation requires explicit UI-layer modeling that does not alter simulation/domain entities.
-
-## 2) Approved Terminology (Required for New Work)
-
-Use these terms consistently in new UI and documentation work:
-
-- playerClass = player-selected class at scenario start
-- endingType = end-of-run outcome classification
-- avatarRole = UI-only fantasy visual role assigned to stakeholders
-
-Terminology policy:
-
-- Generic use of the word archetype is retired for new work.
-- Legacy references may still exist in older content/code/docs; do not expand that naming in new implementation.
-- New presentation and product-facing language must use endingType and avatarRole where applicable.
-
-## 3) Presentation Model (Target)
-
-The redesign adopts the following model:
-
-- One scene per scenario run.
-- Scene selected from a tagged scene pool.
-- Stakeholders remain content/domain entities loaded from JSON.
-- Avatar roles are assigned in the UI layer only.
-- No presentation logic may leak into simulation/domain logic.
-
-Implications:
-
-- Scene and avatar role selection are view-model concerns, not simulation rules.
-- Scenario bundle and stakeholder semantics remain unchanged by presentation assignment.
-- Any role/scene mapping logic must live in UI modules/services/stores only.
-
-## 4) Scope of Redesign
+## 1. Scope Lock
 
 In scope:
 
-- Gameplay screen redesign.
-- Broader UI redesign for surrounding screens and modals.
-- Asset cleanup and hybrid asset pipeline rewrite.
-- Desktop and mobile support.
+- UI shell replacement across run setup, gameplay, overlays/modals, and results.
+- Presentation asset integration and UI composition updates.
+- Desktop and mobile behavior.
 
-### Hybrid Asset Strategy (Required)
+Out of scope:
 
-Asset format is selected by purpose, not by category name alone.
+- Simulation/domain rules.
+- Content schema/versioning changes.
+- Persistence/reporting behavior changes.
 
-- Use PNG/WebP for scene backdrops and stakeholder `avatarRole` character/state art.
-- Use SVG for UI surfaces, frames, icons, badges, reusable ornaments, and simple effect markers.
-- For atmosphere-driven scenic/character illustration where composition and mood carry meaning, default to raster deliverables.
-- For reusable UI chrome and structured interface elements where clean scaling and editability matter most, default to SVG.
+## 2. Required Terms
 
-Planned later phase (not in initial execution scope):
+Use these terms in new work:
 
-- Tutorial redesign.
+- playerClass = player-selected class at scenario start.
+- endingType = end-of-run outcome classification.
+- avatarRole = UI-only fantasy visual role for stakeholders.
 
-Out of scope for this plan document:
+Do not use archetype as a new generic term.
 
-- Any simulation/domain rule changes.
-- Any persistence schema changes unless separately approved.
-- Immediate code implementation in this document.
+## 3. Screen Composition Direction
 
-## 5) Architecture Guardrails (Canonical References)
+Gameplay composition direction:
 
-This plan inherits and must comply with existing canonical rules:
+- Scene-first layout, not dashboard/panel-first layout.
+- One active backdrop per run context (scenario-level or event-level).
+- Overlay-safe regions preserved for gameplay text, cards, meters, and controls.
+- Stakeholder avatar presentation is expressive but secondary to gameplay readability.
 
-- AGENT.md: simulation/UI separation and non-negotiable domain boundaries.
-- ARCHITECTURE.md: domain responsibilities and UI role.
-- GAME_DESIGN.md: gameplay intent and UX requirements.
-- docs/SCENE_VISUAL_DIRECTION.md: canonical gameplay scene composition and stakeholder avatar role visual direction.
-- docs/MVP_CONCEPT_ART_PACKET.md: required concept packet gate before implementation asset production for MVP scene and avatarRole assets.
-- docs/ARTWORK_PIPELINE.md: visual identity and asset constraints.
-- docs/QUEST_SELECTION_IMPLEMENTATION.md: UI-owned configuration and transformation patterns.
-- docs/LOGO_AND_MASTHEAD_IMPLEMENTATION.md: current branding/navigation integration patterns.
+Information hierarchy direction:
 
-This plan does not redefine those rules; it applies them to a coordinated redesign.
+- Primary: decision context and actions.
+- Secondary: stakeholder mood/readability and scene atmosphere.
+- Tertiary: decorative chrome and ornaments.
 
-### Permanent Rule Homes
+## 4. UI Ownership Boundaries
 
-Use this plan as the coordinator and phased roadmap.
+- Scene selection logic is UI-only.
+- Stakeholder to avatarRole mapping is UI-only.
+- endingType display mapping is UI-only.
+- Stakeholder/domain entities remain content-driven and unchanged.
 
-Stable rules should live in canonical docs:
+No scene/avatar logic may leak into simulation/domain code.
 
-- Architecture and domain separation: [ARCHITECTURE.md](../ARCHITECTURE.md)
-- Required-reading and routing expectations: [AGENT.md](../AGENT.md)
-- Scene and stakeholder avatar visual direction: [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md)
-- MVP concept packet gate for scene/avatar implementation: [docs/MVP_CONCEPT_ART_PACKET.md](MVP_CONCEPT_ART_PACKET.md)
-- Storybook workflow boundaries: [docs/STORYBOOK.md](STORYBOOK.md)
-- Artwork and asset format policy: [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md)
+## 5. Canonical Companion Docs
 
-## 6) Phased Implementation Plan
-
-### Phase 0: Alignment and Vocabulary Freeze
-
-- Publish this terminology set across active UI workstreams.
-- Add a short naming note to relevant implementation docs when touched.
-- Confirm that new tasks avoid introducing new generic archetype usage.
-- Complete and approve the MVP concept-art packet before implementation asset creation begins.
-
-Exit criteria:
-
-- Redesign tickets and specs use playerClass, endingType, and avatarRole consistently.
-
-### Phase 1: Presentation Model Foundation
-
-- Define UI view-model contracts for:
-  - run scene selection from tagged pool
-  - stakeholder to avatarRole assignment
-  - endingType-facing display mapping
-- Implement at UI boundary only (no simulation imports beyond existing typed outputs).
-
-Exit criteria:
-
-- Scene and avatar role assignment function in UI prototypes without domain changes.
-- Clear tests verify no simulation behavior dependency on presentation assignment.
-
-### Phase 2: Gameplay Screen Redesign
-
-- Redesign core gameplay layout, hierarchy, and turn-surface readability.
-- Integrate scene presentation for the active run.
-- Apply avatarRole visual treatment to stakeholder UI components.
-- Preserve existing action/event/stakeholder flow behavior.
-
-Exit criteria:
-
-- Gameplay screen ships with new presentation model on desktop and mobile.
-- No gameplay regression in engine behavior.
-
-### Phase 3: Surrounding UI and Modal Redesign
-
-- Redesign run setup, intro, overlays, and results-adjacent modals for consistency.
-- Align navigation/masthead/branding surfaces with updated visual language.
-- Ensure endingType naming and display are consistent in end-of-run surfaces.
-
-Exit criteria:
-
-- Surrounding screens/modals match gameplay redesign language and interaction patterns.
-- Accessibility and responsive behavior validated for core flows.
-
-### Phase 4: Asset Cleanup and Hybrid Pipeline Rewrite
-
-- Consolidate and normalize asset formats, naming conventions, and category usage.
-- Refactor asset-loading paths for clarity and maintainability.
-- Update artwork pipeline documentation where implementation details change.
-
-Exit criteria:
-
-- Asset inventory is clean, predictable, and documented.
-- Hybrid raster/SVG flow supports ongoing scene/avatar expansion without ad hoc additions.
-
-### Phase 5: Tutorial Redesign (Later)
-
-- Redesign tutorial presentation after main game presentation is stabilized.
-- Keep tutorial content isolation and existing architecture boundaries intact.
-
-Exit criteria:
-
-- Tutorial reflects the new UI language without breaking tutorial content isolation.
-
-## 7) Delivery Notes
-
-- Prioritize behavioral safety: presentation changes must not alter deterministic simulation outcomes.
-- Favor incremental release slices per phase with focused validation.
-- Keep Storybook and mock-driven iteration as presentation development tools, not gameplay logic sources.
-
-## 8) Success Criteria Summary
-
-The redesign is successful when:
-
-- New terminology is consistently used in active UI work.
-- Scene and avatarRole presentation model is fully UI-owned.
-- Gameplay and surrounding screens are coherently redesigned for desktop and mobile.
-- Asset workflows are cleaned up and maintainable under the hybrid raster/SVG strategy.
-- Tutorial redesign follows in a controlled later phase.
-- Simulation/domain behavior remains unchanged unless explicitly planned elsewhere.
+- [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md)
+- [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md)
+- [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
+- [docs/STORYBOOK.md](STORYBOOK.md)

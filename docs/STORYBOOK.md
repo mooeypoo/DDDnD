@@ -8,7 +8,8 @@ Canonical companions:
 - [ARCHITECTURE.md](../ARCHITECTURE.md) for domain boundaries
 - [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) for presentation roadmap
 - [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) for scene composition and `avatarRole` art-direction rules
-- [docs/ARTWORK_PIPELINE.md](ARTWORK_PIPELINE.md) for SVG/artwork constraints
+- [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md) for current asset strategy and format policy
+- [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md) for coding-agent execution constraints
 
 ## Purpose
 
