@@ -13,8 +13,11 @@
         :style="buildSceneActorStyle(actor.resolvedSlot, actor.horizontalNudgePercent)"
       >
         <img class="actor-image" :src="getActorUrl(actor)" alt="" />
-        <figcaption class="actor-caption">
-          <span class="actor-name">{{ actor.displayName }}</span>
+        <figcaption
+          class="actor-caption"
+          :title="`${actor.displayName} — ${actor.mood}`"
+        >
+          <span class="actor-name" :title="actor.displayName">{{ actor.displayName }}</span>
           <span class="actor-mood">{{ actor.mood }}</span>
         </figcaption>
       </figure>
@@ -124,7 +127,7 @@ function getActorUrl(actor: StageActor): string {
 .actor-caption {
   position: absolute;
   left: 50%;
-  bottom: -30px;
+  bottom: 4px;
   transform: translateX(-50%);
   display: flex;
   gap: 6px;
@@ -133,22 +136,39 @@ function getActorUrl(actor: StageActor): string {
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
   padding: 4px 8px;
-  max-width: 180px;
+  max-width: min(180px, 46vw);
 }
 
 .actor-name {
+  display: block;
   color: var(--text-bright);
   font-size: var(--text-2xs);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 110px;
 }
 
 .actor-mood {
+  flex-shrink: 0;
   color: var(--text-accent);
   font-size: var(--text-2xs);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
+}
+
+@media (max-width: 1100px) {
+  .actor {
+    width: clamp(64px, 13vw, 130px);
+  }
+
+  .actor-caption {
+    max-width: min(152px, 44vw);
+  }
+
+  .actor-name {
+    max-width: 90px;
+  }
 }
 
 @media (max-width: 820px) {
@@ -157,14 +177,23 @@ function getActorUrl(actor: StageActor): string {
   }
 
   .actor-caption {
-    bottom: -24px;
-    padding: 3px 7px;
-    gap: 5px;
+    bottom: 3px;
+    padding: 3px 6px;
+    gap: 4px;
+    max-width: min(132px, 52vw);
+  }
+
+  .actor-name {
+    max-width: 68px;
   }
 
   .actor-name,
   .actor-mood {
     font-size: 10px;
+  }
+
+  .actor-mood {
+    letter-spacing: 0.02em;
   }
 }
 </style>

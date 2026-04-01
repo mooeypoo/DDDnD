@@ -60,3 +60,13 @@ No scene/avatar logic may leak into simulation/domain code.
 - [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md)
 - [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
 - [docs/STORYBOOK.md](STORYBOOK.md)
+
+## 6. Deferred Follow-Ups
+
+The current gameplay shell intentionally defers the following:
+
+- Scene selection should move from heuristic mapping to explicit UI configuration.
+- Stakeholder avatar casting may later support authored UI casting rules.
+- Event/message presentation may later move to richer reusable overlay/surface cards.
+
+These are presentation-layer follow-ups only; no simulation/domain changes are implied.
