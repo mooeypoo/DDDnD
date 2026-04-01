@@ -3,16 +3,16 @@
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
     <DungeonMasterModal :isOpen="gameStore.isDungeonMasterModalOpen" @close="gameStore.closeDungeonMasterModal" />
-    <CardDetailsModal 
-      v-if="modalCardId && modalCard" 
-      :isOpen="!!modalCardId" 
-      :card="modalCard" 
+    <CardDetailsModal
+      v-if="modalCardId && modalCard"
+      :isOpen="!!modalCardId"
+      :card="modalCard"
       :isDisabled="gameStore.isPlayingTurn"
       :isTutorialLocked="isTutorialCardLocked(modalCardId)"
       :availability="modalCardAvailability"
       :stakeholderNames="stakeholderNames"
       :scores="gameStore.turnBriefing?.current_scores"
-      @close="modalCardId = null" 
+      @close="modalCardId = null"
       @play="handlePlayCard"
     />
 
@@ -37,124 +37,103 @@
       @launchTutorial="handleLaunchAnotherTutorial"
       @startRealGame="handleStartRealGame"
     />
-    
-    <!-- Game Masthead -->
-    <GameMasthead 
+
+    <GameMasthead
       @show-rules="gameStore.openRulesModal"
       @show-about="gameStore.openAboutModal"
       @show-dungeon-master="gameStore.openDungeonMasterModal"
     />
 
-    <!-- Tutorial Exit Bar -->
     <TutorialExitBar
       :isTutorial="gameStore.tutorial.isTutorialMode"
       @leave="handleLeaveTutorial"
     />
 
-    <!-- Sticky HUD Bar: scores, stakeholders, turn counter (narrow screens only) -->
-    <GameHudBar
-      v-if="!isWideScreen"
-      :current-turn="gameStore.currentTurn"
-      :max-turns="gameStore.maxTurns"
-      :scores="gameStore.turnBriefing?.current_scores"
-      :stakeholders="gameStore.gameState?.stakeholders"
-      :stakeholder-names="stakeholderNames"
-    />
-
-    <div class="game-layout" :class="{ 'layout-wide': isWideScreen }">
-      <!-- Desktop Sidebar HUD (wide screens only) -->
-      <GameHudSidebar
-        v-if="isWideScreen"
-        :current-turn="gameStore.currentTurn"
-        :max-turns="gameStore.maxTurns"
-        :scores="gameStore.turnBriefing?.current_scores"
-        :stakeholders="gameStore.gameState?.stakeholders"
-        :stakeholder-names="stakeholderNames"
-        :player-class-id="playerClassId"
-        :player-class-name="playerClassName"
-        :player-name="playerDisplayName"
-      />
-    
-    <div class="game-container" :class="{ 'drawer-open': isSatchelOpen }">
-      <!-- Compact Scenario Banner -->
-      <ScenarioBanner
-        v-if="scenario"
-        :title="scenario.name"
-        :short-description="resolveScenarioShortDescription(scenario)"
-        :description="scenario.description"
-        :current-turn="gameStore.currentTurn"
-        :max-turns="gameStore.maxTurns"
-      />
-
-      <!-- Main Content Area (full-width, no sidebar) -->
-      <main class="game-main">
-        <!-- Tutorial Hint Panel -->
-        <TutorialHintPanel
-          v-if="gameStore.tutorial.isTutorialMode"
-          :isVisible="gameStore.tutorial.isHintVisible"
-          :step="gameStore.tutorial.currentStep"
-          :stepNumber="gameStore.tutorial.currentStepNumber"
-          :totalSteps="gameStore.tutorial.totalSteps"
-          @dismiss="gameStore.tutorial.dismissCurrentHint"
-        />
-
-        <!-- Run Complete Message (shown at top when run ends) -->
-        <div v-if="gameStore.isRunComplete" class="run-complete-card">
-          <div class="complete-icon">🏁</div>
-          <h2 class="complete-title">Run Complete!</h2>
-          <p class="complete-message">Your architectural journey has reached its conclusion.</p>
-          <button
-            class="btn-view-results"
-            :disabled="gameStore.tutorial.isTutorialMode"
-            @click="goToEndScreen"
-          >
-            <span class="btn-text">View Results</span>
-            <span class="btn-icon">→</span>
-          </button>
-        </div>
-
-        <!-- Turn Briefing (hidden when run complete) -->
-        <TurnBriefingPanel
-          v-if="gameStore.turnBriefing && !gameStore.isRunComplete"
-          :event-title="currentEventTitle"
-          :narrative-description="currentEventDescription"
-          :available-actions="gameStore.turnBriefing.available_action_card_ids.length"
-          :pending-aftershocks="gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length"
-          :current-turn="gameStore.currentTurn"
-          :total-turns="gameStore.maxTurns"
-          :isTutorial="gameStore.tutorial.isTutorialMode"
-        />
-
-        <!-- Aftershocks Warning (hidden when run complete) -->
-        <div 
-          v-if="gameStore.turnBriefing && !gameStore.isRunComplete && gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 0"
-          ref="aftershockAlertRef"
-          class="aftershock-alert"
-        >
-          <div class="alert-icon">⚡</div>
-          <div class="alert-content">
-            <div class="alert-title">Architectural Aftershocks Incoming</div>
-            <div class="alert-message">
-              {{ gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length }} delayed effect{{ gameStore.turnBriefing.pending_delayed_effects_resolving_this_turn.length > 1 ? 's' : '' }} will resolve this turn
-            </div>
+    <div class="game-shell" :class="{ 'drawer-open': isSatchelOpen }">
+      <header class="play-header">
+        <div class="header-row">
+          <p class="turn-pill">Turn {{ gameStore.currentTurn }} / {{ gameStore.maxTurns }}</p>
+          <div class="score-strip" v-if="scoreEntries.length > 0">
+            <span v-for="score in scoreEntries" :key="score.id" class="score-chip">
+              <span class="score-chip-label">{{ score.label }}</span>
+              <span class="score-chip-value">{{ score.value }}</span>
+            </span>
           </div>
-        </div>
-        
-        <!-- Last Turn Resolution -->
-        <div
-          v-if="gameStore.lastTurnResolution && gameStore.lastTurnResolution.turn_resolution_context"
-          ref="turnResolutionPanelRef"
-        >
-          <TurnResolutionPanel 
-            :turnResolution="gameStore.lastTurnResolution.turn_resolution_context"
+          <StakeholderHud
+            v-if="gameStore.gameState?.stakeholders"
+            :stakeholders="gameStore.gameState.stakeholders"
             :stakeholderNames="stakeholderNames"
           />
         </div>
+      </header>
+
+      <main class="play-main">
+        <section class="stage-section">
+          <SceneStage :scene-id="gameplaySceneId" :actors="stageActors" />
+        </section>
+
+        <section class="narrative-section">
+          <TutorialHintPanel
+            v-if="gameStore.tutorial.isTutorialMode"
+            :isVisible="gameStore.tutorial.isHintVisible"
+            :step="gameStore.tutorial.currentStep"
+            :stepNumber="gameStore.tutorial.currentStepNumber"
+            :totalSteps="gameStore.tutorial.totalSteps"
+            @dismiss="gameStore.tutorial.dismissCurrentHint"
+          />
+
+          <div v-if="gameStore.isRunComplete" class="run-complete-card">
+            <div class="complete-icon">🏁</div>
+            <h2 class="complete-title">Run Complete!</h2>
+            <p class="complete-message">Your architectural journey has reached its conclusion.</p>
+            <button
+              class="btn-view-results"
+              :disabled="gameStore.tutorial.isTutorialMode"
+              @click="goToEndScreen"
+            >
+              <span class="btn-text">View Results</span>
+              <span class="btn-icon">→</span>
+            </button>
+          </div>
+
+          <TurnBriefingPanel
+            v-if="gameStore.turnBriefing && !gameStore.isRunComplete"
+            :event-title="currentEventTitle"
+            :narrative-description="currentEventDescription"
+            :available-actions="currentAvailableActions"
+            :pending-aftershocks="pendingAftershockCount"
+            :current-turn="gameStore.currentTurn"
+            :total-turns="gameStore.maxTurns"
+            :isTutorial="gameStore.tutorial.isTutorialMode"
+          />
+
+          <div
+            v-if="gameStore.turnBriefing && !gameStore.isRunComplete && pendingAftershockCount > 0"
+            ref="aftershockAlertRef"
+            class="aftershock-alert"
+          >
+            <div class="alert-icon">⚡</div>
+            <div class="alert-content">
+              <div class="alert-title">Architectural Aftershocks Incoming</div>
+              <div class="alert-message">
+                {{ pendingAftershockCount }} delayed effect{{ pendingAftershockCount > 1 ? 's' : '' }} will resolve this turn
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-if="gameStore.lastTurnResolution && gameStore.lastTurnResolution.turn_resolution_context"
+            ref="turnResolutionPanelRef"
+          >
+            <TurnResolutionPanel
+              :turnResolution="gameStore.lastTurnResolution.turn_resolution_context"
+              :stakeholderNames="stakeholderNames"
+            />
+          </div>
+        </section>
       </main>
     </div>
-    </div>
 
-    <!-- Bottom Drawer: Card Satchel -->
     <CardSatchelDrawer
       v-if="!gameStore.isRunComplete"
       v-model:isOpen="isSatchelOpen"
@@ -195,25 +174,27 @@ import type { Card } from '@/domains/content/model'
 import { versionRefKey } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
-import { resolveScenarioShortDescription } from '@/ui/composables/scenario_presentation'
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
+import {
+  buildGameplayStageActors,
+  resolveGameplaySceneId,
+} from '@/ui/composables/gameplay_stage_presentation'
 import ActionCard from '@/ui/components/cards/action_card.vue'
 import CardSatchelDrawer from '@/ui/components/cards/card_satchel_drawer.vue'
 import SatchelToolbar from '@/ui/components/cards/satchel_toolbar.vue'
 import TurnResolutionPanel from '@/ui/components/turn/turn_resolution_panel.vue'
-import ScenarioBanner from '@/ui/components/scenario/scenario_banner.vue'
 import TurnBriefingPanel from '@/ui/components/turn/turn_briefing_panel.vue'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
-import GameHudBar from '@/ui/components/common/game_hud_bar.vue'
-import GameHudSidebar from '@/ui/components/common/game_hud_sidebar.vue'
 import CardDetailsModal from '@/ui/components/cards/card_details_modal.vue'
 import GameMasthead from '@/ui/components/branding/game_masthead.vue'
 import RunIntroSplash from '@/ui/components/common/run_intro_splash.vue'
 import TutorialHintPanel from '@/ui/components/tutorial/tutorial_hint_panel.vue'
 import TutorialExitBar from '@/ui/components/tutorial/tutorial_exit_bar.vue'
 import TutorialCompleteSplash from '@/ui/components/tutorial/tutorial_complete_splash.vue'
+import StakeholderHud from '@/ui/components/stakeholders/stakeholder_hud.vue'
+import SceneStage from '@/ui/components/gameplay/scene_stage.vue'
 import {
   filterByCategory,
   sortCards,
@@ -231,11 +212,9 @@ const turnResolutionPanelRef = ref<HTMLElement | null>(null)
 const isSatchelOpen = ref(false)
 const satchelCategory = ref<CategoryFilter>('all')
 const satchelSort = ref<SortOption>('default')
-const isWideScreen = ref(false)
 
 const SMALL_MOBILE_BREAKPOINT_PX = 480
 const MOBILE_BREAKPOINT_PX = 768
-const WIDE_SCREEN_BREAKPOINT_PX = 1100
 const SCROLL_OFFSET_DESKTOP_PX = 120
 const SCROLL_OFFSET_MOBILE_PX = 140
 const SCROLL_OFFSET_SMALL_MOBILE_PX = 160
@@ -265,6 +244,32 @@ const currentEventDescription = computed(() => {
   return 'Your party looks to you for guidance. Open your Action Satchel below and choose an architectural scroll to shape the fate of this system.'
 })
 
+const gameplaySceneId = computed(() => resolveGameplaySceneId(scenario.value?.id))
+
+const scoreEntries = computed(() => {
+  const scores = gameStore.turnBriefing?.current_scores
+  if (!scores) {
+    return []
+  }
+
+  return Object.entries(scores).map(([id, value]) => ({
+    id,
+    label: id
+      .split('_')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(' '),
+    value: Math.round(value),
+  }))
+})
+
+const currentAvailableActions = computed(() => {
+  return gameStore.turnBriefing?.available_action_card_ids.length ?? 0
+})
+
+const pendingAftershockCount = computed(() => {
+  return gameStore.turnBriefing?.pending_delayed_effects_resolving_this_turn.length ?? 0
+})
+
 const availabilitySummaryByKey = computed(() => {
   const entries = new Map<string, TurnBriefingActionSummary>()
 
@@ -279,18 +284,18 @@ const availableCardEntries = computed(() => {
   if (!gameStore.turnBriefing || !gameStore.scenarioBundle) {
     return []
   }
-  
+
   const cards: Array<{ card: Card; availability: TurnBriefingActionSummary | undefined }> = []
   for (const actionRef of gameStore.gameState?.action_state.available_action_refs || []) {
     const card = gameStore.scenarioBundle.cards.get(versionRefKey(actionRef))
     if (card) {
       cards.push({
         card,
-        availability: availabilitySummaryByKey.value.get(versionRefKey(actionRef))
+        availability: availabilitySummaryByKey.value.get(versionRefKey(actionRef)),
       })
     }
   }
-  
+
   return cards
 })
 
@@ -300,7 +305,6 @@ const playableCardCount = computed(() => {
   ).length
 })
 
-// -- Satchel filter & sort --
 const availableCategories = computed(() => getAvailableCategories(availableCardEntries.value))
 const affectedMetrics = computed(() => getAffectedMetrics(availableCardEntries.value))
 
@@ -309,7 +313,6 @@ const filteredSortedCards = computed(() => {
   return sortCards(filtered, satchelSort.value)
 })
 
-// -- Tutorial card guidance --
 const tutorialRequiredCardId = computed(() => gameStore.tutorial.requiredCardId ?? null)
 
 function isTutorialCardLocked(cardId: string): boolean {
@@ -324,8 +327,8 @@ const modalCard = computed(() => {
   if (!modalCardId.value || !gameStore.scenarioBundle) {
     return null
   }
-  
-  return availableCardEntries.value.find((entry) => entry.card.id === modalCardId.value)?.card || null
+
+  return availableCardEntries.value.find(entry => entry.card.id === modalCardId.value)?.card || null
 })
 
 const modalCardAvailability = computed(() => {
@@ -333,37 +336,27 @@ const modalCardAvailability = computed(() => {
     return undefined
   }
 
-  return availableCardEntries.value.find((entry) => entry.card.id === modalCardId.value)?.availability
+  return availableCardEntries.value.find(entry => entry.card.id === modalCardId.value)?.availability
 })
 
 const stakeholderNames = computed((): Record<string, string> => {
   return buildStakeholderNamesMap(gameStore.scenarioBundle)
 })
 
-let wideScreenQuery: MediaQueryList | null = null
-
-function handleWideScreenChange(e: MediaQueryListEvent | MediaQueryList) {
-  isWideScreen.value = e.matches
-}
+const stageActors = computed(() => {
+  return buildGameplayStageActors(gameStore.gameState?.stakeholders, stakeholderNames.value)
+})
 
 onMounted(() => {
-  // If no active run, redirect to setup
   if (!gameStore.hasActiveRun) {
     router.push('/play')
   }
-  
-  // Listen for reset event from masthead
-  window.addEventListener('reset-run', handleResetRun)
 
-  // Track wide-screen breakpoint for sidebar layout
-  wideScreenQuery = window.matchMedia(`(min-width: ${WIDE_SCREEN_BREAKPOINT_PX}px)`)
-  isWideScreen.value = wideScreenQuery.matches
-  wideScreenQuery.addEventListener('change', handleWideScreenChange)
+  window.addEventListener('reset-run', handleResetRun)
 })
 
 onUnmounted(() => {
   window.removeEventListener('reset-run', handleResetRun)
-  wideScreenQuery?.removeEventListener('change', handleWideScreenChange)
 })
 
 function handleResetRun() {
@@ -395,7 +388,6 @@ async function handleLaunchAnotherTutorial(tutorial: QuestDisplayModel) {
     },
     is_tutorial: true,
   })
-  // Stay on /game — the new run is already active
 }
 
 function handleStartRealGame() {
@@ -413,8 +405,7 @@ async function handlePlayCard(cardId: string) {
   isSatchelOpen.value = false
   await gameStore.play_turn(cardId)
   await scrollToResolutionContext()
-  
-  // If run just completed, update outcome and scroll to top
+
   if (gameStore.isRunComplete) {
     gameStore.get_run_outcome()
     await nextTick()
@@ -436,7 +427,7 @@ async function scrollToResolutionContext() {
 
   window.scrollTo({
     top: scrollTop,
-    behavior: 'smooth'
+    behavior: 'smooth',
   })
 }
 
@@ -460,64 +451,117 @@ function goToEndScreen() {
 <style scoped>
 .game-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, 
-    var(--color-bg-darkest) 0%, 
-    var(--color-bg-dark) 50%, 
-    var(--color-bg-medium) 100%
-  );
-  /* Reserve space at bottom for the drawer handle */
+  background:
+    radial-gradient(circle at 12% 12%, rgba(101, 123, 181, 0.18) 0%, transparent 45%),
+    radial-gradient(circle at 84% 16%, rgba(77, 111, 92, 0.2) 0%, transparent 40%),
+    linear-gradient(180deg, #0d1019 0%, #121827 48%, #111420 100%);
   padding-bottom: calc(var(--drawer-handle-height) + var(--space-lg));
 }
 
-/* ─── Two-column layout wrapper ─── */
-.game-layout {
-  display: flex;
-  flex-direction: column;
-}
-
-.game-layout.layout-wide {
-  flex-direction: row;
-  min-height: calc(100vh - 60px); /* subtract approximate masthead height */
-}
-
-.game-container {
-  max-width: 900px;
+.game-shell {
+  width: min(1280px, 100% - 2rem);
   margin: 0 auto;
-  padding: var(--space-lg);
+  padding: 1rem 0 0;
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
-  flex: 1;
-  min-width: 0;
+  gap: 0.9rem;
 }
 
-/* When sidebar is present, center content within remaining space */
-.layout-wide .game-container {
-  margin: 0 auto;
+.play-header {
+  background: rgba(9, 11, 20, 0.68);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-panel);
+  padding: 0.65rem 0.8rem;
 }
 
-/* Main game area — single column, full width */
-.game-main {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-  min-width: 0;
-}
-
-/* Aftershock Alert */
-.aftershock-alert {
-  background: linear-gradient(135deg, var(--effect-warning-bg) 0%, var(--surface-panel) 100%);
-  border: 1px solid var(--effect-warning-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-md) var(--space-lg);
+.header-row {
   display: flex;
   align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+.turn-pill {
+  margin: 0;
+  color: var(--text-bright);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  font-weight: var(--font-semibold);
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.score-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.score-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.score-chip-label {
+  color: var(--text-secondary);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.score-chip-value {
+  color: var(--text-accent);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+}
+
+.play-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  align-items: start;
   gap: var(--space-md);
+}
+
+.stage-section,
+.narrative-section {
+  min-width: 0;
+}
+
+.narrative-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  background: rgba(8, 11, 19, 0.52);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  padding: 0.8rem;
   box-shadow: var(--shadow-panel);
 }
 
+.aftershock-alert {
+  background: linear-gradient(135deg, var(--effect-warning-bg) 0%, rgba(255, 166, 0, 0.08) 100%);
+  border: 1px solid var(--effect-warning-border);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 .alert-icon {
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   line-height: 1;
   flex-shrink: 0;
 }
@@ -528,74 +572,61 @@ function goToEndScreen() {
 
 .alert-title {
   color: var(--effect-warning);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--font-bold);
-  margin-bottom: var(--space-xs);
+  margin-bottom: 2px;
 }
 
 .alert-message {
   color: var(--text-primary);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
 }
 
-/* Run Complete Card */
 .run-complete-card {
-  background: var(--card-bg);
-  border: 2px solid var(--color-border-primary);
-  border-radius: var(--radius-xl);
-  padding: var(--space-4xl) var(--space-2xl);
+  background: rgba(11, 15, 25, 0.9);
+  border: 1px solid var(--border-accent);
+  border-radius: 14px;
+  padding: 2rem 1.25rem;
   text-align: center;
-  box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-panel);
 }
 
 .complete-icon {
-  font-size: 4rem;
-  margin-bottom: var(--space-lg);
-  animation: celebrate 1s ease-in-out;
-}
-
-@keyframes celebrate {
-  0%, 100% { transform: scale(1) rotate(0deg); }
-  25% { transform: scale(1.2) rotate(-10deg); }
-  75% { transform: scale(1.2) rotate(10deg); }
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
 }
 
 .complete-title {
-  color: var(--color-primary);
-  font-size: var(--text-3xl);
-  font-weight: var(--font-black);
-  margin: 0 0 var(--space-md) 0;
+  color: var(--text-bright);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  margin: 0 0 0.4rem;
 }
 
 .complete-message {
-  color: var(--color-text-primary);
-  font-size: var(--text-base);
-  margin: 0 0 var(--space-2xl) 0;
-  line-height: var(--leading-relaxed);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  margin: 0 0 1rem;
 }
 
 .btn-view-results {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
+  background: color-mix(in oklab, var(--text-accent), #fff 8%);
+  color: var(--text-bright);
   border: none;
-  padding: var(--space-md) var(--space-3xl);
-  font-size: var(--text-lg);
+  padding: 0.55rem 1rem;
+  font-size: var(--text-sm);
   font-weight: var(--font-bold);
-  border-radius: var(--button-radius);
+  border-radius: 10px;
   cursor: pointer;
-  transition: all var(--transition-slow);
-  text-transform: uppercase;
+  transition: transform var(--transition-fast), filter var(--transition-fast);
   display: inline-flex;
   align-items: center;
-  gap: var(--space-sm);
-  box-shadow: 0 4px 16px var(--color-primary-glow);
+  gap: 0.4rem;
 }
 
 .btn-view-results:hover {
-  background: var(--color-primary-light);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px var(--color-primary-glow);
+  transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
 .btn-view-results:disabled {
@@ -605,27 +636,25 @@ function goToEndScreen() {
   box-shadow: none;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .game-container {
-    padding: var(--space-md);
-    gap: var(--space-md);
+@media (max-width: 1120px) {
+  .play-main {
+    grid-template-columns: 1fr;
   }
 
-  .aftershock-alert {
-    padding: var(--space-md);
+  .narrative-section {
+    padding: 0.7rem;
   }
 }
 
-@media (max-width: 480px) {
-  .game-container {
-    padding: var(--space-sm);
-    gap: var(--space-sm);
+@media (max-width: 768px) {
+  .game-shell {
+    width: min(1280px, 100% - 1rem);
   }
 
   .aftershock-alert {
     flex-direction: column;
-    text-align: center;
+    align-items: flex-start;
+    gap: 0.45rem;
   }
 
   .complete-title {
