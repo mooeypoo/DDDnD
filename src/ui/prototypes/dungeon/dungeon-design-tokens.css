@@ -1,0 +1,141 @@
+/**
+ * Dungeon Prototype Design Tokens
+ *
+ * Parallel token layer for the dungeon-console prototype family.
+ * NOT a replacement for the main production design system.
+ * Used by: DungeonFramePrototype, DungeonModalPrototype (future),
+ *          DungeonButtonPrototype (future), and related dungeon UI.
+ *
+ * All tokens are defined on :root so they cascade freely into any
+ * dungeon prototype component regardless of nesting depth.
+ * Variant state overrides (aged, accent) are scoped to component
+ * root classes inside each component's <style scoped> block.
+ *
+ * Token categories:
+ *   1.  Bronze ring material
+ *   2.  Ring bevel face highlights
+ *   3.  Outer shell
+ *   4.  Nameplate material
+ *   5.  Inset panel surface
+ *   6.  Text
+ *   7.  Structural elements
+ *   8.  Structural geometry
+ */
+
+:root {
+
+  /* ═══════════════════════════════════════════════════════════
+     1. BRONZE RING MATERIAL
+     Four-stop vertical gradient produces a top-lit cast-bronze face.
+     --dng-frame-outer is the inner border line of the ring itself
+     (between ring and outer shell).
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-bronze-hi:          #c89824;   /* top highlight — brightest catch light */
+  --dng-bronze-mid:         #a07018;   /* upper face working range */
+  --dng-bronze-deep:        #7a5510;   /* mid face — darkest working range */
+  --dng-bronze-low:         #6a4808;   /* bottom valley — deepest trough */
+  --dng-frame-outer:        #160f02;   /* near-black warm — ring inner border */
+
+
+  /* ═══════════════════════════════════════════════════════════
+     2. RING BEVEL FACE HIGHLIGHTS
+     Tokenized separately from the gradient stops so variants can
+     flatten (aged) or cool (accent) the directional bevel without
+     touching the base gradient.
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-ring-bevel-top:     rgba(200, 158, 48, 0.55);   /* top-face inset highlight */
+  --dng-ring-bevel-left:    rgba(188, 144, 32, 0.30);   /* left-face inset highlight */
+
+
+  /* ═══════════════════════════════════════════════════════════
+     3. OUTER SHELL
+     The dark architectural skin outside the bronze ring.
+     --dng-shell-gap becomes the outer shell padding value —
+     the visible dark strip between shell border and bronze ring.
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-shell-bg:           #0d0904;   /* very dark warm charcoal fill */
+  --dng-shell-border:       #080502;   /* near-black outer edge */
+
+
+  /* ═══════════════════════════════════════════════════════════
+     4. NAMEPLATE MATERIAL
+     The engraved dark plate that sits on the bronze ring surface.
+     -bg-hi/-mid/-base are the three gradient stops of the plate
+     background (bronze tint bleeds in at very top, settles quickly).
+     The four border tokens give each plate edge a distinct directional
+     bevel matching the ring's top-lit light source.
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-plate-bg-hi:        #191308;   /* very top: slight bronze tint from ring */
+  --dng-plate-bg-mid:       #120e06;   /* base: dark warm charcoal */
+  --dng-plate-bg-base:      #0e0b04;   /* deepest: at seam edge */
+
+  --dng-plate-top:          rgba(148, 108, 20, 0.45);   /* bronze-tinted lit top edge */
+  --dng-plate-left:         rgba(130,  94, 14, 0.40);   /* mild highlight left */
+  --dng-plate-right:        rgba(  0,   0,  0, 0.40);   /* shadow right */
+  --dng-plate-bottom:       rgba(100,  72, 10, 0.65);   /* prominent seam base line */
+  --dng-plate-shimmer:      rgba(138,  98, 16, 0.22);   /* 1px gold shimmer below plate */
+
+
+  /* ═══════════════════════════════════════════════════════════
+     5. INSET PANEL SURFACE
+     The recessed teal-dark content surface inside the ring.
+     -top/-surface/-bottom form the three stops of the linear
+     depth gradient. -bloom is the radial teal ellipse at center-top
+     simulating interior volume. -shimmer is the 1px material edge
+     at the inset opening.
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-panel-surface:      #0b1c24;   /* main surface tone */
+  --dng-panel-top:          #0e2232;   /* teal-lifted — interior opening */
+  --dng-panel-bottom:       #08171e;   /* deeper — shadow at base */
+  --dng-panel-footer:       #091620;   /* footer band background */
+  --dng-panel-border:       rgba(0, 0, 0, 0.85);   /* ring↔inset hard boundary */
+
+  --dng-inset-bloom:        rgba(18, 62, 84, 0.30);    /* radial teal bloom */
+  --dng-inset-shimmer:      rgba(20, 78, 100, 0.22);   /* 1px teal top-edge shimmer */
+
+
+  /* ═══════════════════════════════════════════════════════════
+     6. TEXT
+     All text tokens are specific to the dungeon palette and sit
+     outside the main --text-* system. They consume the main
+     --font-heading / --font-body tokens from the production system.
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-title-gold:         #d4b860;   /* engraved gold label — not glowing */
+  --dng-subtitle-warm:      #7a6c44;   /* secondary label — warm ochre */
+  --dng-footer-muted:       #5c7078;   /* status readout — muted teal-grey */
+
+
+  /* ═══════════════════════════════════════════════════════════
+     7. STRUCTURAL ELEMENTS
+     Dividers and bracket ornaments appear across all dungeon
+     prototype components. Defined here so accent/aged variant
+     overrides in any component can target the same token.
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-divider:            rgba(168, 120, 32, 0.35);   /* bronze-tinted hairline */
+  --dng-bracket:            rgba(196, 148, 34, 0.82);   /* L-bracket mount color */
+
+
+  /* ═══════════════════════════════════════════════════════════
+     8. STRUCTURAL GEOMETRY
+     Dimensional constants specific to the dungeon frame language.
+     Using tokens here lets the modal and other future components
+     vary proportions (e.g. larger chamfer, thicker ring) without
+     re-implementing the clip-path or layout from scratch.
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-chamfer:            8px;    /* 45° corner cut on outer shell */
+  --dng-shell-gap:          3px;    /* outer shell padding = dark gap thickness */
+  --dng-ring-padding:       12px;   /* bronze ring thickness on all four sides */
+  --dng-ring-gap:           6px;    /* seam between nameplate and inset */
+  --dng-bracket-size:       16px;   /* L-bracket arm length */
+  --dng-bracket-weight:     3px;    /* L-bracket arm thickness */
+  --dng-bracket-inset:      6px;    /* ring edge → bracket anchor distance */
+
+}

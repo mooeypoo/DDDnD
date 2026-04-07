@@ -3,6 +3,7 @@ import type { Preview } from '@storybook/vue3'
 import { createRouter, createMemoryHistory } from 'vue-router'
 
 import '../src/ui/styles/design-system.css'
+import '../src/ui/prototypes/dungeon/dungeon-design-tokens.css'
 import '../stories/foundations/storybook-preview.css'
 
 // Install a stub router so view-level stories using useRoute/useRouter
