@@ -8,6 +8,7 @@
  */
 
 @import '../tokens/design-tokens.css';
+@import '../prototypes/dungeon/dungeon-design-tokens.css';
 
 
 /* ─── Global element base ───────────────────────────────────── */
