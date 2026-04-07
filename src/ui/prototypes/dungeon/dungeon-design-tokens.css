@@ -145,4 +145,37 @@
   --dng-modal-chamfer:      10px;   /* slightly larger 45° cut — modal presence */
   --dng-modal-ring-padding: 14px;   /* thicker bronze ring — weightier modal frame */
 
+
+  /* ═══════════════════════════════════════════════════════════
+     9. BUTTON GEOMETRY
+     Proportionally scaled-down geometry for DungeonButtonPrototype.
+     Smaller chamfer and ring dimensions suit the compact button form.
+     --dng-btn-ring-v/-h are the vertical/horizontal ring padding values
+     (replaces --dng-ring-padding for button scale).
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-btn-chamfer:          5px;   /* 45° corner cut on button outer shell */
+  --dng-btn-ring-v:           7px;   /* vertical ring thickness */
+  --dng-btn-ring-h:           14px;  /* horizontal ring thickness */
+  --dng-btn-bracket-size:     10px;  /* L-bracket arm length at button scale */
+  --dng-btn-bracket-weight:   2px;   /* L-bracket arm thickness at button scale */
+  --dng-btn-bracket-inset:    4px;   /* ring edge → bracket anchor distance */
+
+
+  /* ═══════════════════════════════════════════════════════════
+     10. WARNING PALETTE  (button warning variant only)
+     Amber-shifted plate border tokens derived from the bronze
+     family but pushed toward orange-gold to read as caution.
+     The ring material is unchanged — it is still a bronze frame.
+     Only the plate face bevel and label shift to amber territory.
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-warning-plate-top:    rgba(200, 124, 20, 0.58);   /* amber-lit top edge */
+  --dng-warning-plate-left:   rgba(178, 108, 16, 0.46);   /* mild amber left */
+  --dng-warning-plate-right:  rgba(  0,   0,  0, 0.42);   /* shadow right */
+  --dng-warning-plate-bottom: rgba(160,  80, 10, 0.78);   /* deep amber seam */
+  --dng-warning-shimmer:      rgba(200, 140, 28, 0.36);   /* amber shimmer below plate */
+  --dng-warning-label:        #d49830;                    /* warm amber label */
+  --dng-warning-bracket:      rgba(220, 148, 30, 0.88);   /* bright amber bracket mounts */
+
 }
