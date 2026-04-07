@@ -244,4 +244,40 @@
   --dng-badge-glyph-size-sm:        10px;   /* glyph SVG width/height — small */
   --dng-badge-glyph-size-md:        15px;   /* glyph SVG width/height — medium */
 
+
+  /* ═══════════════════════════════════════════════════════════
+     13. TAB STRIP GEOMETRY
+     Proportionally compact geometry for DungeonTabsPrototype.
+     --dng-tab-ring-v/-h are the vertical/horizontal ring padding
+     values for the horizontal strip container. These replace
+     --dng-ring-padding for the tab-strip form factor.
+     Chosen at 8px to keep the bronze band tight while still
+     fully containing the 6px bracket anchors (--dng-bracket-inset).
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-tab-ring-v:           8px;   /* vertical ring padding for tab strip container */
+  --dng-tab-ring-h:           8px;   /* horizontal ring padding for tab strip container */
+  --dng-tab-item-py:          9px;   /* vertical padding within each tab face plate */
+  --dng-tab-item-px:          16px;  /* horizontal padding within each tab face plate */
+
+
+  /* ═══════════════════════════════════════════════════════════
+     14. PROGRESS / METER GEOMETRY + FILL PALETTE
+     Dimensional and semantic color constants for
+     DungeonProgressPrototype. The fill palette is separate from
+     the existing signal palettes (badge, warning) because progress
+     fills are solid rgba bars within the recessed track interior,
+     not plate-bevel directional overrides.
+     --dng-progress-fill is the composite token overridden per
+     variant; it defaults to the teal family (same hue as
+     --dng-info-glyph and the accent bracket teal).
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-progress-track-h:       20px;                      /* track bar total height */
+
+  --dng-progress-fill:          rgba(38, 196, 176, 0.88);  /* default teal fill — overridden by variant */
+  --dng-progress-fill-success:  rgba(45, 220, 130, 0.88);  /* green — success / goal-met state */
+  --dng-progress-fill-warning:  rgba(200, 148,  30, 0.88); /* amber — warning / approaching limit */
+  --dng-progress-fill-alert:    rgba(232,  96,  96, 0.88); /* crimson — alert / critical / over-threshold */
+
 }
