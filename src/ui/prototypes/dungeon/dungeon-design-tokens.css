@@ -138,4 +138,10 @@
   --dng-bracket-weight:     3px;    /* L-bracket arm thickness */
   --dng-bracket-inset:      6px;    /* ring edge → bracket anchor distance */
 
+  /* Modal-specific geometry overrides
+     These tokens let the modal vary proportions without re-implementing
+     the clip-path or ring layout from scratch. */
+  --dng-modal-chamfer:      10px;   /* slightly larger 45° cut — modal presence */
+  --dng-modal-ring-padding: 14px;   /* thicker bronze ring — weightier modal frame */
+
 }
