@@ -133,7 +133,8 @@
   --dng-chamfer:            8px;    /* 45° corner cut on outer shell */
   --dng-shell-gap:          3px;    /* outer shell padding = dark gap thickness */
   --dng-ring-padding:       12px;   /* bronze ring thickness on all four sides */
-  --dng-ring-gap:           6px;    /* seam between nameplate and inset */
+  --dng-ring-gap:           8px;    /* seam between nameplate and inset — wider bronze bridge */
+  --dng-inner-chamfer:      14px;   /* 45° inner corner cut on content inset, echoes outer chamfer */
   --dng-bracket-size:       16px;   /* L-bracket arm length */
   --dng-bracket-weight:     3px;    /* L-bracket arm thickness */
   --dng-bracket-inset:      6px;    /* ring edge → bracket anchor distance */

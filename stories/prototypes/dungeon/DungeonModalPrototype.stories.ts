@@ -188,6 +188,57 @@ export const LongBodyContent: Story = {
 }
 
 /**
+ * Tri-zone silhouette check: render on a contrasting background to make
+ * BOTH the outer octagonal clip-path AND the inner inset corner chamfers
+ * visible as distinct structural shapes.
+ *
+ * What to look for:
+ *   Outer  — 10px chamfer (larger than frame's 8px) on .dungeon-modal via clip-path.
+ *   Inner  — 14px chamfer on .dungeon-modal__inset top corners only.
+ *            Bronze ring material shows through the corner slopes.
+ *            Shadow wedges inside TL/TR corners deepen the recession.
+ *   Seam   — 8px bronze bridge between inset and action plate (ring-gap).
+ *   Bookend — dark cap [3px bronze seam] bronze ring [8px seam] [teal inset] [8px seam] dark action plate.
+ *             Cap and action plate use identical dark-plate gradient — top/bottom bookend.
+ *   Cap split — top brackets anchor in the cap; bottom brackets anchor in the ring.
+ *               This is the key structural difference from DungeonFramePrototype,
+ *               where all four brackets live on the ring.
+ * This is a structural review story — not a usage demonstration.
+ */
+export const StructuralSilhouette: Story = {
+  render: (args) => ({
+    components: { DungeonModalPrototype },
+    setup: () => ({ args }),
+    template: `
+      <div style="background: #1e2430; padding: 48px; border-radius: 4px;">
+        <DungeonModalPrototype v-bind="args">
+          <p style="margin: 0; color: var(--text-secondary)">
+            Outer: 10px chamfer on the shell clip-path (slightly heavier than the frame's 8px).
+            Inner: 14px chamfer on the inset top-left and top-right corners —
+            bronze ring material is visible through the corner cuts as sloped walls.
+            Shadow wedges simulate depth recession into the content well.
+            Drop-shadow cascade is heavier than the frame — the modal reads as
+            physically elevated above the page surface.
+          </p>
+          <template #actions>
+            <button style="${btnDismiss}">Dismiss</button>
+            <button style="${btnPrimary}">Confirm</button>
+          </template>
+        </DungeonModalPrototype>
+      </div>
+    `,
+  }),
+  args: {
+    title: 'Silhouette Review',
+    subtitle: 'outer 10px · inner 14px · cap seam 3px',
+    variant: 'default',
+  },
+  parameters: {
+    backgrounds: { default: 'Panel' },
+  },
+}
+
+/**
  * All three variants side by side at equal width.
  *
  * What to look for:

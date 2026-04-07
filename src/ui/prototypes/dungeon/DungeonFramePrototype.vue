@@ -14,6 +14,8 @@
       <!--
         Nameplate: sits ON the bronze ring surface above the inset.
         Title/subtitle are frame-level labels, not panel-level content.
+        Full-width strip: bleeds to ring edges (wall-to-wall across the ring
+        interior), leaving only side bronze visible below at the inset level.
         Background is near-black warm charcoal — reads as an engraved plate
         set into the bronze, not a header strip inside a dark panel.
       -->
@@ -30,7 +32,9 @@
         </div>
       </div>
 
-      <!-- Recessed inset: teal-dark content surface, visually below the ring -->
+      <!-- Recessed inset: teal-dark content surface, visually below the ring.
+           Top corners chamfered at --dng-inner-chamfer, revealing bronze ring
+           material at the slopes — the 「sunken panel」 read from the SVG reference. -->
       <div class="dungeon-frame__inset">
         <div class="dungeon-frame__body">
           <slot />
@@ -313,25 +317,35 @@ withDefaults(
 
 
 /* ─────────────────────────────────────────────────────────────
-   NAMEPLATE — beveled dark plate on ring surface
+   NAMEPLATE — full-width header strip spanning the ring interior
+
+   SVG structural reference: the title band is wall-to-wall across
+   the ring face — no side bronze visible at the header level.
+   Achieved with a negative horizontal margin equal to ring-padding,
+   and padding restored inside to maintain text clearance.
 
    Dark background (charcoal) against bronze ring = engraved-plate read.
    Borders are directional — matching the ring's top-lit bevel:
      top → bronze tint (ring-adjacent, catches light)
-     left → mild highlight
-     right → mild shadow
-     bottom → prominent seam where plate meets bronze gap below
+     left/right → edge separators at ring boundary (subtle bevel)
+     bottom → prominent seam where plate meets the visible bronze bridge
 
-   Box-shadow: 4 inset recesses (top, left, right, bottom) simulate
-   a pressed/recessed surface. The 0 1px 0 outer shadow creates the
-   gold shimmer that bleeds into the 6px bronze seam below the plate.
+   The gold shimmer bleeds into the 8px bronze seam (ring-gap) below
+   the plate, which is now clearly legible as a horizontal bridge.
    ───────────────────────────────────────────────────────────── */
 .dungeon-frame__nameplate {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-md);
-  padding: 10px 14px 9px;
+
+  /* Full-width: nameplate spans ring interior edge-to-edge           */
+  /* Negative margin bleeds into ring padding; padding restores text  */
+  /* clearance and keeps labels aligned with body content below.      */
+  width: calc(100% + 2 * var(--dng-ring-padding));
+  margin-left: calc(-1 * var(--dng-ring-padding));
+  padding: 10px calc(var(--dng-ring-padding) + 12px) 9px calc(var(--dng-ring-padding) + 14px);
+
   background: linear-gradient(
     to bottom,
     var(--dng-plate-bg-hi)    0%,
@@ -344,8 +358,6 @@ withDefaults(
   border-bottom: 1px solid var(--dng-plate-bottom);
   box-shadow:
     inset 0 1px 6px rgba(0, 0, 0, 0.60),    /* top recess */
-    inset 2px 0 4px rgba(0, 0, 0, 0.28),    /* left recess */
-    inset -2px 0 4px rgba(0, 0, 0, 0.28),   /* right recess */
     0 1px 0 var(--dng-plate-shimmer);        /* shimmer into bronze seam below */
 }
 
@@ -398,12 +410,25 @@ withDefaults(
    Together they read as a surface with depth and interior volume,
    not a flat colored rectangle.
 
+   SVG STRUCTURAL REFINEMENT — inner corner chamfers:
+   clip-path mirrors the outer octagonal silhouette at the inset opening.
+   Top-left and top-right corners are cut at 45° × --dng-inner-chamfer.
+   Bottom corners remain square (SVG shows square base of content well).
+   The chamfer gaps reveal the bronze ring material behind, reading as
+   the visible frame slope descending into the content well — the
+   「sunken panel」effect central to the SVG reference language.
+
+   ::after adds matching shadow wedges at the chamfered corners,
+   simulating the shadow cast by the angled bronze walls above the
+   inset opening. pointer-events: none so content remains interactive.
+
    The near-black border (--dng-panel-border) is the single clearest
    structural edge in the hierarchy: frame vs panel.
    The teal-tinted top inner shimmer is a 1px edge that gives the
    inset its own material identity at the opening.
    ───────────────────────────────────────────────────────────── */
 .dungeon-frame__inset {
+  position: relative;
   background:
     radial-gradient(
       ellipse 85% 45% at 50% 0%,
@@ -422,6 +447,32 @@ withDefaults(
     inset 0 3px 20px rgba(0, 0, 0, 0.78),    /* recessed top shadow */
     inset 0 0   0  1px rgba(0, 0, 0, 0.20),  /* inner-edge definition */
     inset 0 1px 0 var(--dng-inset-shimmer);  /* top-edge material shimmer */
+
+  /* Top-corner chamfers — echoes the outer octagonal clip-path         */
+  /* at the inset mouth, revealing bronze ring material at each slope.  */
+  clip-path: polygon(
+    var(--dng-inner-chamfer)                 0%,
+    calc(100% - var(--dng-inner-chamfer))    0%,
+    100%   var(--dng-inner-chamfer),
+    100%   100%,
+    0%     100%,
+    0%     var(--dng-inner-chamfer)
+  );
+}
+
+/* Shadow wedges cast by the chamfered corner walls into the content well */
+.dungeon-frame__inset::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  /* Diagonal gradients anchored at TL and TR — fade quickly toward center */
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.62) 0%, transparent 100%),
+    linear-gradient(225deg, rgba(0, 0, 0, 0.62) 0%, transparent 100%);
+  background-size: 44px 44px, 44px 44px;
+  background-position: 0 0, 100% 0;
+  background-repeat: no-repeat;
 }
 
 

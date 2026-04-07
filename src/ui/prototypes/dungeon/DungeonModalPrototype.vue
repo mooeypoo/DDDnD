@@ -19,7 +19,8 @@
                                 shell gap (dark strip on L/R/B). Wraps ONLY the content
                                 zone (inset + action plate). Bottom brackets anchor here.
 
-      4. dungeon-modal__inset   teal-dark content surface — same depth gradient and bloom
+      4. dungeon-modal__inset   teal-dark content surface — same depth gradient, bloom,
+                                and top-corner chamfers (clip-path + ::after shadow wedges)
 
       5. dungeon-modal__body    primary content region
 
@@ -64,7 +65,7 @@
       <span class="dungeon-bracket dungeon-bracket--bl" aria-hidden="true" />
       <span class="dungeon-bracket dungeon-bracket--br" aria-hidden="true" />
 
-      <!-- Teal-dark inset: same depth gradient and bloom as DungeonFramePrototype -->
+      <!-- Teal-dark inset: same depth gradient, bloom, and top-corner chamfers as DungeonFramePrototype -->
       <div class="dungeon-modal__inset">
         <div class="dungeon-modal__body">
           <slot />
@@ -255,12 +256,13 @@ withDefaults(
   border-top:    1px solid var(--dng-plate-top);
   border-left:   2px solid var(--dng-plate-left);
   border-right:  2px solid var(--dng-plate-right);
-  border-bottom: 2px solid var(--dng-plate-bottom);  /* prominent seam into ring zone */
+  border-bottom: 3px solid var(--dng-plate-bottom);  /* bronze seam: cap → ring, 3px bridge */
 
   box-shadow:
-    inset 0 1px 10px rgba(0, 0, 0, 0.68),    /* deep top recess */
-    inset 2px  0  5px rgba(0, 0, 0, 0.28),   /* left recess */
-    inset -2px 0  5px rgba(0, 0, 0, 0.28),   /* right recess */
+    inset 0  1px 18px rgba(0, 0, 0, 0.75),   /* deep top recess — plate sits in cavity */
+    inset 0 -1px  6px rgba(0, 0, 0, 0.40),   /* bottom: shadow collects toward seam */
+    inset 2px  0  6px rgba(0, 0, 0, 0.30),   /* left face panel recess */
+    inset -2px 0  6px rgba(0, 0, 0, 0.30),   /* right face panel recess */
     0 2px 0 var(--dng-plate-shimmer);         /* shimmer blooms into ring zone */
 }
 
@@ -400,11 +402,14 @@ withDefaults(
 /* ─────────────────────────────────────────────────────────────
    INSET — recessed teal-dark content surface
 
-   Identical to DungeonFramePrototype __inset:
-   radial teal bloom at top, linear depth gradient, inset shadows.
-   The content surface is the same carved interior cavity.
+   Mirrors DungeonFramePrototype __inset:
+   same radial teal bloom at top, linear depth gradient, inset shadows.
+   Top-corner chamfers (clip-path polygon) match the frame's inner chamfer,
+   revealing bronze ring material at each slope. ::after shadow wedges
+   deepen the sense of a recessed cavity at TL/TR corners.
    ───────────────────────────────────────────────────────────── */
 .dungeon-modal__inset {
+  position: relative;
   background:
     radial-gradient(
       ellipse 85% 45% at 50% 0%,
@@ -423,6 +428,31 @@ withDefaults(
     inset 0 3px 20px rgba(0, 0, 0, 0.78),
     inset 0 0   0  1px rgba(0, 0, 0, 0.20),
     inset 0 1px 0 var(--dng-inset-shimmer);
+
+  /* Top-corner chamfers — echoes the outer octagonal clip-path and the   */
+  /* frame inset's inner chamfer, revealing bronze ring at each slope.    */
+  clip-path: polygon(
+    var(--dng-inner-chamfer)                 0%,
+    calc(100% - var(--dng-inner-chamfer))    0%,
+    100%   var(--dng-inner-chamfer),
+    100%   100%,
+    0%     100%,
+    0%     var(--dng-inner-chamfer)
+  );
+}
+
+/* Shadow wedges cast by the chamfered corner walls into the content well */
+.dungeon-modal__inset::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.62) 0%, transparent 100%),
+    linear-gradient(225deg, rgba(0, 0, 0, 0.62) 0%, transparent 100%);
+  background-size: 44px 44px, 44px 44px;
+  background-position: 0 0, 100% 0;
+  background-repeat: no-repeat;
 }
 
 

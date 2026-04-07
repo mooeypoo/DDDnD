@@ -28,13 +28,22 @@ type Story = StoryObj<typeof DungeonFramePrototype>
 // ─── Stories ──────────────────────────────────────────────────────────────────
 
 /**
- * Baseline form: outer dark shell (1px border + 3px gap) → 12px bronze ring (bevel gradient)
- * → 6px bronze seam → dark nameplate (directional bevel borders) → teal-dark inset
- * (radial top-bloom gradient) → footer band.
+ * Baseline form after SVG-reference refinement pass:
+ * outer dark shell (1px border + 3px gap) → 12px bronze ring (bevel gradient)
+ * → full-width nameplate (wall-to-wall across ring interior) → 8px bronze seam
+ * → teal-dark inset with top-corner chamfers (14px × 45°, echoing outer octagon)
+ * → radial top-bloom gradient → footer band.
  *
- * Outer corners are chamfered at 8px/45° — the clip-path octagon removes the
- * rectangular-panel silhouette. Ambient depth comes from filter: drop-shadow()
- * which follows the chamfered shape.
+ * Structural changes from SVG reference (panel.svg):
+ *   · Nameplate is now a wall-to-wall strip — title plate spans the full ring
+ *     interior width, showing no side bronze at header level (matches SVG
+ *     header band structure).
+ *   · Inset top corners are chamfered at 14px — 45° cuts reveal the bronze ring
+ *     material at the slopes, giving the 「sunken panel」 silhouette of the SVG.
+ *   · Shadow wedges inside the inset corners (::after, 44px × 44px diagonal
+ *     gradients) deepen the frame-wall recession illusion.
+ *   · Ring seam widened from 6px to 8px — the bronze horizontal bridge between
+ *     nameplate and inset is more legible.
  */
 export const Default: Story = {
   render: (args) => ({
@@ -55,9 +64,17 @@ export const Default: Story = {
 }
 
 /**
- * Chamfer silhouette check: render on a lighter background to make the
- * octagonal clip-path corners clearly visible as a structural shape.
- * This is a review story — not a usage demonstration.
+ * Dual-chamfer silhouette check: render on a contrasting background to make
+ * BOTH the outer octagonal clip-path AND the inner inset corner chamfers
+ * visible as distinct structural shapes.
+ *
+ * What to look for:
+ *   Outer  — 8px chamfer on .dungeon-frame via clip-path octagon.
+ *   Inner  — 14px chamfer on .dungeon-frame__inset top corners only.
+ *            Bronze ring material shows through the chamfer gaps (slope faces).
+ *            Shadow wedges inside TL/TR corners deepen the recession.
+ *   Seam   — 8px bronze bridge between nameplate and inset (wider than before).
+ * This is a structural review story — not a usage demonstration.
  */
 export const ChamferSilhouette: Story = {
   render: (args) => ({
@@ -67,11 +84,13 @@ export const ChamferSilhouette: Story = {
       <div style="background: #1e2430; padding: 48px; border-radius: 4px;">
         <DungeonFramePrototype v-bind="args">
           <p style="margin: 0; color: var(--text-secondary)">
-            The outer corners are clipped at 8px × 45°. Each corner shows a
-            flat 45° cut rather than a radius curve — this is the chamfered
-            architectural silhouette.
+            Outer: 8px chamfer on the shell clip-path (octagonal silhouette).
+            Inner: 14px chamfer on the inset top-left and top-right corners —
+            bronze ring material is visible through the corner cuts as sloped
+            frame walls. Shadow wedges inside the inset corners simulate the
+            frame casting depth into the content well.
           </p>
-          <template #footer>Silhouette review · chamfer = 8px</template>
+          <template #footer>Silhouette review · outer chamfer = 8px · inner chamfer = 14px</template>
         </DungeonFramePrototype>
       </div>
     `,
