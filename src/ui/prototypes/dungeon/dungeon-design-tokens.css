@@ -178,4 +178,70 @@
   --dng-warning-label:        #d49830;                    /* warm amber label */
   --dng-warning-bracket:      rgba(220, 148, 30, 0.88);   /* bright amber bracket mounts */
 
+
+  /* ═══════════════════════════════════════════════════════════
+     11. BADGE SEMANTIC PALETTES
+     Semantic signal colors used by DungeonBadgePrototype variants.
+     Each palette provides plate-bevel tokens (same override strategy
+     as the warning/primary/accent families) plus a glyph-color token
+     for the centered icon. The bronze ring material is unchanged
+     across all badge variants — it is always a bronze frame.
+
+     Variants covered here (in addition to warning, which re-uses
+     section 10 tokens):
+       info    — teal (re-uses primary/accent plate override values
+                 directly in the component; no separate tokens needed)
+       success — green signal
+       alert   — red/crimson signal
+       help    — purple/mystery signal
+       locked  — uses subtle/disabled dimming (no new tokens needed)
+     ═══════════════════════════════════════════════════════════ */
+
+  /* Success — green signal */
+  --dng-success-plate-top:    rgba(20, 172, 78, 0.52);    /* green-lit top edge */
+  --dng-success-plate-left:   rgba(16, 152, 64, 0.38);    /* mild green left */
+  --dng-success-plate-right:  rgba(  0,   0,  0, 0.40);   /* shadow right */
+  --dng-success-plate-bottom: rgba(14, 148, 60, 0.70);    /* deep green seam */
+  --dng-success-shimmer:      rgba(24, 200, 92, 0.32);    /* green shimmer below plate */
+  --dng-success-glyph:        #2ddc82;                    /* bright green icon */
+
+  /* Alert — red/crimson signal */
+  --dng-alert-plate-top:      rgba(210, 48, 40, 0.52);    /* crimson-lit top edge */
+  --dng-alert-plate-left:     rgba(188, 38, 32, 0.38);    /* mild crimson left */
+  --dng-alert-plate-right:    rgba(  0,   0,  0, 0.42);   /* shadow right */
+  --dng-alert-plate-bottom:   rgba(190, 36, 28, 0.72);    /* deep crimson seam */
+  --dng-alert-shimmer:        rgba(228, 56, 48, 0.36);    /* crimson shimmer below plate */
+  --dng-alert-glyph:          #e86060;                    /* bright red icon */
+
+  /* Info — teal (glyph color only; plate overrides match primary/accent inline) */
+  --dng-info-glyph:           #26d4bc;                    /* teal icon — same family as accent bracket */
+
+  /* Help — purple/arcane signal */
+  --dng-help-plate-top:       rgba(148, 64, 214, 0.50);   /* violet-lit top edge */
+  --dng-help-plate-left:      rgba(128, 50, 196, 0.36);   /* mild violet left */
+  --dng-help-plate-right:     rgba(  0,   0,  0, 0.40);   /* shadow right */
+  --dng-help-plate-bottom:    rgba(120, 46, 188, 0.68);   /* deep violet seam */
+  --dng-help-shimmer:         rgba(168, 86, 232, 0.30);   /* violet shimmer below plate */
+  --dng-help-glyph:           #c480f4;                    /* soft purple icon */
+
+
+  /* ═══════════════════════════════════════════════════════════
+     12. BADGE GEOMETRY
+     Dimensional constants for DungeonBadgePrototype.
+     The badge uses a circular (border-radius 50%) silhouette rather
+     than the chamfered octagon — appropriate for compact interface
+     markers where the chamfer clip-path would reduce to an
+     indistinct micro-polygon. The bronze ring layering and
+     plate/glyph structural strategy remain identical to the button
+     family. Shell gap, ring material gradient, and plate depth
+     treatment are shared token vocabulary.
+     ═══════════════════════════════════════════════════════════ */
+
+  --dng-badge-size-sm:              24px;   /* small badge outer diameter */
+  --dng-badge-size-md:              36px;   /* medium badge outer diameter */
+  --dng-badge-ring-padding-sm:       3px;   /* bronze ring thickness — small */
+  --dng-badge-ring-padding-md:       4px;   /* bronze ring thickness — medium */
+  --dng-badge-glyph-size-sm:        10px;   /* glyph SVG width/height — small */
+  --dng-badge-glyph-size-md:        15px;   /* glyph SVG width/height — medium */
+
 }
