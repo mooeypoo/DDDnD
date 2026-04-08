@@ -5,30 +5,25 @@
     </div>
     
     <nav class="masthead-right" aria-label="Game navigation">
-      <button class="nav-button" @click="$emit('show-rules')" aria-label="Show game rules">
+      <AppButton variant="subtle" aria-label="Show game rules" @click="$emit('show-rules')">
         <span class="button-icon">📖</span>
         <span class="button-label">Rules</span>
-      </button>
-      
+      </AppButton>
 
-      <button class="nav-button" @click="$emit('show-about')" aria-label="About this game">
+      <AppButton variant="subtle" aria-label="About this game" @click="$emit('show-about')">
         <span class="button-icon">ℹ️</span>
         <span class="button-label">About</span>
-      </button>
+      </AppButton>
 
-      <button class="nav-button" @click="$emit('show-dungeon-master')" aria-label="Dungeon Master social links">
+      <AppButton variant="subtle" aria-label="Dungeon Master social links" @click="$emit('show-dungeon-master')">
         <span class="button-icon">🧙‍♂️</span>
         <span class="button-label">Dungeon Master</span>
-      </button>
-      
-      <button 
-        class="nav-button reset-button" 
-        @click="handleResetClick" 
-        aria-label="Reset and start a new run"
-      >
+      </AppButton>
+
+      <AppButton variant="warning" aria-label="Reset and start a new run" @click="handleResetClick">
         <span class="button-icon">↻</span>
         <span class="button-label">Reset Run</span>
-      </button>
+      </AppButton>
     </nav>
     
     <!-- Reset Confirmation Overlay -->
@@ -56,6 +51,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import GameLogo from './game_logo.vue'
+import AppButton from '@/ui/components/common/AppButton.vue'
 
 defineEmits<{
   'show-rules': []
@@ -105,59 +101,8 @@ function confirmReset() {
   gap: var(--space-sm);
 }
 
-/* Navigation buttons */
-.nav-button {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--surface-panel);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.nav-button:hover {
-  background: var(--surface-card);
-  border-color: var(--border-focus);
-  transform: translateY(-1px);
-}
-
-.nav-button:active {
-  transform: translateY(0);
-}
-
-.nav-button:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
-}
-
-.button-icon {
-  font-size: var(--text-md);
-  line-height: 1;
-}
-
-.button-label {
-  line-height: 1;
-}
-
-/* Reset button styling */
-.reset-button {
-  background: var(--surface-card);
-  border-color: var(--border-accent);
-  color: var(--text-accent);
-}
-
-.reset-button:hover {
-  background: var(--effect-warning-bg);
-  border-color: var(--effect-warning);
-  color: var(--effect-warning);
-}
+/* .button-icon and .button-label target slot content spans inside AppButton;
+   scoped styles apply to them because they are part of this component's template. */
 
 /* Reset Confirmation Overlay */
 .reset-confirmation-overlay {
@@ -285,15 +230,11 @@ function confirmReset() {
   .masthead-right {
     gap: var(--space-xs);
   }
-  
-  .nav-button {
-    padding: var(--space-xs) var(--space-sm);
-  }
-  
+
   .button-label {
     display: none;
   }
-  
+
   .button-icon {
     font-size: var(--text-lg);
   }
