@@ -111,15 +111,14 @@
     </div>
 
     <template #footer>
-      <div class="modal-footer">
-        <button class="primary-button" @click="close">Got it!</button>
-      </div>
+      <AppButton label="Got it!" variant="primary" @click="close" />
     </template>
   </SurfaceModalPanel>
 </template>
 
 <script setup lang="ts">
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
+import AppButton from '@/ui/components/common/AppButton.vue'
 defineProps<{
   isOpen: boolean
 }>()
@@ -195,16 +194,6 @@ function close() {
   color: var(--color-primary);
 }
 
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.primary-button {
-  background: var(--color-primary);
-  color: white;
-}
-
 @media (max-width: 768px) {
   .modal-overlay {
     padding: var(--space-md);
@@ -215,8 +204,7 @@ function close() {
   }
   
   .modal-header,
-  .modal-body,
-  .modal-footer {
+  .modal-body {
     padding: var(--space-lg);
   }
   
