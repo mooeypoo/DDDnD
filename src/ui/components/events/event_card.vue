@@ -1,30 +1,32 @@
 <template>
-  <article class="event-card" :class="`severity-${severity}`">
+  <AppCard title="⚠️ System Event" :variant="severityCardVariant">
+    <template #header-actions>
+      <AppBadge :variant="severityBadgeVariant" :label="`${severity} severity`" size="sm" />
+    </template>
 
-    <!-- Artwork region: renders illustrationUrl prop or falls back to named slot content -->
-    <div v-if="illustrationUrl || $slots.artwork" class="event-artwork" aria-hidden="true">
-      <img v-if="illustrationUrl" :src="illustrationUrl" alt="" />
-      <slot v-else name="artwork" />
+    <div class="event-body">
+      <!-- Artwork region: contained inside card inset (no full-bleed in this migration pass) -->
+      <div v-if="illustrationUrl || $slots.artwork" class="event-artwork" aria-hidden="true">
+        <img v-if="illustrationUrl" :src="illustrationUrl" alt="" />
+        <slot v-else name="artwork" />
+      </div>
+
+      <h3 class="event-title">{{ title }}</h3>
+      <p class="event-description">{{ description }}</p>
+
+      <ul v-if="highlights.length" class="event-highlights">
+        <li v-for="(highlight, index) in highlights" :key="index" class="highlight-item">
+          {{ highlight }}
+        </li>
+      </ul>
     </div>
-
-    <header class="event-header">
-      <p class="event-label">⚠️ System Event</p>
-      <span class="event-severity" :class="`severity-badge-${severity}`">{{ severityLabel }}</span>
-    </header>
-
-    <h3 class="event-title">{{ title }}</h3>
-    <p class="event-description">{{ description }}</p>
-
-    <ul v-if="highlights.length" class="event-highlights">
-      <li v-for="(highlight, index) in highlights" :key="index" class="highlight-item">
-        {{ highlight }}
-      </li>
-    </ul>
-  </article>
+  </AppCard>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppBadge from '@/ui/components/common/AppBadge.vue'
+import AppCard from '@/ui/components/cards/AppCard.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -41,35 +43,37 @@ const props = withDefaults(
   }
 )
 
-const severityLabel = computed(() => {
-  return props.severity.charAt(0).toUpperCase() + props.severity.slice(1)
+const severityBadgeVariant = computed((): 'info' | 'warning' | 'alert' => {
+  if (props.severity === 'low') return 'info'
+  if (props.severity === 'high' || props.severity === 'critical') return 'alert'
+  return 'warning'
+})
+
+const severityCardVariant = computed((): 'neutral' | 'warning' | 'danger' => {
+  if (props.severity === 'low') return 'neutral'
+  if (props.severity === 'high' || props.severity === 'critical') return 'danger'
+  return 'warning'
 })
 </script>
 
 <style scoped>
-.event-card {
-  background: var(--surface-elevated);
-  border: 1px solid var(--border-card);
-  border-left-width: 4px;
-  border-left-color: var(--border-card);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
+/* Flex column wrapper — replicates the gap spacing that .event-card
+   previously provided as the outer shell's flex layout. */
+.event-body {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  box-shadow: var(--shadow-inset-ridge), var(--shadow-card);
-  overflow: hidden;
 }
 
-/* Artwork region — collapses when slot is not populated */
+/* Artwork region — contained inside card inset (no full-bleed in this migration pass).
+   The inset's clip-path naturally corners the image. */
 .event-artwork {
-  width: calc(100% + var(--space-xl) * 2);
   min-height: var(--artwork-min-height-sm);
-  margin: calc(-1 * var(--space-xl)) calc(-1 * var(--space-xl)) 0;
   position: relative;
   overflow: hidden;
   background: var(--artwork-bg);
-  border-bottom: 1px solid var(--artwork-border);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--artwork-border);
   flex-shrink: 0;
 }
 
@@ -80,73 +84,6 @@ const severityLabel = computed(() => {
   height: 100%;
   object-fit: cover;
   display: block;
-}
-
-.event-card.severity-low {
-  border-left-color: var(--effect-neutral);
-}
-
-.event-card.severity-medium {
-  border-left-color: var(--effect-warning);
-}
-
-.event-card.severity-high {
-  border-left-color: var(--effect-negative);
-}
-
-.event-card.severity-critical {
-  border-left-color: var(--effect-negative);
-  background: color-mix(in srgb, var(--surface-elevated) 92%, var(--effect-negative) 8%);
-}
-
-.event-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-}
-
-.event-label {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: var(--text-2xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
-  font-weight: var(--font-semibold);
-}
-
-.event-severity {
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-subtle);
-  padding: 2px var(--space-md);
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-}
-
-.severity-badge-low {
-  background: var(--effect-neutral-bg);
-  border-color: var(--effect-neutral-border);
-  color: var(--effect-neutral);
-}
-
-.severity-badge-medium {
-  background: var(--effect-warning-bg);
-  border-color: var(--effect-warning-border);
-  color: var(--effect-warning);
-}
-
-.severity-badge-high {
-  background: var(--effect-negative-bg);
-  border-color: var(--effect-negative-border);
-  color: var(--effect-negative);
-}
-
-.severity-badge-critical {
-  background: var(--effect-negative);
-  border-color: var(--effect-negative);
-  color: #fff;
 }
 
 .event-title {
