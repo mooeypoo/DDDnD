@@ -69,10 +69,9 @@
               and put your skills to the test.
             </p>
 
-            <button class="btn-start-real" type="button" @click="emit('startRealGame')">
-              <span class="btn-icon" aria-hidden="true">⚔️</span>
-              <span class="btn-label">Choose a Quest</span>
-            </button>
+            <AppButton variant="primary" @click="emit('startRealGame')">
+              <span aria-hidden="true">⚔️</span> Choose a Quest
+            </AppButton>
           </section>
 
         </div>
@@ -84,6 +83,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
+import AppButton from '@/ui/components/common/AppButton.vue'
 
 const props = defineProps<{
   isOpen: boolean
@@ -288,41 +288,6 @@ const otherTutorials = computed(() => {
   display: flex;
   align-items: center;
   gap: var(--space-2xs);
-}
-
-/* ─── Real game CTA ─── */
-.splash-action-section {
-  margin-top: var(--space-md);
-}
-
-.action-description {
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  margin: 0 0 var(--space-lg) 0;
-  line-height: var(--leading-relaxed);
-}
-
-.btn-start-real {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  border: none;
-  padding: var(--space-md) var(--space-2xl);
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  border-radius: var(--button-radius);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  text-transform: uppercase;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm);
-  box-shadow: 0 4px 16px var(--color-primary-glow);
-}
-
-.btn-start-real:hover {
-  background: var(--color-primary-light);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 24px var(--color-primary-glow);
 }
 
 /* ─── Transition ─── */

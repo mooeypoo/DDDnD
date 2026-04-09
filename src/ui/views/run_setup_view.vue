@@ -41,46 +41,26 @@
           First time here? Try a <button class="link-btn" @click="activeTab = 'tutorials'">guided tutorial</button> to learn the ropes.
         </p>
         <nav class="header-utility-nav" aria-label="Utility links">
-          <button class="link-button" @click="gameStore.openAboutModal">
-            <span class="link-icon">ℹ️</span>
-            What is this?
-          </button>
+          <AppButton variant="subtle" @click="gameStore.openAboutModal">
+            <span>ℹ️</span> What is this?
+          </AppButton>
           <span class="link-separator">•</span>
-          <button class="link-button" @click="gameStore.openRulesModal">
-            <span class="link-icon">📖</span>
-            Rules
-          </button>
+          <AppButton variant="subtle" @click="gameStore.openRulesModal">
+            <span>📖</span> Rules
+          </AppButton>
           <span class="link-separator">•</span>
-          <button class="link-button" @click="gameStore.openDungeonMasterModal">
-            <span class="link-icon">🧙‍♂️</span>
-            Dungeon Master
-          </button>
+          <AppButton variant="subtle" @click="gameStore.openDungeonMasterModal">
+            <span>🧙‍♂️</span> Dungeon Master
+          </AppButton>
         </nav>
       </header>
 
       <!-- Tab Toggle -->
-      <nav class="tab-toggle" role="tablist" aria-label="Setup mode">
-        <button
-          class="tab-btn"
-          :class="{ active: activeTab === 'quests' }"
-          role="tab"
-          :aria-selected="activeTab === 'quests'"
-          @click="activeTab = 'quests'"
-        >
-          <span class="tab-icon">🏛️</span>
-          <span class="tab-label">Quests</span>
-        </button>
-        <button
-          class="tab-btn"
-          :class="{ active: activeTab === 'tutorials' }"
-          role="tab"
-          :aria-selected="activeTab === 'tutorials'"
-          @click="activeTab = 'tutorials'"
-        >
-          <span class="tab-icon">📖</span>
-          <span class="tab-label">Tutorials</span>
-        </button>
-      </nav>
+      <AppTabs
+        :tabs="['🏛️ Quests', '📖 Tutorials']"
+        v-model="activeTabIndex"
+        class="setup-tabs"
+      />
       
       <div class="setup-content">
         <!-- ═══ TUTORIALS TAB ═══ -->
@@ -277,21 +257,17 @@
         
         <!-- Action Buttons -->
         <div class="actions-section">
-          <button class="btn-secondary" @click="goBack">
-            <span class="btn-icon">←</span>
-            <span>Back</span>
-          </button>
-          
-          <button 
-            class="btn-primary" 
+          <AppButton variant="secondary" @click="goBack">
+            <span>←</span> Back
+          </AppButton>
+          <AppButton
+            variant="primary"
             :disabled="!selectedClass || !selectedQuest || gameStore.isLoadingBundle"
             @click="startRun"
           >
-            <span class="btn-text">
-              {{ gameStore.isLoadingBundle ? 'Loading...' : (selectedQuest?.isTutorial ? 'Start Tutorial' : 'Begin the Journey') }}
-            </span>
-            <span v-if="!gameStore.isLoadingBundle" class="btn-icon">→</span>
-          </button>
+            {{ gameStore.isLoadingBundle ? 'Loading...' : (selectedQuest?.isTutorial ? 'Start Tutorial' : 'Begin the Journey') }}
+            <span v-if="!gameStore.isLoadingBundle">→</span>
+          </AppButton>
         </div>
         </template>
       </div>
@@ -303,7 +279,7 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { PlayerClass } from '@/domains/content/model'
@@ -313,6 +289,8 @@ import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
+import AppButton from '@/ui/components/common/AppButton.vue'
+import AppTabs from '@/ui/components/common/AppTabs.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -332,6 +310,10 @@ const setTutorialsComplete = () => {
   try { localStorage.setItem(TUTORIALS_COMPLETE_KEY, 'true') } catch {}
 }
 const activeTab = ref<'tutorials' | 'quests'>(getTutorialsComplete() ? 'quests' : 'tutorials')
+const activeTabIndex = computed({
+  get: () => activeTab.value === 'quests' ? 0 : 1,
+  set: (i: number) => { activeTab.value = i === 0 ? 'quests' : 'tutorials' }
+})
 const isLoadingClasses = ref(false)
 const isLoadingQuests = ref(false)
 const isLoadingTutorials = ref(false)
@@ -606,57 +588,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
 
 .link-btn:hover {
   color: var(--color-text-primary);
-}
-
-/* Tab Toggle */
-.tab-toggle {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-sm);
-  background: var(--color-bg-overlay);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xs);
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.tab-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-xl);
-  border: 2px solid transparent;
-  border-radius: var(--radius-lg);
-  background: transparent;
-  color: var(--color-text-secondary);
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
-  font-family: var(--font-sans);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-}
-
-.tab-btn:hover:not(.active) {
-  color: var(--color-text-primary);
-  background: var(--color-bg-surface);
-}
-
-.tab-btn.active {
-  background: var(--color-primary-dark);
-  border-color: var(--color-primary);
-  color: var(--color-text-bright);
-  box-shadow: 0 2px 8px var(--color-primary-glow);
-}
-
-.tab-icon {
-  font-size: var(--text-lg);
-}
-
-.tab-label {
-  letter-spacing: 0.03em;
 }
 
 /* Content */
@@ -986,56 +917,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
   flex-wrap: wrap;
 }
 
-.btn-primary,
-.btn-secondary {
-  padding: var(--space-lg) var(--space-3xl);
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  border-radius: var(--button-radius);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-md);
-  font-family: var(--font-sans);
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  box-shadow: 0 4px 12px var(--color-primary-glow);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-light);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--color-primary-glow);
-}
-
-.btn-primary:disabled {
-  background: var(--color-text-muted);
-  cursor: not-allowed;
-  opacity: 0.5;
-  transform: none;
-  box-shadow: none;
-}
-
-.btn-secondary {
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
-  border: 2px solid var(--color-border-default);
-}
-
-.btn-secondary:hover {
-  background: var(--color-bg-surface);
-  border-color: var(--color-border-focus);
-}
-
-.btn-icon {
-  font-size: var(--text-xl);
-}
-
 /* Header utility nav */
 .header-utility-nav {
   display: flex;
@@ -1043,29 +924,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
   justify-content: center;
   gap: var(--space-sm);
   margin-top: var(--space-md);
-}
-
-.link-button {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  transition: color var(--transition-base);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
-}
-
-.link-button:hover {
-  color: var(--color-primary);
-  background: var(--color-bg-overlay);
-}
-
-.link-icon {
-  font-size: var(--text-base);
 }
 
 .link-separator {
@@ -1131,8 +989,7 @@ async function launchTutorial(quest: QuestDisplayModel) {
     width: 100%;
   }
   
-  .btn-primary,
-  .btn-secondary {
+  .actions-section :deep(.dungeon-btn) {
     width: 100%;
     justify-content: center;
   }
@@ -1156,13 +1013,5 @@ async function launchTutorial(quest: QuestDisplayModel) {
     gap: var(--space-md);
   }
 
-  .tab-toggle {
-    max-width: 100%;
-  }
-
-  .tab-btn {
-    padding: var(--space-sm) var(--space-md);
-    font-size: var(--text-sm);
-  }
 }
 </style>

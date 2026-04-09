@@ -43,32 +43,27 @@
 
             <div class="tutorial-links">
               <span class="tutorial-links-label">New here?</span>
-              <button class="link-button tutorial-link" @click="goToSetup('basics')">
-                <span class="link-icon">📖</span>
-                Basics Tutorial
-              </button>
+              <AppButton variant="subtle" @click="goToSetup('basics')">
+                <span>📖</span> Basics Tutorial
+              </AppButton>
               <span class="link-separator">•</span>
-              <button class="link-button tutorial-link" @click="goToSetup('advanced')">
-                <span class="link-icon">⚙️</span>
-                Advanced Tutorial
-              </button>
+              <AppButton variant="subtle" @click="goToSetup('advanced')">
+                <span>⚙️</span> Advanced Tutorial
+              </AppButton>
             </div>
             
             <div class="helper-links">
-              <button class="link-button" @click="gameStore.openAboutModal">
-                <span class="link-icon">ℹ️</span>
-                What is this?
-              </button>
+              <AppButton variant="subtle" @click="gameStore.openAboutModal">
+                <span>ℹ️</span> What is this?
+              </AppButton>
               <span class="link-separator">•</span>
-              <button class="link-button" @click="gameStore.openRulesModal">
-                <span class="link-icon">📖</span>
-                How to play
-              </button>
+              <AppButton variant="subtle" @click="gameStore.openRulesModal">
+                <span>📖</span> How to play
+              </AppButton>
               <span class="link-separator">•</span>
-              <button class="link-button" @click="gameStore.openDungeonMasterModal">
-                <span class="link-icon">🧙‍♂️</span>
-                Dungeon Master
-              </button>
+              <AppButton variant="subtle" @click="gameStore.openDungeonMasterModal">
+                <span>🧙‍♂️</span> Dungeon Master
+              </AppButton>
             </div>
           </div>
         </div>
@@ -87,6 +82,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
+import AppButton from '@/ui/components/common/AppButton.vue'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
@@ -277,30 +273,6 @@ function goToSetup(tutorialType?: string) {
   justify-content: center;
 }
 
-.link-button {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: var(--text-base);
-  cursor: pointer;
-  transition: color var(--transition-base);
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
-}
-
-.link-button:hover {
-  color: var(--color-primary);
-  background: var(--color-bg-overlay);
-}
-
-.link-icon {
-  font-size: var(--text-lg);
-}
-
 .link-separator {
   color: var(--color-text-muted);
   user-select: none;
@@ -319,11 +291,6 @@ function goToSetup(tutorialType?: string) {
   color: var(--color-text-muted);
   font-size: var(--text-sm);
   font-style: italic;
-}
-
-.tutorial-link {
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
 }
 
 /* Footer */

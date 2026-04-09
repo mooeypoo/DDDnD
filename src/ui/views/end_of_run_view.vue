@@ -136,24 +136,17 @@
         </h3>
         
         <div class="share-controls">
-          <button class="share-btn share-btn-copy" @click="copyShareLink">
-            <span class="share-btn-icon">🔗</span>
-            <span>{{ copyButtonLabel }}</span>
-          </button>
+          <AppButton variant="secondary" @click="copyShareLink">
+            <span>🔗</span> {{ copyButtonLabel }}
+          </AppButton>
 
-          <button class="share-btn share-btn-download" @click="downloadShareCard">
-            <span class="share-btn-icon">🖼️</span>
-            <span>Download Result Card</span>
-          </button>
+          <AppButton variant="secondary" @click="downloadShareCard">
+            <span>🖼️</span> Download Result Card
+          </AppButton>
 
-          <button
-            v-if="hasNativeShare"
-            class="share-btn share-btn-native"
-            @click="nativeShare"
-          >
-            <span class="share-btn-icon">📲</span>
-            <span>Share…</span>
-          </button>
+          <AppButton v-if="hasNativeShare" variant="secondary" @click="nativeShare">
+            <span>📲</span> Share…
+          </AppButton>
         </div>
       </div>
 
@@ -164,28 +157,23 @@
       
       <!-- Actions -->
       <div class="actions-area">
-        <button class="btn-secondary" @click="goHome">
-          <span class="btn-icon">🏠</span>
-          <span>Return Home</span>
-        </button>
-        
-        <button class="btn-primary" @click="playAgain">
-          <span class="btn-text">Play Again</span>
-          <span class="btn-icon">🔄</span>
-        </button>
+        <AppButton variant="secondary" @click="goHome">
+          <span>🏠</span> Return Home
+        </AppButton>
+        <AppButton variant="primary" @click="playAgain">
+          Play Again <span>🔄</span>
+        </AppButton>
       </div>
 
       <!-- Footer Links -->
       <footer class="footer-links">
-        <button class="link-button" @click="gameStore.openAboutModal">
-          <span class="link-icon">ℹ️</span>
-          What is this?
-        </button>
+        <AppButton variant="subtle" @click="gameStore.openAboutModal">
+          <span>ℹ️</span> What is this?
+        </AppButton>
         <span class="link-separator">•</span>
-        <button class="link-button" @click="gameStore.openRulesModal">
-          <span class="link-icon">📖</span>
-          Rules
-        </button>
+        <AppButton variant="subtle" @click="gameStore.openRulesModal">
+          <span>📖</span> Rules
+        </AppButton>
       </footer>
     </div>
   </div>
@@ -200,6 +188,7 @@ import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import ShareResultCard from '@/ui/components/results/share_result_card.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
+import AppButton from '@/ui/components/common/AppButton.vue'
 import { getClassAccentColor } from '@/ui/composables/class_artwork'
 import {
   buildStakeholderNamesMap,
@@ -977,43 +966,6 @@ function inlineComputedStyles(source: Element, target: Element) {
   gap: var(--space-md);
 }
 
-.share-btn {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-lg) var(--space-xl);
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
-}
-
-.share-btn:hover {
-  background: var(--color-bg-overlay);
-  border-color: var(--color-primary);
-  color: var(--color-text-bright);
-}
-
-.share-btn-icon {
-  font-size: var(--text-xl);
-}
-
-.share-btn-copy:hover {
-  border-color: var(--color-primary);
-}
-
-.share-btn-download:hover {
-  border-color: var(--color-info);
-}
-
-.share-btn-native:hover {
-  border-color: var(--color-success);
-}
-
 /* Offscreen card for image export */
 .offscreen-card-wrapper {
   position: fixed;
@@ -1033,44 +985,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 
 .btn-primary,
 .btn-secondary {
-  padding: var(--space-lg) var(--space-4xl);
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  border-radius: var(--button-radius);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-md);
-  text-transform: uppercase;
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  box-shadow: 0 4px 12px var(--color-primary-glow);
-}
-
-.btn-primary:hover {
-  background: var(--color-primary-light);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--color-primary-glow);
-}
-
-.btn-secondary {
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
-  border: 2px solid var(--color-border-default);
-}
-
-.btn-secondary:hover {
-  background: var(--color-bg-surface);
-  border-color: var(--color-border-focus);
-}
-
-.btn-icon {
-  font-size: var(--text-xl);
+  /* removed — replaced by AppButton */
 }
 
 /* Footer Links */
@@ -1083,29 +998,6 @@ function inlineComputedStyles(source: Element, target: Element) {
   justify-content: center;
   gap: var(--space-md);
   flex-wrap: wrap;
-}
-
-.link-button {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  transition: color var(--transition-base);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
-}
-
-.link-button:hover {
-  color: var(--color-primary);
-  background: var(--color-bg-overlay);
-}
-
-.link-icon {
-  font-size: var(--text-base);
 }
 
 .link-separator {
@@ -1164,9 +1056,8 @@ function inlineComputedStyles(source: Element, target: Element) {
     flex-direction: column-reverse;
     width: 100%;
   }
-  
-  .btn-primary,
-  .btn-secondary {
+
+  .actions-area :deep(.dungeon-btn) {
     width: 100%;
     justify-content: center;
   }
