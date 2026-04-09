@@ -34,6 +34,7 @@
           <span class="dungeon-bracket dungeon-bracket--tr" aria-hidden="true" />
           <div class="dungeon-modal__cap-text">
             <h2 :id="titleId" class="dungeon-modal__title">{{ title }}</h2>
+            <p v-if="subtitle" class="dungeon-modal__subtitle">{{ subtitle }}</p>
           </div>
           <div class="dungeon-modal__header-end">
             <button
@@ -74,6 +75,7 @@ const props = withDefaults(
   defineProps<{
     isOpen: boolean
     title: string
+    subtitle?: string
     size?: 'sm' | 'md' | 'lg'
     closeOnBackdrop?: boolean
     closeLabel?: string
@@ -285,6 +287,15 @@ onUnmounted(() => {
   color: var(--dng-title-gold);
   letter-spacing: var(--tracking-wide);
   line-height: var(--leading-tight);
+}
+
+.dungeon-modal__subtitle {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--dng-subtitle-warm);
+  letter-spacing: var(--tracking-wide);
+  line-height: var(--leading-normal);
 }
 
 .dungeon-modal__header-end {

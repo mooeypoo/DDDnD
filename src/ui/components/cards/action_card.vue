@@ -202,8 +202,8 @@ import type { Card } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import type { ArtworkMeta } from '@/ui/types/artwork'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
-import { resolveCategory } from '@/ui/composables/card_filter_sort'
 import { getAdjustedScoreChanges, hasActiveCoupling } from '@/ui/composables/system_coupling'
+import { useCategoryPresentation } from '@/ui/composables/category_presentation'
 
 const props = defineProps<{
   card: Card
@@ -225,22 +225,9 @@ defineEmits<{
 }>()
 
 /**
- * Map card style_tags to a visual category identifier.
- * Uses the shared resolveCategory helper from card_filter_sort.
+ * Category presentation — resolved from style_tags via shared composable.
  */
-const categoryId = computed(() => resolveCategory(props.card.style_tags ?? []))
-
-const categoryLabel = computed(() => {
-  const map: Record<string, string> = {
-    refactor: 'Refactor',
-    infrastructure: 'Infrastructure',
-    team: 'Team',
-    process: 'Process',
-    fix: 'Emergency Fix',
-    default: 'Action',
-  }
-  return map[categoryId.value] ?? 'Action'
-})
+const { categoryId, categoryLabel } = useCategoryPresentation(computed(() => props.card.style_tags ?? []))
 
 const primaryEffects = computed(() => props.card.score_changes.slice(0, 3))
 const hiddenEffects = computed(() => props.card.score_changes.slice(3))
@@ -496,22 +483,18 @@ function metricPresentation(scoreId: string) {
 .dungeon-ac.tutorial-highlighted {
   outline: 2px solid var(--ac-category-accent);
   outline-offset: 3px;
-  filter:
-    drop-shadow(0 0 10px color-mix(in srgb, var(--ac-category-accent) 40%, transparent))
-    drop-shadow(0 0 28px color-mix(in srgb, var(--ac-category-accent) 14%, transparent));
+  /* fallback glow — color-mix enhanced version in @supports block below */
+  filter: drop-shadow(0 0 10px rgba(180, 140, 48, 0.40));
   animation: ac-tutorial-pulse 2s ease-in-out infinite;
 }
 
+/* fallback keyframes (rgba-only) — color-mix version overridden in @supports below */
 @keyframes ac-tutorial-pulse {
   0%, 100% {
-    filter:
-      drop-shadow(0 0 10px color-mix(in srgb, var(--ac-category-accent) 40%, transparent))
-      drop-shadow(0 0 28px color-mix(in srgb, var(--ac-category-accent) 14%, transparent));
+    filter: drop-shadow(0 0 10px rgba(180, 140, 48, 0.40)) drop-shadow(0 0 28px rgba(180, 140, 48, 0.14));
   }
   50% {
-    filter:
-      drop-shadow(0 0 16px color-mix(in srgb, var(--ac-category-accent) 60%, transparent))
-      drop-shadow(0 0 44px color-mix(in srgb, var(--ac-category-accent) 22%, transparent));
+    filter: drop-shadow(0 0 16px rgba(180, 140, 48, 0.60)) drop-shadow(0 0 44px rgba(180, 140, 48, 0.22));
   }
 }
 
@@ -723,8 +706,8 @@ function metricPresentation(scoreId: string) {
   letter-spacing: var(--tracking-wider);
   text-transform: uppercase;
   color: var(--ac-category-accent);
-  background: color-mix(in srgb, var(--ac-category-accent) 12%, var(--dng-panel-surface));
-  border: 1px solid color-mix(in srgb, var(--ac-category-accent) 28%, transparent);
+  background: var(--dng-panel-surface);  /* fallback — color-mix version in @supports below */
+  border: 1px solid rgba(180, 148, 48, 0.20);  /* fallback */
   padding: 1px var(--space-sm);
   clip-path: polygon(3px 0%, calc(100% - 3px) 0%, 100% 3px, 100% 100%, 0% 100%, 0% 3px);
 }
@@ -753,7 +736,7 @@ function metricPresentation(scoreId: string) {
   font-size: var(--text-xs);
   font-weight: var(--font-medium);
   color: var(--text-primary);
-  background: color-mix(in srgb, var(--dng-panel-surface) 80%, transparent);
+  background: var(--dng-panel-surface);  /* fallback — color-mix version in @supports below */
   border: 1px solid rgba(180, 148, 48, 0.20);
   clip-path: polygon(3px 0%, calc(100% - 3px) 0%, 100% 3px, 100% 100%, 0% 100%, 0% 3px);
 }
@@ -917,15 +900,60 @@ function metricPresentation(scoreId: string) {
 
 /* Play — category-accent fill primary CTA */
 .ac-btn--play {
-  background: color-mix(in srgb, var(--ac-category-accent) 16%, var(--dng-panel-footer));
+  background: var(--dng-panel-footer);  /* fallback — color-mix version in @supports below */
   color: var(--ac-category-accent);
-  border-color: color-mix(in srgb, var(--ac-category-accent) 55%, transparent);
+  border-color: rgba(180, 148, 48, 0.45);  /* fallback */
   font-weight: var(--font-bold);
 }
 
 .ac-btn--play:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--ac-category-accent) 26%, var(--dng-panel-footer));
-  border-color: color-mix(in srgb, var(--ac-category-accent) 75%, transparent);
+  background: rgba(255, 255, 255, 0.06);  /* fallback */
+  border-color: rgba(180, 148, 48, 0.65);  /* fallback */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   @supports guard for color-mix() — progressive enhancement.
+   Browsers without CSS Color Level 5 use the fallback rgba()
+   values defined in the rules above.
+   ───────────────────────────────────────────────────────────── */
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .dungeon-ac.tutorial-highlighted {
+    filter:
+      drop-shadow(0 0 10px color-mix(in srgb, var(--ac-category-accent) 40%, transparent))
+      drop-shadow(0 0 28px color-mix(in srgb, var(--ac-category-accent) 14%, transparent));
+  }
+
+  @keyframes ac-tutorial-pulse {
+    0%, 100% {
+      filter:
+        drop-shadow(0 0 10px color-mix(in srgb, var(--ac-category-accent) 40%, transparent))
+        drop-shadow(0 0 28px color-mix(in srgb, var(--ac-category-accent) 14%, transparent));
+    }
+    50% {
+      filter:
+        drop-shadow(0 0 16px color-mix(in srgb, var(--ac-category-accent) 60%, transparent))
+        drop-shadow(0 0 44px color-mix(in srgb, var(--ac-category-accent) 22%, transparent));
+    }
+  }
+
+  .card-tag {
+    background: color-mix(in srgb, var(--ac-category-accent) 12%, var(--dng-panel-surface));
+    border: 1px solid color-mix(in srgb, var(--ac-category-accent) 28%, transparent);
+  }
+
+  .effect-chip {
+    background: color-mix(in srgb, var(--dng-panel-surface) 80%, transparent);
+  }
+
+  .ac-btn--play {
+    background: color-mix(in srgb, var(--ac-category-accent) 16%, var(--dng-panel-footer));
+    border-color: color-mix(in srgb, var(--ac-category-accent) 55%, transparent);
+  }
+
+  .ac-btn--play:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--ac-category-accent) 26%, var(--dng-panel-footer));
+    border-color: color-mix(in srgb, var(--ac-category-accent) 75%, transparent);
+  }
 }
 </style>
 

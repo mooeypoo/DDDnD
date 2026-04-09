@@ -175,7 +175,7 @@ import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation';
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation';
 import { getAdjustedScoreChanges, getCollapseWarnings } from '@/ui/composables/system_coupling'
-import { resolveCategory } from '@/ui/composables/card_filter_sort'
+import { useCategoryPresentation } from '@/ui/composables/category_presentation'
 import type { ArtworkMeta } from '@/ui/types/artwork'
 
 interface Props {
@@ -206,30 +206,9 @@ const emit = defineEmits<Emits>();
 
 // ── Category accent system ────────────────────────────────────────────────────
 
-const categoryId = computed(() => resolveCategory(props.card.style_tags ?? []))
-
-const categoryLabel = computed(() => {
-  const map: Record<string, string> = {
-    refactor: 'Refactor',
-    infrastructure: 'Infrastructure',
-    team: 'Team',
-    process: 'Process',
-    fix: 'Emergency Fix',
-    default: 'Action',
-  }
-  return map[categoryId.value] ?? 'Action'
-})
-
-const categoryAccentColor = computed(() => {
-  const map: Record<string, string> = {
-    refactor:       'var(--category-refactor)',
-    infrastructure: 'var(--category-infrastructure)',
-    team:           'var(--category-team)',
-    process:        'var(--category-process)',
-    fix:            'var(--category-fix)',
-  }
-  return map[categoryId.value] ?? 'var(--text-secondary)'
-})
+const { categoryLabel, categoryAccentColor } = useCategoryPresentation(
+  computed(() => props.card.style_tags ?? [])
+)
 
 const isPlayDisabled = computed(() => props.isDisabled || props.isTutorialLocked || (props.availability ? !props.availability.is_playable : false))
 const primaryButtonText = computed(() => {
@@ -376,8 +355,8 @@ const couplingReasonText = computed(() =>
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
   color: var(--cdm-accent);
-  background: color-mix(in srgb, var(--cdm-accent) 10%, var(--dng-panel-surface));
-  border: 1px solid color-mix(in srgb, var(--cdm-accent) 28%, transparent);
+  background: var(--dng-panel-surface);  /* fallback — color-mix version in @supports below */
+  border: 1px solid rgba(180, 140, 48, 0.28);  /* fallback */
 
   clip-path: polygon(
     4px 0%, calc(100% - 4px) 0%, 100% 4px,
@@ -402,17 +381,13 @@ const couplingReasonText = computed(() =>
   min-height: 60px;
   max-height: 180px;
   background:
-    radial-gradient(
-      ellipse 70% 80% at 50% 10%,
-      color-mix(in srgb, var(--cdm-accent) 8%, transparent) 0%,
-      transparent 100%
-    ),
+    /* fallback: plain panel gradient — color-mix ambient bloom in @supports block below */
     linear-gradient(
       180deg,
       var(--dng-panel-top) 0%,
       var(--dng-panel-bottom) 100%
     );
-  border: 1px solid color-mix(in srgb, var(--cdm-accent) 14%, var(--dng-panel-border));
+  border: 1px solid var(--dng-panel-border);  /* fallback */
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
@@ -459,7 +434,7 @@ const couplingReasonText = computed(() =>
     to right,
     transparent 0%,
     var(--dng-divider) 20%,
-    color-mix(in srgb, var(--cdm-accent) 22%, var(--dng-divider)) 50%,
+    var(--dng-divider) 50%,  /* fallback — color-mix accent peak in @supports below */
     var(--dng-divider) 80%,
     transparent 100%
   );
@@ -715,14 +690,85 @@ const couplingReasonText = computed(() =>
 }
 
 .cdm-btn--play:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--cdm-accent) 80%, white);
-  border-color: color-mix(in srgb, var(--cdm-accent) 80%, white);
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--cdm-accent) 55%, transparent));
+  background: var(--cdm-accent);  /* fallback */
+  border-color: var(--cdm-accent);  /* fallback */
+  /* filter glow added in @supports block below */
 }
 
 .cdm-btn--play:disabled {
-  background: color-mix(in srgb, var(--cdm-accent) 40%, var(--dng-panel-surface));
-  border-color: color-mix(in srgb, var(--cdm-accent) 28%, transparent);
-  color: color-mix(in srgb, var(--cdm-accent) 55%, transparent);
+  background: var(--dng-panel-surface);  /* fallback */
+  border-color: rgba(180, 140, 48, 0.20);  /* fallback */
+  color: var(--dng-footer-muted);  /* fallback */
+}
+
+/* ─────────────────────────────────────────────────────────────
+   @supports guard for color-mix() — progressive enhancement.
+   Browsers without CSS Color Level 5 use the rgba()/var()
+   fallback values defined in the rules above.
+   ───────────────────────────────────────────────────────────── */
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .cdm-badge {
+    background: color-mix(in srgb, var(--cdm-accent) 10%, var(--dng-panel-surface));
+    border: 1px solid color-mix(in srgb, var(--cdm-accent) 28%, transparent);
+  }
+
+  .cdm-artwork {
+    background:
+      radial-gradient(
+        ellipse 70% 80% at 50% 10%,
+        color-mix(in srgb, var(--cdm-accent) 8%, transparent) 0%,
+        transparent 100%
+      ),
+      linear-gradient(
+        180deg,
+        var(--dng-panel-top) 0%,
+        var(--dng-panel-bottom) 100%
+      );
+    border: 1px solid color-mix(in srgb, var(--cdm-accent) 14%, var(--dng-panel-border));
+  }
+
+  .cdm-rule {
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      var(--dng-divider) 20%,
+      color-mix(in srgb, var(--cdm-accent) 22%, var(--dng-divider)) 50%,
+      var(--dng-divider) 80%,
+      transparent 100%
+    );
+  }
+
+  .cdm-btn--play:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--cdm-accent) 80%, white);
+    border-color: color-mix(in srgb, var(--cdm-accent) 80%, white);
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--cdm-accent) 55%, transparent));
+  }
+
+  .cdm-btn--play:disabled {
+    background: color-mix(in srgb, var(--cdm-accent) 40%, var(--dng-panel-surface));
+    border-color: color-mix(in srgb, var(--cdm-accent) 28%, transparent);
+    color: color-mix(in srgb, var(--cdm-accent) 55%, transparent);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RESPONSIVE — narrow viewports (≤ 640px)
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  /* Allow more vertical space on small screens */
+  .cdm-body {
+    max-height: 70vh;
+  }
+
+  /* Stack action buttons vertically, full-width */
+  .cdm-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .cdm-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 </style>

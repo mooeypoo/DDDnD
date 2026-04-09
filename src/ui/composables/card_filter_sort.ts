@@ -36,12 +36,23 @@ export const TAG_TO_CATEGORY: Record<string, string> = {
 }
 
 /** Display metadata for each card category. */
-export const CATEGORY_META: Record<string, { label: string; icon: string }> = {
-  refactor:       { label: 'Refactor',  icon: '🏗️' },
-  infrastructure: { label: 'Infra',     icon: '⚙️' },
-  team:           { label: 'Team',      icon: '👥' },
-  process:        { label: 'Process',   icon: '📋' },
-  fix:            { label: 'Quick Fix', icon: '🩹' },
+export interface CategoryMeta {
+  /** Abbreviated label used in filter chips and compact UI (e.g. 'Infra', 'Quick Fix'). */
+  label: string
+  /** Full display label used in card headers and inspection panels. */
+  displayLabel: string
+  /** CSS variable string resolving to the category accent color. */
+  accentVar: string
+  icon: string
+}
+
+export const CATEGORY_META: Record<string, CategoryMeta> = {
+  refactor:       { label: 'Refactor',  displayLabel: 'Refactor',        accentVar: 'var(--category-refactor)',       icon: '🏗️' },
+  infrastructure: { label: 'Infra',     displayLabel: 'Infrastructure',   accentVar: 'var(--category-infrastructure)', icon: '⚙️' },
+  team:           { label: 'Team',      displayLabel: 'Team',             accentVar: 'var(--category-team)',           icon: '👥' },
+  process:        { label: 'Process',   displayLabel: 'Process',          accentVar: 'var(--category-process)',        icon: '📋' },
+  fix:            { label: 'Quick Fix', displayLabel: 'Emergency Fix',    accentVar: 'var(--category-fix)',            icon: '🩹' },
+  default:        { label: 'Action',    displayLabel: 'Action',           accentVar: 'var(--text-secondary)',          icon: '⚡' },
 }
 
 /** Resolve the first matching category from a list of style_tags. */
