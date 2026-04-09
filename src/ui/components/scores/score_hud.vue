@@ -192,7 +192,7 @@ const overallHealth = computed(() => {
 .hud-metric.high .hud-metric-value     { color: var(--score-high); }
 
 .hud-metric-bar {
-  width: 24px;
+  width: var(--hud-metric-bar-width-sm);
   height: 3px;
   background: var(--bg-overlay-strong);
   border-radius: var(--radius-full);
@@ -227,7 +227,7 @@ const overallHealth = computed(() => {
   }
 
   .hud-metric-bar {
-    width: 32px;
+    width: var(--hud-metric-bar-width-md);
     height: 4px;
   }
 

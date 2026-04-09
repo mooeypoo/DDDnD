@@ -32,19 +32,19 @@
      ═══════════════════════════════════════════════════════════ */
 
   /** Deepest tabletop field — page background */
-  --bg-page:             #0b0e1a;
+  --bg-page:             #0c0a05;
   /** Slightly warmer field for secondary layouts */
-  --bg-secondary:        #0f1422;
+  --bg-secondary:        #100d07;
   /** Console panel surface — slightly raised from page */
-  --surface-panel:       #141b2d;
+  --surface-panel:       #141009;
   /** Card surface — the tactile artifact layer */
-  --surface-card:        #192031;
+  --surface-card:        #1a140b;
   /** Elevated card / hovered state */
-  --surface-elevated:    #1e2840;
+  --surface-elevated:    #201a0e;
   /** Overlay scrim behind modals */
-  --surface-overlay:     rgba(7, 10, 20, 0.76);
+  --surface-overlay:     rgba(7, 5, 1, 0.80);
   /** Modal / dialog surface — focused and layered */
-  --surface-modal:       #17203a;
+  --surface-modal:       #17120a;
 
   /** Transparent overlay for inset regions */
   --bg-overlay:          rgba(0, 0, 0, 0.22);
@@ -59,17 +59,19 @@
      ═══════════════════════════════════════════════════════════ */
 
   /** High-contrast text: headings, primary values */
-  --text-bright:         #edf0f7;
+  --text-bright:         #f0e8d0;
   /** Standard body text */
-  --text-primary:        #c8d0e0;
+  --text-primary:        #c8bc9c;
   /** Supporting / label text */
-  --text-secondary:      #7a8aa4;
+  --text-secondary:      #7a6e54;
   /** De-emphasised / metadata */
-  --text-muted:          #4d5b72;
+  --text-muted:          #4c4434;
   /** Arcane accent — purple undertone for emphasis */
   --text-accent:         #a989fa;
+  /** Dungeon gold — for major architectural headings */
+  --text-heading-gold:   var(--dng-title-gold);
   /** Inverse for light surfaces (rare) */
-  --text-inverse:        #0b0e1a;
+  --text-inverse:        #0c0a05;
 
 
   /* ═══════════════════════════════════════════════════════════
@@ -78,15 +80,15 @@
      ═══════════════════════════════════════════════════════════ */
 
   /** Hairline separator between regions */
-  --border-subtle:       rgba(255, 255, 255, 0.06);
+  --border-subtle:       rgba(180, 140, 50, 0.07);
   /** Panel boundary */
-  --border-panel:        rgba(255, 255, 255, 0.09);
+  --border-panel:        rgba(180, 140, 50, 0.10);
   /** Card boundary */
-  --border-card:         rgba(255, 255, 255, 0.11);
+  --border-card:         rgba(180, 140, 50, 0.13);
   /** Arcane accent border — modal headers, hover states */
   --border-accent:       rgba(169, 137, 250, 0.38);
-  /** Keyboard focus ring color */
-  --border-focus:        rgba(99, 179, 237, 0.70);
+  /** Keyboard focus ring color — dungeon teal */
+  --border-focus:        rgba(38, 212, 185, 0.70);
 
   /** Effect-state borders (used alongside chip/badge bg) */
   --border-positive:     rgba(52, 211, 153, 0.40);
@@ -464,4 +466,22 @@
   --artwork-min-height:  140px;
   /** Minimum height for compact artwork slots (modal, event) */
   --artwork-min-height-sm: 90px;
+
+
+  /* ═══════════════════════════════════════════════════════════
+     15. MOTION + LAYOUT UTILITY TOKENS
+     Extracted constants that were previously hardcoded in
+     component keyframes and layout CSS.
+     ═══════════════════════════════════════════════════════════ */
+
+  /** Standard enter-from distance for fadeInUp / slideUp animations */
+  --motion-enter-distance: 20px;
+
+  /** Standard backdrop blur for floating panels and cards */
+  --blur-panel: 12px;
+
+  /** HUD metric bar widths — for compact score bars in game HUD */
+  --hud-metric-bar-width-sm: 24px;
+  --hud-metric-bar-width-md: 32px;
+  --hud-metric-bar-width-lg: 40px;
 }

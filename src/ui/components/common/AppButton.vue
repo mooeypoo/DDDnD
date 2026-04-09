@@ -18,7 +18,7 @@
   -->
   <button
     class="dungeon-btn"
-    :class="`variant-${variant}`"
+    :class="[`variant-${variant}`, size === 'hero' ? 'size-hero' : '']"  
     :disabled="disabled"
     type="button"
   >
@@ -49,6 +49,11 @@ withDefaults(
      */
     variant?: 'primary' | 'secondary' | 'subtle' | 'warning'
     /**
+     * md   — standard button size (default).
+     * hero — oversized CTA with expanded ring/face padding and ripple hover effect.
+     */
+    size?: 'md' | 'hero'
+    /**
      * Disables the button. Sets the native HTML disabled attribute and applies
      * the unavailable visual state (flat ring, reduced opacity, no interaction).
      */
@@ -56,6 +61,7 @@ withDefaults(
   }>(),
   {
     variant: 'primary',
+    size: 'md',
     disabled: false,
   }
 )
@@ -389,5 +395,61 @@ withDefaults(
   text-transform: uppercase;
   line-height: 1;
   user-select: none;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   HERO SIZE — oversized CTA with ripple hover effect
+
+   Larger ring padding creates a more imposing presence.
+   Ripple ::before on the face plate provides the expanding-
+   circle hover feedback ported from the original btn-start-game.
+   ───────────────────────────────────────────────────────────── */
+.dungeon-btn.size-hero {
+  /* Larger chamfer matches AppFrame proportions */
+  --dng-btn-chamfer: 8px;
+  /* Thicker ring for hero presence */
+  --dng-btn-ring-v: 12px;
+  --dng-btn-ring-h: 24px;
+  /* Larger bracket ornaments at hero scale */
+  --dng-btn-bracket-size: 14px;
+  --dng-btn-bracket-weight: 3px;
+  --dng-btn-bracket-inset: 5px;
+}
+
+.dungeon-btn.size-hero .dungeon-btn__face {
+  padding: 14px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dungeon-btn.size-hero .dungeon-btn__label {
+  font-size: var(--text-xl);
+  letter-spacing: var(--tracking-wide);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  position: relative;
+  z-index: 1;
+}
+
+/* Ripple — expanding circle on hover, stays within face boundaries */
+.dungeon-btn.size-hero .dungeon-btn__face::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  transform: translate(-50%, -50%);
+  transition: width 0.55s ease-out, height 0.55s ease-out;
+  pointer-events: none;
+}
+
+.dungeon-btn.size-hero:not(:disabled):hover .dungeon-btn__face::before {
+  width: 600px;
+  height: 600px;
 }
 </style>

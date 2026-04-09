@@ -3,7 +3,7 @@
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
     
-    <div class="end-container">
+    <AppFrame class="end-frame">
       <!-- Outcome Hero -->
       <div class="outcome-hero">
         <div class="hero-decoration">
@@ -175,7 +175,7 @@
           <span>📖</span> Rules
         </AppButton>
       </footer>
-    </div>
+    </AppFrame>
   </div>
 </template>
 
@@ -189,6 +189,7 @@ import RulesModal from '@/ui/components/common/rules_modal.vue'
 import ShareResultCard from '@/ui/components/results/share_result_card.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
+import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 import { getClassAccentColor } from '@/ui/composables/class_artwork'
 import {
   buildStakeholderNamesMap,
@@ -531,24 +532,24 @@ function inlineComputedStyles(source: Element, target: Element) {
   padding: var(--space-3xl) var(--space-2xl);
 }
 
-.end-container {
+.end-frame {
   max-width: 1000px;
   margin: 0 auto;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Override AppFrame body gap for end-of-run section spacing */
+.end-frame :deep(.dungeon-frame__body) {
   display: flex;
   flex-direction: column;
   gap: var(--space-2xl);
-  animation: fadeInUp 0.6s ease-out;
+  padding: var(--space-2xl);
 }
 
 /* Outcome Hero */
 .outcome-hero {
   text-align: center;
-  padding: var(--space-4xl) var(--space-2xl);
-  background: var(--card-bg);
-  border: 2px solid var(--color-border-primary);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(10px);
+  padding: var(--space-4xl) var(--space-2xl) var(--space-2xl);
   position: relative;
   overflow: hidden;
 }

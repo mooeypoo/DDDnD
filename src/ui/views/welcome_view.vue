@@ -21,7 +21,7 @@
           </p>
           
           <div class="hero-description">
-            <div class="description-card">
+            <AppCard variant="aged">
               <p>
                 Enter a realm of software systems where each quest presents a different architectural challenge.
                 As the systems architect, you will wield action cards to balance domain clarity, delivery pace,
@@ -31,15 +31,15 @@
                 Every choice has tradeoffs. Every action has consequences.
                 Can you guide your system to a worthy ending?
               </p>
-            </div>
+            </AppCard>
           </div>
           
           <!-- CTA Section -->
           <div class="cta-section">
-            <button class="btn-start-game" @click="goToSetup()">
-              <span class="btn-icon">🎲</span>
-              <span class="btn-text">Start Your Journey</span>
-            </button>
+            <AppButton size="hero" variant="primary" @click="goToSetup()">
+              <span>🎲</span>
+              Start Your Journey
+            </AppButton>
 
             <div class="tutorial-links">
               <span class="tutorial-links-label">New here?</span>
@@ -83,6 +83,7 @@
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import AppButton from '@/ui/components/common/AppButton.vue'
+import AppCard from '@/ui/components/cards/AppCard.vue'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
@@ -172,26 +173,6 @@ function goToSetup(tutorialType?: string) {
   margin: 0 auto;
 }
 
-.description-card {
-  background: var(--card-bg);
-  border: 2px solid var(--color-border-primary);
-  border-radius: var(--radius-xl);
-  padding: var(--space-2xl);
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(10px);
-}
-
-.description-card p {
-  color: var(--color-text-primary);
-  line-height: var(--leading-relaxed);
-  margin: 0 0 var(--space-lg) 0;
-  font-size: var(--text-base);
-}
-
-.description-card p:last-child {
-  margin-bottom: 0;
-}
-
 .description-emphasis {
   color: var(--color-text-bright);
   font-weight: var(--font-semibold);
@@ -206,61 +187,8 @@ function goToSetup(tutorialType?: string) {
   margin-top: var(--space-lg);
 }
 
-.btn-start-game {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  border: none;
-  padding: var(--space-lg) var(--space-4xl);
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  border-radius: var(--button-radius);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  box-shadow: 0 4px 16px var(--color-primary-glow);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-md);
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-start-game::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.btn-start-game:hover::before {
-  width: 300px;
-  height: 300px;
-}
-
-.btn-start-game:hover {
-  background: var(--color-primary-light);
-  transform: translateY(-3px);
-  box-shadow: 0 6px 24px var(--color-primary-glow);
-}
-
-.btn-start-game:active {
-  transform: translateY(-1px);
-}
-
 .btn-icon {
   font-size: var(--text-2xl);
-  position: relative;
-  z-index: 1;
-}
-
-.btn-text {
   position: relative;
   z-index: 1;
 }
@@ -338,14 +266,6 @@ function goToSetup(tutorialType?: string) {
   .hero-visual {
     min-height: 140px;
   }
-  
-  .description-card {
-    padding: var(--space-xl);
-  }
-  
-  .description-card p {
-    font-size: var(--text-sm);
-  }
 }
 
 @media (max-width: 480px) {
@@ -359,13 +279,6 @@ function goToSetup(tutorialType?: string) {
   
   .hero-content {
     gap: var(--space-xl);
-  }
-  
-  .btn-start-game {
-    width: 100%;
-    max-width: 340px;
-    padding: var(--space-lg) var(--space-2xl);
-    font-size: var(--text-lg);
   }
   
   .helper-links {

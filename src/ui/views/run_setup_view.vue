@@ -55,6 +55,8 @@
         </nav>
       </header>
 
+      <!-- Dungeon console panel — houses the interactive quest/class selection -->
+      <AppFrame class="setup-frame">
       <!-- Tab Toggle -->
       <AppTabs
         :tabs="['🏛️ Quests', '📖 Tutorials']"
@@ -246,12 +248,10 @@
             <p class="section-hint">Optional - Give your architect a name</p>
           </div>
           
-          <input 
+          <AppInput
             v-model="characterName"
-            type="text"
-            class="name-input"
             placeholder="The Desperate Architect"
-            maxlength="50"
+            :maxlength="50"
           />
         </section>
         
@@ -271,7 +271,7 @@
         </div>
         </template>
       </div>
-      
+      </AppFrame>
 
     </div>
   </div>
@@ -291,6 +291,8 @@ import GameLogo from '@/ui/components/branding/game_logo.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
 import AppTabs from '@/ui/components/common/AppTabs.vue'
+import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
+import AppInput from '@/ui/components/common/AppInput.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -542,6 +544,14 @@ async function launchTutorial(quest: QuestDisplayModel) {
   display: flex;
   flex-direction: column;
   gap: var(--space-3xl);
+}
+
+/* AppFrame wrapper for the interactive selection panel */
+.setup-frame :deep(.dungeon-frame__body) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  padding: var(--space-xl);
 }
 
 /* Header */
@@ -881,30 +891,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
   font-weight: var(--font-bold);
-}
-
-/* Name Input */
-.name-input {
-  width: 100%;
-  max-width: 500px;
-  padding: var(--space-lg) var(--space-xl);
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: var(--radius-lg);
-  color: var(--color-text-primary);
-  font-size: var(--text-base);
-  transition: all var(--transition-base);
-  font-family: var(--font-sans);
-}
-
-.name-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-danger-bg);
-}
-
-.name-input::placeholder {
-  color: var(--color-text-secondary);
 }
 
 /* Action Buttons */

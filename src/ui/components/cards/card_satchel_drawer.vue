@@ -123,21 +123,21 @@ function close() {
   gap: var(--space-md);
   width: 100%;
   padding: var(--space-sm) var(--space-lg);
-  background: linear-gradient(180deg, rgba(40, 50, 80, 0.97) 0%, rgba(22, 30, 52, 0.97) 100%);
+  background: linear-gradient(180deg, var(--surface-elevated) 0%, var(--surface-panel) 100%);
   border: none;
-  border-top: 1px solid rgba(169, 137, 250, 0.35);
+  border-top: 1px solid var(--border-accent);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   cursor: pointer;
   font-family: inherit;
   transition: background var(--transition-fast), border-color var(--transition-fast);
   flex-shrink: 0;
   min-height: var(--drawer-handle-height);
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 var(--border-subtle);
 }
 
 .drawer-handle:hover {
-  background: linear-gradient(180deg, rgba(50, 62, 95, 0.97) 0%, rgba(28, 38, 64, 0.97) 100%);
-  border-top-color: rgba(169, 137, 250, 0.5);
+  background: linear-gradient(180deg, var(--surface-modal) 0%, var(--surface-elevated) 100%);
+  border-top-color: var(--border-card);
 }
 
 .handle-grip {

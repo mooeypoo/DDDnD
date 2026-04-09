@@ -226,15 +226,15 @@ function formatStakeholderName(stakeholderId: string): string {
 }
 
 .change-badge.positive {
-  background: rgba(46, 204, 113, 0.2);
-  color: var(--color-success);
-  border-color: var(--color-success);
+  background: var(--effect-positive-bg);
+  color: var(--effect-positive);
+  border-color: var(--effect-positive-border);
 }
 
 .change-badge.negative {
-  background: rgba(233, 69, 96, 0.2);
-  color: var(--color-primary);
-  border-color: var(--color-primary);
+  background: var(--effect-negative-bg);
+  color: var(--effect-negative);
+  border-color: var(--effect-negative-border);
 }
 
 .aftershocks-list {

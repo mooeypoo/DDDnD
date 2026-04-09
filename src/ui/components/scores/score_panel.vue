@@ -1,15 +1,11 @@
 <template>
-  <div class="score-panel">
-    <div class="panel-header">
-      <h3 class="panel-title">
-        <span class="title-icon">📊</span>
-        System Health
-      </h3>
-      <div class="overall-health" :class="overallHealth.cssClass">
+  <AppFrame title="System Health" class="score-panel" :class="overallHealth.cssClass">
+    <template #header-actions>
+      <div class="overall-health">
         <span class="health-dot"></span>
         <span class="health-label">{{ overallHealth.label }}</span>
       </div>
-    </div>
+    </template>
     <div class="scores-list">
       <div 
         v-for="(value, scoreId) in scores" 
@@ -34,12 +30,13 @@
         </div>
       </div>
     </div>
-  </div>
+  </AppFrame>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 
 const props = defineProps<{
   scores: Record<string, number>
@@ -76,36 +73,8 @@ const overallHealth = computed(() => {
 </script>
 
 <style scoped>
-.score-panel {
-  background: var(--surface-panel);
-  border: 1px solid var(--border-panel);
-  border-radius: var(--radius-xl);
-  padding: var(--panel-padding);
-  box-shadow: var(--shadow-panel), var(--shadow-inset-ridge);
-}
-
-.panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-  margin-bottom: var(--space-lg);
-}
-
-.panel-title {
-  color: var(--text-secondary);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.title-icon {
-  font-size: var(--text-lg);
+.score-panel :deep(.dungeon-frame__body) {
+  padding: var(--space-md);
 }
 
 .overall-health {

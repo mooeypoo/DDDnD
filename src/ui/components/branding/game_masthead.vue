@@ -36,12 +36,12 @@
           Your progress will be lost.
         </p>
         <div class="confirmation-actions">
-          <button class="btn-cancel" @click="cancelReset">
+          <AppButton variant="subtle" @click="cancelReset">
             Cancel
-          </button>
-          <button class="btn-confirm" @click="confirmReset">
+          </AppButton>
+          <AppButton variant="warning" @click="confirmReset">
             Reset Run
-          </button>
+          </AppButton>
         </div>
       </div>
     </div>
@@ -180,46 +180,6 @@ function confirmReset() {
   justify-content: center;
 }
 
-.btn-cancel,
-.btn-confirm {
-  padding: var(--space-sm) var(--space-lg);
-  border-radius: var(--radius-md);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex: 1;
-}
-
-.btn-cancel {
-  background: var(--surface-panel);
-  border: 1px solid var(--border-card);
-  color: var(--text-primary);
-}
-
-.btn-cancel:hover {
-  background: var(--surface-card);
-  border-color: var(--border-focus);
-}
-
-.btn-confirm {
-  background: var(--effect-warning);
-  border: 1px solid var(--effect-warning);
-  color: var(--bg-page);
-}
-
-.btn-confirm:hover {
-  background: var(--effect-negative);
-  border-color: var(--effect-negative);
-}
-
-.btn-cancel:focus-visible,
-.btn-confirm:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
-}
-
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .game-masthead {
@@ -247,11 +207,6 @@ function confirmReset() {
   
   .confirmation-actions {
     flex-direction: column;
-  }
-  
-  .btn-cancel,
-  .btn-confirm {
-    flex: auto;
   }
 }
 </style>
