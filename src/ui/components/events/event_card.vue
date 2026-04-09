@@ -90,16 +90,21 @@ const severityLabel = computed(() => {
 .dungeon-ec {
   --ec-severity-accent: var(--text-secondary);
 
+  /* --ec-ring-accent: dark-toned per-severity color for bronze-face markers
+     (sigil + eyebrow). These are the same hue families as --ec-severity-accent
+     but dark enough to be legible on the bronze ring (~#a07018 mid value). */
+  --ec-ring-accent: #4a3820;
+
   --ec-divider:      color-mix(in srgb, var(--ec-severity-accent) 30%, var(--dng-divider));
   --ec-inset-bloom:  color-mix(in srgb, var(--ec-severity-accent) 14%, var(--dng-inset-bloom));
   --ec-bracket:      color-mix(in srgb, var(--ec-severity-accent) 60%, var(--dng-bracket));
   --ec-panel-border: color-mix(in srgb, var(--ec-severity-accent) 22%, var(--dng-panel-border));
 }
 
-.dungeon-ec.severity-low      { --ec-severity-accent: #60a5fa; }
-.dungeon-ec.severity-medium   { --ec-severity-accent: #fbbf24; }
-.dungeon-ec.severity-high     { --ec-severity-accent: #fb923c; }
-.dungeon-ec.severity-critical { --ec-severity-accent: #f87171; }
+.dungeon-ec.severity-low      { --ec-severity-accent: #60a5fa; --ec-ring-accent: #1a3a72; } /* dark navy  */
+.dungeon-ec.severity-medium   { --ec-severity-accent: #fbbf24; --ec-ring-accent: #5c3600; } /* dark sienna */
+.dungeon-ec.severity-high     { --ec-severity-accent: #fb923c; --ec-ring-accent: #5c2800; } /* dark rust  */
+.dungeon-ec.severity-critical { --ec-severity-accent: #f87171; --ec-ring-accent: #6e1414; } /* dark crimson */
 
 /* ─────────────────────────────────────────────────────────────
    OUTER SHELL
@@ -203,7 +208,8 @@ const severityLabel = computed(() => {
   flex-shrink: 0;
   width: 28px;
   height: 28px;
-  color: var(--ec-severity-accent);
+  color: var(--ec-ring-accent);
+  opacity: 0.90;
   margin-top: 2px;
 }
 
@@ -220,9 +226,8 @@ const severityLabel = computed(() => {
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--ec-severity-accent);
+  color: var(--ec-ring-accent);
   line-height: 1;
-  opacity: 0.85;
 }
 
 .ec-title {

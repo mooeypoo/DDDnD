@@ -227,6 +227,7 @@ withDefaults(defineProps<{
    ───────────────────────────────────────────────────────────── */
 .dungeon-ec {
   --ec-severity-accent: var(--text-secondary);  /* default fallback */
+  --ec-ring-accent:     #4a3820;                /* dark bronze-face fallback */
 
   /* Interface tokens derived from accent — match ActionCard's ac-* pattern */
   --ec-divider:        color-mix(in srgb, var(--ec-severity-accent) 30%, var(--dng-divider));
@@ -235,10 +236,10 @@ withDefaults(defineProps<{
   --ec-panel-border:   color-mix(in srgb, var(--ec-severity-accent) 22%, var(--dng-panel-border));
 }
 
-.dungeon-ec.severity-low      { --ec-severity-accent: #60a5fa; }  /* blue  — informational */
-.dungeon-ec.severity-medium   { --ec-severity-accent: #fbbf24; }  /* amber — caution       */
-.dungeon-ec.severity-high     { --ec-severity-accent: #fb923c; }  /* orange — warning      */
-.dungeon-ec.severity-critical { --ec-severity-accent: #f87171; }  /* red   — critical      */
+.dungeon-ec.severity-low      { --ec-severity-accent: #60a5fa; --ec-ring-accent: #1a3a72; } /* dark navy   */
+.dungeon-ec.severity-medium   { --ec-severity-accent: #fbbf24; --ec-ring-accent: #5c3600; } /* dark sienna */
+.dungeon-ec.severity-high     { --ec-severity-accent: #fb923c; --ec-ring-accent: #5c2800; } /* dark rust   */
+.dungeon-ec.severity-critical { --ec-severity-accent: #f87171; --ec-ring-accent: #6e1414; } /* dark crimson */
 
 /* ─────────────────────────────────────────────────────────────
    OUTER SHELL — same geometry as ActionCard (.dungeon-ac)
@@ -353,7 +354,8 @@ withDefaults(defineProps<{
   flex-shrink: 0;
   width: 28px;
   height: 28px;
-  color: var(--ec-severity-accent);
+  color: var(--ec-ring-accent);
+  opacity: 0.90;
   margin-top: 2px;
 }
 
@@ -369,9 +371,8 @@ withDefaults(defineProps<{
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-widest);
   text-transform: uppercase;
-  color: var(--ec-severity-accent);
+  color: var(--ec-ring-accent);
   line-height: 1;
-  opacity: 0.85;
 }
 
 .ec-title {
