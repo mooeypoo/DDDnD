@@ -104,25 +104,23 @@
           <!-- Scene: full width of main column -->
           <section class="stage-section">
             <SceneStage :scene-id="gameplaySceneId" :actors="stageActors" />
+            <!-- Aftershock float badge: top-right overlay on the scene -->
+            <Transition name="aftershock-badge">
+              <div
+                v-if="gameStore.turnBriefing && !gameStore.isRunComplete && pendingAftershockCount > 0"
+                class="aftershock-alert"
+              >
+                <span class="alert-icon">⚡</span>
+                <div class="alert-content">
+                  <div class="alert-title">Aftershocks Incoming</div>
+                  <div class="alert-message">{{ pendingAftershockCount }} delayed effect{{ pendingAftershockCount > 1 ? 's' : '' }} this turn</div>
+                </div>
+              </div>
+            </Transition>
           </section>
 
           <!-- Below-scene: single column, width-capped -->
           <div class="below-scene">
-            <!-- Aftershock alert -->
-            <div
-              v-if="gameStore.turnBriefing && !gameStore.isRunComplete && pendingAftershockCount > 0"
-              ref="aftershockAlertRef"
-              class="aftershock-alert"
-            >
-              <div class="alert-icon">⚡</div>
-              <div class="alert-content">
-                <div class="alert-title">Architectural Aftershocks Incoming</div>
-                <div class="alert-message">
-                  {{ pendingAftershockCount }} delayed effect{{ pendingAftershockCount > 1 ? 's' : '' }} will resolve this turn
-                </div>
-              </div>
-            </div>
-
             <!-- Low-turns warning -->
             <div v-if="isLowTurns && gameStore.turnBriefing && !gameStore.isRunComplete" class="low-turns-inline">
               <span class="low-turns-icon">⏰</span>
@@ -285,7 +283,6 @@ const router = useRouter()
 const gameStore = useGameStore()
 
 const modalCardId = ref<string | null>(null)
-const aftershockAlertRef = ref<HTMLElement | null>(null)
 const isSatchelOpen = ref(false)
 const resolutionPopupOpen = ref(false)
 const isResolutionExpanded = ref(false)
@@ -696,6 +693,7 @@ function goToEndScreen() {
 
 .stage-section {
   width: 100%;
+  position: relative;
 }
 
 .below-scene {
@@ -741,17 +739,24 @@ function goToEndScreen() {
 }
 
 .aftershock-alert {
-  background: linear-gradient(135deg, var(--effect-warning-bg) 0%, rgba(255, 166, 0, 0.08) 100%);
-  border: 1px solid var(--effect-warning-border);
-  border-radius: 12px;
-  padding: 0.75rem 0.85rem;
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 10;
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.45rem;
+  background: linear-gradient(135deg, rgba(20, 12, 0, 0.82) 0%, rgba(30, 18, 0, 0.78) 100%);
+  border: 1px solid var(--effect-warning-border);
+  border-radius: 10px;
+  padding: 0.4rem 0.65rem;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  max-width: 220px;
 }
 
 .alert-icon {
-  font-size: var(--text-xl);
+  font-size: var(--text-sm);
   line-height: 1;
   flex-shrink: 0;
 }
@@ -762,14 +767,17 @@ function goToEndScreen() {
 
 .alert-title {
   color: var(--effect-warning);
-  font-size: var(--text-xs);
+  font-size: var(--text-2xs);
   font-weight: var(--font-bold);
-  margin-bottom: 2px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  white-space: nowrap;
 }
 
 .alert-message {
-  color: var(--text-primary);
-  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-size: var(--text-2xs);
+  white-space: nowrap;
 }
 
 .run-complete-card {
@@ -842,14 +850,25 @@ function goToEndScreen() {
   }
 
   .aftershock-alert {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.45rem;
+    max-width: 160px;
+    padding: 0.3rem 0.5rem;
   }
 
   .complete-title {
     font-size: var(--text-2xl);
   }
+}
+
+.aftershock-badge-enter-active {
+  transition: opacity 0.2s var(--ease-decelerate), transform 0.2s var(--ease-decelerate);
+}
+.aftershock-badge-leave-active {
+  transition: opacity 0.15s var(--ease-accelerate), transform 0.15s var(--ease-accelerate);
+}
+.aftershock-badge-enter-from,
+.aftershock-badge-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.95);
 }
 
 /* ─── Resolution collapsible summary ─── */
