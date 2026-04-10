@@ -177,3 +177,26 @@ export const TutorialsTab: Story = {
     ]
   }
 }
+
+// Shared class data reused across stories
+const mockClasses = [
+  { id: 'boundary_mage',     version: 1, name: 'Boundary Mage',      description: 'Expert at bounded contexts',         flavor_text: 'Clear boundaries keep the codebase at peace' },
+  { id: 'stakeholder_bard',  version: 1, name: 'Stakeholder Bard',   description: 'Master of stakeholder relations',    flavor_text: 'A well-told story smooths the path forward' },
+  { id: 'reliability_cleric',version: 1, name: 'Reliability Cleric', description: 'Guardian of system health',         flavor_text: 'Stability is the foundation of all progress' },
+  { id: 'legacy_ranger',     version: 1, name: 'Legacy Ranger',      description: 'Scout of inherited code',           flavor_text: 'Every system has history; honor it' },
+  { id: 'delivery_rogue',    version: 1, name: 'Delivery Rogue',     description: 'Swift executor of change',          flavor_text: 'Speed matters when the deadline approaches' },
+]
+
+/**
+ * Quests tab with all five ClassCards visible beneath the quest grid.
+ * Demonstrates the dungeon ClassCard accent spectrum alongside quest selection.
+ */
+export const QuestsTabWithClasses: Story = {
+  name: 'Quests Tab — With Class Selection',
+  async beforeEach() {
+    setActivePinia(createPinia())
+    const store = useGameStore()
+    store.availableQuests = mockQuests
+    store.availableClasses = mockClasses
+  }
+}

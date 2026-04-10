@@ -71,7 +71,16 @@
         <section class="setup-section tutorial-section">
           <div class="section-header">
             <h2 class="section-title">
-              <span class="section-icon">📖</span>
+              <!-- Compass: tutorials icon -->
+              <svg class="section-icon-svg" viewBox="0 0 20 20" aria-hidden="true">
+                <circle cx="10" cy="10" r="8" stroke="currentColor" fill="none" stroke-width="1.6"/>
+                <line x1="10" y1="2" x2="10" y2="5" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="10" y1="15" x2="10" y2="18" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="2" y1="10" x2="5" y2="10" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="15" y1="10" x2="18" y2="10" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M10,5 L12,10 L10,9 L8,10 Z" fill="currentColor"/>
+                <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+              </svg>
               Guided Tutorials
             </h2>
             <p class="section-hint">Learn the game mechanics step by step — click a tutorial to begin immediately</p>
@@ -108,7 +117,14 @@
         <section class="setup-section quest-section">
           <div class="section-header">
             <h2 class="section-title">
-              <span class="section-icon">🏛️</span>
+              <!-- Domain Gate: quests icon -->
+              <svg class="section-icon-svg" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M2,18 L2,9 C2,4 5,2 10,2 C15,2 18,4 18,9 L18,18" stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M5,18 L5,11 C5,7 7,6 10,6 C13,6 15,7 15,11 L15,18" stroke="currentColor" fill="none" stroke-width="1.3" stroke-linecap="round"/>
+                <line x1="2" y1="18" x2="18" y2="18" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M10,2 L11.8,5.5 L10,7 L8.2,5.5 Z" fill="currentColor"/>
+                <circle cx="10" cy="13" r="1.5" fill="currentColor"/>
+              </svg>
               Choose a Quest
             </h2>
           </div>
@@ -137,7 +153,14 @@
         <section class="setup-section class-section">
           <div class="section-header">
             <h2 class="section-title">
-              <span class="section-icon">⚔️</span>
+              <!-- Crossed swords: class selection icon -->
+              <svg class="section-icon-svg" viewBox="0 0 20 20" aria-hidden="true">
+                <line x1="3" y1="3" x2="17" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <line x1="17" y1="3" x2="3" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <line x1="3" y1="5" x2="5" y2="3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <line x1="15" y1="3" x2="17" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <rect x="8.5" y="8.5" width="3" height="3" rx="0.5" fill="currentColor" opacity="0.6"/>
+              </svg>
               Choose Your Class
             </h2>
             <p class="section-hint">Your architectural archetype (cosmetic for MVP)</p>
@@ -149,31 +172,13 @@
           </div>
           
           <div v-else class="class-grid">
-            <button 
-              v-for="classOption in gameStore.availableClasses" 
+            <ClassCard
+              v-for="classOption in gameStore.availableClasses"
               :key="classOption.id"
-              class="class-card"
-              :class="{ selected: selectedClass?.id === classOption.id }"
-              @click="selectClass(classOption)"
-            >
-              <div class="class-visual">
-                <ClassPortrait
-                  :classId="classOption.id"
-                  :className="classOption.name"
-                  size="lg"
-                />
-              </div>
-              
-              <div class="class-info">
-                <h3 class="class-name">{{ classOption.name }}</h3>
-                <p class="class-description">{{ classOption.description }}</p>
-                <p class="class-flavor">{{ classOption.flavor_text }}</p>
-              </div>
-              
-              <div v-if="selectedClass?.id === classOption.id" class="selected-indicator">
-                ✓ Selected
-              </div>
-            </button>
+              :playerClass="classOption"
+              :isSelected="selectedClass?.id === classOption.id"
+              @select="selectClass(classOption)"
+            />
           </div>
         </section>
         
@@ -181,7 +186,12 @@
         <section class="setup-section name-section">
           <div class="section-header">
             <h2 class="section-title">
-              <span class="section-icon">✏️</span>
+              <!-- Quill pen: name icon -->
+              <svg class="section-icon-svg" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M16,2 C16,2 18,8 12,12 L8,16 L4,18 L6,14 C6,14 10,11 12,8 C14,5 16,2 16,2 Z" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linejoin="round"/>
+                <line x1="4" y1="18" x2="7" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                <line x1="8" y1="16" x2="11" y2="13" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+              </svg>
               Character Name
             </h2>
             <p class="section-hint">Optional - Give your architect a name</p>
@@ -227,12 +237,12 @@ import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
-import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
 import AppTabs from '@/ui/components/common/AppTabs.vue'
 import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 import AppInput from '@/ui/components/common/AppInput.vue'
 import QuestCard from '@/ui/components/cards/quest_card.vue'
+import ClassCard from '@/ui/components/cards/class_card.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -569,8 +579,12 @@ async function launchTutorial(quest: QuestDisplayModel) {
   gap: var(--space-md);
 }
 
-.section-icon {
-  font-size: var(--text-3xl);
+.section-icon-svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: var(--dng-title-gold, #d4b860);
+  opacity: 0.85;
 }
 
 .section-hint {
@@ -651,98 +665,8 @@ async function launchTutorial(quest: QuestDisplayModel) {
 /* Class Grid */
 .class-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: var(--space-lg);
-}
-
-.class-card {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.class-card::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  border-radius: var(--radius-xl);
-  opacity: 0;
-  transition: opacity var(--transition-slow);
-  z-index: -1;
-}
-
-.class-card:hover {
-  border-color: var(--card-border-hover);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-
-.class-card.selected {
-  border-color: var(--color-primary);
-  background: var(--color-danger-bg);
-  box-shadow: 0 4px 20px var(--color-primary-glow);
-}
-
-.class-visual {
-  margin-bottom: var(--space-lg);
-}
-
-.class-visual {
-  display: flex;
-  justify-content: center;
-  transition: transform var(--transition-slow);
-}
-
-.class-card:hover .class-visual {
-  transform: scale(1.08);
-}
-
-.class-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.class-name {
-  color: var(--color-text-bright);
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  margin: 0;
-}
-
-.class-description {
-  color: var(--color-text-primary);
-  font-size: var(--text-sm);
-  line-height: var(--leading-snug);
-  margin: 0;
-}
-
-.class-flavor {
-  color: var(--color-text-secondary);
-  font-style: italic;
-  font-size: var(--text-xs);
-  margin: 0;
-  line-height: var(--leading-snug);
-}
-
-.selected-indicator {
-  margin-top: var(--space-md);
-  padding: var(--space-sm);
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
-  font-weight: var(--font-bold);
 }
 
 /* Action Buttons */
