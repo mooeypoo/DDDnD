@@ -15,7 +15,13 @@ const meta: Meta<typeof GameLogo> = {
   parameters: {
     layout: 'centered',
     backgrounds: {
-      default: 'dark'
+      default: 'dungeon',
+      values: [
+        { name: 'dungeon', value: '#0d0904' },
+        { name: 'panel',   value: '#0b1c24' },
+        { name: 'masthead', value: '#0d0904' },
+        { name: 'light',   value: '#f5f5f5' },
+      ]
     }
   }
 }
@@ -44,14 +50,20 @@ export const Large: Story = {
 
 export const OnWelcomePage: Story = {
   name: 'On Welcome Page (Large)',
-  args: {
-    size: 'large'
-  },
-  parameters: {
-    backgrounds: {
-      default: 'gradient'
-    }
-  }
+  render: () => ({
+    components: { GameLogo },
+    template: `
+      <div style="
+        min-height: 100vh;
+        background: linear-gradient(135deg, #0c0a05 0%, #100d07 50%, #141009 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      ">
+        <GameLogo size="large" />
+      </div>
+    `
+  })
 }
 
 export const InMasthead: Story = {
@@ -65,18 +77,18 @@ export const AllSizes: Story = {
   render: () => ({
     components: { GameLogo },
     template: `
-      <div style="display: flex; flex-direction: column; gap: 48px; padding: 24px;">
+      <div style="display: flex; flex-direction: column; gap: 48px; padding: 32px;">
         <div>
           <GameLogo size="small" />
-          <div style="margin-top: 12px; color: #94a3b8; font-size: 12px;">Small (Masthead)</div>
+          <div style="margin-top: 12px; color: #7a6c44; font-size: 12px;">Small — masthead</div>
         </div>
         <div>
           <GameLogo size="medium" />
-          <div style="margin-top: 12px; color: #94a3b8; font-size: 12px;">Medium</div>
+          <div style="margin-top: 12px; color: #7a6c44; font-size: 12px;">Medium — default</div>
         </div>
         <div>
           <GameLogo size="large" />
-          <div style="margin-top: 12px; color: #94a3b8; font-size: 12px;">Large (Welcome Page)</div>
+          <div style="margin-top: 12px; color: #7a6c44; font-size: 12px;">Large — welcome page</div>
         </div>
       </div>
     `

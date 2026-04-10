@@ -1,50 +1,81 @@
 <template>
+  <!--
+    GameMasthead — top navigation bar in dungeon design vocabulary.
+
+    Visual anatomy (left → right):
+      • GameLogo (size="small")
+      • Thin vertical bronze divider line
+      • Nav AppButtons: Rules / About / Dungeon Master / Reset Run
+
+    Bottom edge treatment:
+      • 2px bronze gradient seam (::after pseudo-element)
+
+    Corner ornaments:
+      • L-bracket spans at bottom-left and bottom-right
+        (matching the dungeon card bracket vocabulary)
+
+    Reset confirmation uses SurfaceModalPanel (not an inline overlay).
+    Emits Vue 'reset-run' event directly — NOT via window.dispatchEvent.
+  -->
   <header class="game-masthead">
+    <!-- BL / BR corner bracket ornaments (bottom edge only) -->
+    <span class="masthead-bracket masthead-bracket--bl" aria-hidden="true"/>
+    <span class="masthead-bracket masthead-bracket--br" aria-hidden="true"/>
+
     <div class="masthead-left">
-      <GameLogo size="small" />
+      <GameLogo size="small"/>
     </div>
-    
-    <nav class="masthead-right" aria-label="Game navigation">
-      <AppButton variant="subtle" aria-label="Show game rules" @click="$emit('show-rules')">
-        <span class="button-icon">📖</span>
-        <span class="button-label">Rules</span>
+
+    <!-- Vertical bronze divider between logo and nav -->
+    <span class="masthead-divider" aria-hidden="true"/>
+
+    <nav class="masthead-nav" aria-label="Game navigation">
+      <AppButton
+        variant="subtle"
+        aria-label="Show game rules"
+        @click="$emit('show-rules')"
+      >
+        <span class="nav-label">Rules</span>
       </AppButton>
 
-      <AppButton variant="subtle" aria-label="About this game" @click="$emit('show-about')">
-        <span class="button-icon">ℹ️</span>
-        <span class="button-label">About</span>
+      <AppButton
+        variant="subtle"
+        aria-label="About this game"
+        @click="$emit('show-about')"
+      >
+        <span class="nav-label">About</span>
       </AppButton>
 
-      <AppButton variant="subtle" aria-label="Dungeon Master social links" @click="$emit('show-dungeon-master')">
-        <span class="button-icon">🧙‍♂️</span>
-        <span class="button-label">Dungeon Master</span>
+      <AppButton
+        variant="subtle"
+        aria-label="Dungeon Master social links"
+        @click="$emit('show-dungeon-master')"
+      >
+        <span class="nav-label">Dungeon&nbsp;Master</span>
       </AppButton>
 
-      <AppButton variant="warning" aria-label="Reset and start a new run" @click="handleResetClick">
-        <span class="button-icon">↻</span>
-        <span class="button-label">Reset Run</span>
+      <AppButton
+        variant="warning"
+        aria-label="Reset and start a new run"
+        @click="handleResetClick"
+      >
+        <span class="nav-label">Reset&nbsp;Run</span>
       </AppButton>
     </nav>
-    
-    <!-- Reset Confirmation Overlay -->
-    <div v-if="showResetConfirmation" class="reset-confirmation-overlay" @click.self="cancelReset">
-      <div class="confirmation-card">
-        <div class="confirmation-icon">⚠️</div>
-        <h3 class="confirmation-title">Reset Current Run?</h3>
-        <p class="confirmation-message">
-          This will end your current run and return you to scenario selection. 
-          Your progress will be lost.
-        </p>
-        <div class="confirmation-actions">
-          <AppButton variant="subtle" @click="cancelReset">
-            Cancel
-          </AppButton>
-          <AppButton variant="warning" @click="confirmReset">
-            Reset Run
-          </AppButton>
-        </div>
-      </div>
-    </div>
+
+    <!-- Reset confirmation modal -->
+    <SurfaceModalPanel
+      :is-open="showResetConfirmation"
+      title="Reset Current Run?"
+      subtitle="Your progress will be lost and you'll return to scenario selection."
+      size="sm"
+      @close="cancelReset"
+    >
+      <template #footer>
+        <AppButton variant="subtle" @click="cancelReset">Cancel</AppButton>
+        <AppButton variant="warning" @click="confirmReset">Reset Run</AppButton>
+      </template>
+    </SurfaceModalPanel>
   </header>
 </template>
 
@@ -52,12 +83,13 @@
 import { ref } from 'vue'
 import GameLogo from './game_logo.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
+import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 
-defineEmits<{
-  'show-rules': []
-  'show-about': []
+const emit = defineEmits<{
+  'show-rules':         []
+  'show-about':         []
   'show-dungeon-master': []
-  'reset-run': []
+  'reset-run':          []
 }>()
 
 const showResetConfirmation = ref(false)
@@ -72,141 +104,144 @@ function cancelReset() {
 
 function confirmReset() {
   showResetConfirmation.value = false
-  // Emit after hiding the modal
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('reset-run'))
-  }, 100)
+  emit('reset-run')
 }
 </script>
 
 <style scoped>
+/* ─────────────────────────────────────────────────────────────
+   Masthead bar
+   Background: dark charcoal shell → warm gradient toward bottom.
+   Bottom edge: 2px bronze seam via ::after.
+───────────────────────────────────────────────────────────── */
 .game-masthead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-md) var(--space-lg);
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-card);
   position: relative;
+  display: flex;
+  align-items: center;
+  padding: var(--space-sm) var(--space-lg);
+  background: linear-gradient(
+    to bottom,
+    #130d06 0%,
+    var(--dng-shell-bg, #0d0904) 50%,
+    #0b0802 100%
+  );
+  min-height: 60px;
 }
 
+/* Bottom bronze gradient seam */
+.game-masthead::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--dng-bronze-hi, #c89824) 15%,
+    var(--dng-bronze-mid, #a07018) 40%,
+    var(--dng-bronze-hi, #c89824) 60%,
+    var(--dng-bronze-mid, #a07018) 85%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Corner bracket ornaments (bottom-left / bottom-right)
+   CSS L-brackets matching dungeon card corner language.
+   bracket-size ≈ 10px, bracket-weight = 2px
+───────────────────────────────────────────────────────────── */
+.masthead-bracket {
+  position: absolute;
+  bottom: 8px;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.masthead-bracket::before,
+.masthead-bracket::after {
+  content: '';
+  position: absolute;
+  background: var(--dng-bracket, rgba(196, 148, 34, 0.82));
+}
+
+/* Horizontal arm */
+.masthead-bracket::before {
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+}
+
+/* Vertical arm */
+.masthead-bracket::after {
+  bottom: 0;
+  width: 2px;
+  height: 100%;
+}
+
+.masthead-bracket--bl {
+  left: var(--space-lg);
+}
+.masthead-bracket--bl::after { left: 0; }
+.masthead-bracket--bl::before { left: 0; }
+
+.masthead-bracket--br {
+  right: var(--space-lg);
+}
+.masthead-bracket--br::after { right: 0; left: auto; }
+.masthead-bracket--br::before { right: 0; left: auto; }
+
+/* ─────────────────────────────────────────────────────────────
+   Logo section
+───────────────────────────────────────────────────────────── */
 .masthead-left {
   flex: 0 0 auto;
 }
 
-.masthead-right {
+/* ─────────────────────────────────────────────────────────────
+   Vertical divider between logo and nav
+───────────────────────────────────────────────────────────── */
+.masthead-divider {
+  display: block;
+  width: 1px;
+  align-self: stretch;
+  margin: 4px var(--space-md);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--dng-bronze-hi, #c89824) 20%,
+    var(--dng-bronze-mid, #a07018) 55%,
+    var(--dng-bronze-hi, #c89824) 80%,
+    transparent 100%
+  );
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Nav buttons
+───────────────────────────────────────────────────────────── */
+.masthead-nav {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  margin-left: auto;
 }
 
-/* .button-icon and .button-label target slot content spans inside AppButton;
-   scoped styles apply to them because they are part of this component's template. */
-
-/* Reset Confirmation Overlay */
-.reset-confirmation-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.confirmation-card {
-  background: var(--surface-modal);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  max-width: 420px;
-  width: 90%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  animation: slideIn 0.2s ease;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.confirmation-icon {
-  font-size: var(--text-4xl);
-  text-align: center;
-  margin-bottom: var(--space-md);
-}
-
-.confirmation-title {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 700;
-  color: var(--text-bright);
-  text-align: center;
-  margin-bottom: var(--space-md);
-}
-
-.confirmation-message {
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  text-align: center;
-  line-height: 1.6;
-  margin-bottom: var(--space-xl);
-}
-
-.confirmation-actions {
-  display: flex;
-  gap: var(--space-md);
-  justify-content: center;
-}
-
-/* Mobile responsiveness */
+/* ── Mobile: hide labels, keep buttons ── */
 @media (max-width: 768px) {
   .game-masthead {
-    padding: var(--space-sm) var(--space-md);
-    justify-content: center;
+    padding: var(--space-xs) var(--space-md);
   }
-  
-  .masthead-right {
+
+  .masthead-nav {
     gap: var(--space-xs);
   }
 
-  .button-label {
+  .nav-label {
     display: none;
-  }
-
-  .button-icon {
-    font-size: var(--text-lg);
-  }
-}
-
-@media (max-width: 480px) {
-  .confirmation-card {
-    padding: var(--space-lg);
-  }
-  
-  .confirmation-actions {
-    flex-direction: column;
   }
 }
 </style>

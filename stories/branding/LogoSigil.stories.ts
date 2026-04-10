@@ -15,7 +15,12 @@ const meta: Meta<typeof LogoSigil> = {
   parameters: {
     layout: 'centered',
     backgrounds: {
-      default: 'dark'
+      default: 'dungeon',
+      values: [
+        { name: 'dungeon', value: '#0d0904' },
+        { name: 'panel',   value: '#0b1c24' },
+        { name: 'light',   value: '#f5f5f5' },
+      ]
     }
   }
 }
@@ -46,18 +51,18 @@ export const AllSizes: Story = {
   render: () => ({
     components: { LogoSigil },
     template: `
-      <div style="display: flex; gap: 48px; align-items: center;">
+      <div style="display: flex; gap: 48px; align-items: center; padding: 32px;">
         <div style="text-align: center;">
           <LogoSigil size="small" />
-          <div style="margin-top: 8px; color: #94a3b8; font-size: 12px;">Small</div>
+          <div style="margin-top: 8px; color: #7a6c44; font-size: 12px;">Small (42px)</div>
         </div>
         <div style="text-align: center;">
           <LogoSigil size="medium" />
-          <div style="margin-top: 8px; color: #94a3b8; font-size: 12px;">Medium</div>
+          <div style="margin-top: 12px; color: #7a6c44; font-size: 12px;">Medium (64px)</div>
         </div>
         <div style="text-align: center;">
           <LogoSigil size="large" />
-          <div style="margin-top: 8px; color: #94a3b8; font-size: 12px;">Large</div>
+          <div style="margin-top: 16px; color: #7a6c44; font-size: 12px;">Large (96px)</div>
         </div>
       </div>
     `

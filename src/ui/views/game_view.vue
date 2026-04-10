@@ -42,6 +42,7 @@
       @show-rules="gameStore.openRulesModal"
       @show-about="gameStore.openAboutModal"
       @show-dungeon-master="gameStore.openDungeonMasterModal"
+      @reset-run="handleResetRun"
     />
 
     <TutorialExitBar
@@ -351,12 +352,6 @@ onMounted(() => {
   if (!gameStore.hasActiveRun) {
     router.push('/play')
   }
-
-  window.addEventListener('reset-run', handleResetRun)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('reset-run', handleResetRun)
 })
 
 function handleResetRun() {
