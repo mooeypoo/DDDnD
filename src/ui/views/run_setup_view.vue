@@ -86,39 +86,13 @@
             <p>No tutorials available.</p>
           </div>
 
-          <div v-else class="quest-grid tutorial-grid">
-            <button
+          <div v-else class="quest-grid">
+            <QuestCard
               v-for="tutorial in gameStore.availableTutorials"
               :key="`${tutorial.id}-v${tutorial.version}`"
-              class="quest-card tutorial-card"
-              :class="{ selected: selectedQuest?.id === tutorial.id && selectedQuest?.version === tutorial.version }"
-              @click="launchTutorial(tutorial)"
-            >
-              <div class="quest-badge tutorial-badge">Tutorial {{ tutorial.tutorialOrder ?? '' }}</div>
-
-              <h3 class="quest-name">{{ tutorial.name }}</h3>
-
-              <p v-if="tutorial.shortDescription" class="quest-short-summary">
-                {{ tutorial.shortDescription }}
-              </p>
-
-              <p class="quest-description">{{ tutorial.description }}</p>
-
-              <div v-if="tutorial.turnCount" class="quest-stats">
-                <div class="stat-item">
-                  <span class="stat-icon">🎯</span>
-                  <span class="stat-label">{{ tutorial.turnCount }} Turns</span>
-                </div>
-                <div v-if="tutorial.actionCardCount" class="stat-item">
-                  <span class="stat-icon">🎴</span>
-                  <span class="stat-label">{{ tutorial.actionCardCount }} Actions</span>
-                </div>
-              </div>
-
-              <div v-if="selectedQuest?.id === tutorial.id && selectedQuest?.version === tutorial.version" class="selected-indicator">
-                ✓ Selected
-              </div>
-            </button>
+              :quest="tutorial"
+              @launch="launchTutorial(tutorial)"
+            />
           </div>
         </section>
         </template>
@@ -149,48 +123,13 @@
           </div>
           
           <div v-else class="quest-grid">
-            <button 
-              v-for="quest in gameStore.availableQuests" 
+            <QuestCard
+              v-for="quest in gameStore.availableQuests"
               :key="`${quest.id}-v${quest.version}`"
-              class="quest-card"
-              :class="{ selected: selectedQuest?.id === quest.id && selectedQuest?.version === quest.version }"
-              @click="selectQuest(quest)"
-            >
-              <div class="quest-badge">Official Campaign</div>
-              
-              <h3 class="quest-name">{{ quest.name }}</h3>
-              
-              <p v-if="quest.shortDescription" class="quest-short-summary">
-                {{ quest.shortDescription }}
-              </p>
-              
-              <p class="quest-description">
-                {{ quest.description }}
-              </p>
-              
-              <p v-if="quest.flavorText" class="quest-flavor">
-                {{ quest.flavorText }}
-              </p>
-              
-              <div v-if="quest.turnCount || quest.stakeholderCount || quest.actionCardCount" class="quest-stats">
-                <div v-if="quest.turnCount" class="stat-item">
-                  <span class="stat-icon">🎯</span>
-                  <span class="stat-label">{{ quest.turnCount }} Turns</span>
-                </div>
-                <div v-if="quest.stakeholderCount" class="stat-item">
-                  <span class="stat-icon">👥</span>
-                  <span class="stat-label">{{ quest.stakeholderCount }} Stakeholders</span>
-                </div>
-                <div v-if="quest.actionCardCount" class="stat-item">
-                  <span class="stat-icon">🎴</span>
-                  <span class="stat-label">{{ quest.actionCardCount }} Action Cards</span>
-                </div>
-              </div>
-              
-              <div v-if="selectedQuest?.id === quest.id && selectedQuest?.version === quest.version" class="selected-indicator">
-                ✓ Selected
-              </div>
-            </button>
+              :quest="quest"
+              :isSelected="selectedQuest?.id === quest.id && selectedQuest?.version === quest.version"
+              @select="selectQuest(quest)"
+            />
           </div>
         </section>
         
@@ -293,6 +232,7 @@ import AppButton from '@/ui/components/common/AppButton.vue'
 import AppTabs from '@/ui/components/common/AppTabs.vue'
 import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 import AppInput from '@/ui/components/common/AppInput.vue'
+import QuestCard from '@/ui/components/cards/quest_card.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -568,10 +508,9 @@ async function launchTutorial(quest: QuestDisplayModel) {
 
 .setup-title {
   font-size: var(--text-4xl);
-  color: var(--color-primary);
+  color: var(--dng-title-gold, #d4b860);
   margin: 0 0 var(--space-md) 0;
   font-weight: var(--font-black);
-  text-shadow: var(--shadow-glow-subtle);
 }
 
 .setup-subtitle {
@@ -621,9 +560,10 @@ async function launchTutorial(quest: QuestDisplayModel) {
 }
 
 .section-title {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold, #d4b860);
+  font-family: var(--font-heading, 'Cinzel', serif);
   font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
+  font-weight: var(--font-semibold);
   display: flex;
   align-items: center;
   gap: var(--space-md);
@@ -634,115 +574,40 @@ async function launchTutorial(quest: QuestDisplayModel) {
 }
 
 .section-hint {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm, #7a6c44);
   font-size: var(--text-sm);
   margin: 0;
   font-style: italic;
 }
 
-/* Quest Grid and Cards */
+/* Quest Grid */
 .quest-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: var(--space-lg);
 }
 
-.quest-card {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  text-align: left;
-  position: relative;
-  overflow: hidden;
+/* Tutorials note prompt */
+.tutorials-note-glow {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  font-family: var(--font-sans);
-}
-
-.quest-card::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  border-radius: var(--radius-xl);
-  opacity: 0;
-  transition: opacity var(--transition-slow);
-  z-index: -1;
-}
-
-.quest-card:hover {
-  border-color: var(--card-border-hover);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-
-.quest-card.selected {
-  border-color: var(--color-primary);
-  background: var(--color-danger-bg);
-  box-shadow: 0 4px 20px var(--color-primary-glow);
-}
-
-.quest-badge {
-  display: inline-block;
-  background: var(--color-primary-dark);
-  color: var(--color-text-bright);
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-md);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  align-self: flex-start;
-}
-
-.quest-name {
-  color: var(--color-text-bright);
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  margin: 0;
-}
-
-.quest-description {
-  color: var(--color-text-primary);
-  line-height: var(--leading-relaxed);
-  margin: 0;
-  font-size: var(--text-base);
-}
-
-.quest-short-summary {
-  color: var(--color-text-secondary);
-  line-height: var(--leading-snug);
-  margin: 0;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--dng-panel-top, #0e2232);
+  border: 1px solid var(--dng-divider, rgba(168, 120, 32, 0.35));
+  color: var(--dng-subtitle-warm, #7a6c44);
   font-size: var(--text-sm);
   font-style: italic;
-  padding: var(--space-md);
-  background: var(--color-bg-overlay);
-  border-left: 2px solid var(--color-primary);
-  border-radius: var(--radius-md);
+  clip-path: polygon(
+    4px 0%, calc(100% - 4px) 0%,
+    100% 4px, 100% calc(100% - 4px),
+    calc(100% - 4px) 100%, 4px 100%,
+    0% calc(100% - 4px), 0% 4px
+  );
 }
 
-.quest-flavor {
-  color: var(--color-text-secondary);
-  font-style: italic;
-  font-size: var(--text-sm);
-  margin: 0;
-  line-height: var(--leading-snug);
-}
-
-.quest-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-lg);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--color-border-default);
-  margin-top: auto;
+.note-icon {
+  flex-shrink: 0;
 }
 
 /* Empty State */
@@ -757,19 +622,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
 
 .empty-state p {
   margin: 0;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-}
-
-.stat-icon {
-  font-size: var(--text-lg);
 }
 
 /* Loading State */
@@ -929,20 +781,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
   }
 }
 
-/* Tutorial badge and card accent */
-.tutorial-badge {
-  background: var(--color-bg-overlay, rgba(0, 0, 0, 0.3));
-  border: 1px solid var(--color-primary, #e94560);
-}
-
-.tutorial-card.selected {
-  border-color: var(--color-primary);
-}
-
-.tutorial-grid {
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .run-setup-view {
@@ -992,11 +830,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
 
   .setup-loading-panel {
     border-radius: var(--radius-lg);
-  }
-  
-  .quest-stats {
-    flex-direction: column;
-    gap: var(--space-md);
   }
 
 }

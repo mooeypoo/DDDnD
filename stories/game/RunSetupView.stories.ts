@@ -133,3 +133,47 @@ export const NoQuestsAvailable: Story = {
     ]
   }
 }
+
+/**
+ * Story showing the Tutorials tab with two mock tutorials loaded.
+ * Demonstrates the dungeon-styled QuestCard tutorial variant, the Compass sigil,
+ * purple-tinted inset, and "Enter Tutorial →" action label.
+ */
+export const TutorialsTab: Story = {
+  name: 'Tutorials Tab',
+  async beforeEach() {
+    setActivePinia(createPinia())
+    const store = useGameStore()
+    store.availableQuests = mockQuests
+    store.availableClasses = [
+      { id: 'boundary_mage', version: 1, name: 'Boundary Mage', description: 'Expert at bounded contexts', flavor_text: 'Clear boundaries keep the codebase at peace' },
+      { id: 'stakeholder_bard', version: 1, name: 'Stakeholder Bard', description: 'Master of stakeholder relations', flavor_text: 'A well-told story smooths the path forward' }
+    ]
+    store.availableTutorials = [
+      {
+        id: 'tutorial_basics',
+        version: 1,
+        name: 'The First Domain',
+        description: 'A short guided mission that walks you through stakeholder management, card plays, and the Core Score.',
+        shortDescription: 'A step-by-step introduction to DDDnD mechanics.',
+        turnCount: 3,
+        stakeholderCount: 2,
+        actionCardCount: 5,
+        isTutorial: true,
+        tutorialOrder: 1
+      } satisfies QuestDisplayModel,
+      {
+        id: 'tutorial_advanced',
+        version: 1,
+        name: 'The Tangled Dependency',
+        description: 'Navigate an architecture dilemma involving conflicting stakeholders and scarce technical runway.',
+        shortDescription: 'Apply everything you learned in a more complex scenario.',
+        turnCount: 5,
+        stakeholderCount: 3,
+        actionCardCount: 8,
+        isTutorial: true,
+        tutorialOrder: 2
+      } satisfies QuestDisplayModel
+    ]
+  }
+}
