@@ -1,36 +1,8 @@
 <template>
   <AppFrame :title="`Turn ${turnResolution.turn_number} Resolution`" class="turn-resolution-panel">
     <template #icon><IconSwords :size="14" /></template>
-    
-    <!-- Architectural Aftershocks -->
-    <div v-if="turnResolution.resolved_aftershocks.length > 0" class="resolution-section">
-      <h4 class="section-title">
-        <span class="section-icon"><IconLightning :size="16" /></span>
-        Architectural Aftershocks
-      </h4>
-      <div class="aftershocks-list">
-        <AppCard
-          v-for="aftershock in turnResolution.resolved_aftershocks"
-          :key="aftershock.effect_instance_id"
-          variant="warning"
-        >
-          <div class="event-title">{{ aftershock.presentation.title }}</div>
-          <p class="event-summary">{{ aftershock.presentation.summary }}</p>
-          <div v-if="aftershock.score_changes.length > 0" class="changes-list">
-            <span
-              v-for="(change, idx) in aftershock.score_changes"
-              :key="idx"
-              class="change-badge"
-              :class="change.delta > 0 ? 'positive' : 'negative'"
-            >
-              {{ formatScoreName(change.score_id) }} {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
-            </span>
-          </div>
-        </AppCard>
-      </div>
-    </div>
-    
-    <!-- Player Action -->
+
+    <!-- Your Action — always first -->
     <div class="resolution-section">
       <h4 class="section-title">
         <span class="section-icon"><IconTarget :size="16" /></span>
@@ -51,50 +23,89 @@
         </div>
       </AppCard>
     </div>
-    
-    <!-- System Event -->
-    <div v-if="turnResolution.event_resolution" class="resolution-section">
-      <h4 class="section-title">
+
+    <!-- System Reaction — event, stakeholders, aftershocks -->
+    <template v-if="hasSystemReaction">
+      <div class="system-reaction-divider" aria-hidden="true" />
+
+      <div class="system-reaction-heading">
         <span class="section-icon"><IconMegaphone :size="16" /></span>
-        System Event
-      </h4>
-      <AppCard variant="neutral">
-        <div class="event-title">{{ turnResolution.event_resolution.presentation.title }}</div>
-        <p class="event-summary">{{ turnResolution.event_resolution.presentation.summary }}</p>
-        <div v-if="turnResolution.event_resolution.score_changes.length > 0" class="changes-list">
-          <span
-            v-for="(change, idx) in turnResolution.event_resolution.score_changes"
-            :key="idx"
-            class="change-badge"
-            :class="change.delta > 0 ? 'positive' : 'negative'"
-          >
-            {{ formatScoreName(change.score_id) }} {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
-          </span>
-        </div>
-      </AppCard>
-    </div>
-    
-    <!-- Stakeholder Reactions -->
-    <div v-if="turnResolution.stakeholder_resolution.reactions.length > 0" class="resolution-section">
-      <h4 class="section-title">
-        <span class="section-icon"><IconGroup :size="16" /></span>
-        Stakeholder Reactions
-      </h4>
-      <div class="stakeholder-reactions">
-        <AppCard
-          v-for="(reaction, idx) in turnResolution.stakeholder_resolution.reactions"
-          :key="idx"
-          :title="formatStakeholderName(reaction.stakeholder_id)"
-          variant="neutral"
-        >
-          <p class="reaction-text">{{ reaction.presentation.summary }}</p>
+        System Reaction
+      </div>
+
+      <!-- System Event -->
+      <div v-if="turnResolution.event_resolution" class="resolution-section">
+        <h4 class="section-title">
+          <span class="section-icon"><IconMegaphone :size="14" /></span>
+          System Event
+        </h4>
+        <AppCard variant="neutral">
+          <div class="event-title">{{ turnResolution.event_resolution.presentation.title }}</div>
+          <p class="event-summary">{{ turnResolution.event_resolution.presentation.summary }}</p>
+          <div v-if="turnResolution.event_resolution.score_changes.length > 0" class="changes-list">
+            <span
+              v-for="(change, idx) in turnResolution.event_resolution.score_changes"
+              :key="idx"
+              class="change-badge"
+              :class="change.delta > 0 ? 'positive' : 'negative'"
+            >
+              {{ formatScoreName(change.score_id) }} {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
+            </span>
+          </div>
         </AppCard>
       </div>
-    </div>
+
+      <!-- Stakeholder Reactions -->
+      <div v-if="turnResolution.stakeholder_resolution.reactions.length > 0" class="resolution-section">
+        <h4 class="section-title">
+          <span class="section-icon"><IconGroup :size="16" /></span>
+          Stakeholder Reactions
+        </h4>
+        <div class="stakeholder-reactions">
+          <AppCard
+            v-for="(reaction, idx) in turnResolution.stakeholder_resolution.reactions"
+            :key="idx"
+            :title="formatStakeholderName(reaction.stakeholder_id)"
+            variant="neutral"
+          >
+            <p class="reaction-text">{{ reaction.presentation.summary }}</p>
+          </AppCard>
+        </div>
+      </div>
+
+      <!-- Architectural Aftershocks -->
+      <div v-if="turnResolution.resolved_aftershocks.length > 0" class="resolution-section">
+        <h4 class="section-title">
+          <span class="section-icon"><IconLightning :size="16" /></span>
+          Architectural Aftershocks
+        </h4>
+        <div class="aftershocks-list">
+          <AppCard
+            v-for="aftershock in turnResolution.resolved_aftershocks"
+            :key="aftershock.effect_instance_id"
+            variant="warning"
+          >
+            <div class="event-title">{{ aftershock.presentation.title }}</div>
+            <p class="event-summary">{{ aftershock.presentation.summary }}</p>
+            <div v-if="aftershock.score_changes.length > 0" class="changes-list">
+              <span
+                v-for="(change, idx) in aftershock.score_changes"
+                :key="idx"
+                class="change-badge"
+                :class="change.delta > 0 ? 'positive' : 'negative'"
+              >
+                {{ formatScoreName(change.score_id) }} {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
+              </span>
+            </div>
+          </AppCard>
+        </div>
+      </div>
+    </template>
   </AppFrame>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { TurnResolutionContext } from '@/domains/simulation/model'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import AppCard from '@/ui/components/cards/AppCard.vue'
@@ -109,6 +120,12 @@ const props = defineProps<{
   turnResolution: TurnResolutionContext
   stakeholderNames?: Record<string, string>
 }>()
+
+const hasSystemReaction = computed(() =>
+  !!props.turnResolution.event_resolution ||
+  props.turnResolution.stakeholder_resolution.reactions.length > 0 ||
+  props.turnResolution.resolved_aftershocks.length > 0
+)
 
 function formatScoreName(scoreId: string): string {
   return scoreId
@@ -205,6 +222,25 @@ function formatStakeholderName(stakeholderId: string): string {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+}
+
+.system-reaction-divider {
+  height: 1px;
+  background: var(--dng-divider, rgba(100, 70, 16, 0.35));
+  margin: var(--space-xs) 0;
+}
+
+.system-reaction-heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--dng-title-gold);
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  opacity: 0.75;
 }
 
 .reaction-text {

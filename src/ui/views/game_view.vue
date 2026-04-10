@@ -54,86 +54,152 @@
       <header class="play-header">
         <div class="header-row">
           <p class="turn-pill">Turn {{ gameStore.currentTurn }} / {{ gameStore.maxTurns }}</p>
-          <div class="score-strip" v-if="scoreEntries.length > 0">
-            <span v-for="score in scoreEntries" :key="score.id" class="score-chip">
-              <span class="score-chip-label">{{ score.label }}</span>
-              <span class="score-chip-value">{{ score.value }}</span>
+
+          <!-- Action / aftershock indicators — always visible -->
+          <div class="header-indicators" v-if="gameStore.turnBriefing && !gameStore.isRunComplete">
+            <span class="header-pill actions-pill">
+              ⚔️ {{ currentAvailableActions }} action{{ currentAvailableActions === 1 ? '' : 's' }}
+            </span>
+            <span v-if="pendingAftershockCount > 0" class="header-pill aftershock-pill">
+              ⚡ {{ pendingAftershockCount }} aftershock{{ pendingAftershockCount === 1 ? '' : 's' }}
+            </span>
+            <span v-if="isLowTurns" class="header-pill low-turns-pill">
+              ⏰ {{ turnsRemaining }} turn{{ turnsRemaining === 1 ? '' : 's' }} left
             </span>
           </div>
-          <StakeholderHud
-            v-if="gameStore.gameState?.stakeholders"
-            :stakeholders="gameStore.gameState.stakeholders"
-            :stakeholderNames="stakeholderNames"
-          />
+
+          <!-- Scores + stakeholders: hidden on desktop where sidebar is visible -->
+          <div class="header-stat-zone">
+            <div class="score-strip" v-if="scoreEntries.length > 0">
+              <span v-for="score in scoreEntries" :key="score.id" class="score-chip" :class="score.healthClass" :style="`--chip-fill: ${score.fillPct}%`">
+                <span class="score-chip-label">{{ score.label }}</span>
+                <span class="score-chip-value">{{ score.value }}</span>
+                <span class="score-chip-bar" aria-hidden="true"></span>
+              </span>
+            </div>
+            <StakeholderHud
+              v-if="gameStore.gameState?.stakeholders"
+              :stakeholders="gameStore.gameState.stakeholders"
+              :stakeholderNames="stakeholderNames"
+            />
+          </div>
         </div>
       </header>
 
+      <div class="play-body">
+        <div class="play-sidebar-wrapper">
+          <GameHudSidebar
+            :currentTurn="gameStore.currentTurn"
+            :maxTurns="gameStore.maxTurns"
+            :scores="gameStore.turnBriefing?.current_scores"
+            :stakeholders="gameStore.gameState?.stakeholders"
+            :stakeholderNames="stakeholderNames"
+            :playerClassId="playerClassId"
+            :playerClassName="playerClassName"
+            :playerName="playerDisplayName"
+          />
+        </div>
+
       <main class="play-main">
-        <section class="stage-section">
-          <SceneStage :scene-id="gameplaySceneId" :actors="stageActors" />
-        </section>
+          <!-- Scene: full width of main column -->
+          <section class="stage-section">
+            <SceneStage :scene-id="gameplaySceneId" :actors="stageActors" />
+          </section>
 
-        <section class="narrative-section">
-          <TutorialHintPanel
-            v-if="gameStore.tutorial.isTutorialMode"
-            :isVisible="gameStore.tutorial.isHintVisible"
-            :step="gameStore.tutorial.currentStep"
-            :stepNumber="gameStore.tutorial.currentStepNumber"
-            :totalSteps="gameStore.tutorial.totalSteps"
-            @dismiss="gameStore.tutorial.dismissCurrentHint"
-          />
-
-          <div v-if="gameStore.isRunComplete" class="run-complete-card">
-            <div class="complete-icon">🏁</div>
-            <h2 class="complete-title">Run Complete!</h2>
-            <p class="complete-message">Your architectural journey has reached its conclusion.</p>
-            <button
-              class="btn-view-results"
-              :disabled="gameStore.tutorial.isTutorialMode"
-              @click="goToEndScreen"
+          <!-- Below-scene: single column, width-capped -->
+          <div class="below-scene">
+            <!-- Aftershock alert -->
+            <div
+              v-if="gameStore.turnBriefing && !gameStore.isRunComplete && pendingAftershockCount > 0"
+              ref="aftershockAlertRef"
+              class="aftershock-alert"
             >
-              <span class="btn-text">View Results</span>
-              <span class="btn-icon">→</span>
-            </button>
-          </div>
-
-          <TurnBriefingPanel
-            v-if="gameStore.turnBriefing && !gameStore.isRunComplete"
-            :event-title="currentEventTitle"
-            :narrative-description="currentEventDescription"
-            :available-actions="currentAvailableActions"
-            :pending-aftershocks="pendingAftershockCount"
-            :current-turn="gameStore.currentTurn"
-            :total-turns="gameStore.maxTurns"
-            :isTutorial="gameStore.tutorial.isTutorialMode"
-          />
-
-          <div
-            v-if="gameStore.turnBriefing && !gameStore.isRunComplete && pendingAftershockCount > 0"
-            ref="aftershockAlertRef"
-            class="aftershock-alert"
-          >
-            <div class="alert-icon">⚡</div>
-            <div class="alert-content">
-              <div class="alert-title">Architectural Aftershocks Incoming</div>
-              <div class="alert-message">
-                {{ pendingAftershockCount }} delayed effect{{ pendingAftershockCount > 1 ? 's' : '' }} will resolve this turn
+              <div class="alert-icon">⚡</div>
+              <div class="alert-content">
+                <div class="alert-title">Architectural Aftershocks Incoming</div>
+                <div class="alert-message">
+                  {{ pendingAftershockCount }} delayed effect{{ pendingAftershockCount > 1 ? 's' : '' }} will resolve this turn
+                </div>
               </div>
             </div>
-          </div>
 
-          <div
-            v-if="gameStore.lastTurnResolution && gameStore.lastTurnResolution.turn_resolution_context"
-            ref="turnResolutionPanelRef"
-          >
+            <!-- Low-turns warning -->
+            <div v-if="isLowTurns && gameStore.turnBriefing && !gameStore.isRunComplete" class="low-turns-inline">
+              <span class="low-turns-icon">⏰</span>
+              <div class="low-turns-body">
+                <span class="low-turns-title">Turns Running Low</span>
+                <span class="low-turns-msg">Only {{ turnsRemaining }} turn{{ turnsRemaining === 1 ? '' : 's' }} remaining — make them count.</span>
+              </div>
+            </div>
+
+            <!-- Collapsible turn resolution summary -->
+            <div
+              v-if="gameStore.lastTurnResolution?.turn_resolution_context"
+              class="resolution-summary"
+              :class="{ expanded: isResolutionExpanded }"
+            >
+              <button class="resolution-summary-header" @click="isResolutionExpanded = !isResolutionExpanded">
+                <span class="resolution-summary-icon">⚔️</span>
+                <span class="resolution-summary-title">Turn {{ gameStore.lastTurnResolution.turn_resolution_context.turn_number }} Resolution</span>
+                <span class="resolution-summary-toggle" aria-hidden="true">{{ isResolutionExpanded ? '▲' : '▼' }}</span>
+              </button>
+              <Transition name="resolution-expand">
+                <div v-if="isResolutionExpanded" class="resolution-summary-body">
+                  <TurnResolutionPanel
+                    :turnResolution="gameStore.lastTurnResolution.turn_resolution_context"
+                    :stakeholderNames="stakeholderNames"
+                  />
+                </div>
+              </Transition>
+            </div>
+
+            <TutorialHintPanel
+              v-if="gameStore.tutorial.isTutorialMode"
+              :isVisible="gameStore.tutorial.isHintVisible"
+              :step="gameStore.tutorial.currentStep"
+              :stepNumber="gameStore.tutorial.currentStepNumber"
+              :totalSteps="gameStore.tutorial.totalSteps"
+              @dismiss="gameStore.tutorial.dismissCurrentHint"
+            />
+
+            <div v-if="gameStore.isRunComplete" class="run-complete-card">
+              <div class="complete-icon">🏁</div>
+              <h2 class="complete-title">Run Complete!</h2>
+              <p class="complete-message">Your architectural journey has reached its conclusion.</p>
+              <button
+                class="btn-view-results"
+                :disabled="gameStore.tutorial.isTutorialMode"
+                @click="goToEndScreen"
+              >
+                <span class="btn-text">View Results</span>
+                <span class="btn-icon">→</span>
+              </button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Turn resolution popup -->
+    <Transition name="resolution-popup">
+      <div
+        v-if="resolutionPopupOpen && gameStore.lastTurnResolution?.turn_resolution_context"
+        class="resolution-popup-backdrop"
+        @click.self="dismissResolutionPopup"
+      >
+        <div class="resolution-popup-panel">
+          <div class="resolution-popup-scroll">
             <TurnResolutionPanel
               :turnResolution="gameStore.lastTurnResolution.turn_resolution_context"
               :stakeholderNames="stakeholderNames"
             />
           </div>
-        </section>
-      </main>
-    </div>
+          <div class="resolution-popup-footer">
+            <AppButton label="Continue" variant="primary" @click="dismissResolutionPopup" />
+          </div>
+        </div>
+      </div>
+    </Transition>
 
     <SatchelToggleButton
       v-if="!gameStore.isRunComplete && !isSatchelOpen"
@@ -175,7 +241,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { Card } from '@/domains/content/model'
@@ -193,7 +259,6 @@ import ActionCard from '@/ui/components/cards/action_card.vue'
 import CardSatchelDrawer from '@/ui/components/cards/card_satchel_drawer.vue'
 import SatchelToolbar from '@/ui/components/cards/satchel_toolbar.vue'
 import TurnResolutionPanel from '@/ui/components/turn/turn_resolution_panel.vue'
-import TurnBriefingPanel from '@/ui/components/turn/turn_briefing_panel.vue'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
@@ -206,6 +271,8 @@ import TutorialCompleteSplash from '@/ui/components/tutorial/tutorial_complete_s
 import StakeholderHud from '@/ui/components/stakeholders/stakeholder_hud.vue'
 import SceneStage from '@/ui/components/gameplay/scene_stage.vue'
 import SatchelToggleButton from '@/ui/components/cards/satchel_toggle_button.vue'
+import GameHudSidebar from '@/ui/components/common/game_hud_sidebar.vue'
+import AppButton from '@/ui/components/common/AppButton.vue'
 import {
   filterByCategory,
   sortCards,
@@ -219,8 +286,9 @@ const gameStore = useGameStore()
 
 const modalCardId = ref<string | null>(null)
 const aftershockAlertRef = ref<HTMLElement | null>(null)
-const turnResolutionPanelRef = ref<HTMLElement | null>(null)
 const isSatchelOpen = ref(false)
+const resolutionPopupOpen = ref(false)
+const isResolutionExpanded = ref(false)
 const randomSceneId = ref<SceneBackgroundId>(pickRandomSceneId())
 const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const satchelCategory = ref<CategoryFilter>('all')
@@ -228,9 +296,6 @@ const satchelSort = ref<SortOption>('default')
 
 const SMALL_MOBILE_BREAKPOINT_PX = 480
 const MOBILE_BREAKPOINT_PX = 768
-const SCROLL_OFFSET_DESKTOP_PX = 120
-const SCROLL_OFFSET_MOBILE_PX = 140
-const SCROLL_OFFSET_SMALL_MOBILE_PX = 160
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
 
@@ -249,12 +314,13 @@ const playerClassId = computed(() => {
   return gameStore.gameState?.player_profile.selected_class_ref?.id
 })
 
-const currentEventTitle = computed(() => {
-  return 'The Realm Awaits Your Command'
+const turnsRemaining = computed(() => {
+  return Math.max(0, gameStore.maxTurns - gameStore.currentTurn + 1)
 })
 
-const currentEventDescription = computed(() => {
-  return 'Your party looks to you for guidance. Open your Action Satchel below and choose an architectural scroll to shape the fate of this system.'
+const isLowTurns = computed(() => {
+  if (gameStore.tutorial?.isTutorialMode) return false
+  return turnsRemaining.value > 0 && turnsRemaining.value <= 3
 })
 
 const gameplaySceneId = computed(() => randomSceneId.value)
@@ -272,6 +338,8 @@ const scoreEntries = computed(() => {
       .map(part => part.charAt(0).toUpperCase() + part.slice(1))
       .join(' '),
     value: Math.round(value),
+    healthClass: value >= 70 ? 'high' : value >= 40 ? 'medium' : value >= 20 ? 'low' : 'critical',
+    fillPct: Math.round(value),
   }))
 })
 
@@ -418,7 +486,11 @@ async function handlePlayCard(cardId: string) {
   modalCardId.value = null
   isSatchelOpen.value = false
   await gameStore.play_turn(cardId)
-  await scrollToResolutionContext()
+
+  if (gameStore.lastTurnResolution?.turn_resolution_context) {
+    resolutionPopupOpen.value = true
+    isResolutionExpanded.value = false
+  }
 
   if (gameStore.isRunComplete) {
     gameStore.get_run_outcome()
@@ -427,34 +499,8 @@ async function handlePlayCard(cardId: string) {
   }
 }
 
-async function scrollToResolutionContext() {
-  await nextTick()
-
-  const targetElement = aftershockAlertRef.value ?? turnResolutionPanelRef.value
-  if (!targetElement) {
-    return
-  }
-
-  const topOffset = getScrollTopOffset()
-  const elementTop = targetElement.getBoundingClientRect().top + window.scrollY
-  const scrollTop = Math.max(0, elementTop - topOffset)
-
-  window.scrollTo({
-    top: scrollTop,
-    behavior: 'smooth',
-  })
-}
-
-function getScrollTopOffset() {
-  if (window.matchMedia(`(max-width: ${SMALL_MOBILE_BREAKPOINT_PX}px)`).matches) {
-    return SCROLL_OFFSET_SMALL_MOBILE_PX
-  }
-
-  if (window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT_PX}px)`).matches) {
-    return SCROLL_OFFSET_MOBILE_PX
-  }
-
-  return SCROLL_OFFSET_DESKTOP_PX
+function dismissResolutionPopup() {
+  resolutionPopupOpen.value = false
 }
 
 function goToEndScreen() {
@@ -512,6 +558,50 @@ function goToEndScreen() {
   background: rgba(255, 255, 255, 0.04);
 }
 
+.header-indicators {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.header-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  background: rgba(255, 255, 255, 0.04);
+  white-space: nowrap;
+}
+
+.actions-pill {
+  color: var(--text-bright);
+  border-color: color-mix(in oklab, var(--dng-bronze-mid), transparent 40%);
+  background: rgba(160, 112, 24, 0.1);
+}
+
+.aftershock-pill {
+  color: var(--effect-warning);
+  border-color: var(--effect-warning-border);
+  background: var(--effect-warning-bg);
+}
+
+.low-turns-pill {
+  color: var(--effect-warning);
+  border-color: var(--effect-warning-border);
+  background: var(--effect-warning-bg);
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+@keyframes pulse-warning {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.7; }
+}
+
 .score-strip {
   display: flex;
   align-items: center;
@@ -525,9 +615,16 @@ function goToEndScreen() {
   gap: 0.35rem;
   border: 1px solid var(--border-subtle);
   border-radius: 999px;
-  padding: 0.25rem 0.5rem;
+  padding: 0.25rem 0.5rem 0.32rem;
   background: rgba(255, 255, 255, 0.04);
+  position: relative;
+  overflow: hidden;
 }
+
+.score-chip.high    { border-color: color-mix(in oklab, var(--score-high),     transparent 55%); }
+.score-chip.medium  { border-color: color-mix(in oklab, var(--score-medium),   transparent 55%); }
+.score-chip.low     { border-color: color-mix(in oklab, var(--score-low),      transparent 45%); }
+.score-chip.critical { border-color: color-mix(in oklab, var(--score-critical), transparent 35%); }
 
 .score-chip-label {
   color: var(--text-secondary);
@@ -543,27 +640,104 @@ function goToEndScreen() {
   font-weight: var(--font-bold);
 }
 
-.play-main {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+.score-chip.high .score-chip-value    { color: var(--score-high); }
+.score-chip.medium .score-chip-value  { color: var(--score-medium); }
+.score-chip.low .score-chip-value     { color: var(--score-low); }
+.score-chip.critical .score-chip-value { color: var(--score-critical); }
+
+.score-chip-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: var(--chip-fill, 0%);
+  transition: width var(--duration-bar) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.score-chip.high .score-chip-bar    { background: var(--score-high); }
+.score-chip.medium .score-chip-bar  { background: var(--score-medium); }
+.score-chip.low .score-chip-bar     { background: var(--score-low); }
+.score-chip.critical .score-chip-bar { background: var(--score-critical); }
+
+.play-body {
+  display: flex;
   align-items: start;
   gap: var(--space-md);
 }
 
-.stage-section,
-.narrative-section {
-  min-width: 0;
+.play-sidebar-wrapper {
+  display: none;
+  flex-shrink: 0;
 }
 
-.narrative-section {
+.play-sidebar-wrapper :deep(.hud-sidebar) {
+  border-right: none;
+  border: 1px solid var(--hud-border);
+  border-radius: 14px;
+  top: 60px;
+  height: calc(100vh - 60px);
+}
+
+.header-stat-zone {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-left: auto;
+}
+
+.play-main {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  background: rgba(8, 11, 19, 0.52);
-  border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  padding: 0.8rem;
-  box-shadow: var(--shadow-panel);
+}
+
+.stage-section {
+  width: 100%;
+}
+
+.below-scene {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  max-width: 680px;
+}
+
+.low-turns-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: linear-gradient(135deg, var(--effect-warning-bg), rgba(255, 152, 0, 0.06));
+  border: 2px solid var(--effect-warning-border);
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  animation: pulse-warning 2s ease-in-out infinite;
+}
+
+.low-turns-icon {
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+}
+
+.low-turns-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.low-turns-title {
+  color: var(--effect-warning);
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.low-turns-msg {
+  color: var(--effect-warning);
+  font-size: var(--text-sm);
 }
 
 .aftershock-alert {
@@ -652,13 +826,13 @@ function goToEndScreen() {
   box-shadow: none;
 }
 
-@media (max-width: 1120px) {
-  .play-main {
-    grid-template-columns: 1fr;
+@media (min-width: 1280px) {
+  .play-sidebar-wrapper {
+    display: block;
   }
 
-  .narrative-section {
-    padding: 0.7rem;
+  .header-stat-zone {
+    display: none;
   }
 }
 
@@ -676,5 +850,140 @@ function goToEndScreen() {
   .complete-title {
     font-size: var(--text-2xl);
   }
+}
+
+/* ─── Resolution collapsible summary ─── */
+.resolution-summary {
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(8, 11, 19, 0.52);
+}
+
+.resolution-summary.expanded {
+  border-color: var(--border-accent);
+}
+
+.resolution-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 0.85rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-primary);
+  transition: background var(--transition-fast);
+}
+
+.resolution-summary-header:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.resolution-summary-icon {
+  font-size: var(--text-sm);
+  flex-shrink: 0;
+}
+
+.resolution-summary-title {
+  flex: 1;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.resolution-summary-toggle {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.resolution-summary-body {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.resolution-summary-body :deep(.turn-resolution-panel) {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.resolution-expand-enter-active {
+  transition: opacity var(--duration-fast) var(--ease-decelerate),
+              transform var(--duration-fast) var(--ease-decelerate);
+}
+.resolution-expand-leave-active {
+  transition: opacity var(--duration-instant) var(--ease-accelerate),
+              transform var(--duration-instant) var(--ease-accelerate);
+}
+.resolution-expand-enter-from,
+.resolution-expand-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* ─── Resolution popup ─── */
+.resolution-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(4, 6, 14, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.resolution-popup-panel {
+  width: min(600px, 100%);
+  max-height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-modal);
+  border: 1px solid var(--border-accent);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+.resolution-popup-scroll {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-subtle) transparent;
+}
+
+.resolution-popup-scroll :deep(.turn-resolution-panel) {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.resolution-popup-footer {
+  flex-shrink: 0;
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(8, 11, 19, 0.6);
+}
+
+.resolution-popup-enter-active {
+  transition: opacity 0.18s var(--ease-decelerate),
+              transform 0.18s var(--ease-decelerate);
+}
+.resolution-popup-leave-active {
+  transition: opacity 0.12s var(--ease-accelerate),
+              transform 0.12s var(--ease-accelerate);
+}
+.resolution-popup-enter-from,
+.resolution-popup-leave-to {
+  opacity: 0;
+  transform: scale(0.97);
 }
 </style>

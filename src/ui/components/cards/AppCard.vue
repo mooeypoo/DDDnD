@@ -131,11 +131,10 @@ withDefaults(defineProps<{
   --dng-card-inset-chamfer: 4px;   /* smaller than Frame's 14px */
   --dng-card-body-padding:  var(--space-sm);
 
-  /* Title and subtitle render on the bronze ring face (no dark nameplate behind
-     them). Use dark brown values so they contrast against the gold-bronze gradient.
-     Global --dng-title-gold is tuned for dark charcoal surfaces — override here. */
-  --dng-title-gold:         #1e1306;   /* deep warm-black — high contrast on bronze */
-  --dng-subtitle-warm:      #3a2a0a;   /* dark warm-brown — readable secondary */
+  /* NOTE: --dng-title-gold and --dng-subtitle-warm are NOT set here.
+     The dark overrides live on .dungeon-card__header only (see below),
+     so the dark inset body correctly inherits the global bright gold (#d4b860)
+     rather than a near-black value that vanishes on dark surfaces. */
 }
 
 
@@ -169,9 +168,7 @@ withDefaults(defineProps<{
   /* Muted header divider and footer */
   --dng-divider:          rgba(100, 70, 16, 0.25);
 
-  /* Dimmer text — dark values still contrast on the darker aged bronze ring */
-  --dng-title-gold:       #1a1105;
-  --dng-subtitle-warm:    #2e2008;
+  /* Dimmer text scoped in variant-aged header rule below */
   --dng-footer-muted:     #3c4e52;
 
   /* Low-opacity bracket */
@@ -376,12 +373,26 @@ withDefaults(defineProps<{
    the face, not mounted on top of it.
    ───────────────────────────────────────────────────────────── */
 .dungeon-card__header {
+  /* Title and subtitle render on the bronze ring face — use dark brown values
+     so they contrast against the gold-bronze gradient. The global --dng-title-gold
+     is bright (#d4b860) tuned for dark surfaces; we override here so only the
+     header inherits the dark value. The inset body is NOT a descendant of this
+     element, so it correctly falls back to bright gold. */
+  --dng-title-gold:    #1e1306;   /* near-black — high contrast on bronze ring */
+  --dng-subtitle-warm: #3a2a0a;   /* dark warm-brown — readable secondary on bronze */
+
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-sm);
   padding-bottom: 5px;
   border-bottom: 1px solid var(--dng-divider);
+}
+
+/* Aged variant: darken the header text a touch further */
+.dungeon-card.variant-aged .dungeon-card__header {
+  --dng-title-gold:    #1a1105;
+  --dng-subtitle-warm: #2e2008;
 }
 
 .dungeon-card__header-text {
