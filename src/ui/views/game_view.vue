@@ -135,6 +135,13 @@
       </main>
     </div>
 
+    <SatchelToggleButton
+      v-if="!gameStore.isRunComplete && !isSatchelOpen"
+      :totalCards="availableCardEntries.length"
+      :playableCards="playableCardCount"
+      @open="isSatchelOpen = true"
+    />
+
     <CardSatchelDrawer
       v-if="!gameStore.isRunComplete"
       v-model:isOpen="isSatchelOpen"
@@ -196,6 +203,7 @@ import TutorialExitBar from '@/ui/components/tutorial/tutorial_exit_bar.vue'
 import TutorialCompleteSplash from '@/ui/components/tutorial/tutorial_complete_splash.vue'
 import StakeholderHud from '@/ui/components/stakeholders/stakeholder_hud.vue'
 import SceneStage from '@/ui/components/gameplay/scene_stage.vue'
+import SatchelToggleButton from '@/ui/components/cards/satchel_toggle_button.vue'
 import {
   filterByCategory,
   sortCards,
