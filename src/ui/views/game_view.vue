@@ -175,7 +175,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { Card } from '@/domains/content/model'
@@ -185,8 +185,10 @@ import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
 import {
   buildGameplayStageActors,
-  resolveGameplaySceneId,
+  pickRandomSceneId,
+  shuffleAvatarRoles,
 } from '@/ui/composables/gameplay_stage_presentation'
+import type { AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import ActionCard from '@/ui/components/cards/action_card.vue'
 import CardSatchelDrawer from '@/ui/components/cards/card_satchel_drawer.vue'
 import SatchelToolbar from '@/ui/components/cards/satchel_toolbar.vue'
@@ -219,6 +221,8 @@ const modalCardId = ref<string | null>(null)
 const aftershockAlertRef = ref<HTMLElement | null>(null)
 const turnResolutionPanelRef = ref<HTMLElement | null>(null)
 const isSatchelOpen = ref(false)
+const randomSceneId = ref<SceneBackgroundId>(pickRandomSceneId())
+const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const satchelCategory = ref<CategoryFilter>('all')
 const satchelSort = ref<SortOption>('default')
 
@@ -253,7 +257,7 @@ const currentEventDescription = computed(() => {
   return 'Your party looks to you for guidance. Open your Action Satchel below and choose an architectural scroll to shape the fate of this system.'
 })
 
-const gameplaySceneId = computed(() => resolveGameplaySceneId(scenario.value?.id))
+const gameplaySceneId = computed(() => randomSceneId.value)
 
 const scoreEntries = computed(() => {
   const scores = gameStore.turnBriefing?.current_scores
@@ -353,8 +357,15 @@ const stakeholderNames = computed((): Record<string, string> => {
 })
 
 const stageActors = computed(() => {
-  return buildGameplayStageActors(gameStore.gameState?.stakeholders, stakeholderNames.value)
+  return buildGameplayStageActors(gameStore.gameState?.stakeholders, stakeholderNames.value, randomAvatarRoles.value)
 })
+
+watch(scenario, (newScenario, oldScenario) => {
+  if (newScenario?.id !== oldScenario?.id) {
+    randomSceneId.value = pickRandomSceneId()
+    randomAvatarRoles.value = shuffleAvatarRoles()
+  }
+}, { immediate: false })
 
 onMounted(() => {
   if (!gameStore.hasActiveRun) {
@@ -471,6 +482,8 @@ function goToEndScreen() {
 }
 
 .play-header {
+  position: relative;
+  z-index: 10;
   background: rgba(9, 11, 20, 0.68);
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
