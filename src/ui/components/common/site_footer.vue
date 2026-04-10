@@ -16,7 +16,7 @@
   padding: var(--space-md) var(--space-lg) var(--space-lg);
   text-align: center;
   font-size: var(--text-xs);
-  color: var(--color-text-tertiary);
+  color: var(--dng-footer-muted);
   opacity: 0.72;
 }
 
@@ -28,13 +28,13 @@
 
 .footer-link:hover,
 .footer-link:focus-visible {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   opacity: 1;
 }
 
 .footer-separator {
   margin: 0 var(--space-sm);
-  color: var(--color-text-tertiary);
+  color: var(--dng-footer-muted);
 }
 
 @media (max-width: 768px) {

@@ -104,9 +104,9 @@ function goToSetup(tutorialType?: string) {
 .welcome-view {
   min-height: 100vh;
   background: linear-gradient(135deg, 
-    var(--color-bg-darkest) 0%, 
-    var(--color-bg-dark) 50%, 
-    var(--color-bg-medium) 100%
+    var(--dng-shell-bg) 0%, 
+    var(--dng-shell-bg) 50%, 
+    rgba(16, 11, 5, 0.9) 100%
   );
   display: flex;
   align-items: center;
@@ -150,7 +150,7 @@ function goToSetup(tutorialType?: string) {
 
 .hero-title {
   font-size: clamp(1.75rem, 4vw, 2.75rem);
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   font-weight: var(--font-bold);
   line-height: var(--leading-tight);
   margin: 0;
@@ -159,7 +159,7 @@ function goToSetup(tutorialType?: string) {
 
 .hero-tagline {
   font-size: var(--text-lg);
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   line-height: var(--leading-relaxed);
   margin: 0;
   font-style: italic;
@@ -174,7 +174,7 @@ function goToSetup(tutorialType?: string) {
 }
 
 .description-emphasis {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   font-weight: var(--font-semibold);
 }
 
@@ -202,7 +202,7 @@ function goToSetup(tutorialType?: string) {
 }
 
 .link-separator {
-  color: var(--color-text-muted);
+  color: var(--dng-footer-muted);
   user-select: none;
 }
 
@@ -216,7 +216,7 @@ function goToSetup(tutorialType?: string) {
 }
 
 .tutorial-links-label {
-  color: var(--color-text-muted);
+  color: var(--dng-footer-muted);
   font-size: var(--text-sm);
   font-style: italic;
 }
@@ -225,12 +225,12 @@ function goToSetup(tutorialType?: string) {
 .welcome-footer {
   text-align: center;
   padding-top: var(--space-2xl);
-  border-top: 1px solid var(--color-border-default);
+  border-top: 1px solid var(--dng-divider);
   animation: fadeIn 1.2s ease-out 0.4s both;
 }
 
 .footer-text {
-  color: var(--color-text-muted);
+  color: var(--dng-footer-muted);
   font-size: var(--text-sm);
   font-style: italic;
   margin: 0;

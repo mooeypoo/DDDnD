@@ -20,11 +20,13 @@
         set into the bronze, not a header strip inside a dark panel.
       -->
       <div
-        v-if="title || subtitle || $slots['header-actions']"
+        v-if="title || subtitle || $slots['header-actions'] || $slots.icon"
         class="dungeon-frame__nameplate"
       >
         <div class="dungeon-frame__nameplate-text">
-          <h3 v-if="title" class="dungeon-frame__title">{{ title }}</h3>
+          <h3 v-if="title || $slots.icon" class="dungeon-frame__title">
+            <span v-if="$slots.icon" class="dungeon-frame__title-icon"><slot name="icon" /></span>{{ title }}
+          </h3>
           <p v-if="subtitle" class="dungeon-frame__subtitle">{{ subtitle }}</p>
         </div>
         <div v-if="$slots['header-actions']" class="dungeon-frame__nameplate-actions">
@@ -380,6 +382,16 @@ withDefaults(
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.dungeon-frame__title-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.85;
 }
 
 .dungeon-frame__subtitle {

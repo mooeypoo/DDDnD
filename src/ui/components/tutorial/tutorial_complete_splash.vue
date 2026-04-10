@@ -23,9 +23,9 @@
           <!-- Divider -->
           <div class="splash-divider" aria-hidden="true">
             <svg viewBox="0 0 200 12" class="divider-svg" xmlns="http://www.w3.org/2000/svg">
-              <line x1="10" y1="6" x2="90" y2="6" stroke="var(--border-accent)" stroke-width="1" stroke-dasharray="4 4"/>
-              <circle cx="100" cy="6" r="3" fill="var(--text-accent)" opacity="0.5"/>
-              <line x1="110" y1="6" x2="190" y2="6" stroke="var(--border-accent)" stroke-width="1" stroke-dasharray="4 4"/>
+              <line x1="10" y1="6" x2="90" y2="6" stroke="var(--dng-divider)" stroke-width="1" stroke-dasharray="4 4"/>
+              <circle cx="100" cy="6" r="3" fill="var(--dng-title-gold)" opacity="0.5"/>
+              <line x1="110" y1="6" x2="190" y2="6" stroke="var(--dng-divider)" stroke-width="1" stroke-dasharray="4 4"/>
             </svg>
           </div>
 
@@ -57,9 +57,9 @@
           <section class="splash-action-section">
             <div class="splash-divider" aria-hidden="true">
               <svg viewBox="0 0 200 12" class="divider-svg" xmlns="http://www.w3.org/2000/svg">
-                <line x1="10" y1="6" x2="90" y2="6" stroke="var(--border-accent)" stroke-width="1" stroke-dasharray="4 4"/>
-                <circle cx="100" cy="6" r="3" fill="var(--text-accent)" opacity="0.5"/>
-                <line x1="110" y1="6" x2="190" y2="6" stroke="var(--border-accent)" stroke-width="1" stroke-dasharray="4 4"/>
+              <line x1="10" y1="6" x2="90" y2="6" stroke="var(--dng-divider)" stroke-width="1" stroke-dasharray="4 4"/>
+              <circle cx="100" cy="6" r="3" fill="var(--dng-title-gold)" opacity="0.5"/>
+              <line x1="110" y1="6" x2="190" y2="6" stroke="var(--dng-divider)" stroke-width="1" stroke-dasharray="4 4"/>
               </svg>
             </div>
 
@@ -70,7 +70,7 @@
             </p>
 
             <AppButton variant="primary" @click="emit('startRealGame')">
-              <span aria-hidden="true">⚔️</span> Choose a Quest
+              <span aria-hidden="true"><IconSwords :size="14" /></span> Choose a Quest
             </AppButton>
           </section>
 
@@ -84,6 +84,7 @@
 import { computed } from 'vue'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AppButton from '@/ui/components/common/AppButton.vue'
+import IconSwords from '@/ui/components/icons/IconSwords.vue'
 
 const props = defineProps<{
   isOpen: boolean
@@ -107,7 +108,7 @@ const otherTutorials = computed(() => {
   position: fixed;
   inset: 0;
   z-index: var(--z-modal);
-  background: var(--surface-overlay);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(6px);
   display: flex;
   align-items: flex-start;
@@ -128,18 +129,18 @@ const otherTutorials = computed(() => {
 .splash-content {
   background: linear-gradient(
     180deg,
-    var(--surface-card) 0%,
-    var(--color-bg-darkest) 100%
+    var(--dng-panel-surface) 0%,
+    var(--dng-shell-bg) 100%
   );
-  border: 1px solid var(--border-accent);
+  border: 1px solid var(--dng-bronze-mid);
   border-radius: var(--radius-lg);
   padding: var(--space-3xl) var(--space-2xl);
   max-width: 520px;
   width: 100%;
   text-align: center;
   box-shadow:
-    0 0 60px rgba(124, 58, 237, 0.12),
-    0 0 30px rgba(124, 58, 237, 0.06);
+    0 0 60px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(168, 120, 32, 0.12);
 }
 
 /* ─── Crest ─── */
@@ -157,7 +158,7 @@ const otherTutorials = computed(() => {
   position: absolute;
   inset: -10px;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--color-primary-glow) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(160, 112, 24, 0.4) 0%, transparent 70%);
   animation: crest-pulse 3s ease-in-out infinite;
 }
 
@@ -178,7 +179,7 @@ const otherTutorials = computed(() => {
 }
 
 .splash-eyebrow {
-  color: var(--text-accent);
+  color: var(--dng-title-gold);
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.15em;
@@ -189,13 +190,13 @@ const otherTutorials = computed(() => {
 .splash-title {
   font-family: var(--font-display);
   font-size: var(--text-2xl);
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   margin: 0 0 var(--space-sm) 0;
   line-height: var(--leading-tight);
 }
 
 .splash-flavor {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-sm);
   margin: 0;
   line-height: var(--leading-relaxed);
@@ -222,7 +223,7 @@ const otherTutorials = computed(() => {
 .section-title {
   font-family: var(--font-display);
   font-size: var(--text-lg);
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   margin: 0 0 var(--space-md) 0;
 }
 
@@ -234,8 +235,8 @@ const otherTutorials = computed(() => {
 }
 
 .tutorial-option-card {
-  background: var(--surface-card-hover);
-  border: 1px solid var(--border-default);
+  background: rgba(13, 9, 4, 0.45);
+  border: 1px solid var(--dng-divider);
   border-radius: var(--radius-md);
   padding: var(--space-lg);
   text-align: left;
@@ -245,9 +246,9 @@ const otherTutorials = computed(() => {
 }
 
 .tutorial-option-card:hover {
-  border-color: var(--border-accent);
+  border-color: var(--dng-bronze-mid);
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 4px 16px rgba(160, 112, 24, 0.2);
 }
 
 .option-badge {
@@ -255,8 +256,8 @@ const otherTutorials = computed(() => {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--text-accent);
-  background: var(--surface-card);
+  color: var(--dng-title-gold);
+  background: rgba(11, 28, 36, 0.5);
   padding: 2px var(--space-sm);
   border-radius: var(--radius-sm);
   margin-bottom: var(--space-xs);
@@ -266,13 +267,13 @@ const otherTutorials = computed(() => {
 .option-name {
   font-family: var(--font-display);
   font-size: var(--text-base);
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   margin: 0 0 var(--space-xs) 0;
 }
 
 .option-description {
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   margin: 0 0 var(--space-sm) 0;
   line-height: var(--leading-relaxed);
 }
@@ -281,7 +282,7 @@ const otherTutorials = computed(() => {
   display: flex;
   gap: var(--space-md);
   font-size: var(--text-xs);
-  color: var(--color-text-muted);
+  color: var(--dng-footer-muted);
 }
 
 .option-stat {

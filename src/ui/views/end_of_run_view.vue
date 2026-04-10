@@ -56,7 +56,7 @@
       <!-- Run Summary Stats -->
       <div class="summary-card">
         <h3 class="card-title">
-          <span class="title-icon">📊</span>
+          <span class="title-icon"><IconBarChart :size="24" /></span>
           Run Summary
         </h3>
         
@@ -81,7 +81,7 @@
       <!-- Final Scores -->
       <div v-if="gameStore.gameState" class="scores-card">
         <h3 class="card-title">
-          <span class="title-icon">📈</span>
+          <span class="title-icon"><IconBarChart :size="24" /></span>
           Final System Health
         </h3>
         
@@ -105,7 +105,7 @@
       <!-- Stakeholder Final State -->
       <div v-if="gameStore.gameState" class="stakeholders-card">
         <h3 class="card-title">
-          <span class="title-icon">👥</span>
+          <span class="title-icon"><IconGroup :size="24" /></span>
           Stakeholder Relations
         </h3>
         
@@ -131,7 +131,7 @@
       <!-- Share Controls -->
       <div class="share-card">
         <h3 class="card-title">
-          <span class="title-icon">📤</span>
+          <span class="title-icon"><IconMegaphone :size="24" /></span>
           Share Your Journey
         </h3>
         
@@ -190,6 +190,9 @@ import ShareResultCard from '@/ui/components/results/share_result_card.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
 import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
+import IconBarChart from '@/ui/components/icons/IconBarChart.vue'
+import IconGroup from '@/ui/components/icons/IconGroup.vue'
+import IconMegaphone from '@/ui/components/icons/IconMegaphone.vue'
 import { getClassAccentColor } from '@/ui/composables/class_artwork'
 import {
   buildStakeholderNamesMap,
@@ -525,9 +528,9 @@ function inlineComputedStyles(source: Element, target: Element) {
 .end-of-run-view {
   min-height: 100vh;
   background: linear-gradient(135deg, 
-    var(--color-bg-darkest) 0%, 
-    var(--color-bg-dark) 50%, 
-    var(--color-bg-medium) 100%
+    var(--dng-shell-bg) 0%, 
+    var(--dng-shell-bg) 50%, 
+    rgba(16, 11, 5, 0.9) 100%
   );
   padding: var(--space-3xl) var(--space-2xl);
 }
@@ -564,7 +567,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .outcome-title {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   font-size: var(--text-5xl);
   margin: 0 0 var(--space-xl) 0;
   font-weight: var(--font-black);
@@ -588,7 +591,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .player-display-name {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
 }
@@ -670,7 +673,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .quest-banner-label {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: var(--font-semibold);
@@ -678,14 +681,14 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .quest-banner-name {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
   font-weight: var(--font-semibold);
 }
 
 /* Archetype Card */
 .archetype-card {
-  background: var(--card-bg);
-  border: 2px solid var(--color-border-default);
+  background: var(--dng-panel-surface);
+  border: 2px solid var(--dng-bronze-mid);
   border-radius: var(--radius-xl);
   padding: var(--space-3xl);
   text-align: center;
@@ -704,8 +707,8 @@ function inlineComputedStyles(source: Element, target: Element) {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
-  box-shadow: 0 8px 24px var(--color-primary-glow);
+  background: linear-gradient(135deg, var(--dng-bronze-deep) 0%, var(--dng-bronze-mid) 100%);
+  box-shadow: 0 8px 24px rgba(160, 112, 24, 0.45);
   animation: iconPulse 2s ease-in-out infinite;
 }
 
@@ -723,7 +726,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .archetype-label {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -732,14 +735,14 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .archetype-name {
-  color: var(--color-primary);
+  color: var(--dng-title-gold);
   font-size: var(--text-3xl);
   font-weight: var(--font-black);
   margin: 0 0 var(--space-lg) 0;
 }
 
 .archetype-description {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-lg);
   line-height: var(--leading-relaxed);
   margin: 0;
@@ -753,8 +756,8 @@ function inlineComputedStyles(source: Element, target: Element) {
 .scores-card,
 .stakeholders-card,
 .share-card {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
+  background: var(--dng-panel-surface);
+  border: 2px solid var(--dng-divider);
   border-radius: var(--radius-xl);
   padding: var(--space-2xl);
   box-shadow: var(--shadow-md);
@@ -762,7 +765,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .card-title {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
   margin: 0 0 var(--space-xl) 0;
@@ -785,13 +788,13 @@ function inlineComputedStyles(source: Element, target: Element) {
 .stat-box {
   text-align: center;
   padding: var(--space-xl);
-  background: var(--color-bg-overlay);
+  background: rgba(13, 9, 4, 0.45);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--dng-divider);
 }
 
 .stat-label {
-  color: var(--color-text-secondary);
+  color: var(--dng-footer-muted);
   font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -800,13 +803,13 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .stat-value {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   font-size: var(--text-4xl);
   font-weight: var(--font-black);
 }
 
 .stat-max {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-2xl);
 }
 
@@ -834,7 +837,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .score-name {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
 }
@@ -862,7 +865,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 
 .score-bar {
   height: 12px;
-  background: var(--color-bg-overlay);
+  background: var(--dng-shell-bg);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -901,9 +904,9 @@ function inlineComputedStyles(source: Element, target: Element) {
   justify-content: space-between;
   align-items: center;
   padding: var(--space-lg);
-  background: var(--color-bg-overlay);
+  background: rgba(13, 9, 4, 0.45);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--dng-divider);
 }
 
 .stakeholder-info {
@@ -913,7 +916,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .stakeholder-name {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
   font-weight: var(--font-semibold);
   font-size: var(--text-base);
 }
@@ -993,7 +996,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 .footer-links {
   text-align: center;
   padding-top: var(--space-xl);
-  border-top: 1px solid var(--color-border-default);
+  border-top: 1px solid var(--dng-divider);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1002,7 +1005,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .link-separator {
-  color: var(--color-text-muted);
+  color: var(--dng-footer-muted);
   user-select: none;
 }
 

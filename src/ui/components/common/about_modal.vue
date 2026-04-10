@@ -100,11 +100,11 @@ function close() {
 
 <style scoped>
 .modal-body {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
 }
 
 .modal-body h3 {
-  color: var(--color-primary);
+  color: var(--dng-title-gold);
   margin-top: var(--space-xl);
   margin-bottom: var(--space-md);
   font-size: var(--text-xl);
@@ -120,14 +120,14 @@ function close() {
 
 .modal-body h3::before {
   content: '▸';
-  color: var(--color-primary);
+  color: var(--dng-bronze-mid);
   font-size: var(--text-2xl);
 }
 
 .modal-body p {
   margin: var(--space-md) 0;
   line-height: 1.7;
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
 }
 
 .modal-body ul {
@@ -138,11 +138,11 @@ function close() {
 .modal-body li {
   margin: var(--space-sm) 0;
   line-height: 1.7;
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
 }
 
 .modal-body li strong {
-  color: var(--color-text-primary);
+  color: var(--dng-title-gold);
   font-weight: var(--font-semibold);
 }
 
@@ -151,24 +151,24 @@ function close() {
 }
 
 .creator-credit a {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .creator-credit a:hover,
 .creator-credit a:focus-visible {
-  color: var(--color-primary);
+  color: var(--dng-bronze-hi);
 }
 
 .credits {
   margin-top: var(--space-xl) !important;
   padding: var(--space-md);
   font-style: italic;
-  color: var(--color-text-tertiary);
+  color: var(--dng-footer-muted);
   font-size: var(--text-sm);
-  background: var(--color-bg-overlay);
-  border-left: 4px solid var(--color-primary);
+  background: rgba(13, 9, 4, 0.45);
+  border-left: 4px solid var(--dng-bronze-mid);
   border-radius: var(--radius-md);
 }
 

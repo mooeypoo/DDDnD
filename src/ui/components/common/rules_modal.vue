@@ -134,11 +134,11 @@ function close() {
 
 <style scoped>
 .modal-body {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
 }
 
 .modal-body h3 {
-  color: var(--color-primary);
+  color: var(--dng-title-gold);
   margin-top: var(--space-xl);
   margin-bottom: var(--space-md);
   font-size: var(--text-xl);
@@ -154,14 +154,14 @@ function close() {
 
 .modal-body h3::before {
   content: '▸';
-  color: var(--color-primary);
+  color: var(--dng-bronze-mid);
   font-size: var(--text-2xl);
 }
 
 .modal-body p {
   margin: var(--space-md) 0;
   line-height: 1.7;
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
 }
 
 .modal-body ol,
@@ -173,25 +173,25 @@ function close() {
 .modal-body li {
   margin: var(--space-sm) 0;
   line-height: 1.7;
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
 }
 
 .modal-body li strong {
-  color: var(--color-text-primary);
+  color: var(--dng-title-gold);
   font-weight: var(--font-semibold);
 }
 
 .tip {
   margin-top: var(--space-xl) !important;
   padding: var(--space-md);
-  background: linear-gradient(135deg, rgba(233, 69, 96, 0.15) 0%, rgba(233, 69, 96, 0.05) 100%);
-  border-left: 4px solid var(--color-primary);
+  background: linear-gradient(135deg, rgba(160, 112, 24, 0.15) 0%, rgba(160, 112, 24, 0.05) 100%);
+  border-left: 4px solid var(--dng-bronze-mid);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
 }
 
 .tip strong {
-  color: var(--color-primary);
+  color: var(--dng-title-gold);
 }
 
 @media (max-width: 768px) {

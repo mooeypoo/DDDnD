@@ -1,16 +1,11 @@
 <template>
-  <div class="turn-resolution-panel">
-    <div class="panel-header">
-      <h3 class="panel-title">
-        <span class="turn-badge">Turn {{ turnResolution.turn_number }}</span>
-        Resolution
-      </h3>
-    </div>
+  <AppFrame :title="`Turn ${turnResolution.turn_number} Resolution`" class="turn-resolution-panel">
+    <template #icon><IconSwords :size="14" /></template>
     
     <!-- Architectural Aftershocks -->
     <div v-if="turnResolution.resolved_aftershocks.length > 0" class="resolution-section">
       <h4 class="section-title">
-        <span class="section-icon">⚡</span>
+        <span class="section-icon"><IconLightning :size="16" /></span>
         Architectural Aftershocks
       </h4>
       <div class="aftershocks-list">
@@ -38,7 +33,7 @@
     <!-- Player Action -->
     <div class="resolution-section">
       <h4 class="section-title">
-        <span class="section-icon">🎯</span>
+        <span class="section-icon"><IconTarget :size="16" /></span>
         Your Action
       </h4>
       <AppCard variant="positive">
@@ -60,7 +55,7 @@
     <!-- System Event -->
     <div v-if="turnResolution.event_resolution" class="resolution-section">
       <h4 class="section-title">
-        <span class="section-icon">📢</span>
+        <span class="section-icon"><IconMegaphone :size="16" /></span>
         System Event
       </h4>
       <AppCard variant="neutral">
@@ -82,7 +77,7 @@
     <!-- Stakeholder Reactions -->
     <div v-if="turnResolution.stakeholder_resolution.reactions.length > 0" class="resolution-section">
       <h4 class="section-title">
-        <span class="section-icon">👥</span>
+        <span class="section-icon"><IconGroup :size="16" /></span>
         Stakeholder Reactions
       </h4>
       <div class="stakeholder-reactions">
@@ -96,13 +91,19 @@
         </AppCard>
       </div>
     </div>
-  </div>
+  </AppFrame>
 </template>
 
 <script setup lang="ts">
 import type { TurnResolutionContext } from '@/domains/simulation/model'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import AppCard from '@/ui/components/cards/AppCard.vue'
+import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
+import IconSwords from '@/ui/components/icons/IconSwords.vue'
+import IconLightning from '@/ui/components/icons/IconLightning.vue'
+import IconTarget from '@/ui/components/icons/IconTarget.vue'
+import IconMegaphone from '@/ui/components/icons/IconMegaphone.vue'
+import IconGroup from '@/ui/components/icons/IconGroup.vue'
 
 const props = defineProps<{
   turnResolution: TurnResolutionContext
@@ -122,90 +123,47 @@ function formatStakeholderName(stakeholderId: string): string {
 </script>
 
 <style scoped>
-.turn-resolution-panel {
-  background: var(--panel-bg);
-  border: 2px solid var(--color-primary);
-  border-radius: var(--radius-xl);
-  padding: var(--panel-padding);
-  margin: var(--space-xl) 0;
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(10px);
-  animation: fadeInUp 0.8s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.panel-header {
-  border-bottom: 2px solid var(--color-border-default);
-  padding-bottom: var(--space-lg);
-  margin-bottom: var(--space-xl);
-}
-
-.panel-title {
-  color: var(--color-text-primary);
-  font-size: var(--text-2xl);
-  font-weight: var(--font-black);
-  margin: 0;
-  text-align: center;
+.turn-resolution-panel :deep(.dungeon-frame__body) {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-md);
-}
-
-.turn-badge {
-  background: var(--color-primary);
-  color: white;
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-md);
-  font-size: var(--text-base);
-  font-weight: var(--font-bold);
+  flex-direction: column;
+  gap: var(--space-xl);
+  padding: var(--space-lg);
 }
 
 .resolution-section {
-  margin: var(--space-xl) 0;
-}
-
-.resolution-section:first-of-type {
-  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
 }
 
 .section-title {
-  color: var(--color-text-primary);
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  margin: 0 0 var(--space-md) 0;
+  color: var(--dng-title-gold);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  margin: 0;
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  font-size: var(--text-xs);
 }
 
 .section-icon {
-  font-size: var(--text-xl);
-}
-
-.event-card {
-  /* removed — replaced by AppCard */
+  display: inline-flex;
+  align-items: center;
+  color: var(--dng-subtitle-warm);
 }
 
 .event-title {
-  color: var(--color-text-primary);
+  color: var(--dng-title-gold);
   font-weight: var(--font-bold);
   font-size: var(--text-base);
   margin-bottom: var(--space-sm);
 }
 
 .event-summary {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   line-height: 1.6;
   margin: 0 0 var(--space-md) 0;
   font-size: var(--text-sm);
@@ -257,15 +215,8 @@ function formatStakeholderName(stakeholderId: string): string {
 }
 
 @media (max-width: 768px) {
-  .turn-resolution-panel {
-    padding: var(--space-lg);
+  .turn-resolution-panel :deep(.dungeon-frame__body) {
+    padding: var(--space-md);
   }
-  
-  .panel-title {
-    font-size: var(--text-xl);
-    flex-direction: column;
-    gap: var(--space-sm);
-  }
-  
 }
 </style>

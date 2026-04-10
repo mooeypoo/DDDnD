@@ -1,5 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
+import IconScroll from '@/ui/components/icons/IconScroll.vue'
+import IconSwords from '@/ui/components/icons/IconSwords.vue'
+import IconBarChart from '@/ui/components/icons/IconBarChart.vue'
 
 const meta: Meta<typeof AppFrame> = {
   title: 'Foundations/AppFrame',
@@ -284,6 +287,38 @@ export const NarrowPanel: Story = {
             Aggregate boundary health across all active bounded contexts this turn.
           </p>
           <template #footer>Score: 74 / 100</template>
+        </AppFrame>
+      </div>
+    `,
+  }),
+}
+
+/**
+ * Icon slot: SVG ornament renders inline before the title text in the nameplate.
+ * Demonstrates the #icon slot with three different icon components.
+ */
+export const WithIconSlot: Story = {
+  render: () => ({
+    components: { AppFrame, IconScroll, IconSwords, IconBarChart },
+    template: `
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <AppFrame title="Situation Briefing" subtitle="Active event this turn">
+          <template #icon><IconScroll :size="14" /></template>
+          <p style="margin: 0; color: var(--text-secondary)">
+            The team faces a critical integration deadline with downstream services.
+          </p>
+        </AppFrame>
+        <AppFrame title="Turn 4 Resolution" variant="accent">
+          <template #icon><IconSwords :size="14" /></template>
+          <p style="margin: 0; color: var(--text-secondary)">
+            Anti-Corruption Layer established. Domain clarity improved.
+          </p>
+        </AppFrame>
+        <AppFrame title="System Ledger" subtitle="Score breakdown">
+          <template #icon><IconBarChart :size="14" /></template>
+          <p style="margin: 0; color: var(--text-secondary)">
+            Maintainability 72 · Domain Clarity 81 · Delivery 64
+          </p>
         </AppFrame>
       </div>
     `,

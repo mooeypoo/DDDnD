@@ -69,7 +69,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   position: fixed;
   inset: 0;
   z-index: var(--z-overlay);
-  background: var(--bg-overlay-strong);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(2px);
   display: flex;
 }
@@ -77,10 +77,10 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 .surface-side-panel {
   width: min(100%, 420px);
   height: 100%;
-  background: var(--surface-panel);
-  border-left: 1px solid var(--border-panel);
-  border-right: 1px solid var(--border-panel);
-  box-shadow: var(--shadow-overlay);
+  background: var(--dng-panel-surface);
+  border-left: 1px solid var(--dng-divider);
+  border-right: 1px solid var(--dng-divider);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
 }
@@ -98,22 +98,22 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
   align-items: center;
   justify-content: space-between;
   padding: var(--space-lg);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--dng-divider);
 }
 
 .surface-title {
   margin: 0;
-  color: var(--text-bright);
+  color: var(--dng-title-gold);
   font-size: var(--text-lg);
 }
 
 .surface-close {
   width: 32px;
   height: 32px;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--dng-divider);
   border-radius: var(--radius-lg);
-  background: var(--bg-inset);
-  color: var(--text-secondary);
+  background: rgba(13, 9, 4, 0.45);
+  color: var(--dng-footer-muted);
   cursor: pointer;
 }
 
@@ -124,7 +124,7 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 }
 
 .surface-footer {
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--dng-divider);
   padding: var(--space-md) var(--space-lg);
   display: flex;
   justify-content: flex-end;

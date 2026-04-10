@@ -1,5 +1,6 @@
 <template>
-  <AppFrame title="📜 Situation Briefing" class="turn-briefing-panel">
+  <AppFrame title="Situation Briefing" class="turn-briefing-panel">
+    <template #icon><IconScroll :size="14" /></template>
     <template #header-actions>
       <span v-if="currentTurn && totalTurns" class="turn-counter">
         Turn {{ currentTurn }} / {{ totalTurns }}
@@ -12,11 +13,11 @@
 
     <div class="briefing-status">
       <span class="status-badge actions-badge">
-        <span class="badge-icon">⚔️</span>
+        <span class="badge-icon"><IconSwords :size="14" /></span>
         {{ availableActions }} action{{ availableActions === 1 ? '' : 's' }} available
       </span>
       <span class="status-badge" :class="pendingAftershocks ? 'aftershocks-badge' : 'quiet-badge'">
-        <span class="badge-icon">⚡</span>
+        <span class="badge-icon"><IconLightning :size="14" /></span>
         {{ pendingAftershocks || 'No' }} aftershock{{ pendingAftershocks === 1 ? '' : 's' }} pending
       </span>
     </div>
@@ -37,6 +38,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
+import IconScroll from '@/ui/components/icons/IconScroll.vue'
+import IconSwords from '@/ui/components/icons/IconSwords.vue'
+import IconLightning from '@/ui/components/icons/IconLightning.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -94,7 +98,7 @@ const isLowTurns = computed(() => {
   font-size: var(--text-base);
   line-height: var(--leading-relaxed);
   font-style: italic;
-  border-left: 2px solid var(--border-subtle);
+  border-left: 2px solid var(--dng-divider);
   padding-left: var(--space-md);
 }
 
@@ -112,15 +116,15 @@ const isLowTurns = computed(() => {
   padding: var(--space-xs) var(--space-md);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-inset);
-  color: var(--text-secondary);
+  border: 1px solid var(--dng-divider);
+  background: rgba(11, 28, 36, 0.5);
+  color: var(--dng-subtitle-warm);
 }
 
 .actions-badge {
-  border-color: var(--border-accent);
-  color: var(--text-accent);
-  background: rgba(169, 137, 250, 0.08);
+  border-color: var(--dng-bronze-mid);
+  color: var(--dng-title-gold);
+  background: rgba(160, 112, 24, 0.12);
 }
 
 .aftershocks-badge {
@@ -134,7 +138,8 @@ const isLowTurns = computed(() => {
 }
 
 .badge-icon {
-  font-size: var(--text-sm);
+  display: inline-flex;
+  align-items: center;
 }
 
 .low-turns-warning {
