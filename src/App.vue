@@ -4,6 +4,7 @@
       <RouterView />
     </main>
     <SiteFooter v-if="showFooter" />
+    <MobileNotice />
   </div>
 </template>
 
@@ -11,6 +12,7 @@
 import { computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import SiteFooter from '@/ui/components/common/site_footer.vue'
+import MobileNotice from '@/ui/components/common/mobile_notice.vue'
 
 const route = useRoute()
 

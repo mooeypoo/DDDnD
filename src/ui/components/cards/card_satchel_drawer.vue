@@ -17,7 +17,7 @@
       >
         <div class="handle-grip" aria-hidden="true"></div>
         <div class="handle-content">
-          <span class="handle-icon">🎒</span>
+          <span class="handle-icon"><IconSatchel :size="22" /></span>
           <span class="handle-label">Action Satchel</span>
           <span class="handle-count" v-if="totalCards > 0">{{ totalCards }}</span>
           <span class="handle-hint" v-if="!isOpen && playableCards > 0">{{ playableCards }} playable — tap to open</span>
@@ -48,6 +48,8 @@
 </template>
 
 <script setup lang="ts">
+import IconSatchel from '@/ui/components/icons/IconSatchel.vue'
+
 const props = defineProps<{
   isOpen: boolean
   totalCards: number
@@ -88,7 +90,7 @@ function close() {
 .drawer-backdrop {
   position: fixed;
   inset: 0;
-  background: var(--surface-overlay);
+  background: rgba(0, 0, 0, 0.75);
   z-index: var(--z-drawer);
   pointer-events: auto;
 }
@@ -111,6 +113,13 @@ function close() {
   transition: transform var(--duration-slow) var(--ease-standard);
 }
 
+@media (max-width: 768px) {
+  .drawer-panel {
+    /* Use dvh on mobile to avoid iOS address-bar-resize jumps */
+    height: min(70dvh, 80vh);
+  }
+}
+
 .drawer-panel.open {
   transform: translateY(0);
 }
@@ -123,21 +132,21 @@ function close() {
   gap: var(--space-md);
   width: 100%;
   padding: var(--space-sm) var(--space-lg);
-  background: linear-gradient(180deg, rgba(40, 50, 80, 0.97) 0%, rgba(22, 30, 52, 0.97) 100%);
+  background: linear-gradient(180deg, var(--dng-plate-bg-hi) 0%, var(--dng-shell-bg) 100%);
   border: none;
-  border-top: 1px solid rgba(169, 137, 250, 0.35);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-top: 2px solid var(--dng-bronze-mid);
+  border-radius: var(--dng-chamfer) var(--dng-chamfer) 0 0;
   cursor: pointer;
   font-family: inherit;
   transition: background var(--transition-fast), border-color var(--transition-fast);
   flex-shrink: 0;
   min-height: var(--drawer-handle-height);
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(200, 152, 36, 0.25);
 }
 
 .drawer-handle:hover {
-  background: linear-gradient(180deg, rgba(50, 62, 95, 0.97) 0%, rgba(28, 38, 64, 0.97) 100%);
-  border-top-color: rgba(169, 137, 250, 0.5);
+  background: linear-gradient(180deg, var(--dng-panel-surface) 0%, var(--dng-plate-bg-mid) 100%);
+  border-top-color: var(--dng-bronze-hi);
 }
 
 .handle-grip {
@@ -154,11 +163,17 @@ function close() {
     width: 36px;
     height: 4px;
     border-radius: var(--radius-full);
-    background: var(--border-panel);
+    background: var(--dng-divider);
   }
 
   .drawer-handle {
     padding-top: var(--space-md);
+    /* Ensure handle clears iPhone home bar / Android navbar */
+    padding-bottom: max(var(--space-sm), env(safe-area-inset-bottom, var(--space-sm)));
+  }
+
+  .drawer-inner {
+    padding: var(--space-md);
   }
 }
 
@@ -170,11 +185,13 @@ function close() {
 }
 
 .handle-icon {
-  font-size: var(--text-xl);
+  display: inline-flex;
+  align-items: center;
+  color: var(--dng-title-gold);
 }
 
 .handle-label {
-  color: var(--text-bright);
+  color: var(--dng-title-gold);
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-wide);
@@ -185,8 +202,8 @@ function close() {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--border-accent);
-  color: var(--text-bright);
+  background: var(--dng-bronze-mid);
+  color: var(--dng-shell-bg);
   font-size: var(--text-2xs);
   font-weight: var(--font-bold);
   font-family: var(--font-mono);
@@ -197,13 +214,13 @@ function close() {
 }
 
 .handle-hint {
-  color: var(--text-muted);
+  color: var(--dng-footer-muted);
   font-size: var(--text-xs);
   margin-left: auto;
 }
 
 .handle-chevron {
-  color: var(--text-secondary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-sm);
   transition: transform var(--duration-base) var(--ease-standard);
 }
@@ -214,10 +231,11 @@ function close() {
 
 /* Drawer body — always in DOM, scrollable */
 .drawer-body {
-  background: var(--drawer-bg);
-  border-top: 1px solid var(--border-subtle);
+  background: var(--dng-panel-surface);
+  border-top: 1px solid var(--dng-divider);
   flex: 1;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -228,11 +246,12 @@ function close() {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  min-width: 0;
 }
 
 .drawer-hint {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-sm);
   font-style: italic;
 }

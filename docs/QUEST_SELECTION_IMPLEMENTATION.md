@@ -3,6 +3,17 @@
 Date: March 8, 2026
 Task: Make quest selection data-driven from scenario JSON content using a UI-owned list of scenario refs
 
+Canonical companions:
+
+- [AGENT.md](../AGENT.md) for routing and terminology guardrails
+- [ARCHITECTURE.md](../ARCHITECTURE.md) for UI/domain separation
+- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) for presentation roadmap coordination
+
+Terminology note:
+
+- Use `playerClass`, `endingType`, and `avatarRole` for new UI/presentation work.
+- Keep legacy `archetype` wording only where tied to existing content or code compatibility.
+
 ## Summary
 
 The run setup screen has been successfully refactored to display **data-driven, selectable quest cards** instead of a hard-coded scenario presentation. Quest availability is now controlled by an explicit **UI-owned configuration**, and the selected quest is passed to the game engine during run initialization.

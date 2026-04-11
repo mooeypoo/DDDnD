@@ -12,6 +12,10 @@
         <span class="social-name">{{ network.name }}</span>
         <span class="external-link-indicator" aria-label="Opens in new tab">↗</span>
       </a>
+    </div>
+
+    <div class="coffee-section">
+      <div class="coffee-divider" aria-hidden="true" />
       <a class="coffee-link" href="https://buymeacoffee.com/mooeypoo" target="_blank" rel="noopener noreferrer">
         <span class="coffee-icon">☕</span>
         <span class="coffee-text">Support the Dungeon Master with a Potion of Wakefulness</span>
@@ -61,15 +65,15 @@ const socials: SocialNetwork[] = [
 .social-links-panel {
   margin: 2em 0 0 0;
   padding: 1.5em 1em 1em 1em;
-  background: var(--color-bg-overlay);
+  background: rgba(13, 9, 4, 0.45);
   border-radius: var(--radius-xl);
-  border: 2px solid var(--color-primary);
-  box-shadow: 0 2px 12px var(--color-primary-glow);
+  border: 2px solid var(--dng-bronze-mid);
+  box-shadow: 0 2px 12px rgba(160, 112, 24, 0.35);
   text-align: center;
 }
 .social-links-message {
   font-size: var(--text-base);
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   margin-bottom: 0.7em;
   display: flex;
   align-items: center;
@@ -91,19 +95,19 @@ const socials: SocialNetwork[] = [
   display: flex;
   align-items: center;
   gap: 0.4em;
-  background: var(--color-bg-surface);
+  background: var(--dng-shell-bg);
   border-radius: var(--radius-md);
   padding: 0.5em 1em;
-  color: var(--color-primary);
+  color: var(--dng-bronze-hi);
   font-weight: 600;
   text-decoration: none;
   font-size: var(--text-base);
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 1px 4px var(--color-primary-glow);
+  box-shadow: 0 1px 4px rgba(160, 112, 24, 0.25);
 }
 .social-link:hover {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
+  background: var(--dng-bronze-mid);
+  color: var(--dng-title-gold);
 }
 .social-icon {
   font-size: 1.2em;
@@ -119,30 +123,49 @@ const socials: SocialNetwork[] = [
   vertical-align: text-top;
   opacity: 0.7;
 }
-.coffee-link {
+.coffee-section {
+  margin-top: var(--space-md);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.4em;
-  background: #ffdd00;
-  color: #222;
+  gap: var(--space-sm);
+}
+
+.coffee-divider {
+  width: 60%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--dng-bronze-mid), transparent);
+  opacity: 0.5;
+}
+
+.coffee-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  background: rgba(13, 9, 4, 0.60);
+  border: 1px solid var(--dng-bronze-mid);
   border-radius: var(--radius-md);
-  padding: 0.5em 1.2em;
-  font-weight: 700;
+  padding: 0.45em 1.1em;
+  color: var(--dng-title-gold);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
   text-decoration: none;
-  font-size: var(--text-base);
-  margin-left: 1em;
-  box-shadow: 0 1px 4px #ffdd00aa;
-  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  box-shadow: inset 0 1px 0 rgba(200, 152, 30, 0.12);
 }
+
 .coffee-link:hover {
-  background: #ffe066;
-  color: #222;
-  box-shadow: 0 2px 8px #ffdd00cc;
+  background: rgba(30, 18, 4, 0.80);
+  border-color: var(--dng-bronze-hi);
+  color: var(--dng-bronze-hi);
 }
+
 .coffee-icon {
-  font-size: 1.3em;
+  font-size: 1.1em;
+  flex-shrink: 0;
 }
+
 .coffee-text {
-  margin-left: 0.1em;
+  font-style: italic;
 }
 </style>

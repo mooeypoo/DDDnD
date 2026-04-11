@@ -29,7 +29,7 @@
       <div v-if="isExpanded" class="hud-detail-panel">
         <div class="hud-detail-header">
           <h3 class="hud-detail-title">
-            <span class="title-icon">📊</span>
+            <span class="title-icon"><IconBarChart :size="16" /></span>
             System Ledger
           </h3>
           <div class="overall-health" :class="overallHealth.cssClass">
@@ -62,6 +62,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import IconBarChart from '@/ui/components/icons/IconBarChart.vue'
 
 const props = defineProps<{
   scores: Record<string, number>
@@ -134,16 +135,16 @@ const overallHealth = computed(() => {
 }
 
 .hud-scores:hover {
-  border-color: var(--border-accent);
-  background: var(--bg-overlay);
+  border-color: var(--dng-divider);
+  background: rgba(11, 28, 36, 0.3);
 }
 
 .hud-metric {
   display: flex;
   align-items: center;
   gap: 3px;
-  background: var(--bg-overlay);
-  border: 1px solid var(--border-subtle);
+  background: rgba(11, 28, 36, 0.5);
+  border: 1px solid var(--dng-divider);
   border-radius: var(--radius-md);
   padding: 2px 6px;
   flex-shrink: 0;
@@ -153,7 +154,7 @@ const overallHealth = computed(() => {
 
 .hud-metric-label {
   font-size: var(--text-2xs);
-  color: var(--text-secondary);
+  color: var(--dng-footer-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -162,7 +163,7 @@ const overallHealth = computed(() => {
 
 .hud-expand-hint {
   font-size: var(--text-2xs);
-  color: var(--text-muted);
+  color: var(--dng-footer-muted);
   transition: transform var(--duration-fast) var(--ease-standard);
   flex-shrink: 0;
   line-height: 1;
@@ -192,9 +193,9 @@ const overallHealth = computed(() => {
 .hud-metric.high .hud-metric-value     { color: var(--score-high); }
 
 .hud-metric-bar {
-  width: 24px;
+  width: var(--hud-metric-bar-width-sm);
   height: 3px;
-  background: var(--bg-overlay-strong);
+  background: var(--dng-shell-bg);
   border-radius: var(--radius-full);
   overflow: hidden;
   flex-shrink: 0;
@@ -227,7 +228,7 @@ const overallHealth = computed(() => {
   }
 
   .hud-metric-bar {
-    width: 32px;
+    width: var(--hud-metric-bar-width-md);
     height: 4px;
   }
 
@@ -236,10 +237,17 @@ const overallHealth = computed(() => {
   }
 }
 
-/* Hide text labels on mobile, show on desktop */
+/* Compact labels on mobile: wrap to two lines */
 @media (max-width: 768px) {
+  .hud-scores {
+    flex-wrap: wrap;
+    row-gap: 3px;
+  }
+  .hud-metric {
+    padding: 2px 4px;
+  }
   .hud-metric-label {
-    display: none;
+    max-width: 52px;
   }
 }
 
@@ -262,11 +270,11 @@ const overallHealth = computed(() => {
   right: auto;
   min-width: 320px;
   max-width: 400px;
-  background: var(--surface-modal);
-  border: 1px solid var(--border-accent);
-  border-radius: var(--radius-xl);
+  background: var(--dng-panel-surface);
+  border: 1px solid var(--dng-bronze-mid);
+  border-radius: var(--radius-lg);
   padding: var(--space-lg);
-  box-shadow: var(--shadow-overlay);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
   z-index: var(--z-overlay);
   backdrop-filter: blur(16px);
 }
@@ -288,12 +296,12 @@ const overallHealth = computed(() => {
   gap: var(--space-md);
   margin-bottom: var(--space-lg);
   padding-bottom: var(--space-sm);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--dng-divider);
 }
 
 .hud-detail-title {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--dng-title-gold);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-widest);
@@ -305,7 +313,9 @@ const overallHealth = computed(() => {
 }
 
 .title-icon {
-  font-size: var(--text-base);
+  display: inline-flex;
+  align-items: center;
+  color: var(--dng-subtitle-warm);
 }
 
 .overall-health {
@@ -334,7 +344,7 @@ const overallHealth = computed(() => {
   appearance: none;
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: var(--dng-footer-muted);
   font-size: var(--text-xl);
   cursor: pointer;
   padding: 0 var(--space-xs);
@@ -343,7 +353,7 @@ const overallHealth = computed(() => {
 }
 
 .hud-close:hover {
-  color: var(--text-bright);
+  color: var(--dng-title-gold);
 }
 
 .hud-detail-scores {
@@ -377,7 +387,7 @@ const overallHealth = computed(() => {
 .metric-budget               { color: var(--metric-budget); }
 
 .detail-name {
-  color: var(--text-primary);
+  color: var(--dng-title-gold);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   flex: 1;
@@ -398,7 +408,7 @@ const overallHealth = computed(() => {
 
 .detail-bar-track {
   height: 4px;
-  background: var(--bg-overlay-strong);
+  background: var(--dng-shell-bg);
   border-radius: var(--radius-full);
   overflow: hidden;
 }

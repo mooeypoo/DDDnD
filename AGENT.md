@@ -1,280 +1,149 @@
 # AGENT.md
 
-This document defines the operational rules for humans and AI agents working in this repository.
+This document is the entry point for routing and operational rules for all human and AI work in this repository.
 
-The goal of these rules is to keep the architecture stable, the simulation deterministic, and the codebase readable.
-
-Agents should read this file before making changes.
+Use this file to decide what to read first, what boundaries apply, and which canonical docs control each task.
 
 ---
 
-# Core Philosophy
+# Required Reading Structure
 
-The project is a simulation-driven web game about software architecture decisions.
+## Required for all work (read first)
 
-The system is intentionally separated into clear domains:
+1. [AGENT.md](AGENT.md)
+2. [ARCHITECTURE.md](ARCHITECTURE.md)
+3. [GAME_DESIGN.md](GAME_DESIGN.md)
+4. [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md)
+5. [CONTENT_VERSIONING.md](CONTENT_VERSIONING.md)
 
-- **content** – authored game data
-- **simulation** – deterministic system evolution
-- **persistence** – save/load/export
-- **reporting** – summaries and shareable results
-- **ui** – Vue components and presentation
+These are the base architecture and behavior documents. If guidance conflicts, architecture boundaries and determinism requirements take priority.
 
-Simulation logic must remain isolated from UI and browser concerns.
+## Task-based additional reading
+
+Read these on top of the base set when applicable.
+
+### UI / presentation work
+
+- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
+- [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical visual direction for scene composition and stakeholder avatarRole art direction
+- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md)
+- [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
+- [docs/QUEST_SELECTION_IMPLEMENTATION.md](docs/QUEST_SELECTION_IMPLEMENTATION.md)
+
+### Asset / artwork work (hybrid raster + SVG)
+
+- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) — canonical strategy for raster scene/avatar assets and SVG chrome split
+- [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical scene/avatar art direction and anti-goals
+- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
+- [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
+
+### Storybook / UI prototyping work
+
+- [docs/STORYBOOK.md](docs/STORYBOOK.md)
+- [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) (if story visual direction, scene composition, or `avatarRole` presentation is touched)
+- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) (if visuals/artwork are touched)
+- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md) (if presentation direction is touched)
+- [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
+
+### Content / schema work
+
+- [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md)
+- [CONTENT_VERSIONING.md](CONTENT_VERSIONING.md)
+- [ARCHITECTURE.md](ARCHITECTURE.md) (content validation boundary)
 
 ---
 
 # Non-Negotiable Architecture Rules
 
-### Simulation must be UI-agnostic
+## Simulation must be UI-agnostic
 
-The simulation domain must **not** import:
+The simulation domain must not import Vue, Pinia, browser APIs, localStorage, or DOM APIs.
 
-- Vue
-- Pinia
-- browser APIs
-- localStorage
-- DOM APIs
+Simulation depends on validated content (`scenario_bundle`), `game_state`, and pure deterministic rule logic.
 
-Simulation must only depend on:
+## UI must not implement gameplay rules
 
-- `scenario_bundle`
-- `game_state`
-- pure rule logic
+UI code may call the engine and present results.
 
----
+UI code must not implement action resolution, event selection, stakeholder rule logic, or outcome classification logic.
 
-### UI must not contain gameplay rules
+## Presentation model boundaries are UI-only
 
-Vue components and stores may:
+Scene selection, avatar role assignment, and presentation concepts are UI-layer concerns only.
 
-- call the engine
-- display results
+They must not leak into simulation/domain logic, content validation logic, or persistence behavior.
 
-They must **not** implement:
+Stakeholders remain domain/content entities from JSON; presentation assignment is view-model logic.
 
-- action resolution
-- event selection
-- stakeholder logic
-- outcome classification
+## Persistence and reporting are non-authoritative for gameplay
 
-All gameplay logic belongs in `domains/simulation`.
+Persistence serializes/deserializes and reporting summarizes outputs.
+
+Neither may change simulation behavior.
 
 ---
 
-### Persistence must not modify simulation behavior
+# Terminology Guidance (Required)
 
-Persistence code may serialize and deserialize state but must not influence game rules.
+For new work, use:
 
----
+- `playerClass` for player-selected class at scenario start
+- `endingType` for end-of-run outcome classification in presentation/context where this naming applies
+- `avatarRole` for UI-only fantasy visual role assigned to stakeholders
 
-# Content Rules
+Do not use `archetype` generically in new work.
 
-Content lives in the `/content` directory.
-
-Content files must:
-
-- use **snake_case keys**
-- be **human readable**
-- use versioned filenames
-
-Example:
-
-```
-define_bounded_context-v1.json
-```
-
-The file must contain matching metadata:
-
-```
-"id": "define_bounded_context",
-"version": 1
-```
-
-Filename and internal version must match.
-
-Content should be understandable to non-programmers.
-
-Avoid cryptic identifiers.
+Legacy references may remain where already established, but do not expand that terminology in new implementation.
 
 ---
 
-# Versioning Rules
+# Asset Format Rules
 
-Content versions exist to maintain compatibility with old runs.
+Asset work must follow [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md).
 
-When content behavior changes, create a new version instead of editing the old one.
+Hybrid strategy for new presentation work:
 
-Old versions must remain intact.
+- Use PNG/WebP for illustrative scene backdrops and stakeholder `avatarRole` character/state art.
+- Use SVG for UI surfaces, frames, icons, badges, reusable ornaments, and simple effect markers.
+- Choose format by purpose: raster for atmosphere/composition-heavy illustration, SVG for reusable interface/chrome structure.
 
-Detailed rules are in `CONTENT_VERSIONING.md`.
+Required practices:
 
----
-
-# Testing Requirements
-
-Simulation and content systems must be covered by automated tests wherever practical.
-
-Important areas that must have tests:
-
-- deterministic turn resolution
-- scenario bundle construction
-- stakeholder rule evaluation
-- delayed effect scheduling
-- export/import round-trip
-- run determinism with seed + action sequence
+- Keep asset metadata and references in UI-owned presentation layers.
+- Centralize asset references through existing UI mapping/config patterns instead of ad hoc per-component paths.
+- Remove or consolidate obsolete assets when safe and when no active references remain.
+- Keep simulation/domain/content files free of presentation asset paths.
 
 ---
 
-# Changing Tests
+# Content and Versioning Rules
 
-Do not change tests just to make them pass.
+Content JSON must stay human-readable, snake_case, and versioned per [CONTENT_SCHEMA.md](CONTENT_SCHEMA.md) and [CONTENT_VERSIONING.md](CONTENT_VERSIONING.md).
 
-If tests change:
+When a change affects gameplay behavior, create a new content version instead of mutating prior released behavior.
 
-1. Explain what behavior changed
-2. Explain why the old expectation was incorrect or obsolete
-3. Reference the architectural or gameplay rule supporting the change
-
-Agents should summarize test changes clearly.
+Raw JSON is untrusted until validated; simulation must operate on validated typed objects only.
 
 ---
 
-# Determinism Requirement
+# Testing and Change Discipline
 
-The simulation must be deterministic.
-
-Given:
-
-- the same scenario bundle
-- the same seed
-- the same sequence of actions
-
-The run must produce identical results.
+- Preserve determinism: same seed + same scenario bundle + same action sequence => same run result.
+- Do not change tests only to force passing status.
+- If test expectations change, document what changed and which architectural/game rule justifies it.
+- Avoid unrelated refactors while addressing a task.
 
 ---
 
-# Code Organization
+# Working Style Expectations
 
-Follow the domain structure:
-
-```
-src/domains/content
-src/domains/simulation
-src/domains/persistence
-src/domains/reporting
-src/ui
-```
-
-Do not collapse domains into shared helper modules.
-
-Avoid generic "utils" for domain logic.
-
----
-
-## TypeScript Usage Rules
-
-This project uses TypeScript primarily to protect the simulation engine and other contract-heavy parts of the system.
-
-TypeScript should improve **clarity and safety**, not introduce unnecessary abstraction.
-
-### Where TypeScript should be used strongly
-
-Use TypeScript fully in these domains:
-
-- `src/domains/content`
-- `src/domains/simulation`
-- `src/domains/persistence`
-- `src/domains/reporting`
-- `src/shared/contracts`
-- `src/shared/random`
-
-These layers contain structured domain logic, runtime records, and import/export boundaries where strong typing improves correctness.
-
-### Where TypeScript should be used lightly
-
-The UI layer (`src/ui`) may use TypeScript but should remain simple.
-
-Good uses include:
-
-- typing component props
-- typing store state
-- typing composable return values
-- referencing engine output types
-
-Avoid unnecessary abstraction in UI code.
-
-### Avoid unnecessary TypeScript complexity
-
-Do not introduce advanced type-level programming unless clearly justified.
-
-Avoid:
-
-- complex conditional types
-- deeply nested generics
-- heavy type inference tricks
-- clever utility types that reduce readability
-
-Prefer:
-
-- simple `interface` or `type` definitions
-- readable unions
-- explicit domain names
-
-TypeScript is a **guardrail**, not a design goal.
-
-### Content Validation Rule
-
-Raw JSON content must not be treated as trusted typed data before validation.
-
-The correct flow is:
-
-1. Load JSON as untrusted input
-2. Validate schema and references
-3. Convert to typed domain objects
-4. Use those typed objects in the simulation
-
-Simulation code must only operate on validated, typed data structures.
-
----
-
-# Naming Guidelines
-
-Prefer readable names over short names.
-
-Good:
-
-```
-resolve_stakeholder_rules
-delayed_effected_instance
-turn_history_entry
-```
-
-Avoid vague names like:
-
-```
-processData
-handleThing
-utils.js
-```
-
----
-
-# Prompting Expectations for AI
-
-When making changes:
-
-- read relevant docs first
-- work in one domain at a time
-- avoid unrelated refactors
-- add or update tests where practical
-
-Agents should explain architectural decisions when modifying system behavior.
+- Read required docs before edits.
+- Work in one domain boundary at a time.
+- Prefer clarity over clever abstraction.
+- Keep this file concise; add detail to canonical docs rather than duplicating rules here.
 
 ---
 
 # Final Principle
 
-Clarity is more important than cleverness.
-
-Readable systems are easier to maintain, extend, and reason about.
+Clarity and boundary integrity are more important than convenience.

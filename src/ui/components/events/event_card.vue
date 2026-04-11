@@ -1,25 +1,57 @@
 <template>
-  <article class="event-card" :class="`severity-${severity}`">
+  <article class="dungeon-ec" :class="`severity-${severity}`">
+    <div class="dungeon-ec__ring">
+      <!-- Bottom-only L-bracket mounts — event card rests, does not anchor -->
+      <span class="ec-bracket ec-bracket--bl" aria-hidden="true" />
+      <span class="ec-bracket ec-bracket--br" aria-hidden="true" />
 
-    <!-- Artwork region: renders illustrationUrl prop or falls back to named slot content -->
-    <div v-if="illustrationUrl || $slots.artwork" class="event-artwork" aria-hidden="true">
-      <img v-if="illustrationUrl" :src="illustrationUrl" alt="" />
-      <slot v-else name="artwork" />
+      <!-- Header: severity sigil + eyebrow + title -->
+      <header class="dungeon-ec__header">
+        <!-- Severity Sigil: warning-triangle + ! mark -->
+        <svg
+          class="ec-sigil"
+          viewBox="0 0 40 40"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path
+            d="M20,4 L37,33 L3,33 Z"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linejoin="round"
+            opacity="0.72"
+          />
+          <line x1="20" y1="15" x2="20" y2="25" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity="0.90" />
+          <circle cx="20" cy="29.5" r="1.5" fill="currentColor" opacity="0.90" />
+        </svg>
+
+        <div class="ec-header-text">
+          <span class="ec-eyebrow">{{ severityLabel }} Severity</span>
+          <h3 class="ec-title">{{ title }}</h3>
+        </div>
+
+        <!-- Optional artwork thumbnail -->
+        <div v-if="illustrationUrl || $slots.artwork" class="event-artwork-thumb" aria-hidden="true">
+          <img v-if="illustrationUrl" :src="illustrationUrl" alt="" />
+          <slot v-else name="artwork" />
+        </div>
+      </header>
+
+      <!-- Main inset content well -->
+      <div class="dungeon-ec__inset">
+        <div class="dungeon-ec__body">
+          <p class="ec-description">{{ description }}</p>
+
+          <ul v-if="highlights.length" class="ec-highlights">
+            <li v-for="(highlight, index) in highlights" :key="index" class="ec-highlight-item">
+              {{ highlight }}
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
-
-    <header class="event-header">
-      <p class="event-label">⚠️ System Event</p>
-      <span class="event-severity" :class="`severity-badge-${severity}`">{{ severityLabel }}</span>
-    </header>
-
-    <h3 class="event-title">{{ title }}</h3>
-    <p class="event-description">{{ description }}</p>
-
-    <ul v-if="highlights.length" class="event-highlights">
-      <li v-for="(highlight, index) in highlights" :key="index" class="highlight-item">
-        {{ highlight }}
-      </li>
-    </ul>
   </article>
 </template>
 
@@ -42,145 +74,262 @@ const props = withDefaults(
 )
 
 const severityLabel = computed(() => {
-  return props.severity.charAt(0).toUpperCase() + props.severity.slice(1)
+  const labels: Record<string, string> = {
+    low: 'Low', medium: 'Medium', high: 'High', critical: 'Critical'
+  }
+  return labels[props.severity ?? 'medium'] ?? 'Medium'
 })
 </script>
 
 <style scoped>
-.event-card {
-  background: var(--surface-elevated);
-  border: 1px solid var(--border-card);
-  border-left-width: 4px;
-  border-left-color: var(--border-card);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
+/* ─────────────────────────────────────────────────────────────
+   SEVERITY ACCENT SYSTEM
+   --ec-severity-accent drives colored interface layers.
+   Bronze ring gradient is unchanged across all severity levels.
+   ───────────────────────────────────────────────────────────── */
+.dungeon-ec {
+  --ec-severity-accent: var(--text-secondary);
+
+  /* --ec-ring-accent: dark-toned per-severity color for bronze-face markers
+     (sigil + eyebrow). These are the same hue families as --ec-severity-accent
+     but dark enough to be legible on the bronze ring (~#a07018 mid value). */
+  --ec-ring-accent: #4a3820;
+
+  --ec-divider:      color-mix(in srgb, var(--ec-severity-accent) 30%, var(--dng-divider));
+  --ec-inset-bloom:  color-mix(in srgb, var(--ec-severity-accent) 14%, var(--dng-inset-bloom));
+  --ec-bracket:      color-mix(in srgb, var(--ec-severity-accent) 60%, var(--dng-bracket));
+  --ec-panel-border: color-mix(in srgb, var(--ec-severity-accent) 22%, var(--dng-panel-border));
+}
+
+.dungeon-ec.severity-low      { --ec-severity-accent: #60a5fa; --ec-ring-accent: #1a3a72; } /* dark navy  */
+.dungeon-ec.severity-medium   { --ec-severity-accent: #fbbf24; --ec-ring-accent: #5c3600; } /* dark sienna */
+.dungeon-ec.severity-high     { --ec-severity-accent: #fb923c; --ec-ring-accent: #5c2800; } /* dark rust  */
+.dungeon-ec.severity-critical { --ec-severity-accent: #f87171; --ec-ring-accent: #6e1414; } /* dark crimson */
+
+/* ─────────────────────────────────────────────────────────────
+   OUTER SHELL
+   ───────────────────────────────────────────────────────────── */
+.dungeon-ec {
+  /* Global --dng-title-gold is tuned for dark charcoal surfaces — override
+     here so title text reads dark on the bronze ring face, not gold-on-gold. */
+  --dng-title-gold:    #1e1306;  /* deep warm-black — high contrast on bronze */
+  --dng-subtitle-warm: #3a2a0a;  /* dark brown — eyebrow/label on bronze */
+
+  --dng-card-chamfer:       6px;
+  --dng-card-shell-gap:     2px;
+  --dng-card-ring-v:        6px;
+  --dng-card-ring-h:        10px;
+  --dng-card-inset-chamfer: 4px;
+  --dng-card-body-padding:  var(--space-sm);
+
+  position: relative;
+  display: block;
+  background: var(--dng-shell-bg);
+  border: 1px solid var(--dng-shell-border);
+
+  clip-path: polygon(
+    var(--dng-card-chamfer)                   0%,
+    calc(100% - var(--dng-card-chamfer))       0%,
+    100%                                       var(--dng-card-chamfer),
+    100%                                       calc(100% - var(--dng-card-chamfer)),
+    calc(100% - var(--dng-card-chamfer))       100%,
+    var(--dng-card-chamfer)                   100%,
+    0%                                         calc(100% - var(--dng-card-chamfer)),
+    0%                                         var(--dng-card-chamfer)
+  );
+
+  filter:
+    drop-shadow(0 8px 24px rgba(0, 0, 0, 0.72))
+    drop-shadow(0 2px  6px rgba(0, 0, 0, 0.52));
+}
+
+/* ─────────────────────────────────────────────────────────────
+   RING — flat 3-stop bronze
+   ───────────────────────────────────────────────────────────── */
+.dungeon-ec__ring {
+  position: relative;
+  background: linear-gradient(
+    to bottom,
+    var(--dng-bronze-hi)  0%,
+    var(--dng-bronze-mid) 50%,
+    var(--dng-bronze-hi) 100%
+  );
+  padding:
+    var(--dng-card-ring-v)
+    var(--dng-card-ring-h)
+    var(--dng-card-ring-v);
+
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
-  box-shadow: var(--shadow-inset-ridge), var(--shadow-card);
-  overflow: hidden;
+  gap: var(--dng-ring-gap);
 }
 
-/* Artwork region — collapses when slot is not populated */
-.event-artwork {
-  width: calc(100% + var(--space-xl) * 2);
-  min-height: var(--artwork-min-height-sm);
-  margin: calc(-1 * var(--space-xl)) calc(-1 * var(--space-xl)) 0;
-  position: relative;
+/* ─────────────────────────────────────────────────────────────
+   CORNER BRACKETS — bottom-only
+   ───────────────────────────────────────────────────────────── */
+.ec-bracket {
+  position: absolute;
+  width: var(--dng-bracket-size);
+  height: var(--dng-bracket-size);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.ec-bracket::before,
+.ec-bracket::after {
+  content: '';
+  position: absolute;
+  background: var(--ec-bracket);
+}
+
+.ec-bracket::before { height: var(--dng-bracket-weight); width: var(--dng-bracket-size); }
+.ec-bracket::after  { width: var(--dng-bracket-weight);  height: var(--dng-bracket-size); }
+
+.ec-bracket--bl { bottom: var(--dng-bracket-inset); left: var(--dng-bracket-inset); }
+.ec-bracket--bl::before { bottom: 0; left: 0; }
+.ec-bracket--bl::after  { bottom: 0; left: 0; }
+
+.ec-bracket--br { bottom: var(--dng-bracket-inset); right: var(--dng-bracket-inset); }
+.ec-bracket--br::before { bottom: 0; right: 0; }
+.ec-bracket--br::after  { bottom: 0; right: 0; }
+
+/* ─────────────────────────────────────────────────────────────
+   HEADER
+   ───────────────────────────────────────────────────────────── */
+.dungeon-ec__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--ec-divider);
+}
+
+.ec-sigil {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  color: var(--ec-ring-accent);
+  opacity: 0.90;
+  margin-top: 2px;
+}
+
+.ec-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.ec-eyebrow {
+  font-size: var(--text-2xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--ec-ring-accent);
+  line-height: 1;
+}
+
+.ec-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--dng-title-gold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+/* Artwork thumbnail — right-side of header row */
+.event-artwork-thumb {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--artwork-bg);
-  border-bottom: 1px solid var(--artwork-border);
-  flex-shrink: 0;
+  border: 1px solid var(--artwork-border);
+  margin-left: auto;
 }
 
-.event-artwork img {
-  position: absolute;
-  inset: 0;
+.event-artwork-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.event-card.severity-low {
-  border-left-color: var(--effect-neutral);
+/* ─────────────────────────────────────────────────────────────
+   INSET
+   ───────────────────────────────────────────────────────────── */
+.dungeon-ec__inset {
+  position: relative;
+  background:
+    radial-gradient(
+      ellipse 60% 25% at 50% 0%,
+      var(--ec-inset-bloom) 0%,
+      transparent 80%
+    ),
+    linear-gradient(
+      to bottom,
+      var(--dng-panel-top)     0%,
+      var(--dng-panel-surface) 28%,
+      var(--dng-panel-bottom) 100%
+    );
+  border: 1px solid var(--ec-panel-border);
+
+  clip-path: polygon(
+    var(--dng-card-inset-chamfer)              0%,
+    calc(100% - var(--dng-card-inset-chamfer)) 0%,
+    100%  var(--dng-card-inset-chamfer),
+    100%  100%,
+    0%    100%,
+    0%    var(--dng-card-inset-chamfer)
+  );
+
+  box-shadow:
+    inset 0 2px 12px rgba(0, 0, 0, 0.68),
+    inset 0 0   0  1px rgba(0, 0, 0, 0.18);
 }
 
-.event-card.severity-medium {
-  border-left-color: var(--effect-warning);
-}
-
-.event-card.severity-high {
-  border-left-color: var(--effect-negative);
-}
-
-.event-card.severity-critical {
-  border-left-color: var(--effect-negative);
-  background: color-mix(in srgb, var(--surface-elevated) 92%, var(--effect-negative) 8%);
-}
-
-.event-header {
+/* ─────────────────────────────────────────────────────────────
+   BODY
+   ───────────────────────────────────────────────────────────── */
+.dungeon-ec__body {
+  padding: var(--dng-card-body-padding);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
+  flex-direction: column;
+  gap: var(--space-sm);
 }
 
-.event-label {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: var(--text-2xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
-  font-weight: var(--font-semibold);
-}
-
-.event-severity {
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border-subtle);
-  padding: 2px var(--space-md);
-  font-size: var(--text-xs);
-  font-weight: var(--font-bold);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-wide);
-}
-
-.severity-badge-low {
-  background: var(--effect-neutral-bg);
-  border-color: var(--effect-neutral-border);
-  color: var(--effect-neutral);
-}
-
-.severity-badge-medium {
-  background: var(--effect-warning-bg);
-  border-color: var(--effect-warning-border);
-  color: var(--effect-warning);
-}
-
-.severity-badge-high {
-  background: var(--effect-negative-bg);
-  border-color: var(--effect-negative-border);
-  color: var(--effect-negative);
-}
-
-.severity-badge-critical {
-  background: var(--effect-negative);
-  border-color: var(--effect-negative);
-  color: #fff;
-}
-
-.event-title {
-  margin: 0;
-  color: var(--text-bright);
-  font-family: var(--font-heading);
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
-  letter-spacing: var(--tracking-tight);
-}
-
-.event-description {
+.ec-description {
   margin: 0;
   color: var(--text-primary);
   font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
 }
 
-.event-highlights {
+/* ─────────────────────────────────────────────────────────────
+   HIGHLIGHTS LIST
+   ───────────────────────────────────────────────────────────── */
+.ec-highlights {
   margin: 0;
   padding: 0;
   list-style: none;
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
+  flex-direction: column;
+  gap: 3px;
 }
 
-.highlight-item {
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  background: var(--bg-inset);
+.ec-highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-xs);
+  padding: 4px var(--space-sm);
   color: var(--text-secondary);
   font-size: var(--text-xs);
-  font-weight: var(--font-medium);
-  padding: var(--space-xs) var(--space-sm);
+  line-height: var(--leading-relaxed);
+  background: rgba(0, 0, 0, 0.18);
+  border-left: 2px solid var(--ec-divider);
 }
 </style>

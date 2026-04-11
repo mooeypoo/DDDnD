@@ -26,7 +26,7 @@
       <div v-if="isExpanded" class="hud-detail-panel">
         <div class="hud-detail-header">
           <h3 class="hud-detail-title">
-            <span class="title-icon">👥</span>
+            <span class="title-icon"><IconGroup :size="16" /></span>
             Stakeholder Pulse
           </h3>
           <button class="hud-close" @click="isExpanded = false" aria-label="Close stakeholder details">&times;</button>
@@ -61,6 +61,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
+import IconGroup from '@/ui/components/icons/IconGroup.vue'
 
 const props = defineProps<{
   stakeholders: StakeholderSnapshot
@@ -142,16 +143,16 @@ function getSatisfactionClass(value: number): string {
 }
 
 .hud-stakeholders:hover {
-  border-color: var(--border-accent);
-  background: var(--bg-overlay);
+  border-color: var(--dng-divider);
+  background: rgba(11, 28, 36, 0.3);
 }
 
 .hud-stakeholder {
   display: flex;
   align-items: center;
   gap: 2px;
-  background: var(--bg-overlay);
-  border: 1px solid var(--border-subtle);
+  background: rgba(11, 28, 36, 0.5);
+  border: 1px solid var(--dng-divider);
   border-radius: var(--radius-md);
   padding: 2px 5px;
   flex-shrink: 0;
@@ -160,7 +161,7 @@ function getSatisfactionClass(value: number): string {
 
 .hud-sh-name {
   font-size: var(--text-2xs);
-  color: var(--text-secondary);
+  color: var(--dng-footer-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -169,7 +170,7 @@ function getSatisfactionClass(value: number): string {
 
 .hud-expand-hint {
   font-size: var(--text-2xs);
-  color: var(--text-muted);
+  color: var(--dng-footer-muted);
   transition: transform var(--duration-fast) var(--ease-standard);
   flex-shrink: 0;
   line-height: 1;
@@ -236,11 +237,11 @@ function getSatisfactionClass(value: number): string {
   left: auto;
   min-width: 320px;
   max-width: 400px;
-  background: var(--surface-modal);
-  border: 1px solid var(--border-accent);
-  border-radius: var(--radius-xl);
+  background: var(--dng-panel-surface);
+  border: 1px solid var(--dng-bronze-mid);
+  border-radius: var(--radius-lg);
   padding: var(--space-lg);
-  box-shadow: var(--shadow-overlay);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
   z-index: var(--z-overlay);
   backdrop-filter: blur(16px);
 }
@@ -262,12 +263,12 @@ function getSatisfactionClass(value: number): string {
   gap: var(--space-md);
   margin-bottom: var(--space-lg);
   padding-bottom: var(--space-sm);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--dng-divider);
 }
 
 .hud-detail-title {
   margin: 0;
-  color: var(--text-secondary);
+  color: var(--dng-title-gold);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-widest);
@@ -279,14 +280,16 @@ function getSatisfactionClass(value: number): string {
 }
 
 .title-icon {
-  font-size: var(--text-base);
+  display: inline-flex;
+  align-items: center;
+  color: var(--dng-subtitle-warm);
 }
 
 .hud-close {
   appearance: none;
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: var(--dng-footer-muted);
   font-size: var(--text-xl);
   cursor: pointer;
   padding: 0 var(--space-xs);
@@ -295,7 +298,7 @@ function getSatisfactionClass(value: number): string {
 }
 
 .hud-close:hover {
-  color: var(--text-bright);
+  color: var(--dng-title-gold);
 }
 
 .hud-detail-list {
@@ -309,9 +312,9 @@ function getSatisfactionClass(value: number): string {
   flex-direction: column;
   gap: 3px;
   padding: var(--space-sm);
-  background: var(--bg-inset);
+  background: rgba(13, 9, 4, 0.4);
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--dng-divider);
 }
 
 .detail-header {
@@ -326,7 +329,7 @@ function getSatisfactionClass(value: number): string {
 }
 
 .detail-name {
-  color: var(--text-primary);
+  color: var(--dng-title-gold);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   flex: 1;
@@ -359,7 +362,7 @@ function getSatisfactionClass(value: number): string {
 
 .detail-bar-track {
   height: 4px;
-  background: var(--bg-overlay-strong);
+  background: var(--dng-shell-bg);
   border-radius: var(--radius-full);
   overflow: hidden;
 }

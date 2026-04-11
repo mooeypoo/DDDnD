@@ -82,7 +82,7 @@
 
           <!-- Tutorial callout (only shown for tutorials) -->
           <div v-if="isTutorial" class="tutorial-callout">
-            <span class="tutorial-callout-icon" aria-hidden="true">📖</span>
+            <span class="tutorial-callout-icon" aria-hidden="true"><IconScroll :size="18" /></span>
             <div class="tutorial-callout-content">
               <span class="tutorial-callout-title">This is a Guided Tutorial</span>
               <p class="tutorial-callout-text">
@@ -95,9 +95,9 @@
           <!-- Divider -->
           <div class="splash-divider" aria-hidden="true">
             <svg viewBox="0 0 200 12" class="divider-svg" xmlns="http://www.w3.org/2000/svg">
-              <line x1="10" y1="6" x2="90" y2="6" stroke="var(--border-accent)" stroke-width="1" stroke-dasharray="4 4"/>
-              <circle cx="100" cy="6" r="3" fill="var(--text-accent)" opacity="0.5"/>
-              <line x1="110" y1="6" x2="190" y2="6" stroke="var(--border-accent)" stroke-width="1" stroke-dasharray="4 4"/>
+              <line x1="10" y1="6" x2="90" y2="6" stroke="var(--dng-divider)" stroke-width="1" stroke-dasharray="4 4"/>
+              <circle cx="100" cy="6" r="3" fill="var(--dng-title-gold)" opacity="0.5"/>
+              <line x1="110" y1="6" x2="190" y2="6" stroke="var(--dng-divider)" stroke-width="1" stroke-dasharray="4 4"/>
             </svg>
           </div>
 
@@ -179,8 +179,8 @@
           <div class="splash-hint-box">
             <span class="hint-icon" aria-hidden="true">
               <svg viewBox="0 0 20 20" class="hint-icon-svg" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="10" cy="10" r="8" fill="none" stroke="var(--text-accent)" stroke-width="1.5" opacity="0.6"/>
-                <text x="10" y="14" text-anchor="middle" fill="var(--text-accent)" font-size="11" font-weight="bold">i</text>
+                <circle cx="10" cy="10" r="8" fill="none" stroke="var(--dng-divider)" stroke-width="1.5" opacity="0.6"/>
+                <text x="10" y="14" text-anchor="middle" fill="var(--dng-footer-muted)" font-size="11" font-weight="bold">i</text>
               </svg>
             </span>
             <p class="hint-text hint-text-wide">
@@ -197,15 +197,15 @@
           <!-- Divider -->
           <div class="splash-divider" aria-hidden="true">
             <svg viewBox="0 0 200 12" class="divider-svg" xmlns="http://www.w3.org/2000/svg">
-              <line x1="10" y1="6" x2="90" y2="6" stroke="var(--border-accent)" stroke-width="1" stroke-dasharray="4 4"/>
-              <circle cx="100" cy="6" r="3" fill="var(--text-accent)" opacity="0.5"/>
-              <line x1="110" y1="6" x2="190" y2="6" stroke="var(--border-accent)" stroke-width="1" stroke-dasharray="4 4"/>
+              <line x1="10" y1="6" x2="90" y2="6" stroke="var(--dng-divider)" stroke-width="1" stroke-dasharray="4 4"/>
+              <circle cx="100" cy="6" r="3" fill="var(--dng-title-gold)" opacity="0.5"/>
+              <line x1="110" y1="6" x2="190" y2="6" stroke="var(--dng-divider)" stroke-width="1" stroke-dasharray="4 4"/>
             </svg>
           </div>
 
           <!-- Call to action blurb -->
           <section class="splash-action-blurb">
-            <div class="blurb-icon" aria-hidden="true">🎒</div>
+            <div class="blurb-icon" aria-hidden="true"><IconSatchel :size="28" /></div>
             <p class="blurb-text">
               Open the <strong>Action Satchel</strong> at the bottom of the screen to choose
               architectural scrolls that shape these numbers. Choose wisely —
@@ -240,6 +240,8 @@ import type { StakeholderSnapshot, ScoreSnapshot } from '@/domains/simulation/mo
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
+import IconScroll from '@/ui/components/icons/IconScroll.vue'
+import IconSatchel from '@/ui/components/icons/IconSatchel.vue'
 
 const props = defineProps<{
   isOpen: boolean
@@ -332,7 +334,7 @@ function getSatisfactionClass(value: number): string {
 .splash-overlay {
   position: fixed;
   inset: 0;
-  background: var(--surface-overlay);
+  background: rgba(0, 0, 0, 0.75);
   z-index: var(--z-modal);
   backdrop-filter: blur(8px);
   display: flex;
@@ -345,15 +347,16 @@ function getSatisfactionClass(value: number): string {
   width: min(640px, 100%);
   max-height: min(92vh, 900px);
   overflow-y: auto;
+  overflow-x: hidden;
   border-radius: var(--radius-2xl);
 }
 
 /* ─── Container ─── */
 .splash-content {
-  background: linear-gradient(160deg, var(--surface-modal) 0%, #0f1528 100%);
-  border: 1px solid var(--border-accent);
+  background: linear-gradient(160deg, var(--dng-panel-surface) 0%, var(--dng-shell-bg) 100%);
+  border: 1px solid var(--dng-bronze-mid);
   border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-overlay), var(--shadow-glow-accent);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7), 0 0 60px rgba(168, 120, 32, 0.15);
   width: 100%;
   padding: var(--space-3xl) var(--space-2xl);
   display: flex;
@@ -370,7 +373,7 @@ function getSatisfactionClass(value: number): string {
 .crest-svg {
   width: 72px;
   height: 72px;
-  color: var(--text-accent);
+  color: var(--dng-title-gold);
   animation: sigil-pulse 3s ease-in-out infinite;
 }
 
@@ -434,7 +437,7 @@ function getSatisfactionClass(value: number): string {
   font-weight: var(--font-semibold);
   text-transform: uppercase;
   letter-spacing: var(--tracking-widest);
-  color: var(--text-accent);
+  color: var(--dng-title-gold);
   margin: 0 0 var(--space-sm) 0;
 }
 
@@ -442,18 +445,22 @@ function getSatisfactionClass(value: number): string {
   font-family: var(--font-heading);
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
-  color: var(--text-bright);
+  color: var(--dng-title-gold);
   margin: 0 0 var(--space-md) 0;
   line-height: var(--leading-tight);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .splash-flavor {
   font-size: var(--text-sm);
-  color: var(--text-secondary);
+  color: var(--dng-subtitle-warm);
   line-height: var(--leading-relaxed);
   margin: 0;
   max-width: 440px;
   margin-inline: auto;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* ─── Divider ─── */
@@ -488,12 +495,12 @@ function getSatisfactionClass(value: number): string {
 .tutorial-callout-title {
   font-weight: var(--font-semibold);
   font-size: var(--text-sm);
-  color: var(--text-accent);
+  color: var(--dng-title-gold);
 }
 
 .tutorial-callout-text {
   font-size: var(--text-sm);
-  color: var(--text-secondary);
+  color: var(--dng-subtitle-warm);
   line-height: var(--leading-relaxed);
   margin: 0;
 }
@@ -529,13 +536,13 @@ function getSatisfactionClass(value: number): string {
   font-family: var(--font-heading);
   font-size: var(--text-lg);
   font-weight: var(--font-semibold);
-  color: var(--text-bright);
+  color: var(--dng-title-gold);
   margin: 0;
 }
 
 .section-description {
   font-size: var(--text-sm);
-  color: var(--text-secondary);
+  color: var(--dng-subtitle-warm);
   line-height: var(--leading-relaxed);
   margin: 0;
 }
@@ -545,7 +552,7 @@ function getSatisfactionClass(value: number): string {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  background: var(--bg-inset);
+  background: rgba(13, 9, 4, 0.45);
   border-radius: var(--radius-lg);
   padding: var(--space-md);
 }
@@ -564,7 +571,7 @@ function getSatisfactionClass(value: number): string {
 
 .score-label {
   font-size: var(--text-sm);
-  color: var(--text-primary);
+  color: var(--dng-subtitle-warm);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -579,7 +586,7 @@ function getSatisfactionClass(value: number): string {
 
 .score-bar-track {
   height: 6px;
-  background: var(--bg-overlay-strong);
+  background: var(--dng-shell-bg);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
@@ -604,7 +611,7 @@ function getSatisfactionClass(value: number): string {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
-  background: var(--bg-inset);
+  background: rgba(13, 9, 4, 0.45);
   border-radius: var(--radius-lg);
   padding: var(--space-md);
 }
@@ -623,7 +630,7 @@ function getSatisfactionClass(value: number): string {
 
 .stakeholder-name {
   font-size: var(--text-sm);
-  color: var(--text-primary);
+  color: var(--dng-subtitle-warm);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -657,7 +664,7 @@ function getSatisfactionClass(value: number): string {
 
 .stakeholder-bar-track {
   height: 6px;
-  background: var(--bg-overlay-strong);
+  background: var(--dng-shell-bg);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
@@ -696,13 +703,13 @@ function getSatisfactionClass(value: number): string {
 
 .hint-text {
   font-size: var(--text-sm);
-  color: var(--text-secondary);
+  color: var(--dng-subtitle-warm);
   line-height: var(--leading-relaxed);
   margin: 0;
 }
 
 .hint-text strong {
-  color: var(--text-bright);
+  color: var(--dng-title-gold);
 }
 
 /* Show sidebar hint on wide screens, HUD bar hint on narrow screens */
@@ -739,30 +746,30 @@ function getSatisfactionClass(value: number): string {
 
 .blurb-text {
   font-size: var(--text-sm);
-  color: var(--text-secondary);
+  color: var(--dng-subtitle-warm);
   line-height: var(--leading-relaxed);
   margin: 0;
   max-width: 460px;
 }
 
 .blurb-text strong {
-  color: var(--text-bright);
+  color: var(--dng-title-gold);
 }
 
 .blurb-text em {
-  color: var(--text-accent);
+  color: var(--dng-bronze-hi);
   font-style: italic;
 }
 
 .blurb-turns {
   font-size: var(--text-base);
-  color: var(--text-primary);
+  color: var(--dng-subtitle-warm);
   font-weight: var(--font-semibold);
   margin: 0;
 }
 
 .blurb-turns strong {
-  color: var(--text-accent);
+  color: var(--dng-title-gold);
 }
 
 /* ─── Footer / Start button ─── */
@@ -777,8 +784,8 @@ function getSatisfactionClass(value: number): string {
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-md) var(--space-3xl);
-  background: var(--color-primary);
-  color: var(--text-bright);
+  background: var(--dng-bronze-mid);
+  color: var(--dng-title-gold);
   border: none;
   border-radius: var(--button-radius);
   font-family: var(--font-heading);
@@ -787,14 +794,14 @@ function getSatisfactionClass(value: number): string {
   letter-spacing: var(--tracking-wide);
   cursor: pointer;
   transition: all var(--transition-slow);
-  box-shadow: 0 4px 16px var(--color-primary-glow);
+  box-shadow: 0 4px 16px rgba(160, 112, 24, 0.45);
   text-transform: uppercase;
 }
 
 .btn-start-game:hover {
-  background: var(--color-primary-light);
+  background: var(--dng-bronze-deep);
   transform: translateY(-2px);
-  box-shadow: 0 6px 24px var(--color-primary-glow);
+  box-shadow: 0 6px 24px rgba(160, 112, 24, 0.65);
 }
 
 .btn-start-game:active {
@@ -847,7 +854,7 @@ function getSatisfactionClass(value: number): string {
 
   .splash-content {
     padding: var(--space-2xl) var(--space-lg);
-    border-radius: var(--radius-xl);
+    border-radius: var(--dng-chamfer);
   }
 
   .splash-title {
@@ -865,18 +872,26 @@ function getSatisfactionClass(value: number): string {
 
 @media (max-width: 480px) {
   .splash-overlay {
-    padding: var(--space-sm) var(--space-1);
+    padding: 6px 4px;
+    align-items: flex-end;
   }
 
   .splash-scroll-area {
-    max-height: 96vh;
-    border-radius: var(--radius-lg);
+    max-height: 94vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 
   .splash-content {
-    padding: var(--space-xl) var(--space-md);
-    gap: var(--space-lg);
-    border-radius: var(--radius-lg);
+    padding: var(--space-lg) var(--space-sm);
+    gap: var(--space-md);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    overflow-x: hidden;
+  }
+
+  /* Constrain portrait so it doesn't push header width */
+  .splash-portrait {
+    max-width: 64px;
+    max-height: 64px;
   }
 
   .splash-title {
@@ -884,12 +899,13 @@ function getSatisfactionClass(value: number): string {
   }
 
   .crest-svg {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
   }
 
   .score-row {
     grid-template-columns: auto 1fr auto;
+    gap: var(--space-xs);
   }
 
   .score-bar-track {
@@ -898,6 +914,7 @@ function getSatisfactionClass(value: number): string {
 
   .stakeholder-row {
     grid-template-columns: auto 1fr auto auto;
+    gap: var(--space-xs);
   }
 
   .stakeholder-bar-track {

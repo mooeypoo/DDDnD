@@ -41,46 +41,37 @@
           First time here? Try a <button class="link-btn" @click="activeTab = 'tutorials'">guided tutorial</button> to learn the ropes.
         </p>
         <nav class="header-utility-nav" aria-label="Utility links">
-          <button class="link-button" @click="gameStore.openAboutModal">
-            <span class="link-icon">ℹ️</span>
-            What is this?
-          </button>
-          <span class="link-separator">•</span>
-          <button class="link-button" @click="gameStore.openRulesModal">
-            <span class="link-icon">📖</span>
-            Rules
-          </button>
-          <span class="link-separator">•</span>
-          <button class="link-button" @click="gameStore.openDungeonMasterModal">
-            <span class="link-icon">🧙‍♂️</span>
-            Dungeon Master
-          </button>
+          <!-- Desktop: full AppButton ring/bracket structure -->
+          <template v-if="!isMobile">
+            <AppButton variant="subtle" @click="gameStore.openAboutModal">
+              <span>ℹ️</span> What is this?
+            </AppButton>
+            <span class="link-separator">•</span>
+            <AppButton variant="subtle" @click="gameStore.openRulesModal">
+              <span>📖</span> Rules
+            </AppButton>
+            <span class="link-separator">•</span>
+            <AppButton variant="subtle" @click="gameStore.openDungeonMasterModal">
+              <span>🧙‍♂️</span> Dungeon Master
+            </AppButton>
+          </template>
+          <!-- Mobile: compact etched chip buttons -->
+          <template v-else>
+            <CompactButton icon="ℹ️" label="What is this?" variant="subtle" @click="gameStore.openAboutModal" />
+            <CompactButton icon="📖" label="Rules" variant="subtle" @click="gameStore.openRulesModal" />
+            <CompactButton icon="🧙" label="Dungeon Master" variant="subtle" @click="gameStore.openDungeonMasterModal" />
+          </template>
         </nav>
       </header>
 
+      <!-- Dungeon console panel — houses the interactive quest/class selection -->
+      <AppFrame class="setup-frame">
       <!-- Tab Toggle -->
-      <nav class="tab-toggle" role="tablist" aria-label="Setup mode">
-        <button
-          class="tab-btn"
-          :class="{ active: activeTab === 'quests' }"
-          role="tab"
-          :aria-selected="activeTab === 'quests'"
-          @click="activeTab = 'quests'"
-        >
-          <span class="tab-icon">🏛️</span>
-          <span class="tab-label">Quests</span>
-        </button>
-        <button
-          class="tab-btn"
-          :class="{ active: activeTab === 'tutorials' }"
-          role="tab"
-          :aria-selected="activeTab === 'tutorials'"
-          @click="activeTab = 'tutorials'"
-        >
-          <span class="tab-icon">📖</span>
-          <span class="tab-label">Tutorials</span>
-        </button>
-      </nav>
+      <AppTabs
+        :tabs="['🏛️ Quests', '📖 Tutorials']"
+        v-model="activeTabIndex"
+        class="setup-tabs"
+      />
       
       <div class="setup-content">
         <!-- ═══ TUTORIALS TAB ═══ -->
@@ -89,7 +80,16 @@
         <section class="setup-section tutorial-section">
           <div class="section-header">
             <h2 class="section-title">
-              <span class="section-icon">📖</span>
+              <!-- Compass: tutorials icon -->
+              <svg class="section-icon-svg" viewBox="0 0 20 20" aria-hidden="true">
+                <circle cx="10" cy="10" r="8" stroke="currentColor" fill="none" stroke-width="1.6"/>
+                <line x1="10" y1="2" x2="10" y2="5" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="10" y1="15" x2="10" y2="18" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="2" y1="10" x2="5" y2="10" stroke="currentColor" stroke-width="1.6"/>
+                <line x1="15" y1="10" x2="18" y2="10" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M10,5 L12,10 L10,9 L8,10 Z" fill="currentColor"/>
+                <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+              </svg>
               Guided Tutorials
             </h2>
             <p class="section-hint">Learn the game mechanics step by step — click a tutorial to begin immediately</p>
@@ -104,39 +104,13 @@
             <p>No tutorials available.</p>
           </div>
 
-          <div v-else class="quest-grid tutorial-grid">
-            <button
+          <div v-else class="quest-grid">
+            <QuestCard
               v-for="tutorial in gameStore.availableTutorials"
               :key="`${tutorial.id}-v${tutorial.version}`"
-              class="quest-card tutorial-card"
-              :class="{ selected: selectedQuest?.id === tutorial.id && selectedQuest?.version === tutorial.version }"
-              @click="launchTutorial(tutorial)"
-            >
-              <div class="quest-badge tutorial-badge">Tutorial {{ tutorial.tutorialOrder ?? '' }}</div>
-
-              <h3 class="quest-name">{{ tutorial.name }}</h3>
-
-              <p v-if="tutorial.shortDescription" class="quest-short-summary">
-                {{ tutorial.shortDescription }}
-              </p>
-
-              <p class="quest-description">{{ tutorial.description }}</p>
-
-              <div v-if="tutorial.turnCount" class="quest-stats">
-                <div class="stat-item">
-                  <span class="stat-icon">🎯</span>
-                  <span class="stat-label">{{ tutorial.turnCount }} Turns</span>
-                </div>
-                <div v-if="tutorial.actionCardCount" class="stat-item">
-                  <span class="stat-icon">🎴</span>
-                  <span class="stat-label">{{ tutorial.actionCardCount }} Actions</span>
-                </div>
-              </div>
-
-              <div v-if="selectedQuest?.id === tutorial.id && selectedQuest?.version === tutorial.version" class="selected-indicator">
-                ✓ Selected
-              </div>
-            </button>
+              :quest="tutorial"
+              @launch="launchTutorial(tutorial)"
+            />
           </div>
         </section>
         </template>
@@ -152,7 +126,14 @@
         <section class="setup-section quest-section">
           <div class="section-header">
             <h2 class="section-title">
-              <span class="section-icon">🏛️</span>
+              <!-- Domain Gate: quests icon -->
+              <svg class="section-icon-svg" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M2,18 L2,9 C2,4 5,2 10,2 C15,2 18,4 18,9 L18,18" stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M5,18 L5,11 C5,7 7,6 10,6 C13,6 15,7 15,11 L15,18" stroke="currentColor" fill="none" stroke-width="1.3" stroke-linecap="round"/>
+                <line x1="2" y1="18" x2="18" y2="18" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M10,2 L11.8,5.5 L10,7 L8.2,5.5 Z" fill="currentColor"/>
+                <circle cx="10" cy="13" r="1.5" fill="currentColor"/>
+              </svg>
               Choose a Quest
             </h2>
           </div>
@@ -167,48 +148,13 @@
           </div>
           
           <div v-else class="quest-grid">
-            <button 
-              v-for="quest in gameStore.availableQuests" 
+            <QuestCard
+              v-for="quest in gameStore.availableQuests"
               :key="`${quest.id}-v${quest.version}`"
-              class="quest-card"
-              :class="{ selected: selectedQuest?.id === quest.id && selectedQuest?.version === quest.version }"
-              @click="selectQuest(quest)"
-            >
-              <div class="quest-badge">Official Campaign</div>
-              
-              <h3 class="quest-name">{{ quest.name }}</h3>
-              
-              <p v-if="quest.shortDescription" class="quest-short-summary">
-                {{ quest.shortDescription }}
-              </p>
-              
-              <p class="quest-description">
-                {{ quest.description }}
-              </p>
-              
-              <p v-if="quest.flavorText" class="quest-flavor">
-                {{ quest.flavorText }}
-              </p>
-              
-              <div v-if="quest.turnCount || quest.stakeholderCount || quest.actionCardCount" class="quest-stats">
-                <div v-if="quest.turnCount" class="stat-item">
-                  <span class="stat-icon">🎯</span>
-                  <span class="stat-label">{{ quest.turnCount }} Turns</span>
-                </div>
-                <div v-if="quest.stakeholderCount" class="stat-item">
-                  <span class="stat-icon">👥</span>
-                  <span class="stat-label">{{ quest.stakeholderCount }} Stakeholders</span>
-                </div>
-                <div v-if="quest.actionCardCount" class="stat-item">
-                  <span class="stat-icon">🎴</span>
-                  <span class="stat-label">{{ quest.actionCardCount }} Action Cards</span>
-                </div>
-              </div>
-              
-              <div v-if="selectedQuest?.id === quest.id && selectedQuest?.version === quest.version" class="selected-indicator">
-                ✓ Selected
-              </div>
-            </button>
+              :quest="quest"
+              :isSelected="selectedQuest?.id === quest.id && selectedQuest?.version === quest.version"
+              @select="selectQuest(quest)"
+            />
           </div>
         </section>
         
@@ -216,7 +162,14 @@
         <section class="setup-section class-section">
           <div class="section-header">
             <h2 class="section-title">
-              <span class="section-icon">⚔️</span>
+              <!-- Crossed swords: class selection icon -->
+              <svg class="section-icon-svg" viewBox="0 0 20 20" aria-hidden="true">
+                <line x1="3" y1="3" x2="17" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <line x1="17" y1="3" x2="3" y2="17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <line x1="3" y1="5" x2="5" y2="3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <line x1="15" y1="3" x2="17" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+                <rect x="8.5" y="8.5" width="3" height="3" rx="0.5" fill="currentColor" opacity="0.6"/>
+              </svg>
               Choose Your Class
             </h2>
             <p class="section-hint">Your architectural archetype (cosmetic for MVP)</p>
@@ -228,31 +181,13 @@
           </div>
           
           <div v-else class="class-grid">
-            <button 
-              v-for="classOption in gameStore.availableClasses" 
+            <ClassCard
+              v-for="classOption in gameStore.availableClasses"
               :key="classOption.id"
-              class="class-card"
-              :class="{ selected: selectedClass?.id === classOption.id }"
-              @click="selectClass(classOption)"
-            >
-              <div class="class-visual">
-                <ClassPortrait
-                  :classId="classOption.id"
-                  :className="classOption.name"
-                  size="lg"
-                />
-              </div>
-              
-              <div class="class-info">
-                <h3 class="class-name">{{ classOption.name }}</h3>
-                <p class="class-description">{{ classOption.description }}</p>
-                <p class="class-flavor">{{ classOption.flavor_text }}</p>
-              </div>
-              
-              <div v-if="selectedClass?.id === classOption.id" class="selected-indicator">
-                ✓ Selected
-              </div>
-            </button>
+              :playerClass="classOption"
+              :isSelected="selectedClass?.id === classOption.id"
+              @select="selectClass(classOption)"
+            />
           </div>
         </section>
         
@@ -260,42 +195,41 @@
         <section class="setup-section name-section">
           <div class="section-header">
             <h2 class="section-title">
-              <span class="section-icon">✏️</span>
+              <!-- Quill pen: name icon -->
+              <svg class="section-icon-svg" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M16,2 C16,2 18,8 12,12 L8,16 L4,18 L6,14 C6,14 10,11 12,8 C14,5 16,2 16,2 Z" stroke="currentColor" fill="none" stroke-width="1.5" stroke-linejoin="round"/>
+                <line x1="4" y1="18" x2="7" y2="15" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                <line x1="8" y1="16" x2="11" y2="13" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+              </svg>
               Character Name
             </h2>
             <p class="section-hint">Optional - Give your architect a name</p>
           </div>
           
-          <input 
+          <AppInput
             v-model="characterName"
-            type="text"
-            class="name-input"
             placeholder="The Desperate Architect"
-            maxlength="50"
+            :maxlength="50"
           />
         </section>
         
         <!-- Action Buttons -->
         <div class="actions-section">
-          <button class="btn-secondary" @click="goBack">
-            <span class="btn-icon">←</span>
-            <span>Back</span>
-          </button>
-          
-          <button 
-            class="btn-primary" 
+          <AppButton variant="secondary" @click="goBack">
+            <span>←</span> Back
+          </AppButton>
+          <AppButton
+            variant="primary"
             :disabled="!selectedClass || !selectedQuest || gameStore.isLoadingBundle"
             @click="startRun"
           >
-            <span class="btn-text">
-              {{ gameStore.isLoadingBundle ? 'Loading...' : (selectedQuest?.isTutorial ? 'Start Tutorial' : 'Begin the Journey') }}
-            </span>
-            <span v-if="!gameStore.isLoadingBundle" class="btn-icon">→</span>
-          </button>
+            {{ gameStore.isLoadingBundle ? 'Loading...' : (selectedQuest?.isTutorial ? 'Start Tutorial' : 'Begin the Journey') }}
+            <span v-if="!gameStore.isLoadingBundle">→</span>
+          </AppButton>
         </div>
         </template>
       </div>
-      
+      </AppFrame>
 
     </div>
   </div>
@@ -303,7 +237,7 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { PlayerClass } from '@/domains/content/model'
@@ -312,7 +246,13 @@ import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
-import ClassPortrait from '@/ui/components/common/class_portrait.vue'
+import AppButton from '@/ui/components/common/AppButton.vue'
+import CompactButton from '@/ui/components/common/CompactButton.vue'
+import AppTabs from '@/ui/components/common/AppTabs.vue'
+import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
+import AppInput from '@/ui/components/common/AppInput.vue'
+import QuestCard from '@/ui/components/cards/quest_card.vue'
+import ClassCard from '@/ui/components/cards/class_card.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -321,6 +261,18 @@ const gameStore = useGameStore()
 const selectedClass = ref<PlayerClass | null>(null)
 const selectedQuest = ref<QuestDisplayModel | null>(null)
 const characterName = ref('')
+
+const isMobile = ref(false)
+let _mql: MediaQueryList | null = null
+function _onMqlChange(e: MediaQueryListEvent) { isMobile.value = e.matches }
+onMounted(() => {
+  _mql = window.matchMedia('(max-width: 768px)')
+  isMobile.value = _mql.matches
+  _mql.addEventListener('change', _onMqlChange)
+})
+onUnmounted(() => {
+  _mql?.removeEventListener('change', _onMqlChange)
+})
 // Default to 'tutorials' unless tutorialsComplete is set in localStorage
 const TUTORIALS_COMPLETE_KEY = 'dddnd.tutorialsComplete'
 const getTutorialsComplete = () => {
@@ -332,6 +284,10 @@ const setTutorialsComplete = () => {
   try { localStorage.setItem(TUTORIALS_COMPLETE_KEY, 'true') } catch {}
 }
 const activeTab = ref<'tutorials' | 'quests'>(getTutorialsComplete() ? 'quests' : 'tutorials')
+const activeTabIndex = computed({
+  get: () => activeTab.value === 'quests' ? 0 : 1,
+  set: (i: number) => { activeTab.value = i === 0 ? 'quests' : 'tutorials' }
+})
 const isLoadingClasses = ref(false)
 const isLoadingQuests = ref(false)
 const isLoadingTutorials = ref(false)
@@ -562,6 +518,14 @@ async function launchTutorial(quest: QuestDisplayModel) {
   gap: var(--space-3xl);
 }
 
+/* AppFrame wrapper for the interactive selection panel */
+.setup-frame :deep(.dungeon-frame__body) {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  padding: var(--space-xl);
+}
+
 /* Header */
 .setup-header {
   text-align: center;
@@ -576,10 +540,9 @@ async function launchTutorial(quest: QuestDisplayModel) {
 
 .setup-title {
   font-size: var(--text-4xl);
-  color: var(--color-primary);
+  color: var(--dng-title-gold, #d4b860);
   margin: 0 0 var(--space-md) 0;
   font-weight: var(--font-black);
-  text-shadow: var(--shadow-glow-subtle);
 }
 
 .setup-subtitle {
@@ -608,57 +571,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
   color: var(--color-text-primary);
 }
 
-/* Tab Toggle */
-.tab-toggle {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-sm);
-  background: var(--color-bg-overlay);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xs);
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.tab-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  padding: var(--space-md) var(--space-xl);
-  border: 2px solid transparent;
-  border-radius: var(--radius-lg);
-  background: transparent;
-  color: var(--color-text-secondary);
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
-  font-family: var(--font-sans);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-}
-
-.tab-btn:hover:not(.active) {
-  color: var(--color-text-primary);
-  background: var(--color-bg-surface);
-}
-
-.tab-btn.active {
-  background: var(--color-primary-dark);
-  border-color: var(--color-primary);
-  color: var(--color-text-bright);
-  box-shadow: 0 2px 8px var(--color-primary-glow);
-}
-
-.tab-icon {
-  font-size: var(--text-lg);
-}
-
-.tab-label {
-  letter-spacing: 0.03em;
-}
-
 /* Content */
 .setup-content {
   display: flex;
@@ -680,128 +592,58 @@ async function launchTutorial(quest: QuestDisplayModel) {
 }
 
 .section-title {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold, #d4b860);
+  font-family: var(--font-heading, 'Cinzel', serif);
   font-size: var(--text-2xl);
-  font-weight: var(--font-bold);
+  font-weight: var(--font-semibold);
   display: flex;
   align-items: center;
   gap: var(--space-md);
 }
 
-.section-icon {
-  font-size: var(--text-3xl);
+.section-icon-svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: var(--dng-title-gold, #d4b860);
+  opacity: 0.85;
 }
 
 .section-hint {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm, #7a6c44);
   font-size: var(--text-sm);
   margin: 0;
   font-style: italic;
 }
 
-/* Quest Grid and Cards */
+/* Quest Grid */
 .quest-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: var(--space-lg);
 }
 
-.quest-card {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  text-align: left;
-  position: relative;
-  overflow: hidden;
+/* Tutorials note prompt */
+.tutorials-note-glow {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  font-family: var(--font-sans);
-}
-
-.quest-card::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  border-radius: var(--radius-xl);
-  opacity: 0;
-  transition: opacity var(--transition-slow);
-  z-index: -1;
-}
-
-.quest-card:hover {
-  border-color: var(--card-border-hover);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-
-.quest-card.selected {
-  border-color: var(--color-primary);
-  background: var(--color-danger-bg);
-  box-shadow: 0 4px 20px var(--color-primary-glow);
-}
-
-.quest-badge {
-  display: inline-block;
-  background: var(--color-primary-dark);
-  color: var(--color-text-bright);
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-md);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  align-self: flex-start;
-}
-
-.quest-name {
-  color: var(--color-text-bright);
-  font-size: var(--text-xl);
-  font-weight: var(--font-bold);
-  margin: 0;
-}
-
-.quest-description {
-  color: var(--color-text-primary);
-  line-height: var(--leading-relaxed);
-  margin: 0;
-  font-size: var(--text-base);
-}
-
-.quest-short-summary {
-  color: var(--color-text-secondary);
-  line-height: var(--leading-snug);
-  margin: 0;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--dng-panel-top, #0e2232);
+  border: 1px solid var(--dng-divider, rgba(168, 120, 32, 0.35));
+  color: var(--dng-subtitle-warm, #7a6c44);
   font-size: var(--text-sm);
   font-style: italic;
-  padding: var(--space-md);
-  background: var(--color-bg-overlay);
-  border-left: 2px solid var(--color-primary);
-  border-radius: var(--radius-md);
+  clip-path: polygon(
+    4px 0%, calc(100% - 4px) 0%,
+    100% 4px, 100% calc(100% - 4px),
+    calc(100% - 4px) 100%, 4px 100%,
+    0% calc(100% - 4px), 0% 4px
+  );
 }
 
-.quest-flavor {
-  color: var(--color-text-secondary);
-  font-style: italic;
-  font-size: var(--text-sm);
-  margin: 0;
-  line-height: var(--leading-snug);
-}
-
-.quest-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-lg);
-  padding-top: var(--space-md);
-  border-top: 1px solid var(--color-border-default);
-  margin-top: auto;
+.note-icon {
+  flex-shrink: 0;
 }
 
 /* Empty State */
@@ -816,19 +658,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
 
 .empty-state p {
   margin: 0;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-}
-
-.stat-icon {
-  font-size: var(--text-lg);
 }
 
 /* Loading State */
@@ -858,122 +687,8 @@ async function launchTutorial(quest: QuestDisplayModel) {
 /* Class Grid */
 .class-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: var(--space-lg);
-}
-
-.class-card {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.class-card::before {
-  content: '';
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  border-radius: var(--radius-xl);
-  opacity: 0;
-  transition: opacity var(--transition-slow);
-  z-index: -1;
-}
-
-.class-card:hover {
-  border-color: var(--card-border-hover);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-
-.class-card.selected {
-  border-color: var(--color-primary);
-  background: var(--color-danger-bg);
-  box-shadow: 0 4px 20px var(--color-primary-glow);
-}
-
-.class-visual {
-  margin-bottom: var(--space-lg);
-}
-
-.class-visual {
-  display: flex;
-  justify-content: center;
-  transition: transform var(--transition-slow);
-}
-
-.class-card:hover .class-visual {
-  transform: scale(1.08);
-}
-
-.class-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.class-name {
-  color: var(--color-text-bright);
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  margin: 0;
-}
-
-.class-description {
-  color: var(--color-text-primary);
-  font-size: var(--text-sm);
-  line-height: var(--leading-snug);
-  margin: 0;
-}
-
-.class-flavor {
-  color: var(--color-text-secondary);
-  font-style: italic;
-  font-size: var(--text-xs);
-  margin: 0;
-  line-height: var(--leading-snug);
-}
-
-.selected-indicator {
-  margin-top: var(--space-md);
-  padding: var(--space-sm);
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  border-radius: var(--radius-md);
-  font-size: var(--text-sm);
-  font-weight: var(--font-bold);
-}
-
-/* Name Input */
-.name-input {
-  width: 100%;
-  max-width: 500px;
-  padding: var(--space-lg) var(--space-xl);
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  border-radius: var(--radius-lg);
-  color: var(--color-text-primary);
-  font-size: var(--text-base);
-  transition: all var(--transition-base);
-  font-family: var(--font-sans);
-}
-
-.name-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-danger-bg);
-}
-
-.name-input::placeholder {
-  color: var(--color-text-secondary);
 }
 
 /* Action Buttons */
@@ -986,56 +701,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
   flex-wrap: wrap;
 }
 
-.btn-primary,
-.btn-secondary {
-  padding: var(--space-lg) var(--space-3xl);
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  border-radius: var(--button-radius);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-md);
-  font-family: var(--font-sans);
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  box-shadow: 0 4px 12px var(--color-primary-glow);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-light);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--color-primary-glow);
-}
-
-.btn-primary:disabled {
-  background: var(--color-text-muted);
-  cursor: not-allowed;
-  opacity: 0.5;
-  transform: none;
-  box-shadow: none;
-}
-
-.btn-secondary {
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
-  border: 2px solid var(--color-border-default);
-}
-
-.btn-secondary:hover {
-  background: var(--color-bg-surface);
-  border-color: var(--color-border-focus);
-}
-
-.btn-icon {
-  font-size: var(--text-xl);
-}
-
 /* Header utility nav */
 .header-utility-nav {
   display: flex;
@@ -1043,29 +708,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
   justify-content: center;
   gap: var(--space-sm);
   margin-top: var(--space-md);
-}
-
-.link-button {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  transition: color var(--transition-base);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
-}
-
-.link-button:hover {
-  color: var(--color-primary);
-  background: var(--color-bg-overlay);
-}
-
-.link-icon {
-  font-size: var(--text-base);
 }
 
 .link-separator {
@@ -1083,20 +725,6 @@ async function launchTutorial(quest: QuestDisplayModel) {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* Tutorial badge and card accent */
-.tutorial-badge {
-  background: var(--color-bg-overlay, rgba(0, 0, 0, 0.3));
-  border: 1px solid var(--color-primary, #e94560);
-}
-
-.tutorial-card.selected {
-  border-color: var(--color-primary);
-}
-
-.tutorial-grid {
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 }
 
 /* Responsive Design */
@@ -1131,8 +759,7 @@ async function launchTutorial(quest: QuestDisplayModel) {
     width: 100%;
   }
   
-  .btn-primary,
-  .btn-secondary {
+  .actions-section :deep(.dungeon-btn) {
     width: 100%;
     justify-content: center;
   }
@@ -1144,25 +771,20 @@ async function launchTutorial(quest: QuestDisplayModel) {
   }
 
   .setup-loading-overlay {
-    padding: var(--space-lg);
+    padding: 6px;
+    align-items: flex-end;
   }
 
   .setup-loading-panel {
-    border-radius: var(--radius-lg);
-  }
-  
-  .quest-stats {
-    flex-direction: column;
+    width: 100%;
+    padding: var(--space-lg) var(--space-md);
     gap: var(--space-md);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 
-  .tab-toggle {
-    max-width: 100%;
+  .setup-loading-title {
+    font-size: var(--text-lg);
   }
 
-  .tab-btn {
-    padding: var(--space-sm) var(--space-md);
-    font-size: var(--text-sm);
-  }
 }
 </style>

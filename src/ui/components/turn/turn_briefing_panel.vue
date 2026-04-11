@@ -1,24 +1,23 @@
 <template>
-  <section class="turn-briefing-panel">
-    <header class="briefing-header">
-      <div class="briefing-meta-row">
-        <span class="briefing-label">📜 Situation Briefing</span>
-        <span v-if="currentTurn && totalTurns" class="turn-counter">
-          Turn {{ currentTurn }} / {{ totalTurns }}
-        </span>
-      </div>
-      <h2 class="briefing-title">{{ eventTitle }}</h2>
-    </header>
+  <AppFrame title="Situation Briefing" class="turn-briefing-panel">
+    <template #icon><IconScroll :size="14" /></template>
+    <template #header-actions>
+      <span v-if="currentTurn && totalTurns" class="turn-counter">
+        Turn {{ currentTurn }} / {{ totalTurns }}
+      </span>
+    </template>
+
+    <h2 class="briefing-title">{{ eventTitle }}</h2>
 
     <p class="briefing-description">{{ narrativeDescription }}</p>
 
     <div class="briefing-status">
       <span class="status-badge actions-badge">
-        <span class="badge-icon">⚔️</span>
+        <span class="badge-icon"><IconSwords :size="14" /></span>
         {{ availableActions }} action{{ availableActions === 1 ? '' : 's' }} available
       </span>
       <span class="status-badge" :class="pendingAftershocks ? 'aftershocks-badge' : 'quiet-badge'">
-        <span class="badge-icon">⚡</span>
+        <span class="badge-icon"><IconLightning :size="14" /></span>
         {{ pendingAftershocks || 'No' }} aftershock{{ pendingAftershocks === 1 ? '' : 's' }} pending
       </span>
     </div>
@@ -33,11 +32,15 @@
         </div>
       </div>
     </div>
-  </section>
+  </AppFrame>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
+import IconScroll from '@/ui/components/icons/IconScroll.vue'
+import IconSwords from '@/ui/components/icons/IconSwords.vue'
+import IconLightning from '@/ui/components/icons/IconLightning.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -66,46 +69,17 @@ const isLowTurns = computed(() => {
 </script>
 
 <style scoped>
-.turn-briefing-panel {
-  background: var(--surface-elevated);
-  border: 1px solid var(--border-panel);
-  border-left: 3px solid var(--text-accent);
-  border-radius: var(--radius-xl);
-  padding: var(--panel-padding);
+.turn-briefing-panel :deep(.dungeon-frame__body) {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  box-shadow: var(--shadow-panel), var(--shadow-inset-ridge);
-  position: relative;
-}
-
-.briefing-header {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-}
-
-.briefing-meta-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-}
-
-.briefing-label {
-  margin: 0;
-  color: var(--text-accent);
-  font-size: var(--text-2xs);
-  text-transform: uppercase;
-  letter-spacing: var(--tracking-widest);
-  font-weight: var(--font-semibold);
+  padding: var(--space-lg);
 }
 
 .turn-counter {
+  color: var(--text-secondary);
   font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
   font-family: var(--font-mono);
-  color: var(--text-muted);
   letter-spacing: var(--tracking-wide);
 }
 
@@ -124,7 +98,7 @@ const isLowTurns = computed(() => {
   font-size: var(--text-base);
   line-height: var(--leading-relaxed);
   font-style: italic;
-  border-left: 2px solid var(--border-subtle);
+  border-left: 2px solid var(--dng-divider);
   padding-left: var(--space-md);
 }
 
@@ -142,15 +116,15 @@ const isLowTurns = computed(() => {
   padding: var(--space-xs) var(--space-md);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-inset);
-  color: var(--text-secondary);
+  border: 1px solid var(--dng-divider);
+  background: rgba(11, 28, 36, 0.5);
+  color: var(--dng-subtitle-warm);
 }
 
 .actions-badge {
-  border-color: var(--border-accent);
-  color: var(--text-accent);
-  background: rgba(169, 137, 250, 0.08);
+  border-color: var(--dng-bronze-mid);
+  color: var(--dng-title-gold);
+  background: rgba(160, 112, 24, 0.12);
 }
 
 .aftershocks-badge {
@@ -164,7 +138,8 @@ const isLowTurns = computed(() => {
 }
 
 .badge-icon {
-  font-size: var(--text-sm);
+  display: inline-flex;
+  align-items: center;
 }
 
 .low-turns-warning {
@@ -210,12 +185,6 @@ const isLowTurns = computed(() => {
   }
   50% {
     opacity: 0.8;
-  }
-}
-
-@media (max-width: 768px) {
-  .turn-briefing-panel {
-    padding: var(--space-lg);
   }
 }
 </style>

@@ -26,6 +26,19 @@ const dismissedStepIds = ref<Set<string>>(new Set())
 const isHintVisible = ref(false)
 
 /**
+ * The last step that was shown in the popup.
+ * Used to keep content visible in the compact inline panel after the popup is dismissed.
+ */
+const lastShownStep = ref<TutorialStep | null>(null)
+
+/**
+ * Whether the compact inline hint panel should be shown below the scene.
+ * True after the popup is dismissed when there is no immediate next popup.
+ * Reset to false when the next popup appears.
+ */
+const showInlineHint = ref(false)
+
+/**
  * Set of triggers that have already fired.
  * Each entry is a string like "run_start" or "turn_start:1".
  * When the user dismisses a hint, we check if the next step's trigger
@@ -76,6 +89,26 @@ export function useTutorialState() {
   })
 
   /**
+   * The highlight target for the current step (e.g. "satchel", "scores").
+   * Like requiredCardId, reads from the raw step index so it persists after
+   * popup dismissal until the next trigger advances the step.
+   */
+  const currentStepHighlight = computed<string | null>(() => {
+    if (!tutorialScript.value) return null
+    const step = tutorialScript.value.steps[currentStepIndex.value]
+    if (!step) return null
+    return step.highlight ?? null
+  })
+
+  /**
+   * Whether the current step is the last step in the script.
+   */
+  const isLastStep = computed(() => {
+    if (!tutorialScript.value) return true
+    return currentStepIndex.value >= tutorialScript.value.steps.length - 1
+  })
+
+  /**
    * Initialize tutorial mode for a scenario.
    * Loads the tutorial script if the scenario is a tutorial.
    */
@@ -95,6 +128,8 @@ export function useTutorialState() {
       currentStepIndex.value = 0
       dismissedStepIds.value = new Set()
       isHintVisible.value = false
+      lastShownStep.value = null
+      showInlineHint.value = false
     } catch (error) {
       console.error('Failed to load tutorial script:', error)
       tutorialScript.value = null
@@ -111,31 +146,44 @@ export function useTutorialState() {
     dismissedStepIds.value = new Set()
     isHintVisible.value = false
     firedTriggers.value = new Set()
+    lastShownStep.value = null
+    showInlineHint.value = false
   }
 
   /**
-   * Dismiss the current hint step. After dismissal, automatically show the
-   * next step if its trigger has already fired.
+   * Dismiss the current hint popup. After dismissal, automatically show the
+   * next step as a popup if its trigger has already fired.
+   * If no next step is immediately available, activates the compact inline panel.
    */
   function dismissCurrentHint(): void {
     const step = currentStep.value
     if (step) {
+      lastShownStep.value = step
       dismissedStepIds.value.add(step.id)
     }
     isHintVisible.value = false
 
     // Auto-advance: check if the next undismissed step's trigger was already fired
-    if (!tutorialScript.value) return
-    for (let i = currentStepIndex.value + 1; i < tutorialScript.value.steps.length; i++) {
-      const nextStep = tutorialScript.value.steps[i]
-      if (dismissedStepIds.value.has(nextStep.id)) continue
+    let advanced = false
+    if (tutorialScript.value) {
+      for (let i = currentStepIndex.value + 1; i < tutorialScript.value.steps.length; i++) {
+        const nextStep = tutorialScript.value.steps[i]
+        if (dismissedStepIds.value.has(nextStep.id)) continue
 
-      if (firedTriggers.value.has(stepTriggerKey(nextStep))) {
-        currentStepIndex.value = i
-        isHintVisible.value = true
+        if (firedTriggers.value.has(stepTriggerKey(nextStep))) {
+          currentStepIndex.value = i
+          lastShownStep.value = nextStep
+          isHintVisible.value = true
+          advanced = true
+        }
+        // Stop at first undismissed step regardless — either it shows or it waits
+        break
       }
-      // Stop at first undismissed step regardless — either it shows or it waits
-      return
+    }
+
+    if (!advanced) {
+      // No immediate next popup — show the compact inline panel as a reminder
+      showInlineHint.value = true
     }
   }
 
@@ -168,6 +216,8 @@ export function useTutorialState() {
 
       if (firedTriggers.value.has(stepTriggerKey(step))) {
         currentStepIndex.value = i
+        lastShownStep.value = step
+        showInlineHint.value = false
         isHintVisible.value = true
         return
       }
@@ -187,6 +237,10 @@ export function useTutorialState() {
     currentStepNumber,
     hasMoreSteps,
     requiredCardId,
+    currentStepHighlight,
+    isLastStep,
+    lastShownStep: lastShownStep as Ref<TutorialStep | null>,
+    showInlineHint: showInlineHint as Ref<boolean>,
 
     // Actions
     initTutorial,

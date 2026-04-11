@@ -2,11 +2,12 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 
 import ActionCard from '@/ui/components/cards/action_card.vue'
 import CardDetailsModal from '@/ui/components/cards/card_details_modal.vue'
+import { ACTION_EFFECT_ICON_ASSETS } from '@/ui/config/presentation_asset_registry'
 import { cardMocks } from '../mocks/cards'
 
-import refactorArtUrl from '@/assets/artwork/cards/refactor_action.svg?url'
-import infraArtUrl from '@/assets/artwork/cards/infrastructure_investment.svg?url'
-import patchArtUrl from '@/assets/artwork/cards/quick_patch.svg?url'
+const refactorArtUrl = ACTION_EFFECT_ICON_ASSETS.cards.refactor_action
+const infraArtUrl = ACTION_EFFECT_ICON_ASSETS.cards.infrastructure_investment
+const patchArtUrl = ACTION_EFFECT_ICON_ASSETS.cards.quick_patch
 
 const meta: Meta<typeof ActionCard> = {
   title: 'Game/ActionCard',

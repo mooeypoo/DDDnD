@@ -11,10 +11,9 @@
         <ShareResultCard :payload="sharePayload" />
 
         <div class="share-actions">
-          <button class="btn-primary" @click="goPlay">
-            <span class="btn-icon">🐉</span>
-            <span>Play DDDnD</span>
-          </button>
+          <AppButton variant="primary" @click="goPlay">
+            <span>🐉</span> Play DDDnD
+          </AppButton>
         </div>
 
         <footer class="share-footer">
@@ -37,10 +36,9 @@
           <p class="error-hint">
             This share link may be expired, incomplete, or from an older version.
           </p>
-          <button class="btn-primary" @click="goPlay">
-            <span class="btn-icon">🐉</span>
-            <span>Start Your Own Quest</span>
-          </button>
+          <AppButton variant="primary" @click="goPlay">
+            <span>🐉</span> Start Your Own Quest
+          </AppButton>
         </div>
       </div>
     </template>
@@ -52,6 +50,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { decodeSharePayload, type SharePayload } from '@/domains/reporting/services'
 import ShareResultCard from '@/ui/components/results/share_result_card.vue'
+import AppButton from '@/ui/components/common/AppButton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -131,34 +130,6 @@ function goPlay() {
 .share-actions {
   display: flex;
   justify-content: center;
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-sm, 8px);
-  padding: var(--space-md, 12px) var(--space-2xl, 24px);
-  font-size: var(--text-base, 1rem);
-  font-weight: 600;
-  border: none;
-  border-radius: var(--radius-lg, 12px);
-  cursor: pointer;
-  background: var(--text-accent, #a989fa);
-  color: var(--text-inverse, #0b0e1a);
-  transition: background 0.2s, transform 0.15s;
-}
-
-.btn-primary:hover {
-  background: #c4aefe;
-  transform: translateY(-1px);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-icon {
-  font-size: 1.2rem;
 }
 
 /* ─── Footer ──────────────────────────────────────── */

@@ -6,6 +6,10 @@ DDD nD is a humorous simulation of software architecture decision making using c
 
 Players act as a systems architect trying to improve a struggling system.
 
+For architecture boundaries and routing, see [AGENT.md](AGENT.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
+
+For UI presentation roadmap and terminology coordination, see [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md).
+
 ---
 
 # Player Goal
@@ -104,7 +108,9 @@ Runs may end with different outcomes depending on:
 - system health
 - project stability
 
-Outcomes include both **tiers** and **archetypes**.
+Outcomes include tier evaluation and legacy archetype criteria in the simulation/content layer.
+
+In UI/player-facing surfaces, use `endingType` as the presentation term.
 
 Examples:
 
@@ -129,6 +135,8 @@ Players must gradually introduce structure without destroying delivery speed.
 # Player Classes
 
 Players select a cosmetic architect class.
+
+In new UI/presentation work, use the term `playerClass` for this selection.
 
 Examples:
 

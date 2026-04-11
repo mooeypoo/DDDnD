@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" fill="none">
+  <defs>
+    <pattern id="audit-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+      <path d="M 16 0 L 0 0 0 16" stroke="rgba(255,255,255,0.04)" stroke-width="0.5"/>
+    </pattern>
+    <filter id="audit-glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <radialGradient id="audit-haze" cx="58%" cy="52%" r="48%">
+      <stop offset="0%" stop-color="#d97706" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#0b0e1a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="320" height="180" fill="#0b0e1a"/>
+  <rect width="320" height="180" fill="url(#audit-grid)"/>
+  <rect width="320" height="180" fill="url(#audit-haze)"/>
+
+  <!-- Grid -->
+  <g id="scene-ambient" stroke="rgba(217,119,6,0.14)" stroke-width="1" stroke-dasharray="3,5">
+    <path d="M 38 48 H 282"/>
+    <path d="M 38 132 H 282"/>
+    <path d="M 100 24 V 156"/>
+    <path d="M 220 24 V 156"/>
+  </g>
+
+  <!-- Corner marks -->
+  <g stroke="rgba(217,119,6,0.35)" stroke-width="1">
+    <path d="M 8 18 L 8 8 L 18 8"/>
+    <path d="M 302 18 L 312 18 L 312 8"/>
+    <path d="M 8 162 L 8 172 L 18 172"/>
+    <path d="M 302 162 L 312 162 L 312 172"/>
+  </g>
+
+  <!-- SCENE SUBJECT: Inspection sheet -->
+  <g id="scene-subject">
+    <rect x="168" y="28" width="98" height="116" rx="6" fill="rgba(217,119,6,0.08)" stroke="rgba(217,119,6,0.74)" stroke-width="2" filter="url(#audit-glow)"/>
+    <path d="M 188 54 H 246" stroke="rgba(251,191,36,0.52)" stroke-width="1.5"/>
+    <path d="M 188 74 H 246" stroke="rgba(251,191,36,0.34)" stroke-width="1.5"/>
+    <path d="M 188 94 H 246" stroke="rgba(251,191,36,0.34)" stroke-width="1.5"/>
+    <path d="M 188 114 H 246" stroke="rgba(248,113,113,0.34)" stroke-width="1.5" stroke-dasharray="4,4"/>
+    <g stroke="rgba(251,191,36,0.86)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M 176 72 L 181 77 L 190 66"/>
+      <path d="M 176 92 L 181 97 L 190 86"/>
+      <path d="M 176 112 L 181 117 L 190 106"/>
+    </g>
+    <circle cx="112" cy="92" r="26" fill="rgba(251,191,36,0.08)" stroke="rgba(251,191,36,0.74)" stroke-width="4" filter="url(#audit-glow)"/>
+    <path d="M 130 110 L 154 134" stroke="rgba(251,191,36,0.70)" stroke-width="5" stroke-linecap="round"/>
+    <path d="M 138 92 H 168" stroke="rgba(217,119,6,0.34)" stroke-width="1.5" stroke-dasharray="3,4"/>
+  </g>
+
+  <!-- Glow effects / overlays -->
+  <g filter="url(#audit-glow)">
+    <circle cx="112" cy="92" r="6" fill="rgba(251,191,36,0.20)"/>
+  </g>
+
+  <!-- Annotations -->
+  <g id="scene-annotations" fill="rgba(217,119,6,0.42)" font-family="monospace" font-size="6" letter-spacing="1">
+    <text x="16" y="168">COMPLIANCE REVIEW STACK</text>
+    <text x="304" y="168" text-anchor="end">EVT.AUDIT_PRESSURE</text>
+  </g>
+</svg>

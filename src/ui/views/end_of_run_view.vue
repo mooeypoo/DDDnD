@@ -3,7 +3,7 @@
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
     
-    <div class="end-container">
+    <AppFrame class="end-frame">
       <!-- Outcome Hero -->
       <div class="outcome-hero">
         <div class="hero-decoration">
@@ -56,7 +56,7 @@
       <!-- Run Summary Stats -->
       <div class="summary-card">
         <h3 class="card-title">
-          <span class="title-icon">📊</span>
+          <span class="title-icon"><IconBarChart :size="24" /></span>
           Run Summary
         </h3>
         
@@ -81,7 +81,7 @@
       <!-- Final Scores -->
       <div v-if="gameStore.gameState" class="scores-card">
         <h3 class="card-title">
-          <span class="title-icon">📈</span>
+          <span class="title-icon"><IconBarChart :size="24" /></span>
           Final System Health
         </h3>
         
@@ -105,7 +105,7 @@
       <!-- Stakeholder Final State -->
       <div v-if="gameStore.gameState" class="stakeholders-card">
         <h3 class="card-title">
-          <span class="title-icon">👥</span>
+          <span class="title-icon"><IconGroup :size="24" /></span>
           Stakeholder Relations
         </h3>
         
@@ -131,29 +131,22 @@
       <!-- Share Controls -->
       <div class="share-card">
         <h3 class="card-title">
-          <span class="title-icon">📤</span>
+          <span class="title-icon"><IconMegaphone :size="24" /></span>
           Share Your Journey
         </h3>
         
         <div class="share-controls">
-          <button class="share-btn share-btn-copy" @click="copyShareLink">
-            <span class="share-btn-icon">🔗</span>
-            <span>{{ copyButtonLabel }}</span>
-          </button>
+          <AppButton variant="secondary" @click="copyShareLink">
+            <span>🔗</span> {{ copyButtonLabel }}
+          </AppButton>
 
-          <button class="share-btn share-btn-download" @click="downloadShareCard">
-            <span class="share-btn-icon">🖼️</span>
-            <span>Download Result Card</span>
-          </button>
+          <AppButton variant="secondary" @click="downloadShareCard">
+            <span>🖼️</span> Download Result Card
+          </AppButton>
 
-          <button
-            v-if="hasNativeShare"
-            class="share-btn share-btn-native"
-            @click="nativeShare"
-          >
-            <span class="share-btn-icon">📲</span>
-            <span>Share…</span>
-          </button>
+          <AppButton v-if="hasNativeShare" variant="secondary" @click="nativeShare">
+            <span>📲</span> Share…
+          </AppButton>
         </div>
       </div>
 
@@ -164,30 +157,25 @@
       
       <!-- Actions -->
       <div class="actions-area">
-        <button class="btn-secondary" @click="goHome">
-          <span class="btn-icon">🏠</span>
-          <span>Return Home</span>
-        </button>
-        
-        <button class="btn-primary" @click="playAgain">
-          <span class="btn-text">Play Again</span>
-          <span class="btn-icon">🔄</span>
-        </button>
+        <AppButton variant="secondary" @click="goHome">
+          <span>🏠</span> Return Home
+        </AppButton>
+        <AppButton variant="primary" @click="playAgain">
+          Play Again <span>🔄</span>
+        </AppButton>
       </div>
 
       <!-- Footer Links -->
       <footer class="footer-links">
-        <button class="link-button" @click="gameStore.openAboutModal">
-          <span class="link-icon">ℹ️</span>
-          What is this?
-        </button>
+        <AppButton variant="subtle" @click="gameStore.openAboutModal">
+          <span>ℹ️</span> What is this?
+        </AppButton>
         <span class="link-separator">•</span>
-        <button class="link-button" @click="gameStore.openRulesModal">
-          <span class="link-icon">📖</span>
-          Rules
-        </button>
+        <AppButton variant="subtle" @click="gameStore.openRulesModal">
+          <span>📖</span> Rules
+        </AppButton>
       </footer>
-    </div>
+    </AppFrame>
   </div>
 </template>
 
@@ -200,6 +188,11 @@ import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import ShareResultCard from '@/ui/components/results/share_result_card.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
+import AppButton from '@/ui/components/common/AppButton.vue'
+import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
+import IconBarChart from '@/ui/components/icons/IconBarChart.vue'
+import IconGroup from '@/ui/components/icons/IconGroup.vue'
+import IconMegaphone from '@/ui/components/icons/IconMegaphone.vue'
 import { getClassAccentColor } from '@/ui/composables/class_artwork'
 import {
   buildStakeholderNamesMap,
@@ -535,31 +528,31 @@ function inlineComputedStyles(source: Element, target: Element) {
 .end-of-run-view {
   min-height: 100vh;
   background: linear-gradient(135deg, 
-    var(--color-bg-darkest) 0%, 
-    var(--color-bg-dark) 50%, 
-    var(--color-bg-medium) 100%
+    var(--dng-shell-bg) 0%, 
+    var(--dng-shell-bg) 50%, 
+    rgba(16, 11, 5, 0.9) 100%
   );
   padding: var(--space-3xl) var(--space-2xl);
 }
 
-.end-container {
+.end-frame {
   max-width: 1000px;
   margin: 0 auto;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Override AppFrame body gap for end-of-run section spacing */
+.end-frame :deep(.dungeon-frame__body) {
   display: flex;
   flex-direction: column;
   gap: var(--space-2xl);
-  animation: fadeInUp 0.6s ease-out;
+  padding: var(--space-2xl);
 }
 
 /* Outcome Hero */
 .outcome-hero {
   text-align: center;
-  padding: var(--space-4xl) var(--space-2xl);
-  background: var(--card-bg);
-  border: 2px solid var(--color-border-primary);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(10px);
+  padding: var(--space-4xl) var(--space-2xl) var(--space-2xl);
   position: relative;
   overflow: hidden;
 }
@@ -574,7 +567,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .outcome-title {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   font-size: var(--text-5xl);
   margin: 0 0 var(--space-xl) 0;
   font-weight: var(--font-black);
@@ -598,7 +591,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .player-display-name {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
 }
@@ -680,7 +673,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .quest-banner-label {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   font-weight: var(--font-semibold);
@@ -688,14 +681,14 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .quest-banner-name {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
   font-weight: var(--font-semibold);
 }
 
 /* Archetype Card */
 .archetype-card {
-  background: var(--card-bg);
-  border: 2px solid var(--color-border-default);
+  background: var(--dng-panel-surface);
+  border: 2px solid var(--dng-bronze-mid);
   border-radius: var(--radius-xl);
   padding: var(--space-3xl);
   text-align: center;
@@ -714,8 +707,8 @@ function inlineComputedStyles(source: Element, target: Element) {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
-  box-shadow: 0 8px 24px var(--color-primary-glow);
+  background: linear-gradient(135deg, var(--dng-bronze-deep) 0%, var(--dng-bronze-mid) 100%);
+  box-shadow: 0 8px 24px rgba(160, 112, 24, 0.45);
   animation: iconPulse 2s ease-in-out infinite;
 }
 
@@ -733,7 +726,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .archetype-label {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -742,14 +735,14 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .archetype-name {
-  color: var(--color-primary);
+  color: var(--dng-title-gold);
   font-size: var(--text-3xl);
   font-weight: var(--font-black);
   margin: 0 0 var(--space-lg) 0;
 }
 
 .archetype-description {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-lg);
   line-height: var(--leading-relaxed);
   margin: 0;
@@ -763,8 +756,8 @@ function inlineComputedStyles(source: Element, target: Element) {
 .scores-card,
 .stakeholders-card,
 .share-card {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
+  background: var(--dng-panel-surface);
+  border: 2px solid var(--dng-divider);
   border-radius: var(--radius-xl);
   padding: var(--space-2xl);
   box-shadow: var(--shadow-md);
@@ -772,7 +765,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .card-title {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
   margin: 0 0 var(--space-xl) 0;
@@ -795,13 +788,13 @@ function inlineComputedStyles(source: Element, target: Element) {
 .stat-box {
   text-align: center;
   padding: var(--space-xl);
-  background: var(--color-bg-overlay);
+  background: rgba(13, 9, 4, 0.45);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--dng-divider);
 }
 
 .stat-label {
-  color: var(--color-text-secondary);
+  color: var(--dng-footer-muted);
   font-size: var(--text-sm);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -810,13 +803,13 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .stat-value {
-  color: var(--color-text-bright);
+  color: var(--dng-title-gold);
   font-size: var(--text-4xl);
   font-weight: var(--font-black);
 }
 
 .stat-max {
-  color: var(--color-text-secondary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-2xl);
 }
 
@@ -844,7 +837,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .score-name {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
 }
@@ -872,7 +865,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 
 .score-bar {
   height: 12px;
-  background: var(--color-bg-overlay);
+  background: var(--dng-shell-bg);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
@@ -911,9 +904,9 @@ function inlineComputedStyles(source: Element, target: Element) {
   justify-content: space-between;
   align-items: center;
   padding: var(--space-lg);
-  background: var(--color-bg-overlay);
+  background: rgba(13, 9, 4, 0.45);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border-default);
+  border: 1px solid var(--dng-divider);
 }
 
 .stakeholder-info {
@@ -923,7 +916,7 @@ function inlineComputedStyles(source: Element, target: Element) {
 }
 
 .stakeholder-name {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
   font-weight: var(--font-semibold);
   font-size: var(--text-base);
 }
@@ -977,43 +970,6 @@ function inlineComputedStyles(source: Element, target: Element) {
   gap: var(--space-md);
 }
 
-.share-btn {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-lg) var(--space-xl);
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: all var(--transition-base);
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
-}
-
-.share-btn:hover {
-  background: var(--color-bg-overlay);
-  border-color: var(--color-primary);
-  color: var(--color-text-bright);
-}
-
-.share-btn-icon {
-  font-size: var(--text-xl);
-}
-
-.share-btn-copy:hover {
-  border-color: var(--color-primary);
-}
-
-.share-btn-download:hover {
-  border-color: var(--color-info);
-}
-
-.share-btn-native:hover {
-  border-color: var(--color-success);
-}
-
 /* Offscreen card for image export */
 .offscreen-card-wrapper {
   position: fixed;
@@ -1033,51 +989,14 @@ function inlineComputedStyles(source: Element, target: Element) {
 
 .btn-primary,
 .btn-secondary {
-  padding: var(--space-lg) var(--space-4xl);
-  font-size: var(--text-lg);
-  font-weight: var(--font-bold);
-  border-radius: var(--button-radius);
-  cursor: pointer;
-  transition: all var(--transition-slow);
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-md);
-  text-transform: uppercase;
-}
-
-.btn-primary {
-  background: var(--color-primary);
-  color: var(--color-text-bright);
-  box-shadow: 0 4px 12px var(--color-primary-glow);
-}
-
-.btn-primary:hover {
-  background: var(--color-primary-light);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px var(--color-primary-glow);
-}
-
-.btn-secondary {
-  background: var(--color-bg-overlay);
-  color: var(--color-text-primary);
-  border: 2px solid var(--color-border-default);
-}
-
-.btn-secondary:hover {
-  background: var(--color-bg-surface);
-  border-color: var(--color-border-focus);
-}
-
-.btn-icon {
-  font-size: var(--text-xl);
+  /* removed — replaced by AppButton */
 }
 
 /* Footer Links */
 .footer-links {
   text-align: center;
   padding-top: var(--space-xl);
-  border-top: 1px solid var(--color-border-default);
+  border-top: 1px solid var(--dng-divider);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1085,31 +1004,8 @@ function inlineComputedStyles(source: Element, target: Element) {
   flex-wrap: wrap;
 }
 
-.link-button {
-  background: none;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  cursor: pointer;
-  transition: color var(--transition-base);
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-md);
-}
-
-.link-button:hover {
-  color: var(--color-primary);
-  background: var(--color-bg-overlay);
-}
-
-.link-icon {
-  font-size: var(--text-base);
-}
-
 .link-separator {
-  color: var(--color-text-muted);
+  color: var(--dng-footer-muted);
   user-select: none;
 }
 
@@ -1164,9 +1060,8 @@ function inlineComputedStyles(source: Element, target: Element) {
     flex-direction: column-reverse;
     width: 100%;
   }
-  
-  .btn-primary,
-  .btn-secondary {
+
+  .actions-area :deep(.dungeon-btn) {
     width: 100%;
     justify-content: center;
   }

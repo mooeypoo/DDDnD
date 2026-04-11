@@ -43,6 +43,18 @@ function makeClass(id: string, name: string): PlayerClass {
 
 describe('run_setup_view quest integration', () => {
   beforeEach(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn()
+      }))
+    })
+
     // Ensure the default tab is 'quests' for tests
     localStorage.setItem('dddnd.tutorialsComplete', 'true')
     pushSpy.mockReset()
@@ -78,7 +90,7 @@ describe('run_setup_view quest integration', () => {
     const wrapper = mount(RunSetupView)
     await flushPromises()
 
-    const questCards = wrapper.findAll('.quest-card')
+    const questCards = wrapper.findAll('.dungeon-qc')
     expect(questCards).toHaveLength(2)
     expect(wrapper.text()).toContain('The Monolith of Mild Despair')
     expect(wrapper.text()).toContain('Microservice Sprawl')
@@ -88,11 +100,11 @@ describe('run_setup_view quest integration', () => {
     const wrapper = mount(RunSetupView)
     await flushPromises()
 
-    const questCards = wrapper.findAll('.quest-card')
+    const questCards = wrapper.findAll('.dungeon-qc')
     await questCards[1].trigger('click')
 
-    await wrapper.find('.class-card').trigger('click')
-    await wrapper.find('.btn-primary').trigger('click')
+    await wrapper.find('.dungeon-cc').trigger('click')
+    await wrapper.find('.variant-primary').trigger('click')
 
     expect(storeMock.start_new_run).toHaveBeenCalledWith({
       scenario_id: 'microservice_sprawl',

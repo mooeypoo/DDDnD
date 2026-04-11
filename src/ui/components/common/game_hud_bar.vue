@@ -3,7 +3,7 @@
     <div class="hud-inner">
       <!-- Turn tracker -->
       <div class="hud-turn" :title="`Turn ${currentTurn} of ${maxTurns}`">
-        <span class="turn-icon">⚔️</span>
+        <span class="turn-icon"><IconSwords :size="14" /></span>
         <span class="turn-label-text">Turn</span>
         <span class="turn-text">
           <span class="turn-current">{{ currentTurn }}</span>
@@ -20,7 +20,7 @@
 
       <!-- Scores section -->
       <div class="hud-section" v-if="scores">
-        <span class="hud-section-label">📊 <span class="hud-section-label-text">System</span></span>
+        <span class="hud-section-label"><IconBarChart :size="12" /><span class="hud-section-label-text">System</span></span>
         <ScoreHud :scores="scores" />
       </div>
 
@@ -29,7 +29,7 @@
 
       <!-- Stakeholders section -->
       <div class="hud-section" v-if="stakeholders">
-        <span class="hud-section-label">👥 <span class="hud-section-label-text">Stakeholders</span></span>
+        <span class="hud-section-label"><IconGroup :size="12" /><span class="hud-section-label-text">Stakeholders</span></span>
         <StakeholderHud
           :stakeholders="stakeholders"
           :stakeholderNames="stakeholderNames"
@@ -48,6 +48,9 @@ import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import ScoreHud from '@/ui/components/scores/score_hud.vue'
 import StakeholderHud from '@/ui/components/stakeholders/stakeholder_hud.vue'
 import SystemCouplingWarnings from '@/ui/components/scores/system_coupling_warnings.vue'
+import IconSwords from '@/ui/components/icons/IconSwords.vue'
+import IconBarChart from '@/ui/components/icons/IconBarChart.vue'
+import IconGroup from '@/ui/components/icons/IconGroup.vue'
 
 const props = defineProps<{
   currentTurn: number
@@ -68,14 +71,14 @@ const turnProgress = computed(() => {
   position: sticky;
   top: 0;
   z-index: var(--z-hud);
-  background: var(--hud-bg);
-  border-bottom: 1px solid var(--hud-border);
+  background: rgba(13, 9, 4, 0.94); /* --dng-shell-bg at 94% — warm dark backdrop */
+  border-bottom: 2px solid var(--dng-bronze-mid);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   min-height: var(--hud-height);
   display: flex;
   align-items: center;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.6);
 }
 
 .hud-inner {
@@ -101,11 +104,11 @@ const turnProgress = computed(() => {
 
 .hud-section-label {
   font-size: var(--text-xs);
-  color: var(--text-muted);
+  color: var(--dng-footer-muted);
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   line-height: 1;
 }
 
@@ -125,7 +128,9 @@ const turnProgress = computed(() => {
 }
 
 .turn-icon {
-  font-size: var(--text-sm);
+  display: inline-flex;
+  align-items: center;
+  color: var(--dng-subtitle-warm);
 }
 
 .turn-label-text {
@@ -133,7 +138,7 @@ const turnProgress = computed(() => {
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
-  color: var(--text-muted);
+  color: var(--dng-footer-muted);
 }
 
 .turn-text {
@@ -146,24 +151,24 @@ const turnProgress = computed(() => {
 }
 
 .turn-current {
-  color: var(--text-accent);
+  color: var(--dng-title-gold);
   font-size: var(--text-base);
 }
 
 .turn-sep {
-  color: var(--text-muted);
+  color: var(--dng-footer-muted);
   font-size: var(--text-xs);
 }
 
 .turn-max {
-  color: var(--text-muted);
+  color: var(--dng-footer-muted);
   font-size: var(--text-xs);
 }
 
 .turn-progress {
   width: 40px;
   height: 4px;
-  background: var(--bg-overlay-strong);
+  background: var(--dng-shell-bg);
   border-radius: var(--radius-full);
   overflow: hidden;
   flex-shrink: 0;
@@ -171,7 +176,7 @@ const turnProgress = computed(() => {
 
 .turn-progress-fill {
   height: 100%;
-  background: var(--text-accent);
+  background: var(--dng-title-gold);
   border-radius: var(--radius-full);
   transition: width var(--duration-bar) cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -180,7 +185,7 @@ const turnProgress = computed(() => {
 .hud-divider {
   width: 1px;
   height: 24px;
-  background: var(--border-subtle);
+  background: var(--dng-divider);
   flex-shrink: 0;
 }
 

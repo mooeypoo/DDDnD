@@ -1,9 +1,5 @@
 <template>
-  <div class="stakeholder-panel">
-    <h3 class="panel-title">
-      <span class="title-icon">👥</span>
-      Stakeholders
-    </h3>
+  <AppFrame title="Stakeholders" class="stakeholder-panel">
     <div class="stakeholders-list">
       <div 
         v-for="(data, stakeholderId) in stakeholders" 
@@ -32,12 +28,13 @@
         </div>
       </div>
     </div>
-  </div>
+  </AppFrame>
 </template>
 
 <script setup lang="ts">
 import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
+import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 
 const props = defineProps<{
   stakeholders: StakeholderSnapshot
@@ -64,28 +61,8 @@ function getSatisfactionClass(value: number): string {
 </script>
 
 <style scoped>
-.stakeholder-panel {
-  background: var(--surface-panel);
-  border: 1px solid var(--border-panel);
-  border-radius: var(--radius-xl);
-  padding: var(--panel-padding);
-  box-shadow: var(--shadow-panel);
-}
-
-.panel-title {
-  color: var(--text-secondary);
-  font-size: var(--text-xs);
-  font-weight: var(--font-semibold);
-  letter-spacing: var(--tracking-widest);
-  text-transform: uppercase;
-  margin: 0 0 var(--space-lg) 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.title-icon {
-  font-size: var(--text-2xl);
+.stakeholder-panel :deep(.dungeon-frame__body) {
+  padding: var(--space-md);
 }
 
 .stakeholders-list {

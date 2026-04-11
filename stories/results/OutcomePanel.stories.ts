@@ -1,13 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import OutcomePanel from '@/ui/components/results/outcome_panel.vue'
+import { ENDING_VISUAL_ASSETS } from '@/ui/config/presentation_asset_registry'
 import { outcomeMocks } from '../mocks/outcomes'
 
-import boundaryBuilderUrl from '@/assets/artwork/archetypes/boundary_builder.svg?url'
-import firefighterUrl from '@/assets/artwork/archetypes/firefighter.svg?url'
-import systemStabilizerUrl from '@/assets/artwork/archetypes/system_stabilizer.svg?url'
-import stakeholderWhispererUrl from '@/assets/artwork/archetypes/stakeholder_whisperer.svg?url'
-import runawayRefactorerUrl from '@/assets/artwork/archetypes/runaway_refactorer.svg?url'
+const boundaryBuilderUrl = ENDING_VISUAL_ASSETS.boundary_builder
+const firefighterUrl = ENDING_VISUAL_ASSETS.firefighter
+const systemStabilizerUrl = ENDING_VISUAL_ASSETS.system_stabilizer
+const stakeholderWhispererUrl = ENDING_VISUAL_ASSETS.stakeholder_whisperer
+const runawayRefactorerUrl = ENDING_VISUAL_ASSETS.runaway_refactorer
 
 const meta: Meta<typeof OutcomePanel> = {
   title: 'Results/OutcomePanel',

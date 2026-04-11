@@ -25,32 +25,23 @@
 
     <!-- Sort selector -->
     <div class="sort-group">
-      <label class="sort-label" for="satchel-sort">Sort</label>
-      <select
-        id="satchel-sort"
-        class="sort-select"
-        :value="activeSort"
-        @change="$emit('update:activeSort', ($event.target as HTMLSelectElement).value)"
-      >
-        <option value="default">Default</option>
-        <option value="name">Name A → Z</option>
-        <option
-          v-for="metric in affectedMetrics"
-          :key="metric"
-          :value="`boost_${metric}`"
-        >
-          Best for: {{ metricLabel(metric) }}
-        </option>
-      </select>
+      <span class="sort-label">Sort</span>
+      <AppSelect
+        :modelValue="activeSort"
+        :options="sortOptions"
+        @update:modelValue="$emit('update:activeSort', $event)"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { CATEGORY_META } from '@/ui/composables/card_filter_sort'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import AppSelect from '@/ui/components/common/AppSelect.vue'
 
-defineProps<{
+const props = defineProps<{
   availableCategories: string[]
   affectedMetrics: string[]
   activeCategory: string
@@ -69,6 +60,15 @@ function categoryMeta(cat: string) {
 function metricLabel(scoreId: string): string {
   return getMetricPresentation(scoreId).label
 }
+
+const sortOptions = computed(() => [
+  { value: 'default', label: 'Default' },
+  { value: 'name', label: 'Name A → Z' },
+  ...props.affectedMetrics.map(metric => ({
+    value: `boost_${metric}`,
+    label: `Best for: ${metricLabel(metric)}`
+  }))
+])
 </script>
 
 <style scoped>
@@ -139,34 +139,6 @@ function metricLabel(scoreId: string): string {
   white-space: nowrap;
 }
 
-.sort-select {
-  appearance: none;
-  padding: 5px 26px 5px 10px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  background-color: rgba(20, 27, 45, 0.95);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23ccc'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  color: var(--text-bright);
-  font-family: inherit;
-  font-size: var(--text-xs);
-  cursor: pointer;
-  transition: border-color var(--transition-fast);
-  min-width: 0;
-}
-
-.sort-select option {
-  background: #141b2d;
-  color: #e8e6f0;
-}
-
-.sort-select:hover,
-.sort-select:focus {
-  border-color: var(--border-accent);
-  outline: none;
-}
-
 /* Mobile: stack filter + sort vertically */
 @media (max-width: 480px) {
   .satchel-toolbar {
@@ -176,12 +148,34 @@ function metricLabel(scoreId: string): string {
 
   .sort-group {
     margin-left: 0;
+    width: 100%;
+    overflow: hidden;
   }
 
-  .sort-select {
+  /* Stretch the AppSelect shell to full width */
+  .sort-group :deep(.dungeon-select) {
     width: 100%;
-    font-size: var(--text-sm);
-    padding: 8px 28px 8px 10px;
+    max-width: 100%;
+    display: flex;
+    box-sizing: border-box;
+  }
+
+  .sort-group :deep(.dungeon-select__ring) {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .sort-group :deep(.dungeon-select__face) {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .sort-group :deep(.dungeon-select__native) {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .pill-label {

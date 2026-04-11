@@ -1,70 +1,146 @@
 <template>
+  <!--
+    GameMasthead — top navigation bar in dungeon design vocabulary.
+
+    Visual anatomy (left → right):
+      • GameLogo (size="small")
+      • Thin vertical bronze divider line
+      • Nav AppButtons: Rules / About / Dungeon Master / Reset Run
+
+    Bottom edge treatment:
+      • 2px bronze gradient seam (::after pseudo-element)
+
+    Corner ornaments:
+      • L-bracket spans at bottom-left and bottom-right
+        (matching the dungeon card bracket vocabulary)
+
+    Reset confirmation uses SurfaceModalPanel (not an inline overlay).
+    Emits Vue 'reset-run' event directly — NOT via window.dispatchEvent.
+  -->
   <header class="game-masthead">
+    <!-- BL / BR corner bracket ornaments (bottom edge only) -->
+    <span class="masthead-bracket masthead-bracket--bl" aria-hidden="true"/>
+    <span class="masthead-bracket masthead-bracket--br" aria-hidden="true"/>
+
     <div class="masthead-left">
-      <GameLogo size="small" />
+      <GameLogo size="small"/>
     </div>
-    
-    <nav class="masthead-right" aria-label="Game navigation">
-      <button class="nav-button" @click="$emit('show-rules')" aria-label="Show game rules">
-        <span class="button-icon">📖</span>
-        <span class="button-label">Rules</span>
-      </button>
-      
 
-      <button class="nav-button" @click="$emit('show-about')" aria-label="About this game">
-        <span class="button-icon">ℹ️</span>
-        <span class="button-label">About</span>
-      </button>
+    <!-- Vertical bronze divider between logo and nav -->
+    <span class="masthead-divider" aria-hidden="true"/>
 
-      <button class="nav-button" @click="$emit('show-dungeon-master')" aria-label="Dungeon Master social links">
-        <span class="button-icon">🧙‍♂️</span>
-        <span class="button-label">Dungeon Master</span>
-      </button>
-      
-      <button 
-        class="nav-button reset-button" 
-        @click="handleResetClick" 
-        aria-label="Reset and start a new run"
-      >
-        <span class="button-icon">↻</span>
-        <span class="button-label">Reset Run</span>
-      </button>
+    <nav class="masthead-nav" aria-label="Game navigation">
+      <!-- Desktop: full AppButton ring/bracket structure -->
+      <template v-if="!isMobile">
+        <AppButton
+          variant="subtle"
+          aria-label="Show game rules"
+          @click="$emit('show-rules')"
+        >
+          Rules
+        </AppButton>
+
+        <AppButton
+          variant="subtle"
+          aria-label="About this game"
+          @click="$emit('show-about')"
+        >
+          About
+        </AppButton>
+
+        <AppButton
+          variant="subtle"
+          aria-label="Dungeon Master social links"
+          @click="$emit('show-dungeon-master')"
+        >
+          Dungeon&nbsp;Master
+        </AppButton>
+
+        <AppButton
+          variant="warning"
+          aria-label="Reset and start a new run"
+          @click="handleResetClick"
+        >
+          Reset&nbsp;Run
+        </AppButton>
+      </template>
+
+      <!-- Mobile (≤768px): compact etched chip buttons -->
+      <template v-else>
+        <CompactButton
+          icon="📜"
+          label="Rules"
+          variant="subtle"
+          aria-label="Show game rules"
+          @click="$emit('show-rules')"
+        />
+        <CompactButton
+          icon="❓"
+          label="About"
+          variant="subtle"
+          aria-label="About this game"
+          @click="$emit('show-about')"
+        />
+        <CompactButton
+          icon="🎲"
+          label="Dungeon Master"
+          variant="subtle"
+          aria-label="Dungeon Master social links"
+          @click="$emit('show-dungeon-master')"
+        />
+        <CompactButton
+          icon="↩"
+          label="Reset Run"
+          variant="warning"
+          aria-label="Reset and start a new run"
+          @click="handleResetClick"
+        />
+      </template>
     </nav>
-    
-    <!-- Reset Confirmation Overlay -->
-    <div v-if="showResetConfirmation" class="reset-confirmation-overlay" @click.self="cancelReset">
-      <div class="confirmation-card">
-        <div class="confirmation-icon">⚠️</div>
-        <h3 class="confirmation-title">Reset Current Run?</h3>
-        <p class="confirmation-message">
-          This will end your current run and return you to scenario selection. 
-          Your progress will be lost.
-        </p>
-        <div class="confirmation-actions">
-          <button class="btn-cancel" @click="cancelReset">
-            Cancel
-          </button>
-          <button class="btn-confirm" @click="confirmReset">
-            Reset Run
-          </button>
-        </div>
-      </div>
-    </div>
+
+    <!-- Reset confirmation modal -->
+    <SurfaceModalPanel
+      :is-open="showResetConfirmation"
+      title="Reset Current Run?"
+      subtitle="Your progress will be lost and you'll return to scenario selection."
+      size="sm"
+      @close="cancelReset"
+    >
+      <template #footer>
+        <AppButton variant="subtle" @click="cancelReset">Cancel</AppButton>
+        <AppButton variant="warning" @click="confirmReset">Reset Run</AppButton>
+      </template>
+    </SurfaceModalPanel>
   </header>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import GameLogo from './game_logo.vue'
+import AppButton from '@/ui/components/common/AppButton.vue'
+import CompactButton from '@/ui/components/common/CompactButton.vue'
+import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 
-defineEmits<{
-  'show-rules': []
-  'show-about': []
+const emit = defineEmits<{
+  'show-rules':         []
+  'show-about':         []
   'show-dungeon-master': []
-  'reset-run': []
+  'reset-run':          []
 }>()
 
 const showResetConfirmation = ref(false)
+
+const isMobile = ref(false)
+let _mql: MediaQueryList | null = null
+function _onMqlChange(e: MediaQueryListEvent) { isMobile.value = e.matches }
+onMounted(() => {
+  _mql = window.matchMedia('(max-width: 768px)')
+  isMobile.value = _mql.matches
+  _mql.addEventListener('change', _onMqlChange)
+})
+onUnmounted(() => {
+  _mql?.removeEventListener('change', _onMqlChange)
+})
 
 function handleResetClick() {
   showResetConfirmation.value = true
@@ -76,241 +152,165 @@ function cancelReset() {
 
 function confirmReset() {
   showResetConfirmation.value = false
-  // Emit after hiding the modal
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('reset-run'))
-  }, 100)
+  emit('reset-run')
 }
 </script>
 
 <style scoped>
+/* ─────────────────────────────────────────────────────────────
+   Masthead bar
+   Background: dark charcoal shell → warm gradient toward bottom.
+   Bottom edge: 2px bronze seam via ::after.
+───────────────────────────────────────────────────────────── */
 .game-masthead {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-md) var(--space-lg);
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border-card);
   position: relative;
+  display: flex;
+  align-items: center;
+  padding: var(--space-sm) var(--space-lg);
+  background: linear-gradient(
+    to bottom,
+    #130d06 0%,
+    var(--dng-shell-bg, #0d0904) 50%,
+    #0b0802 100%
+  );
+  min-height: 60px;
 }
 
+/* Bottom bronze gradient seam */
+.game-masthead::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    var(--dng-bronze-hi, #c89824) 15%,
+    var(--dng-bronze-mid, #a07018) 40%,
+    var(--dng-bronze-hi, #c89824) 60%,
+    var(--dng-bronze-mid, #a07018) 85%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Corner bracket ornaments (bottom-left / bottom-right)
+   CSS L-brackets matching dungeon card corner language.
+   bracket-size ≈ 10px, bracket-weight = 2px
+───────────────────────────────────────────────────────────── */
+.masthead-bracket {
+  position: absolute;
+  bottom: 8px;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.masthead-bracket::before,
+.masthead-bracket::after {
+  content: '';
+  position: absolute;
+  background: var(--dng-bracket, rgba(196, 148, 34, 0.82));
+}
+
+/* Horizontal arm */
+.masthead-bracket::before {
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+}
+
+/* Vertical arm */
+.masthead-bracket::after {
+  bottom: 0;
+  width: 2px;
+  height: 100%;
+}
+
+.masthead-bracket--bl {
+  left: var(--space-lg);
+}
+.masthead-bracket--bl::after { left: 0; }
+.masthead-bracket--bl::before { left: 0; }
+
+.masthead-bracket--br {
+  right: var(--space-lg);
+}
+.masthead-bracket--br::after { right: 0; left: auto; }
+.masthead-bracket--br::before { right: 0; left: auto; }
+
+/* ─────────────────────────────────────────────────────────────
+   Logo section
+───────────────────────────────────────────────────────────── */
 .masthead-left {
   flex: 0 0 auto;
 }
 
-.masthead-right {
+/* ─────────────────────────────────────────────────────────────
+   Vertical divider between logo and nav
+───────────────────────────────────────────────────────────── */
+.masthead-divider {
+  display: block;
+  width: 1px;
+  align-self: stretch;
+  margin: 4px var(--space-md);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    var(--dng-bronze-hi, #c89824) 20%,
+    var(--dng-bronze-mid, #a07018) 55%,
+    var(--dng-bronze-hi, #c89824) 80%,
+    transparent 100%
+  );
+  flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Nav buttons
+───────────────────────────────────────────────────────────── */
+.masthead-nav {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  margin-left: auto;
 }
 
-/* Navigation buttons */
-.nav-button {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: var(--space-sm) var(--space-md);
-  background: var(--surface-panel);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.nav-button:hover {
-  background: var(--surface-card);
-  border-color: var(--border-focus);
-  transform: translateY(-1px);
-}
-
-.nav-button:active {
-  transform: translateY(0);
-}
-
-.nav-button:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
-}
-
-.button-icon {
-  font-size: var(--text-md);
-  line-height: 1;
-}
-
-.button-label {
-  line-height: 1;
-}
-
-/* Reset button styling */
-.reset-button {
-  background: var(--surface-card);
-  border-color: var(--border-accent);
-  color: var(--text-accent);
-}
-
-.reset-button:hover {
-  background: var(--effect-warning-bg);
-  border-color: var(--effect-warning);
-  color: var(--effect-warning);
-}
-
-/* Reset Confirmation Overlay */
-.reset-confirmation-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: var(--bg-overlay);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.confirmation-card {
-  background: var(--surface-modal);
-  border: 1px solid var(--border-card);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  max-width: 420px;
-  width: 90%;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  animation: slideIn 0.2s ease;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.confirmation-icon {
-  font-size: var(--text-4xl);
-  text-align: center;
-  margin-bottom: var(--space-md);
-}
-
-.confirmation-title {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 700;
-  color: var(--text-bright);
-  text-align: center;
-  margin-bottom: var(--space-md);
-}
-
-.confirmation-message {
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  color: var(--text-secondary);
-  text-align: center;
-  line-height: 1.6;
-  margin-bottom: var(--space-xl);
-}
-
-.confirmation-actions {
-  display: flex;
-  gap: var(--space-md);
-  justify-content: center;
-}
-
-.btn-cancel,
-.btn-confirm {
-  padding: var(--space-sm) var(--space-lg);
-  border-radius: var(--radius-md);
-  font-family: var(--font-body);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  flex: 1;
-}
-
-.btn-cancel {
-  background: var(--surface-panel);
-  border: 1px solid var(--border-card);
-  color: var(--text-primary);
-}
-
-.btn-cancel:hover {
-  background: var(--surface-card);
-  border-color: var(--border-focus);
-}
-
-.btn-confirm {
-  background: var(--effect-warning);
-  border: 1px solid var(--effect-warning);
-  color: var(--bg-page);
-}
-
-.btn-confirm:hover {
-  background: var(--effect-negative);
-  border-color: var(--effect-negative);
-}
-
-.btn-cancel:focus-visible,
-.btn-confirm:focus-visible {
-  outline: 2px solid var(--border-focus);
-  outline-offset: 2px;
-}
-
-/* Mobile responsiveness */
+/* ── Mobile (≤768px): compact chip buttons, stacked masthead ── */
 @media (max-width: 768px) {
   .game-masthead {
-    padding: var(--space-sm) var(--space-md);
-    justify-content: center;
-  }
-  
-  .masthead-right {
+    padding: var(--space-xs) var(--space-md) var(--space-sm);
+    min-height: auto;
+    flex-direction: column;
+    align-items: center;
     gap: var(--space-xs);
   }
-  
-  .nav-button {
-    padding: var(--space-xs) var(--space-sm);
-  }
-  
-  .button-label {
+
+  .masthead-divider {
     display: none;
   }
-  
-  .button-icon {
-    font-size: var(--text-lg);
+
+  .masthead-nav {
+    gap: var(--space-xs);
+    margin-left: 0;
+    justify-content: center;
   }
 }
 
+/* ── Narrow mobile (≤480px): icon-only compact chips ── */
 @media (max-width: 480px) {
-  .confirmation-card {
-    padding: var(--space-lg);
+  .game-masthead {
+    padding: var(--space-xs) var(--space-sm) var(--space-sm);
   }
-  
-  .confirmation-actions {
-    flex-direction: column;
+
+  .masthead-nav {
+    gap: 4px;
   }
-  
-  .btn-cancel,
-  .btn-confirm {
-    flex: auto;
+
+  .masthead-nav :deep(.compact-btn__label) {
+    display: none;
   }
 }
 </style>

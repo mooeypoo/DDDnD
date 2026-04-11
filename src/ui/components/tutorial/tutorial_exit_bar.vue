@@ -2,7 +2,7 @@
   <div v-if="isTutorial" class="tutorial-exit-bar">
     <div class="exit-bar-content">
       <span class="exit-bar-label">
-        <span class="exit-bar-icon">📖</span>
+        <span class="exit-bar-icon"><IconScroll :size="14" /></span>
         Tutorial Mode
       </span>
       <button class="exit-bar-btn" @click="$emit('leave')">
@@ -13,6 +13,8 @@
 </template>
 
 <script setup lang="ts">
+import IconScroll from '@/ui/components/icons/IconScroll.vue'
+
 defineProps<{
   isTutorial: boolean
 }>()
@@ -24,8 +26,8 @@ defineEmits<{
 
 <style scoped>
 .tutorial-exit-bar {
-  background: var(--color-bg-overlay, rgba(0, 0, 0, 0.3));
-  border-bottom: 1px solid var(--color-border-default, #333);
+  background: rgba(13, 9, 4, 0.5);
+  border-bottom: 1px solid var(--dng-divider);
   padding: var(--space-sm, 8px) var(--space-lg, 16px);
 }
 
@@ -40,7 +42,7 @@ defineEmits<{
 }
 
 .exit-bar-label {
-  color: var(--color-text-secondary, #a0a0b0);
+  color: var(--dng-subtitle-warm);
   font-size: var(--text-sm, 0.875rem);
   font-weight: var(--font-semibold, 600);
   display: flex;
@@ -54,8 +56,8 @@ defineEmits<{
 
 .exit-bar-btn {
   background: none;
-  border: 1px solid var(--color-text-secondary, #a0a0b0);
-  color: var(--color-text-secondary, #a0a0b0);
+  border: 1px solid var(--dng-subtitle-warm);
+  color: var(--dng-subtitle-warm);
   padding: var(--space-xs, 4px) var(--space-lg, 16px);
   font-size: var(--text-sm, 0.875rem);
   border-radius: var(--radius-md, 8px);
@@ -65,9 +67,9 @@ defineEmits<{
 }
 
 .exit-bar-btn:hover {
-  color: var(--color-primary, #e94560);
-  border-color: var(--color-primary, #e94560);
-  background: var(--color-bg-surface, #1a1a2e);
+  color: var(--dng-bronze-hi);
+  border-color: var(--dng-bronze-hi);
+  background: var(--dng-shell-bg);
 }
 
 @media (max-width: 480px) {

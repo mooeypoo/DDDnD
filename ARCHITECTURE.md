@@ -4,6 +4,10 @@ This document describes the technical architecture of the DDDnD game.
 
 The game simulates the evolution of a software system as architectural decisions are made over multiple turns.
 
+For work-routing and canonical reading order, see [AGENT.md](AGENT.md).
+
+For UI presentation planning and phase coordination, see [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md).
+
 ---
 
 # High Level Structure
@@ -256,6 +260,24 @@ The UI layer:
 
 The UI must not implement simulation rules.
 
+## UI Presentation Ownership and Terminology
+
+The following presentation concepts are UI-only:
+
+- scene selection for a run
+- avatar role assignment for stakeholder visuals
+- presentation-facing ending labeling
+
+These concepts must not change simulation/domain behavior or leak into content validation boundaries.
+
+Terminology for new UI/presentation work:
+
+- `playerClass` = player-selected class at scenario start
+- `endingType` = end-of-run outcome classification label in presentation surfaces
+- `avatarRole` = UI-only fantasy visual role assigned to stakeholders
+
+Use of `archetype` as a generic new term is discouraged. Legacy engine/content references to archetype criteria may remain for compatibility while presentation surfaces migrate to `endingType` naming.
+
 ---
 
 # Persistence Responsibilities
@@ -284,9 +306,11 @@ Reporting reads simulation history but does not modify state.
 
 ## Outcome Classification Progression
 
-The simulation supports both outcome tiers and archetypes.
+The simulation supports outcome tiers and legacy archetype criteria.
 
-For MVP implementation, outcome tier classification may be completed before archetype classification if authored archetype criteria are not yet fully defined. In that case, archetype handling should remain an explicit stub rather than implicit or ad hoc behavior, and should be completed before final end-of-run presentation and sharing are considered complete.
+For MVP implementation, outcome tier classification may be completed before legacy archetype criteria classification if authored criteria are not yet fully defined. In that case, handling should remain an explicit stub rather than implicit or ad hoc behavior, and should be completed before final end-of-run presentation and sharing are considered complete.
+
+In UI/player-facing surfaces, use `endingType` terminology.
 
 ---
 

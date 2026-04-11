@@ -4,6 +4,10 @@ This document defines how authored game content is structured.
 
 Content files live in the `/content` directory.
 
+For domain boundaries and validation ownership, see [ARCHITECTURE.md](ARCHITECTURE.md) and [AGENT.md](AGENT.md).
+
+For UI presentation terminology (`playerClass`, `endingType`, `avatarRole`), see [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md). This schema document remains source-of-truth for JSON structure.
+
 ---
 
 # Content Philosophy
@@ -157,9 +161,11 @@ Each delayed effect specifies:
 Outcome definitions include:
 
 - success tiers
-- archetypes
+- legacy archetype criteria (used by current content definitions)
 
 Outcomes are determined based on final state and run analytics.
+
+Presentation naming in UI may map these outcomes to `endingType` labels without changing content schema structure.
 
 ---
 
