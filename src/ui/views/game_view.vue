@@ -114,6 +114,21 @@
                 </div>
               </div>
             </Transition>
+            <!-- System coupling badge: top-left overlay on the scene when card gains are reduced -->
+            <Transition name="coupling-badge">
+              <button
+                v-if="hasActiveCardEffects && !gameStore.isRunComplete && gameStore.turnBriefing"
+                class="coupling-effects-badge"
+                @click="activeEffectsPopupOpen = true"
+                :aria-label="`${collapseWarnings.length} active system effect${collapseWarnings.length > 1 ? 's' : ''} reducing card gains — click for details`"
+              >
+                <IconSpell class="coupling-badge-icon" :size="14" />
+                <div class="coupling-badge-content">
+                  <div class="coupling-badge-title">System Coupling</div>
+                  <div class="coupling-badge-sub">{{ collapseWarnings.length }} effect{{ collapseWarnings.length > 1 ? 's' : '' }} active</div>
+                </div>
+              </button>
+            </Transition>
           </section>
 
           <!-- Below-scene: single column, width-capped -->
@@ -222,6 +237,62 @@
       </div>
     </Transition>
 
+    <!-- System coupling effects popup: explains active card-gain modifiers -->
+    <Transition name="coupling-popup">
+      <div
+        v-if="activeEffectsPopupOpen"
+        class="coupling-popup-backdrop"
+        @click.self="activeEffectsPopupOpen = false"
+      >
+        <div class="coupling-popup-panel" role="dialog" aria-modal="true" aria-labelledby="coupling-popup-title">
+          <div class="coupling-popup-header">
+            <IconSpell :size="20" class="coupling-popup-icon" />
+            <h3 id="coupling-popup-title" class="coupling-popup-title">System Coupling Active</h3>
+          </div>
+          <div class="coupling-popup-body">
+            <p class="coupling-popup-intro">
+              One or more system dimensions have collapsed below critical thresholds.
+              Positive gains from architectural cards are currently being reduced.
+            </p>
+            <div
+              v-for="effect in detailedCouplingEffects"
+              :key="effect.triggerScoreId"
+              class="coupling-effect-item"
+            >
+              <div class="coupling-effect-header">
+                <span class="coupling-effect-icon">{{ effect.icon }}</span>
+                <div class="coupling-effect-header-text">
+                  <div class="coupling-effect-title">{{ effect.title }}</div>
+                  <div class="coupling-effect-desc">{{ effect.description }}</div>
+                </div>
+              </div>
+              <div class="coupling-effect-score-info">
+                {{ getMetricPresentation(effect.triggerScoreId).label }} is at
+                <strong>{{ effect.currentValue }}</strong>
+                (collapses below {{ effect.threshold }})
+              </div>
+              <div v-if="effect.affected_score_ids.length > 0" class="coupling-affected-scores">
+                <span class="coupling-affected-label">Affected gains:</span>
+                <div class="coupling-affected-list">
+                  <span
+                    v-for="scoreId in effect.affected_score_ids"
+                    :key="scoreId"
+                    class="coupling-affected-score"
+                  >
+                    {{ getMetricPresentation(scoreId).label }}
+                    <span class="coupling-reduction">−{{ Math.round((1 - effect.multiplier) * 100) }}%</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="coupling-popup-footer">
+            <AppButton label="Got it" variant="primary" @click="activeEffectsPopupOpen = false" />
+          </div>
+        </div>
+      </div>
+    </Transition>
+
     <!-- Glowing pointer arrow: floats above the satchel when player must pick a card -->
     <TutorialPointerArrow :show="showSatchelArrow" />
 
@@ -273,6 +344,9 @@ import { versionRefKey } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
+import { getCollapseWarnings, hasActiveCoupling } from '@/ui/composables/system_coupling'
+import { getActiveCouplingEffects } from '@/domains/simulation'
+import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import {
   buildGameplayStageActors,
   pickRandomSceneId,
@@ -299,6 +373,7 @@ import SceneStage from '@/ui/components/gameplay/scene_stage.vue'
 import SatchelToggleButton from '@/ui/components/cards/satchel_toggle_button.vue'
 import GameHudSidebar from '@/ui/components/common/game_hud_sidebar.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
+import IconSpell from '@/ui/components/icons/IconSpell.vue'
 import {
   filterByCategory,
   sortCards,
@@ -314,6 +389,7 @@ const modalCardId = ref<string | null>(null)
 const isSatchelOpen = ref(false)
 const resolutionPopupOpen = ref(false)
 const isResolutionExpanded = ref(false)
+const activeEffectsPopupOpen = ref(false)
 const randomSceneId = ref<SceneBackgroundId>(pickRandomSceneId())
 const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const satchelCategory = ref<CategoryFilter>('all')
@@ -371,6 +447,25 @@ const currentAvailableActions = computed(() => {
 
 const pendingAftershockCount = computed(() => {
   return gameStore.turnBriefing?.pending_delayed_effects_resolving_this_turn.length ?? 0
+})
+
+const currentScores = computed(() => gameStore.turnBriefing?.current_scores ?? {})
+
+const collapseWarnings = computed(() => getCollapseWarnings(currentScores.value))
+
+const hasActiveCardEffects = computed(() => hasActiveCoupling(currentScores.value))
+
+const detailedCouplingEffects = computed(() => {
+  const warnings = getCollapseWarnings(currentScores.value)
+  const effects = getActiveCouplingEffects(currentScores.value)
+  return warnings.map(w => {
+    const effect = effects.find(e => e.trigger_score_id === w.triggerScoreId)
+    return {
+      ...w,
+      affected_score_ids: effect?.affected_score_ids ?? [],
+      multiplier: effect?.multiplier ?? 1
+    }
+  })
 })
 
 const availabilitySummaryByKey = computed(() => {
@@ -1167,6 +1262,272 @@ function goToEndScreen() {
   .tutorial-popup-panel {
     width: 100%;
     border-radius: 18px 18px 0 0;
+  }
+}
+
+/* ─── System coupling badge (scene overlay, top-left) ─── */
+.coupling-effects-badge {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: linear-gradient(135deg, rgba(35, 15, 60, 0.88) 0%, rgba(22, 10, 45, 0.84) 100%);
+  border: 1px solid rgba(169, 137, 250, 0.45);
+  border-radius: 10px;
+  padding: 0.4rem 0.65rem;
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  max-width: 200px;
+  color: var(--text-accent);
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+  animation: coupling-pulse 3s ease-in-out infinite;
+}
+
+.coupling-effects-badge:hover {
+  border-color: rgba(169, 137, 250, 0.72);
+  background: linear-gradient(135deg, rgba(50, 22, 80, 0.92) 0%, rgba(32, 14, 60, 0.88) 100%);
+  animation: none;
+  box-shadow: 0 0 0 4px rgba(169, 137, 250, 0.18), 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+@keyframes coupling-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(169, 137, 250, 0), 0 4px 12px rgba(0, 0, 0, 0.4); }
+  50%       { box-shadow: 0 0 0 4px rgba(169, 137, 250, 0.14), 0 4px 12px rgba(0, 0, 0, 0.4); }
+}
+
+.coupling-badge-icon {
+  flex-shrink: 0;
+  color: var(--text-accent);
+}
+
+.coupling-badge-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.coupling-badge-title {
+  color: var(--text-accent);
+  font-size: var(--text-2xs);
+  font-weight: var(--font-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  white-space: nowrap;
+}
+
+.coupling-badge-sub {
+  color: var(--text-secondary);
+  font-size: var(--text-2xs);
+  white-space: nowrap;
+}
+
+.coupling-badge-enter-active {
+  transition: opacity 0.2s var(--ease-decelerate), transform 0.2s var(--ease-decelerate);
+}
+.coupling-badge-leave-active {
+  transition: opacity 0.15s var(--ease-accelerate), transform 0.15s var(--ease-accelerate);
+}
+.coupling-badge-enter-from,
+.coupling-badge-leave-to {
+  opacity: 0;
+  transform: translateY(-6px) scale(0.95);
+}
+
+/* ─── System coupling popup ─── */
+.coupling-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(4, 6, 14, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.coupling-popup-panel {
+  width: min(520px, 100%);
+  max-height: calc(100vh - 4rem);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-modal, #0d1019);
+  border: 1px solid rgba(169, 137, 250, 0.42);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(169, 137, 250, 0.08);
+  overflow: hidden;
+}
+
+.coupling-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1rem 1.25rem 0.75rem;
+  background: rgba(60, 20, 100, 0.15);
+  border-bottom: 1px solid rgba(169, 137, 250, 0.2);
+}
+
+.coupling-popup-icon {
+  color: var(--text-accent);
+  flex-shrink: 0;
+}
+
+.coupling-popup-title {
+  flex: 1;
+  margin: 0;
+  color: var(--text-accent);
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.coupling-popup-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-subtle) transparent;
+}
+
+.coupling-popup-intro {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  margin: 0;
+  line-height: 1.55;
+}
+
+.coupling-effect-item {
+  background: rgba(169, 137, 250, 0.05);
+  border: 1px solid rgba(169, 137, 250, 0.2);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.coupling-effect-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+}
+
+.coupling-effect-icon {
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.coupling-effect-header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.coupling-effect-title {
+  color: var(--text-bright);
+  font-weight: var(--font-bold);
+  font-size: var(--text-sm);
+}
+
+.coupling-effect-desc {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+.coupling-effect-score-info {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  padding-left: 1.7rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.coupling-effect-score-info strong {
+  color: var(--effect-negative);
+}
+
+.coupling-affected-scores {
+  padding-left: 1.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.coupling-affected-label {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.coupling-affected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.coupling-affected-score {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(169, 137, 250, 0.1);
+  border: 1px solid rgba(169, 137, 250, 0.22);
+  border-radius: 6px;
+  padding: 0.2rem 0.45rem;
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+}
+
+.coupling-reduction {
+  color: var(--effect-warning);
+  font-weight: var(--font-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+.coupling-popup-footer {
+  flex-shrink: 0;
+  padding: var(--space-md) var(--space-lg);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(8, 11, 19, 0.6);
+}
+
+.coupling-popup-enter-active {
+  transition: opacity 0.18s var(--ease-decelerate), transform 0.18s var(--ease-decelerate);
+}
+.coupling-popup-leave-active {
+  transition: opacity 0.12s var(--ease-accelerate), transform 0.12s var(--ease-accelerate);
+}
+.coupling-popup-enter-from,
+.coupling-popup-leave-to {
+  opacity: 0;
+  transform: scale(0.97);
+}
+
+@media (max-width: 480px) {
+  .coupling-popup-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .coupling-popup-panel {
+    width: 100%;
+    max-height: 86vh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  .coupling-effects-badge {
+    max-width: 160px;
+    padding: 0.3rem 0.5rem;
   }
 }
 </style>
