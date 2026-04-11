@@ -113,6 +113,13 @@ function close() {
   transition: transform var(--duration-slow) var(--ease-standard);
 }
 
+@media (max-width: 768px) {
+  .drawer-panel {
+    /* Use dvh on mobile to avoid iOS address-bar-resize jumps */
+    height: min(70dvh, 80vh);
+  }
+}
+
 .drawer-panel.open {
   transform: translateY(0);
 }
@@ -161,6 +168,12 @@ function close() {
 
   .drawer-handle {
     padding-top: var(--space-md);
+    /* Ensure handle clears iPhone home bar / Android navbar */
+    padding-bottom: max(var(--space-sm), env(safe-area-inset-bottom, var(--space-sm)));
+  }
+
+  .drawer-inner {
+    padding: var(--space-md);
   }
 }
 
@@ -222,6 +235,7 @@ function close() {
   border-top: 1px solid var(--dng-divider);
   flex: 1;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
@@ -232,6 +246,7 @@ function close() {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  min-width: 0;
 }
 
 .drawer-hint {

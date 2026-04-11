@@ -749,11 +749,19 @@ async function launchTutorial(quest: QuestDisplayModel) {
   }
 
   .setup-loading-overlay {
-    padding: var(--space-lg);
+    padding: 6px;
+    align-items: flex-end;
   }
 
   .setup-loading-panel {
-    border-radius: var(--radius-lg);
+    width: 100%;
+    padding: var(--space-lg) var(--space-md);
+    gap: var(--space-md);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .setup-loading-title {
+    font-size: var(--text-lg);
   }
 
 }

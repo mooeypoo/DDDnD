@@ -148,6 +148,34 @@ const sortOptions = computed(() => [
 
   .sort-group {
     margin-left: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* Stretch the AppSelect shell to full width */
+  .sort-group :deep(.dungeon-select) {
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+    box-sizing: border-box;
+  }
+
+  .sort-group :deep(.dungeon-select__ring) {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .sort-group :deep(.dungeon-select__face) {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .sort-group :deep(.dungeon-select__native) {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .pill-label {

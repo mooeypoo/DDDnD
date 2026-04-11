@@ -35,6 +35,7 @@
         aria-label="Show game rules"
         @click="$emit('show-rules')"
       >
+        <span class="nav-icon" aria-hidden="true">📜</span>
         <span class="nav-label">Rules</span>
       </AppButton>
 
@@ -43,6 +44,7 @@
         aria-label="About this game"
         @click="$emit('show-about')"
       >
+        <span class="nav-icon" aria-hidden="true">❓</span>
         <span class="nav-label">About</span>
       </AppButton>
 
@@ -51,6 +53,7 @@
         aria-label="Dungeon Master social links"
         @click="$emit('show-dungeon-master')"
       >
+        <span class="nav-icon" aria-hidden="true">🎲</span>
         <span class="nav-label">Dungeon&nbsp;Master</span>
       </AppButton>
 
@@ -59,6 +62,7 @@
         aria-label="Reset and start a new run"
         @click="handleResetClick"
       >
+        <span class="nav-icon" aria-hidden="true">↩</span>
         <span class="nav-label">Reset&nbsp;Run</span>
       </AppButton>
     </nav>
@@ -230,8 +234,88 @@ function confirmReset() {
   margin-left: auto;
 }
 
-/* ── Mobile: hide labels, keep buttons ── */
-@media (max-width: 768px) {
+/* ── Narrow mobile: icon-only flat circles ── */
+@media (max-width: 480px) {
+  .game-masthead {
+    padding: var(--space-xs) var(--space-sm);
+    min-height: 48px;
+  }
+
+  .masthead-divider {
+    margin: 4px var(--space-sm);
+  }
+
+  .masthead-nav {
+    gap: 4px;
+  }
+
+  .nav-label {
+    display: none;
+  }
+
+  /*
+    Strip all dungeon-btn chrome on mobile.
+    min-width: 0 overrides the 80px default from AppButton.
+    Face padding: 0 removes the 7px/16px padding keeping buttons wide.
+  */
+  .masthead-nav :deep(.dungeon-btn) {
+    clip-path: none;
+    background: transparent;
+    border: none;
+    filter: none;
+    padding: 0;
+    min-width: 0;
+  }
+
+  .masthead-nav :deep(.dungeon-btn__ring) {
+    background: rgba(255, 255, 255, 0.06);
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 120ms ease;
+  }
+
+  .masthead-nav :deep(.dungeon-btn:hover .dungeon-btn__ring) {
+    background: rgba(255, 255, 255, 0.14);
+  }
+
+  /* Warning variant: slight amber tint instead */
+  .masthead-nav :deep(.dungeon-btn.variant-warning .dungeon-btn__ring) {
+    background: rgba(200, 128, 24, 0.15);
+  }
+
+  .masthead-nav :deep(.dungeon-btn__face) {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: normal;
+  }
+
+  /* Hide the decorative brackets */
+  .masthead-nav :deep(.dungeon-btn-bracket) {
+    display: none;
+  }
+
+  .nav-icon {
+    font-size: 15px;
+    line-height: 1;
+    display: inline-flex;
+  }
+}
+
+/* ── Wider mobile (481–768px): hide labels, keep button chrome smaller ── */
+@media (min-width: 481px) and (max-width: 768px) {
   .game-masthead {
     padding: var(--space-xs) var(--space-md);
   }
@@ -241,6 +325,22 @@ function confirmReset() {
   }
 
   .nav-label {
+    display: none;
+  }
+
+  /* Shrink ring/face padding so icon-only buttons don't take as much room */
+  .masthead-nav :deep(.dungeon-btn) {
+    min-width: 0;
+  }
+
+  .masthead-nav :deep(.dungeon-btn__face) {
+    padding: 7px 10px;
+  }
+}
+
+/* ── Desktop: hide nav icons (labels show instead) ── */
+@media (min-width: 769px) {
+  .nav-icon {
     display: none;
   }
 }

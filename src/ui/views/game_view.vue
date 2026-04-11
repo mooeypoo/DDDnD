@@ -70,13 +70,10 @@
 
           <!-- Scores + stakeholders: hidden on desktop where sidebar is visible -->
           <div class="header-stat-zone">
-            <div class="score-strip" v-if="scoreEntries.length > 0">
-              <span v-for="score in scoreEntries" :key="score.id" class="score-chip" :class="score.healthClass" :style="`--chip-fill: ${score.fillPct}%`">
-                <span class="score-chip-label">{{ score.label }}</span>
-                <span class="score-chip-value">{{ score.value }}</span>
-                <span class="score-chip-bar" aria-hidden="true"></span>
-              </span>
-            </div>
+            <ScoreHud
+              v-if="gameStore.turnBriefing?.current_scores"
+              :scores="gameStore.turnBriefing.current_scores"
+            />
             <StakeholderHud
               v-if="gameStore.gameState?.stakeholders"
               :stakeholders="gameStore.gameState.stakeholders"
@@ -267,6 +264,7 @@ import TutorialHintPanel from '@/ui/components/tutorial/tutorial_hint_panel.vue'
 import TutorialExitBar from '@/ui/components/tutorial/tutorial_exit_bar.vue'
 import TutorialCompleteSplash from '@/ui/components/tutorial/tutorial_complete_splash.vue'
 import StakeholderHud from '@/ui/components/stakeholders/stakeholder_hud.vue'
+import ScoreHud from '@/ui/components/scores/score_hud.vue'
 import SceneStage from '@/ui/components/gameplay/scene_stage.vue'
 import SatchelToggleButton from '@/ui/components/cards/satchel_toggle_button.vue'
 import GameHudSidebar from '@/ui/components/common/game_hud_sidebar.vue'
@@ -509,7 +507,11 @@ function goToEndScreen() {
     radial-gradient(circle at 12% 12%, rgba(101, 123, 181, 0.18) 0%, transparent 45%),
     radial-gradient(circle at 84% 16%, rgba(77, 111, 92, 0.2) 0%, transparent 40%),
     linear-gradient(180deg, #0d1019 0%, #121827 48%, #111420 100%);
-  padding-bottom: calc(var(--drawer-handle-height) + var(--space-lg));
+  /* Account for iPhone home bar with safe-area-inset-bottom */
+  padding-bottom: max(
+    calc(var(--drawer-handle-height) + var(--space-lg)),
+    calc(var(--drawer-handle-height) + env(safe-area-inset-bottom, var(--space-lg)))
+  );
 }
 
 .game-shell {
@@ -1001,5 +1003,30 @@ function goToEndScreen() {
 .resolution-popup-leave-to {
   opacity: 0;
   transform: scale(0.97);
+}
+
+@media (max-width: 480px) {
+  /* Resolution popup: full-width sheet from bottom */
+  .resolution-popup-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .resolution-popup-panel {
+    width: 100%;
+    max-height: 86vh;
+    border-radius: 18px 18px 0 0;
+  }
+
+  /* Play header: tighten pills at narrow width */
+  .header-pill,
+  .turn-pill {
+    font-size: 9px;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .score-chip-label {
+    display: none;
+  }
 }
 </style>

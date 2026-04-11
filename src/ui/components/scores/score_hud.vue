@@ -237,10 +237,17 @@ const overallHealth = computed(() => {
   }
 }
 
-/* Hide text labels on mobile, show on desktop */
+/* Compact labels on mobile: wrap to two lines */
 @media (max-width: 768px) {
+  .hud-scores {
+    flex-wrap: wrap;
+    row-gap: 3px;
+  }
+  .hud-metric {
+    padding: 2px 4px;
+  }
   .hud-metric-label {
-    display: none;
+    max-width: 52px;
   }
 }
 

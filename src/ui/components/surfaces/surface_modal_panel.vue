@@ -531,4 +531,20 @@ onUnmounted(() => {
     padding: var(--space-md);
   }
 }
+
+@media (max-width: 480px) {
+  .surface-overlay {
+    padding: 6px;
+    align-items: flex-end;
+  }
+
+  .dungeon-modal {
+    max-height: 96vh;
+    border-radius: 0;
+  }
+
+  .dungeon-modal__cap {
+    padding: 14px 16px 12px;
+  }
+}
 </style>

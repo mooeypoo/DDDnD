@@ -955,6 +955,42 @@ function metricPresentation(scoreId: string) {
     border-color: color-mix(in srgb, var(--ac-category-accent) 75%, transparent);
   }
 }
+
+/* ── Mobile: compact card layout inside narrow drawer ────────── */
+@media (max-width: 480px) {
+  .dungeon-ac {
+    --dng-card-ring-h: 6px;
+    --dng-card-body-padding: var(--space-xs);
+  }
+
+  /* Hide artwork thumbnail — not useful at narrow widths */
+  .card-artwork-thumb {
+    display: none;
+  }
+
+  /* Tighter title — allow wrapping instead of cutting off */
+  .ac-title {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+  }
+
+  /* Effect chips: allow full wrap, keep text readable */
+  .effect-chip {
+    font-size: var(--text-2xs);
+    padding: 2px var(--space-xs);
+  }
+
+  /* Footer buttons: stack if very tight */
+  .dungeon-ac__footer {
+    gap: var(--space-xs);
+  }
+
+  .ac-btn--inspect {
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+  }
+}
 </style>
 
 <!-- Non-scoped styles for the teleported tooltip (rendered at <body> level) -->

@@ -106,10 +106,12 @@ const emit = defineEmits<{
   transform: translateY(0);
 }
 
-/* Hidden on mobile — handle is sufficient */
+/* Scale down on mobile — still visible above the handle */
 @media (max-width: 768px) {
   .satchel-toggle {
-    display: none;
+    width: 72px;
+    height: 72px;
+    right: 16px;
   }
 }
 </style>

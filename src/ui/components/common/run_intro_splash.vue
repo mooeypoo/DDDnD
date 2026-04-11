@@ -347,6 +347,7 @@ function getSatisfactionClass(value: number): string {
   width: min(640px, 100%);
   max-height: min(92vh, 900px);
   overflow-y: auto;
+  overflow-x: hidden;
   border-radius: var(--radius-2xl);
 }
 
@@ -447,6 +448,8 @@ function getSatisfactionClass(value: number): string {
   color: var(--dng-title-gold);
   margin: 0 0 var(--space-md) 0;
   line-height: var(--leading-tight);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .splash-flavor {
@@ -456,6 +459,8 @@ function getSatisfactionClass(value: number): string {
   margin: 0;
   max-width: 440px;
   margin-inline: auto;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 /* ─── Divider ─── */
@@ -867,18 +872,26 @@ function getSatisfactionClass(value: number): string {
 
 @media (max-width: 480px) {
   .splash-overlay {
-    padding: var(--space-sm) var(--space-1);
+    padding: 6px 4px;
+    align-items: flex-end;
   }
 
   .splash-scroll-area {
-    max-height: 96vh;
-    border-radius: var(--radius-lg);
+    max-height: 94vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   }
 
   .splash-content {
-    padding: var(--space-xl) var(--space-md);
-    gap: var(--space-lg);
-    border-radius: var(--radius-lg);
+    padding: var(--space-lg) var(--space-sm);
+    gap: var(--space-md);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    overflow-x: hidden;
+  }
+
+  /* Constrain portrait so it doesn't push header width */
+  .splash-portrait {
+    max-width: 64px;
+    max-height: 64px;
   }
 
   .splash-title {
@@ -886,12 +899,13 @@ function getSatisfactionClass(value: number): string {
   }
 
   .crest-svg {
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
   }
 
   .score-row {
     grid-template-columns: auto 1fr auto;
+    gap: var(--space-xs);
   }
 
   .score-bar-track {
@@ -900,6 +914,7 @@ function getSatisfactionClass(value: number): string {
 
   .stakeholder-row {
     grid-template-columns: auto 1fr auto auto;
+    gap: var(--space-xs);
   }
 
   .stakeholder-bar-track {
