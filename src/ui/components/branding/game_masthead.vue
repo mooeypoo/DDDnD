@@ -234,19 +234,24 @@ function confirmReset() {
   margin-left: auto;
 }
 
-/* ── Narrow mobile: icon-only flat circles ── */
+/* ── Narrow mobile: stack vertically, icon-only flat circles ── */
 @media (max-width: 480px) {
   .game-masthead {
-    padding: var(--space-xs) var(--space-sm);
-    min-height: 48px;
+    padding: var(--space-xs) var(--space-sm) var(--space-sm);
+    min-height: auto;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
   }
 
   .masthead-divider {
-    margin: 4px var(--space-sm);
+    display: none;
   }
 
   .masthead-nav {
     gap: 4px;
+    margin-left: 0;
+    justify-content: center;
   }
 
   .nav-label {
@@ -314,14 +319,23 @@ function confirmReset() {
   }
 }
 
-/* ── Wider mobile (481–768px): hide labels, keep button chrome smaller ── */
+/* ── Wider mobile (481–768px): stack vertically, hide labels ── */
 @media (min-width: 481px) and (max-width: 768px) {
   .game-masthead {
-    padding: var(--space-xs) var(--space-md);
+    padding: var(--space-xs) var(--space-md) var(--space-sm);
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+  }
+
+  .masthead-divider {
+    display: none;
   }
 
   .masthead-nav {
     gap: var(--space-xs);
+    margin-left: 0;
+    justify-content: center;
   }
 
   .nav-label {
