@@ -291,9 +291,6 @@ const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const satchelCategory = ref<CategoryFilter>('all')
 const satchelSort = ref<SortOption>('default')
 
-const SMALL_MOBILE_BREAKPOINT_PX = 480
-const MOBILE_BREAKPOINT_PX = 768
-
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
 
 const playerDisplayName = computed(() => gameStore.gameState?.player_profile.display_name)
