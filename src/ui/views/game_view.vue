@@ -149,12 +149,10 @@
             </div>
 
             <TutorialHintPanel
-              v-if="gameStore.tutorial.isTutorialMode"
-              :isVisible="gameStore.tutorial.isHintVisible"
-              :step="gameStore.tutorial.currentStep"
+              v-if="gameStore.tutorial.isTutorialMode && gameStore.tutorial.showInlineHint && gameStore.tutorial.lastShownStep"
+              :step="gameStore.tutorial.lastShownStep"
               :stepNumber="gameStore.tutorial.currentStepNumber"
               :totalSteps="gameStore.tutorial.totalSteps"
-              @dismiss="gameStore.tutorial.dismissCurrentHint"
             />
 
             <div v-if="gameStore.isRunComplete" class="run-complete-card">
@@ -195,6 +193,37 @@
         </div>
       </div>
     </Transition>
+
+    <!-- Tutorial hint popup -->
+    <Transition name="tutorial-popup">
+      <div
+        v-if="gameStore.tutorial.isTutorialMode && gameStore.tutorial.isHintVisible && gameStore.tutorial.currentStep"
+        class="tutorial-popup-backdrop"
+      >
+        <div class="tutorial-popup-panel" role="dialog" aria-modal="true" aria-labelledby="tutorial-popup-title">
+          <div class="tutorial-popup-header">
+            <span class="tutorial-popup-icon" aria-hidden="true">📖</span>
+            <h3 id="tutorial-popup-title" class="tutorial-popup-title">{{ gameStore.tutorial.currentStep.title }}</h3>
+            <span v-if="gameStore.tutorial.totalSteps > 0" class="tutorial-popup-counter">
+              {{ gameStore.tutorial.currentStepNumber }}&thinsp;/&thinsp;{{ gameStore.tutorial.totalSteps }}
+            </span>
+          </div>
+          <div class="tutorial-popup-body">
+            <p class="tutorial-popup-message">{{ gameStore.tutorial.currentStep.message }}</p>
+          </div>
+          <div class="tutorial-popup-footer">
+            <AppButton
+              :label="gameStore.tutorial.isLastStep ? 'Got it' : 'Next →'"
+              variant="primary"
+              @click="gameStore.tutorial.dismissCurrentHint()"
+            />
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Glowing pointer arrow: floats above the satchel when player must pick a card -->
+    <TutorialPointerArrow :show="showSatchelArrow" />
 
     <SatchelToggleButton
       v-if="!gameStore.isRunComplete && !isSatchelOpen"
@@ -263,6 +292,7 @@ import RunIntroSplash from '@/ui/components/common/run_intro_splash.vue'
 import TutorialHintPanel from '@/ui/components/tutorial/tutorial_hint_panel.vue'
 import TutorialExitBar from '@/ui/components/tutorial/tutorial_exit_bar.vue'
 import TutorialCompleteSplash from '@/ui/components/tutorial/tutorial_complete_splash.vue'
+import TutorialPointerArrow from '@/ui/components/tutorial/tutorial_pointer_arrow.vue'
 import StakeholderHud from '@/ui/components/stakeholders/stakeholder_hud.vue'
 import ScoreHud from '@/ui/components/scores/score_hud.vue'
 import SceneStage from '@/ui/components/gameplay/scene_stage.vue'
@@ -494,6 +524,15 @@ async function handlePlayCard(cardId: string) {
 function dismissResolutionPopup() {
   resolutionPopupOpen.value = false
 }
+
+const showSatchelArrow = computed(() => {
+  return (
+    gameStore.tutorial.isTutorialMode &&
+    !gameStore.tutorial.isHintVisible &&
+    !isSatchelOpen.value &&
+    (gameStore.tutorial.requiredCardId !== null || gameStore.tutorial.currentStepHighlight === 'satchel')
+  )
+})
 
 function goToEndScreen() {
   router.push('/end')
@@ -1027,6 +1066,107 @@ function goToEndScreen() {
 
   .score-chip-label {
     display: none;
+  }
+}
+
+/* ─── Tutorial hint popup ─── */
+.tutorial-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(4, 6, 14, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+}
+
+.tutorial-popup-panel {
+  width: min(520px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-modal, #0d1019);
+  border: 1px solid color-mix(in oklab, var(--dng-bronze-mid, #b8860b), transparent 30%);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(200, 155, 20, 0.08);
+  overflow: hidden;
+}
+
+.tutorial-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1rem 1.25rem 0.75rem;
+  background: rgba(200, 155, 20, 0.06);
+  border-bottom: 1px solid color-mix(in oklab, var(--dng-bronze-mid, #b8860b), transparent 65%);
+}
+
+.tutorial-popup-icon {
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+}
+
+.tutorial-popup-title {
+  flex: 1;
+  margin: 0;
+  color: var(--dng-title-gold, #c8981e);
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.tutorial-popup-counter {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+.tutorial-popup-body {
+  padding: 1.1rem 1.25rem 0.9rem;
+}
+
+.tutorial-popup-message {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+}
+
+.tutorial-popup-footer {
+  flex-shrink: 0;
+  padding: 0.75rem 1.25rem 1rem;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(8, 11, 19, 0.5);
+}
+
+.tutorial-popup-enter-active {
+  transition: opacity 0.2s var(--ease-decelerate, ease),
+              transform 0.2s var(--ease-decelerate, ease);
+}
+.tutorial-popup-leave-active {
+  transition: opacity 0.14s var(--ease-accelerate, ease),
+              transform 0.14s var(--ease-accelerate, ease);
+}
+.tutorial-popup-enter-from,
+.tutorial-popup-leave-to {
+  opacity: 0;
+  transform: scale(0.97) translateY(6px);
+}
+
+@media (max-width: 480px) {
+  .tutorial-popup-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .tutorial-popup-panel {
+    width: 100%;
+    border-radius: 18px 18px 0 0;
   }
 }
 </style>
