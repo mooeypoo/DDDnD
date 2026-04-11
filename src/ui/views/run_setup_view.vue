@@ -41,17 +41,26 @@
           First time here? Try a <button class="link-btn" @click="activeTab = 'tutorials'">guided tutorial</button> to learn the ropes.
         </p>
         <nav class="header-utility-nav" aria-label="Utility links">
-          <AppButton variant="subtle" @click="gameStore.openAboutModal">
-            <span>ℹ️</span> What is this?
-          </AppButton>
-          <span class="link-separator">•</span>
-          <AppButton variant="subtle" @click="gameStore.openRulesModal">
-            <span>📖</span> Rules
-          </AppButton>
-          <span class="link-separator">•</span>
-          <AppButton variant="subtle" @click="gameStore.openDungeonMasterModal">
-            <span>🧙‍♂️</span> Dungeon Master
-          </AppButton>
+          <!-- Desktop: full AppButton ring/bracket structure -->
+          <template v-if="!isMobile">
+            <AppButton variant="subtle" @click="gameStore.openAboutModal">
+              <span>ℹ️</span> What is this?
+            </AppButton>
+            <span class="link-separator">•</span>
+            <AppButton variant="subtle" @click="gameStore.openRulesModal">
+              <span>📖</span> Rules
+            </AppButton>
+            <span class="link-separator">•</span>
+            <AppButton variant="subtle" @click="gameStore.openDungeonMasterModal">
+              <span>🧙‍♂️</span> Dungeon Master
+            </AppButton>
+          </template>
+          <!-- Mobile: compact etched chip buttons -->
+          <template v-else>
+            <CompactButton icon="ℹ️" label="What is this?" variant="subtle" @click="gameStore.openAboutModal" />
+            <CompactButton icon="📖" label="Rules" variant="subtle" @click="gameStore.openRulesModal" />
+            <CompactButton icon="🧙" label="Dungeon Master" variant="subtle" @click="gameStore.openDungeonMasterModal" />
+          </template>
         </nav>
       </header>
 
@@ -228,7 +237,7 @@
 
 <script setup lang="ts">
 
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { PlayerClass } from '@/domains/content/model'
@@ -238,6 +247,7 @@ import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
+import CompactButton from '@/ui/components/common/CompactButton.vue'
 import AppTabs from '@/ui/components/common/AppTabs.vue'
 import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 import AppInput from '@/ui/components/common/AppInput.vue'
@@ -251,6 +261,18 @@ const gameStore = useGameStore()
 const selectedClass = ref<PlayerClass | null>(null)
 const selectedQuest = ref<QuestDisplayModel | null>(null)
 const characterName = ref('')
+
+const isMobile = ref(false)
+let _mql: MediaQueryList | null = null
+function _onMqlChange(e: MediaQueryListEvent) { isMobile.value = e.matches }
+onMounted(() => {
+  _mql = window.matchMedia('(max-width: 768px)')
+  isMobile.value = _mql.matches
+  _mql.addEventListener('change', _onMqlChange)
+})
+onUnmounted(() => {
+  _mql?.removeEventListener('change', _onMqlChange)
+})
 // Default to 'tutorials' unless tutorialsComplete is set in localStorage
 const TUTORIALS_COMPLETE_KEY = 'dddnd.tutorialsComplete'
 const getTutorialsComplete = () => {
