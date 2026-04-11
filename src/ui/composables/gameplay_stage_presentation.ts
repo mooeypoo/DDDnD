@@ -1,6 +1,12 @@
 import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import type { AvatarMood, AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import type { SceneActorSlot } from '@/ui/composables/scene_avatar_positioning'
+import type { StakeholderReactionBubbleTone } from '@/ui/config/stakeholder_reaction_bubble_language'
+
+export interface StakeholderSpeechBubblePresentation {
+  text: string
+  tone: StakeholderReactionBubbleTone
+}
 
 export interface GameplayStageActor {
   id: string
@@ -9,6 +15,7 @@ export interface GameplayStageActor {
   avatarRole: AvatarRoleId
   mood: AvatarMood
   slot: SceneActorSlot
+  speechBubble?: StakeholderSpeechBubblePresentation
 }
 
 export const ALL_SCENE_BACKGROUND_IDS: SceneBackgroundId[] = [
@@ -84,7 +91,8 @@ export function resolveStakeholderAvatarRole(stakeholderId: string, rolePool: Av
 export function buildGameplayStageActors(
   stakeholders: StakeholderSnapshot | undefined,
   stakeholderNames: Record<string, string>,
-  rolePool?: AvatarRoleId[]
+  rolePool?: AvatarRoleId[],
+  speechBubblesByStakeholderId: Record<string, StakeholderSpeechBubblePresentation> = {},
 ): GameplayStageActor[] {
   if (!stakeholders) {
     return []
@@ -99,5 +107,6 @@ export function buildGameplayStageActors(
       avatarRole: resolveStakeholderAvatarRole(stakeholderId, rolePool),
       mood: resolveStakeholderMood(data.satisfaction),
       slot: ACTOR_SLOTS[index] ?? 'far',
+      speechBubble: speechBubblesByStakeholderId[stakeholderId],
     }))
 }

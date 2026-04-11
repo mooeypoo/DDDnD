@@ -351,7 +351,9 @@ import {
   buildGameplayStageActors,
   pickRandomSceneId,
   shuffleAvatarRoles,
+  type StakeholderSpeechBubblePresentation,
 } from '@/ui/composables/gameplay_stage_presentation'
+import { buildStakeholderSpeechBubbles } from '@/ui/composables/stakeholder_reaction_bubbles'
 import type { AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import ActionCard from '@/ui/components/cards/action_card.vue'
 import CardSatchelDrawer from '@/ui/components/cards/card_satchel_drawer.vue'
@@ -394,6 +396,8 @@ const randomSceneId = ref<SceneBackgroundId>(pickRandomSceneId())
 const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const satchelCategory = ref<CategoryFilter>('all')
 const satchelSort = ref<SortOption>('default')
+const pendingStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
+const activeStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
 
@@ -524,7 +528,12 @@ const stakeholderNames = computed((): Record<string, string> => {
 })
 
 const stageActors = computed(() => {
-  return buildGameplayStageActors(gameStore.gameState?.stakeholders, stakeholderNames.value, randomAvatarRoles.value)
+  return buildGameplayStageActors(
+    gameStore.gameState?.stakeholders,
+    stakeholderNames.value,
+    randomAvatarRoles.value,
+    activeStakeholderBubbles.value,
+  )
 })
 
 watch(scenario, (newScenario, oldScenario) => {
@@ -584,9 +593,17 @@ function handleShowDetails(cardId: string) {
 async function handlePlayCard(cardId: string) {
   modalCardId.value = null
   isSatchelOpen.value = false
+  activeStakeholderBubbles.value = {}
+  pendingStakeholderBubbles.value = {}
   await gameStore.play_turn(cardId)
 
-  if (gameStore.lastTurnResolution?.turn_resolution_context) {
+  const turnResolution = gameStore.lastTurnResolution?.turn_resolution_context
+
+  if (turnResolution) {
+    pendingStakeholderBubbles.value = buildStakeholderSpeechBubbles(
+      turnResolution.stakeholder_resolution.reactions,
+      turnResolution.turn_number,
+    )
     resolutionPopupOpen.value = true
     isResolutionExpanded.value = false
   }
@@ -600,6 +617,8 @@ async function handlePlayCard(cardId: string) {
 
 function dismissResolutionPopup() {
   resolutionPopupOpen.value = false
+  activeStakeholderBubbles.value = pendingStakeholderBubbles.value
+  pendingStakeholderBubbles.value = {}
 }
 
 const showSatchelArrow = computed(() => {

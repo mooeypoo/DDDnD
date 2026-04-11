@@ -24,6 +24,19 @@
           </div>
         </div>
 
+        <Transition name="speech-bubble">
+          <div
+            v-if="actor.speechBubble"
+            class="actor-speech-bubble"
+            :class="`tone-${actor.speechBubble.tone}`"
+            role="status"
+            aria-live="polite"
+            :title="actor.speechBubble.text"
+          >
+            {{ actor.speechBubble.text }}
+          </div>
+        </Transition>
+
         <img class="actor-image" :src="getActorUrl(actor)" alt="" />
 
         <!-- Name pill — bottom of figure -->
@@ -42,6 +55,7 @@
 import { computed } from 'vue'
 
 import { requestAvatarRoleImage, requestSceneBackground } from '@/ui/composables/presentation_asset_lookup'
+import type { GameplayStageActor } from '@/ui/composables/gameplay_stage_presentation'
 import {
   buildGuardrailedNudges,
   buildSceneActorStyle,
@@ -57,6 +71,7 @@ interface StageActor {
   avatarRole: AvatarRoleId | string
   mood: AvatarMood | string
   slot: SceneActorSlot
+  speechBubble?: GameplayStageActor['speechBubble']
 }
 
 const props = defineProps<{
@@ -138,6 +153,72 @@ function getMoodLabel(mood: string): string {
   margin: 0;
   width: clamp(76px, 12vw, 152px);
   transform-origin: center bottom;
+}
+
+.actor-speech-bubble {
+  position: absolute;
+  bottom: calc(100% + 34px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(132px, 18vw, 206px);
+  min-height: 30px;
+  padding: 6px 8px;
+  border-radius: 9px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(7, 10, 18, 0.9);
+  color: var(--text-primary);
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+  z-index: 3;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.45);
+  overflow-wrap: break-word;
+}
+
+.actor-speech-bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 10px;
+  background: inherit;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  border-color: inherit;
+  rotate: 45deg;
+}
+
+.actor-speech-bubble.tone-positive {
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.actor-speech-bubble.tone-mixed {
+  border-color: rgba(148, 163, 184, 0.42);
+}
+
+.actor-speech-bubble.tone-concern {
+  border-color: rgba(249, 115, 22, 0.4);
+}
+
+.actor-speech-bubble.tone-critical {
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.actor-speech-bubble.tone-fallback {
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.speech-bubble-enter-active,
+.speech-bubble-leave-active {
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.speech-bubble-enter-from,
+.speech-bubble-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(4px) scale(0.98);
 }
 
 .actor-state-top {
@@ -240,6 +321,13 @@ function getMoodLabel(mood: string): string {
 @media (max-width: 820px) {
   .actor {
     width: clamp(56px, 17vw, 116px);
+  }
+
+  .actor-speech-bubble {
+    bottom: calc(100% + 24px);
+    width: clamp(112px, 26vw, 160px);
+    padding: 5px 6px;
+    font-size: 9px;
   }
 
   .actor-state-top {
