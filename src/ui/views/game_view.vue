@@ -423,24 +423,6 @@ const isLowTurns = computed(() => {
 
 const gameplaySceneId = computed(() => randomSceneId.value)
 
-const scoreEntries = computed(() => {
-  const scores = gameStore.turnBriefing?.current_scores
-  if (!scores) {
-    return []
-  }
-
-  return Object.entries(scores).map(([id, value]) => ({
-    id,
-    label: id
-      .split('_')
-      .map(part => part.charAt(0).toUpperCase() + part.slice(1))
-      .join(' '),
-    value: Math.round(value),
-    healthClass: value >= 70 ? 'high' : value >= 40 ? 'medium' : value >= 20 ? 'low' : 'critical',
-    fillPct: Math.round(value),
-  }))
-})
-
 const currentAvailableActions = computed(() => {
   return gameStore.turnBriefing?.available_action_card_ids.length ?? 0
 })
