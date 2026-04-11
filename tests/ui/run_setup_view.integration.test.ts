@@ -43,6 +43,18 @@ function makeClass(id: string, name: string): PlayerClass {
 
 describe('run_setup_view quest integration', () => {
   beforeEach(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn()
+      }))
+    })
+
     // Ensure the default tab is 'quests' for tests
     localStorage.setItem('dddnd.tutorialsComplete', 'true')
     pushSpy.mockReset()
