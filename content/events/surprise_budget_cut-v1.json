@@ -8,14 +8,20 @@
   "score_changes": [
     {
       "score_id": "budget",
-      "delta": -7
+      "delta": -9
     },
     {
       "score_id": "team_morale",
-      "delta": -2
+      "delta": -3
     },
     {
       "score_id": "delivery_confidence",
+      "delta": -4
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "cfo",
       "delta": -3
     }
   ],

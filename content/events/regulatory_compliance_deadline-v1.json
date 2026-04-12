@@ -8,15 +8,25 @@
   "score_changes": [
     {
       "score_id": "delivery_confidence",
-      "delta": -6
+      "delta": -7
     },
     {
       "score_id": "budget",
-      "delta": -5
+      "delta": -6
     },
     {
       "score_id": "user_trust",
-      "delta": 3
+      "delta": 0
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "vp_product",
+      "delta": -2
+    },
+    {
+      "stakeholder_id": "security_officer",
+      "delta": 2
     }
   ],
   "delayed_effect_refs": []

@@ -9,19 +9,25 @@
   "score_changes": [
     {
       "score_id": "delivery_confidence",
-      "delta": 8
+      "delta": 6
     },
     {
       "score_id": "maintainability",
-      "delta": 4
+      "delta": 3
     },
     {
       "score_id": "team_morale",
-      "delta": 2
+      "delta": 1
     },
     {
       "score_id": "budget",
-      "delta": -7
+      "delta": -8
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "operations_manager",
+      "delta": 1
     }
   ],
   "delayed_effect_refs": [

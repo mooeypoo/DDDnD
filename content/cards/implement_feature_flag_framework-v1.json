@@ -9,19 +9,25 @@
   "score_changes": [
     {
       "score_id": "delivery_confidence",
-      "delta": 7
+      "delta": 5
     },
     {
       "score_id": "user_trust",
-      "delta": 3
+      "delta": 2
     },
     {
       "score_id": "maintainability",
-      "delta": -3
+      "delta": -4
     },
     {
       "score_id": "budget",
       "delta": -4
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "cto",
+      "delta": 1
     }
   ],
   "delayed_effect_refs": []

@@ -9,11 +9,11 @@
   "score_changes": [
     {
       "score_id": "user_trust",
-      "delta": 8
+      "delta": 4
     },
     {
       "score_id": "maintainability",
-      "delta": 4
+      "delta": 3
     },
     {
       "score_id": "domain_clarity",
@@ -29,7 +29,13 @@
     },
     {
       "score_id": "budget",
-      "delta": -6
+      "delta": -8
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "security_officer",
+      "delta": 2
     }
   ],
   "delayed_effect_refs": [

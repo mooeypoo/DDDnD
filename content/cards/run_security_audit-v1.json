@@ -9,7 +9,7 @@
   "score_changes": [
     {
       "score_id": "user_trust",
-      "delta": 5
+      "delta": 1
     },
     {
       "score_id": "maintainability",
@@ -17,11 +17,17 @@
     },
     {
       "score_id": "delivery_confidence",
-      "delta": -5
+      "delta": -6
     },
     {
       "score_id": "budget",
-      "delta": -7
+      "delta": -9
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "security_officer",
+      "delta": 1
     }
   ],
   "delayed_effect_refs": [
