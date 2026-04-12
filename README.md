@@ -267,6 +267,147 @@ The telemetry report includes:
 
 Simulations are deterministic: the same seed produces identical results.
 
+### How This Relates To Content Validation And Audit
+
+The Simulation Runner and the content validation/audit workflows are related, but they serve different purposes.
+
+| Tooling Surface | Primary Purpose | Typical Use | Pass/Fail Gate? |
+|---|---|---|---|
+| `npm run simulate` | Explore behavior and telemetry for one scenario | Design tuning, diagnosis, trend analysis | No |
+| `npm run content:validate` | Verify structural correctness of content references and bundle construction | Fast pre-check while authoring content | Yes (fails on invalid structure) |
+| `npm run content:validate:audit` | Run structural validation plus simulation-backed audit findings | Pre-PR quality check for content changes | Yes (fails when critical audit findings exist) |
+| `npm run audit:gate` | CI-aligned fairness/balance gate across production scenarios | Merge safety and regression prevention | Yes (fails when critical findings exist) |
+
+In short:
+
+- Use `simulate` to understand what is happening.
+- Use `content:validate` to confirm content is structurally valid.
+- Use `content:validate:audit` and `audit:gate` to enforce quality thresholds before merge.
+
+## Content Validation And Audit Workflow
+
+Use this workflow before opening a content PR and during balance passes. It builds on the same simulation foundation used by `npm run simulate`, but adds structural validation and severity-based quality gates.
+
+### 1) Structural Content Validation (fast)
+
+Validates references and bundle buildability across scenarios.
+
+```bash
+npm run content:validate
+```
+
+Useful flags:
+
+```bash
+# Validate an alternate content root
+npm run content:validate -- --content-root ./path/to/content
+
+# Include test_ scenarios
+npm run content:validate -- --include-test-scenarios
+```
+
+### 2) Validation + Audit (single command)
+
+Runs structural validation, then simulation-backed audit checks.
+
+```bash
+# Default audit pass (50 runs/scenario) and fail on critical findings
+npm run content:validate:audit
+
+# Deeper local audit pass
+npm run content:validate -- --audit --runs 200 --fail-on-audit-critical
+```
+
+### 3) Audit Gate (CI-aligned)
+
+Runs the content fairness/balance audit against production scenarios and exits non-zero on critical findings.
+
+```bash
+npm run audit:gate
+
+# Stronger confidence pass
+npm run audit:gate -- --runs 200
+```
+
+### 4) Scenario-Level Diagnosis
+
+Use the simulation runner for deeper per-scenario telemetry while tuning.
+
+```bash
+npm run simulate -- --scenario monolith_of_mild_despair --runs 300 --seed balance-pass
+```
+
+### 5) Interpreting Results
+
+- Critical findings block merge and must be fixed.
+- Warnings should be triaged and tracked; they may be acceptable only with explicit rationale.
+- Prefer content fixes first (cards/events/stakeholder reaction rules/threshold tuning) before changing engine semantics.
+- Keep simulation deterministic and domain-owned. UI should only present outputs.
+
+## Robust Content Audit/Fix Plan
+
+This is the recommended operating plan for a stronger balance and fairness pass.
+
+### Phase A - Baseline Snapshot
+
+1. Run and capture baseline reports:
+
+```bash
+npm run content:validate:audit
+npm run audit:gate -- --runs 200 > ./temp/audit-gate-baseline.md
+```
+
+2. Generate scenario telemetry snapshots:
+
+```bash
+for s in monolith_of_mild_despair microservice_sprawl compliance_gauntlet startup_hypergrowth; do
+  npm run simulate -- --scenario "$s" --runs 300 --seed robust-pass > "./temp/sim-${s}-baseline.md"
+done
+```
+
+### Phase B - Triage Findings
+
+1. Prioritize all critical findings first, then warnings.
+2. Classify each issue into one of:
+  - score balance drift
+  - stakeholder recovery gap
+  - event fairness/volatility
+  - card ecosystem problems (trap/dominant/dead cards)
+3. Identify smallest content surface to change first (score tuning vs adding cards/events/reactions).
+
+### Phase C - Implement Content Fixes
+
+1. Apply targeted content changes:
+  - rebalance score deltas/threshold pressure
+  - add or tune recovery-oriented stakeholder reactions
+  - add or tune events for better agency and variance control
+  - add or tune cards to reduce dominant lines and dead picks
+2. Follow content versioning rules:
+  - behavior-changing content should be version-bumped
+  - preserve old versions for compatibility
+
+### Phase D - Re-Audit Until Stable
+
+1. Re-run:
+
+```bash
+npm run content:validate:audit
+npm run audit:gate -- --runs 200
+```
+
+2. For changed scenarios, re-run deeper telemetry:
+
+```bash
+npm run simulate -- --scenario <scenario_id> --runs 500 --seed robust-pass-verify
+```
+
+### Phase E - Merge Readiness Criteria
+
+- 0 critical findings in `npm run content:validate:audit`
+- 0 critical findings in `npm run audit:gate -- --runs 200`
+- No single score or stakeholder is persistently non-recoverable without intentional scenario design rationale
+- No obvious dominant opening sequence across baseline scenarios without explicit design intent
+
 ## Key Documents
 
 - [AGENT.md](./AGENT.md) — Rules for humans and AI agents
