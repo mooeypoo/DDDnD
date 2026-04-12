@@ -4,7 +4,7 @@
   "name": "Customer Praises Reliability",
   "description": "A major customer publicly thanks the team for system stability",
   "flavor_text": "Sometimes good news actually happens",
-  "occurrence_weight": 3,
+  "occurrence_weight": 5,
   "score_changes": [
     {
       "score_id": "user_trust",

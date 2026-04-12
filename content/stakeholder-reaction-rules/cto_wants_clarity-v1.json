@@ -3,7 +3,7 @@
   "version": 1,
   "name": "CTO Wants Clarity",
   "description": "CTO pushes for better domain understanding when clarity is low",
-  "condition_description": "Domain clarity < 40",
+  "condition_description": "Domain clarity < 35",
   "score_changes": [
     {
       "score_id": "budget",
@@ -17,7 +17,7 @@
   "stakeholder_changes": [
     {
       "stakeholder_id": "cto",
-      "delta": -6
+      "delta": -5
     }
   ]
 }

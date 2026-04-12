@@ -4,7 +4,7 @@
   "name": "Team Member Discovers Pattern",
   "description": "A developer finds an elegant solution to a recurring problem",
   "flavor_text": "Eureka moments in the codebase",
-  "occurrence_weight": 4,
+  "occurrence_weight": 5,
   "score_changes": [
     {
       "score_id": "domain_clarity",

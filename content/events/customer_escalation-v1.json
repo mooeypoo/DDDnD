@@ -4,7 +4,7 @@
   "name": "Customer Escalation",
   "description": "A major customer threatens to leave unless reliability and feature delivery improve",
   "flavor_text": "Their VP just emailed our VP. It's that kind of day.",
-  "occurrence_weight": 5,
+  "occurrence_weight": 4,
   "score_changes": [
     {
       "score_id": "user_trust",

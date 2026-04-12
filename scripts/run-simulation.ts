@@ -12,6 +12,7 @@
  *   --seed <string>   Base seed for determinism (default: "default-seed")
  *   --json            Output raw JSON instead of formatted summary
  *   --per-run         Include per-run detail in JSON output
+ *   --audit           Include content audit synthesis output
  *   --list            List available scenarios and exit
  */
 
@@ -101,6 +102,8 @@ function parseArgs(argv: string[]) {
       opts.json = true
     } else if (arg === '--per-run') {
       opts.perRun = true
+    } else if (arg === '--audit') {
+      opts.audit = true
     } else if (arg === '--scenario' && args[i + 1]) {
       opts.scenario = args[++i]
     } else if (arg === '--runs' && args[i + 1]) {
@@ -311,8 +314,40 @@ function printFormattedReport(report: any) {
     for (const sid of [...allStakeholderIds].sort()) {
       const recovery = ((agg.stakeholder_recovery_rate?.[sid] ?? 0) * 100).toFixed(1) + '%'
       const decline = ((agg.stakeholder_decline_rate?.[sid] ?? 0) * 100).toFixed(1) + '%'
-      const ruleHits = ((agg.rule_trigger_rate_by_stakeholder?.[sid] ?? 0) * 100).toFixed(1) + '%'
+      const stakeholderRuleRates = agg.rule_trigger_rate_by_stakeholder?.[sid] ?? {}
+      const totalRuleRate = typeof stakeholderRuleRates === 'number'
+        ? stakeholderRuleRates
+        : Object.values(stakeholderRuleRates).reduce((sum, value) => sum + Number(value), 0)
+      const ruleHits = (totalRuleRate * 100).toFixed(1) + '%'
       console.log(`  ${sid.padEnd(24)} ${recovery.padStart(10)} ${decline.padStart(10)} ${ruleHits.padStart(10)}`)
+    }
+  }
+
+  console.log('')
+}
+
+function printFormattedAudit(auditReport: any) {
+  const summary = auditReport.summary
+
+  console.log('── Content Audit Summary ────────────────────────────────')
+  console.log(`  Content pack: ${auditReport.content_pack_id}`)
+  console.log(`  Scenario:     ${auditReport.scenario_id} v${auditReport.scenario_version}`)
+  console.log(`  Overall:      ${summary.overall_status.toUpperCase()}`)
+  console.log(`  Findings:     ${auditReport.findings.length}`)
+  console.log(`  Critical:     ${summary.critical_count}`)
+  console.log(`  Warning:      ${summary.warning_count}`)
+  console.log(`  Info:         ${summary.info_count}`)
+
+  if (auditReport.findings.length > 0) {
+    console.log('')
+    console.log('── Top Findings (first 15) ─────────────────────────────')
+    for (const finding of auditReport.findings.slice(0, 15)) {
+      console.log(`  [${finding.severity.toUpperCase()}] ${finding.id}`)
+      console.log(`    ${finding.title}`)
+      console.log(`    ${finding.description}`)
+      if (finding.evidence?.length > 0) {
+        console.log(`    Evidence: ${finding.evidence[0]}`)
+      }
     }
   }
 
@@ -342,7 +377,7 @@ async function main() {
     for (const s of scenarios) {
       console.error(`  - ${s}`)
     }
-    console.error('\nUsage: npm run simulate -- --scenario <id> [--runs N] [--seed S] [--json] [--per-run]')
+    console.error('\nUsage: npm run simulate -- --scenario <id> [--runs N] [--seed S] [--json] [--per-run] [--audit]')
     process.exit(1)
   }
 
@@ -372,12 +407,41 @@ async function main() {
   const elapsed = ((performance.now() - startTime) / 1000).toFixed(2)
   console.log(`Completed in ${elapsed}s`)
 
+  let auditReport: any | null = null
+  if (opts.audit) {
+    const { buildContentAuditReport } = await import('../src/domains/simulation/services/audit/content_audit_report_builder.js')
+    auditReport = buildContentAuditReport({
+      content_pack_id: 'core',
+      scenario_bundle: bundle,
+      simulation_report: report,
+    })
+  }
+
   // Output
   if (opts.json) {
     const output = opts.perRun ? report : { ...report, per_run: `[${report.per_run.length} runs omitted — use --per-run to include]` }
-    console.log(JSON.stringify(output, null, 2))
+    if (auditReport) {
+      const auditOutput = opts.perRun
+        ? auditReport
+        : {
+            ...auditReport,
+            dynamic_metrics: {
+              ...auditReport.dynamic_metrics,
+              simulation_report: {
+                ...auditReport.dynamic_metrics.simulation_report,
+                per_run: `[${report.per_run.length} runs omitted — use --per-run to include]`,
+              },
+            },
+          }
+      console.log(JSON.stringify({ simulation: output, audit: auditOutput }, null, 2))
+    } else {
+      console.log(JSON.stringify(output, null, 2))
+    }
   } else {
     printFormattedReport(report)
+    if (auditReport) {
+      printFormattedAudit(auditReport)
+    }
   }
 }
 

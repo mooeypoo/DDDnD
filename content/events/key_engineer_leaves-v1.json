@@ -4,7 +4,7 @@
   "name": "Key Engineer Leaves",
   "description": "A senior engineer with deep system knowledge has resigned, taking critical institutional memory with them",
   "flavor_text": "Their last commit message was just 'good luck'.",
-  "occurrence_weight": 4,
+  "occurrence_weight": 3,
   "score_changes": [
     {
       "score_id": "team_morale",
