@@ -8,6 +8,7 @@ import type {
 import type { SimulationReport } from '../simulation_runner'
 import { auditStakeholderBalance } from './stakeholder_balance_audit'
 import { auditStructuralContent } from './structural_content_audit'
+import { auditScenarioBalanceTargets } from './scenario_balance_targets_audit'
 
 interface BuildContentAuditReportInput {
   content_pack_id?: string
@@ -76,8 +77,13 @@ function toStructuralChecks(structuralFindings: AuditFinding[]): StructuralAudit
 export function buildContentAuditReport(input: BuildContentAuditReportInput): ContentAuditReport {
   const structuralFindings = auditStructuralContent(input.scenario_bundle)
   const dynamicFindings = auditStakeholderBalance(input.simulation_report)
+  const preliminaryFindings = [...structuralFindings, ...dynamicFindings]
+  const scenarioTargetFindings = auditScenarioBalanceTargets(
+    input.simulation_report,
+    preliminaryFindings,
+  )
 
-  const findings = sortFindings([...structuralFindings, ...dynamicFindings])
+  const findings = sortFindings([...preliminaryFindings, ...scenarioTargetFindings])
 
   return {
     content_pack_id: input.content_pack_id ?? 'core',
