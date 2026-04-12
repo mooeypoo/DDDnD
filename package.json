@@ -21,7 +21,9 @@
     "test:ui": "vitest --ui",
     "generate-og": "node scripts/generate-og-image.mjs",
     "simulate": "npx tsx scripts/run-simulation.ts",
-    "audit:gate": "npx tsx scripts/audit-gate.ts"
+    "audit:gate": "npx tsx scripts/audit-gate.ts",
+    "content:validate": "npx tsx scripts/validate-content-pack.ts",
+    "content:validate:audit": "npx tsx scripts/validate-content-pack.ts --audit --runs 50 --fail-on-audit-critical"
   },
   "dependencies": {
     "pinia": "^2.1.0",
