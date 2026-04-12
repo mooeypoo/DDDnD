@@ -44,6 +44,10 @@ describe('Strategy fingerprint telemetry', () => {
       expect(agg).toHaveProperty('opening_card_frequency')
       expect(agg).toHaveProperty('opening_sequence_frequency')
       expect(agg).toHaveProperty('average_score_by_turn')
+      expect(agg).toHaveProperty('average_stakeholder_satisfaction_by_turn')
+      expect(agg).toHaveProperty('stakeholder_recovery_rate')
+      expect(agg).toHaveProperty('stakeholder_decline_rate')
+      expect(agg).toHaveProperty('rule_trigger_rate_by_stakeholder')
       expect(agg).toHaveProperty('winning_card_pairs')
       expect(agg).toHaveProperty('successful_low_score_rates')
     })
@@ -92,6 +96,18 @@ describe('Strategy fingerprint telemetry', () => {
       )
       expect(reportA.aggregate.average_score_by_turn).toEqual(
         reportB.aggregate.average_score_by_turn
+      )
+      expect(reportA.aggregate.average_stakeholder_satisfaction_by_turn).toEqual(
+        reportB.aggregate.average_stakeholder_satisfaction_by_turn
+      )
+      expect(reportA.aggregate.stakeholder_recovery_rate).toEqual(
+        reportB.aggregate.stakeholder_recovery_rate
+      )
+      expect(reportA.aggregate.stakeholder_decline_rate).toEqual(
+        reportB.aggregate.stakeholder_decline_rate
+      )
+      expect(reportA.aggregate.rule_trigger_rate_by_stakeholder).toEqual(
+        reportB.aggregate.rule_trigger_rate_by_stakeholder
       )
       expect(reportA.aggregate.winning_card_pairs).toEqual(
         reportB.aggregate.winning_card_pairs

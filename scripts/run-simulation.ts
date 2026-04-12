@@ -275,6 +275,47 @@ function printFormattedReport(report: any) {
     }
   }
 
+  // Stakeholder trajectory by turn (phase 1 telemetry)
+  if (agg.average_stakeholder_satisfaction_by_turn && Object.keys(agg.average_stakeholder_satisfaction_by_turn).length > 0) {
+    console.log('')
+    console.log('── Avg Stakeholder Satisfaction by Turn ────────────────')
+    const stakeholderIds = Object.keys(agg.average_stakeholder_satisfaction_by_turn).sort()
+    const maxTurns = Math.max(
+      ...Object.values(agg.average_stakeholder_satisfaction_by_turn as Record<string, number[]>).map((t) => t.length)
+    )
+    const turnHeaders = Array.from({ length: maxTurns }, (_, i) => `T${i + 1}`.padStart(6)).join('')
+    console.log(`  ${'Stakeholder'.padEnd(24)} ${turnHeaders}`)
+    for (const sid of stakeholderIds) {
+      const values = (agg.average_stakeholder_satisfaction_by_turn as Record<string, number[]>)[sid]
+      const valueStr = values.map((v) => v.toFixed(1).padStart(6)).join('')
+      console.log(`  ${sid.padEnd(24)} ${valueStr}`)
+    }
+  }
+
+  // Stakeholder balance rates (phase 1 telemetry)
+  const hasRecovery = agg.stakeholder_recovery_rate && Object.keys(agg.stakeholder_recovery_rate).length > 0
+  const hasDecline = agg.stakeholder_decline_rate && Object.keys(agg.stakeholder_decline_rate).length > 0
+  const hasRuleTrigger = agg.rule_trigger_rate_by_stakeholder && Object.keys(agg.rule_trigger_rate_by_stakeholder).length > 0
+
+  if (hasRecovery || hasDecline || hasRuleTrigger) {
+    console.log('')
+    console.log('── Stakeholder Balance Rates ───────────────────────────')
+    console.log(`  ${'Stakeholder'.padEnd(24)} ${'Recovery'.padStart(10)} ${'Decline'.padStart(10)} ${'Rule Hits'.padStart(10)}`)
+
+    const allStakeholderIds = new Set([
+      ...Object.keys(agg.stakeholder_recovery_rate ?? {}),
+      ...Object.keys(agg.stakeholder_decline_rate ?? {}),
+      ...Object.keys(agg.rule_trigger_rate_by_stakeholder ?? {}),
+    ])
+
+    for (const sid of [...allStakeholderIds].sort()) {
+      const recovery = ((agg.stakeholder_recovery_rate?.[sid] ?? 0) * 100).toFixed(1) + '%'
+      const decline = ((agg.stakeholder_decline_rate?.[sid] ?? 0) * 100).toFixed(1) + '%'
+      const ruleHits = ((agg.rule_trigger_rate_by_stakeholder?.[sid] ?? 0) * 100).toFixed(1) + '%'
+      console.log(`  ${sid.padEnd(24)} ${recovery.padStart(10)} ${decline.padStart(10)} ${ruleHits.padStart(10)}`)
+    }
+  }
+
   console.log('')
 }
 

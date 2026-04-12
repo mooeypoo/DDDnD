@@ -29,6 +29,39 @@ export interface SimulationRunnerInput {
   seed: string
 }
 
+/**
+ * Phase 1 telemetry contract:
+ * turn-level stakeholder trajectory and matched reaction visibility.
+ */
+export interface StakeholderTurnTelemetry {
+  turn_number: number
+  satisfaction_by_stakeholder: Record<string, number>
+  delta_by_stakeholder: Record<string, number>
+  matched_reaction_rule_ids_by_stakeholder: Record<string, string[]>
+}
+
+/**
+ * Phase 1 telemetry contract:
+ * turn-level event observation.
+ */
+export interface EventTurnTelemetry {
+  turn_number: number
+  triggered_event_id: string | null
+  score_deltas: Record<string, number>
+  stakeholder_deltas: Record<string, number>
+}
+
+/**
+ * Phase 1 telemetry contract:
+ * turn-level action observation.
+ */
+export interface ActionTurnTelemetry {
+  turn_number: number
+  selected_card_id: string
+  score_deltas: Record<string, number>
+  stakeholder_deltas: Record<string, number>
+}
+
 export interface PerRunTelemetry {
   run_index: number
   seed: string
@@ -45,6 +78,12 @@ export interface PerRunTelemetry {
   score_average: number | null
   /** Score snapshot at the end of each turn, indexed by turn (0-based). */
   score_snapshots_by_turn: Record<string, number>[]
+  /** Stakeholder telemetry by turn (Phase 1 contract). */
+  stakeholder_telemetry_by_turn: StakeholderTurnTelemetry[]
+  /** Event telemetry by turn (Phase 1 contract). */
+  event_telemetry_by_turn: EventTurnTelemetry[]
+  /** Action telemetry by turn (Phase 1 contract). */
+  action_telemetry_by_turn: ActionTurnTelemetry[]
 }
 
 /** Frequency of individual cards appearing in the opening (first 3 cards played). */
@@ -55,6 +94,18 @@ export type OpeningSequenceFrequency = Record<string, number>
 
 /** Average score values by turn index, keyed by score ID. */
 export type AverageScoreByTurn = Record<string, number[]>
+
+/** Average stakeholder satisfaction values by turn index, keyed by stakeholder ID. */
+export type AverageStakeholderSatisfactionByTurn = Record<string, number[]>
+
+/** Fraction of stakeholder turns with positive net delta, keyed by stakeholder ID. */
+export type StakeholderRecoveryRate = Record<string, number>
+
+/** Fraction of stakeholder turns with negative net delta, keyed by stakeholder ID. */
+export type StakeholderDeclineRate = Record<string, number>
+
+/** Per-stakeholder per-rule trigger frequency across observed stakeholder turns. */
+export type RuleTriggerRateByStakeholder = Record<string, Record<string, number>>
 
 /** Frequency of unordered card pairs co-occurring in successful runs. */
 export type WinningCardPairs = Record<string, number>
@@ -82,6 +133,14 @@ export interface AggregateTelemetry {
   opening_sequence_frequency: OpeningSequenceFrequency
   /** Strategy-fingerprint telemetry: average score by turn */
   average_score_by_turn: AverageScoreByTurn
+  /** Phase 1 telemetry: average stakeholder satisfaction by turn */
+  average_stakeholder_satisfaction_by_turn: AverageStakeholderSatisfactionByTurn
+  /** Phase 1 telemetry: fraction of turns with positive stakeholder net delta */
+  stakeholder_recovery_rate: StakeholderRecoveryRate
+  /** Phase 1 telemetry: fraction of turns with negative stakeholder net delta */
+  stakeholder_decline_rate: StakeholderDeclineRate
+  /** Phase 1 telemetry: rule trigger frequency by stakeholder */
+  rule_trigger_rate_by_stakeholder: RuleTriggerRateByStakeholder
   /** Strategy-fingerprint telemetry: winning card pairs */
   winning_card_pairs: WinningCardPairs
   /** Strategy-fingerprint telemetry: successful low-score rates */
@@ -108,6 +167,24 @@ function average(values: number[]): number {
   return values.reduce((sum, v) => sum + v, 0) / values.length
 }
 
+function buildScoreDeltaMap(changes: Array<{ score_id: string; delta: number }>): Record<string, number> {
+  const map: Record<string, number> = {}
+  for (const change of changes) {
+    map[change.score_id] = (map[change.score_id] ?? 0) + change.delta
+  }
+  return map
+}
+
+function buildStakeholderDeltaMap(
+  changes: Array<{ stakeholder_id: string; delta: number }>
+): Record<string, number> {
+  const map: Record<string, number> = {}
+  for (const change of changes) {
+    map[change.stakeholder_id] = (map[change.stakeholder_id] ?? 0) + change.delta
+  }
+  return map
+}
+
 // ── Single run execution ────────────────────────────────────────
 
 function executeRun(
@@ -122,6 +199,9 @@ function executeRun(
   const eventsTriggered: string[] = []
   const reactionsTriggered: string[] = []
   const scoreSnapshotsByTurn: Record<string, number>[] = []
+  const stakeholderTelemetryByTurn: StakeholderTurnTelemetry[] = []
+  const eventTelemetryByTurn: EventTurnTelemetry[] = []
+  const actionTelemetryByTurn: ActionTurnTelemetry[] = []
 
   // Use a per-run PRNG for card selection (separate from engine random)
   const selectionRandom = createSeededRandom(`${runSeed}__selection`)
@@ -153,11 +233,36 @@ function executeRun(
     }
 
     // Track stakeholder reactions
+    const matchedRulesByStakeholder: Record<string, string[]> = {}
     for (const reaction of turnEntry.stakeholder_resolution.reactions) {
+      matchedRulesByStakeholder[reaction.stakeholder_id] = reaction.applied_rule_refs.map((ruleRef) => ruleRef.id)
       for (const ruleRef of reaction.applied_rule_refs) {
         reactionsTriggered.push(ruleRef.id)
       }
     }
+
+    stakeholderTelemetryByTurn.push({
+      turn_number: turnEntry.turn_number,
+      satisfaction_by_stakeholder: Object.fromEntries(
+        Object.entries(turnEntry.end_of_turn_stakeholders).map(([id, state]) => [id, state.satisfaction])
+      ),
+      delta_by_stakeholder: buildStakeholderDeltaMap(turnEntry.total_stakeholder_changes),
+      matched_reaction_rule_ids_by_stakeholder: matchedRulesByStakeholder,
+    })
+
+    eventTelemetryByTurn.push({
+      turn_number: turnEntry.turn_number,
+      triggered_event_id: turnEntry.event_resolution?.selected_event?.id ?? null,
+      score_deltas: buildScoreDeltaMap(turnEntry.event_resolution?.score_changes ?? []),
+      stakeholder_deltas: buildStakeholderDeltaMap(turnEntry.event_resolution?.stakeholder_changes ?? []),
+    })
+
+    actionTelemetryByTurn.push({
+      turn_number: turnEntry.turn_number,
+      selected_card_id: turnEntry.action_resolution.selected_action.id,
+      score_deltas: buildScoreDeltaMap(turnEntry.action_resolution.score_changes),
+      stakeholder_deltas: buildStakeholderDeltaMap(turnEntry.action_resolution.stakeholder_changes),
+    })
   }
 
   // Collect outcome
@@ -183,7 +288,10 @@ function executeRun(
     events_triggered: eventsTriggered,
     reactions_triggered: reactionsTriggered,
     score_average: outcome?.score_average ?? null,
-    score_snapshots_by_turn: scoreSnapshotsByTurn
+    score_snapshots_by_turn: scoreSnapshotsByTurn,
+    stakeholder_telemetry_by_turn: stakeholderTelemetryByTurn,
+    event_telemetry_by_turn: eventTelemetryByTurn,
+    action_telemetry_by_turn: actionTelemetryByTurn,
   }
 }
 
@@ -353,6 +461,83 @@ function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry {
     }
   }
 
+  // ── Phase 1: stakeholder trajectory aggregates ──────────────
+
+  const averageStakeholderSatisfactionByTurn: AverageStakeholderSatisfactionByTurn = {}
+  const stakeholderRecoveryRate: StakeholderRecoveryRate = {}
+  const stakeholderDeclineRate: StakeholderDeclineRate = {}
+  const ruleTriggerRateByStakeholder: RuleTriggerRateByStakeholder = {}
+
+  const stakeholderIds = new Set<string>()
+  for (const run of perRun) {
+    for (const turn of run.stakeholder_telemetry_by_turn) {
+      for (const stakeholderId of Object.keys(turn.satisfaction_by_stakeholder)) {
+        stakeholderIds.add(stakeholderId)
+      }
+    }
+    for (const stakeholderId of Object.keys(run.final_stakeholder_satisfaction)) {
+      stakeholderIds.add(stakeholderId)
+    }
+  }
+
+  const maxStakeholderTurnCount =
+    perRun.length > 0
+      ? Math.max(...perRun.map((r) => r.stakeholder_telemetry_by_turn.length))
+      : 0
+
+  for (const stakeholderId of stakeholderIds) {
+    const turnAverages: number[] = []
+    let stakeholderTurnObservations = 0
+    let positiveDeltaTurns = 0
+    let negativeDeltaTurns = 0
+    const ruleCountById: Record<string, number> = {}
+
+    for (let turn = 0; turn < maxStakeholderTurnCount; turn++) {
+      const values: number[] = []
+
+      for (const run of perRun) {
+        const turnTelemetry = run.stakeholder_telemetry_by_turn[turn]
+        if (!turnTelemetry) {
+          continue
+        }
+
+        const satisfaction = turnTelemetry.satisfaction_by_stakeholder[stakeholderId]
+        if (satisfaction === undefined) {
+          continue
+        }
+
+        values.push(satisfaction)
+        stakeholderTurnObservations += 1
+
+        const delta = turnTelemetry.delta_by_stakeholder[stakeholderId] ?? 0
+        if (delta > 0) {
+          positiveDeltaTurns += 1
+        } else if (delta < 0) {
+          negativeDeltaTurns += 1
+        }
+
+        const matchedRuleIds = turnTelemetry.matched_reaction_rule_ids_by_stakeholder[stakeholderId] ?? []
+        for (const ruleId of matchedRuleIds) {
+          ruleCountById[ruleId] = (ruleCountById[ruleId] ?? 0) + 1
+        }
+      }
+
+      turnAverages.push(values.length > 0 ? average(values) : 0)
+    }
+
+    averageStakeholderSatisfactionByTurn[stakeholderId] = turnAverages
+    stakeholderRecoveryRate[stakeholderId] =
+      stakeholderTurnObservations > 0 ? positiveDeltaTurns / stakeholderTurnObservations : 0
+    stakeholderDeclineRate[stakeholderId] =
+      stakeholderTurnObservations > 0 ? negativeDeltaTurns / stakeholderTurnObservations : 0
+
+    ruleTriggerRateByStakeholder[stakeholderId] = {}
+    for (const [ruleId, count] of Object.entries(ruleCountById)) {
+      ruleTriggerRateByStakeholder[stakeholderId][ruleId] =
+        stakeholderTurnObservations > 0 ? count / stakeholderTurnObservations : 0
+    }
+  }
+
   // ── Strategy fingerprint: winning card pairs ────────────────
 
   const winningCardPairs: WinningCardPairs = {}
@@ -399,6 +584,10 @@ function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry {
     opening_card_frequency: openingCardFrequency,
     opening_sequence_frequency: openingSequenceFrequency,
     average_score_by_turn: averageScoreByTurn,
+    average_stakeholder_satisfaction_by_turn: averageStakeholderSatisfactionByTurn,
+    stakeholder_recovery_rate: stakeholderRecoveryRate,
+    stakeholder_decline_rate: stakeholderDeclineRate,
+    rule_trigger_rate_by_stakeholder: ruleTriggerRateByStakeholder,
     winning_card_pairs: winningCardPairs,
     successful_low_score_rates: successfulLowScoreRates
   }
