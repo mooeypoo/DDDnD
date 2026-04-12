@@ -61,16 +61,10 @@
           <span class="section-icon"><IconGroup :size="16" /></span>
           Stakeholder Reactions
         </h4>
-        <div class="stakeholder-reactions">
-          <AppCard
-            v-for="(reaction, idx) in turnResolution.stakeholder_resolution.reactions"
-            :key="idx"
-            :title="formatStakeholderName(reaction.stakeholder_id)"
-            variant="neutral"
-          >
-            <p class="reaction-text">{{ reaction.presentation.summary }}</p>
-          </AppCard>
-        </div>
+        <StakeholderDriversPanel
+          :reactions="turnResolution.stakeholder_resolution.reactions"
+          :stakeholder-names="stakeholderNames"
+        />
       </div>
 
       <!-- Architectural Aftershocks -->
@@ -115,6 +109,7 @@ import IconLightning from '@/ui/components/icons/IconLightning.vue'
 import IconTarget from '@/ui/components/icons/IconTarget.vue'
 import IconMegaphone from '@/ui/components/icons/IconMegaphone.vue'
 import IconGroup from '@/ui/components/icons/IconGroup.vue'
+import StakeholderDriversPanel from '@/ui/components/stakeholders/StakeholderDriversPanel.vue'
 
 const props = defineProps<{
   turnResolution: TurnResolutionContext
