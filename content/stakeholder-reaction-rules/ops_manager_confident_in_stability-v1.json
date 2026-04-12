@@ -3,7 +3,7 @@
   "version": 1,
   "name": "Operations Manager Confident in Stability",
   "description": "Operations manager supports the team when user trust is high",
-  "condition_description": "User trust > 75",
+  "condition_description": "User trust > 60",
   "score_changes": [
     {
       "score_id": "delivery_confidence",
@@ -16,6 +16,6 @@
   "stakeholder_changes": [
     {
       "stakeholder_id": "operations_manager",
-      "delta": 5
+      "delta": 6
     }  ]
 }

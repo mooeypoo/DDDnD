@@ -25,3 +25,6 @@ jobs:
 
       - name: Run tests
         run: npm test -- --run
+
+      - name: Content audit gate
+        run: npm run audit:gate -- --runs 50

@@ -3,7 +3,7 @@
   "version": 1,
   "name": "Operations Manager Stressed By Instability",
   "description": "Operations manager reacts to low user trust",
-  "condition_description": "User trust < 40",
+  "condition_description": "User trust < 30",
   "score_changes": [
     {
       "score_id": "user_trust",

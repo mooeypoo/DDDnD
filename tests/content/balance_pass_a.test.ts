@@ -157,14 +157,14 @@ describe('Balance pass A — telemetry-informed tuning', () => {
       )
     })
 
-    it('ops_manager_confident_in_stability has raised threshold and reduced deltas', async () => {
+    it('ops_manager_confident_in_stability has lowered threshold and adjusted deltas', async () => {
       const provider = createFileContentProvider(contentRoot)
       const rule = await provider.loadStakeholderReactionRule({
         id: 'ops_manager_confident_in_stability',
         version: 1
       })
 
-      expect(rule.condition_description).toBe('User trust > 75')
+      expect(rule.condition_description).toBe('User trust > 60')
       expect(rule.score_changes).toEqual(
         expect.arrayContaining([
           expect.objectContaining({ score_id: 'delivery_confidence', delta: 2 }),

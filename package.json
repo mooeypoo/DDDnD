@@ -20,7 +20,8 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "generate-og": "node scripts/generate-og-image.mjs",
-    "simulate": "npx tsx scripts/run-simulation.ts"
+    "simulate": "npx tsx scripts/run-simulation.ts",
+    "audit:gate": "npx tsx scripts/audit-gate.ts"
   },
   "dependencies": {
     "pinia": "^2.1.0",
