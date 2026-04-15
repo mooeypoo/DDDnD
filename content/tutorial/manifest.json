@@ -1,0 +1,81 @@
+{
+  "id": "tutorial",
+  "version": "1.0.0",
+  "name": "DDDnD Tutorial Content Pack",
+  "description": "Guided tutorial scenarios and supporting content for first-time players.",
+  "depends_on": [
+    {
+      "pack_id": "base",
+      "version": "1.0.0"
+    }
+  ],
+  "base_url": "/content/tutorial",
+  "license": "GPL-3.0-only",
+  "authors": [
+    {
+      "name": "Moriel Schottlender",
+      "url": "https://github.com/mooeypoo"
+    }
+  ],
+  "pack_homepage_url": "https://github.com/mooeypoo/DDDnD",
+  "scenarios": [],
+  "classes": [],
+  "tutorials": [
+    {
+      "id": "tutorial_basics",
+      "version": 1
+    },
+    {
+      "id": "tutorial_systems_under_pressure",
+      "version": 1
+    }
+  ],
+  "content": {
+    "scenarios": [
+      "tutorial_basics-v1.json",
+      "tutorial_systems_under_pressure-v1.json"
+    ],
+    "cards": [
+      "tutorial_clean_up_code-v1.json",
+      "tutorial_deep_refactor-v1.json",
+      "tutorial_plan_ahead-v1.json",
+      "tutorial_push_through-v1.json",
+      "tutorial_quick_patch-v1.json",
+      "tutorial_rest_the_team-v1.json",
+      "tutorial_ship_a_feature-v1.json",
+      "tutorial_stabilize_system-v1.json"
+    ],
+    "stakeholders": [
+      "tutorial_mentor-v1.json",
+      "tutorial_product_owner-v1.json"
+    ],
+    "stakeholder_reaction_rules": [
+      "tutorial_mentor_concerned-v1.json",
+      "tutorial_po_encouraged-v1.json",
+      "tutorial_po_frustrated-v1.json"
+    ],
+    "scores": [
+      "code_clarity-v1.json",
+      "stakeholder_trust-v1.json",
+      "system_health-v1.json",
+      "team_capacity-v1.json"
+    ],
+    "events": [
+      "tutorial_outage-v1.json",
+      "tutorial_surprise_demo-v1.json"
+    ],
+    "delayed_effects": [
+      "tutorial_patch_debt-v1.json",
+      "tutorial_planning_payoff-v1.json",
+      "tutorial_refactor_payoff-v1.json"
+    ],
+    "outcome_tiers": [
+      "tutorial_done-v1.json",
+      "tutorial_success-v1.json"
+    ],
+    "outcome_archetypes": [
+      "tutorial_learner-v1.json"
+    ],
+    "classes": []
+  }
+}
