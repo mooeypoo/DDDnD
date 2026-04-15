@@ -120,7 +120,7 @@ describe('Stakeholder State Diagnosis', () => {
     expect(foundStakeholderChange).toBe(true)
   })
 
-  it('stakeholder_changes are not defined on any card', async () => {
+  it('stakeholder_changes are defined on at least one card', async () => {
     const scenarioBundle = await createMonolithScenarioBundle()
 
     let foundStakeholderChange = false
@@ -130,10 +130,10 @@ describe('Stakeholder State Diagnosis', () => {
         break
       }
     }
-    expect(foundStakeholderChange).toBe(false)
+    expect(foundStakeholderChange).toBe(true)
   })
 
-  it('stakeholder_changes are not defined on any event', async () => {
+  it('stakeholder_changes are defined on at least one event', async () => {
     const scenarioBundle = await createMonolithScenarioBundle()
 
     let foundStakeholderChange = false
@@ -143,7 +143,7 @@ describe('Stakeholder State Diagnosis', () => {
         break
       }
     }
-    expect(foundStakeholderChange).toBe(false)
+    expect(foundStakeholderChange).toBe(true)
   })
 
   it('after playing a turn, stakeholder satisfaction may have changed due to reactions', async () => {

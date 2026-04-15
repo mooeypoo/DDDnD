@@ -120,7 +120,7 @@ describe('Balance pass A — telemetry-informed tuning', () => {
       )
       expect(rule.stakeholder_changes).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ stakeholder_id: 'security_officer', delta: 3 })
+          expect.objectContaining({ stakeholder_id: 'security_officer', delta: 5 })
         ])
       )
     })
@@ -285,8 +285,8 @@ describe('Balance pass A — telemetry-informed tuning', () => {
       expect(event.occurrence_weight).toBe(5)
       expect(event.score_changes).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ score_id: 'delivery_confidence', delta: -4 }),
-          expect.objectContaining({ score_id: 'team_morale', delta: -3 })
+          expect.objectContaining({ score_id: 'delivery_confidence', delta: -5 }),
+          expect.objectContaining({ score_id: 'team_morale', delta: -4 })
         ])
       )
     })
@@ -297,8 +297,8 @@ describe('Balance pass A — telemetry-informed tuning', () => {
 
       expect(event.score_changes).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ score_id: 'budget', delta: -7 }),
-          expect.objectContaining({ score_id: 'team_morale', delta: -2 })
+          expect.objectContaining({ score_id: 'budget', delta: -9 }),
+          expect.objectContaining({ score_id: 'team_morale', delta: -3 })
         ])
       )
     })
@@ -309,8 +309,8 @@ describe('Balance pass A — telemetry-informed tuning', () => {
 
       expect(event.score_changes).toEqual(
         expect.arrayContaining([
-          expect.objectContaining({ score_id: 'user_trust', delta: -7 }),
-          expect.objectContaining({ score_id: 'team_morale', delta: -4 })
+          expect.objectContaining({ score_id: 'user_trust', delta: -8 }),
+          expect.objectContaining({ score_id: 'team_morale', delta: -6 })
         ])
       )
     })
