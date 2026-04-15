@@ -3,14 +3,10 @@
   "version": 1,
   "name": "Lead Developer Trusts the Process",
   "description": "The lead developer rallies the team when morale is strong and the direction feels right",
-  "condition_description": "Team morale > 65",
+  "condition_description": "Team morale > 80",
   "score_changes": [
     {
       "score_id": "maintainability",
-      "delta": 3
-    },
-    {
-      "score_id": "delivery_confidence",
       "delta": 2
     }
   ],

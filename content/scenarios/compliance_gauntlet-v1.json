@@ -10,8 +10,8 @@
   "starting_scores": {
     "domain_clarity": 50,
     "maintainability": 44,
-    "delivery_confidence": 45,
-    "team_morale": 40,
+    "delivery_confidence": 38,
+    "team_morale": 32,
     "user_trust": 55,
     "budget": 50
   },

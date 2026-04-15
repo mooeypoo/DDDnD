@@ -4,5 +4,9 @@
   "name": "Stakeholder Revolt",
   "description": "All stakeholders start deeply dissatisfied. Earn their trust from scratch",
   "flavor_text": "The last architect left under... mysterious circumstances",
+  "score_adjustments": {
+    "team_morale": -10,
+    "delivery_confidence": -5
+  },
   "stakeholder_satisfaction_override": 30
 }

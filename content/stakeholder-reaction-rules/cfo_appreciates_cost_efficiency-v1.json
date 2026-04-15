@@ -3,15 +3,15 @@
   "version": 1,
   "name": "CFO Appreciates Cost Efficiency",
   "description": "The CFO recognizes that improved maintainability reduces costly production incidents",
-  "condition_description": "Maintainability > 55",
+  "condition_description": "Maintainability > 70",
   "score_changes": [
     {
       "score_id": "budget",
-      "delta": 4
+      "delta": 2
     },
     {
       "score_id": "delivery_confidence",
-      "delta": 2
+      "delta": 1
     }
   ],
   "stakeholder_changes": [
