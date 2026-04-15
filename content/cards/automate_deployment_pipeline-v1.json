@@ -28,6 +28,10 @@
     {
       "stakeholder_id": "operations_manager",
       "delta": 1
+    },
+    {
+      "stakeholder_id": "vp_product",
+      "delta": 2
     }
   ],
   "delayed_effect_refs": [

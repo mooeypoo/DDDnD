@@ -101,7 +101,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { TurnResolutionContext } from '@/domains/simulation/model'
-import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import AppCard from '@/ui/components/cards/AppCard.vue'
 import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 import IconSwords from '@/ui/components/icons/IconSwords.vue'
@@ -127,10 +126,6 @@ function formatScoreName(scoreId: string): string {
     .split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
-}
-
-function formatStakeholderName(stakeholderId: string): string {
-  return resolveStakeholderName(stakeholderId, props.stakeholderNames)
 }
 </script>
 
