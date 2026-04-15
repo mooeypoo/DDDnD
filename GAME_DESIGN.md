@@ -8,8 +8,6 @@ Players act as a systems architect trying to improve a struggling system.
 
 For architecture boundaries and routing, see [AGENT.md](AGENT.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 
-For UI presentation roadmap and terminology coordination, see [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md).
-
 ---
 
 # Player Goal

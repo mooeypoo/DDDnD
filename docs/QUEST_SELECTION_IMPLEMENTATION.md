@@ -7,7 +7,6 @@ Canonical companions:
 
 - [AGENT.md](../AGENT.md) for routing and terminology guardrails
 - [ARCHITECTURE.md](../ARCHITECTURE.md) for UI/domain separation
-- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md) for presentation roadmap coordination
 
 Terminology note:
 

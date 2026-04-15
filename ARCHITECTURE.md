@@ -6,8 +6,6 @@ The game simulates the evolution of a software system as architectural decisions
 
 For work-routing and canonical reading order, see [AGENT.md](AGENT.md).
 
-For UI presentation planning and phase coordination, see [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md).
-
 ---
 
 # High Level Structure

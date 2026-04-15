@@ -6,7 +6,7 @@ Content files live in the `/content` directory.
 
 For domain boundaries and validation ownership, see [ARCHITECTURE.md](ARCHITECTURE.md) and [AGENT.md](AGENT.md).
 
-For UI presentation terminology (`playerClass`, `endingType`, `avatarRole`), see [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md). This schema document remains source-of-truth for JSON structure.
+For UI presentation terminology (`playerClass`, `endingType`, `avatarRole`), see [AGENT.md](AGENT.md). This schema document remains source-of-truth for JSON structure.
 
 ---
 

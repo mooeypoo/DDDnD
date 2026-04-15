@@ -24,7 +24,6 @@ Read these on top of the base set when applicable.
 
 ### UI / presentation work
 
-- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical visual direction for scene composition and stakeholder avatarRole art direction
 - [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md)
 - [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
@@ -34,7 +33,6 @@ Read these on top of the base set when applicable.
 
 - [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) — canonical strategy for raster scene/avatar assets and SVG chrome split
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical scene/avatar art direction and anti-goals
-- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md)
 - [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
 
 ### Storybook / UI prototyping work
@@ -42,7 +40,6 @@ Read these on top of the base set when applicable.
 - [docs/STORYBOOK.md](docs/STORYBOOK.md)
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) (if story visual direction, scene composition, or `avatarRole` presentation is touched)
 - [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) (if visuals/artwork are touched)
-- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](docs/UI_PRESENTATION_REDESIGN_PLAN.md) (if presentation direction is touched)
 - [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
 
 ### Content / schema work

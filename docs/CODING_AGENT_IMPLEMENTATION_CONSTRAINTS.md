@@ -43,6 +43,5 @@ Legacy references may remain only where already established.
 
 ## 6. Companion Docs
 
-- [docs/UI_PRESENTATION_REDESIGN_PLAN.md](UI_PRESENTATION_REDESIGN_PLAN.md)
 - [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md)
 - [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md)
