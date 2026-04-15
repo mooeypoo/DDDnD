@@ -1,0 +1,29 @@
+{
+  "id": "integration_demo_success",
+  "version": 1,
+  "name": "Integration Demo Success",
+  "description": "The first cross-system demo works flawlessly, proving the merger can succeed technically",
+  "flavor_text": "Both systems talking to each other. Nobody expected it to actually work.",
+  "occurrence_weight": 4,
+  "trigger_condition_description": "Domain clarity > 40",
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 7
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 5
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 4
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "demo_momentum",
+      "version": 1
+    }
+  ]
+}

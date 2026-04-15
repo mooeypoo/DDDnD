@@ -48,8 +48,8 @@ describe('Outcome archetype classification', () => {
     const archetype = classifyOutcomeArchetype({
       run_analytics: createAnalytics({
         cumulative_score_deltas: {
-          domain_clarity: 25,
-          maintainability: 15,
+          domain_clarity: 15,
+          maintainability: 10,
           delivery_confidence: -5,
           budget: -10
         },
@@ -85,8 +85,8 @@ describe('Outcome archetype classification', () => {
     const archetype = classifyOutcomeArchetype({
       run_analytics: createAnalytics({
         cumulative_score_deltas: {
-          domain_clarity: 25,
-          maintainability: 15,
+          domain_clarity: 15,
+          maintainability: 10,
           delivery_confidence: -25,
           budget: -20
         },
@@ -122,15 +122,15 @@ describe('Outcome archetype classification', () => {
         total_events_triggered: 1,
         total_aftershocks_resolved: 0,
         cumulative_score_deltas: {
-          domain_clarity: 4,
-          maintainability: 2,
-          delivery_confidence: 2,
-          budget: 1,
+          domain_clarity: 2,
+          maintainability: 1,
+          delivery_confidence: -2,
+          budget: -1,
           user_trust: 1
         },
         cumulative_stakeholder_deltas: {
-          cto: 2,
-          vp_product: 1
+          cto: -1,
+          vp_product: 0
         }
       })
     })
@@ -139,11 +139,11 @@ describe('Outcome archetype classification', () => {
   })
 
   it('boundary_builder vs runaway_refactorer depends on final delivery_confidence', () => {
-    // delivery_confidence at 30 (50 + (-20)) → boundary_builder
+    // delivery_confidence at 30 (50 + (-20)) → boundary_builder (arch delta = 25, < 30 so not visionary)
     const builder = classifyOutcomeArchetype({
       run_analytics: createAnalytics({
         cumulative_score_deltas: {
-          domain_clarity: 20,
+          domain_clarity: 15,
           maintainability: 10,
           delivery_confidence: -20,
           budget: -10
@@ -156,7 +156,7 @@ describe('Outcome archetype classification', () => {
     const refactorer = classifyOutcomeArchetype({
       run_analytics: createAnalytics({
         cumulative_score_deltas: {
-          domain_clarity: 20,
+          domain_clarity: 15,
           maintainability: 10,
           delivery_confidence: -21,
           budget: -10
@@ -178,8 +178,8 @@ describe('Outcome archetype classification', () => {
         },
         run_analytics: createAnalytics({
           cumulative_score_deltas: {
-            domain_clarity: 30,
-            maintainability: 20,
+            domain_clarity: 20,
+            maintainability: 8,
             delivery_confidence: -5,
             budget: -5
           }
@@ -187,7 +187,7 @@ describe('Outcome archetype classification', () => {
       }
     })
 
-    // Final delivery_confidence from scores is 20 < 30 → runaway_refactorer
+    // arch delta = 28 (< 30, so not visionary), delivery 20 < 30 → runaway_refactorer
     expect(archetype).toBe('runaway_refactorer')
   })
 
@@ -248,7 +248,12 @@ describe('Outcome archetype classification', () => {
         'stakeholder_whisperer',
         'runaway_refactorer',
         'firefighter',
-        'system_stabilizer'
+        'system_stabilizer',
+        'the_diplomat',
+        'budget_hawk',
+        'the_pragmatist',
+        'the_visionary',
+        'burnout_machine'
       ]
     ).toContain(archetype)
   })
@@ -278,8 +283,8 @@ describe('Outcome archetype classification', () => {
       budget: 40
     }
     gameState.run_analytics.cumulative_score_deltas = {
-      domain_clarity: 25,
-      maintainability: 15,
+      domain_clarity: 15,
+      maintainability: 10,
       delivery_confidence: -5,
       budget: -10
     }

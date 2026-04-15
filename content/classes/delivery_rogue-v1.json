@@ -3,5 +3,6 @@
   "version": 1,
   "name": "Delivery Rogue",
   "description": "Swift architect who balances speed with sustainable design",
-  "flavor_text": "You ship features fast while dodging the traps of technical debt"
+  "flavor_text": "You ship features fast while dodging the traps of technical debt",
+  "score_affinity": "delivery_confidence"
 }

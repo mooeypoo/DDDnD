@@ -1,0 +1,34 @@
+{
+  "id": "run_integration_workshop",
+  "version": 1,
+  "name": "Run Integration Workshop",
+  "description": "Bring teams from both companies together to map integration points and build relationships",
+  "flavor_text": "Day one: awkward introductions. Day two: shared whiteboards. Day three: inside jokes.",
+  "usage_limit": 2,
+  "cooldown_turns": 3,
+  "style_tags": ["process", "morale", "strategic"],
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "culture_alignment_progress",
+      "version": 1
+    }
+  ]
+}

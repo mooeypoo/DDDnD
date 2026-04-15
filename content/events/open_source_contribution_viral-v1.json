@@ -1,0 +1,28 @@
+{
+  "id": "open_source_contribution_viral",
+  "version": 1,
+  "name": "Open Source Contribution Goes Viral",
+  "description": "A team member's open source contribution gains traction, boosting the team's reputation",
+  "flavor_text": "Your GitHub stars just tripled overnight",
+  "occurrence_weight": 3,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 7
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 5
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "open_source_community_grows",
+      "version": 1
+    }
+  ]
+}

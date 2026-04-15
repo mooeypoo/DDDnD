@@ -172,7 +172,7 @@
               </svg>
               Choose Your Class
             </h2>
-            <p class="section-hint">Your architectural archetype (cosmetic for MVP)</p>
+            <p class="section-hint">Your architectural archetype — each class gives +1 to its affinity score per turn</p>
           </div>
           
           <div v-if="isLoadingClasses" class="loading-state">
@@ -212,6 +212,45 @@
             :maxlength="50"
           />
         </section>
+
+        <!-- Challenge Modifier (optional) -->
+        <section class="setup-section modifier-section">
+          <div class="section-header">
+            <h2 class="section-title">
+              <svg class="section-icon-svg" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M10,2 L12,7 L17,7 L13,11 L15,17 L10,13 L5,17 L7,11 L3,7 L8,7 Z" stroke="currentColor" fill="none" stroke-width="1.4" stroke-linejoin="round"/>
+              </svg>
+              Challenge Mode
+            </h2>
+            <p class="section-hint">Optional — add a difficulty modifier for extra challenge</p>
+          </div>
+          
+          <div v-if="isLoadingModifiers" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading modifiers...</p>
+          </div>
+          
+          <div v-else class="modifier-grid">
+            <button
+              class="modifier-chip"
+              :class="{ selected: selectedModifier === null }"
+              @click="selectedModifier = null"
+            >
+              <span class="modifier-chip-name">None</span>
+              <span class="modifier-chip-desc">Standard difficulty</span>
+            </button>
+            <button
+              v-for="modifier in availableModifiers"
+              :key="modifier.id"
+              class="modifier-chip"
+              :class="{ selected: selectedModifier?.id === modifier.id }"
+              @click="selectModifier(modifier)"
+            >
+              <span class="modifier-chip-name">{{ modifier.name }}</span>
+              <span class="modifier-chip-desc">{{ modifier.description }}</span>
+            </button>
+          </div>
+        </section>
         
         <!-- Action Buttons -->
         <div class="actions-section">
@@ -240,7 +279,7 @@
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
-import type { PlayerClass } from '@/domains/content/model'
+import type { PlayerClass, ChallengeModifier } from '@/domains/content/model'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
@@ -260,6 +299,8 @@ const gameStore = useGameStore()
 
 const selectedClass = ref<PlayerClass | null>(null)
 const selectedQuest = ref<QuestDisplayModel | null>(null)
+const selectedModifier = ref<ChallengeModifier | null>(null)
+const availableModifiers = ref<ChallengeModifier[]>([])
 const characterName = ref('')
 
 const isMobile = ref(false)
@@ -291,6 +332,7 @@ const activeTabIndex = computed({
 const isLoadingClasses = ref(false)
 const isLoadingQuests = ref(false)
 const isLoadingTutorials = ref(false)
+const isLoadingModifiers = ref(false)
 
 onMounted(async () => {
   // Load available classes if not already loaded
@@ -321,6 +363,17 @@ onMounted(async () => {
     } finally {
       isLoadingQuests.value = false
     }
+  }
+
+  // Load available challenge modifiers
+  isLoadingModifiers.value = true
+  try {
+    await gameStore.load_available_challenge_modifiers()
+    availableModifiers.value = gameStore.availableChallengeModifiers
+  } catch {
+    // Challenge modifiers are optional
+  } finally {
+    isLoadingModifiers.value = false
   }
 
   // Handle tutorial query param from welcome page
@@ -363,6 +416,10 @@ function selectQuest(quest: QuestDisplayModel) {
   selectedQuest.value = quest
 }
 
+function selectModifier(modifier: ChallengeModifier) {
+  selectedModifier.value = modifier
+}
+
 function goBack() {
   router.push('/')
 }
@@ -377,6 +434,10 @@ async function startRun() {
       id: selectedClass.value.id,
       version: selectedClass.value.version
     },
+    selected_challenge_modifier_ref: selectedModifier.value ? {
+      id: selectedModifier.value.id,
+      version: selectedModifier.value.version
+    } : undefined,
     character_name: characterName.value || undefined,
     is_tutorial: selectedQuest.value.isTutorial ?? false
   })
@@ -689,6 +750,49 @@ async function launchTutorial(quest: QuestDisplayModel) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: var(--space-lg);
+}
+
+/* Modifier grid */
+.modifier-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.modifier-chip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  min-width: 160px;
+  max-width: 240px;
+}
+
+.modifier-chip:hover {
+  border-color: var(--border-hover);
+}
+
+.modifier-chip.selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.modifier-chip-name {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.modifier-chip-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  line-height: 1.3;
 }
 
 /* Action Buttons */

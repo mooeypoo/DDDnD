@@ -25,7 +25,7 @@
 import { ScenarioBundle } from '@/domains/content/model'
 import { createSeededRandom, SeededRandom } from '@/shared/random/seeded_random'
 import { GameState } from '../model'
-import { createRun } from './create_run'
+import { createRun, CreateRunOptions } from './create_run'
 import { RunOutcome, getRunOutcome } from './get_run_outcome'
 import { TurnBriefing, getTurnBriefing } from './get_turn_briefing'
 import { PlayTurnResult, playTurn } from './play_turn'
@@ -43,7 +43,7 @@ interface EngineStateContainer {
 }
 
 export interface SimulationEngine {
-  create_run(): GameState
+  create_run(options?: CreateRunOptions): GameState
   restore_run(game_state: GameState): GameState
   get_turn_briefing(): TurnBriefing
   play_turn(action_id: string): PlayTurnResult
@@ -72,8 +72,8 @@ export function create_engine(input: CreateEngineInput): SimulationEngine {
   }
 
   return {
-    create_run: () => {
-      engineState.game_state = createRun(engineState.scenario_bundle, engineState.seed)
+    create_run: (options?: CreateRunOptions) => {
+      engineState.game_state = createRun(engineState.scenario_bundle, engineState.seed, options)
       return engineState.game_state
     },
 

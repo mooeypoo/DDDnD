@@ -1,0 +1,8 @@
+{
+  "id": "speed_run",
+  "version": 1,
+  "name": "Speed Run",
+  "description": "Two fewer turns to achieve your goals. No room for wasted actions",
+  "flavor_text": "The deadline was moved up. Again",
+  "turn_adjustment": -2
+}

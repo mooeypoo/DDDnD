@@ -1,0 +1,23 @@
+{
+  "id": "vp_product_endorses_strategy",
+  "version": 1,
+  "name": "VP Product Endorses Strategy",
+  "description": "The VP Product supports the current direction when both delivery and user trust are healthy",
+  "condition_description": "Delivery confidence > 55",
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": 3
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 2
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "vp_product",
+      "delta": 5
+    }
+  ]
+}

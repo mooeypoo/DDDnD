@@ -1,0 +1,8 @@
+{
+  "id": "stakeholder_revolt",
+  "version": 1,
+  "name": "Stakeholder Revolt",
+  "description": "All stakeholders start deeply dissatisfied. Earn their trust from scratch",
+  "flavor_text": "The last architect left under... mysterious circumstances",
+  "stakeholder_satisfaction_override": 30
+}

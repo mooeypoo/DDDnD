@@ -1,0 +1,12 @@
+{
+  "id": "budget_crisis",
+  "version": 1,
+  "name": "Budget Crisis",
+  "description": "The CFO has cut funding. Budget starts critically low and every spend is scrutinized",
+  "flavor_text": "Apparently 'technical investment' isn't in this quarter's vocabulary",
+  "score_adjustments": {
+    "budget": -20,
+    "delivery_confidence": -5,
+    "team_morale": -5
+  }
+}

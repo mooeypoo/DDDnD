@@ -1,0 +1,24 @@
+{
+  "id": "architecture_award_nomination",
+  "version": 1,
+  "name": "Architecture Award Nomination",
+  "description": "The team's architectural improvements earn recognition at an industry conference",
+  "flavor_text": "Someone actually read your architecture decision records",
+  "occurrence_weight": 3,
+  "trigger_condition_description": "Domain clarity > 70",
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 8
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 4
+    },
+    {
+      "score_id": "budget",
+      "delta": 3
+    }
+  ],
+  "delayed_effect_refs": []
+}

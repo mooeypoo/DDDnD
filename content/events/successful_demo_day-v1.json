@@ -1,0 +1,28 @@
+{
+  "id": "successful_demo_day",
+  "version": 1,
+  "name": "Successful Demo Day",
+  "description": "A product demo goes surprisingly well, impressing stakeholders and energizing the team",
+  "flavor_text": "Wait, it actually works? In front of people?",
+  "occurrence_weight": 4,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 8
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 4
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "demo_momentum",
+      "version": 1
+    }
+  ]
+}

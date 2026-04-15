@@ -1,0 +1,23 @@
+{
+  "id": "tech_lead_champions_architecture",
+  "version": 1,
+  "name": "Tech Lead Champions Architecture",
+  "description": "The tech lead actively promotes architectural improvements when domain clarity is solid",
+  "condition_description": "Domain clarity > 55",
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 3
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 2
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "tech_lead",
+      "delta": 5
+    }
+  ]
+}

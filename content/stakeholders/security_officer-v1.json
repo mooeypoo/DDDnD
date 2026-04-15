@@ -15,6 +15,10 @@
     {
       "id": "security_officer_escalates_to_board",
       "version": 1
+    },
+    {
+      "id": "security_officer_relaxes_stance",
+      "version": 1
     }
   ]
 }

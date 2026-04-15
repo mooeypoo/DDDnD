@@ -1,0 +1,23 @@
+{
+  "id": "cto_impressed_by_architecture",
+  "version": 1,
+  "name": "CTO Impressed by Architecture",
+  "description": "The CTO is energized by clear architectural progress and increased system quality",
+  "condition_description": "Domain clarity > 55",
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 3
+    },
+    {
+      "score_id": "budget",
+      "delta": 3
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "cto",
+      "delta": 6
+    }
+  ]
+}

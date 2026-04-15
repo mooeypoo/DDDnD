@@ -1,0 +1,28 @@
+{
+  "id": "service_discovery_failure",
+  "version": 1,
+  "name": "Service Discovery Failure",
+  "description": "Services lose track of each other in the mesh, causing cascading request failures",
+  "flavor_text": "The service registry just shrugged and said 'I don't know her'",
+  "occurrence_weight": 5,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -7
+    },
+    {
+      "score_id": "user_trust",
+      "delta": -5
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "integration_complexity_emerges",
+      "version": 1
+    }
+  ]
+}

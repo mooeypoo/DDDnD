@@ -1,0 +1,29 @@
+{
+  "id": "team_burnout_spike",
+  "version": 1,
+  "name": "Team Burnout Spike",
+  "description": "Sustained pressure triggers a wave of burnout across the engineering team",
+  "flavor_text": "Three people called in sick. Two more updated their LinkedIn.",
+  "occurrence_weight": 4,
+  "trigger_condition_description": "Team morale < 30",
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -7
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -5
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "burnout_recovery_stalls",
+      "version": 1
+    }
+  ]
+}

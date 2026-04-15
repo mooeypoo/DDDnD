@@ -1,0 +1,23 @@
+{
+  "id": "culture_clash_incident",
+  "version": 1,
+  "name": "Culture Clash Incident",
+  "description": "A heated disagreement between teams from the two companies derails a planning meeting",
+  "flavor_text": "We do standups differently here. This is a hill someone is willing to die on.",
+  "occurrence_weight": 5,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -7
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": -2
+    }
+  ],
+  "delayed_effect_refs": []
+}

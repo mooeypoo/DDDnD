@@ -1,0 +1,17 @@
+{
+  "id": "unified_model_clarity",
+  "version": 1,
+  "name": "Unified Model Clarity",
+  "description": "The two domain models start converging into a shared understanding",
+  "turns_until_resolution": 3,
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 7
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 4
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "id": "investor_board_presentation",
+  "version": 1,
+  "name": "Investor Board Presentation",
+  "description": "The board demands a technical roadmap presentation, creating pressure but opening funding opportunities",
+  "flavor_text": "Slide 47 of your deck just says 'technical debt' with a sad face",
+  "occurrence_weight": 4,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -3
+    },
+    {
+      "score_id": "budget",
+      "delta": 4
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "investor_confidence_boost",
+      "version": 1
+    }
+  ]
+}

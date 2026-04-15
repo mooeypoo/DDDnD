@@ -1,0 +1,23 @@
+{
+  "id": "shadow_process_revealed",
+  "version": 1,
+  "name": "Shadow Process Revealed",
+  "description": "A critical business process was being handled by an undocumented system nobody knew about",
+  "flavor_text": "There's a cron job on someone's desktop that processes all refunds",
+  "occurrence_weight": 4,
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": -6
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -4
+    },
+    {
+      "score_id": "user_trust",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": []
+}

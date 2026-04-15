@@ -1,0 +1,23 @@
+{
+  "id": "security_officer_relaxes_stance",
+  "version": 1,
+  "name": "Security Officer Relaxes Stance",
+  "description": "The security officer is reassured when user trust is solid and the system is well-maintained",
+  "condition_description": "User trust > 65",
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 2
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 2
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "security_officer",
+      "delta": 5
+    }
+  ]
+}

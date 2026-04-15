@@ -1,0 +1,90 @@
+{
+  "id": "merger_of_minor_chaos",
+  "version": 1,
+  "name": "The Merger of Minor Chaos",
+  "description": "Two mid-size companies have merged, and now you must reconcile duplicate systems, competing domain models, and culture clashes while proving 'synergy' is more than a buzzword",
+  "short_description": "Unite two engineering cultures and tech stacks before integration paralysis sets in.",
+  "flavor_text": "Two domain models enter. One domain model leaves. Hopefully.",
+  "max_turns": 11,
+  "score_variance": 5,
+  "starting_scores": {
+    "domain_clarity": 25,
+    "maintainability": 40,
+    "delivery_confidence": 50,
+    "team_morale": 45,
+    "user_trust": 55,
+    "budget": 70
+  },
+  "score_refs": [
+    { "id": "domain_clarity", "version": 1 },
+    { "id": "maintainability", "version": 1 },
+    { "id": "delivery_confidence", "version": 1 },
+    { "id": "team_morale", "version": 1 },
+    { "id": "user_trust", "version": 1 },
+    { "id": "budget", "version": 1 }
+  ],
+  "stakeholder_refs": [
+    { "id": "cto", "version": 1 },
+    { "id": "vp_product", "version": 1 },
+    { "id": "lead_developer", "version": 1 },
+    { "id": "operations_manager", "version": 1 },
+    { "id": "integration_program_manager", "version": 1 }
+  ],
+  "card_refs": [
+    { "id": "define_bounded_context", "version": 1 },
+    { "id": "extract_shared_kernel", "version": 1 },
+    { "id": "document_ubiquitous_language", "version": 1 },
+    { "id": "introduce_anti_corruption_layer", "version": 1 },
+    { "id": "ship_quick_fix", "version": 1 },
+    { "id": "hold_architecture_workshop", "version": 1 },
+    { "id": "add_integration_tests", "version": 1 },
+    { "id": "establish_team_ownership", "version": 1 },
+    { "id": "introduce_event_storming", "version": 1 },
+    { "id": "clarify_cross_team_handoffs", "version": 1 },
+    { "id": "host_cross_team_retrospective", "version": 1 },
+    { "id": "negotiate_technical_runway", "version": 1 },
+    { "id": "absorb_emergency_production_fix", "version": 1 },
+    { "id": "automate_deployment_pipeline", "version": 1 },
+    { "id": "propose_unified_domain_model", "version": 1 },
+    { "id": "run_integration_workshop", "version": 1 },
+    { "id": "sunset_duplicate_system", "version": 1 },
+    { "id": "shadow_it_consolidation", "version": 1 },
+    { "id": "platform_team_formation", "version": 1 },
+    { "id": "emergency_architecture_review", "version": 1 },
+    { "id": "publish_engineering_blog", "version": 1 }
+  ],
+  "event_refs": [
+    { "id": "critical_bug_discovered", "version": 1 },
+    { "id": "customer_praises_reliability", "version": 1 },
+    { "id": "team_member_discovers_pattern", "version": 1 },
+    { "id": "key_engineer_leaves", "version": 1 },
+    { "id": "customer_escalation", "version": 1 },
+    { "id": "key_talent_poaching_attempt", "version": 1 },
+    { "id": "duplicate_system_discovery", "version": 1 },
+    { "id": "culture_clash_incident", "version": 1 },
+    { "id": "integration_demo_success", "version": 1 },
+    { "id": "shadow_process_revealed", "version": 1 },
+    { "id": "acquisition_rumor", "version": 1 },
+    { "id": "cross_team_hackathon", "version": 1 },
+    { "id": "team_burnout_spike", "version": 1 }
+  ],
+  "outcome_tier_refs": [
+    { "id": "triumph", "version": 1 },
+    { "id": "success", "version": 1 },
+    { "id": "survival", "version": 1 },
+    { "id": "struggle", "version": 1 },
+    { "id": "collapse", "version": 1 }
+  ],
+  "outcome_archetype_refs": [
+    { "id": "boundary_builder", "version": 1 },
+    { "id": "firefighter", "version": 1 },
+    { "id": "system_stabilizer", "version": 1 },
+    { "id": "stakeholder_whisperer", "version": 1 },
+    { "id": "runaway_refactorer", "version": 1 },
+    { "id": "the_diplomat", "version": 1 },
+    { "id": "the_pragmatist", "version": 1 },
+    { "id": "the_visionary", "version": 1 },
+    { "id": "burnout_machine", "version": 1 },
+    { "id": "budget_hawk", "version": 1 }
+  ]
+}

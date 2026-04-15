@@ -1,0 +1,20 @@
+{
+  "id": "integration_program_manager",
+  "version": 1,
+  "name": "Integration Program Manager",
+  "description": "Cross-company coordinator focused on visible integration milestones and synergy metrics",
+  "reaction_rule_refs": [
+    {
+      "id": "ipm_demands_visible_progress",
+      "version": 1
+    },
+    {
+      "id": "ipm_celebrates_integration_milestone",
+      "version": 1
+    },
+    {
+      "id": "ipm_escalates_integration_stall",
+      "version": 1
+    }
+  ]
+}

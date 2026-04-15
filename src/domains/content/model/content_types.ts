@@ -173,6 +173,8 @@ export interface Scenario extends ContentMetadata {
   outcome_tier_refs?: VersionRef[]
   outcome_archetype_refs?: VersionRef[]
   failure_conditions?: NumericCondition[]
+  /** Max ± random variance applied to each starting score per run */
+  score_variance?: number
   /** Tutorial-only: marks this scenario as a tutorial quest */
   is_tutorial?: boolean
   /** Tutorial-only: ordering among tutorials (1 = basics, 2 = advanced, etc.) */
@@ -184,10 +186,25 @@ export interface Scenario extends ContentMetadata {
 /**
  * Player Class
  * 
- * Cosmetic player class selection.
+ * Player class selection with optional gameplay bonus.
  */
 export interface PlayerClass extends ContentMetadata {
   name: string
   description: string
   flavor_text?: string
+  score_affinity?: string
+}
+
+/**
+ * Challenge Modifier
+ * 
+ * Optional difficulty modifier applied at run creation.
+ */
+export interface ChallengeModifier extends ContentMetadata {
+  name: string
+  description: string
+  flavor_text?: string
+  score_adjustments?: Record<string, number>
+  stakeholder_satisfaction_override?: number
+  turn_adjustment?: number
 }

@@ -1,0 +1,33 @@
+{
+  "id": "cancel_feature_sprint_for_refactoring",
+  "version": 1,
+  "name": "Cancel Feature Sprint for Refactoring",
+  "description": "Redirect an entire sprint to refactoring work, angering product stakeholders",
+  "flavor_text": "The VP Product's eye just twitched",
+  "usage_limit": 1,
+  "style_tags": ["architecture", "long-term", "unpopular"],
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 8
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -6
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 2
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "refactoring_payoff",
+      "version": 1
+    }
+  ]
+}

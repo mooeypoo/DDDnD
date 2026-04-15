@@ -1,0 +1,17 @@
+{
+  "id": "open_source_community_grows",
+  "version": 1,
+  "name": "Open Source Community Grows",
+  "description": "External contributors start submitting improvements to the extracted module",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 3
+    }
+  ]
+}

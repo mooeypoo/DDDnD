@@ -1,0 +1,33 @@
+{
+  "id": "accept_technical_debt_amnesty",
+  "version": 1,
+  "name": "Accept Technical Debt Amnesty",
+  "description": "Declare a moratorium on debt discussions to boost morale, but the debt doesn't go away",
+  "flavor_text": "We'll deal with it next quarter. Definitely next quarter.",
+  "usage_limit": 1,
+  "style_tags": ["short-term", "morale", "risky"],
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 8
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 3
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -7
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "technical_debt_accumulates",
+      "version": 1
+    }
+  ]
+}

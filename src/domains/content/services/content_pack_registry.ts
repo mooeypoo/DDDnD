@@ -20,6 +20,7 @@ const contentKeyByType: Record<ContentType, ContentInventoryKey> = {
   'outcome-tiers': 'outcome_tiers',
   'outcome-archetypes': 'outcome_archetypes',
   classes: 'classes',
+  'challenge-modifiers': 'challenge_modifiers',
 }
 
 function dedupeVersionRefs(refs: VersionRef[]): VersionRef[] {
@@ -65,6 +66,10 @@ export class ContentPackRegistry {
 
   getAvailableClasses(): VersionRef[] {
     return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.classes))
+  }
+
+  getAvailableChallengeModifiers(): VersionRef[] {
+    return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.challenge_modifiers ?? []))
   }
 
   getAvailableTutorials(): VersionRef[] {
@@ -117,6 +122,7 @@ export class ContentPackRegistry {
       loadOutcomeArchetype: (ref) =>
         loadFromType('outcome-archetypes', ref, (provider, currentRef) => provider.loadOutcomeArchetype(currentRef)),
       loadPlayerClass: (ref) => loadFromType('classes', ref, (provider, currentRef) => provider.loadPlayerClass(currentRef)),
+      loadChallengeModifier: (ref) => loadFromType('challenge-modifiers', ref, (provider, currentRef) => provider.loadChallengeModifier(currentRef)),
     }
   }
 }

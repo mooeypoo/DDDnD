@@ -23,7 +23,7 @@ import type {
   PlayTurnResult,
   RunOutcome
 } from '@/domains/simulation'
-import type { ScenarioBundle, VersionRef, PlayerClass } from '@/domains/content/model'
+import type { ScenarioBundle, VersionRef, PlayerClass, ChallengeModifier } from '@/domains/content/model'
 import { buildScenarioBundle } from '@/domains/content'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
@@ -39,6 +39,7 @@ export interface RunSetupOptions {
   scenario_id: string
   scenario_version: number
   selected_class_ref?: VersionRef
+  selected_challenge_modifier_ref?: VersionRef
   character_name?: string
   seed?: string
   /** When true, loads content from the tutorial namespace */
@@ -80,6 +81,7 @@ export const useGameStore = defineStore('game', () => {
   
   // Available classes (loaded from content)
   const availableClasses = ref<PlayerClass[]>([])
+  const availableChallengeModifiers = ref<ChallengeModifier[]>([])
   const contentPackRegistry = ref<ContentPackRegistry | null>(null)
   
   // Computed
@@ -150,6 +152,20 @@ export const useGameStore = defineStore('game', () => {
     
     availableClasses.value = classes
   }
+
+  /**
+   * Load available challenge modifiers
+   */
+  async function load_available_challenge_modifiers() {
+    const provider = await get_merged_content_provider()
+    const modRefs: VersionRef[] = contentPackRegistry.value?.getAvailableChallengeModifiers() ?? []
+    
+    const mods = await Promise.all(
+      modRefs.map(ref => provider.loadChallengeModifier(ref))
+    )
+
+    availableChallengeModifiers.value = mods
+  }
   
   /**
    * Load available quests from the UI config and scenario content
@@ -199,16 +215,42 @@ export const useGameStore = defineStore('game', () => {
       const seed = options.seed || `seed-${Date.now()}`
       initialize_engine(bundle, seed)
       
-      // Create the run
+      // Create the run (with optional challenge modifier)
       if (!engine.value) {
         throw new Error('Engine not initialized')
       }
+
+      let challengeModifier
+      if (options.selected_challenge_modifier_ref) {
+        try {
+          challengeModifier = await provider.loadChallengeModifier(options.selected_challenge_modifier_ref)
+        } catch {
+          // Challenge modifier is optional — continue without it
+        }
+      }
       
-      const initialState = engine.value.create_run()
+      const initialState = engine.value.create_run(
+        challengeModifier ? { challenge_modifier: challengeModifier } : undefined
+      )
       
       // Apply optional profile settings
       if (options.selected_class_ref) {
         initialState.player_profile.selected_class_ref = options.selected_class_ref
+        // Resolve class score_affinity for gameplay bonus
+        try {
+          const playerClass = await provider.loadPlayerClass(options.selected_class_ref)
+          if (playerClass?.score_affinity) {
+            initialState.player_profile.class_score_affinity = playerClass.score_affinity
+          }
+        } catch {
+          // Class affinity is optional — continue without it
+        }
+      }
+      if (options.selected_challenge_modifier_ref) {
+        initialState.player_profile.challenge_modifier_ref = {
+          id: options.selected_challenge_modifier_ref.id,
+          version: options.selected_challenge_modifier_ref.version
+        }
       }
       if (options.character_name) {
         initialState.player_profile.display_name = options.character_name
@@ -429,6 +471,7 @@ export const useGameStore = defineStore('game', () => {
     availableQuests,
     availableTutorials,
     availableClasses,
+    availableChallengeModifiers,
     isAboutModalOpen,
     isRulesModalOpen,
     isIntroSplashOpen,
@@ -454,6 +497,7 @@ export const useGameStore = defineStore('game', () => {
     load_available_quests,
     load_available_tutorials,
     load_available_classes,
+    load_available_challenge_modifiers,
     start_new_run,
     refresh_turn_briefing,
     play_turn,

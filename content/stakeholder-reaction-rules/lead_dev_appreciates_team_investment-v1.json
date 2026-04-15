@@ -1,0 +1,23 @@
+{
+  "id": "lead_dev_appreciates_team_investment",
+  "version": 1,
+  "name": "Lead Dev Appreciates Team Investment",
+  "description": "The lead developer is grateful when investment in quality starts paying off",
+  "condition_description": "Maintainability > 60",
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 2
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "lead_developer",
+      "delta": 6
+    }
+  ]
+}

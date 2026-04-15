@@ -1,0 +1,17 @@
+{
+  "id": "culture_alignment_progress",
+  "version": 1,
+  "name": "Culture Alignment Progress",
+  "description": "The two engineering cultures begin finding common ground",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 3
+    }
+  ]
+}

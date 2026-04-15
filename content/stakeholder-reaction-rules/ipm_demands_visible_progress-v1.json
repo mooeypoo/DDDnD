@@ -1,0 +1,23 @@
+{
+  "id": "ipm_demands_visible_progress",
+  "version": 1,
+  "name": "IPM Demands Visible Progress",
+  "description": "The integration program manager needs visible architectural progress for steering committee reports",
+  "condition_description": "Domain clarity < 35",
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -3
+    },
+    {
+      "score_id": "budget",
+      "delta": -2
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "integration_program_manager",
+      "delta": -5
+    }
+  ]
+}

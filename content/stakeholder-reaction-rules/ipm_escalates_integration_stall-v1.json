@@ -1,0 +1,28 @@
+{
+  "id": "ipm_escalates_integration_stall",
+  "version": 1,
+  "name": "IPM Escalates Integration Stall",
+  "description": "The integration program manager escalates when the merger integration fundamentally stalls",
+  "condition_description": "Domain clarity < 20",
+  "priority": 50,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -3
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "integration_program_manager",
+      "delta": -8
+    }
+  ]
+}

@@ -15,6 +15,14 @@
     {
       "id": "cto_frustrated_by_stagnation",
       "version": 1
+    },
+    {
+      "id": "cto_impressed_by_architecture",
+      "version": 1
+    },
+    {
+      "id": "cto_questions_investment",
+      "version": 1
     }
   ]
 }

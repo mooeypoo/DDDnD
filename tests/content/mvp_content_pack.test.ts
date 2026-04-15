@@ -101,12 +101,12 @@ describe('MVP content pack', () => {
     expect(bundle.scenario.max_turns).toBe(10)
     expect(bundle.scores.size).toBe(6)
     expect(bundle.stakeholders.size).toBe(4)
-    expect(bundle.stakeholder_reaction_rules.size).toBe(12)
-    expect(bundle.cards.size).toBe(21)
-    expect(bundle.events.size).toBe(6)
-    expect(bundle.delayed_effects.size).toBe(9)
+    expect(bundle.stakeholder_reaction_rules.size).toBe(19)
+    expect(bundle.cards.size).toBe(26)
+    expect(bundle.events.size).toBe(11)
+    expect(bundle.delayed_effects.size).toBe(12)
     expect(bundle.outcome_tiers.size).toBe(5)
-    expect(bundle.outcome_archetypes.size).toBe(5)
+    expect(bundle.outcome_archetypes.size).toBe(10)
   })
 
   it('loads mixed card availability profiles from authored content', async () => {

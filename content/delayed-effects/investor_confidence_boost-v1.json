@@ -1,0 +1,17 @@
+{
+  "id": "investor_confidence_boost",
+  "version": 1,
+  "name": "Investor Confidence Boost",
+  "description": "Positive board presentation leads to increased investment appetite",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": 6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 3
+    }
+  ]
+}

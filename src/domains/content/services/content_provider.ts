@@ -23,6 +23,7 @@ import {
   OutcomeTier,
   OutcomeArchetype,
   PlayerClass,
+  ChallengeModifier,
   ContentMetadata,
   VersionRef,
   versionRefKey,
@@ -43,6 +44,7 @@ export type ContentType =
   | 'outcome-tiers'
   | 'outcome-archetypes'
   | 'classes'
+  | 'challenge-modifiers'
 
 /**
  * Error thrown when content file cannot be loaded.
@@ -89,6 +91,7 @@ export interface ContentProvider {
   loadOutcomeTier(ref: VersionRef): Promise<OutcomeTier>
   loadOutcomeArchetype(ref: VersionRef): Promise<OutcomeArchetype>
   loadPlayerClass(ref: VersionRef): Promise<PlayerClass>
+  loadChallengeModifier(ref: VersionRef): Promise<ChallengeModifier>
 }
 
 /**
@@ -145,6 +148,7 @@ export function createContentProvider(basePath = '/content'): ContentProvider {
     loadDelayedEffect: (ref) => loadContent<DelayedEffect>('delayed-effects', ref),
     loadOutcomeTier: (ref) => loadContent<OutcomeTier>('outcome-tiers', ref),
     loadOutcomeArchetype: (ref) => loadContent<OutcomeArchetype>('outcome-archetypes', ref),
-    loadPlayerClass: (ref) => loadContent<PlayerClass>('classes', ref)
+    loadPlayerClass: (ref) => loadContent<PlayerClass>('classes', ref),
+    loadChallengeModifier: (ref) => loadContent<ChallengeModifier>('challenge-modifiers', ref)
   }
 }

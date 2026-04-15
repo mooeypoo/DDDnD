@@ -15,6 +15,14 @@
     {
       "id": "vp_product_celebrates_user_growth",
       "version": 1
+    },
+    {
+      "id": "vp_product_endorses_strategy",
+      "version": 1
+    },
+    {
+      "id": "vp_product_loses_patience",
+      "version": 1
     }
   ]
 }

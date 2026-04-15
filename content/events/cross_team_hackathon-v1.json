@@ -1,0 +1,28 @@
+{
+  "id": "cross_team_hackathon",
+  "version": 1,
+  "name": "Cross-Team Hackathon",
+  "description": "Teams collaborate on experimental projects, discovering unexpected synergies",
+  "flavor_text": "The best ideas came from the team that wasn't supposed to be there",
+  "occurrence_weight": 4,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 6
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -2
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "team_energized",
+      "version": 1
+    }
+  ]
+}
