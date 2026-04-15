@@ -63,7 +63,7 @@ describe('Balance pass A — telemetry-informed tuning', () => {
       const provider = createFileContentProvider(contentRoot)
       const scenario = await provider.loadScenario({ id: 'compliance_gauntlet', version: 1 })
 
-      expect(scenario.starting_scores.delivery_confidence).toBe(38)
+      expect(scenario.starting_scores.delivery_confidence).toBe(45)
       expect(scenario.starting_scores.user_trust).toBe(55)
       expect(scenario.starting_scores.team_morale).toBe(40)
       expect(scenario.starting_scores.maintainability).toBe(44)
