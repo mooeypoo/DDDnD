@@ -1,8 +1,23 @@
 import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { VersionRef } from '../src/domains/content/model/index.js'
+import type {
+  Card,
+  ContentPackManifest,
+  DelayedEffect,
+  Event,
+  OutcomeArchetype,
+  OutcomeTier,
+  Scenario,
+  Score,
+  Stakeholder,
+  StakeholderReactionRule,
+  VersionRef,
+  PlayerClass,
+} from '../src/domains/content/model/index.js'
+import type { ContentProvider } from '../src/domains/content/services/content_provider.js'
 import { validateContentPack } from '../src/domains/content/services/content_pack_validator.js'
+import { assertValidContentPackManifest } from '../src/domains/content/services/manifest_validator.js'
 import { simulate_runs } from '../src/domains/simulation/services/simulation_runner.js'
 import { buildContentAuditReport } from '../src/domains/simulation/services/audit/content_audit_report_builder.js'
 import { buildScenarioBundle } from '../src/domains/content/services/bundle_builder.js'
@@ -26,7 +41,8 @@ function parseArgs(args: string[]) {
   const hasFlag = (flag: string): boolean => args.includes(flag)
 
   const contentRoot = path.resolve(getValue('--content-root') ?? defaultContentRoot)
-  const packId = getValue('--pack-id') ?? 'external-pack'
+  const manifestPath = path.resolve(getValue('--manifest') ?? path.join(contentRoot, 'manifest.json'))
+  const packId = getValue('--pack-id')
   const runsRaw = getValue('--runs')
   const runs = runsRaw ? Number.parseInt(runsRaw, 10) : 50
   const withAudit = hasFlag('--audit')
@@ -39,6 +55,7 @@ function parseArgs(args: string[]) {
 
   return {
     contentRoot,
+    manifestPath,
     packId,
     runs,
     withAudit,
@@ -66,18 +83,19 @@ async function loadJson<T extends VersionedEntity>(
   return parsed
 }
 
-function createFileContentProvider(contentRoot: string) {
+function createFileContentProvider(contentRoot: string): ContentProvider {
   return {
-    loadScenario: (ref: VersionRef) => loadJson(contentRoot, 'scenarios', ref),
-    loadScore: (ref: VersionRef) => loadJson(contentRoot, 'scores', ref),
-    loadStakeholder: (ref: VersionRef) => loadJson(contentRoot, 'stakeholders', ref),
-    loadStakeholderReactionRule: (ref: VersionRef) => loadJson(contentRoot, 'stakeholder-reaction-rules', ref),
-    loadCard: (ref: VersionRef) => loadJson(contentRoot, 'cards', ref),
-    loadEvent: (ref: VersionRef) => loadJson(contentRoot, 'events', ref),
-    loadDelayedEffect: (ref: VersionRef) => loadJson(contentRoot, 'delayed-effects', ref),
-    loadOutcomeTier: (ref: VersionRef) => loadJson(contentRoot, 'outcome-tiers', ref),
-    loadOutcomeArchetype: (ref: VersionRef) => loadJson(contentRoot, 'outcome-archetypes', ref),
-    loadPlayerClass: (ref: VersionRef) => loadJson(contentRoot, 'classes', ref),
+    loadScenario: (ref: VersionRef) => loadJson<Scenario>(contentRoot, 'scenarios', ref),
+    loadScore: (ref: VersionRef) => loadJson<Score>(contentRoot, 'scores', ref),
+    loadStakeholder: (ref: VersionRef) => loadJson<Stakeholder>(contentRoot, 'stakeholders', ref),
+    loadStakeholderReactionRule: (ref: VersionRef) =>
+      loadJson<StakeholderReactionRule>(contentRoot, 'stakeholder-reaction-rules', ref),
+    loadCard: (ref: VersionRef) => loadJson<Card>(contentRoot, 'cards', ref),
+    loadEvent: (ref: VersionRef) => loadJson<Event>(contentRoot, 'events', ref),
+    loadDelayedEffect: (ref: VersionRef) => loadJson<DelayedEffect>(contentRoot, 'delayed-effects', ref),
+    loadOutcomeTier: (ref: VersionRef) => loadJson<OutcomeTier>(contentRoot, 'outcome-tiers', ref),
+    loadOutcomeArchetype: (ref: VersionRef) => loadJson<OutcomeArchetype>(contentRoot, 'outcome-archetypes', ref),
+    loadPlayerClass: (ref: VersionRef) => loadJson<PlayerClass>(contentRoot, 'classes', ref),
   }
 }
 
@@ -86,8 +104,8 @@ async function listScenarioRefs(contentRoot: string, includeTestScenarios: boole
   const files = await readdir(scenarioDir)
 
   return files
-    .filter(file => file.endsWith('.json'))
-    .map(file => {
+    .filter((file: string) => file.endsWith('.json'))
+    .map((file: string) => {
       const match = file.match(/^(.+)-v(\d+)\.json$/)
       if (!match) {
         return null
@@ -98,18 +116,43 @@ async function listScenarioRefs(contentRoot: string, includeTestScenarios: boole
         version: Number.parseInt(match[2], 10),
       } as VersionRef
     })
-    .filter((ref): ref is VersionRef => !!ref)
+    .filter((ref: VersionRef | null): ref is VersionRef => !!ref)
+    .filter((ref: VersionRef) => includeTestScenarios || !ref.id.startsWith('test_'))
+    .sort((a: VersionRef, b: VersionRef) => a.id.localeCompare(b.id) || a.version - b.version)
+}
+
+async function loadManifestFromDisk(manifestPath: string): Promise<ContentPackManifest> {
+  const raw = await readFile(manifestPath, 'utf8')
+  const parsed = JSON.parse(raw) as unknown
+  assertValidContentPackManifest(parsed)
+  return parsed
+}
+
+function listEntryPointScenarioRefs(manifest: ContentPackManifest, includeTestScenarios: boolean): VersionRef[] {
+  const scenarioRefs = [...manifest.scenarios, ...manifest.tutorials]
     .filter(ref => includeTestScenarios || !ref.id.startsWith('test_'))
     .sort((a, b) => a.id.localeCompare(b.id) || a.version - b.version)
+
+  return scenarioRefs
 }
 
 async function main() {
   const options = parseArgs(process.argv.slice(2))
+  const manifest = await loadManifestFromDisk(options.manifestPath)
   const provider = createFileContentProvider(options.contentRoot)
-  const scenarioRefs = await listScenarioRefs(options.contentRoot, options.includeTestScenarios)
+  const scenarioRefs = listEntryPointScenarioRefs(manifest, options.includeTestScenarios)
+
+  const resolvedPackId = options.packId ?? manifest.id
 
   if (scenarioRefs.length === 0) {
-    console.error(`No scenarios found under ${path.join(options.contentRoot, 'scenarios')}`)
+    const fallbackRefs = await listScenarioRefs(options.contentRoot, options.includeTestScenarios)
+    scenarioRefs.push(...fallbackRefs)
+  }
+
+  if (scenarioRefs.length === 0) {
+    console.error(
+      `No scenario entry points found in manifest ${options.manifestPath} and no fallback scenarios under ${path.join(options.contentRoot, 'scenarios')}`,
+    )
     process.exit(1)
   }
 
@@ -120,7 +163,8 @@ async function main() {
 
   console.log('')
   console.log('Content Pack Validation')
-  console.log(`  pack_id: ${options.packId}`)
+  console.log(`  pack_id: ${resolvedPackId}`)
+  console.log(`  manifest: ${options.manifestPath}`)
   console.log(`  content_root: ${options.contentRoot}`)
   console.log(`  scenarios_checked: ${validationReport.summary.scenarios_checked}`)
   console.log('')
@@ -161,7 +205,7 @@ async function main() {
       })
 
       const auditReport = buildContentAuditReport({
-        content_pack_id: options.packId,
+        content_pack_id: resolvedPackId,
         scenario_bundle: bundle,
         simulation_report: simulationReport,
       })

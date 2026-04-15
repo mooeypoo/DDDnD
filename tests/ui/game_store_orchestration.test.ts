@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
+import type { ContentPackManifest } from '@/domains/content/model'
 
 vi.mock('@/ui/services/quest_loader', async () => {
   const actual = await vi.importActual<typeof import('@/ui/services/quest_loader')>(
@@ -23,6 +24,80 @@ vi.mock('@/ui/services/quest_loader', async () => {
   }
 })
 
+vi.mock('@/domains/content/services/manifest_loader', () => {
+  const baseManifest: ContentPackManifest = {
+    id: 'base',
+    version: '1.0.0',
+    name: 'Base',
+    description: 'Base pack',
+    depends_on: [],
+    base_url: '/content',
+    license: 'GPL-3.0-only',
+    authors: [{ name: 'Test Author' }],
+    scenarios: [
+      { id: 'monolith_of_mild_despair', version: 1 },
+      { id: 'microservice_sprawl', version: 1 },
+      { id: 'compliance_gauntlet', version: 1 },
+      { id: 'startup_hypergrowth', version: 1 },
+    ],
+    classes: [
+      { id: 'boundary_mage', version: 1 },
+      { id: 'stakeholder_bard', version: 1 },
+    ],
+    tutorials: [],
+    content: {
+      scenarios: [
+        'monolith_of_mild_despair-v1.json',
+        'microservice_sprawl-v1.json',
+        'compliance_gauntlet-v1.json',
+        'startup_hypergrowth-v1.json',
+      ],
+      cards: [],
+      stakeholders: [],
+      stakeholder_reaction_rules: [],
+      scores: [],
+      events: [],
+      delayed_effects: [],
+      outcome_tiers: [],
+      outcome_archetypes: [],
+      classes: ['boundary_mage-v1.json', 'stakeholder_bard-v1.json'],
+    },
+  }
+
+  const tutorialManifest: ContentPackManifest = {
+    id: 'tutorial',
+    version: '1.0.0',
+    name: 'Tutorial',
+    description: 'Tutorial pack',
+    depends_on: [{ pack_id: 'base', version: '1.0.0' }],
+    base_url: '/content/tutorial',
+    license: 'GPL-3.0-only',
+    authors: [{ name: 'Test Author' }],
+    scenarios: [],
+    classes: [],
+    tutorials: [
+      { id: 'tutorial_basics', version: 1 },
+      { id: 'tutorial_systems_under_pressure', version: 1 },
+    ],
+    content: {
+      scenarios: ['tutorial_basics-v1.json', 'tutorial_systems_under_pressure-v1.json'],
+      cards: [],
+      stakeholders: [],
+      stakeholder_reaction_rules: [],
+      scores: [],
+      events: [],
+      delayed_effects: [],
+      outcome_tiers: [],
+      outcome_archetypes: [],
+      classes: [],
+    },
+  }
+
+  return {
+    loadManifest: vi.fn(async (url: string) => (url.includes('/tutorial/') ? tutorialManifest : baseManifest)),
+  }
+})
+
 vi.mock('@/domains/content', async () => {
   const actual = await vi.importActual<typeof import('@/domains/content')>('@/domains/content')
   const { buildScenarioBundle: realBuildScenarioBundle } = await vi.importActual<
@@ -41,7 +116,7 @@ vi.mock('@/domains/content', async () => {
 
 import { useGameStore } from '@/ui/stores/game_store'
 import { buildScenarioBundle } from '@/domains/content'
-import { AVAILABLE_QUESTS } from '@/ui/config/available_quests'
+import { loadManifest } from '@/domains/content/services/manifest_loader'
 
 describe('game_store orchestration', () => {
   beforeEach(() => {
@@ -149,20 +224,32 @@ describe('game_store orchestration', () => {
     expect(store.turnBriefing?.turn_number).toBe(briefingTurnBefore)
   })
 
-  it('loads available quests from the UI config', async () => {
+  it('loads available quests from pack manifests', async () => {
     const store = useGameStore()
 
     expect(store.availableQuests).toHaveLength(0)
 
     await store.load_available_quests()
 
-    expect(store.availableQuests).toHaveLength(AVAILABLE_QUESTS.length)
-    expect(store.availableQuests.map((quest) => quest.id)).toEqual(
-      AVAILABLE_QUESTS.map((questRef) => questRef.id)
-    )
+    expect(store.availableQuests).toHaveLength(4)
+    expect(store.availableQuests.map((quest) => quest.id)).toEqual([
+      'monolith_of_mild_despair',
+      'microservice_sprawl',
+      'compliance_gauntlet',
+      'startup_hypergrowth',
+    ])
     expect(store.availableQuests.every((quest) => quest.turnCount > 0)).toBe(true)
     expect(store.availableQuests.every((quest) => quest.stakeholderCount > 0)).toBe(true)
     expect(store.availableQuests.every((quest) => quest.actionCardCount > 0)).toBe(true)
+  })
+
+  it('fails hard when manifest loading fails', async () => {
+    const store = useGameStore()
+    vi.mocked(loadManifest).mockRejectedValueOnce(new Error('manifest load failed'))
+
+    await expect(store.load_available_quests()).rejects.toThrow('manifest load failed')
+    expect(store.availableQuests).toHaveLength(0)
+    expect(store.isLoadingQuests).toBe(false)
   })
 })
 

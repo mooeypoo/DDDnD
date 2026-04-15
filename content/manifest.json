@@ -1,0 +1,189 @@
+{
+  "id": "base",
+  "version": "1.0.0",
+  "name": "DDDnD Base Content Pack",
+  "description": "Core scenarios, cards, stakeholders, events, and outcomes for DDDnD.",
+  "depends_on": [],
+  "base_url": "/content",
+  "license": "GPL-3.0-only",
+  "authors": [
+    {
+      "name": "Moriel Schottlender",
+      "url": "https://github.com/mooeypoo"
+    }
+  ],
+  "pack_homepage_url": "https://github.com/mooeypoo/DDDnD",
+  "scenarios": [
+    {
+      "id": "monolith_of_mild_despair",
+      "version": 1
+    },
+    {
+      "id": "microservice_sprawl",
+      "version": 1
+    },
+    {
+      "id": "compliance_gauntlet",
+      "version": 1
+    },
+    {
+      "id": "startup_hypergrowth",
+      "version": 1
+    }
+  ],
+  "classes": [
+    {
+      "id": "boundary_mage",
+      "version": 1
+    },
+    {
+      "id": "delivery_rogue",
+      "version": 1
+    },
+    {
+      "id": "legacy_ranger",
+      "version": 1
+    },
+    {
+      "id": "reliability_cleric",
+      "version": 1
+    },
+    {
+      "id": "stakeholder_bard",
+      "version": 1
+    }
+  ],
+  "tutorials": [],
+  "content": {
+    "scenarios": [
+      "compliance_gauntlet-v1.json",
+      "microservice_sprawl-v1.json",
+      "monolith_of_mild_despair-v1.json",
+      "startup_hypergrowth-v1.json",
+      "test_scenario-v1.json"
+    ],
+    "cards": [
+      "absorb_emergency_production_fix-v1.json",
+      "add_integration_tests-v1.json",
+      "align_budget_with_architecture-v1.json",
+      "automate_deployment_pipeline-v1.json",
+      "clarify_cross_team_handoffs-v1.json",
+      "coordinate_service_contracts-v1.json",
+      "define_bounded_context-v1.json",
+      "deprecate_legacy_api-v1.json",
+      "document_ubiquitous_language-v1.json",
+      "establish_team_ownership-v1.json",
+      "extract_shared_kernel-v1.json",
+      "fortify_observability_stack-v1.json",
+      "harden_operational_runbooks-v1.json",
+      "hire_specialized_contractor-v1.json",
+      "hold_architecture_workshop-v1.json",
+      "host_cross_team_retrospective-v1.json",
+      "implement_feature_flag_framework-v1.json",
+      "introduce_anti_corruption_layer-v1.json",
+      "introduce_event_storming-v1.json",
+      "launch_compliance_audit_trail-v1.json",
+      "negotiate_technical_runway-v1.json",
+      "pay_down_incident_backlog-v1.json",
+      "pin_and_audit_dependencies-v1.json",
+      "refactor_core_aggregate-v1.json",
+      "refactor_module-v1.json",
+      "run_security_audit-v1.json",
+      "scale_incident_command-v1.json",
+      "ship_quick_fix-v1.json",
+      "spike_on_migration_strategy-v1.json"
+    ],
+    "stakeholders": [
+      "cfo-v1.json",
+      "cto-v1.json",
+      "lead_developer-v1.json",
+      "operations_manager-v1.json",
+      "security_officer-v1.json",
+      "tech_lead-v1.json",
+      "vp_product-v1.json"
+    ],
+    "stakeholder_reaction_rules": [
+      "cfo_alarmed_by_overspending-v1.json",
+      "cfo_cuts_spending_when_budget_low-v1.json",
+      "cfo_rewards_predictable_delivery-v1.json",
+      "concerned_about_debt-v1.json",
+      "cto_celebrates_delivery-v1.json",
+      "cto_frustrated_by_stagnation-v1.json",
+      "cto_wants_clarity-v1.json",
+      "lead_dev_energized_by_clarity-v1.json",
+      "lead_dev_fights_for_quality-v1.json",
+      "lead_developer_threatens_resignation-v1.json",
+      "ops_manager_confident_in_stability-v1.json",
+      "ops_manager_demands_incident_review-v1.json",
+      "ops_manager_stressed_by_instability-v1.json",
+      "security_officer_escalates_to_board-v1.json",
+      "security_officer_flags_risky_system-v1.json",
+      "security_officer_supports_clear_boundaries-v1.json",
+      "tech_lead_appreciates_clean_code-v1.json",
+      "vp_product_celebrates_user_growth-v1.json",
+      "vp_product_demands_features-v1.json",
+      "vp_product_worried_about_users-v1.json"
+    ],
+    "scores": [
+      "budget-v1.json",
+      "delivery_confidence-v1.json",
+      "domain_clarity-v1.json",
+      "maintainability-v1.json",
+      "mismatched_score-v1.json",
+      "team_morale-v1.json",
+      "technical_debt-v1.json",
+      "user_trust-v1.json",
+      "version_mismatch-v1.json"
+    ],
+    "events": [
+      "critical_bug_discovered-v1.json",
+      "customer_escalation-v1.json",
+      "customer_praises_reliability-v1.json",
+      "data_breach_reported-v1.json",
+      "dependency_breaks_unexpectedly-v1.json",
+      "key_engineer_leaves-v1.json",
+      "production_incident-v1.json",
+      "regulatory_compliance_deadline-v1.json",
+      "service_outage_cascade-v1.json",
+      "surprise_budget_cut-v1.json",
+      "team_member_discovers_pattern-v1.json",
+      "urgent_feature_request-v1.json"
+    ],
+    "delayed_effects": [
+      "api_migration_friction-v1.json",
+      "audit_findings_surface-v1.json",
+      "boundaries_clarify-v1.json",
+      "contractor_knowledge_leaves-v1.json",
+      "dependency_stability_improves-v1.json",
+      "documentation_helps_onboarding-v1.json",
+      "improved_clarity-v1.json",
+      "integration_complexity_emerges-v1.json",
+      "knowledge_gap_widens-v1.json",
+      "refactoring_payoff-v1.json",
+      "team_energized-v1.json",
+      "technical_debt_accumulates-v1.json",
+      "user_trust_recovers-v1.json"
+    ],
+    "outcome_tiers": [
+      "collapse-v1.json",
+      "struggle-v1.json",
+      "success-v1.json",
+      "survival-v1.json",
+      "triumph-v1.json"
+    ],
+    "outcome_archetypes": [
+      "boundary_builder-v1.json",
+      "firefighter-v1.json",
+      "runaway_refactorer-v1.json",
+      "stakeholder_whisperer-v1.json",
+      "system_stabilizer-v1.json"
+    ],
+    "classes": [
+      "boundary_mage-v1.json",
+      "delivery_rogue-v1.json",
+      "legacy_ranger-v1.json",
+      "reliability_cleric-v1.json",
+      "stakeholder_bard-v1.json"
+    ]
+  }
+}

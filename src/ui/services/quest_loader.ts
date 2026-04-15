@@ -17,8 +17,6 @@
 
 import type { VersionRef } from '@/domains/content/model'
 import type { Scenario } from '@/domains/content/model'
-import { createContentProvider } from '@/domains/content'
-import { createTutorialContentProvider } from '@/domains/content/services/tutorial_content_provider'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 
@@ -32,7 +30,7 @@ import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
  */
 export async function loadQuestDisplayModel(
   scenarioRef: VersionRef,
-  contentProvider = createContentProvider()
+  contentProvider: ContentProvider
 ): Promise<QuestDisplayModel> {
   // Load the scenario content
   const scenario = await contentProvider.loadScenario(scenarioRef)
@@ -53,7 +51,7 @@ export async function loadQuestDisplayModel(
  */
 export async function loadQuestDisplayModels(
   scenarioRefs: VersionRef[],
-  contentProvider: ContentProvider = createContentProvider()
+  contentProvider: ContentProvider
 ): Promise<QuestDisplayModel[]> {
   // Load all scenarios in parallel
   const results = await Promise.allSettled(
@@ -101,16 +99,4 @@ function transformScenarioToQuestDisplay(scenario: Scenario): QuestDisplayModel 
     isTutorial: scenario.is_tutorial ?? false,
     tutorialOrder: scenario.tutorial_order,
   }
-}
-
-/**
- * Loads tutorial quest display models from the tutorial content namespace.
- *
- * Uses the tutorial content provider to load from /content/tutorial/.
- */
-export async function loadTutorialQuestDisplayModels(
-  scenarioRefs: VersionRef[]
-): Promise<QuestDisplayModel[]> {
-  const provider = createTutorialContentProvider()
-  return loadQuestDisplayModels(scenarioRefs, provider)
 }

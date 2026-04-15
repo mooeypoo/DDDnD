@@ -24,15 +24,15 @@ import type {
   RunOutcome
 } from '@/domains/simulation'
 import type { ScenarioBundle, VersionRef, PlayerClass } from '@/domains/content/model'
-import { createContentProvider, buildScenarioBundle } from '@/domains/content'
+import { buildScenarioBundle } from '@/domains/content'
+import type { ContentProvider } from '@/domains/content/services/content_provider'
+import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
+import { loadManifest } from '@/domains/content/services/manifest_loader'
 import { create_engine } from '@/domains/simulation'
 import { createLocalStorageSaveAdapter } from '@/domains/persistence/adapters'
 import { serializeSaveFile, deserializeSaveFile } from '@/domains/persistence/services'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
-import { loadQuestDisplayModels, loadTutorialQuestDisplayModels } from '@/ui/services/quest_loader'
-import { AVAILABLE_QUESTS } from '@/ui/config/available_quests'
-import { AVAILABLE_TUTORIALS } from '@/ui/config/available_tutorials'
-import { createTutorialContentProvider } from '@/domains/content/services/tutorial_content_provider'
+import { loadQuestDisplayModels } from '@/ui/services/quest_loader'
 import { useTutorialState } from '@/ui/composables/tutorial_state'
 
 export interface RunSetupOptions {
@@ -80,6 +80,7 @@ export const useGameStore = defineStore('game', () => {
   
   // Available classes (loaded from content)
   const availableClasses = ref<PlayerClass[]>([])
+  const contentPackRegistry = ref<ContentPackRegistry | null>(null)
   
   // Computed
   const hasActiveRun = computed(() => gameState.value !== null)
@@ -110,20 +111,38 @@ export const useGameStore = defineStore('game', () => {
     const serializedPayload = JSON.stringify(payload)
     saveAdapter.save_serialized_save_file(serializedPayload)
   }
+
+  async function load_content_packs() {
+    if (contentPackRegistry.value) {
+      return
+    }
+
+    const [baseManifest, tutorialManifest] = await Promise.all([
+      loadManifest('/content/manifest.json'),
+      loadManifest('/content/tutorial/manifest.json'),
+    ])
+
+    const registry = new ContentPackRegistry()
+    registry.registerPack(baseManifest)
+    registry.registerPack(tutorialManifest)
+    contentPackRegistry.value = registry
+  }
+
+  async function get_merged_content_provider(): Promise<ContentProvider> {
+    await load_content_packs()
+    if (!contentPackRegistry.value) {
+      throw new Error('Content pack registry is unavailable after manifest loading')
+    }
+
+    return contentPackRegistry.value.createMergedProvider()
+  }
   
   /**
    * Load available player classes
    */
   async function load_available_classes() {
-    const provider = createContentProvider()
-    
-    const classRefs: VersionRef[] = [
-      { id: 'boundary_mage', version: 1 },
-      { id: 'stakeholder_bard', version: 1 },
-      { id: 'reliability_cleric', version: 1 },
-      { id: 'legacy_ranger', version: 1 },
-      { id: 'delivery_rogue', version: 1 }
-    ]
+    const provider = await get_merged_content_provider()
+    const classRefs: VersionRef[] = contentPackRegistry.value?.getAvailableClasses() ?? []
     
     const classes = await Promise.all(
       classRefs.map(ref => provider.loadPlayerClass(ref))
@@ -138,7 +157,9 @@ export const useGameStore = defineStore('game', () => {
   async function load_available_quests() {
     isLoadingQuests.value = true
     try {
-      const quests = await loadQuestDisplayModels(AVAILABLE_QUESTS)
+      const provider = await get_merged_content_provider()
+      const questRefs = contentPackRegistry.value?.getAvailableScenarios() ?? []
+      const quests = await loadQuestDisplayModels(questRefs, provider)
       availableQuests.value = quests
     } finally {
       isLoadingQuests.value = false
@@ -151,7 +172,9 @@ export const useGameStore = defineStore('game', () => {
   async function load_available_tutorials() {
     isLoadingTutorials.value = true
     try {
-      const tutorials = await loadTutorialQuestDisplayModels(AVAILABLE_TUTORIALS)
+      const provider = await get_merged_content_provider()
+      const tutorialRefs = contentPackRegistry.value?.getAvailableTutorials() ?? []
+      const tutorials = await loadQuestDisplayModels(tutorialRefs, provider)
       availableTutorials.value = tutorials
     } finally {
       isLoadingTutorials.value = false
@@ -165,10 +188,7 @@ export const useGameStore = defineStore('game', () => {
     isLoadingBundle.value = true
     
     try {
-      // Load scenario bundle (from tutorial or main content namespace)
-      const provider = options.is_tutorial
-        ? createTutorialContentProvider()
-        : createContentProvider()
+      const provider = await get_merged_content_provider()
       const bundle = await buildScenarioBundle(
         options.scenario_id,
         options.scenario_version,
@@ -306,6 +326,7 @@ export const useGameStore = defineStore('game', () => {
     lastTurnResolution.value = null
     runOutcome.value = null
     isTutorialCompleteSplashOpen.value = false
+    contentPackRegistry.value = null
     tutorial.resetTutorial()
     saveAdapter.clear_saved_run()
   }
@@ -331,7 +352,7 @@ export const useGameStore = defineStore('game', () => {
     }
 
     try {
-      const provider = createContentProvider()
+      const provider = await get_merged_content_provider()
       const bundle = await buildScenarioBundle(
         restored.value.game_state.scenario_ref.id,
         restored.value.game_state.scenario_ref.version,
@@ -429,6 +450,7 @@ export const useGameStore = defineStore('game', () => {
     
     // Actions
     initialize_engine,
+    load_content_packs,
     load_available_quests,
     load_available_tutorials,
     load_available_classes,
