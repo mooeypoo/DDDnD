@@ -80,10 +80,10 @@ export class ContentPackRegistry {
     const resolveOwnerPacks = (contentType: ContentType, ref: VersionRef): RegistryPack[] => {
       const owners = this.packs.filter((pack) => inventoryContainsRef(pack, contentType, ref))
       if (owners.length > 0) {
-        return owners
+        return [...owners].reverse()
       }
 
-      return this.packs
+      return [...this.packs].reverse()
     }
 
     const loadFromType = async <T>(contentType: ContentType, ref: VersionRef, loader: (provider: ContentProvider, ref: VersionRef) => Promise<T>): Promise<T> => {

@@ -244,4 +244,58 @@ describe('content pack registry', () => {
     expect(tutorialProvider.loadScenario).toHaveBeenCalledTimes(1)
     expect(baseProvider.loadScenario).toHaveBeenCalledTimes(1)
   })
+
+  it('prefers later packs when multiple packs own the same challenge modifier ref', async () => {
+    const registry = new ContentPackRegistry()
+    const baseProvider = createMockProvider('base')
+    const expansionProvider = createMockProvider('expansion')
+
+    const sharedModifierRef = { id: 'budget_crisis', version: 1 }
+
+    const baseManifest = createManifest({
+      id: 'base',
+      challenge_modifiers: [sharedModifierRef],
+      content: {
+        scenarios: [],
+        cards: [],
+        stakeholders: [],
+        stakeholder_reaction_rules: [],
+        scores: [],
+        events: [],
+        delayed_effects: [],
+        outcome_tiers: [],
+        outcome_archetypes: [],
+        classes: [],
+        challenge_modifiers: ['budget_crisis-v1.json'],
+      },
+    })
+
+    const expansionManifest = createManifest({
+      id: 'expansion',
+      challenge_modifiers: [sharedModifierRef],
+      content: {
+        scenarios: [],
+        cards: [],
+        stakeholders: [],
+        stakeholder_reaction_rules: [],
+        scores: [],
+        events: [],
+        delayed_effects: [],
+        outcome_tiers: [],
+        outcome_archetypes: [],
+        classes: [],
+        challenge_modifiers: ['budget_crisis-v1.json'],
+      },
+    })
+
+    registry.registerPack(baseManifest, baseProvider)
+    registry.registerPack(expansionManifest, expansionProvider)
+
+    const merged = registry.createMergedProvider()
+    const modifier = await merged.loadChallengeModifier(sharedModifierRef)
+
+    expect(modifier.name).toBe('expansion-modifier')
+    expect(expansionProvider.loadChallengeModifier).toHaveBeenCalledTimes(1)
+    expect(baseProvider.loadChallengeModifier).not.toHaveBeenCalled()
+  })
 })

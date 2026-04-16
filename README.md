@@ -64,6 +64,17 @@ npm run storybook
 npm run build-storybook
 ```
 
+### External Content Packs
+
+The game always loads the built-in base and tutorial manifests:
+
+- `/content/manifest.json`
+- `/content/tutorial/manifest.json`
+
+Additional manifests are planned to be configured from the UI. The store already supports this flow via `set_external_manifest_urls(urls)`.
+
+Later packs are registered after earlier ones, so they can extend content and override matching `{ id, version }` refs, including challenge modifiers.
+
 ## Scenarios
 
 | Scenario | Description |

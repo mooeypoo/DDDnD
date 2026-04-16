@@ -27,6 +27,7 @@ import type { ScenarioBundle, VersionRef, PlayerClass, ChallengeModifier } from 
 import { buildScenarioBundle } from '@/domains/content'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
+import { resolveContentPackManifestUrls } from '@/domains/content/services/content_pack_manifest_urls'
 import { loadManifest } from '@/domains/content/services/manifest_loader'
 import { create_engine } from '@/domains/simulation'
 import { createLocalStorageSaveAdapter } from '@/domains/persistence/adapters'
@@ -83,6 +84,7 @@ export const useGameStore = defineStore('game', () => {
   const availableClasses = ref<PlayerClass[]>([])
   const availableChallengeModifiers = ref<ChallengeModifier[]>([])
   const contentPackRegistry = ref<ContentPackRegistry | null>(null)
+  const externalManifestUrls = ref<string[]>([])
   
   // Computed
   const hasActiveRun = computed(() => gameState.value !== null)
@@ -114,19 +116,23 @@ export const useGameStore = defineStore('game', () => {
     saveAdapter.save_serialized_save_file(serializedPayload)
   }
 
+  function set_external_manifest_urls(urls: string[]) {
+    externalManifestUrls.value = urls
+    contentPackRegistry.value = null
+  }
+
   async function load_content_packs() {
     if (contentPackRegistry.value) {
       return
     }
 
-    const [baseManifest, tutorialManifest] = await Promise.all([
-      loadManifest('/content/manifest.json'),
-      loadManifest('/content/tutorial/manifest.json'),
-    ])
+    const manifestUrls = resolveContentPackManifestUrls(externalManifestUrls.value)
+    const manifests = await Promise.all(manifestUrls.map((manifestUrl) => loadManifest(manifestUrl)))
 
     const registry = new ContentPackRegistry()
-    registry.registerPack(baseManifest)
-    registry.registerPack(tutorialManifest)
+    manifests.forEach((manifest) => {
+      registry.registerPack(manifest)
+    })
     contentPackRegistry.value = registry
   }
 
@@ -472,6 +478,7 @@ export const useGameStore = defineStore('game', () => {
     availableTutorials,
     availableClasses,
     availableChallengeModifiers,
+    externalManifestUrls,
     isAboutModalOpen,
     isRulesModalOpen,
     isIntroSplashOpen,
@@ -493,6 +500,7 @@ export const useGameStore = defineStore('game', () => {
     
     // Actions
     initialize_engine,
+    set_external_manifest_urls,
     load_content_packs,
     load_available_quests,
     load_available_tutorials,

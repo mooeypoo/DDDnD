@@ -28,7 +28,8 @@ Current runtime behavior:
 
 - default base pack is loaded from `/content/manifest.json`
 - tutorial pack is loaded from `/content/tutorial/manifest.json`
-- both packs are registered in order and read through a merged provider
+- external manifests are planned to be configured via UI
+- packs are registered in order; later packs can override earlier packs for the same `{ id, version }` content ref
 
 Hybrid error behavior (current):
 
@@ -60,6 +61,9 @@ Manifest type lives in `src/domains/content/model/content_pack_manifest.ts`.
     { "id": "ops_nightmare", "version": 1 }
   ],
   "classes": [],
+  "challenge_modifiers": [
+    { "id": "low_budget_sprint", "version": 1 }
+  ],
   "tutorials": [],
   "content": {
     "scenarios": ["ops_nightmare-v1.json"],
@@ -71,7 +75,8 @@ Manifest type lives in `src/domains/content/model/content_pack_manifest.ts`.
     "delayed_effects": ["postmortem_payoff-v1.json"],
     "outcome_tiers": ["success-v1.json"],
     "outcome_archetypes": ["system_stabilizer-v1.json"],
-    "classes": []
+    "classes": [],
+    "challenge_modifiers": ["low_budget_sprint-v1.json"]
   }
 }
 ```
@@ -85,7 +90,7 @@ Manifest type lives in `src/domains/content/model/content_pack_manifest.ts`.
 - `base_url`: non-empty string
 - `license`: valid SPDX expression (validated)
 - `authors`: non-empty array, each author has non-empty `name`
-- `scenarios`, `classes`, `tutorials`: arrays of `{ id, version }`
+- `scenarios`, `classes`, `challenge_modifiers`, `tutorials`: arrays of `{ id, version }`
 - `content`: object with all inventory arrays present
 
 ### Optional fields
@@ -128,6 +133,7 @@ content/
   outcome-tiers/
   outcome-archetypes/
   classes/
+  challenge-modifiers/
 ```
 
 Tutorial packs can use the same structure under another root (as the default tutorial pack does under `content/tutorial`).
@@ -151,7 +157,18 @@ dddnd-my-pack/
     outcome-tiers/
     outcome-archetypes/
     classes/
+    challenge-modifiers/
 ```
+
+  ## Registering external packs
+
+  The runtime is prepared for UI-driven external pack registration.
+
+  Notes:
+
+  - default manifests are always loaded first (`/content/manifest.json`, `/content/tutorial/manifest.json`)
+  - externally configured manifests are loaded after defaults
+  - for duplicate refs, later packs win, which enables controlled overrides
 
 ### Hosting guidance
 
