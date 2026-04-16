@@ -19,6 +19,16 @@
       "delta": 5
     }
   ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "operations_manager",
+      "delta": 2
+    },
+    {
+      "stakeholder_id": "cto",
+      "delta": 1
+    }
+  ],
   "delayed_effect_refs": [
     {
       "id": "user_trust_recovers",

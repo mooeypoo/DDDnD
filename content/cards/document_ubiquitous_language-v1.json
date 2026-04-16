@@ -23,6 +23,12 @@
       "delta": -2
     }
   ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "cto",
+      "delta": 2
+    }
+  ],
   "delayed_effect_refs": [
     {
       "id": "documentation_helps_onboarding",

@@ -24,6 +24,12 @@
       "delta": -5
     }
   ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "cto",
+      "delta": 3
+    }
+  ],
   "delayed_effect_refs": [
     {
       "id": "team_energized",

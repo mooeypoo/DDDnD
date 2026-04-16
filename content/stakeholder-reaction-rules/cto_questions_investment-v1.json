@@ -3,7 +3,7 @@
   "version": 1,
   "name": "CTO Questions Investment",
   "description": "The CTO questions whether architecture investments are paying off when budget is tight and clarity hasn't improved",
-  "condition_description": "Budget < 30",
+  "condition_description": "Budget < 25",
   "priority": 40,
   "score_changes": [
     {
@@ -18,7 +18,7 @@
   "stakeholder_changes": [
     {
       "stakeholder_id": "cto",
-      "delta": -6
+      "delta": -5
     }
   ]
 }
