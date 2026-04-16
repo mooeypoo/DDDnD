@@ -55,6 +55,18 @@ export const SCENARIO_BALANCE_TARGETS: Record<string, ScenarioBalanceTarget> = {
       lead_developer: 45,
     },
   },
+  merger_of_minor_chaos: {
+    win_rate_min: 0.50,
+    win_rate_max: 0.80,
+    max_critical_findings: 0,
+    min_avg_stakeholder_satisfaction: {
+      cto: 40,
+      vp_product: 45,
+      lead_developer: 50,
+      operations_manager: 60,
+      integration_program_manager: 40,
+    },
+  },
 }
 
 function getScenarioTarget(scenarioId: string): ScenarioBalanceTarget | undefined {
