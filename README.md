@@ -104,10 +104,10 @@ src/shared/     Shared contracts and utilities
 
 Development setup, testing commands, content validation workflow, and contributor-facing project conventions live in [CONTRIBUTORS.md](./CONTRIBUTORS.md).
 
+## Author
+
+Moriel Schottlender ([GitHub](https://github.com/mooeypoo)) ([Website](https://moriel.tech)) ([Blog](https://blog.moriel.tech))
+
 ## License
 
 GPL-3.0-only
-
-## Author
-
-Moriel Schottlender ([GitHub](https://github.com/mooeypoo))
