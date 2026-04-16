@@ -230,25 +230,67 @@
             <p>Loading modifiers...</p>
           </div>
           
-          <div v-else class="modifier-grid">
+          <div v-else class="modifier-layout">
+            <!-- None toggle — always visible, visually separated -->
             <button
-              class="modifier-chip"
-              :class="{ selected: selectedModifier === null }"
+              class="modifier-none-btn"
+              :class="{ active: selectedModifier === null }"
               @click="selectedModifier = null"
             >
-              <span class="modifier-chip-name">None</span>
-              <span class="modifier-chip-desc">Standard difficulty</span>
+              <svg class="modifier-none-icon" viewBox="0 0 16 16" aria-hidden="true">
+                <circle cx="8" cy="8" r="6" stroke="currentColor" fill="none" stroke-width="1.4"/>
+                <line x1="4" y1="12" x2="12" y2="4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              <span class="modifier-none-label">No Modifier</span>
+              <span class="modifier-none-hint">Standard difficulty</span>
             </button>
-            <button
-              v-for="modifier in availableModifiers"
-              :key="modifier.id"
-              class="modifier-chip"
-              :class="{ selected: selectedModifier?.id === modifier.id }"
-              @click="selectModifier(modifier)"
-            >
-              <span class="modifier-chip-name">{{ modifier.name }}</span>
-              <span class="modifier-chip-desc">{{ modifier.description }}</span>
-            </button>
+
+            <!-- Modifier chips -->
+            <div class="modifier-grid">
+              <button
+                v-for="modifier in availableModifiers"
+                :key="modifier.id"
+                class="modifier-chip"
+                :class="{ selected: selectedModifier?.id === modifier.id }"
+                @click="selectModifier(modifier)"
+              >
+                <!-- Fire sparkle SVG — visible when selected -->
+                <svg
+                  v-if="selectedModifier?.id === modifier.id"
+                  class="modifier-fire-svg"
+                  viewBox="0 0 40 40"
+                  aria-hidden="true"
+                >
+                  <!-- Central flame -->
+                  <path d="M20,6 C20,6 26,14 26,22 C26,28 23,32 20,34 C17,32 14,28 14,22 C14,14 20,6 20,6Z"
+                        fill="url(#flame-grad)" opacity="0.85"/>
+                  <!-- Inner core -->
+                  <path d="M20,16 C20,16 23,20 23,24 C23,27 21.5,29 20,30 C18.5,29 17,27 17,24 C17,20 20,16 20,16Z"
+                        fill="url(#flame-core)" opacity="0.9"/>
+                  <!-- Spark particles -->
+                  <circle cx="12" cy="12" r="1.2" fill="#ffd54f" opacity="0.8" class="spark spark-1"/>
+                  <circle cx="28" cy="10" r="1" fill="#ffab40" opacity="0.7" class="spark spark-2"/>
+                  <circle cx="10" cy="22" r="0.8" fill="#ffd54f" opacity="0.6" class="spark spark-3"/>
+                  <circle cx="30" cy="20" r="1.1" fill="#ff8f00" opacity="0.7" class="spark spark-4"/>
+                  <circle cx="16" cy="8" r="0.7" fill="#fff176" opacity="0.9" class="spark spark-5"/>
+                  <circle cx="25" cy="15" r="0.9" fill="#ffcc02" opacity="0.8" class="spark spark-6"/>
+                  <defs>
+                    <linearGradient id="flame-grad" x1="0" y1="1" x2="0" y2="0">
+                      <stop offset="0%" stop-color="#ff6f00"/>
+                      <stop offset="50%" stop-color="#ff8f00"/>
+                      <stop offset="100%" stop-color="#ffd54f"/>
+                    </linearGradient>
+                    <radialGradient id="flame-core" cx="50%" cy="70%" r="50%">
+                      <stop offset="0%" stop-color="#fff9c4"/>
+                      <stop offset="100%" stop-color="#ffab40"/>
+                    </radialGradient>
+                  </defs>
+                </svg>
+
+                <span class="modifier-chip-name">{{ modifier.name }}</span>
+                <span class="modifier-chip-desc">{{ modifier.description }}</span>
+              </button>
+            </div>
           </div>
         </section>
         
@@ -752,6 +794,57 @@ async function launchTutorial(quest: QuestDisplayModel) {
   gap: var(--space-lg);
 }
 
+/* Modifier layout */
+.modifier-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.modifier-none-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-lg);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  cursor: pointer;
+  transition: border-color var(--transition-base), background var(--transition-base);
+}
+
+.modifier-none-btn:hover {
+  border-color: var(--border-hover);
+}
+
+.modifier-none-btn.active {
+  border-color: color-mix(in oklab, var(--color-accent, #26d4b9), transparent 30%);
+  background: color-mix(in oklab, var(--color-accent, #26d4b9), transparent 92%);
+}
+
+.modifier-none-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.modifier-none-btn.active .modifier-none-icon {
+  color: var(--color-accent, #26d4b9);
+}
+
+.modifier-none-label {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+}
+
+.modifier-none-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-left: auto;
+}
+
 /* Modifier grid */
 .modifier-grid {
   display: flex;
@@ -760,6 +853,7 @@ async function launchTutorial(quest: QuestDisplayModel) {
 }
 
 .modifier-chip {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
@@ -769,9 +863,10 @@ async function launchTutorial(quest: QuestDisplayModel) {
   background: var(--surface-card);
   cursor: pointer;
   text-align: left;
-  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   min-width: 160px;
   max-width: 240px;
+  overflow: hidden;
 }
 
 .modifier-chip:hover {
@@ -779,14 +874,86 @@ async function launchTutorial(quest: QuestDisplayModel) {
 }
 
 .modifier-chip.selected {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 1px var(--color-accent);
+  border-color: #ff8f00;
+  box-shadow:
+    0 0 0 1px #ff8f00,
+    0 0 12px rgba(255, 143, 0, 0.25),
+    0 0 24px rgba(255, 111, 0, 0.12);
+  background: linear-gradient(
+    170deg,
+    rgba(255, 143, 0, 0.08) 0%,
+    rgba(255, 111, 0, 0.04) 40%,
+    var(--surface-card) 100%
+  );
+  animation: modifier-glow-pulse 2.5s ease-in-out infinite;
+}
+
+/* Fire SVG overlay */
+.modifier-fire-svg {
+  position: absolute;
+  top: -6px;
+  right: -4px;
+  width: 40px;
+  height: 40px;
+  pointer-events: none;
+  animation: flame-flicker 1.8s ease-in-out infinite;
+}
+
+/* Spark particle animations */
+.spark { animation-duration: 2s; animation-iteration-count: infinite; }
+.spark-1 { animation-name: spark-float-1; }
+.spark-2 { animation-name: spark-float-2; }
+.spark-3 { animation-name: spark-float-3; }
+.spark-4 { animation-name: spark-float-4; }
+.spark-5 { animation-name: spark-float-5; }
+.spark-6 { animation-name: spark-float-6; }
+
+@keyframes flame-flicker {
+  0%, 100% { transform: scaleY(1) translateY(0); opacity: 0.85; }
+  25% { transform: scaleY(1.06) translateY(-1px); opacity: 1; }
+  50% { transform: scaleY(0.95) translateY(1px); opacity: 0.8; }
+  75% { transform: scaleY(1.03) translateY(-0.5px); opacity: 0.92; }
+}
+
+@keyframes spark-float-1 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.8; }
+  50% { transform: translate(-2px, -4px); opacity: 0.3; }
+}
+@keyframes spark-float-2 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.7; }
+  50% { transform: translate(3px, -5px); opacity: 0.2; }
+}
+@keyframes spark-float-3 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.6; }
+  50% { transform: translate(-3px, -3px); opacity: 0.2; }
+}
+@keyframes spark-float-4 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.7; }
+  50% { transform: translate(2px, -4px); opacity: 0.3; }
+}
+@keyframes spark-float-5 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.9; }
+  50% { transform: translate(-1px, -5px); opacity: 0.2; }
+}
+@keyframes spark-float-6 {
+  0%, 100% { transform: translate(0, 0); opacity: 0.8; }
+  50% { transform: translate(2px, -3px); opacity: 0.3; }
+}
+
+@keyframes modifier-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px #ff8f00, 0 0 12px rgba(255, 143, 0, 0.25), 0 0 24px rgba(255, 111, 0, 0.12); }
+  50% { box-shadow: 0 0 0 1px #ff8f00, 0 0 18px rgba(255, 143, 0, 0.35), 0 0 32px rgba(255, 111, 0, 0.18); }
+}
+
+.modifier-chip.selected .modifier-chip-name {
+  color: #ffab40;
 }
 
 .modifier-chip-name {
   font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
   font-size: var(--font-size-sm);
+  transition: color 0.2s ease;
 }
 
 .modifier-chip-desc {
