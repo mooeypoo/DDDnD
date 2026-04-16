@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Not Found | DDDnD</title>
+    <meta http-equiv="refresh" content="4;url=/" />
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f4ed;
+        --surface: #fffdf7;
+        --ink: #2a2217;
+        --muted: #6f6558;
+        --accent: #a56d2a;
+        --accent-strong: #7f521e;
+        --border: #e5d9c7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+        background:
+          radial-gradient(circle at 20% 20%, #fff4d8 0%, transparent 35%),
+          radial-gradient(circle at 80% 0%, #f2e5cf 0%, transparent 45%),
+          var(--bg);
+        color: var(--ink);
+        font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(40rem, 100%);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        border-radius: 14px;
+        padding: clamp(1.25rem, 2.2vw, 2.25rem);
+        box-shadow: 0 10px 40px rgba(42, 34, 23, 0.12);
+      }
+
+      h1 {
+        margin: 0 0 0.5rem;
+        font-size: clamp(1.6rem, 3.8vw, 2.35rem);
+        letter-spacing: 0.02em;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .actions {
+        margin-top: 1.25rem;
+      }
+
+      a {
+        display: inline-block;
+        text-decoration: none;
+        font-weight: 700;
+        color: #fff;
+        background: var(--accent);
+        padding: 0.7rem 1rem;
+        border-radius: 0.65rem;
+      }
+
+      a:hover,
+      a:focus-visible {
+        background: var(--accent-strong);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>404 - Lost in the Dungeon</h1>
+      <p>
+        The page you requested does not exist. You will be sent back to the main
+        entrypoint in a few seconds.
+      </p>
+      <div class="actions">
+        <a href="/">Return to DDDnD</a>
+      </div>
+    </main>
+  </body>
+</html>

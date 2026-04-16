@@ -33,6 +33,10 @@ const router = createRouter({
       path: '/share',
       name: 'share',
       component: ShareView
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/'
     }
   ]
 })
