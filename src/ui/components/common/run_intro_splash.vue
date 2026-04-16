@@ -117,6 +117,11 @@
               These six vital signs reveal the state of the system as you inherit it.
               Raise them through wise decisions, and guard them from falling into ruin.
             </p>
+            <p v-if="challengeModifierName" class="score-modifier-banner">
+              Challenge modifier active:
+              <strong>{{ challengeModifierName }}</strong>
+              (base scores shown struck through where adjusted).
+            </p>
             <div class="scores-grid">
               <div
                 v-for="(value, scoreId) in scores"
@@ -125,7 +130,19 @@
               >
                 <span class="score-icon">{{ getMetricIcon(scoreId as string) }}</span>
                 <span class="score-label">{{ getMetricLabel(scoreId as string) }}</span>
-                <span class="score-value" :class="getScoreClass(value)">{{ Math.round(value) }}</span>
+                <span
+                  v-if="hasScoreAdjustment(scoreId as string)"
+                  class="score-value score-value--modified"
+                  :class="getScoreClass(value)"
+                >
+                  <span class="score-value-original">{{ Math.round(getScoreAdjustment(scoreId as string)!.base) }}</span>
+                  <span class="score-value-updated">{{ Math.round(value) }}</span>
+                </span>
+                <span v-else class="score-value" :class="getScoreClass(value)">{{ Math.round(value) }}</span>
+                <span v-if="hasScoreAdjustment(scoreId as string)" class="score-modifier-note">
+                  {{ getScoreAdjustment(scoreId as string)!.modifierName }}
+                </span>
+                <span v-else class="score-modifier-note score-modifier-note--empty" aria-hidden="true"></span>
                 <div class="score-bar-track">
                   <div class="score-bar-fill" :class="getScoreClass(value)" :style="{ width: value + '%' }"></div>
                 </div>
@@ -250,6 +267,8 @@ const props = defineProps<{
   playerClassId?: string
   scenarioName?: string
   scores: ScoreSnapshot
+  challengeModifierName?: string
+  scoreAdjustments?: Record<string, { base: number; adjusted: number; modifierName: string }>
   stakeholders: StakeholderSnapshot
   stakeholderNames?: Record<string, string>
   maxTurns: number
@@ -282,6 +301,15 @@ function getMetricIcon(scoreId: string): string {
 
 function getMetricLabel(scoreId: string): string {
   return getMetricPresentation(scoreId).label
+}
+
+function getScoreAdjustment(scoreId: string) {
+  return props.scoreAdjustments?.[scoreId]
+}
+
+function hasScoreAdjustment(scoreId: string): boolean {
+  const adjustment = getScoreAdjustment(scoreId)
+  return !!adjustment && adjustment.base !== adjustment.adjusted
 }
 
 function getScoreClass(value: number): string {
@@ -559,9 +587,23 @@ function getSatisfactionClass(value: number): string {
 
 .score-row {
   display: grid;
-  grid-template-columns: auto 1fr auto 80px;
+  grid-template-columns: auto 1fr auto auto 80px;
   align-items: center;
   gap: var(--space-sm);
+}
+
+.score-modifier-banner {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--dng-title-gold);
+  background: rgba(255, 166, 0, 0.08);
+  border: 1px solid rgba(255, 166, 0, 0.22);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.score-modifier-banner strong {
+  color: var(--dng-bronze-hi);
 }
 
 .score-icon {
@@ -582,6 +624,35 @@ function getSatisfactionClass(value: number): string {
   font-weight: var(--font-bold);
   font-variant-numeric: tabular-nums;
   text-align: right;
+}
+
+.score-value--modified {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--space-1);
+}
+
+.score-value-original {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.score-value-updated {
+  font-variant-numeric: tabular-nums;
+}
+
+.score-modifier-note {
+  font-size: var(--text-2xs);
+  color: var(--dng-footer-muted);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.score-modifier-note--empty {
+  visibility: hidden;
 }
 
 .score-bar-track {
@@ -862,7 +933,7 @@ function getSatisfactionClass(value: number): string {
   }
 
   .score-row {
-    grid-template-columns: auto 1fr auto 60px;
+    grid-template-columns: auto 1fr auto auto 60px;
   }
 
   .stakeholder-row {
@@ -906,6 +977,11 @@ function getSatisfactionClass(value: number): string {
   .score-row {
     grid-template-columns: auto 1fr auto;
     gap: var(--space-xs);
+  }
+
+  .score-modifier-note {
+    grid-column: 2 / span 2;
+    margin-top: -2px;
   }
 
   .score-bar-track {

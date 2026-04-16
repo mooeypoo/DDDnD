@@ -59,6 +59,12 @@
             <span class="cdm-delta-item__value" :class="effect.delta > 0 ? 'is-positive' : 'is-negative'">
               {{ effect.delta > 0 ? '+' : '' }}{{ effect.delta }}
             </span>
+            <span v-if="getScoreAdjustment(effect.score_id)" class="cdm-score-adjustment">
+              start:
+              <span class="cdm-score-adjustment__old">{{ Math.round(getScoreAdjustment(effect.score_id)!.base) }}</span>
+              <span class="cdm-score-adjustment__new">{{ Math.round(getScoreAdjustment(effect.score_id)!.adjusted) }}</span>
+              <span class="cdm-score-adjustment__note">{{ getScoreAdjustment(effect.score_id)!.modifierName }}</span>
+            </span>
           </li>
         </ul>
       </div>
@@ -188,6 +194,7 @@ interface Props {
   stakeholderNames?: Record<string, string>;
   /** Current game scores — used to compute adjusted card effects under coupling rules. */
   scores?: Record<string, number>;
+  scoreAdjustments?: Record<string, { base: number; adjusted: number; modifierName: string }>;
   /** Optional artwork for the modal illustration frame. Renders an image when illustration_url is present. */
   artwork?: ArtworkMeta
 }
@@ -285,6 +292,15 @@ function getMetricLabel(scoreId: string): string {
 
 function formatStakeholderName(stakeholderId: string): string {
   return resolveStakeholderName(stakeholderId, props.stakeholderNames);
+}
+
+function getScoreAdjustment(scoreId: string) {
+  const adjustment = props.scoreAdjustments?.[scoreId]
+  if (!adjustment) {
+    return null
+  }
+
+  return adjustment.base === adjustment.adjusted ? null : adjustment
 }
 
 function handlePlay(): void {
@@ -559,6 +575,31 @@ const couplingReasonText = computed(() =>
   text-decoration: line-through;
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
+}
+
+.cdm-score-adjustment {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.cdm-score-adjustment__old {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.cdm-score-adjustment__new {
+  color: var(--dng-title-gold);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-semibold);
+}
+
+.cdm-score-adjustment__note {
+  color: var(--dng-footer-muted);
 }
 
 /* ─────────────────────────────────────────────────────────────

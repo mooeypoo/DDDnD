@@ -12,6 +12,7 @@
       :availability="modalCardAvailability"
       :stakeholderNames="stakeholderNames"
       :scores="gameStore.turnBriefing?.current_scores"
+      :scoreAdjustments="modifierScoreAdjustments"
       @close="modalCardId = null"
       @play="handlePlayCard"
     />
@@ -23,6 +24,8 @@
       :playerClassId="playerClassId"
       :scenarioName="scenario?.name"
       :scores="gameStore.gameState?.scores ?? {}"
+      :challengeModifierName="activeChallengeModifier?.name"
+      :scoreAdjustments="modifierScoreAdjustments"
       :stakeholders="gameStore.gameState?.stakeholders ?? {}"
       :stakeholderNames="stakeholderNames"
       :maxTurns="gameStore.maxTurns"
@@ -476,6 +479,49 @@ const playerClassName = computed(() => {
 
 const playerClassId = computed(() => {
   return gameStore.gameState?.player_profile.selected_class_ref?.id
+})
+
+const activeChallengeModifier = computed(() => {
+  const modifierRef = gameStore.gameState?.player_profile.challenge_modifier_ref
+  if (!modifierRef) {
+    return null
+  }
+
+  return gameStore.availableChallengeModifiers.find(
+    modifier => modifier.id === modifierRef.id && modifier.version === modifierRef.version
+  ) ?? null
+})
+
+const modifierScoreAdjustments = computed(() => {
+  const scenarioScores = scenario.value?.starting_scores
+  const scoreAdjustments = activeChallengeModifier.value?.score_adjustments
+  const modifierName = activeChallengeModifier.value?.name
+
+  if (!scenarioScores || !scoreAdjustments || !modifierName) {
+    return {}
+  }
+
+  const result: Record<string, { base: number; adjusted: number; modifierName: string }> = {}
+
+  for (const [scoreId, baseValue] of Object.entries(scenarioScores)) {
+    const adjustment = scoreAdjustments[scoreId]
+    if (typeof adjustment !== 'number' || adjustment === 0) {
+      continue
+    }
+
+    const adjustedValue = Math.max(0, Math.min(100, baseValue + adjustment))
+    if (adjustedValue === baseValue) {
+      continue
+    }
+
+    result[scoreId] = {
+      base: baseValue,
+      adjusted: adjustedValue,
+      modifierName,
+    }
+  }
+
+  return result
 })
 
 const turnsRemaining = computed(() => {
