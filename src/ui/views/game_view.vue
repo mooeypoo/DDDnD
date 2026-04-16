@@ -200,15 +200,13 @@
               <div class="complete-icon">🏁</div>
               <h2 class="complete-title">Run Complete!</h2>
               <p class="complete-message">Your architectural journey has reached its conclusion.</p>
-              <button
-                class="btn-view-results"
-                :disabled="gameStore.tutorial.isTutorialMode"
+              <AppButton
+                label="View Results"
+                variant="primary"
                 @click="goToEndScreen"
-              >
-                <span class="btn-text">View Results</span>
-                <span class="btn-icon">→</span>
-              </button>
+              />
             </div>
+
           </div>
         </main>
       </div>
@@ -257,6 +255,41 @@
               :label="gameStore.tutorial.isLastStep ? 'Got it' : 'Next →'"
               variant="primary"
               @click="gameStore.tutorial.dismissCurrentHint()"
+            />
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Run complete popup -->
+    <Transition name="run-complete-popup">
+      <div
+        v-if="runCompletePopupOpen"
+        class="run-complete-popup-backdrop"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="run-complete-popup-title"
+      >
+        <div class="run-complete-popup-panel">
+          <div class="run-complete-popup-header">
+            <span class="run-complete-popup-icon" aria-hidden="true">🏁</span>
+            <h3 id="run-complete-popup-title" class="run-complete-popup-title">Run Complete!</h3>
+          </div>
+          <div class="run-complete-popup-body">
+            <p class="run-complete-popup-message">
+              Your architectural journey has reached its conclusion.
+            </p>
+          </div>
+          <div class="run-complete-popup-footer">
+            <AppButton
+              label="Stay Here"
+              variant="secondary"
+              @click="runCompletePopupOpen = false"
+            />
+            <AppButton
+              label="View Results"
+              variant="primary"
+              @click="goToEndScreen"
             />
           </div>
         </div>
@@ -420,6 +453,7 @@ const resolutionPopupOpen = ref(false)
 const isResolutionExpanded = ref(false)
 const isScenarioInfoOpen = ref(false)
 const activeEffectsPopupOpen = ref(false)
+const runCompletePopupOpen = ref(false)
 const randomSceneId = ref<SceneBackgroundId>(pickRandomSceneId())
 const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const satchelCategory = ref<CategoryFilter>('all')
@@ -638,6 +672,9 @@ async function handlePlayCard(cardId: string) {
 
   if (gameStore.isRunComplete) {
     gameStore.get_run_outcome()
+    if (!gameStore.tutorial.isTutorialMode && !turnResolution) {
+      runCompletePopupOpen.value = true
+    }
     await nextTick()
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -647,6 +684,10 @@ function dismissResolutionPopup() {
   resolutionPopupOpen.value = false
   activeStakeholderBubbles.value = pendingStakeholderBubbles.value
   pendingStakeholderBubbles.value = {}
+
+  if (gameStore.isRunComplete && !gameStore.tutorial.isTutorialMode) {
+    runCompletePopupOpen.value = true
+  }
 }
 
 const showSatchelArrow = computed(() => {
@@ -659,6 +700,7 @@ const showSatchelArrow = computed(() => {
 })
 
 function goToEndScreen() {
+  runCompletePopupOpen.value = false
   router.push('/end')
 }
 </script>
@@ -1002,64 +1044,122 @@ function goToEndScreen() {
   white-space: nowrap;
 }
 
-.alert-message {
-  color: var(--text-secondary);
-  font-size: var(--text-2xs);
-  white-space: nowrap;
-}
-
 .run-complete-card {
   background: rgba(11, 15, 25, 0.9);
   border: 1px solid var(--border-accent);
   border-radius: 14px;
-  padding: 2rem 1.25rem;
+  padding: 1.25rem;
   text-align: center;
   box-shadow: var(--shadow-panel);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
 }
 
 .complete-icon {
-  font-size: 2.2rem;
-  margin-bottom: 0.5rem;
+  font-size: 2rem;
 }
 
 .complete-title {
   color: var(--text-bright);
   font-size: var(--text-2xl);
   font-weight: var(--font-bold);
-  margin: 0 0 0.4rem;
+  margin: 0;
 }
 
 .complete-message {
   color: var(--text-secondary);
   font-size: var(--text-sm);
-  margin: 0 0 1rem;
+  margin: 0;
 }
 
-.btn-view-results {
-  background: color-mix(in oklab, var(--text-accent), #fff 8%);
-  color: var(--text-bright);
-  border: none;
-  padding: 0.55rem 1rem;
-  font-size: var(--text-sm);
-  font-weight: var(--font-bold);
-  border-radius: 10px;
-  cursor: pointer;
-  transition: transform var(--transition-fast), filter var(--transition-fast);
-  display: inline-flex;
+.alert-message {
+  color: var(--text-secondary);
+  font-size: var(--text-2xs);
+  white-space: nowrap;
+}
+
+/* ─── Run complete popup ─── */
+.run-complete-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: rgba(4, 6, 14, 0.72);
+  backdrop-filter: blur(4px);
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: center;
+  padding: var(--space-lg);
 }
 
-.btn-view-results:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.05);
+.run-complete-popup-panel {
+  width: min(480px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-modal, #0d1019);
+  border: 1px solid color-mix(in oklab, var(--border-accent, #a989fa), transparent 22%);
+  border-radius: 18px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.75);
+  overflow: hidden;
 }
 
-.btn-view-results:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-  pointer-events: none;
-  box-shadow: none;
+.run-complete-popup-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 1rem 1.25rem 0.75rem;
+  background: rgba(169, 137, 250, 0.08);
+  border-bottom: 1px solid color-mix(in oklab, var(--border-accent, #a989fa), transparent 72%);
+}
+
+.run-complete-popup-icon {
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+}
+
+.run-complete-popup-title {
+  margin: 0;
+  color: var(--text-bright);
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.run-complete-popup-body {
+  padding: 1rem 1.25rem 0.9rem;
+}
+
+.run-complete-popup-message {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+}
+
+.run-complete-popup-footer {
+  flex-shrink: 0;
+  padding: 0.75rem 1.25rem 1rem;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  background: rgba(8, 11, 19, 0.5);
+}
+
+.run-complete-popup-enter-active {
+  transition: opacity 0.2s var(--ease-decelerate), transform 0.2s var(--ease-decelerate);
+}
+
+.run-complete-popup-leave-active {
+  transition: opacity 0.14s var(--ease-accelerate), transform 0.14s var(--ease-accelerate);
+}
+
+.run-complete-popup-enter-from,
+.run-complete-popup-leave-to {
+  opacity: 0;
+  transform: scale(0.97) translateY(6px);
 }
 
 @media (min-width: 1280px) {
@@ -1081,9 +1181,17 @@ function goToEndScreen() {
     max-width: 160px;
     padding: 0.3rem 0.5rem;
   }
+}
 
-  .complete-title {
-    font-size: var(--text-2xl);
+@media (max-width: 480px) {
+  .run-complete-popup-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .run-complete-popup-panel {
+    width: 100%;
+    border-radius: 18px 18px 0 0;
   }
 }
 
