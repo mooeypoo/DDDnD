@@ -84,6 +84,7 @@
           :tabindex="i === modelValue ? 0 : -1"
           type="button"
           @click="$emit('update:modelValue', i)"
+          @keydown="onTabKeydown($event, i)"
         >
           <span class="dungeon-tab-item__label">{{ tab }}</span>
         </button>
@@ -93,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
+const props = withDefaults(
   defineProps<{
     /** Array of tab label strings rendered in order. */
     tabs: string[]
@@ -109,7 +110,29 @@ withDefaults(
   { modelValue: 0, variant: 'default' }
 )
 
-defineEmits<{ (e: 'update:modelValue', value: number): void }>()
+const emit = defineEmits<{ (e: 'update:modelValue', value: number): void }>()
+
+function onTabKeydown(event: KeyboardEvent, index: number) {
+  if (props.tabs.length === 0) {
+    return
+  }
+
+  let nextIndex: number | null = null
+  if (event.key === 'ArrowRight') {
+    nextIndex = (index + 1) % props.tabs.length
+  } else if (event.key === 'ArrowLeft') {
+    nextIndex = (index - 1 + props.tabs.length) % props.tabs.length
+  } else if (event.key === 'Home') {
+    nextIndex = 0
+  } else if (event.key === 'End') {
+    nextIndex = props.tabs.length - 1
+  }
+
+  if (nextIndex !== null) {
+    event.preventDefault()
+    emit('update:modelValue', nextIndex)
+  }
+}
 </script>
 
 <style scoped>

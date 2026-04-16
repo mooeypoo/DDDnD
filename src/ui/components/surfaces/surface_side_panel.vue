@@ -2,12 +2,15 @@
   <Transition name="surface-fade">
     <div v-if="isOpen" class="surface-overlay" @click="handleBackdropClick">
       <aside
+        ref="dialogRef"
         class="surface-side-panel"
         :class="[`side-${side}`]"
         role="dialog"
         aria-modal="true"
         :aria-labelledby="titleId"
+        tabindex="-1"
         @click.stop
+        @keydown="handleDialogKeydown"
       >
         <header class="surface-header">
           <h2 :id="titleId" class="surface-title">{{ title }}</h2>
@@ -27,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -46,6 +49,11 @@ const props = withDefaults(
 
 const emit = defineEmits<{ close: [] }>()
 
+const dialogRef = ref<HTMLElement | null>(null)
+let lastActiveElement: HTMLElement | null = null
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
 const titleId = computed(() => `surface-side-title-${props.title.toLowerCase().replace(/\s+/g, '-')}`)
 
 function handleBackdropClick() {
@@ -59,6 +67,54 @@ function handleKeydown(event: KeyboardEvent) {
     emit('close')
   }
 }
+
+function handleDialogKeydown(event: KeyboardEvent) {
+  if (!props.isOpen || event.key !== 'Tab' || !dialogRef.value) {
+    return
+  }
+
+  const focusable = dialogRef.value.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+  if (focusable.length === 0) {
+    event.preventDefault()
+    dialogRef.value.focus()
+    return
+  }
+
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+  const active = document.activeElement as HTMLElement | null
+
+  if (event.shiftKey && active === first) {
+    event.preventDefault()
+    last.focus()
+  } else if (!event.shiftKey && active === last) {
+    event.preventDefault()
+    first.focus()
+  }
+}
+
+watch(
+  () => props.isOpen,
+  isOpen => {
+    if (isOpen) {
+      lastActiveElement = document.activeElement as HTMLElement | null
+      nextTick(() => {
+        if (!dialogRef.value) {
+          return
+        }
+        const firstFocusable = dialogRef.value.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
+        ;(firstFocusable ?? dialogRef.value).focus()
+      })
+      return
+    }
+
+    if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
+      lastActiveElement.focus()
+    }
+    lastActiveElement = null
+  },
+  { immediate: true }
+)
 
 onMounted(() => window.addEventListener('keydown', handleKeydown))
 onUnmounted(() => window.removeEventListener('keydown', handleKeydown))

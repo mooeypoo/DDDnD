@@ -28,6 +28,7 @@
           class="dungeon-select__native"
           :value="modelValue"
           :disabled="disabled"
+          v-bind="$attrs"
           @change="emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
         >
           <option v-if="placeholder" value="" disabled :selected="!modelValue">
@@ -46,6 +47,10 @@
 </template>
 
 <script setup lang="ts">
+defineOptions({
+  inheritAttrs: false
+})
+
 withDefaults(
   defineProps<{
     modelValue?: string

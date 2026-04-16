@@ -21,12 +21,15 @@
         src/ui/styles/design-system.css. Do NOT @import it here.
       -->
       <div
+        ref="dialogRef"
         class="dungeon-modal"
         :class="[`variant-${variant}`, `size-${size}`]"
         role="dialog"
         aria-modal="true"
         :aria-labelledby="titleId"
+        tabindex="-1"
         @click.stop
+        @keydown="handleDialogKeydown"
       >
         <!-- Header cap: top brackets + title + close button -->
         <div class="dungeon-modal__cap">
@@ -69,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -93,6 +96,11 @@ const emit = defineEmits<{
   close: []
 }>()
 
+const dialogRef = ref<HTMLElement | null>(null)
+let lastActiveElement: HTMLElement | null = null
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
 const titleId = computed(() => `surface-modal-title-${props.title.toLowerCase().replace(/\s+/g, '-')}`)
 
 function handleBackdropClick() {
@@ -106,6 +114,54 @@ function handleKeydown(event: KeyboardEvent) {
     emit('close')
   }
 }
+
+function handleDialogKeydown(event: KeyboardEvent) {
+  if (!props.isOpen || event.key !== 'Tab' || !dialogRef.value) {
+    return
+  }
+
+  const focusable = dialogRef.value.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
+  if (focusable.length === 0) {
+    event.preventDefault()
+    dialogRef.value.focus()
+    return
+  }
+
+  const first = focusable[0]
+  const last = focusable[focusable.length - 1]
+  const active = document.activeElement as HTMLElement | null
+
+  if (event.shiftKey && active === first) {
+    event.preventDefault()
+    last.focus()
+  } else if (!event.shiftKey && active === last) {
+    event.preventDefault()
+    first.focus()
+  }
+}
+
+watch(
+  () => props.isOpen,
+  isOpen => {
+    if (isOpen) {
+      lastActiveElement = document.activeElement as HTMLElement | null
+      nextTick(() => {
+        if (!dialogRef.value) {
+          return
+        }
+        const firstFocusable = dialogRef.value.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
+        ;(firstFocusable ?? dialogRef.value).focus()
+      })
+      return
+    }
+
+    if (lastActiveElement && typeof lastActiveElement.focus === 'function') {
+      lastActiveElement.focus()
+    }
+    lastActiveElement = null
+  },
+  { immediate: true }
+)
 
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown)

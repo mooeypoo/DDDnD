@@ -38,7 +38,7 @@
           Choose a quest and lead a beleaguered domain through architectural chaos.
         </p>
         <p v-if="gameStore.availableTutorials.length > 0" class="setup-tutorial-hint">
-          First time here? Try a <button class="link-btn" @click="activeTab = 'tutorials'">guided tutorial</button> to learn the ropes.
+          First time here? Try a <button type="button" class="link-btn" @click="activeTab = 'tutorials'">guided tutorial</button> to learn the ropes.
         </p>
         <nav class="header-utility-nav" aria-label="Utility links">
           <!-- Desktop: full AppButton ring/bracket structure -->
@@ -120,7 +120,7 @@
         <!-- Prominent note for tutorials -->
         <div v-if="gameStore.availableTutorials.length > 0 && !getTutorialsComplete()" class="tutorials-note-glow">
           <span class="note-icon">✨</span>
-          Need a hand? Try the <button class="link-btn" @click="activeTab = 'tutorials'">guided tutorials</button> for a step-by-step intro!
+          Need a hand? Try the <button type="button" class="link-btn" @click="activeTab = 'tutorials'">guided tutorials</button> for a step-by-step intro!
         </div>
         <!-- Quest Selection (data-driven from scenario content) -->
         <section class="setup-section quest-section">
@@ -208,6 +208,7 @@
           
           <AppInput
             v-model="characterName"
+            label="Character name (optional)"
             placeholder="The Desperate Architect"
             :maxlength="50"
           />

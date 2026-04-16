@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, getCurrentInstance } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -61,9 +61,8 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-// Generate a stable id for label association if none provided
-let _counter = 0
-const inputId = computed(() => props.id ?? `dungeon-input-${++_counter}`)
+const generatedId = `dungeon-input-${getCurrentInstance()?.uid ?? 'fallback'}`
+const inputId = computed(() => props.id ?? generatedId)
 </script>
 
 <style scoped>
