@@ -118,9 +118,9 @@ function onTabKeydown(event: KeyboardEvent, index: number) {
   }
 
   let nextIndex: number | null = null
-  if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+  if (event.key === 'ArrowRight') {
     nextIndex = (index + 1) % props.tabs.length
-  } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+  } else if (event.key === 'ArrowLeft') {
     nextIndex = (index - 1 + props.tabs.length) % props.tabs.length
   } else if (event.key === 'Home') {
     nextIndex = 0

@@ -51,6 +51,8 @@ const emit = defineEmits<{ close: [] }>()
 
 const dialogRef = ref<HTMLElement | null>(null)
 let lastActiveElement: HTMLElement | null = null
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 const titleId = computed(() => `surface-side-title-${props.title.toLowerCase().replace(/\s+/g, '-')}`)
 
@@ -71,9 +73,7 @@ function handleDialogKeydown(event: KeyboardEvent) {
     return
   }
 
-  const focusable = dialogRef.value.querySelectorAll<HTMLElement>(
-    'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-  )
+  const focusable = dialogRef.value.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
   if (focusable.length === 0) {
     event.preventDefault()
     dialogRef.value.focus()
@@ -102,9 +102,7 @@ watch(
         if (!dialogRef.value) {
           return
         }
-        const firstFocusable = dialogRef.value.querySelector<HTMLElement>(
-          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        )
+        const firstFocusable = dialogRef.value.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)
         ;(firstFocusable ?? dialogRef.value).focus()
       })
       return

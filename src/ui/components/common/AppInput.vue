@@ -36,9 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
-let inputIdCounter = 0
+import { computed, getCurrentInstance } from 'vue'
 
 const props = withDefaults(
   defineProps<{
@@ -63,7 +61,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-const generatedId = `dungeon-input-${++inputIdCounter}`
+const generatedId = `dungeon-input-${getCurrentInstance()?.uid ?? 'fallback'}`
 const inputId = computed(() => props.id ?? generatedId)
 </script>
 

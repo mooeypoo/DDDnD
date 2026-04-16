@@ -54,13 +54,15 @@ describe('AppTabs keyboard navigation', () => {
       }
     })
 
-    const buttons = wrapper.findAll('button')
-    await buttons[0].trigger('keydown', { key: 'ArrowRight' })
-    await buttons[0].trigger('keydown', { key: 'ArrowLeft' })
-    await buttons[1].trigger('keydown', { key: 'End' })
-    await buttons[2].trigger('keydown', { key: 'Home' })
+    await wrapper.findAll('button')[0].trigger('keydown', { key: 'ArrowRight' })
+    await wrapper.setProps({ modelValue: 1 })
+    await wrapper.findAll('button')[1].trigger('keydown', { key: 'ArrowLeft' })
+    await wrapper.setProps({ modelValue: 0 })
+    await wrapper.findAll('button')[0].trigger('keydown', { key: 'End' })
+    await wrapper.setProps({ modelValue: 2 })
+    await wrapper.findAll('button')[2].trigger('keydown', { key: 'Home' })
 
-    expect(wrapper.emitted('update:modelValue')).toEqual([[1], [2], [2], [0]])
+    expect(wrapper.emitted('update:modelValue')).toEqual([[1], [0], [2], [0]])
   })
 })
 
