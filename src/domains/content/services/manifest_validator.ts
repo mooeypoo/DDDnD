@@ -23,6 +23,7 @@ const INVENTORY_KEYS: Array<keyof ContentPackInventory> = [
   'outcome_tiers',
   'outcome_archetypes',
   'classes',
+  'challenge_modifiers',
 ]
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -113,9 +114,10 @@ export function validateContentPackManifest(input: unknown): ManifestValidationR
     })
   }
 
-  const entryPointFields: Array<keyof Pick<ContentPackManifest, 'scenarios' | 'classes' | 'tutorials'>> = [
+  const entryPointFields: Array<keyof Pick<ContentPackManifest, 'scenarios' | 'classes' | 'challenge_modifiers' | 'tutorials'>> = [
     'scenarios',
     'classes',
+    'challenge_modifiers',
     'tutorials',
   ]
 

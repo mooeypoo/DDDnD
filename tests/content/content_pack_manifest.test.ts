@@ -19,6 +19,7 @@ function createValidManifest(overrides: Partial<ContentPackManifest> = {}): Cont
     pack_homepage_url: 'https://example.com/pack',
     scenarios: [{ id: 'monolith_of_mild_despair', version: 1 }],
     classes: [{ id: 'boundary_mage', version: 1 }],
+    challenge_modifiers: [],
     tutorials: [],
     content: {
       scenarios: ['monolith_of_mild_despair-v1.json'],
@@ -31,6 +32,7 @@ function createValidManifest(overrides: Partial<ContentPackManifest> = {}): Cont
       outcome_tiers: ['success-v1.json'],
       outcome_archetypes: ['boundary_builder-v1.json'],
       classes: ['boundary_mage-v1.json'],
+      challenge_modifiers: [],
     },
     ...overrides,
   }

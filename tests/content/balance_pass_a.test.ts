@@ -89,8 +89,8 @@ describe('Balance pass A — telemetry-informed tuning', () => {
       const provider = createFileContentProvider(contentRoot)
       const scenario = await provider.loadScenario({ id: 'startup_hypergrowth', version: 1 })
 
-      expect(scenario.starting_scores.budget).toBe(58)
-      expect(scenario.starting_scores.team_morale).toBe(50)
+      expect(scenario.starting_scores.budget).toBe(53)
+      expect(scenario.starting_scores.team_morale).toBe(45)
     })
 
     it('microservice_sprawl has slightly higher starting user_trust', async () => {

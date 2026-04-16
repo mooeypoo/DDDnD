@@ -20,6 +20,7 @@
   "pack_homepage_url": "https://github.com/mooeypoo/DDDnD",
   "scenarios": [],
   "classes": [],
+  "challenge_modifiers": [],
   "tutorials": [
     {
       "id": "tutorial_basics",
@@ -76,6 +77,7 @@
     "outcome_archetypes": [
       "tutorial_learner-v1.json"
     ],
-    "classes": []
+    "classes": [],
+    "challenge_modifiers": []
   }
 }
