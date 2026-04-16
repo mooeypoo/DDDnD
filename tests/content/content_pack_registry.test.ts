@@ -12,6 +12,7 @@ import type {
   StakeholderReactionRule,
   VersionRef,
   PlayerClass,
+  ChallengeModifier,
 } from '@/domains/content/model'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
@@ -28,6 +29,7 @@ function createManifest(overrides: Partial<ContentPackManifest>): ContentPackMan
     authors: [{ name: 'Test Author' }],
     scenarios: [],
     classes: [],
+    challenge_modifiers: [],
     tutorials: [],
     content: {
       scenarios: [],
@@ -40,6 +42,7 @@ function createManifest(overrides: Partial<ContentPackManifest>): ContentPackMan
       outcome_tiers: [],
       outcome_archetypes: [],
       classes: [],
+      challenge_modifiers: [],
     },
     ...overrides,
   }
@@ -134,6 +137,13 @@ function createMockProvider(label: string): ContentProvider {
     description: label,
   })
 
+  const makeChallengeModifier = (ref: VersionRef): ChallengeModifier => ({
+    id: ref.id,
+    version: ref.version,
+    name: `${label}-modifier`,
+    description: label,
+  })
+
   return {
     loadScenario: vi.fn(async (ref: VersionRef) => makeScenario(ref)),
     loadScore: vi.fn(async (ref: VersionRef) => makeScore(ref)),
@@ -145,6 +155,7 @@ function createMockProvider(label: string): ContentProvider {
     loadOutcomeTier: vi.fn(async (ref: VersionRef) => makeOutcomeTier(ref)),
     loadOutcomeArchetype: vi.fn(async (ref: VersionRef) => makeOutcomeArchetype(ref)),
     loadPlayerClass: vi.fn(async (ref: VersionRef) => makePlayerClass(ref)),
+    loadChallengeModifier: vi.fn(async (ref: VersionRef) => makeChallengeModifier(ref)),
   }
 }
 
@@ -199,6 +210,7 @@ describe('content pack registry', () => {
         outcome_tiers: [],
         outcome_archetypes: [],
         classes: [],
+        challenge_modifiers: [],
       },
     })
 
@@ -215,6 +227,7 @@ describe('content pack registry', () => {
         outcome_tiers: [],
         outcome_archetypes: [],
         classes: [],
+        challenge_modifiers: [],
       },
     })
 

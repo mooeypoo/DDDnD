@@ -235,6 +235,9 @@ export function createMockContentProvider(): ContentProvider {
     },
     loadPlayerClass: async (_ref) => {
       throw new Error('Mock player class not implemented')
+    },
+    loadChallengeModifier: async (_ref) => {
+      throw new Error('Mock challenge modifier not implemented')
     }
   }
 }

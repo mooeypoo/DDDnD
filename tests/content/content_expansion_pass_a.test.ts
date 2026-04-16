@@ -50,6 +50,9 @@ function createFileContentProvider(contentRoot: string): ContentProvider {
     loadOutcomeArchetype: (ref) => loadJson<OutcomeArchetype>('outcome-archetypes', ref),
     loadPlayerClass: async (_ref) => {
       throw new Error('Player class loading is not required for scenario bundle construction')
+    },
+    loadChallengeModifier: async (_ref) => {
+      throw new Error('Challenge modifier loading is not required for scenario bundle construction')
     }
   }
 }
