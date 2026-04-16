@@ -7,8 +7,14 @@
       <!-- Outcome Hero -->
       <div class="outcome-hero">
         <div class="hero-decoration">
-          <!-- Future: Celebratory artwork slot -->
-          <div class="celebration-icon">🎊</div>
+          <img
+            v-if="endingVisualUrl"
+            class="celebration-artwork"
+            :src="endingVisualUrl"
+            alt=""
+            aria-hidden="true"
+          />
+          <div v-else class="celebration-icon">{{ outcome ? getArchetypeIcon(outcome.archetype) : '🎊' }}</div>
         </div>
         
         <h1 class="outcome-title">Journey Complete</h1>
@@ -38,8 +44,14 @@
       <!-- Archetype Display -->
       <div v-if="outcome" class="archetype-card">
         <div class="archetype-visual">
-          <!-- Future: Archetype illustration slot -->
-          <div class="archetype-icon-wrapper">
+          <img
+            v-if="endingVisualUrl"
+            class="archetype-artwork"
+            :src="endingVisualUrl"
+            alt=""
+            aria-hidden="true"
+          />
+          <div v-else class="archetype-icon-wrapper">
             <span class="archetype-icon">{{ getArchetypeIcon(outcome.archetype) }}</span>
           </div>
         </div>
@@ -193,6 +205,7 @@ import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 import IconBarChart from '@/ui/components/icons/IconBarChart.vue'
 import IconGroup from '@/ui/components/icons/IconGroup.vue'
 import IconMegaphone from '@/ui/components/icons/IconMegaphone.vue'
+import { ENDING_VISUAL_ASSETS, type EndingVisualId } from '@/ui/config/presentation_asset_registry'
 import { getClassAccentColor } from '@/ui/composables/class_artwork'
 import {
   buildStakeholderNamesMap,
@@ -224,6 +237,24 @@ const playerAccentColor = computed(() => getClassAccentColor(playerClassId.value
 const scenarioName = computed(() => gameStore.scenarioBundle?.scenario?.name)
 
 const displayTierId = computed(() => outcome.value?.selected_tier_id ?? outcome.value?.tier ?? 'failure')
+const endingVisualUrl = computed(() => {
+  const archetype = outcome.value?.archetype
+  if (!archetype) return undefined
+
+  const endingVisualIds = new Set<EndingVisualId>([
+    'boundary_builder',
+    'firefighter',
+    'system_stabilizer',
+    'stakeholder_whisperer',
+    'runaway_refactorer'
+  ])
+
+  if (!endingVisualIds.has(archetype as EndingVisualId)) {
+    return undefined
+  }
+
+  return ENDING_VISUAL_ASSETS[archetype as EndingVisualId]
+})
 
 const sharePayload = ref<SharePayload | null>(null)
 const copyButtonLabel = ref('Copy Share Link')
@@ -323,14 +354,20 @@ function getArchetypeDescription(archetype: OutcomeArchetypeId): string {
 
 function formatCompletionReason(reason?: string): string {
   if (!reason) return 'Unknown'
-  
+
   const formatted: Record<string, string> = {
-    'max_turns': 'Time Limit',
-    'success': 'Victory',
-    'failure': 'Collapse'
+    max_turns_reached: 'Max Turns Reached',
+    failure_condition_met: 'Failure Condition Met'
   }
-  
-  return formatted[reason] || reason
+
+  if (formatted[reason]) {
+    return formatted[reason]
+  }
+
+  return reason
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
 }
 
 function formatScoreName(scoreId: string): string {
@@ -571,6 +608,15 @@ function inlineComputedStyles(source: Element, target: Element) {
   margin-bottom: var(--space-xl);
 }
 
+.celebration-artwork {
+  width: min(420px, 100%);
+  max-height: 180px;
+  object-fit: contain;
+  display: inline-block;
+  filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.35));
+  animation: fadeInUp 0.6s ease-out;
+}
+
 .celebration-icon {
   font-size: 4rem;
   animation: celebrate 1.5s ease-in-out;
@@ -708,6 +754,14 @@ function inlineComputedStyles(source: Element, target: Element) {
 
 .archetype-visual {
   margin-bottom: var(--space-2xl);
+}
+
+.archetype-artwork {
+  width: min(420px, 100%);
+  max-height: 260px;
+  object-fit: contain;
+  display: inline-block;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.35));
 }
 
 .archetype-icon-wrapper {
