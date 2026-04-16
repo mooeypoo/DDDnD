@@ -91,7 +91,7 @@ function createFileContentProvider(contentRoot: string): ContentProvider {
   }
 }
 
-describe('MVP content pack', () => {
+describe('core content pack', () => {
   it('builds and validates the monolith scenario bundle from authored content', async () => {
     const contentRoot = path.resolve(__dirname, '../../content')
     const provider = createFileContentProvider(contentRoot)

@@ -2,9 +2,9 @@
 
 This document describes the design of the DDDnD game.
 
-DDD nD is a humorous simulation of software architecture decision making using concepts from Domain-Driven Design.
+DDDnD is a humorous simulation of software architecture decision making using concepts from Domain-Driven Design.
 
-Players act as a systems architect trying to improve a struggling system.
+Players act as a systems architect trying to improve a struggling system under time pressure.
 
 For architecture boundaries and routing, see [AGENT.md](AGENT.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
 
@@ -16,7 +16,8 @@ The player must improve the system before time runs out.
 
 They must balance:
 
-- architecture quality
+- domain clarity
+- maintainability
 - developer morale
 - stakeholder satisfaction
 - delivery confidence
@@ -118,23 +119,25 @@ Examples:
 
 ---
 
-# MVP Scenario
+# Scenario Catalog
 
-The MVP includes one scenario:
+The base game currently ships with five main scenarios:
 
-**The Monolith of Mild Despair**
+- **The Monolith of Mild Despair** - stabilize a tangled legacy monolith before delivery confidence collapses
+- **Microservice Sprawl** - restore clarity to an over-fragmented service landscape
+- **Compliance Gauntlet** - survive regulatory pressure without sacrificing delivery capability
+- **Startup Hypergrowth** - scale a product under explosive growth and operational strain
+- **The Merger of Minor Chaos** - reconcile duplicate systems, competing domain models, and culture clashes after acquisition
 
-A legacy monolith suffering from unclear domain boundaries.
-
-Players must gradually introduce structure without destroying delivery speed.
+Each scenario defines its own starting scores, stakeholders, card pool, event pool, turn horizon, and outcome pressure.
 
 ---
 
 # Player Classes
 
-Players select a cosmetic architect class.
+Players select a `playerClass` before starting a run.
 
-In new UI/presentation work, use the term `playerClass` for this selection.
+In UI/presentation work, use the term `playerClass` for this selection.
 
 Examples:
 
@@ -144,9 +147,23 @@ Examples:
 - Legacy Ranger
 - Delivery Rogue
 
-Classes may affect gameplay in future versions.
+Classes can include an optional `score_affinity`, which is recorded on the player profile and can support gameplay-facing bonuses.
 
-For MVP they are cosmetic.
+They are part of run identity even when a specific class has no additional authored bonus.
+
+---
+
+# Challenge Modifiers
+
+Runs may also include an optional challenge modifier.
+
+Challenge modifiers are difficulty-shaping content that can:
+
+- adjust starting scores
+- override starting stakeholder satisfaction
+- change the available turn count
+
+They are selected at run setup and applied before play begins.
 
 ---
 
@@ -204,7 +221,7 @@ Hints are driven entirely by content — they are not hard-coded in the UI.
 1. Create scenario, cards, scores, events, stakeholders, and other content JSON files under `content/tutorial/`.
 2. Create a tutorial script JSON under `content/tutorial/scripts/`.
 3. Set `is_tutorial: true`, `tutorial_order`, and `tutorial_script_ref` on the scenario.
-4. Add the scenario's `VersionRef` to `src/ui/config/available_tutorials.ts`.
+4. Add the scenario to the tutorial content manifest so the content registry exposes it as a tutorial entry point.
 
 ---
 

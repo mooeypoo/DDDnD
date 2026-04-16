@@ -1,9 +1,9 @@
-# MVP Asset Plan
+# Presentation Asset Plan
 
 Date: 2026-04-01
-Status: Canonical current asset strategy for redesign branch
+Status: Canonical current asset strategy for production presentation work
 
-This document defines the production truth for redesign assets and implementation constraints.
+This document defines the current production truth for presentation assets and implementation constraints.
 
 ## 1. Asset Strategy
 

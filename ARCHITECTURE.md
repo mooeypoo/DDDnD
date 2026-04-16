@@ -103,7 +103,7 @@ Game state must be serializable.
 
 # Turn Resolution Pipeline
 
-The simulation uses a detailed canonical phase vocabulary for runtime records and future extensibility. The MVP engine shell may temporarily group these into a smaller orchestration sequence — Architectural Aftershocks, Player Action, System Event, Stakeholder Resolution, and Turn Wrap-Up — as long as the runtime model remains compatible with the fuller phase model.
+The simulation uses a detailed canonical phase vocabulary for runtime records and future extensibility. The current engine implementation may group these into a smaller orchestration sequence — Architectural Aftershocks, Player Action, System Event, Stakeholder Resolution, and Turn Wrap-Up — as long as the runtime model remains compatible with the fuller phase model.
 
 Each turn follows this sequence:
 
@@ -146,7 +146,7 @@ The simulation uses the following canonical turn phases:
 - `run_outcome_check`
 - `completed`
 
-For MVP, delayed effects resolve only during `architectural_aftershocks`, even though runtime records may use the broader phase vocabulary for future extensibility.
+In the current implementation, delayed effects resolve only during `architectural_aftershocks`, even though runtime records may use the broader phase vocabulary for future extensibility.
 
 ## Stakeholder Satisfaction Scale
 
@@ -306,7 +306,7 @@ Reporting reads simulation history but does not modify state.
 
 The simulation supports outcome tiers and legacy archetype criteria.
 
-For MVP implementation, outcome tier classification may be completed before legacy archetype criteria classification if authored criteria are not yet fully defined. In that case, handling should remain an explicit stub rather than implicit or ad hoc behavior, and should be completed before final end-of-run presentation and sharing are considered complete.
+If outcome tier classification is completed before legacy archetype criteria classification, handling should remain an explicit stub rather than implicit or ad hoc behavior, and should be completed before final end-of-run presentation and sharing are considered complete.
 
 In UI/player-facing surfaces, use `endingType` terminology.
 
@@ -329,7 +329,7 @@ It is not required to duplicate every internal detail of the simulation engine�
 
 ## Exact Run Export Scope
 
-In MVP, exact-run exports use a minimal deterministic schema.
+Exact-run exports currently use a minimal deterministic schema.
 
 They must include enough information to:
 

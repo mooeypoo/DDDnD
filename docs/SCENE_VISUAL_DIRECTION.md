@@ -71,5 +71,5 @@ Do not move back toward the rejected style:
 
 ## 6. Companion Docs
 
-- [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md)
+- [docs/PRESENTATION_ASSET_PLAN.md](PRESENTATION_ASSET_PLAN.md)
 - [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)

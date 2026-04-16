@@ -198,7 +198,7 @@ Validation is required even if TypeScript types exist.
 
 ## Optional Content Fields
 
-Some supported content fields may be omitted in MVP authored content.
+Some supported content fields are optional in authored content.
 
 Examples include:
 

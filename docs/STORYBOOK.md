@@ -7,7 +7,7 @@ Canonical companions:
 - [AGENT.md](../AGENT.md) for required reading and task routing
 - [ARCHITECTURE.md](../ARCHITECTURE.md) for domain boundaries
 - [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md) for scene composition and `avatarRole` art-direction rules
-- [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md) for current asset strategy and format policy
+- [docs/PRESENTATION_ASSET_PLAN.md](PRESENTATION_ASSET_PLAN.md) for current asset strategy and format policy
 - [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md) for coding-agent execution constraints
 
 ## Purpose

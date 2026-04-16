@@ -25,13 +25,13 @@ Read these on top of the base set when applicable.
 ### UI / presentation work
 
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical visual direction for scene composition and stakeholder avatarRole art direction
-- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md)
+- [docs/PRESENTATION_ASSET_PLAN.md](docs/PRESENTATION_ASSET_PLAN.md)
 - [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
 - [docs/QUEST_SELECTION_IMPLEMENTATION.md](docs/QUEST_SELECTION_IMPLEMENTATION.md)
 
 ### Asset / artwork work (hybrid raster + SVG)
 
-- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) — canonical strategy for raster scene/avatar assets and SVG chrome split
+- [docs/PRESENTATION_ASSET_PLAN.md](docs/PRESENTATION_ASSET_PLAN.md) — canonical strategy for raster scene/avatar assets and SVG chrome split
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) — canonical scene/avatar art direction and anti-goals
 - [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
 
@@ -39,7 +39,7 @@ Read these on top of the base set when applicable.
 
 - [docs/STORYBOOK.md](docs/STORYBOOK.md)
 - [docs/SCENE_VISUAL_DIRECTION.md](docs/SCENE_VISUAL_DIRECTION.md) (if story visual direction, scene composition, or `avatarRole` presentation is touched)
-- [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md) (if visuals/artwork are touched)
+- [docs/PRESENTATION_ASSET_PLAN.md](docs/PRESENTATION_ASSET_PLAN.md) (if visuals/artwork are touched)
 - [docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md)
 
 ### Content / schema work
@@ -96,7 +96,7 @@ Legacy references may remain where already established, but do not expand that t
 
 # Asset Format Rules
 
-Asset work must follow [docs/MVP_ASSET_PLAN.md](docs/MVP_ASSET_PLAN.md).
+Asset work must follow [docs/PRESENTATION_ASSET_PLAN.md](docs/PRESENTATION_ASSET_PLAN.md).
 
 Hybrid strategy for new presentation work:
 

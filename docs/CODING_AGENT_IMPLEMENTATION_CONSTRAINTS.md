@@ -44,4 +44,4 @@ Legacy references may remain only where already established.
 ## 6. Companion Docs
 
 - [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md)
-- [docs/MVP_ASSET_PLAN.md](MVP_ASSET_PLAN.md)
+- [docs/PRESENTATION_ASSET_PLAN.md](PRESENTATION_ASSET_PLAN.md)

@@ -174,7 +174,7 @@ export const useGameStore = defineStore('game', () => {
   }
   
   /**
-   * Load available quests from the UI config and scenario content
+   * Load available quests from content pack manifest entry points.
    */
   async function load_available_quests() {
     isLoadingQuests.value = true

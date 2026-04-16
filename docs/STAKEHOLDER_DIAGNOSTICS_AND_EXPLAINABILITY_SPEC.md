@@ -258,7 +258,7 @@ Initial proposed targets:
 
 If authored thresholds or deltas change, follow [CONTENT_VERSIONING.md](../CONTENT_VERSIONING.md).
 
-Gameplay-affecting changes require new content versions after pre-release rules are lifted. Even during pre-release, changes should still be documented clearly as behavior changes.
+Gameplay-affecting changes require new content versions. Behavior changes should always be documented clearly.
 
 ### 9.5 Preferred content-level fixes
 

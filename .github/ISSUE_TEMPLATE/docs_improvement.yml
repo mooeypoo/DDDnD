@@ -1,0 +1,37 @@
+name: Documentation improvement
+description: Report missing, unclear, or outdated documentation.
+title: "[Docs]: "
+labels:
+  - documentation
+body:
+  - type: textarea
+    id: location
+    attributes:
+      label: Affected page(s)
+      description: Which doc file(s) or section(s) are impacted?
+      placeholder: README.md, CONTRIBUTORS.md, docs/...
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is unclear or outdated?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: Optional proposed wording or structure.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Doc change type
+      options:
+        - Incorrect information
+        - Missing information
+        - Confusing structure
+        - Broken command or link
+        - Terminology mismatch
+    validations:
+      required: true

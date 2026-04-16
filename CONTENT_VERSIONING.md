@@ -6,18 +6,6 @@ Versioning ensures that older game runs remain compatible even as content evolve
 
 ---
 
-# Temporary Pre-Release Caveat
-
-The project is currently in pre-release and is not yet used by active users.
-
-For now, content behavior changes may be made in-place without increasing versions.
-
-This is a temporary exception.
-
-Once users are actively using the system, remove this caveat and resume strict version bumping for behavior changes.
-
----
-
 # Filename Format
 
 Content files must use versioned filenames.
@@ -76,7 +64,7 @@ If behavior must change, create a new version.
 Example:
 ```
 define_bounded_context-v1.json
-define_bounded-context-v2.json
+define_bounded_context-v2.json
 ```
 
 ---

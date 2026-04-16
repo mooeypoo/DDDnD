@@ -84,7 +84,7 @@ export const LoadingQuests: Story = {
 }
 
 /**
- * Story showing the view with a single quest (MVP case)
+ * Story showing the view with a single available quest
  */
 export const SingleQuest: Story = {
   async beforeEach() {
