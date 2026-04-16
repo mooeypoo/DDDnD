@@ -2,7 +2,6 @@
   <article
     class="dungeon-ac"
     :class="[`category-${categoryId}`, { 'is-disabled': isCardDisabled, 'tutorial-locked': isTutorialLocked, 'tutorial-highlighted': isTutorialHighlighted }]"
-    tabindex="0"
   >
 
     <!-- Tutorial lock overlay — centered above ring content -->

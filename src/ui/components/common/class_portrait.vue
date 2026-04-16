@@ -5,7 +5,6 @@
     :style="borderStyle"
     role="img"
     :aria-label="alt"
-    aria-hidden="true"
   >
     <img
       v-if="portraitUrl"

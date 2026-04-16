@@ -29,6 +29,7 @@
       <AppSelect
         :modelValue="activeSort"
         :options="sortOptions"
+        aria-label="Sort action cards"
         @update:modelValue="$emit('update:activeSort', $event)"
       />
     </div>

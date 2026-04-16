@@ -38,6 +38,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+let inputIdCounter = 0
+
 const props = withDefaults(
   defineProps<{
     modelValue?: string
@@ -61,9 +63,8 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-// Generate a stable id for label association if none provided
-let _counter = 0
-const inputId = computed(() => props.id ?? `dungeon-input-${++_counter}`)
+const generatedId = `dungeon-input-${++inputIdCounter}`
+const inputId = computed(() => props.id ?? generatedId)
 </script>
 
 <style scoped>
