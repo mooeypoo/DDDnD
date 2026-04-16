@@ -21,6 +21,7 @@ export interface ContentPackInventory {
   outcome_tiers: string[]
   outcome_archetypes: string[]
   classes: string[]
+  challenge_modifiers: string[]
 }
 
 export interface ContentPackManifest {
@@ -35,6 +36,7 @@ export interface ContentPackManifest {
   pack_homepage_url?: string
   scenarios: VersionRef[]
   classes: VersionRef[]
+  challenge_modifiers: VersionRef[]
   tutorials: VersionRef[]
   tutorial_base_url?: string
   content: ContentPackInventory

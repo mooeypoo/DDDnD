@@ -37,5 +37,35 @@ export const outcomeMocks: Record<OutcomeArchetypeId, OutcomeMock> = {
     title: 'Runaway Refactorer',
     summary: 'You chased deep cleanup aggressively, sometimes outrunning delivery expectations.',
     mood: 'tense'
+  },
+  the_diplomat: {
+    archetype: 'the_diplomat',
+    title: 'The Diplomat',
+    summary: 'You navigated conflicting stakeholder demands with grace and compromise.',
+    mood: 'calm'
+  },
+  budget_hawk: {
+    archetype: 'budget_hawk',
+    title: 'Budget Hawk',
+    summary: 'You kept costs under control, sometimes at the expense of team comfort.',
+    mood: 'tense'
+  },
+  the_pragmatist: {
+    archetype: 'the_pragmatist',
+    title: 'The Pragmatist',
+    summary: 'You made practical tradeoffs that kept the project moving forward.',
+    mood: 'calm'
+  },
+  the_visionary: {
+    archetype: 'the_visionary',
+    title: 'The Visionary',
+    summary: 'You pushed for ambitious long-term improvements despite short-term costs.',
+    mood: 'victorious'
+  },
+  burnout_machine: {
+    archetype: 'burnout_machine',
+    title: 'Burnout Machine',
+    summary: 'You pushed through at an unsustainable pace, wearing the team thin.',
+    mood: 'tense'
   }
 }

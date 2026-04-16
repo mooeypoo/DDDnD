@@ -1,0 +1,28 @@
+{
+  "id": "vendor_partnership_offer",
+  "version": 1,
+  "name": "Vendor Partnership Offer",
+  "description": "A technology vendor offers a partnership that could accelerate delivery but at integration cost",
+  "flavor_text": "They say their API is 'enterprise-ready'. Famous last words.",
+  "occurrence_weight": 4,
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": 6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 4
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "partnership_integration_costs",
+      "version": 1
+    }
+  ]
+}

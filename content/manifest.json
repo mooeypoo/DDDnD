@@ -29,6 +29,10 @@
     {
       "id": "startup_hypergrowth",
       "version": 1
+    },
+    {
+      "id": "merger_of_minor_chaos",
+      "version": 1
     }
   ],
   "classes": [
@@ -53,10 +57,29 @@
       "version": 1
     }
   ],
+  "challenge_modifiers": [
+    {
+      "id": "hard_mode",
+      "version": 1
+    },
+    {
+      "id": "budget_crisis",
+      "version": 1
+    },
+    {
+      "id": "stakeholder_revolt",
+      "version": 1
+    },
+    {
+      "id": "speed_run",
+      "version": 1
+    }
+  ],
   "tutorials": [],
   "content": {
     "scenarios": [
       "compliance_gauntlet-v1.json",
+      "merger_of_minor_chaos-v1.json",
       "microservice_sprawl-v1.json",
       "monolith_of_mild_despair-v1.json",
       "startup_hypergrowth-v1.json",
@@ -64,14 +87,17 @@
     ],
     "cards": [
       "absorb_emergency_production_fix-v1.json",
+      "accept_technical_debt_amnesty-v1.json",
       "add_integration_tests-v1.json",
       "align_budget_with_architecture-v1.json",
       "automate_deployment_pipeline-v1.json",
+      "cancel_feature_sprint_for_refactoring-v1.json",
       "clarify_cross_team_handoffs-v1.json",
       "coordinate_service_contracts-v1.json",
       "define_bounded_context-v1.json",
       "deprecate_legacy_api-v1.json",
       "document_ubiquitous_language-v1.json",
+      "emergency_architecture_review-v1.json",
       "establish_team_ownership-v1.json",
       "extract_shared_kernel-v1.json",
       "fortify_observability_stack-v1.json",
@@ -86,16 +112,25 @@
       "negotiate_technical_runway-v1.json",
       "pay_down_incident_backlog-v1.json",
       "pin_and_audit_dependencies-v1.json",
+      "platform_team_formation-v1.json",
+      "propose_microservice_extraction-v1.json",
+      "propose_unified_domain_model-v1.json",
+      "publish_engineering_blog-v1.json",
       "refactor_core_aggregate-v1.json",
       "refactor_module-v1.json",
+      "run_integration_workshop-v1.json",
       "run_security_audit-v1.json",
       "scale_incident_command-v1.json",
+      "shadow_it_consolidation-v1.json",
       "ship_quick_fix-v1.json",
-      "spike_on_migration_strategy-v1.json"
+      "spike_on_migration_strategy-v1.json",
+      "sunset_duplicate_system-v1.json",
+      "sunset_legacy_feature-v1.json"
     ],
     "stakeholders": [
       "cfo-v1.json",
       "cto-v1.json",
+      "integration_program_manager-v1.json",
       "lead_developer-v1.json",
       "operations_manager-v1.json",
       "security_officer-v1.json",
@@ -104,24 +139,37 @@
     ],
     "stakeholder_reaction_rules": [
       "cfo_alarmed_by_overspending-v1.json",
+      "cfo_appreciates_cost_efficiency-v1.json",
       "cfo_cuts_spending_when_budget_low-v1.json",
       "cfo_rewards_predictable_delivery-v1.json",
       "concerned_about_debt-v1.json",
       "cto_celebrates_delivery-v1.json",
       "cto_frustrated_by_stagnation-v1.json",
+      "cto_impressed_by_architecture-v1.json",
+      "cto_questions_investment-v1.json",
       "cto_wants_clarity-v1.json",
+      "ipm_celebrates_integration_milestone-v1.json",
+      "ipm_demands_visible_progress-v1.json",
+      "ipm_escalates_integration_stall-v1.json",
+      "lead_dev_appreciates_team_investment-v1.json",
       "lead_dev_energized_by_clarity-v1.json",
       "lead_dev_fights_for_quality-v1.json",
+      "lead_dev_trusts_the_process-v1.json",
       "lead_developer_threatens_resignation-v1.json",
       "ops_manager_confident_in_stability-v1.json",
       "ops_manager_demands_incident_review-v1.json",
       "ops_manager_stressed_by_instability-v1.json",
+      "ops_manager_trusts_pipeline-v1.json",
       "security_officer_escalates_to_board-v1.json",
       "security_officer_flags_risky_system-v1.json",
+      "security_officer_relaxes_stance-v1.json",
       "security_officer_supports_clear_boundaries-v1.json",
       "tech_lead_appreciates_clean_code-v1.json",
+      "tech_lead_champions_architecture-v1.json",
       "vp_product_celebrates_user_growth-v1.json",
       "vp_product_demands_features-v1.json",
+      "vp_product_endorses_strategy-v1.json",
+      "vp_product_loses_patience-v1.json",
       "vp_product_worried_about_users-v1.json"
     ],
     "scores": [
@@ -136,32 +184,59 @@
       "version_mismatch-v1.json"
     ],
     "events": [
+      "acquisition_rumor-v1.json",
+      "architecture_award_nomination-v1.json",
+      "auditor_finds_clean_module-v1.json",
       "critical_bug_discovered-v1.json",
+      "cross_team_hackathon-v1.json",
+      "culture_clash_incident-v1.json",
       "customer_escalation-v1.json",
       "customer_praises_reliability-v1.json",
       "data_breach_reported-v1.json",
       "dependency_breaks_unexpectedly-v1.json",
+      "duplicate_system_discovery-v1.json",
+      "integration_demo_success-v1.json",
+      "investor_board_presentation-v1.json",
       "key_engineer_leaves-v1.json",
+      "key_talent_poaching_attempt-v1.json",
+      "legacy_system_wins_award-v1.json",
+      "new_cto_mandate-v1.json",
+      "open_source_contribution_viral-v1.json",
       "production_incident-v1.json",
       "regulatory_compliance_deadline-v1.json",
+      "service_discovery_failure-v1.json",
       "service_outage_cascade-v1.json",
+      "shadow_process_revealed-v1.json",
+      "successful_demo_day-v1.json",
       "surprise_budget_cut-v1.json",
+      "team_burnout_spike-v1.json",
       "team_member_discovers_pattern-v1.json",
-      "urgent_feature_request-v1.json"
+      "urgent_feature_request-v1.json",
+      "vendor_partnership_offer-v1.json"
     ],
     "delayed_effects": [
       "api_migration_friction-v1.json",
       "audit_findings_surface-v1.json",
       "boundaries_clarify-v1.json",
+      "burnout_recovery_stalls-v1.json",
+      "compliance_clarity_spreads-v1.json",
       "contractor_knowledge_leaves-v1.json",
+      "culture_alignment_progress-v1.json",
+      "demo_momentum-v1.json",
       "dependency_stability_improves-v1.json",
       "documentation_helps_onboarding-v1.json",
+      "duplicate_system_costs-v1.json",
       "improved_clarity-v1.json",
       "integration_complexity_emerges-v1.json",
+      "investor_confidence_boost-v1.json",
       "knowledge_gap_widens-v1.json",
+      "open_source_community_grows-v1.json",
+      "partnership_integration_costs-v1.json",
+      "platform_maturity-v1.json",
       "refactoring_payoff-v1.json",
       "team_energized-v1.json",
       "technical_debt_accumulates-v1.json",
+      "unified_model_clarity-v1.json",
       "user_trust_recovers-v1.json"
     ],
     "outcome_tiers": [
@@ -173,10 +248,15 @@
     ],
     "outcome_archetypes": [
       "boundary_builder-v1.json",
+      "budget_hawk-v1.json",
+      "burnout_machine-v1.json",
       "firefighter-v1.json",
       "runaway_refactorer-v1.json",
       "stakeholder_whisperer-v1.json",
-      "system_stabilizer-v1.json"
+      "system_stabilizer-v1.json",
+      "the_diplomat-v1.json",
+      "the_pragmatist-v1.json",
+      "the_visionary-v1.json"
     ],
     "classes": [
       "boundary_mage-v1.json",
@@ -184,6 +264,12 @@
       "legacy_ranger-v1.json",
       "reliability_cleric-v1.json",
       "stakeholder_bard-v1.json"
+    ],
+    "challenge_modifiers": [
+      "budget_crisis-v1.json",
+      "hard_mode-v1.json",
+      "speed_run-v1.json",
+      "stakeholder_revolt-v1.json"
     ]
   }
 }

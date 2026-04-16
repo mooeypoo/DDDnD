@@ -1,0 +1,33 @@
+{
+  "id": "shadow_it_consolidation",
+  "version": 1,
+  "name": "Shadow IT Consolidation",
+  "description": "Bring rogue tools and unofficial services under official architecture governance",
+  "flavor_text": "Yes, we know about the spreadsheet running your production pipeline",
+  "usage_limit": 1,
+  "style_tags": ["architecture", "governance", "unpopular"],
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 5
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -2
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "boundaries_clarify",
+      "version": 1
+    }
+  ]
+}

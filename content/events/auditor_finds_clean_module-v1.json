@@ -1,0 +1,29 @@
+{
+  "id": "auditor_finds_clean_module",
+  "version": 1,
+  "name": "Auditor Finds Clean Module",
+  "description": "An external auditor highlights a well-structured module as an example of good practice",
+  "flavor_text": "The auditor smiled. Nobody knew auditors could smile.",
+  "occurrence_weight": 4,
+  "trigger_condition_description": "Domain clarity > 50",
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 4
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 6
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 5
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "compliance_clarity_spreads",
+      "version": 1
+    }
+  ]
+}

@@ -6,13 +6,14 @@
   "short_description": "Stabilize a tangled legacy monolith before delivery confidence collapses.",
   "flavor_text": "You inherit a codebase where every change touches everything",
   "max_turns": 10,
+  "score_variance": 5,
   "starting_scores": {
     "domain_clarity": 30,
     "maintainability": 38,
     "delivery_confidence": 50,
-    "team_morale": 50,
+    "team_morale": 42,
     "user_trust": 55,
-    "budget": 65
+    "budget": 58
   },
   "score_refs": [
     {
@@ -142,6 +143,26 @@
     {
       "id": "align_budget_with_architecture",
       "version": 1
+    },
+    {
+      "id": "propose_microservice_extraction",
+      "version": 1
+    },
+    {
+      "id": "accept_technical_debt_amnesty",
+      "version": 1
+    },
+    {
+      "id": "sunset_legacy_feature",
+      "version": 1
+    },
+    {
+      "id": "emergency_architecture_review",
+      "version": 1
+    },
+    {
+      "id": "cancel_feature_sprint_for_refactoring",
+      "version": 1
     }
   ],
   "event_refs": [
@@ -167,6 +188,26 @@
     },
     {
       "id": "customer_escalation",
+      "version": 1
+    },
+    {
+      "id": "legacy_system_wins_award",
+      "version": 1
+    },
+    {
+      "id": "team_burnout_spike",
+      "version": 1
+    },
+    {
+      "id": "vendor_partnership_offer",
+      "version": 1
+    },
+    {
+      "id": "architecture_award_nomination",
+      "version": 1
+    },
+    {
+      "id": "new_cto_mandate",
       "version": 1
     }
   ],
@@ -211,6 +252,26 @@
     },
     {
       "id": "runaway_refactorer",
+      "version": 1
+    },
+    {
+      "id": "the_diplomat",
+      "version": 1
+    },
+    {
+      "id": "budget_hawk",
+      "version": 1
+    },
+    {
+      "id": "the_pragmatist",
+      "version": 1
+    },
+    {
+      "id": "the_visionary",
+      "version": 1
+    },
+    {
+      "id": "burnout_machine",
       "version": 1
     }
   ]

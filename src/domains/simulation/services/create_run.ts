@@ -12,9 +12,10 @@
  * - Create run analytics tracking
  */
 
-import { ScenarioBundle, versionRefKey } from '@/domains/content/model'
+import { ChallengeModifier, ScenarioBundle, versionRefKey } from '@/domains/content/model'
 import { VersionedContentRef } from '@/shared/contracts'
-import { CreateInitialGameStateInput, GameState, createInitialGameState } from '../model'
+import { createSeededRandom } from '@/shared/random/seeded_random'
+import { CreateInitialGameStateInput, GameState, ScoreSnapshot, createInitialGameState } from '../model'
 
 function toVersionedContentRef(ref: { id: string; version: number }): VersionedContentRef {
   return {
@@ -31,6 +32,20 @@ function hashSeed(seed: string): number {
   return Math.abs(hash)
 }
 
+function applyScoreVariance(
+  startingScores: ScoreSnapshot,
+  variance: number,
+  seed: string
+): ScoreSnapshot {
+  const random = createSeededRandom(`${seed}__score_variance`)
+  const result: ScoreSnapshot = {}
+  for (const [scoreId, baseValue] of Object.entries(startingScores)) {
+    const offset = random.nextInt(-variance, variance)
+    result[scoreId] = Math.max(0, Math.min(100, baseValue + offset))
+  }
+  return result
+}
+
 function createDeterministicRunId(scenarioBundle: ScenarioBundle, seed: string): string {
   const scenarioKey = versionRefKey({
     id: scenarioBundle.scenario.id,
@@ -45,17 +60,56 @@ function createDeterministicTimestamp(seed: string): string {
   return new Date(secondsSinceEpoch * 1000).toISOString()
 }
 
-export function createRun(scenarioBundle: ScenarioBundle, seed: string): GameState {
+function applyScoreAdjustments(
+  scores: ScoreSnapshot,
+  adjustments: Record<string, number>
+): ScoreSnapshot {
+  const result: ScoreSnapshot = { ...scores }
+  for (const [scoreId, adjustment] of Object.entries(adjustments)) {
+    if (scoreId in result) {
+      result[scoreId] = Math.max(0, Math.min(100, result[scoreId] + adjustment))
+    }
+  }
+  return result
+}
+
+export interface CreateRunOptions {
+  challenge_modifier?: ChallengeModifier
+}
+
+export function createRun(scenarioBundle: ScenarioBundle, seed: string, options?: CreateRunOptions): GameState {
+  const variance = scenarioBundle.scenario.score_variance ?? 0
+  let startingScores = variance > 0
+    ? applyScoreVariance(scenarioBundle.scenario.starting_scores, variance, seed)
+    : { ...scenarioBundle.scenario.starting_scores }
+
+  let maxTurns = scenarioBundle.scenario.max_turns
+  let stakeholderSatisfactionOverride: number | undefined
+
+  if (options?.challenge_modifier) {
+    const mod = options.challenge_modifier
+    if (mod.score_adjustments) {
+      startingScores = applyScoreAdjustments(startingScores, mod.score_adjustments)
+    }
+    if (mod.turn_adjustment) {
+      maxTurns = Math.max(1, maxTurns + mod.turn_adjustment)
+    }
+    if (mod.stakeholder_satisfaction_override != null) {
+      stakeholderSatisfactionOverride = mod.stakeholder_satisfaction_override
+    }
+  }
+
   const input: CreateInitialGameStateInput = {
     run_id: createDeterministicRunId(scenarioBundle, seed),
     seed,
     scenario_ref: toVersionedContentRef(scenarioBundle.scenario),
-    max_turns: scenarioBundle.scenario.max_turns,
-    starting_scores: scenarioBundle.scenario.starting_scores,
+    max_turns: maxTurns,
+    starting_scores: startingScores,
     stakeholder_refs: scenarioBundle.scenario.stakeholder_refs.map(toVersionedContentRef),
     available_action_refs: scenarioBundle.scenario.card_refs.map(toVersionedContentRef),
     available_event_refs: scenarioBundle.scenario.event_refs.map(toVersionedContentRef),
-    created_at_utc: createDeterministicTimestamp(seed)
+    created_at_utc: createDeterministicTimestamp(seed),
+    stakeholder_satisfaction_override: stakeholderSatisfactionOverride
   }
 
   return createInitialGameState(input)

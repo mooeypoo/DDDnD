@@ -1,0 +1,19 @@
+{
+  "id": "ops_manager_trusts_pipeline",
+  "version": 1,
+  "name": "Ops Manager Trusts the Pipeline",
+  "description": "The operations manager gains confidence when delivery processes are predictable",
+  "condition_description": "Delivery confidence > 75",
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 2
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "operations_manager",
+      "delta": 5
+    }
+  ]
+}

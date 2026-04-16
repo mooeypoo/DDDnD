@@ -1,0 +1,19 @@
+{
+  "id": "lead_dev_trusts_the_process",
+  "version": 1,
+  "name": "Lead Developer Trusts the Process",
+  "description": "The lead developer rallies the team when morale is strong and the direction feels right",
+  "condition_description": "Team morale > 80",
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 2
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "lead_developer",
+      "delta": 5
+    }
+  ]
+}

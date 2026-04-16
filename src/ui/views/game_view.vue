@@ -38,6 +38,21 @@
       @startRealGame="handleStartRealGame"
     />
 
+    <SurfaceModalPanel
+      :is-open="isScenarioInfoOpen"
+      :title="scenario?.name ?? 'Scenario'"
+      size="md"
+      @close="isScenarioInfoOpen = false"
+    >
+      <div class="scenario-info-body">
+        <p v-if="scenario?.description" class="scenario-info-desc">{{ scenario.description }}</p>
+        <p v-if="scenario?.flavor_text" class="scenario-info-flavor">"{{ scenario.flavor_text }}"</p>
+      </div>
+      <template #footer>
+        <AppButton variant="primary" @click="isScenarioInfoOpen = false">Got it!</AppButton>
+      </template>
+    </SurfaceModalPanel>
+
     <GameMasthead
       @show-rules="gameStore.openRulesModal"
       @show-about="gameStore.openAboutModal"
@@ -54,6 +69,17 @@
       <header class="play-header">
         <div class="header-row">
           <p class="turn-pill">Turn {{ gameStore.currentTurn }} / {{ gameStore.maxTurns }}</p>
+
+          <button
+            v-if="scenario?.name"
+            class="scenario-pill"
+            @click="isScenarioInfoOpen = true"
+            :title="'View scenario info: ' + scenario.name"
+          >
+            <span class="scenario-pill-icon">📜</span>
+            <span class="scenario-pill-name">{{ scenario.name }}</span>
+            <span class="scenario-pill-info">ⓘ</span>
+          </button>
 
           <!-- Action / aftershock indicators — always visible -->
           <div class="header-indicators" v-if="gameStore.turnBriefing && !gameStore.isRunComplete">
@@ -374,6 +400,7 @@ import ScoreHud from '@/ui/components/scores/score_hud.vue'
 import SceneStage from '@/ui/components/gameplay/scene_stage.vue'
 import SatchelToggleButton from '@/ui/components/cards/satchel_toggle_button.vue'
 import GameHudSidebar from '@/ui/components/common/game_hud_sidebar.vue'
+import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
 import IconSpell from '@/ui/components/icons/IconSpell.vue'
 import {
@@ -391,6 +418,7 @@ const modalCardId = ref<string | null>(null)
 const isSatchelOpen = ref(false)
 const resolutionPopupOpen = ref(false)
 const isResolutionExpanded = ref(false)
+const isScenarioInfoOpen = ref(false)
 const activeEffectsPopupOpen = ref(false)
 const randomSceneId = ref<SceneBackgroundId>(pickRandomSceneId())
 const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
@@ -687,6 +715,72 @@ function goToEndScreen() {
   border-radius: 999px;
   padding: 0.25rem 0.55rem;
   background: rgba(255, 255, 255, 0.04);
+}
+
+.scenario-pill {
+  all: unset;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid color-mix(in oklab, var(--dng-bronze-mid, #a07018), transparent 50%);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  background: rgba(160, 112, 24, 0.08);
+  color: var(--text-warm, #c4a96a);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.scenario-pill:hover {
+  background: rgba(160, 112, 24, 0.18);
+  border-color: color-mix(in oklab, var(--dng-bronze-mid, #a07018), transparent 25%);
+}
+
+.scenario-pill:focus-visible {
+  outline: 2px solid var(--border-focus, rgba(38, 212, 185, 0.70));
+  outline-offset: 2px;
+}
+
+.scenario-pill-icon {
+  font-size: 0.85em;
+}
+
+.scenario-pill-name {
+  max-width: 18ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scenario-pill-info {
+  font-size: 0.8em;
+  opacity: 0.6;
+}
+
+.scenario-info-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.scenario-info-desc {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.scenario-info-flavor {
+  margin: 0;
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: var(--text-sm);
+  border-left: 2px solid var(--border-subtle);
+  padding-left: 0.8rem;
 }
 
 .header-indicators {

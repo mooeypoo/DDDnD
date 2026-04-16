@@ -1,0 +1,34 @@
+{
+  "id": "sunset_legacy_feature",
+  "version": 1,
+  "name": "Sunset Legacy Feature",
+  "description": "Remove a beloved but unmaintainable feature that's dragging down the system",
+  "flavor_text": "Nobody uses it. Except the three people who will be very, very loud about it.",
+  "usage_limit": 2,
+  "cooldown_turns": 3,
+  "style_tags": ["architecture", "unpopular", "long-term"],
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 7
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": 3
+    },
+    {
+      "score_id": "user_trust",
+      "delta": -5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -2
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "refactoring_payoff",
+      "version": 1
+    }
+  ]
+}

@@ -15,19 +15,7 @@ import {
   OutcomeTier,
   OutcomeArchetype
 } from '@/domains/content/model'
-
-interface ContentProvider {
-  loadScenario(ref: VersionRef): Promise<Scenario>
-  loadScore(ref: VersionRef): Promise<Score>
-  loadStakeholder(ref: VersionRef): Promise<Stakeholder>
-  loadStakeholderReactionRule(ref: VersionRef): Promise<StakeholderReactionRule>
-  loadCard(ref: VersionRef): Promise<Card>
-  loadEvent(ref: VersionRef): Promise<Event>
-  loadDelayedEffect(ref: VersionRef): Promise<DelayedEffect>
-  loadOutcomeTier(ref: VersionRef): Promise<OutcomeTier>
-  loadOutcomeArchetype(ref: VersionRef): Promise<OutcomeArchetype>
-  loadPlayerClass(): Promise<never>
-}
+import { ContentProvider } from '@/domains/content/services/content_provider'
 
 /**
  * Diagnostic tests for stakeholder state behavior
@@ -67,6 +55,9 @@ function createFileContentProvider(contentRoot: string): ContentProvider {
     loadOutcomeArchetype: (ref: VersionRef) => loadJson<OutcomeArchetype>('outcome-archetypes', ref),
     loadPlayerClass: async () => {
       throw new Error('Player class loading is not required for scenario bundle construction')
+    },
+    loadChallengeModifier: async () => {
+      throw new Error('Challenge modifier loading is not required for scenario bundle construction')
     }
   }
 }

@@ -1,0 +1,17 @@
+{
+  "id": "compliance_clarity_spreads",
+  "version": 1,
+  "name": "Compliance Clarity Spreads",
+  "description": "A clean audit finding gives the team confidence to document more boundaries",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 5
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 3
+    }
+  ]
+}

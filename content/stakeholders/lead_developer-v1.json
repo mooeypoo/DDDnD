@@ -15,6 +15,14 @@
     {
       "id": "lead_developer_threatens_resignation",
       "version": 1
+    },
+    {
+      "id": "lead_dev_trusts_the_process",
+      "version": 1
+    },
+    {
+      "id": "lead_dev_appreciates_team_investment",
+      "version": 1
     }
   ]
 }

@@ -44,6 +44,7 @@ vi.mock('@/domains/content/services/manifest_loader', () => {
       { id: 'boundary_mage', version: 1 },
       { id: 'stakeholder_bard', version: 1 },
     ],
+    challenge_modifiers: [],
     tutorials: [],
     content: {
       scenarios: [
@@ -61,6 +62,7 @@ vi.mock('@/domains/content/services/manifest_loader', () => {
       outcome_tiers: [],
       outcome_archetypes: [],
       classes: ['boundary_mage-v1.json', 'stakeholder_bard-v1.json'],
+      challenge_modifiers: [],
     },
   }
 
@@ -75,6 +77,7 @@ vi.mock('@/domains/content/services/manifest_loader', () => {
     authors: [{ name: 'Test Author' }],
     scenarios: [],
     classes: [],
+    challenge_modifiers: [],
     tutorials: [
       { id: 'tutorial_basics', version: 1 },
       { id: 'tutorial_systems_under_pressure', version: 1 },
@@ -90,6 +93,7 @@ vi.mock('@/domains/content/services/manifest_loader', () => {
       outcome_tiers: [],
       outcome_archetypes: [],
       classes: [],
+      challenge_modifiers: [],
     },
   }
 

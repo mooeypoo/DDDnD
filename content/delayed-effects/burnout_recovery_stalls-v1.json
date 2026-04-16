@@ -1,0 +1,17 @@
+{
+  "id": "burnout_recovery_stalls",
+  "version": 1,
+  "name": "Burnout Recovery Stalls",
+  "description": "Exhausted team members struggle to regain productivity",
+  "turns_until_resolution": 3,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -6
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -4
+    }
+  ]
+}

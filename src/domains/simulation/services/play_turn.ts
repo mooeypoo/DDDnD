@@ -116,7 +116,16 @@ export function playTurn(
     stakeholders: nextStakeholders
   })
 
-  nextScores = applyScoreChanges(nextScores, actionResult.score_changes, scenarioBundle)
+  // Class affinity bonus: +1 to the class's affinity score during action phase
+  const classAffinityBonus: ScoreChangeRecord[] = []
+  if (gameState.player_profile.class_score_affinity) {
+    classAffinityBonus.push({
+      score_id: gameState.player_profile.class_score_affinity,
+      delta: 1
+    })
+  }
+
+  nextScores = applyScoreChanges(nextScores, [...actionResult.score_changes, ...classAffinityBonus], scenarioBundle)
   nextStakeholders = applyStakeholderChanges(nextStakeholders, actionResult.stakeholder_changes)
 
   const eventResult = resolveEvent(gameState, scenarioBundle, random, {
@@ -138,6 +147,7 @@ export function playTurn(
   const allScoreChanges = [
     ...aftershocksResult.score_changes,
     ...actionResult.score_changes,
+    ...classAffinityBonus,
     ...eventResult.score_changes,
     ...stakeholderResult.score_changes
   ]

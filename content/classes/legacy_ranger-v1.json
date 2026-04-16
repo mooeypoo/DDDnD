@@ -3,5 +3,6 @@
   "version": 1,
   "name": "Legacy Ranger",
   "description": "Expert navigator of ancient codebases and forgotten dependencies",
-  "flavor_text": "You know where the bodies are buried in the old code"
+  "flavor_text": "You know where the bodies are buried in the old code",
+  "score_affinity": "maintainability"
 }

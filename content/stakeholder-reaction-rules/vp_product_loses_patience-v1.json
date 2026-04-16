@@ -1,0 +1,24 @@
+{
+  "id": "vp_product_loses_patience",
+  "version": 1,
+  "name": "VP Product Loses Patience",
+  "description": "The VP Product escalates to the CEO when both delivery and user trust are critically low",
+  "condition_description": "Delivery confidence < 25",
+  "priority": 50,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "vp_product",
+      "delta": -8
+    }
+  ]
+}

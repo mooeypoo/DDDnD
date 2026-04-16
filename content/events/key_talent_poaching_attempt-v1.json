@@ -1,0 +1,23 @@
+{
+  "id": "key_talent_poaching_attempt",
+  "version": 1,
+  "name": "Key Talent Poaching Attempt",
+  "description": "A competitor tries to recruit your best engineers with aggressive offers",
+  "flavor_text": "That recruiter DM wasn't very subtle",
+  "occurrence_weight": 4,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -5
+    },
+    {
+      "score_id": "budget",
+      "delta": -4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": []
+}

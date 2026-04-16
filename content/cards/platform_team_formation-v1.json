@@ -1,0 +1,29 @@
+{
+  "id": "platform_team_formation",
+  "version": 1,
+  "name": "Form Platform Team",
+  "description": "Create a dedicated platform team to build shared infrastructure, expensive now but pays off later",
+  "flavor_text": "Another team? In this economy?",
+  "usage_limit": 1,
+  "style_tags": ["strategic", "long-term", "architecture"],
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 2
+    },
+    {
+      "score_id": "budget",
+      "delta": -6
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -2
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "platform_maturity",
+      "version": 1
+    }
+  ]
+}

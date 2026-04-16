@@ -1,0 +1,24 @@
+{
+  "id": "cto_questions_investment",
+  "version": 1,
+  "name": "CTO Questions Investment",
+  "description": "The CTO questions whether architecture investments are paying off when budget is tight and clarity hasn't improved",
+  "condition_description": "Budget < 30",
+  "priority": 40,
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": -3
+    },
+    {
+      "score_id": "domain_clarity",
+      "delta": -2
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "cto",
+      "delta": -6
+    }
+  ]
+}

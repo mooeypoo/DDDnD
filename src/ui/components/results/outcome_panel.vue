@@ -46,7 +46,12 @@ const archetypeIcon = computed(() => {
     firefighter:          '🧯',
     runaway_refactorer:   '♻️',
     stakeholder_whisperer: '🗣️',
-    system_stabilizer:    '⚖️'
+    system_stabilizer:    '⚖️',
+    the_diplomat:         '🤝',
+    budget_hawk:          '🦅',
+    the_pragmatist:       '🔧',
+    the_visionary:        '🔭',
+    burnout_machine:      '🔥'
   }
   return icons[props.archetype]
 })

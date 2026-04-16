@@ -1,0 +1,17 @@
+{
+  "id": "partnership_integration_costs",
+  "version": 1,
+  "name": "Partnership Integration Costs",
+  "description": "Integrating with a vendor partner requires ongoing engineering effort",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": -5
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ]
+}

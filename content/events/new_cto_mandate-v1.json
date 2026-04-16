@@ -1,0 +1,27 @@
+{
+  "id": "new_cto_mandate",
+  "version": 1,
+  "name": "New CTO Mandate",
+  "description": "A new executive directive reshuffles priorities and demands visible architectural progress",
+  "flavor_text": "The new CTO has 'strong opinions, loosely held'. Very loosely.",
+  "occurrence_weight": 3,
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": -4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": 5
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": []
+}

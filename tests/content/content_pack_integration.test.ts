@@ -14,6 +14,7 @@ import type {
   StakeholderReactionRule,
   VersionRef,
   PlayerClass,
+  ChallengeModifier,
 } from '@/domains/content/model'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { buildScenarioBundle } from '@/domains/content/services/bundle_builder'
@@ -58,6 +59,7 @@ function createFileContentProvider(contentRoot: string): ContentProvider {
     loadOutcomeTier: (ref: VersionRef) => loadJson<OutcomeTier>(contentRoot, 'outcome-tiers', ref),
     loadOutcomeArchetype: (ref: VersionRef) => loadJson<OutcomeArchetype>(contentRoot, 'outcome-archetypes', ref),
     loadPlayerClass: (ref: VersionRef) => loadJson<PlayerClass>(contentRoot, 'classes', ref),
+    loadChallengeModifier: (ref: VersionRef) => loadJson<ChallengeModifier>(contentRoot, 'challenge-modifiers', ref),
   }
 }
 

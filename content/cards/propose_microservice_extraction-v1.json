@@ -1,0 +1,34 @@
+{
+  "id": "propose_microservice_extraction",
+  "version": 1,
+  "name": "Propose Microservice Extraction",
+  "description": "Split a core module into its own service to improve domain clarity, at the cost of immediate delivery disruption",
+  "flavor_text": "One monolith becomes two problems. But better problems.",
+  "usage_limit": 2,
+  "cooldown_turns": 3,
+  "style_tags": ["architecture", "boundary", "risky"],
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -5
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "integration_complexity_emerges",
+      "version": 1
+    }
+  ]
+}

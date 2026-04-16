@@ -1,0 +1,28 @@
+{
+  "id": "duplicate_system_discovery",
+  "version": 1,
+  "name": "Duplicate System Discovery",
+  "description": "Teams realize both companies built the same subsystem with incompatible designs",
+  "flavor_text": "Wait, you have an order service too? And it's... different?",
+  "occurrence_weight": 5,
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": -5
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "duplicate_system_costs",
+      "version": 1
+    }
+  ]
+}

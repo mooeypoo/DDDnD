@@ -3,5 +3,6 @@
   "version": 1,
   "name": "Reliability Cleric",
   "description": "Guardian of system stability and operational excellence",
-  "flavor_text": "You heal production incidents before they become disasters"
+  "flavor_text": "You heal production incidents before they become disasters",
+  "score_affinity": "user_trust"
 }

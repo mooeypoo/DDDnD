@@ -3,5 +3,6 @@
   "version": 1,
   "name": "Stakeholder Bard",
   "description": "Diplomat who speaks the language of business and engineering",
-  "flavor_text": "You translate between business needs and technical reality"
+  "flavor_text": "You translate between business needs and technical reality",
+  "score_affinity": "team_morale"
 }

@@ -15,6 +15,10 @@
     {
       "id": "ops_manager_demands_incident_review",
       "version": 1
+    },
+    {
+      "id": "ops_manager_trusts_pipeline",
+      "version": 1
     }
   ]
 }

@@ -20,7 +20,7 @@ import {
   parseConditionDescription
 } from '@/domains/simulation/rules/condition_evaluator'
 import { simulate_runs } from '@/domains/simulation/services/simulation_runner'
-import { PlayerClass } from '@/domains/content/model/content_types'
+import { PlayerClass, ChallengeModifier } from '@/domains/content/model/content_types'
 
 function createFileContentProvider(contentRoot: string): ContentProvider {
   async function loadJson<T extends { id: string; version: number }>(
@@ -52,7 +52,8 @@ function createFileContentProvider(contentRoot: string): ContentProvider {
     loadDelayedEffect: (ref) => loadJson<DelayedEffect>('delayed-effects', ref),
     loadOutcomeTier: (ref) => loadJson<OutcomeTier>('outcome-tiers', ref),
     loadOutcomeArchetype: (ref) => loadJson<OutcomeArchetype>('outcome-archetypes', ref),
-    loadPlayerClass: (ref) => loadJson<PlayerClass>('classes', ref)
+    loadPlayerClass: (ref) => loadJson<PlayerClass>('classes', ref),
+    loadChallengeModifier: (ref) => loadJson<ChallengeModifier>('challenge-modifiers', ref)
   }
 }
 

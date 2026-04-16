@@ -1,0 +1,24 @@
+{
+  "id": "legacy_system_wins_award",
+  "version": 1,
+  "name": "Legacy System Wins Reliability Award",
+  "description": "Despite its age, the legacy system's uptime record earns industry recognition",
+  "flavor_text": "Twenty years of uptime, held together by duct tape and prayer",
+  "occurrence_weight": 3,
+  "trigger_condition_description": "User trust > 60",
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 7
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 5
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -2
+    }
+  ],
+  "delayed_effect_refs": []
+}

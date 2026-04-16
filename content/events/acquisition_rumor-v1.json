@@ -1,0 +1,23 @@
+{
+  "id": "acquisition_rumor",
+  "version": 1,
+  "name": "Acquisition Rumor",
+  "description": "Rumors of a potential acquisition create excitement about budget but anxiety about job security",
+  "flavor_text": "The Slack rumor mill is producing at peak capacity",
+  "occurrence_weight": 3,
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": 5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": []
+}

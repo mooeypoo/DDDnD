@@ -1,0 +1,33 @@
+{
+  "id": "propose_unified_domain_model",
+  "version": 1,
+  "name": "Propose Unified Domain Model",
+  "description": "Design a shared domain model that reconciles both companies' conceptual frameworks",
+  "flavor_text": "Their 'Customer' and our 'Client' are the same thing. Mostly.",
+  "usage_limit": 1,
+  "style_tags": ["architecture", "boundary", "strategic"],
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 8
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -5
+    },
+    {
+      "score_id": "budget",
+      "delta": -4
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "unified_model_clarity",
+      "version": 1
+    }
+  ]
+}

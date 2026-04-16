@@ -1,0 +1,15 @@
+{
+  "id": "hard_mode",
+  "version": 1,
+  "name": "Hard Mode",
+  "description": "All scores start significantly lower. Every decision matters more",
+  "flavor_text": "The board already lost confidence before you walked in",
+  "score_adjustments": {
+    "domain_clarity": -7,
+    "maintainability": -7,
+    "delivery_confidence": -7,
+    "team_morale": -7,
+    "user_trust": -7,
+    "budget": -7
+  }
+}

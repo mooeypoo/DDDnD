@@ -1,0 +1,21 @@
+{
+  "id": "platform_maturity",
+  "version": 1,
+  "name": "Platform Maturity",
+  "description": "The platform team's shared infrastructure starts paying dividends",
+  "turns_until_resolution": 3,
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 3
+    }
+  ]
+}

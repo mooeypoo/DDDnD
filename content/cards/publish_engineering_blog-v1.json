@@ -1,0 +1,25 @@
+{
+  "id": "publish_engineering_blog",
+  "version": 1,
+  "name": "Publish Engineering Blog Post",
+  "description": "Share your team's technical story publicly, boosting morale and external reputation",
+  "flavor_text": "Our thought leadership pipeline is deploying to production",
+  "usage_limit": 2,
+  "cooldown_turns": 3,
+  "style_tags": ["morale", "strategic", "external"],
+  "score_changes": [
+    {
+      "score_id": "team_morale",
+      "delta": 4
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -2
+    }
+  ],
+  "delayed_effect_refs": []
+}

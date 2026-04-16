@@ -13,6 +13,8 @@ export interface RunMeta {
 export interface PlayerProfile {
   selected_class_ref?: VersionedContentRef
   display_name?: string
+  class_score_affinity?: string
+  challenge_modifier_ref?: VersionedContentRef
 }
 
 export interface ProgressState {
@@ -98,13 +100,15 @@ export interface CreateInitialGameStateInput {
   available_event_refs: VersionedContentRef[]
   selected_class_ref?: VersionedContentRef
   created_at_utc?: string
+  stakeholder_satisfaction_override?: number
 }
 
 export function createInitialGameState(input: CreateInitialGameStateInput): GameState {
   const stakeholders: StakeholderSnapshot = {}
+  const baseSatisfaction = input.stakeholder_satisfaction_override ?? 50
   for (const stakeholder_ref of input.stakeholder_refs) {
     stakeholders[stakeholder_ref.id] = {
-      satisfaction: 50
+      satisfaction: baseSatisfaction
     }
   }
 

@@ -1,0 +1,38 @@
+{
+  "id": "sunset_duplicate_system",
+  "version": 1,
+  "name": "Sunset Duplicate System",
+  "description": "Decommission one of the redundant systems and migrate users to the surviving one",
+  "flavor_text": "One must go. Choosing which one is the hard part.",
+  "usage_limit": 2,
+  "cooldown_turns": 3,
+  "style_tags": ["architecture", "long-term", "unpopular"],
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 6
+    },
+    {
+      "score_id": "budget",
+      "delta": 5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -4
+    },
+    {
+      "score_id": "user_trust",
+      "delta": -3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "refactoring_payoff",
+      "version": 1
+    }
+  ]
+}

@@ -15,6 +15,10 @@
     {
       "id": "cfo_alarmed_by_overspending",
       "version": 1
+    },
+    {
+      "id": "cfo_appreciates_cost_efficiency",
+      "version": 1
     }
   ]
 }

@@ -1,0 +1,17 @@
+{
+  "id": "duplicate_system_costs",
+  "version": 1,
+  "name": "Duplicate System Costs",
+  "description": "Running two versions of the same system doubles operational overhead",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": -6
+    },
+    {
+      "score_id": "maintainability",
+      "delta": -3
+    }
+  ]
+}

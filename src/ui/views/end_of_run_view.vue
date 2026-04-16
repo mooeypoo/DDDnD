@@ -295,7 +295,12 @@ function getArchetypeIcon(archetype: OutcomeArchetypeId): string {
     'firefighter': '🧯',
     'runaway_refactorer': '♻️',
     'stakeholder_whisperer': '🗣️',
-    'system_stabilizer': '⚖️'
+    'system_stabilizer': '⚖️',
+    'the_diplomat': '🤝',
+    'budget_hawk': '🦅',
+    'the_pragmatist': '🔧',
+    'the_visionary': '🔭',
+    'burnout_machine': '🔥'
   }
   return icons[archetype] || '🎯'
 }
@@ -306,7 +311,12 @@ function getArchetypeDescription(archetype: OutcomeArchetypeId): string {
     'firefighter': 'You responded swiftly to immediate crises and kept the system running under pressure, saving the day when it mattered most.',
     'runaway_refactorer': 'You pursued aggressive refactoring and technical excellence, sometimes at the cost of delivery speed.',
     'stakeholder_whisperer': 'You skillfully navigated organizational politics and stakeholder relationships, building consensus for change.',
-    'system_stabilizer': 'You brought balance and stability to a chaotic system, carefully managing competing priorities.'
+    'system_stabilizer': 'You brought balance and stability to a chaotic system, carefully managing competing priorities.',
+    'the_diplomat': 'You kept every stakeholder at the table, even when the system was on fire.',
+    'budget_hawk': 'You proved that good architecture doesn\'t have to break the bank.',
+    'the_pragmatist': 'You balanced short-term fixes with long-term investments, never going to extremes.',
+    'the_visionary': 'You saw the big picture and reshaped the domain, even when others couldn\'t see why it mattered.',
+    'burnout_machine': 'You shipped everything on time, but at what cost? The team is exhausted.'
   }
   return descriptions[archetype] || 'Your architectural journey was unique and shaped by the choices you made.'
 }

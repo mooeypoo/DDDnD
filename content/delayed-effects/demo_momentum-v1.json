@@ -1,0 +1,17 @@
+{
+  "id": "demo_momentum",
+  "version": 1,
+  "name": "Demo Momentum",
+  "description": "A successful demo energizes the team and builds stakeholder confidence",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": 5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 4
+    }
+  ]
+}
