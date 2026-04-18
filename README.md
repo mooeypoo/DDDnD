@@ -3,6 +3,7 @@
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/mooeypoo)
 [![CI](https://github.com/mooeypoo/DDDnD/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mooeypoo/DDDnD/actions/workflows/ci.yml)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/a40f2bc1-e69f-4833-b140-10ce0858b6fd/deploy-status)](https://app.netlify.com/sites/dddnd/deploys)
+![Copilot Assisted](https://img.shields.io/badge/copilot-assisted-blue?logo=github)
 
 **Play now:** [dddnd.app](https://dddnd.app)
 
