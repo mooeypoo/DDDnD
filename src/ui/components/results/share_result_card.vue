@@ -79,6 +79,36 @@
       </div>
     </div>
 
+    <!-- Stakeholder States -->
+    <div v-if="stakeholderEntries.length > 0" class="stakeholders-section">
+      <div class="stakeholders-heading">Stakeholder States</div>
+      <div class="stakeholders-list">
+        <div
+          v-for="stakeholder in stakeholderEntries"
+          :key="stakeholder.id"
+          class="stakeholder-row"
+        >
+          <div class="stakeholder-main">
+            <img
+              class="stakeholder-avatar"
+              :src="getStakeholderAvatarUrl(stakeholder)"
+              :alt="`${stakeholder.displayName} avatar`"
+            />
+            <div class="stakeholder-info">
+              <span class="stakeholder-name">{{ stakeholder.displayName }}</span>
+              <span class="stakeholder-label" :class="stakeholder.stateClass">
+                {{ stakeholder.stateLabel }}
+              </span>
+            </div>
+          </div>
+
+          <span class="stakeholder-value" :class="stakeholder.stateClass">
+            {{ stakeholder.satisfaction }}
+          </span>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer: site domain (only shown when VITE_SITE_URL is configured at build time) -->
     <div v-if="siteDomain" class="card-footer">
       <span class="footer-text">{{ siteDomain }}</span>
@@ -91,6 +121,12 @@ import { computed, ref } from 'vue'
 import type { SharePayload } from '@/domains/reporting/services/share_payload'
 import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
+import { requestAvatarRoleImage } from '@/ui/composables/presentation_asset_lookup'
+import {
+  resolveStakeholderAvatarRole,
+  resolveStakeholderMood,
+} from '@/ui/composables/gameplay_stage_presentation'
+import { formatStakeholderName } from '@/ui/composables/stakeholder_presentation'
 
 const props = defineProps<{
   payload: SharePayload
@@ -204,6 +240,53 @@ function scoreClass(value: number): string {
   if (value >= 40) return 'medium'
   if (value >= 20) return 'low'
   return 'critical'
+}
+
+interface StakeholderEntry {
+  id: string
+  displayName: string
+  satisfaction: number
+  stateClass: 'supportive' | 'neutral' | 'concerned' | 'critical'
+  stateLabel: 'Supportive' | 'Neutral' | 'Concerned' | 'Critical'
+}
+
+const stakeholderEntries = computed<StakeholderEntry[]>(() => {
+  if (!props.payload.stakeholders) {
+    return []
+  }
+
+  return Object.entries(props.payload.stakeholders).map(([stakeholderId, satisfaction]) => {
+    const roundedSatisfaction = Math.round(satisfaction)
+
+    return {
+      id: stakeholderId,
+      displayName: formatStakeholderName(stakeholderId),
+      satisfaction: roundedSatisfaction,
+      stateClass: stakeholderStateClass(roundedSatisfaction),
+      stateLabel: stakeholderStateLabel(roundedSatisfaction),
+    }
+  })
+})
+
+function stakeholderStateLabel(value: number): StakeholderEntry['stateLabel'] {
+  if (value >= 70) return 'Supportive'
+  if (value >= 50) return 'Neutral'
+  if (value >= 30) return 'Concerned'
+  return 'Critical'
+}
+
+function stakeholderStateClass(value: number): StakeholderEntry['stateClass'] {
+  if (value >= 70) return 'supportive'
+  if (value >= 50) return 'neutral'
+  if (value >= 30) return 'concerned'
+  return 'critical'
+}
+
+function getStakeholderAvatarUrl(stakeholder: StakeholderEntry): string {
+  return requestAvatarRoleImage({
+    avatarRole: resolveStakeholderAvatarRole(stakeholder.id),
+    mood: resolveStakeholderMood(stakeholder.satisfaction),
+  })
 }
 </script>
 
@@ -407,6 +490,99 @@ function scoreClass(value: number): string {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm, 8px);
+}
+
+.stakeholders-section {
+  padding: 0 var(--space-xl, 20px) var(--space-lg, 16px);
+}
+
+.stakeholders-heading {
+  font-size: var(--text-xs, 0.75rem);
+  color: var(--text-muted, #4d5b72);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin: 0 0 var(--space-sm, 8px);
+}
+
+.stakeholders-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm, 8px);
+}
+
+.stakeholder-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm, 8px);
+  padding: var(--space-sm, 8px) var(--space-md, 12px);
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.06));
+  border-radius: var(--radius-md, 8px);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.stakeholder-main {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: var(--space-sm, 8px);
+}
+
+.stakeholder-avatar {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  background: rgba(10, 14, 22, 0.4);
+}
+
+.stakeholder-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stakeholder-name {
+  font-size: var(--text-sm, 0.875rem);
+  color: var(--text-secondary, #7a8aa4);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stakeholder-label {
+  font-size: var(--text-xs, 0.75rem);
+  font-weight: 600;
+}
+
+.stakeholder-value {
+  font-size: var(--text-sm, 0.875rem);
+  font-weight: 700;
+  min-width: 26px;
+  text-align: right;
+}
+
+.stakeholder-label.supportive,
+.stakeholder-value.supportive {
+  color: var(--effect-positive, #34d399);
+}
+
+.stakeholder-label.neutral,
+.stakeholder-value.neutral {
+  color: var(--metric-delivery-confidence, #60a5fa);
+}
+
+.stakeholder-label.concerned,
+.stakeholder-value.concerned {
+  color: var(--metric-developer-morale, #fbbf24);
+}
+
+.stakeholder-label.critical,
+.stakeholder-value.critical {
+  color: var(--effect-negative, #f87171);
 }
 
 .score-row {

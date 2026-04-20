@@ -118,7 +118,7 @@
       <div v-if="gameStore.gameState" class="stakeholders-card">
         <h3 class="card-title">
           <span class="title-icon"><IconGroup :size="24" /></span>
-          Stakeholder Relations
+          Final Stakeholder States
         </h3>
         
         <div class="stakeholders-list">
@@ -127,11 +127,18 @@
             :key="stakeholderId"
             class="stakeholder-row"
           >
-            <div class="stakeholder-info">
-              <span class="stakeholder-name">{{ formatStakeholderName(stakeholderId) }}</span>
-              <span class="stakeholder-label" :class="getSatisfactionClass(data.satisfaction)">
-                {{ getSatisfactionLabel(data.satisfaction) }}
-              </span>
+            <div class="stakeholder-main">
+              <img
+                class="stakeholder-avatar"
+                :src="getStakeholderAvatarUrl(stakeholderId, data.satisfaction)"
+                :alt="`${formatStakeholderName(stakeholderId)} avatar`"
+              />
+              <div class="stakeholder-info">
+                <span class="stakeholder-name">{{ formatStakeholderName(stakeholderId) }}</span>
+                <span class="stakeholder-label" :class="getSatisfactionClass(data.satisfaction)">
+                  {{ getSatisfactionLabel(data.satisfaction) }}
+                </span>
+              </div>
             </div>
             <div class="stakeholder-value" :class="getSatisfactionClass(data.satisfaction)">
               {{ Math.round(data.satisfaction) }}
@@ -207,6 +214,11 @@ import IconGroup from '@/ui/components/icons/IconGroup.vue'
 import IconMegaphone from '@/ui/components/icons/IconMegaphone.vue'
 import { ENDING_VISUAL_ASSETS, type EndingVisualId } from '@/ui/config/presentation_asset_registry'
 import { getClassAccentColor } from '@/ui/composables/class_artwork'
+import { requestAvatarRoleImage } from '@/ui/composables/presentation_asset_lookup'
+import {
+  resolveStakeholderAvatarRole,
+  resolveStakeholderMood
+} from '@/ui/composables/gameplay_stage_presentation'
 import {
   buildStakeholderNamesMap,
   formatStakeholderName as resolveStakeholderName
@@ -404,6 +416,13 @@ function getSatisfactionClass(value: number): string {
   if (value >= 50) return 'neutral'
   if (value >= 30) return 'concerned'
   return 'critical'
+}
+
+function getStakeholderAvatarUrl(stakeholderId: string, satisfaction: number): string {
+  return requestAvatarRoleImage({
+    avatarRole: resolveStakeholderAvatarRole(stakeholderId),
+    mood: resolveStakeholderMood(satisfaction)
+  })
 }
 
 function goHome() {
@@ -973,10 +992,28 @@ function inlineComputedStyles(source: Element, target: Element) {
   border: 1px solid var(--dng-divider);
 }
 
+.stakeholder-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  min-width: 0;
+}
+
+.stakeholder-avatar {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 1px solid var(--dng-divider);
+  background: rgba(13, 9, 4, 0.6);
+  flex-shrink: 0;
+}
+
 .stakeholder-info {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
+  min-width: 0;
 }
 
 .stakeholder-name {

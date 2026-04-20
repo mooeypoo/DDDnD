@@ -31,6 +31,11 @@ export function buildSharePayload(input: BuildSharePayloadInput): SharePayload {
     roundedScores[scoreId] = Math.round(value)
   }
 
+  const roundedStakeholders: Record<string, number> = {}
+  for (const [stakeholderId, state] of Object.entries(game_state.stakeholders)) {
+    roundedStakeholders[stakeholderId] = Math.round(state.satisfaction)
+  }
+
   return {
     v: SHARE_PAYLOAD_VERSION,
     sid: run_outcome.scenario_id,
@@ -44,6 +49,7 @@ export function buildSharePayload(input: BuildSharePayloadInput): SharePayload {
     mt: run_outcome.max_turns,
     avg: Math.round(run_outcome.score_average),
     scores: roundedScores,
+    stakeholders: roundedStakeholders,
     cr: run_outcome.completion_reason
   }
 }

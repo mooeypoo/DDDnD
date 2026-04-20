@@ -64,6 +64,13 @@ export interface SharePayload {
   /** Final scores — compact record of score_id → rounded value */
   scores: Record<string, number>
 
+  /**
+   * Final stakeholder satisfaction values (rounded).
+   *
+   * Optional for backward compatibility with older links.
+   */
+  stakeholders?: Record<string, number>
+
   /** Completion reason — "max_turns_reached" | "failure_condition_met" */
   cr: string
 }

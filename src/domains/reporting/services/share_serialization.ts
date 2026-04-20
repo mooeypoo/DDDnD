@@ -132,6 +132,19 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     }
   }
 
+  // Optional stakeholders: record of string -> number
+  if (obj.stakeholders !== undefined) {
+    if (typeof obj.stakeholders !== 'object' || obj.stakeholders === null || Array.isArray(obj.stakeholders)) {
+      return { ok: false, error: 'Invalid stakeholders object' }
+    }
+
+    for (const [key, val] of Object.entries(obj.stakeholders as Record<string, unknown>)) {
+      if (typeof key !== 'string' || typeof val !== 'number' || !isFinite(val)) {
+        return { ok: false, error: `Invalid stakeholder entry: ${key}` }
+      }
+    }
+  }
+
   const payload: SharePayload = {
     v: obj.v as number,
     sid: obj.sid as string,
@@ -145,6 +158,7 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     mt: obj.mt as number,
     avg: obj.avg as number,
     scores: obj.scores as Record<string, number>,
+    stakeholders: obj.stakeholders as Record<string, number> | undefined,
     cr: obj.cr as string
   }
 

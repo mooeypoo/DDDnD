@@ -119,6 +119,12 @@ function createSamplePayload(overrides: Partial<SharePayload> = {}): SharePayloa
       user_trust: 45,
       budget: 39
     },
+    stakeholders: {
+      cto: 65,
+      vp_product: 50,
+      lead_developer: 72,
+      operations_manager: 45
+    },
     cr: 'max_turns_reached',
     ...overrides
   }
@@ -156,6 +162,27 @@ describe('buildSharePayload', () => {
     expect(payload.scores.domain_clarity).toBe(63) // rounded from 62.5
     expect(payload.scores.maintainability).toBe(55) // rounded from 55.3
     expect(payload.scores.budget).toBe(39) // rounded from 38.7
+  })
+
+  it('includes rounded stakeholder satisfactions', () => {
+    const gameState = createMockGameState({
+      stakeholders: {
+        cto: { satisfaction: 65.4 },
+        vp_product: { satisfaction: 49.5 },
+        lead_developer: { satisfaction: 71.6 },
+        operations_manager: { satisfaction: 44.2 }
+      }
+    })
+    const runOutcome = createMockRunOutcome()
+
+    const payload = buildSharePayload({ run_outcome: runOutcome, game_state: gameState })
+
+    expect(payload.stakeholders).toEqual({
+      cto: 65,
+      vp_product: 50,
+      lead_developer: 72,
+      operations_manager: 44
+    })
   })
 
   it('omits name when display_name is not set', () => {
@@ -229,6 +256,18 @@ describe('encodeSharePayload / decodeSharePayload', () => {
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.payload.tid).toBeNull()
+    }
+  })
+
+  it('round-trips a payload without stakeholders for backward compatibility', () => {
+    const payload = createSamplePayload({ stakeholders: undefined })
+
+    const encoded = encodeSharePayload(payload)
+    const result = decodeSharePayload(encoded)
+
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.payload.stakeholders).toBeUndefined()
     }
   })
 
@@ -346,6 +385,17 @@ describe('decodeSharePayload — error handling', () => {
     const result = decodeSharePayload(encoded)
     expect(result.ok).toBe(false)
   })
+
+  it('rejects payload with invalid stakeholders entries', () => {
+    const payload = createSamplePayload()
+    ;(payload as unknown as Record<string, unknown>).stakeholders = {
+      cto: 65,
+      vp_product: 'not-a-number'
+    }
+    const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+    const result = decodeSharePayload(encoded)
+    expect(result.ok).toBe(false)
+  })
 })
 
 // ─── URL Construction ─────────────────────────────────────────
@@ -393,6 +443,7 @@ describe('share integration: build → encode → decode', () => {
       expect(result.payload.name).toBe('Archibald')
       expect(result.payload.cls).toBe('boundary_mage')
       expect(result.payload.scores.domain_clarity).toBe(63)
+      expect(result.payload.stakeholders?.cto).toBe(65)
     }
   })
 
