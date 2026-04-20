@@ -2,11 +2,17 @@ import validateSpdx from 'spdx-expression-validate'
 import type { ContentPackInventory, ContentPackManifest } from '../model/content_pack_manifest'
 import type { VersionRef } from '../model/version_ref'
 
+/**
+ * Validation error entry for one manifest field.
+ */
 export interface ManifestValidationError {
   field: string
   message: string
 }
 
+/**
+ * Result of manifest validation.
+ */
 export interface ManifestValidationResult {
   valid: boolean
   errors: ManifestValidationError[]
@@ -45,6 +51,11 @@ function isVersionRef(value: unknown): value is VersionRef {
   return hasNonEmptyString(id) && typeof version === 'number' && Number.isInteger(version) && version > 0
 }
 
+/**
+ * Validates manifest shape and field-level constraints.
+ *
+ * This function performs structural checks only and does not load referenced files.
+ */
 export function validateContentPackManifest(input: unknown): ManifestValidationResult {
   const errors: ManifestValidationError[] = []
 
@@ -175,6 +186,10 @@ export function validateContentPackManifest(input: unknown): ManifestValidationR
   }
 }
 
+/**
+ * Asserts manifest validity and narrows input to ContentPackManifest.
+ * Throws with combined field-level details when invalid.
+ */
 export function assertValidContentPackManifest(input: unknown): asserts input is ContentPackManifest {
   const validation = validateContentPackManifest(input)
   if (validation.valid) {

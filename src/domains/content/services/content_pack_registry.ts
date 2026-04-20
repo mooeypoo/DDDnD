@@ -4,11 +4,17 @@ import { parseFilename, versionRefKey } from '../model/version_ref'
 import type { ContentProvider, ContentType } from './content_provider'
 import { ContentNotFoundError, createContentProvider } from './content_provider'
 
+/**
+ * Registered pack plus its provider instance.
+ */
 interface RegistryPack {
   manifest: ContentPackManifest
   provider: ContentProvider
 }
 
+/**
+ * Mapping from provider load type to manifest inventory section.
+ */
 const contentKeyByType: Record<ContentType, ContentInventoryKey> = {
   scenarios: 'scenarios',
   scores: 'scores',
@@ -23,6 +29,9 @@ const contentKeyByType: Record<ContentType, ContentInventoryKey> = {
   'challenge-modifiers': 'challenge_modifiers',
 }
 
+/**
+ * Deduplicates refs by id+version while preserving first-seen order.
+ */
 function dedupeVersionRefs(refs: VersionRef[]): VersionRef[] {
   const seen = new Set<string>()
   const deduped: VersionRef[] = []
@@ -40,15 +49,26 @@ function dedupeVersionRefs(refs: VersionRef[]): VersionRef[] {
   return deduped
 }
 
+/**
+ * Checks whether a manifest inventory explicitly declares a specific ref.
+ */
 function inventoryContainsRef(pack: RegistryPack, contentType: ContentType, ref: VersionRef): boolean {
   const inventoryKey = contentKeyByType[contentType]
   const filename = `${versionRefKey(ref)}.json`
   return pack.manifest.content[inventoryKey].includes(filename)
 }
 
+/**
+ * Registry for multiple content packs and merged provider resolution.
+ *
+ * Newer registrations have precedence when merged loading must choose among packs.
+ */
 export class ContentPackRegistry {
   private readonly packs: RegistryPack[] = []
 
+  /**
+   * Registers a manifest and optional custom provider for that pack.
+   */
   registerPack(manifest: ContentPackManifest, provider = createContentProvider(manifest.base_url)): void {
     this.packs.push({
       manifest,
@@ -56,26 +76,44 @@ export class ContentPackRegistry {
     })
   }
 
+  /**
+   * Returns manifests in registration order.
+   */
   getManifests(): ContentPackManifest[] {
     return this.packs.map((pack) => pack.manifest)
   }
 
+  /**
+   * Returns deduplicated scenario refs exposed by all packs.
+   */
   getAvailableScenarios(): VersionRef[] {
     return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.scenarios))
   }
 
+  /**
+   * Returns deduplicated class refs exposed by all packs.
+   */
   getAvailableClasses(): VersionRef[] {
     return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.classes))
   }
 
+  /**
+   * Returns deduplicated challenge modifier refs exposed by all packs.
+   */
   getAvailableChallengeModifiers(): VersionRef[] {
     return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.challenge_modifiers ?? []))
   }
 
+  /**
+   * Returns deduplicated tutorial refs exposed by all packs.
+   */
   getAvailableTutorials(): VersionRef[] {
     return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.tutorials))
   }
 
+  /**
+   * Returns deduplicated outcome archetype refs discovered from manifest inventory filenames.
+   */
   getAvailableOutcomeArchetypes(): VersionRef[] {
     const refs = this.packs.flatMap((pack) =>
       pack.manifest.content.outcome_archetypes
@@ -86,7 +124,16 @@ export class ContentPackRegistry {
     return dedupeVersionRefs(refs)
   }
 
+  /**
+   * Creates a merged provider that resolves content across all registered packs.
+   *
+   * Resolution prefers most recently registered packs and falls back across packs
+   * when content is not found.
+   */
   createMergedProvider(): ContentProvider {
+    /**
+     * Selects candidate owner packs for a given content type + ref.
+     */
     const resolveOwnerPacks = (contentType: ContentType, ref: VersionRef): RegistryPack[] => {
       const owners = this.packs.filter((pack) => inventoryContainsRef(pack, contentType, ref))
       if (owners.length > 0) {
@@ -96,6 +143,9 @@ export class ContentPackRegistry {
       return [...this.packs].reverse()
     }
 
+    /**
+     * Attempts loading from candidate providers with ordered fallback behavior.
+     */
     const loadFromType = async <T>(contentType: ContentType, ref: VersionRef, loader: (provider: ContentProvider, ref: VersionRef) => Promise<T>): Promise<T> => {
       const candidates = resolveOwnerPacks(contentType, ref)
 

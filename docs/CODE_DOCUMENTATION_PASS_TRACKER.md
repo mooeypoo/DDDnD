@@ -8,8 +8,8 @@ Start date: 2026-04-20
 | Date | Session | Scope | Planned | Done | Notes |
 |---|---|---|---|---|---|
 | 2026-04-20 | S0 | setup and standards | 1 artifact | 1 artifact | playbook and templates created |
-| 2026-04-20 | S1 | src/domains/content/model | 6 files | 0 files | queued |
-| 2026-04-20 | S2 | src/domains/content/services | 10 files | 0 files | queued |
+| 2026-04-20 | S1 | src/domains/content/model | 6 files | 6 files | completed; docs updated in content model files |
+| 2026-04-20 | S2 | src/domains/content/services | 10 files | 10 files | completed; service contracts and validation boundaries documented |
 | 2026-04-20 | S3 | src/domains/simulation/model + rules | 19 files | 0 files | queued |
 | 2026-04-20 | S4 | src/domains/simulation/services | 12 files | 0 files | queued |
 | 2026-04-20 | S5 | persistence + reporting | 15 files | 0 files | queued |
@@ -19,11 +19,45 @@ Start date: 2026-04-20
 
 | Domain | File Count | Status | Notes |
 |---|---:|---|---|
-| content | 17 | not started | |
+| content | 17 | complete | model and services documentation pass complete |
 | simulation | 31 | not started | |
 | persistence | 11 | not started | |
 | reporting | 4 | not started | |
 | ui | 100 | not started | prioritize largest files first |
+
+## Session Evidence
+
+| Session | Scope | Evidence | Result |
+|---|---|---|---|
+| S1 | content model docs | npm test -- tests/content/content_pack_manifest.test.ts tests/content/content_provider.test.ts tests/content/bundle_builder.test.ts | pass (3 files, 25 tests) |
+| S2 | content services docs | npm test -- tests/content/content_pack_validator.test.ts tests/content/content_pack_registry.test.ts tests/content/content_pack_manifest_urls.test.ts tests/content/content_pack_integration.test.ts | pass (4 files, 12 tests) |
+
+## Session A File Coverage
+
+| File | Status | Notes |
+|---|---|---|
+| src/domains/content/model/content_pack_manifest.ts | complete | added ownership/inventory/manifest contract docs |
+| src/domains/content/model/content_types.ts | complete | clarified metadata identity, condition semantics, and boundary notes |
+| src/domains/content/model/scenario_bundle.ts | complete | clarified authoritative bundle role and helper contracts |
+| src/domains/content/model/tutorial_types.ts | complete | clarified tutorial metadata intent and UI ownership boundary |
+| src/domains/content/model/version_ref.ts | complete | clarified identity semantics and parse limitations |
+| src/domains/content/model/index.ts | complete | clarified barrel export responsibility |
+
+## Session B File Coverage
+
+| File | Status | Notes |
+|---|---|---|
+| src/domains/content/services/bundle_builder.ts | complete | existing docs reviewed and retained as architecture-aligned |
+| src/domains/content/services/bundle_validator.ts | complete | existing docs reviewed and retained as architecture-aligned |
+| src/domains/content/services/content_pack_manifest_urls.ts | complete | added deterministic merge/dedupe contract docs |
+| src/domains/content/services/content_pack_registry.ts | complete | added registry precedence/resolution contract docs |
+| src/domains/content/services/content_pack_validator.ts | complete | added validation report contract docs |
+| src/domains/content/services/content_provider.ts | complete | clarified trust boundary and load contract docs |
+| src/domains/content/services/manifest_loader.ts | complete | added fetch/parse/validate error contract docs |
+| src/domains/content/services/manifest_validator.ts | complete | added strict schema/assertion boundary docs |
+| src/domains/content/services/tutorial_content_provider.ts | complete | clarified tutorial script loading + metadata consistency docs |
+| src/domains/content/services/index.ts | complete | clarified barrel responsibility |
+| src/domains/content/index.ts | complete | clarified top-level content export docs |
 
 ## Findings Backlog
 
@@ -50,6 +84,6 @@ Start date: 2026-04-20
 
 ## Next Actions
 
-1. Execute Session A in docs/CODE_DOCUMENTATION_KICKOFF_PLAN.md
-2. Populate file-level tracking entries for src/domains/content/model
-3. Start documenting content model files only (no behavior changes)
+1. Execute Session C in docs/CODE_DOCUMENTATION_KICKOFF_PLAN.md
+2. Document src/domains/simulation/model and high-impact rules files
+3. Run targeted simulation tests and record evidence in this tracker

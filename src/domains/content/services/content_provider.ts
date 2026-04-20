@@ -10,6 +10,7 @@
  * - Handle content not found cases
  * 
  * This service bridges the gap between raw JSON files and the rest of the system.
+ * Callers should treat loaded objects as runtime inputs only after validation flow completes.
  */
 
 import {
@@ -79,6 +80,8 @@ export class ContentVersionMismatchError extends Error {
 
 /**
  * Content Provider interface.
+ *
+ * Each loader resolves a specific id+version ref and rejects when missing.
  */
 export interface ContentProvider {
   loadScenario(ref: VersionRef): Promise<Scenario>
@@ -101,7 +104,7 @@ export interface ContentProvider {
  */
 export function createContentProvider(basePath = '/content'): ContentProvider {
   /**
-   * Loads and validates a content file.
+  * Loads a versioned content file and validates filename-metadata identity.
    */
   async function loadContent<T extends ContentMetadata>(
     contentType: ContentType,
