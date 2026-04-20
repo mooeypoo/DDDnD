@@ -49,16 +49,18 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { decodeSharePayload, type SharePayload } from '@/domains/reporting/services'
+import { useGameStore } from '@/ui/stores/game_store'
 import ShareResultCard from '@/ui/components/results/share_result_card.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
 
 const route = useRoute()
 const router = useRouter()
+const gameStore = useGameStore()
 
 const sharePayload = ref<SharePayload | null>(null)
 const errorMessage = ref('The share link could not be decoded.')
 
-onMounted(() => {
+onMounted(async () => {
   const encoded = route.query.d as string | undefined
 
   if (!encoded) {
@@ -69,6 +71,16 @@ onMounted(() => {
   const result = decodeSharePayload(encoded)
 
   if (result.ok) {
+    try {
+      const validArchetypeIds = await gameStore.get_available_outcome_archetype_ids()
+      if (validArchetypeIds.length > 0 && !validArchetypeIds.includes(result.payload.arch)) {
+        errorMessage.value = `Unknown archetype: ${result.payload.arch}`
+        return
+      }
+    } catch {
+      // Fail open if content metadata is temporarily unavailable.
+    }
+
     sharePayload.value = result.payload
   } else {
     errorMessage.value = result.error

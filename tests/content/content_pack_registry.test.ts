@@ -298,4 +298,76 @@ describe('content pack registry', () => {
     expect(expansionProvider.loadChallengeModifier).toHaveBeenCalledTimes(1)
     expect(baseProvider.loadChallengeModifier).not.toHaveBeenCalled()
   })
+
+  it('derives available outcome archetypes from manifest inventory', () => {
+    const registry = new ContentPackRegistry()
+
+    const base = createManifest({
+      id: 'base',
+      content: {
+        scenarios: [],
+        cards: [],
+        stakeholders: [],
+        stakeholder_reaction_rules: [],
+        scores: [],
+        events: [],
+        delayed_effects: [],
+        outcome_tiers: [],
+        outcome_archetypes: ['system_stabilizer-v1.json', 'boundary_builder-v1.json'],
+        classes: [],
+        challenge_modifiers: [],
+      },
+    })
+
+    const bespoke = createManifest({
+      id: 'bespoke',
+      content: {
+        scenarios: [],
+        cards: [],
+        stakeholders: [],
+        stakeholder_reaction_rules: [],
+        scores: [],
+        events: [],
+        delayed_effects: [],
+        outcome_tiers: [],
+        outcome_archetypes: ['the_visionary-v1.json', 'system_stabilizer-v1.json'],
+        classes: [],
+        challenge_modifiers: [],
+      },
+    })
+
+    registry.registerPack(base, createMockProvider('base'))
+    registry.registerPack(bespoke, createMockProvider('bespoke'))
+
+    expect(registry.getAvailableOutcomeArchetypes()).toEqual([
+      { id: 'system_stabilizer', version: 1 },
+      { id: 'boundary_builder', version: 1 },
+      { id: 'the_visionary', version: 1 },
+    ])
+  })
+
+  it('ignores invalid outcome archetype filenames in inventory', () => {
+    const registry = new ContentPackRegistry()
+
+    const manifest = createManifest({
+      id: 'invalid-filenames',
+      content: {
+        scenarios: [],
+        cards: [],
+        stakeholders: [],
+        stakeholder_reaction_rules: [],
+        scores: [],
+        events: [],
+        delayed_effects: [],
+        outcome_tiers: [],
+        outcome_archetypes: ['not-a-versioned-file.json', 'budget_hawk-v2.json'],
+        classes: [],
+        challenge_modifiers: [],
+      },
+    })
+
+    registry.registerPack(manifest, createMockProvider('invalid'))
+
+    expect(registry.getAvailableOutcomeArchetypes()).toEqual([{ id: 'budget_hawk', version: 2 }])
+  })
 })

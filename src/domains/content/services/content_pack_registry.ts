@@ -1,6 +1,6 @@
 import type { ContentPackManifest, ContentInventoryKey } from '../model/content_pack_manifest'
 import type { VersionRef } from '../model/version_ref'
-import { versionRefKey } from '../model/version_ref'
+import { parseFilename, versionRefKey } from '../model/version_ref'
 import type { ContentProvider, ContentType } from './content_provider'
 import { ContentNotFoundError, createContentProvider } from './content_provider'
 
@@ -74,6 +74,16 @@ export class ContentPackRegistry {
 
   getAvailableTutorials(): VersionRef[] {
     return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.tutorials))
+  }
+
+  getAvailableOutcomeArchetypes(): VersionRef[] {
+    const refs = this.packs.flatMap((pack) =>
+      pack.manifest.content.outcome_archetypes
+        .map((filename) => parseFilename(filename))
+        .filter((ref): ref is VersionRef => ref !== null)
+    )
+
+    return dedupeVersionRefs(refs)
   }
 
   createMergedProvider(): ContentProvider {

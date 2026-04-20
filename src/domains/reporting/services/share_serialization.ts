@@ -25,10 +25,7 @@ import {
   type SharePayload,
   type SharePayloadParseResult
 } from './share_payload'
-import {
-  OUTCOME_ARCHETYPE_IDS,
-  type OutcomeArchetypeId
-} from '@/domains/simulation/rules/classify_outcome_archetype'
+import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'
 
 // ─── Base64url helpers ───────────────────────────────────────
 
@@ -86,8 +83,6 @@ export function decodeSharePayload(encoded: string): SharePayloadParseResult {
 
 // ─── Validation ──────────────────────────────────────────────
 
-const VALID_ARCHETYPES: ReadonlySet<string> = new Set<string>(OUTCOME_ARCHETYPE_IDS)
-
 function validateSharePayload(raw: unknown): SharePayloadParseResult {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
     return { ok: false, error: 'Share payload must be an object' }
@@ -108,11 +103,6 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     if (typeof obj[field] !== 'string' || (obj[field] as string).length === 0) {
       return { ok: false, error: `Missing or invalid field: ${field}` }
     }
-  }
-
-  // Archetype validation
-  if (!VALID_ARCHETYPES.has(obj.arch as string)) {
-    return { ok: false, error: `Unknown archetype: ${obj.arch}` }
   }
 
   // Required numeric fields

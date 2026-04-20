@@ -172,6 +172,12 @@ export const useGameStore = defineStore('game', () => {
 
     availableChallengeModifiers.value = mods
   }
+
+  async function get_available_outcome_archetype_ids(): Promise<string[]> {
+    await load_content_packs()
+    const refs = contentPackRegistry.value?.getAvailableOutcomeArchetypes() ?? []
+    return refs.map((ref) => ref.id)
+  }
   
   /**
    * Load available quests from content pack manifest entry points.
@@ -506,6 +512,7 @@ export const useGameStore = defineStore('game', () => {
     load_available_tutorials,
     load_available_classes,
     load_available_challenge_modifiers,
+    get_available_outcome_archetype_ids,
     start_new_run,
     refresh_turn_briefing,
     play_turn,

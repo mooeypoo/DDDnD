@@ -1,19 +1,16 @@
 import { GameState, RunAnalytics } from '../model'
 
-export const OUTCOME_ARCHETYPE_IDS = [
-  'boundary_builder',
-  'stakeholder_whisperer',
-  'runaway_refactorer',
-  'firefighter',
-  'system_stabilizer',
-  'the_diplomat',
-  'budget_hawk',
-  'the_pragmatist',
-  'the_visionary',
-  'burnout_machine'
-] as const
-
-export type OutcomeArchetypeId = (typeof OUTCOME_ARCHETYPE_IDS)[number]
+export type OutcomeArchetypeId =
+  | 'boundary_builder'
+  | 'stakeholder_whisperer'
+  | 'runaway_refactorer'
+  | 'firefighter'
+  | 'system_stabilizer'
+  | 'the_diplomat'
+  | 'budget_hawk'
+  | 'the_pragmatist'
+  | 'the_visionary'
+  | 'burnout_machine'
 
 export interface ClassifyOutcomeArchetypeInput {
   game_state?: Pick<GameState, 'scores' | 'run_analytics'>

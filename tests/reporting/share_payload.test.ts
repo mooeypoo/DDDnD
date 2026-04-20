@@ -307,14 +307,14 @@ describe('decodeSharePayload — error handling', () => {
     }
   })
 
-  it('rejects payload with unknown archetype', () => {
+  it('accepts arbitrary archetype values at decode time', () => {
     const payload = createSamplePayload()
     ;(payload as unknown as Record<string, unknown>).arch = 'mysterious_wizard'
     const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
     const result = decodeSharePayload(encoded)
-    expect(result.ok).toBe(false)
-    if (!result.ok) {
-      expect(result.error).toContain('archetype')
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.payload.arch).toBe('mysterious_wizard')
     }
   })
 
