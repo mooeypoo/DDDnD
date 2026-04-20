@@ -25,7 +25,10 @@ import {
   type SharePayload,
   type SharePayloadParseResult
 } from './share_payload'
-import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'
+import {
+  OUTCOME_ARCHETYPE_IDS,
+  type OutcomeArchetypeId
+} from '@/domains/simulation/rules/classify_outcome_archetype'
 
 // ─── Base64url helpers ───────────────────────────────────────
 
@@ -83,13 +86,7 @@ export function decodeSharePayload(encoded: string): SharePayloadParseResult {
 
 // ─── Validation ──────────────────────────────────────────────
 
-const VALID_ARCHETYPES: ReadonlySet<string> = new Set<string>([
-  'boundary_builder',
-  'stakeholder_whisperer',
-  'runaway_refactorer',
-  'firefighter',
-  'system_stabilizer'
-])
+const VALID_ARCHETYPES: ReadonlySet<string> = new Set<string>(OUTCOME_ARCHETYPE_IDS)
 
 function validateSharePayload(raw: unknown): SharePayloadParseResult {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {

@@ -318,6 +318,17 @@ describe('decodeSharePayload — error handling', () => {
     }
   })
 
+  it('accepts newly added archetypes used in production links', () => {
+    const payload = createSamplePayload({ arch: 'the_visionary' })
+    const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+    const result = decodeSharePayload(encoded)
+
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.payload.arch).toBe('the_visionary')
+    }
+  })
+
   it('rejects payload missing numeric fields', () => {
     for (const field of ['sv', 'tc', 'mt', 'avg']) {
       const payload = createSamplePayload()
