@@ -27,14 +27,13 @@ import type { ScenarioBundle, VersionRef, PlayerClass, ChallengeModifier } from 
 import { buildScenarioBundle } from '@/domains/content'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
-import { resolveContentPackManifestUrls } from '@/domains/content/services/content_pack_manifest_urls'
-import { loadManifest } from '@/domains/content/services/manifest_loader'
 import { create_engine } from '@/domains/simulation'
 import { createLocalStorageSaveAdapter } from '@/domains/persistence/adapters'
 import { serializeSaveFile, deserializeSaveFile } from '@/domains/persistence/services'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { loadQuestDisplayModels } from '@/ui/services/quest_loader'
 import { useTutorialState } from '@/ui/composables/tutorial_state'
+import { createGameStoreContentAdapter } from './game_store_content_adapter'
 
 export interface RunSetupOptions {
   scenario_id: string
@@ -91,6 +90,10 @@ export const useGameStore = defineStore('game', () => {
   const availableChallengeModifiers = ref<ChallengeModifier[]>([])
   const contentPackRegistry = ref<ContentPackRegistry | null>(null)
   const externalManifestUrls = ref<string[]>([])
+  const contentAdapter = createGameStoreContentAdapter({
+    contentPackRegistry,
+    externalManifestUrls,
+  })
   
   // Computed
   const hasActiveRun = computed(() => gameState.value !== null)
@@ -123,32 +126,15 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function set_external_manifest_urls(urls: string[]) {
-    externalManifestUrls.value = urls
-    contentPackRegistry.value = null
+    contentAdapter.setExternalManifestUrls(urls)
   }
 
   async function load_content_packs() {
-    if (contentPackRegistry.value) {
-      return
-    }
-
-    const manifestUrls = resolveContentPackManifestUrls(externalManifestUrls.value)
-    const manifests = await Promise.all(manifestUrls.map((manifestUrl) => loadManifest(manifestUrl)))
-
-    const registry = new ContentPackRegistry()
-    manifests.forEach((manifest) => {
-      registry.registerPack(manifest)
-    })
-    contentPackRegistry.value = registry
+    await contentAdapter.loadContentPacks()
   }
 
   async function get_merged_content_provider(): Promise<ContentProvider> {
-    await load_content_packs()
-    if (!contentPackRegistry.value) {
-      throw new Error('Content pack registry is unavailable after manifest loading')
-    }
-
-    return contentPackRegistry.value.createMergedProvider()
+    return contentAdapter.getMergedContentProvider()
   }
   
   /**

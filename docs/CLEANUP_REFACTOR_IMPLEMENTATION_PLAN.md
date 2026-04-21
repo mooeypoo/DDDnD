@@ -234,3 +234,13 @@ Risk: contract churn from type surface move.
 	- Validation: `npx vitest run tests/simulation/strategy_fingerprint_telemetry.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/engine_shell.test.ts tests/reporting/share_payload.test.ts`
 	- Result: pass (4 files, 64 tests).
 	- Behavior/API: unchanged.
+
+- 2026-04-21: PR-2A complete.
+	- Scope: extracted content-loading adapter logic from game store into
+		`src/ui/stores/game_store_content_adapter.ts` and rewired
+		`src/ui/stores/game_store.ts` to delegate manifest URL resolution,
+		manifest loading, and merged provider creation through the adapter.
+	- Added tests: `tests/ui/game_store_content_adapter.test.ts`
+	- Validation: `npx vitest run tests/ui/game_store_content_adapter.test.ts tests/ui/game_store_orchestration.test.ts`
+	- Result: pass (2 files, 9 tests).
+	- Behavior/API: unchanged.

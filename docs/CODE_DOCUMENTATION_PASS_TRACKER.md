@@ -251,7 +251,7 @@ Start date: 2026-04-20
 | F-003 | ui | Mixed component filename casing may reduce consistency | src/ui/components | 2 | 2 | 1.00 | low | watch | unassigned | open |
 | F-004 | simulation | Repeated score/stakeholder change conversion helpers across rule files suggest shared utility opportunity | src/domains/simulation/rules/resolve_action.ts | 3 | 2 | 1.50 | low | watch | unassigned | open |
 | F-005 | ui | UI imports outcome archetype types from simulation rule modules, suggesting contract leakage that could be moved to a shared reporting/runtime type surface | src/ui/components/results/share_result_card.vue | 3 | 2 | 1.50 | low | watch | unassigned | open |
-| F-006 | ui | Main game store centralizes many concerns (content loading, run lifecycle, persistence, tutorial triggers, modal state), increasing maintenance cost | src/ui/stores/game_store.ts | 4 | 3 | 1.33 | medium | schedule | unassigned | open |
+| F-006 | ui | Main game store centralizes many concerns (content loading, run lifecycle, persistence, tutorial triggers, modal state), increasing maintenance cost | src/ui/stores/game_store.ts | 4 | 3 | 1.33 | medium | schedule | unassigned | in_progress |
 
 ## Boundary Integrity Checks
 
@@ -270,5 +270,5 @@ Start date: 2026-04-20
 
 ## Next Actions
 
-1. Execute PR-2A from docs/CLEANUP_REFACTOR_IMPLEMENTATION_PLAN.md (extract content-loading adapter from game store)
+1. Execute PR-2B from docs/CLEANUP_REFACTOR_IMPLEMENTATION_PLAN.md (extract persistence and restore adapter from game store)
 2. Assign owners for WS-1, WS-2, and verification gates
