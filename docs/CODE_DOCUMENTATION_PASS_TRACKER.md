@@ -270,5 +270,5 @@ Start date: 2026-04-20
 
 ## Next Actions
 
-1. Execute PR-2C from docs/CLEANUP_REFACTOR_IMPLEMENTATION_PLAN.md (extract run lifecycle coordinator internals from game store)
+1. Execute WS-3 / F-005 from docs/CLEANUP_REFACTOR_IMPLEMENTATION_PLAN.md (move archetype types to stable shared contract surface)
 2. Assign owners for WS-1, WS-2, and verification gates

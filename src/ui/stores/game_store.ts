@@ -34,6 +34,10 @@ import { loadQuestDisplayModels } from '@/ui/services/quest_loader'
 import { useTutorialState } from '@/ui/composables/tutorial_state'
 import { createGameStoreContentAdapter } from './game_store_content_adapter'
 import { createGameStorePersistenceAdapter } from './game_store_persistence_adapter'
+import {
+  createGameStoreRunLifecycleCoordinator,
+  type RunSetupOptionsLike,
+} from './game_store_run_lifecycle_coordinator'
 
 export interface RunSetupOptions {
   scenario_id: string
@@ -104,6 +108,28 @@ export const useGameStore = defineStore('game', () => {
   })
   const currentTurn = computed(() => gameState.value?.progress.current_turn ?? 0)
   const maxTurns = computed(() => gameState.value?.progress.max_turns ?? 0)
+  const runLifecycleCoordinator = createGameStoreRunLifecycleCoordinator(
+    {
+      engine,
+      gameState,
+      scenarioBundle,
+      turnBriefing,
+      lastTurnResolution,
+      runOutcome,
+      isLoadingBundle,
+      isPlayingTurn,
+      isIntroSplashOpen,
+      isTutorialCompleteSplashOpen,
+      isRunComplete,
+    },
+    {
+      getMergedContentProvider: get_merged_content_provider,
+      buildScenarioBundle,
+      initializeEngine: initialize_engine,
+      persistRunState: persist_run_state,
+      tutorial,
+    }
+  )
   
   /**
    * Initialize the engine with a scenario bundle
@@ -200,147 +226,21 @@ export const useGameStore = defineStore('game', () => {
    * Start a new run
    */
   async function start_new_run(options: RunSetupOptions) {
-    isLoadingBundle.value = true
-    
-    try {
-      const provider = await get_merged_content_provider()
-      const bundle = await buildScenarioBundle(
-        options.scenario_id,
-        options.scenario_version,
-        provider
-      )
-      
-      // Initialize engine with seed
-      const seed = options.seed || `seed-${Date.now()}`
-      initialize_engine(bundle, seed)
-      
-      // Create the run (with optional challenge modifier)
-      if (!engine.value) {
-        throw new Error('Engine not initialized')
-      }
-
-      let challengeModifier
-      if (options.selected_challenge_modifier_ref) {
-        try {
-          challengeModifier = await provider.loadChallengeModifier(options.selected_challenge_modifier_ref)
-        } catch {
-          // Challenge modifier is optional — continue without it
-        }
-      }
-      
-      const initialState = engine.value.create_run(
-        challengeModifier ? { challenge_modifier: challengeModifier } : undefined
-      )
-      
-      // Apply optional profile settings
-      if (options.selected_class_ref) {
-        initialState.player_profile.selected_class_ref = options.selected_class_ref
-        // Resolve class score_affinity for gameplay bonus
-        try {
-          const playerClass = await provider.loadPlayerClass(options.selected_class_ref)
-          if (playerClass?.score_affinity) {
-            initialState.player_profile.class_score_affinity = playerClass.score_affinity
-          }
-        } catch {
-          // Class affinity is optional — continue without it
-        }
-      }
-      if (options.selected_challenge_modifier_ref) {
-        initialState.player_profile.challenge_modifier_ref = {
-          id: options.selected_challenge_modifier_ref.id,
-          version: options.selected_challenge_modifier_ref.version
-        }
-      }
-      if (options.character_name) {
-        initialState.player_profile.display_name = options.character_name
-      }
-      
-      gameState.value = initialState
-      persist_run_state()
-
-      // Initialize tutorial mode BEFORE first turn briefing so triggers work
-      if (options.is_tutorial && bundle.scenario) {
-        await tutorial.initTutorial(bundle.scenario)
-      } else {
-        tutorial.resetTutorial()
-      }
-      
-      // Reset resolution and outcome
-      lastTurnResolution.value = null
-      runOutcome.value = null
-
-      // Show intro splash BEFORE turn briefing so tutorial triggers
-      // don't fire prematurely (turn_start is gated on splash being closed)
-      isIntroSplashOpen.value = true
-
-      // Get initial turn briefing (turn_start trigger is deferred while splash is open)
-      refresh_turn_briefing()
-      
-    } finally {
-      isLoadingBundle.value = false
-    }
+    await runLifecycleCoordinator.startNewRun(options as RunSetupOptionsLike)
   }
   
   /**
    * Refresh turn briefing from engine
    */
   function refresh_turn_briefing() {
-    if (!engine.value) {
-      throw new Error('No active engine')
-    }
-    
-    turnBriefing.value = engine.value.get_turn_briefing()
-
-    // Advance tutorial to turn_start trigger (skip during initial setup
-    // when intro splash is still showing — dismissIntroSplash handles that)
-    if (!isIntroSplashOpen.value) {
-      const turnNow = gameState.value?.progress.current_turn ?? 1
-      tutorial.advanceToTrigger('turn_start', turnNow)
-    }
+    runLifecycleCoordinator.refreshTurnBriefing()
   }
   
   /**
    * Play a turn with the selected action
    */
   async function play_turn(action_id: string) {
-    if (!engine.value) {
-      throw new Error('No active engine')
-    }
-    
-    isPlayingTurn.value = true
-    
-    try {
-      // Execute turn through engine
-      const result = engine.value.play_turn(action_id)
-      
-      // Update state
-      gameState.value = result.game_state
-      lastTurnResolution.value = result
-      persist_run_state()
-      
-      // Advance tutorial to turn_end trigger for the just-completed turn
-      const completedTurn = (gameState.value?.progress.current_turn ?? 2) - 1
-      tutorial.advanceToTrigger('turn_end', completedTurn > 0 ? completedTurn : 1)
-
-      // Refresh briefing for next turn
-      if (!isRunComplete.value) {
-        refresh_turn_briefing()
-      } else {
-        // Get final outcome
-        runOutcome.value = engine.value.get_run_outcome()
-        // Advance tutorial to run_end trigger
-        tutorial.advanceToTrigger('run_end')
-        // Show tutorial completion splash if in tutorial mode
-        if (tutorial.isTutorialMode.value) {
-          isTutorialCompleteSplashOpen.value = true
-        }
-      }
-      
-      return result
-      
-    } finally {
-      isPlayingTurn.value = false
-    }
+    return runLifecycleCoordinator.playTurn(action_id)
   }
   
   /**

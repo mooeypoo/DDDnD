@@ -254,3 +254,13 @@ Risk: contract churn from type surface move.
 	- Validation: `npx vitest run tests/ui/game_store_persistence_adapter.test.ts tests/ui/game_store_orchestration.test.ts tests/ui/game_store_content_adapter.test.ts`
 	- Result: pass (3 files, 14 tests).
 	- Behavior/API: unchanged.
+
+- 2026-04-21: PR-2C complete.
+	- Scope: extracted run lifecycle coordinator internals from game store into
+		`src/ui/stores/game_store_run_lifecycle_coordinator.ts` and delegated
+		`start_new_run`, `refresh_turn_briefing`, and `play_turn` orchestration to
+		the coordinator while preserving store facade behavior/API.
+	- Added tests: `tests/ui/game_store_run_lifecycle_coordinator.test.ts`
+	- Validation: `npx vitest run tests/ui/game_store_run_lifecycle_coordinator.test.ts tests/ui/game_store_orchestration.test.ts tests/ui/game_store_content_adapter.test.ts tests/ui/game_store_persistence_adapter.test.ts`
+	- Result: pass (4 files, 18 tests).
+	- Behavior/API: unchanged.
