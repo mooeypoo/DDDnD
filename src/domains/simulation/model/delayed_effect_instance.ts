@@ -4,6 +4,8 @@ export type DelayedEffectSourceType = 'card' | 'event'
 
 /**
  * Queued delayed effect scheduled for a future turn.
+ *
+ * effect_instance_id is deterministic for equivalent source/effect inputs.
  */
 export interface DelayedEffectInstance {
   effect_instance_id: string
@@ -19,6 +21,9 @@ export interface DelayedEffectInstance {
   is_resolved: boolean
 }
 
+/**
+ * Inputs used to create a queued delayed effect instance.
+ */
 export interface CreateDelayedEffectInstanceInput {
   effect_id: string
   effect_version: number
@@ -33,6 +38,8 @@ export interface CreateDelayedEffectInstanceInput {
 
 /**
  * Deterministic delayed effect instance constructor.
+ *
+ * Defaults trigger phase to aftershocks and selected flavor index to 0.
  */
 export function createDelayedEffectInstance(
   input: CreateDelayedEffectInstanceInput

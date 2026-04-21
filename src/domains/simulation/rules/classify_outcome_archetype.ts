@@ -1,5 +1,8 @@
 import { GameState, RunAnalytics } from '../model'
 
+/**
+ * Supported legacy outcome archetype ids.
+ */
 export type OutcomeArchetypeId =
   | 'boundary_builder'
   | 'stakeholder_whisperer'
@@ -12,11 +15,17 @@ export type OutcomeArchetypeId =
   | 'the_visionary'
   | 'burnout_machine'
 
+/**
+ * Accepted input shapes for archetype classification.
+ */
 export interface ClassifyOutcomeArchetypeInput {
   game_state?: Pick<GameState, 'scores' | 'run_analytics'>
   run_analytics?: RunAnalytics
 }
 
+/**
+ * Derived metrics used by archetype predicates.
+ */
 interface ArchetypeMetrics {
   architecture_delta: number
   delivery_and_budget_delta: number

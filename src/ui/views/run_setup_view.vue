@@ -319,6 +319,13 @@
 
 <script setup lang="ts">
 
+/**
+ * Run setup surface for quest/class/modifier selection.
+ *
+ * This view prepares run-start inputs and delegates run creation to store/domain
+ * services; it does not implement simulation rules.
+ */
+
 import { ref, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'

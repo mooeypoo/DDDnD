@@ -35,6 +35,9 @@ export interface CreateEngineInput {
   seed?: string
 }
 
+/**
+ * Internal mutable container for one engine instance.
+ */
 interface EngineStateContainer {
   scenario_bundle: ScenarioBundle
   seed: string
@@ -42,6 +45,9 @@ interface EngineStateContainer {
   game_state: GameState | null
 }
 
+/**
+ * Public simulation engine API.
+ */
 export interface SimulationEngine {
   create_run(options?: CreateRunOptions): GameState
   restore_run(game_state: GameState): GameState
@@ -50,6 +56,9 @@ export interface SimulationEngine {
   get_run_outcome(): RunOutcome | null
 }
 
+/**
+ * Returns the active run state or throws when no run exists.
+ */
 function getActiveGameState(engineState: EngineStateContainer): GameState {
   if (!engineState.game_state) {
     throw new Error('Run has not been initialized. Call create_run() first.')
@@ -58,6 +67,9 @@ function getActiveGameState(engineState: EngineStateContainer): GameState {
   return engineState.game_state
 }
 
+/**
+ * Creates a deterministic simulation engine bound to one scenario bundle.
+ */
 export function create_engine(input: CreateEngineInput): SimulationEngine {
   if (!input.scenario_bundle) {
     throw new Error('create_engine requires a scenario_bundle')

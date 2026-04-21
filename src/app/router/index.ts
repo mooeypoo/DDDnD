@@ -6,6 +6,9 @@ import EndOfRunView from '@/ui/views/end_of_run_view.vue'
 import ShareView from '@/ui/views/share_view.vue'
 import { useGameStore } from '@/ui/stores/game_store'
 
+/**
+ * Application router configuration.
+ */
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -41,6 +44,11 @@ const router = createRouter({
   ]
 })
 
+/**
+ * Navigation guard for run-dependent routes.
+ *
+ * Attempts restoring a saved run before allowing access to in-run pages.
+ */
 router.beforeEach(async (to) => {
   if (to.name !== 'game' && to.name !== 'end') {
     return true

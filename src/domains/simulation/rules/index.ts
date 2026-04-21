@@ -1,3 +1,6 @@
+/**
+ * Simulation rule barrel exports.
+ */
 export * from './apply_score_changes'
 export * from './apply_stakeholder_changes'
 export * from './build_turn_history_entry'

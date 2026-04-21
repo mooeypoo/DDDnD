@@ -46,6 +46,9 @@ export interface PlayTurnResult {
   turn_history_entry: TurnHistoryEntry
 }
 
+/**
+ * Merges score deltas into cumulative analytics totals.
+ */
 function mergeScoreDeltas(
   existing: Record<string, number>,
   changes: ScoreChangeRecord[]
@@ -59,6 +62,9 @@ function mergeScoreDeltas(
   return next
 }
 
+/**
+ * Merges stakeholder deltas into cumulative analytics totals.
+ */
 function mergeStakeholderDeltas(
   existing: Record<string, number>,
   changes: StakeholderChangeRecord[]
@@ -72,6 +78,9 @@ function mergeStakeholderDeltas(
   return next
 }
 
+/**
+ * Merges usage counters (card usage, style tags) into analytics totals.
+ */
 function mergeUsageCounters(
   existing: Record<string, number>,
   keys: string[]
@@ -85,6 +94,9 @@ function mergeUsageCounters(
   return next
 }
 
+/**
+ * Computes deterministic last-updated timestamp from created_at and turn count.
+ */
 function computeDeterministicLastUpdatedAt(createdAtUtc: string, turnsCompleted: number): string {
   const baseTimestamp = Date.parse(createdAtUtc)
   if (Number.isNaN(baseTimestamp)) {
@@ -94,6 +106,9 @@ function computeDeterministicLastUpdatedAt(createdAtUtc: string, turnsCompleted:
   return new Date(baseTimestamp + turnsCompleted * 1000).toISOString()
 }
 
+/**
+ * Resolves one full deterministic turn and returns updated state + turn records.
+ */
 export function playTurn(
   gameState: GameState,
   scenarioBundle: ScenarioBundle,

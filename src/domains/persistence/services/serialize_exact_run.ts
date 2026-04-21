@@ -2,9 +2,18 @@ import { GameState } from '@/domains/simulation/model'
 import { classifyOutcomeArchetype, OutcomeArchetypeId } from '@/domains/simulation/rules'
 import { RunStatus, VersionedContentRef } from '@/shared/contracts'
 
+/**
+ * Exact-run export discriminator.
+ */
 export const EXACT_RUN_EXPORT_TYPE = 'exact_run' as const
+/**
+ * Exact-run format version.
+ */
 export const EXACT_RUN_FORMAT_VERSION = 1 as const
 
+/**
+ * Deterministic seed and run identity metadata.
+ */
 export interface ExactRunSeedInfo {
   seed: string
   run_id: string
@@ -13,6 +22,9 @@ export interface ExactRunSeedInfo {
   content_pack_version?: string
 }
 
+/**
+ * Stable outcome snapshot embedded in exact-run exports.
+ */
 export interface ExactRunOutcomeSnapshot {
   tier: 'success' | 'partial_success' | 'failure'
   archetype: OutcomeArchetypeId
@@ -24,6 +36,9 @@ export interface ExactRunOutcomeSnapshot {
   score_average: number | null
 }
 
+/**
+ * Exact-run export payload for deterministic replay and inspection.
+ */
 export interface ExactRunExport {
   export_type: typeof EXACT_RUN_EXPORT_TYPE
   format_version: typeof EXACT_RUN_FORMAT_VERSION
@@ -37,10 +52,16 @@ export interface ExactRunExport {
   game_state: GameState
 }
 
+/**
+ * Clones objects through JSON to enforce serializable payload shape.
+ */
 function cloneSerializable<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T
 }
 
+/**
+ * Computes average score from final score snapshot.
+ */
 function computeScoreAverage(scores: Record<string, number>): number | null {
   const scoreValues = Object.values(scores)
   if (scoreValues.length === 0) {
@@ -51,6 +72,9 @@ function computeScoreAverage(scores: Record<string, number>): number | null {
   return total / scoreValues.length
 }
 
+/**
+ * Classifies coarse outcome tier from status + average score.
+ */
 function classifySnapshotTier(runStatus: RunStatus, scoreAverage: number | null): 'success' | 'partial_success' | 'failure' {
   if (runStatus === 'completed_failure') {
     return 'failure'
@@ -71,6 +95,9 @@ function classifySnapshotTier(runStatus: RunStatus, scoreAverage: number | null)
   return 'partial_success'
 }
 
+/**
+ * Builds outcome snapshot from game state.
+ */
 function buildOutcomeSnapshot(gameState: GameState): ExactRunOutcomeSnapshot {
   const isCompleted = gameState.progress.run_status !== 'in_progress'
   const lastHistoryEntry = gameState.history.length > 0
@@ -90,6 +117,9 @@ function buildOutcomeSnapshot(gameState: GameState): ExactRunOutcomeSnapshot {
   }
 }
 
+/**
+ * Serializes a deterministic exact-run export payload.
+ */
 export function serialize_exact_run(
   game_state: GameState,
   exported_at: string = new Date().toISOString()

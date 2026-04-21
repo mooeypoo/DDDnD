@@ -7,12 +7,18 @@ import {
   parseConditionDescription
 } from './condition_evaluator'
 
+/**
+ * Result payload for stakeholder resolution phase.
+ */
 export interface ResolveStakeholderRulesResult {
   stakeholder_resolution: StakeholderResolutionRecord
   score_changes: ScoreChangeRecord[]
   stakeholder_changes: StakeholderChangeRecord[]
 }
 
+/**
+ * Converts content score deltas to runtime change records.
+ */
 function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): ScoreChangeRecord[] {
   return scoreChanges.map((change) => ({
     score_id: change.score_id,
@@ -20,6 +26,9 @@ function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): Sc
   }))
 }
 
+/**
+ * Converts optional stakeholder deltas to runtime change records.
+ */
 function toStakeholderChanges(
   stakeholderChanges: { stakeholder_id: string; delta: number }[] | undefined
 ): StakeholderChangeRecord[] {
@@ -42,6 +51,11 @@ interface MatchedRule {
   description: string
 }
 
+/**
+ * Resolves stakeholder reaction rules once per stakeholder for the current turn.
+ *
+ * Rules are applied in ascending priority, then deterministic id order tie-break.
+ */
 export function resolveStakeholderRules(
   scenarioBundle: ScenarioBundle,
   conditionState: ConditionEvaluationState

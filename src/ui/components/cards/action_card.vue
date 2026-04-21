@@ -196,6 +196,11 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Action card presentation component for gameplay UI.
+ *
+ * Renders card metadata and availability derived from simulation outputs.
+ */
 import { computed, ref, nextTick } from 'vue'
 import type { Card } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'

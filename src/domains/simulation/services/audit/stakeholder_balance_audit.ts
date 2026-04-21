@@ -24,6 +24,9 @@ const LOW_SATISFACTION_CRITICAL = 30
 
 // ── Synthesis ───────────────────────────────────────────────────
 
+/**
+ * Audits stakeholder trajectory telemetry for sustained decline or imbalance.
+ */
 export function auditStakeholderBalance(report: SimulationReport): AuditFinding[] {
   const findings: AuditFinding[] = []
   const agg = report.aggregate

@@ -13,6 +13,9 @@ import {
 } from '@/domains/simulation/model'
 import { RunStatus, VersionedContentRef } from '@/shared/contracts'
 
+/**
+ * Validation helpers for persistence payload decoding.
+ */
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
@@ -274,6 +277,9 @@ function isTurnHistory(value: unknown): value is TurnHistoryEntry[] {
   return Array.isArray(value) && value.every(hasTurnHistoryCoreFields)
 }
 
+/**
+ * Type guard for game_state payload.
+ */
 export function isGameState(value: unknown): value is GameState {
   if (!isObject(value)) {
     return false
@@ -294,26 +300,44 @@ export function isGameState(value: unknown): value is GameState {
   )
 }
 
+/**
+ * Type guard for generic object record.
+ */
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return isObject(value)
 }
 
+/**
+ * Type guard for non-empty string values.
+ */
 export function isNonEmptyString(value: unknown): value is string {
   return isString(value) && value.trim().length > 0
 }
 
+/**
+ * Type guard for positive integers.
+ */
 export function isPositiveInteger(value: unknown): value is number {
   return isNumber(value) && Number.isInteger(value) && value > 0
 }
 
+/**
+ * Type guard for versioned content reference.
+ */
 export function isVersionedRef(value: unknown): value is VersionedContentRef {
   return isVersionedContentRef(value)
 }
 
+/**
+ * Type guard for arrays of versioned content references.
+ */
 export function isVersionedRefArray(value: unknown): value is VersionedContentRef[] {
   return isVersionedContentRefArray(value)
 }
 
+/**
+ * Type guard for turn history arrays.
+ */
 export function isTurnHistoryArray(value: unknown): value is TurnHistoryEntry[] {
   return isTurnHistory(value)
 }

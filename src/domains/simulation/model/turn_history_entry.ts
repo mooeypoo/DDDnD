@@ -9,6 +9,8 @@ import { ScoreSnapshot, StakeholderSnapshot } from './game_state'
 
 /**
  * Canonical archived turn record stored in game history.
+ *
+ * This is persisted run history, distinct from transient turn-resolution context.
  */
 export interface TurnHistoryEntry {
   turn_number: number

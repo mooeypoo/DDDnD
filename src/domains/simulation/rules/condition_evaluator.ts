@@ -1,6 +1,9 @@
 import { NumericCondition, ScenarioBundle } from '@/domains/content/model'
 import { GameState } from '../model'
 
+/**
+ * Pattern for parsing textual condition descriptions into structured conditions.
+ */
 const CONDITION_PATTERN = /^(.+?)\s*(<=|>=|<|>|==|=)\s*(-?\d+)$/i
 
 function normalizeToken(value: string): string {
@@ -25,11 +28,17 @@ function compare(actual: number, operator: NumericCondition['operator'], expecte
   }
 }
 
+/**
+ * Runtime condition evaluation state projected from game state.
+ */
 export interface ConditionEvaluationState {
   scores: GameState['scores']
   stakeholders: GameState['stakeholders']
 }
 
+/**
+ * Evaluates a structured numeric condition against current runtime state.
+ */
 export function evaluateNumericCondition(
   condition: NumericCondition,
   state: ConditionEvaluationState

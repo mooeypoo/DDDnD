@@ -1,3 +1,6 @@
+/**
+ * Persistence service barrel exports.
+ */
 export * from './persistence_error'
 export * from './persistence_result'
 export * from './serialize_save_file'

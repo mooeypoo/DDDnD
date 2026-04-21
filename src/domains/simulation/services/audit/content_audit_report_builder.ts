@@ -10,6 +10,9 @@ import { auditStakeholderBalance } from './stakeholder_balance_audit'
 import { auditStructuralContent } from './structural_content_audit'
 import { auditScenarioBalanceTargets } from './scenario_balance_targets_audit'
 
+/**
+ * Inputs required to synthesize a content audit report.
+ */
 interface BuildContentAuditReportInput {
   content_pack_id?: string
   scenario_bundle: ScenarioBundle
@@ -22,6 +25,9 @@ const SEVERITY_WEIGHT = {
   info: 1,
 } as const
 
+/**
+ * Sorts findings by severity then stable id order.
+ */
 function sortFindings(findings: AuditFinding[]): AuditFinding[] {
   return [...findings].sort((a, b) => {
     const severityDiff = SEVERITY_WEIGHT[b.severity] - SEVERITY_WEIGHT[a.severity]
@@ -32,6 +38,9 @@ function sortFindings(findings: AuditFinding[]): AuditFinding[] {
   })
 }
 
+/**
+ * Computes summary counters and overall status from findings.
+ */
 function computeSummary(findings: AuditFinding[]): AuditSummary {
   const summary: AuditSummary = {
     overall_status: 'pass',
@@ -55,6 +64,9 @@ function computeSummary(findings: AuditFinding[]): AuditSummary {
   return summary
 }
 
+/**
+ * Converts structural findings into structural check records.
+ */
 function toStructuralChecks(structuralFindings: AuditFinding[]): StructuralAuditCheck[] {
   if (structuralFindings.length === 0) {
     return [
@@ -74,6 +86,9 @@ function toStructuralChecks(structuralFindings: AuditFinding[]): StructuralAudit
   }))
 }
 
+/**
+ * Builds a combined content audit report from structural and dynamic audits.
+ */
 export function buildContentAuditReport(input: BuildContentAuditReportInput): ContentAuditReport {
   const structuralFindings = auditStructuralContent(input.scenario_bundle)
   const dynamicFindings = auditStakeholderBalance(input.simulation_report)

@@ -117,6 +117,9 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Share-card renderer for downloadable/shareable end-of-run snapshots.
+ */
 import { computed, ref } from 'vue'
 import type { SharePayload } from '@/domains/reporting/services/share_payload'
 import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'

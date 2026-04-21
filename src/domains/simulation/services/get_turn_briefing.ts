@@ -17,6 +17,9 @@ import { ScenarioBundle, versionRefKey } from '@/domains/content/model'
 import { GameState } from '../model'
 import { getCardAvailability } from '../rules'
 
+/**
+ * Turn-briefing summary for one action card.
+ */
 export interface TurnBriefingActionSummary {
   card_id: string
   card_version: number
@@ -31,6 +34,9 @@ export interface TurnBriefingActionSummary {
   turns_until_available: number
 }
 
+/**
+ * Pending delayed effect summary for current turn briefing.
+ */
 export interface PendingDelayedEffectBriefing {
   effect_instance_id: string
   effect_id: string
@@ -56,6 +62,9 @@ function toShortSummary(text: string): string {
   return `${text.slice(0, 137)}...`
 }
 
+/**
+ * Builds stakeholder satisfaction snapshot for briefing output.
+ */
 function buildStakeholderSatisfactionSnapshot(gameState: GameState): Record<string, number> {
   const snapshot: Record<string, number> = {}
 
@@ -66,6 +75,9 @@ function buildStakeholderSatisfactionSnapshot(gameState: GameState): Record<stri
   return snapshot
 }
 
+/**
+ * Produces read-only turn briefing data for the current game state.
+ */
 export function getTurnBriefing(
   gameState: GameState,
   scenarioBundle: ScenarioBundle

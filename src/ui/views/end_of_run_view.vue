@@ -199,6 +199,12 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * End-of-run presentation surface.
+ *
+ * Reads finalized simulation/reporting outputs and provides share actions.
+ * Does not own gameplay rule evaluation.
+ */
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'

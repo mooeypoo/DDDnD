@@ -24,6 +24,9 @@ import { classifyRunOutcome, OutcomeArchetypeId, RunCompletionReason } from '../
 
 export type RunOutcomeTier = 'success' | 'partial_success' | 'failure'
 
+/**
+ * Stable outcome snapshot suitable for persistence and reporting.
+ */
 export interface RunOutcomeSnapshot {
   tier: RunOutcomeTier
   archetype: OutcomeArchetypeId
@@ -35,6 +38,9 @@ export interface RunOutcomeSnapshot {
   matched_failure_conditions: string[]
 }
 
+/**
+ * Enriched run outcome derived from current/final game state.
+ */
 export interface RunOutcome {
   tier: RunOutcomeTier
   archetype: OutcomeArchetypeId
@@ -52,6 +58,9 @@ export interface RunOutcome {
   score_average: number
 }
 
+/**
+ * Maps run status and average score into coarse outcome tier.
+ */
 function classifyRunOutcomeTier(
   runStatus: RunOutcomeSnapshot['run_status'],
   scoreAverage: number
@@ -71,6 +80,9 @@ function classifyRunOutcomeTier(
   return 'partial_success'
 }
 
+/**
+ * Returns outcome when run is terminal; otherwise null.
+ */
 export function getRunOutcome(
   gameState: GameState,
   scenarioBundle: ScenarioBundle
