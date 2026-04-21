@@ -270,5 +270,5 @@ Start date: 2026-04-20
 
 ## Next Actions
 
-1. Execute PR-2B from docs/CLEANUP_REFACTOR_IMPLEMENTATION_PLAN.md (extract persistence and restore adapter from game store)
+1. Execute PR-2C from docs/CLEANUP_REFACTOR_IMPLEMENTATION_PLAN.md (extract run lifecycle coordinator internals from game store)
 2. Assign owners for WS-1, WS-2, and verification gates

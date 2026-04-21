@@ -29,11 +29,11 @@ import type { ContentProvider } from '@/domains/content/services/content_provide
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
 import { create_engine } from '@/domains/simulation'
 import { createLocalStorageSaveAdapter } from '@/domains/persistence/adapters'
-import { serializeSaveFile, deserializeSaveFile } from '@/domains/persistence/services'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { loadQuestDisplayModels } from '@/ui/services/quest_loader'
 import { useTutorialState } from '@/ui/composables/tutorial_state'
 import { createGameStoreContentAdapter } from './game_store_content_adapter'
+import { createGameStorePersistenceAdapter } from './game_store_persistence_adapter'
 
 export interface RunSetupOptions {
   scenario_id: string
@@ -54,6 +54,7 @@ export interface RunSetupOptions {
  */
 export const useGameStore = defineStore('game', () => {
   const saveAdapter = createLocalStorageSaveAdapter()
+  const persistenceAdapter = createGameStorePersistenceAdapter(saveAdapter)
 
   // Core state
   const engine = ref<SimulationEngine | null>(null)
@@ -116,13 +117,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   function persist_run_state() {
-    if (!gameState.value) {
-      return
-    }
-
-    const payload = serializeSaveFile(gameState.value)
-    const serializedPayload = JSON.stringify(payload)
-    saveAdapter.save_serialized_save_file(serializedPayload)
+    persistenceAdapter.persistGameState(gameState.value)
   }
 
   function set_external_manifest_urls(urls: string[]) {
@@ -378,41 +373,27 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function restore_saved_run(): Promise<boolean> {
-    const loaded = saveAdapter.load_serialized_save_file()
-    if (!loaded.ok || !loaded.value) {
-      return false
-    }
-
-    let parsedPayload: unknown
-    try {
-      parsedPayload = JSON.parse(loaded.value)
-    } catch {
-      saveAdapter.clear_saved_run()
-      return false
-    }
-
-    const restored = deserializeSaveFile(parsedPayload)
-    if (!restored.ok) {
-      saveAdapter.clear_saved_run()
+    const restoredGameState = persistenceAdapter.loadRestorableGameState()
+    if (!restoredGameState) {
       return false
     }
 
     try {
       const provider = await get_merged_content_provider()
       const bundle = await buildScenarioBundle(
-        restored.value.game_state.scenario_ref.id,
-        restored.value.game_state.scenario_ref.version,
+        restoredGameState.scenario_ref.id,
+        restoredGameState.scenario_ref.version,
         provider
       )
 
-      initialize_engine(bundle, restored.value.game_state.meta.seed)
+      initialize_engine(bundle, restoredGameState.meta.seed)
 
       if (!engine.value) {
         return false
       }
 
-      engine.value.restore_run(restored.value.game_state)
-      gameState.value = restored.value.game_state
+      engine.value.restore_run(restoredGameState)
+      gameState.value = restoredGameState
       lastTurnResolution.value = null
 
       if (isRunComplete.value) {

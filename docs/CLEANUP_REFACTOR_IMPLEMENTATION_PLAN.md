@@ -244,3 +244,13 @@ Risk: contract churn from type surface move.
 	- Validation: `npx vitest run tests/ui/game_store_content_adapter.test.ts tests/ui/game_store_orchestration.test.ts`
 	- Result: pass (2 files, 9 tests).
 	- Behavior/API: unchanged.
+
+- 2026-04-21: PR-2B complete.
+	- Scope: extracted save serialization and saved-run payload loading/
+		deserialization/cleanup from game store into
+		`src/ui/stores/game_store_persistence_adapter.ts`, while keeping run
+		rehydration orchestration in `src/ui/stores/game_store.ts`.
+	- Added tests: `tests/ui/game_store_persistence_adapter.test.ts`
+	- Validation: `npx vitest run tests/ui/game_store_persistence_adapter.test.ts tests/ui/game_store_orchestration.test.ts tests/ui/game_store_content_adapter.test.ts`
+	- Result: pass (3 files, 14 tests).
+	- Behavior/API: unchanged.
