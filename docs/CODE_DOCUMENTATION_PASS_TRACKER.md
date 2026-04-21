@@ -270,5 +270,5 @@ Start date: 2026-04-20
 
 ## Next Actions
 
-1. Prepare interim ranked findings update from accumulated tracker entries
-2. Produce final cleanup/refactor analysis from template using evidence in this tracker
+1. Execute PR-2A from docs/CLEANUP_REFACTOR_IMPLEMENTATION_PLAN.md (extract content-loading adapter from game store)
+2. Assign owners for WS-1, WS-2, and verification gates
