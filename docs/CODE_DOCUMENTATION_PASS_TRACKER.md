@@ -13,7 +13,7 @@ Start date: 2026-04-20
 | 2026-04-20 | S3 | src/domains/simulation/model + rules | 18 files | 18 files | completed; model + all rule files documented |
 | 2026-04-20 | S4 | src/domains/simulation/services | 12 files | 12 files | completed; service and audit contract docs updated |
 | 2026-04-20 | S5 | persistence + reporting | 15 files | 15 files | completed; serialization and share contracts documented |
-| 2026-04-20 | S6 | app/shared/types + ui + tests | 100+ files | 13 files | in progress; app/shared/types + high-impact UI modules documented |
+| 2026-04-20 | S6 | app/shared/types + ui + tests | 100+ files | 100+ files | complete; app/shared and UI surfaces fully documented including leaf components and prototypes |
 
 ## Domain Progress
 
@@ -23,7 +23,7 @@ Start date: 2026-04-20
 | simulation | 31 | complete | model, rules, and services documentation pass complete |
 | persistence | 11 | complete | adapters and services documentation pass complete |
 | reporting | 4 | complete | share payload and serialization docs complete |
-| ui | 100 | not started | prioritize largest files first |
+| ui | 100 | complete | major and leaf surfaces documented; prototypes and ui service layer reviewed |
 
 ## Session Evidence
 
@@ -39,6 +39,11 @@ Start date: 2026-04-20
 | S6 (partial) | app/shared/types docs | npx vitest run tests/simulation/seeded_random.model.test.ts tests/simulation/model_runtime.test.ts | pass (2 files, 6 tests) |
 | S6 (partial 2) | top UI view docs | npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts | pass (2 files, 32 tests) |
 | S6 (partial 3) | additional high-impact UI docs | npx vitest run tests/reporting/share_payload.test.ts tests/simulation/turn_pipeline.test.ts | pass (2 files, 37 tests) |
+| S6 (partial 4) | UI/store high-impact docs | npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts tests/simulation/turn_pipeline.test.ts | pass (3 files, 42 tests) |
+| S6 (partial 5) | UI composables/config/types docs | npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts tests/simulation/strategy_fingerprint_telemetry.test.ts | pass (3 files, 54 tests) |
+| S6 (partial 6) | UI boundary + regression check | grep rule-import check in src/ui/src/app; npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/strategy_fingerprint_telemetry.test.ts | pass (type-only imports only; 4 files, 64 tests) |
+| S6 (partial 7) | additional gameplay/result UI docs | npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/strategy_fingerprint_telemetry.test.ts | pass (4 files, 64 tests) |
+| S6 (final) | leaf UI + icon + prototype completion | npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/strategy_fingerprint_telemetry.test.ts; final UI boundary/terminology grep sweep | pass (4 files, 64 tests; boundary and terminology sweeps clean) |
 
 ## Session A File Coverage
 
@@ -144,6 +149,98 @@ Start date: 2026-04-20
 | src/ui/components/cards/card_details_modal.vue | complete | added component ownership and boundary docs |
 | src/ui/components/results/share_result_card.vue | complete | added component ownership docs |
 | src/ui/components/surfaces/AppFrame.vue | complete | added component primitive ownership docs |
+| src/ui/stores/game_store.ts | complete | added store-level orchestration ownership docs |
+| src/ui/components/scenario/scenario_banner.vue | complete | added component ownership docs |
+| src/ui/components/common/game_hud_sidebar.vue | complete | added component ownership and boundary docs |
+| src/ui/components/surfaces/surface_modal_panel.vue | complete | added component ownership docs |
+| src/ui/components/cards/quest_card.vue | complete | added component ownership docs |
+| src/ui/composables/gameplay_stage_presentation.ts | complete | documented presentation-only actor/scene helper contracts |
+| src/ui/composables/presentation_asset_lookup.ts | complete | documented asset lookup helper contracts |
+| src/ui/composables/stakeholder_presentation.ts | complete | documented stakeholder display-name helper contracts |
+| src/ui/composables/system_coupling.ts | complete | documented presentation-only coupling adapter boundary |
+| src/ui/composables/tutorial_state.ts | complete | clarified module-scoped tutorial UI state ownership |
+| src/ui/composables/card_filter_sort.ts | complete | clarified UI-only filtering/sorting ownership |
+| src/ui/composables/category_presentation.ts | complete | reviewed shared category presentation docs |
+| src/ui/composables/class_artwork.ts | complete | reviewed class artwork helper docs |
+| src/ui/composables/metric_presentation.ts | complete | documented metric display contract |
+| src/ui/composables/scenario_presentation.ts | complete | documented compact scenario copy helper |
+| src/ui/composables/scene_avatar_positioning.ts | complete | documented preview/placement guardrail contracts |
+| src/ui/composables/stakeholder_drivers.ts | complete | documented stakeholder driver row mapping |
+| src/ui/composables/stakeholder_reaction_bubbles.ts | complete | documented deterministic speech bubble helper contracts |
+| src/ui/config/presentation_asset_registry.ts | complete | documented central UI asset registry intent |
+| src/ui/config/presentation_asset_types.ts | complete | documented presentation-only asset ids/types |
+| src/ui/config/presentation_avatar_registry.ts | complete | documented avatar asset registry and fallback contracts |
+| src/ui/config/presentation_scene_registry.ts | complete | documented scene asset registry and fallback contracts |
+| src/ui/config/scene_avatar_preview_config.ts | complete | documented preview config types/options |
+| src/ui/config/stakeholder_reaction_bubble_language.ts | complete | documented speech-bubble tone registry |
+| src/ui/types/artwork.ts | complete | reviewed existing artwork metadata docs and retained them |
+| src/ui/types/quest_display_model.ts | complete | reviewed existing quest display model docs and retained them |
+| src/ui/views/share_view.vue | complete | documented share-link decode/fallback ownership |
+| src/ui/views/welcome_view.vue | complete | documented landing-page navigation and modal boundary |
+| src/ui/components/results/outcome_panel.vue | complete | documented outcome presentation-only role |
+| src/ui/components/scores/score_panel.vue | complete | documented system-health panel derivation rules |
+| src/ui/components/stakeholders/stakeholder_panel.vue | complete | documented stakeholder snapshot display ownership |
+| src/ui/components/preview/scene_avatar_preview_surface.vue | complete | documented preview-surface guardrail ownership |
+| src/ui/components/turn/turn_briefing_panel.vue | complete | documented current-turn briefing and urgency cues |
+| src/ui/components/turn/turn_resolution_panel.vue | complete | documented resolved-turn rendering boundary |
+| src/ui/components/scores/score_hud.vue | complete | documented compact score HUD and detail popover |
+| src/ui/components/stakeholders/stakeholder_hud.vue | complete | documented compact stakeholder HUD ownership |
+| src/ui/components/preview/scene_avatar_preview_workbench.vue | complete | documented preview workbench as presentation tooling |
+| src/ui/components/gameplay/scene_stage.vue | complete | documented live stage rendering boundary |
+| src/ui/components/stakeholders/StakeholderDriversPanel.vue | complete | documented stakeholder reaction row presentation |
+| src/ui/components/scores/system_coupling_warnings.vue | complete | documented coupling warning adapter ownership |
+| src/ui/components/common/game_hud_bar.vue | complete | documented persistent HUD aggregation role |
+| src/ui/components/events/event_card.vue | complete | documented event card presentation contract |
+| src/ui/components/events/event_details_modal.vue | complete | documented informational event-inspection modal |
+| src/ui/components/common/AppSelect.vue | complete | documented native-select wrapper ownership |
+| src/ui/components/common/AppInput.vue | complete | documented native-input wrapper ownership |
+| src/ui/components/common/about_modal.vue | complete | documented informational modal ownership |
+| src/ui/components/tutorial/tutorial_hint_panel.vue | complete | documented inline tutorial hint ownership |
+| src/ui/components/branding/game_logo.vue | complete | documented brand lockup ownership |
+| src/ui/components/branding/game_masthead.vue | complete | documented top-level masthead ownership |
+| src/ui/components/branding/logo_sigil.vue | complete | documented sigil primitive ownership |
+| src/ui/components/cards/card_satchel_drawer.vue | complete | documented satchel drawer ownership |
+| src/ui/components/cards/class_card.vue | complete | documented class selection tile ownership |
+| src/ui/components/cards/satchel_toggle_button.vue | complete | documented satchel launcher ownership |
+| src/ui/components/cards/satchel_toolbar.vue | complete | documented satchel filter/sort toolbar ownership |
+| src/ui/components/common/class_portrait.vue | complete | documented portrait primitive ownership |
+| src/ui/components/common/dungeon_master_modal.vue | complete | documented creator links modal ownership |
+| src/ui/components/common/mobile_notice.vue | complete | documented mobile notice lifecycle ownership |
+| src/ui/components/common/rules_modal.vue | complete | documented rules modal ownership |
+| src/ui/components/common/site_footer.vue | complete | documented site footer intent |
+| src/ui/components/common/social_links_panel.vue | complete | documented social-links panel ownership |
+| src/ui/components/icons/IconBarChart.vue | complete | documented icon primitive ownership |
+| src/ui/components/icons/IconGroup.vue | complete | documented icon primitive ownership |
+| src/ui/components/icons/IconLightning.vue | complete | documented icon primitive ownership |
+| src/ui/components/icons/IconMegaphone.vue | complete | documented icon primitive ownership |
+| src/ui/components/icons/IconSatchel.vue | complete | documented icon primitive ownership |
+| src/ui/components/icons/IconScroll.vue | complete | documented icon primitive ownership |
+| src/ui/components/icons/IconSpell.vue | complete | documented icon primitive ownership |
+| src/ui/components/icons/IconSwords.vue | complete | documented icon primitive ownership |
+| src/ui/components/icons/IconTarget.vue | complete | documented icon primitive ownership |
+| src/ui/components/surfaces/surface_drawer_panel.vue | complete | documented drawer surface primitive ownership |
+| src/ui/components/surfaces/surface_frame_container.vue | complete | documented frame container primitive ownership |
+| src/ui/components/surfaces/surface_side_panel.vue | complete | documented side-panel primitive ownership |
+| src/ui/components/tutorial/tutorial_complete_splash.vue | complete | documented tutorial completion splash ownership |
+| src/ui/components/tutorial/tutorial_exit_bar.vue | complete | documented tutorial exit bar ownership |
+| src/ui/components/tutorial/tutorial_pointer_arrow.vue | complete | documented tutorial pointer ownership |
+| src/ui/components/cards/AppCard.vue | complete | reviewed existing docs and retained them |
+| src/ui/components/common/AppBadge.vue | complete | reviewed existing docs and retained them |
+| src/ui/components/common/AppButton.vue | complete | reviewed existing docs and retained them |
+| src/ui/components/common/AppProgress.vue | complete | reviewed existing docs and retained them |
+| src/ui/components/common/AppTabs.vue | complete | reviewed existing docs and retained them |
+| src/ui/components/common/CompactButton.vue | complete | reviewed existing docs and retained them |
+| src/ui/prototypes/dungeon/DungeonActionCardPrototype.vue | complete | reviewed existing docs and retained them |
+| src/ui/prototypes/dungeon/DungeonBadgePrototype.vue | complete | reviewed existing docs and retained them |
+| src/ui/prototypes/dungeon/DungeonButtonPrototype.vue | complete | reviewed existing docs and retained them |
+| src/ui/prototypes/dungeon/DungeonCardPrototype.vue | complete | reviewed existing docs and retained them |
+| src/ui/prototypes/dungeon/DungeonEventCardPrototype.vue | complete | reviewed existing docs and retained them |
+| src/ui/prototypes/dungeon/DungeonFramePrototype.vue | complete | reviewed existing docs and retained them |
+| src/ui/prototypes/dungeon/DungeonModalPrototype.vue | complete | reviewed existing docs and retained them |
+| src/ui/prototypes/dungeon/DungeonProgressPrototype.vue | complete | reviewed existing docs and retained them |
+| src/ui/prototypes/dungeon/DungeonScenarioBannerPrototype.vue | complete | reviewed existing docs and retained them |
+| src/ui/prototypes/dungeon/DungeonTabsPrototype.vue | complete | reviewed existing docs and retained them |
+| src/ui/services/quest_loader.ts | complete | reviewed existing docs and retained them |
 
 ## Findings Backlog
 
@@ -153,13 +250,15 @@ Start date: 2026-04-20
 | F-002 | simulation | Orchestration concentration in one service may reduce readability/testability | src/domains/simulation/services/simulation_runner.ts | 5 | 3 | 1.67 | medium | schedule | unassigned | open |
 | F-003 | ui | Mixed component filename casing may reduce consistency | src/ui/components | 2 | 2 | 1.00 | low | watch | unassigned | open |
 | F-004 | simulation | Repeated score/stakeholder change conversion helpers across rule files suggest shared utility opportunity | src/domains/simulation/rules/resolve_action.ts | 3 | 2 | 1.50 | low | watch | unassigned | open |
+| F-005 | ui | UI imports outcome archetype types from simulation rule modules, suggesting contract leakage that could be moved to a shared reporting/runtime type surface | src/ui/components/results/share_result_card.vue | 3 | 2 | 1.50 | low | watch | unassigned | open |
+| F-006 | ui | Main game store centralizes many concerns (content loading, run lifecycle, persistence, tutorial triggers, modal state), increasing maintenance cost | src/ui/stores/game_store.ts | 4 | 3 | 1.33 | medium | schedule | unassigned | open |
 
 ## Boundary Integrity Checks
 
 | Check | Area | Result | Notes |
 |---|---|---|---|
 | simulation imports UI/browser APIs | simulation | pass | code usage check passed; only comment mention in engine.ts |
-| UI contains gameplay rule logic | ui | pending | run in S6 |
+| UI contains gameplay rule logic | ui | pass | final sweep confirms no direct rule execution; only limited type-only imports from simulation rule modules |
 | persistence modifies gameplay behavior | persistence | pass | persistence modules are serialization/validation/adapters only |
 | reporting modifies simulation state | reporting | pass | reporting modules are payload building/encoding only |
 
@@ -167,10 +266,9 @@ Start date: 2026-04-20
 
 | Area | Checked Terms | Issues Found | Action |
 |---|---|---|---|
-| full codebase | playerClass, endingType, avatarRole | pending | run in S6 + final sweep |
+| full codebase | playerClass, endingType, avatarRole | 0 blocking issues | final S6 sweep remains clean; uses are expected naming/state references |
 
 ## Next Actions
 
-1. Execute Session F for app/shared/types and UI documentation pass
-2. Prioritize largest UI files and store/composable boundaries first
-3. Run targeted UI/domain integration tests and finish terminology sweep
+1. Prepare interim ranked findings update from accumulated tracker entries
+2. Produce final cleanup/refactor analysis from template using evidence in this tracker

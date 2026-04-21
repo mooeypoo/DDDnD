@@ -15,6 +15,9 @@
 <script setup lang="ts">
 import IconScroll from '@/ui/components/icons/IconScroll.vue'
 
+/**
+ * Contextual tutorial-mode banner with an explicit exit action.
+ */
 defineProps<{
   isTutorial: boolean
 }>()

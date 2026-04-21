@@ -1,3 +1,6 @@
+/**
+ * Tone ids for stakeholder speech bubble presentation text.
+ */
 export type StakeholderReactionBubbleTone = 'positive' | 'mixed' | 'concern' | 'critical' | 'fallback'
 
 /**

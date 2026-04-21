@@ -33,6 +33,9 @@
 import { ref } from 'vue'
 import type { TutorialStep } from '@/domains/content/model/tutorial_types'
 
+/**
+ * Inline tutorial hint panel that reveals the current authored tutorial step.
+ */
 defineProps<{
   step: TutorialStep | null
   stepNumber: number

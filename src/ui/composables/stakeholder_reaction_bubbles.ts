@@ -4,6 +4,9 @@ import {
   type StakeholderReactionBubbleTone,
 } from '@/ui/config/stakeholder_reaction_bubble_language'
 
+/**
+ * UI speech bubble payload for scene/dialog presentation.
+ */
 export interface StakeholderSpeechBubblePresentation {
   text: string
   tone: StakeholderReactionBubbleTone
@@ -37,6 +40,9 @@ function pickBubbleTemplate(
   return templates[idx]
 }
 
+/**
+ * Infers presentation tone from a stakeholder reaction record.
+ */
 export function inferReactionBubbleTone(
   reaction: StakeholderReactionRecord,
 ): StakeholderReactionBubbleTone {
@@ -79,6 +85,9 @@ export function inferReactionBubbleTone(
   return 'fallback'
 }
 
+/**
+ * Builds deterministic speech-bubble text/tone assignments for reactions in one turn.
+ */
 export function buildStakeholderSpeechBubbles(
   reactions: StakeholderReactionRecord[],
   turnNumber: number,

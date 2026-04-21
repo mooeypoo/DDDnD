@@ -35,6 +35,9 @@ import type {
   SceneBackgroundId,
 } from '@/ui/config/presentation_asset_types'
 
+/**
+ * Player class asset ids keyed by class id.
+ */
 export type PlayerClassAssetId =
   | 'boundary_mage'
   | 'stakeholder_bard'
@@ -54,6 +57,9 @@ export type CardArtworkAssetId =
   | 'infrastructure_investment'
   | 'quick_patch'
 
+/**
+ * Central presentation asset registry for UI-only artwork references.
+ */
 export const BRANDING_ASSETS = {
   logo_mark: logoMarkUrl,
 } as const

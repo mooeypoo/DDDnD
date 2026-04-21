@@ -72,6 +72,9 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Reusable modal surface with focus management and escape/backdrop dismissal.
+ */
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = withDefaults(

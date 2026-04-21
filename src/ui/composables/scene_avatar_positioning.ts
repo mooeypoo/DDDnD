@@ -1,5 +1,11 @@
+/**
+ * Presentation-only scene actor slot identifiers.
+ */
 export type SceneActorSlot = 'left' | 'center' | 'right' | 'far'
 
+/**
+ * Placement metadata for a scene actor slot.
+ */
 export interface SceneActorPlacement {
   slot: SceneActorSlot
   leftPercent: number
@@ -8,6 +14,9 @@ export interface SceneActorPlacement {
   zIndex: number
 }
 
+/**
+ * Minimal slot input used by guardrail helpers.
+ */
 export interface SceneActorSlotInput {
   slot: SceneActorSlot
 }
@@ -53,6 +62,9 @@ export function getSceneActorPlacement(slot: SceneActorSlot): SceneActorPlacemen
   return SCENE_ACTOR_PLACEMENTS[slot]
 }
 
+/**
+ * Builds inline style values for a scene actor placement.
+ */
 export function buildSceneActorStyle(
   slot: SceneActorSlot,
   horizontalNudgePercent = 0

@@ -45,9 +45,18 @@ import wizardNeutralUrl from '@/assets/presentation/avatars/stakeholder-avatar-r
 import wizardConcernedUrl from '@/assets/presentation/avatars/stakeholder-avatar-roles/wizard/concerned.png?url'
 import wizardAngryUrl from '@/assets/presentation/avatars/stakeholder-avatar-roles/wizard/angry.png?url'
 
+/**
+ * Default UI avatar role fallback.
+ */
 export const DEFAULT_AVATAR_ROLE_ID: AvatarRoleId = 'wizard'
+/**
+ * Default UI avatar mood fallback.
+ */
 export const DEFAULT_AVATAR_MOOD: AvatarMood = 'neutral'
 
+/**
+ * Avatar role artwork registry keyed by avatarRole and mood.
+ */
 export const AVATAR_ROLE_ASSETS: Record<AvatarRoleId, Record<AvatarMood, string>> = {
   bard: {
     happy: bardHappyUrl,
@@ -105,6 +114,9 @@ export const AVATAR_ROLE_ASSETS: Record<AvatarRoleId, Record<AvatarMood, string>
   },
 }
 
+/**
+ * Resolves avatar artwork URL with safe role/mood fallbacks.
+ */
 export function getAvatarRoleAssetUrl(
   avatarRole: AvatarRoleId | string | undefined,
   mood: AvatarMood | string | undefined

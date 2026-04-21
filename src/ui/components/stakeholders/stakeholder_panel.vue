@@ -36,6 +36,10 @@ import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 
+/**
+ * Stakeholder snapshot panel that renders presentational satisfaction labels
+ * from simulation-provided stakeholder values.
+ */
 const props = defineProps<{
   stakeholders: StakeholderSnapshot
   stakeholderNames?: Record<string, string>

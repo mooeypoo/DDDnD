@@ -50,6 +50,9 @@
 <script setup lang="ts">
 import IconSatchel from '@/ui/components/icons/IconSatchel.vue'
 
+/**
+ * Mobile/compact satchel drawer that hosts card controls and card slots.
+ */
 const props = defineProps<{
   isOpen: boolean
   totalCards: number

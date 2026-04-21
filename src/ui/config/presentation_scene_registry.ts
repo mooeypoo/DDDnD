@@ -8,8 +8,14 @@ import scalingCrisisSceneUrl from '@/assets/presentation/scenes/events/scaling_c
 
 import type { EventSceneAssetId, SceneBackgroundId } from './presentation_asset_types'
 
+/**
+ * Default fallback scene background id.
+ */
 export const DEFAULT_SCENE_BACKGROUND_ID: SceneBackgroundId = 'fortified_monolith_hall'
 
+/**
+ * Registry of scenario scene backgrounds.
+ */
 export const SCENE_BACKGROUND_ASSETS: Record<SceneBackgroundId, string> = {
   fortified_monolith_hall: fortifiedMonolithHallUrl,
   strategic_war_room: strategicWarRoomUrl,
@@ -22,6 +28,9 @@ export const EVENT_SCENE_ASSETS: Record<EventSceneAssetId, string> = {
   scaling_crisis: scalingCrisisSceneUrl,
 }
 
+/**
+ * Resolves scenario background asset URL with safe fallback handling.
+ */
 export function getSceneBackgroundAssetUrl(
   sceneId: SceneBackgroundId | string | undefined
 ): string {

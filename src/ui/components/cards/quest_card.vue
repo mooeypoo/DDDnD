@@ -182,6 +182,9 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Quest selection card used in run setup and tutorial launch flows.
+ */
 import { computed } from 'vue'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 

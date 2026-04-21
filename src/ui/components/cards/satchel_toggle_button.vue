@@ -14,6 +14,9 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Floating launcher button for opening the action satchel drawer.
+ */
 defineProps<{
   totalCards: number
   playableCards: number

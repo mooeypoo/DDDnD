@@ -13,6 +13,9 @@ import type {
   SceneBackgroundId,
 } from '@/ui/config/presentation_asset_types'
 
+/**
+ * UI request model for avatar artwork lookup.
+ */
 export interface AvatarImageRequest {
   avatarRole: AvatarRoleId | string | undefined
   mood: AvatarMood | string | undefined

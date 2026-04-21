@@ -100,6 +100,11 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * In-run HUD sidebar showing health/status snapshots and player identity.
+ *
+ * Purely presentational: consumes simulation/store outputs without applying rules.
+ */
 import { computed } from 'vue'
 import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'

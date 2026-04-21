@@ -53,6 +53,10 @@ import { useGameStore } from '@/ui/stores/game_store'
 import ShareResultCard from '@/ui/components/results/share_result_card.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
 
+/**
+ * Share view that decodes a reporting payload from the URL and renders a
+ * read-only result card or a graceful fallback state.
+ */
 const route = useRoute()
 const router = useRouter()
 const gameStore = useGameStore()

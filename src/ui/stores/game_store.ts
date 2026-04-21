@@ -47,6 +47,12 @@ export interface RunSetupOptions {
   is_tutorial?: boolean
 }
 
+/**
+ * Main UI orchestration store.
+ *
+ * Coordinates domain service calls, stores UI-facing state, and manages run
+ * lifecycle interactions. Game rules remain in simulation domain services.
+ */
 export const useGameStore = defineStore('game', () => {
   const saveAdapter = createLocalStorageSaveAdapter()
 

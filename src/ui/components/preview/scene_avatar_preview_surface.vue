@@ -29,6 +29,9 @@ import {
 } from '@/ui/composables/scene_avatar_positioning'
 import type { AvatarMood, AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 
+/**
+ * Preview actor input contract for the scene/avatar authoring surface.
+ */
 interface SurfaceActor {
   id: string
   avatarRole: AvatarRoleId | string
@@ -36,6 +39,10 @@ interface SurfaceActor {
   slot: SceneActorSlot
 }
 
+/**
+ * Scene/avatar preview surface used by tooling and Storybook-style inspection.
+ * It relies entirely on presentation registries and guardrails, not gameplay.
+ */
 const props = defineProps<{
   sceneId: SceneBackgroundId | string
   actors: SurfaceActor[]
@@ -43,6 +50,9 @@ const props = defineProps<{
 
 const sceneUrl = computed(() => requestSceneBackground(props.sceneId))
 
+/**
+ * Applies slot and nudge guardrails so preview actors remain readable.
+ */
 const guardrailedActors = computed(() => {
   const resolvedSlots = resolveGuardrailedActorSlots(props.actors)
   const horizontalNudges = buildGuardrailedNudges(resolvedSlots)

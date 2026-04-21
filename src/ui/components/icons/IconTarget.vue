@@ -17,5 +17,8 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Target icon primitive for player action and objective labels.
+ */
 withDefaults(defineProps<{ size?: number }>(), { size: 20 })
 </script>

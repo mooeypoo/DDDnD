@@ -1,6 +1,9 @@
 import type { AvatarMood, AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import type { SceneActorSlot } from '@/ui/composables/scene_avatar_positioning'
 
+/**
+ * Preview actor configuration used by avatar/scene preview tooling.
+ */
 export interface PreviewActorConfig {
   id: string
   avatarRole: AvatarRoleId
@@ -8,6 +11,9 @@ export interface PreviewActorConfig {
   slot: SceneActorSlot
 }
 
+/**
+ * Available scene options for preview tooling.
+ */
 export const SCENE_PREVIEW_OPTIONS: ReadonlyArray<{
   id: SceneBackgroundId
   label: string

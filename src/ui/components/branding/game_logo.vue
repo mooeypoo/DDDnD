@@ -17,6 +17,10 @@
 import { computed } from 'vue'
 import LogoSigil from './logo_sigil.vue'
 
+/**
+ * Brand lockup used in mastheads and entry surfaces.
+ * Combines the sigil mark with title/subtitle typography at selectable sizes.
+ */
 const props = withDefaults(
   defineProps<{ size?: 'small' | 'medium' | 'large' }>(),
   { size: 'medium' }

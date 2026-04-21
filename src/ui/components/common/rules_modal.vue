@@ -119,6 +119,10 @@
 <script setup lang="ts">
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
+
+/**
+ * Game rules modal with static instructional content and close action.
+ */
 defineProps<{
   isOpen: boolean
 }>()

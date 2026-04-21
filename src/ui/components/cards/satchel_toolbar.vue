@@ -42,6 +42,9 @@ import { CATEGORY_META } from '@/ui/composables/card_filter_sort'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import AppSelect from '@/ui/components/common/AppSelect.vue'
 
+/**
+ * Toolbar for satchel card filtering and sorting controls.
+ */
 const props = defineProps<{
   availableCategories: string[]
   affectedMetrics: string[]

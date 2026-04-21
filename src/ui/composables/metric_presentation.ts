@@ -1,3 +1,6 @@
+/**
+ * UI display metadata for one score metric.
+ */
 export interface MetricPresentation {
   icon: string
   colorClass: string
@@ -37,6 +40,9 @@ const METRIC_PRESENTATION: Record<string, MetricPresentation> = {
   }
 }
 
+/**
+ * Resolves icon/color/label display metadata for a score id.
+ */
 export function getMetricPresentation(scoreId: string): MetricPresentation {
   return METRIC_PRESENTATION[scoreId] ?? {
     icon: '📈',

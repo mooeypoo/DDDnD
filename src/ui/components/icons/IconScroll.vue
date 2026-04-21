@@ -21,5 +21,8 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Scroll icon primitive for briefing/tutorial and lore-style labels.
+ */
 withDefaults(defineProps<{ size?: number }>(), { size: 20 })
 </script>

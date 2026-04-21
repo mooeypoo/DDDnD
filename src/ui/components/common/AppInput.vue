@@ -38,6 +38,10 @@
 <script setup lang="ts">
 import { computed, getCurrentInstance } from 'vue'
 
+/**
+ * Dungeon-styled text input wrapper that preserves native input semantics and
+ * stable label/input association.
+ */
 const props = withDefaults(
   defineProps<{
     modelValue?: string

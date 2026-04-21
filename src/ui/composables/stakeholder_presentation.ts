@@ -1,5 +1,8 @@
 import type { ScenarioBundle } from '@/domains/content/model/scenario_bundle'
 
+/**
+ * Builds a simple stakeholder id -> display name map from loaded bundle content.
+ */
 export function buildStakeholderNamesMap(
   bundle: Pick<ScenarioBundle, 'stakeholders'> | null | undefined
 ): Record<string, string> {

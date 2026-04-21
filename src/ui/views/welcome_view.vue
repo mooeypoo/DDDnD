@@ -88,6 +88,11 @@ import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
+
+/**
+ * Landing view for first-time entry into the game. It owns only welcome-page
+ * navigation and modal toggles, leaving run setup and gameplay to later views.
+ */
 const router = useRouter()
 const gameStore = useGameStore()
 

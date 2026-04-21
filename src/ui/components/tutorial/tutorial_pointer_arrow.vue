@@ -60,6 +60,9 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Guided pointer overlay used by tutorial steps to draw attention to satchel UI.
+ */
 defineProps<{
   show: boolean
 }>()

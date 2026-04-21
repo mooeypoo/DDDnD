@@ -58,6 +58,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+/**
+ * Presentational event card for already-derived event title, severity, and
+ * highlight copy.
+ */
 const props = withDefaults(
   defineProps<{
     title: string
@@ -73,6 +77,9 @@ const props = withDefaults(
   }
 )
 
+/**
+ * Human-readable severity label for the event header eyebrow.
+ */
 const severityLabel = computed(() => {
   const labels: Record<string, string> = {
     low: 'Low', medium: 'Medium', high: 'High', critical: 'Critical'

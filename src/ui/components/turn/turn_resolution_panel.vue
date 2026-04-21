@@ -110,11 +110,18 @@ import IconMegaphone from '@/ui/components/icons/IconMegaphone.vue'
 import IconGroup from '@/ui/components/icons/IconGroup.vue'
 import StakeholderDriversPanel from '@/ui/components/stakeholders/StakeholderDriversPanel.vue'
 
+/**
+ * Turn resolution panel that renders already-resolved action, event,
+ * stakeholder, and aftershock outcomes from the simulation layer.
+ */
 const props = defineProps<{
   turnResolution: TurnResolutionContext
   stakeholderNames?: Record<string, string>
 }>()
 
+/**
+ * Determines whether any non-action reaction sections should be displayed.
+ */
 const hasSystemReaction = computed(() =>
   !!props.turnResolution.event_resolution ||
   props.turnResolution.stakeholder_resolution.reactions.length > 0 ||

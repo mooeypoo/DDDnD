@@ -19,10 +19,16 @@
 import { computed } from 'vue'
 import { getCollapseWarnings } from '@/ui/composables/system_coupling'
 
+/**
+ * Inline warning strip for score-coupling collapse conditions.
+ */
 const props = defineProps<{
   scores: Record<string, number>
 }>()
 
+/**
+ * Derived UI warnings explaining coupling penalties from low score states.
+ */
 const warnings = computed(() => getCollapseWarnings(props.scores))
 
 const couplingTooltip = `When parts of the system collapse below critical thresholds, positive improvements to coupled scores are diminished.`
