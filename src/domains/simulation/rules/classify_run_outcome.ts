@@ -1,7 +1,8 @@
 import { ScenarioBundle } from '@/domains/content/model'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 import { GameState, RunAnalytics } from '../model'
 import { evaluateNumericCondition } from './condition_evaluator'
-import { classifyOutcomeArchetype, OutcomeArchetypeId } from './classify_outcome_archetype'
+import { classifyOutcomeArchetype } from './classify_outcome_archetype'
 
 /**
  * Terminal reason for run completion classification.

@@ -264,3 +264,12 @@ Risk: contract churn from type surface move.
 	- Validation: `npx vitest run tests/ui/game_store_run_lifecycle_coordinator.test.ts tests/ui/game_store_orchestration.test.ts tests/ui/game_store_content_adapter.test.ts tests/ui/game_store_persistence_adapter.test.ts`
 	- Result: pass (4 files, 18 tests).
 	- Behavior/API: unchanged.
+
+- 2026-04-21: WS-3 / F-005 complete.
+	- Scope: moved `OutcomeArchetypeId` to the stable shared contract surface
+		(`src/shared/contracts/simulation_runtime.ts`) and updated reporting/UI/
+		story consumers to import from `@/shared/contracts` instead of simulation
+		rule modules.
+	- Validation: `npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts`
+	- Result: pass (2 files, 32 tests).
+	- Behavior/API: unchanged (type-surface refactor only).

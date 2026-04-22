@@ -1,6 +1,6 @@
 import { GameState } from '@/domains/simulation/model'
-import { classifyOutcomeArchetype, OutcomeArchetypeId } from '@/domains/simulation/rules'
-import { RunStatus, VersionedContentRef } from '@/shared/contracts'
+import { classifyOutcomeArchetype } from '@/domains/simulation/rules'
+import { OutcomeArchetypeId, RunStatus, VersionedContentRef } from '@/shared/contracts'
 
 /**
  * Exact-run export discriminator.

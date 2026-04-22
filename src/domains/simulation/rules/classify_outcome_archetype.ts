@@ -1,19 +1,5 @@
 import { GameState, RunAnalytics } from '../model'
-
-/**
- * Supported legacy outcome archetype ids.
- */
-export type OutcomeArchetypeId =
-  | 'boundary_builder'
-  | 'stakeholder_whisperer'
-  | 'runaway_refactorer'
-  | 'firefighter'
-  | 'system_stabilizer'
-  | 'the_diplomat'
-  | 'budget_hawk'
-  | 'the_pragmatist'
-  | 'the_visionary'
-  | 'burnout_machine'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 
 /**
  * Accepted input shapes for archetype classification.

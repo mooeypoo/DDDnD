@@ -1,4 +1,4 @@
-import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 
 export interface OutcomeMock {
   archetype: OutcomeArchetypeId

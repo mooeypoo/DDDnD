@@ -43,3 +43,18 @@ export interface StakeholderChangeRecord {
   stakeholder_id: string
   delta: number
 }
+
+/**
+ * Supported legacy outcome archetype ids used across simulation/reporting/UI.
+ */
+export type OutcomeArchetypeId =
+  | 'boundary_builder'
+  | 'stakeholder_whisperer'
+  | 'runaway_refactorer'
+  | 'firefighter'
+  | 'system_stabilizer'
+  | 'the_diplomat'
+  | 'budget_hawk'
+  | 'the_pragmatist'
+  | 'the_visionary'
+  | 'burnout_machine'

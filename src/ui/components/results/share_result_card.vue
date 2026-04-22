@@ -122,7 +122,7 @@
  */
 import { computed, ref } from 'vue'
 import type { SharePayload } from '@/domains/reporting/services/share_payload'
-import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import { requestAvatarRoleImage } from '@/ui/composables/presentation_asset_lookup'
 import {

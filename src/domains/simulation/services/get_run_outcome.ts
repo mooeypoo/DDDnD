@@ -19,8 +19,9 @@
  */
 
 import { ScenarioBundle } from '@/domains/content/model'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 import { GameState } from '../model'
-import { classifyRunOutcome, OutcomeArchetypeId, RunCompletionReason } from '../rules'
+import { classifyRunOutcome, RunCompletionReason } from '../rules'
 
 export type RunOutcomeTier = 'success' | 'partial_success' | 'failure'
 
