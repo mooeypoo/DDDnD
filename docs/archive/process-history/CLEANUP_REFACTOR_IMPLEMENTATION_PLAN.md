@@ -3,8 +3,8 @@
 Purpose: execute approved cleanup findings without gameplay behavior changes.
 
 Inputs:
-- docs/CODEBASE_CLEANUP_ANALYSIS.md
-- docs/CODE_DOCUMENTATION_PASS_TRACKER.md
+- docs/archive/process-history/CODEBASE_CLEANUP_ANALYSIS.md
+- docs/archive/process-history/CODE_DOCUMENTATION_PASS_TRACKER.md
 
 ## 1. Scope and Guardrails
 
@@ -308,3 +308,13 @@ Risk: contract churn from type surface move.
 	- Validation: `npx vitest run tests/simulation/simulation_runner_helpers.test.ts tests/simulation/strategy_fingerprint_telemetry.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/engine_shell.test.ts tests/reporting/share_payload.test.ts`
 	- Result: pass (5 files, 72 tests).
 	- Behavior/API: unchanged.
+
+- 2026-04-23: M3 watch-list reassessment complete.
+	- Decision: keep F-001 on watch for the next planning cycle.
+		Rationale: `src/ui/views/game_view.vue` complexity remains notable, but
+		recent WS-2 store decomposition reduced immediate coordination risk;
+		splitting this view now would introduce broad UI churn near cycle close.
+	- Decision: keep F-003 on watch for the next planning cycle.
+		Rationale: filename-casing migration remains low impact and best handled
+		as a dedicated consistency pass with repo-wide import updates.
+	- Milestone outcome: M3 complete; current cleanup/refactor plan cycle closed.

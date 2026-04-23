@@ -270,5 +270,5 @@ Start date: 2026-04-20
 
 ## Next Actions
 
-1. Execute M3 watch-list reassessment from docs/CLEANUP_REFACTOR_IMPLEMENTATION_PLAN.md (decide schedule vs watch for F-001 and F-003)
-2. Assign owners for WS-1, WS-2, and verification gates
+1. Plan cycle complete: carry F-001 and F-003 as watch items into the next planning cycle.
+2. Assign owners only when the next cleanup cycle is opened.
