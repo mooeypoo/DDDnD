@@ -42,6 +42,9 @@ import IconScroll from '@/ui/components/icons/IconScroll.vue'
 import IconSwords from '@/ui/components/icons/IconSwords.vue'
 import IconLightning from '@/ui/components/icons/IconLightning.vue'
 
+/**
+ * Turn briefing panel for the current event context and turn-level urgency cues.
+ */
 const props = withDefaults(
   defineProps<{
     eventTitle: string
@@ -55,6 +58,9 @@ const props = withDefaults(
   {}
 )
 
+/**
+ * Remaining-turns helper used by the low-turn warning state.
+ */
 const turnsRemaining = computed(() => {
   if (props.currentTurn && props.totalTurns) {
     return props.totalTurns - props.currentTurn + 1
@@ -62,6 +68,9 @@ const turnsRemaining = computed(() => {
   return 0
 })
 
+/**
+ * Suppresses urgency warnings for tutorials while keeping them in standard runs.
+ */
 const isLowTurns = computed(() => {
   if (props.isTutorial) return false
   return turnsRemaining.value > 0 && turnsRemaining.value <= 3

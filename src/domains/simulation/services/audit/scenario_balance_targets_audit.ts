@@ -1,6 +1,9 @@
 import type { AuditFinding } from '../content_audit_contract'
 import type { SimulationReport } from '../simulation_runner'
 
+/**
+ * Scenario-specific target envelope for balance audits.
+ */
 interface ScenarioBalanceTarget {
   win_rate_min: number
   win_rate_max: number
@@ -73,6 +76,9 @@ function getScenarioTarget(scenarioId: string): ScenarioBalanceTarget | undefine
   return SCENARIO_BALANCE_TARGETS[scenarioId]
 }
 
+/**
+ * Produces findings when scenario telemetry falls outside configured targets.
+ */
 export function auditScenarioBalanceTargets(
   report: SimulationReport,
   existingFindings: AuditFinding[],

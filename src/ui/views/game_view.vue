@@ -398,6 +398,12 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Primary in-run gameplay surface.
+ *
+ * This view orchestrates UI composition and user interactions using game store
+ * outputs. Gameplay rules remain simulation-domain responsibilities.
+ */
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'

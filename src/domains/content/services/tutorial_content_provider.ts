@@ -29,6 +29,8 @@ export interface TutorialContentProvider extends ContentProvider {
 
 /**
  * Creates a content provider that loads from the tutorial content namespace.
+ *
+ * Tutorial scripts are loaded from scripts/ and validated against requested refs.
  */
 export function createTutorialContentProvider(): TutorialContentProvider {
   const baseProvider = createContentProvider(TUTORIAL_CONTENT_BASE_PATH)
@@ -50,6 +52,7 @@ export function createTutorialContentProvider(): TutorialContentProvider {
 
     const content = await response.json() as TutorialScript
 
+    // Enforce file-to-metadata consistency for tutorial script refs.
     if (content.id !== ref.id || content.version !== ref.version) {
       throw new Error(
         `Tutorial script metadata mismatch in ${filename}: ` +

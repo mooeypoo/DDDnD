@@ -51,6 +51,11 @@ defineOptions({
   inheritAttrs: false
 })
 
+/**
+ * Dungeon-styled wrapper around the native select element.
+ * Keeps browser-native accessibility and picker behavior while applying the
+ * shared UI surface language.
+ */
 withDefaults(
   defineProps<{
     modelValue?: string

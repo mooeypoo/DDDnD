@@ -1,3 +1,6 @@
+/**
+ * Canonical error codes for persistence operations.
+ */
 export type PersistenceErrorCode =
   | 'invalid_input'
   | 'invalid_export_type'
@@ -16,6 +19,9 @@ export interface PersistenceError {
   path?: string
 }
 
+/**
+ * Creates a typed persistence error payload.
+ */
 export function createPersistenceError(
   code: PersistenceErrorCode,
   message: string,

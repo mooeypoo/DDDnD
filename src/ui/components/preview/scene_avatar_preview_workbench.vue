@@ -77,6 +77,10 @@ import {
   type PreviewActorConfig,
 } from '@/ui/config/scene_avatar_preview_config'
 
+/**
+ * Interactive workbench for previewing scene backgrounds and avatar placement.
+ * This supports presentation tuning only and does not affect runtime gameplay.
+ */
 const sceneOptions = SCENE_PREVIEW_OPTIONS
 const avatarRoleOptions = AVATAR_ROLE_OPTIONS
 const moodOptions = AVATAR_MOOD_OPTIONS
@@ -86,6 +90,9 @@ const selectedSceneId = ref(sceneOptions[0].id)
 const actorCount = ref(3)
 const actors = ref<PreviewActorConfig[]>([...DEFAULT_PREVIEW_ACTORS])
 
+/**
+ * Limits the preview actor list to the user-selected visible count.
+ */
 const visibleActors = computed(() => actors.value.slice(0, actorCount.value))
 </script>
 

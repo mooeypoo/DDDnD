@@ -6,31 +6,15 @@ import {
   evaluateNumericCondition,
   parseConditionDescription
 } from './condition_evaluator'
+import { toScoreChanges, toStakeholderChanges } from './change_record_converters'
 
+/**
+ * Result payload for stakeholder resolution phase.
+ */
 export interface ResolveStakeholderRulesResult {
   stakeholder_resolution: StakeholderResolutionRecord
   score_changes: ScoreChangeRecord[]
   stakeholder_changes: StakeholderChangeRecord[]
-}
-
-function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): ScoreChangeRecord[] {
-  return scoreChanges.map((change) => ({
-    score_id: change.score_id,
-    delta: change.delta
-  }))
-}
-
-function toStakeholderChanges(
-  stakeholderChanges: { stakeholder_id: string; delta: number }[] | undefined
-): StakeholderChangeRecord[] {
-  if (!stakeholderChanges) {
-    return []
-  }
-
-  return stakeholderChanges.map((change) => ({
-    stakeholder_id: change.stakeholder_id,
-    delta: change.delta
-  }))
 }
 
 interface MatchedRule {
@@ -42,6 +26,11 @@ interface MatchedRule {
   description: string
 }
 
+/**
+ * Resolves stakeholder reaction rules once per stakeholder for the current turn.
+ *
+ * Rules are applied in ascending priority, then deterministic id order tie-break.
+ */
 export function resolveStakeholderRules(
   scenarioBundle: ScenarioBundle,
   conditionState: ConditionEvaluationState

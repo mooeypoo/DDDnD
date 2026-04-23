@@ -30,5 +30,8 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Satchel icon primitive for card inventory and drawer controls.
+ */
 withDefaults(defineProps<{ size?: number }>(), { size: 20 })
 </script>

@@ -38,6 +38,10 @@ import { computed } from 'vue'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 
+/**
+ * System-health panel for metric snapshots. It maps numeric score values into
+ * UI-only labels, iconography, and severity styling.
+ */
 const props = defineProps<{
   scores: Record<string, number>
 }>()
@@ -61,6 +65,9 @@ function getScoreClass(value: number): string {
   return 'critical'
 }
 
+/**
+ * Overall health summary derived from the weakest visible score.
+ */
 const overallHealth = computed(() => {
   const values = Object.values(props.scores)
   if (!values.length) return { label: 'Unknown', cssClass: '' }

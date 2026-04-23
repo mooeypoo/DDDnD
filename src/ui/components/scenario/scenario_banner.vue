@@ -120,6 +120,9 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Scenario banner surface for quest metadata and turn progress presentation.
+ */
 import { ref, computed } from 'vue'
 
 const props = defineProps<{

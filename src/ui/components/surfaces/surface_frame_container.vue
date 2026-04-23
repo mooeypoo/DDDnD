@@ -23,6 +23,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+/**
+ * Generic framed container primitive with optional header actions and footer slot.
+ */
 const props = withDefaults(
   defineProps<{
     title?: string

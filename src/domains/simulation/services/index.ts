@@ -1,3 +1,6 @@
+/**
+ * Simulation service barrel exports.
+ */
 export * from './engine'
 export * from './create_run'
 export * from './get_turn_briefing'

@@ -122,6 +122,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+/**
+ * Primary DDDnD sigil artwork component with responsive size presets.
+ */
 const props = withDefaults(
   defineProps<{ size?: 'small' | 'medium' | 'large' }>(),
   { size: 'medium' }

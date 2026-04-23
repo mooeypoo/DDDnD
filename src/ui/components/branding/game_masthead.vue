@@ -121,6 +121,9 @@ import AppButton from '@/ui/components/common/AppButton.vue'
 import CompactButton from '@/ui/components/common/CompactButton.vue'
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 
+/**
+ * Global gameplay masthead for navigation actions and run reset confirmation.
+ */
 const emit = defineEmits<{
   'show-rules':         []
   'show-about':         []

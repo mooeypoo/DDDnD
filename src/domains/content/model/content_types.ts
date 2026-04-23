@@ -3,12 +3,16 @@
  * 
  * Defines the structure of all content entities that can be loaded from JSON files.
  * All keys use snake_case as required by the content schema.
+ *
+ * Note: raw JSON is untrusted until validated by content services.
  */
 
 import { VersionRef } from './version_ref'
 
 /**
  * Base metadata present in all content files.
+ *
+ * The id+version pair forms the canonical identity for content resolution.
  */
 export interface ContentMetadata {
   id: string
@@ -31,7 +35,7 @@ export interface Score extends ContentMetadata {
 /**
  * Score Change
  * 
- * Represents a modification to a score value.
+ * Represents an additive modification to a score value.
  */
 export interface ScoreChange {
   score_id: string
@@ -41,7 +45,7 @@ export interface ScoreChange {
 /**
  * Stakeholder Change
  *
- * Represents a change in stakeholder satisfaction.
+ * Represents an additive change in stakeholder satisfaction.
  */
 export interface StakeholderChange {
   stakeholder_id: string
@@ -52,6 +56,7 @@ export interface StakeholderChange {
  * Numeric Condition
  *
  * A reusable condition format for score/stakeholder gate checks.
+ * Used by requirement and failure-condition evaluation.
  */
 export interface NumericCondition {
   target_type: 'score' | 'stakeholder'
@@ -64,6 +69,7 @@ export interface NumericCondition {
  * Delayed Effect
  * 
  * Represents a future consequence that resolves after a number of turns.
+ * Resolution timing is owned by simulation turn-phase rules.
  */
 export interface DelayedEffect extends ContentMetadata {
   name: string
@@ -111,6 +117,7 @@ export interface Event extends ContentMetadata {
  * Stakeholder Reaction Rule
  * 
  * Defines how a stakeholder reacts to specific conditions.
+ * Priority is used to order rule checks when multiple rules are applicable.
  */
 export interface StakeholderReactionRule extends ContentMetadata {
   name: string
@@ -146,7 +153,8 @@ export interface OutcomeTier extends ContentMetadata {
 /**
  * Outcome Archetype
  * 
- * Defines character archetypes for run endings.
+ * Defines legacy outcome archetype classifications for run endings.
+ * Player-facing surfaces should prefer endingType terminology.
  */
 export interface OutcomeArchetype extends ContentMetadata {
   name: string
@@ -158,6 +166,7 @@ export interface OutcomeArchetype extends ContentMetadata {
  * Scenario
  * 
  * Defines a complete gameplay scenario.
+ * References are resolved into a validated scenario bundle before simulation.
  */
 export interface Scenario extends ContentMetadata {
   name: string

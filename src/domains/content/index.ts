@@ -1,7 +1,7 @@
 /**
  * Content Domain
  * 
- * Exports all content domain functionality.
+ * Top-level content domain exports (model contracts + services).
  */
 
 export * from './model'

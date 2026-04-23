@@ -6,6 +6,9 @@ import {
 } from '@/ui/composables/stakeholder_reaction_bubbles'
 import { formatStakeholderName } from '@/ui/composables/stakeholder_presentation'
 
+/**
+ * UI row model summarizing a stakeholder reaction for presentation surfaces.
+ */
 export interface StakeholderDriverRow {
   stakeholder_id: string
   stakeholder_name: string
@@ -16,6 +19,9 @@ export interface StakeholderDriverRow {
   score_changes: ScoreChangeRecord[]
 }
 
+/**
+ * Maps stakeholder reaction records into presentation-oriented driver rows.
+ */
 export function mapStakeholderDrivers(
   reactions: StakeholderReactionRecord[],
   stakeholderNames?: Record<string, string>,

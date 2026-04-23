@@ -26,6 +26,9 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Curated external social/contact link panel for the creator profile surfaces.
+ */
 interface SocialNetwork {
   name: string
   url: string

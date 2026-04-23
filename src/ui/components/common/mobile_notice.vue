@@ -13,6 +13,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
+/**
+ * Session-scoped mobile UX notice shown on small screens once per tab session.
+ */
 const STORAGE_KEY = 'dddnd_mobile_notice_dismissed'
 const isVisible = ref(false)
 

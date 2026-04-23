@@ -23,6 +23,9 @@
 import { computed } from 'vue'
 import { getClassPortraitUrl, getClassAccentColor } from '@/ui/composables/class_artwork'
 
+/**
+ * Class portrait primitive with accent fallback rendering.
+ */
 const props = withDefaults(defineProps<{
   classId?: string
   className?: string

@@ -51,6 +51,9 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Reusable frame surface primitive for major UI sections.
+ */
 withDefaults(
   defineProps<{
     title?: string

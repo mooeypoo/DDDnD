@@ -1,7 +1,11 @@
 import { ScenarioBundle, versionRefKey } from '@/domains/content/model'
 import { ScoreChangeRecord, StakeholderChangeRecord } from '@/shared/contracts'
 import { DelayedEffectInstance, GameState, ResolvedAftershockRecord } from '../model'
+import { toScoreChanges, toStakeholderChanges } from './change_record_converters'
 
+/**
+ * Result payload for architectural aftershocks phase resolution.
+ */
 export interface ResolveArchitecturalAftershocksResult {
   resolved_aftershocks: ResolvedAftershockRecord[]
   score_changes: ScoreChangeRecord[]
@@ -10,26 +14,9 @@ export interface ResolveArchitecturalAftershocksResult {
   resolved_effect_instance_ids: string[]
 }
 
-function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): ScoreChangeRecord[] {
-  return scoreChanges.map((change) => ({
-    score_id: change.score_id,
-    delta: change.delta
-  }))
-}
-
-function toStakeholderChanges(
-  stakeholderChanges: { stakeholder_id: string; delta: number }[] | undefined
-): StakeholderChangeRecord[] {
-  if (!stakeholderChanges) {
-    return []
-  }
-
-  return stakeholderChanges.map((change) => ({
-    stakeholder_id: change.stakeholder_id,
-    delta: change.delta
-  }))
-}
-
+/**
+ * Sorts effect instances deterministically for stable turn resolution.
+ */
 function sortForDeterminism(effects: DelayedEffectInstance[]): DelayedEffectInstance[] {
   return [...effects].sort((a, b) => {
     if (a.trigger_turn !== b.trigger_turn) {
@@ -44,6 +31,9 @@ function sortForDeterminism(effects: DelayedEffectInstance[]): DelayedEffectInst
   })
 }
 
+/**
+ * Resolves due delayed effects for the current turn's aftershocks phase.
+ */
 export function resolveArchitecturalAftershocks(
   gameState: GameState,
   scenarioBundle: ScenarioBundle

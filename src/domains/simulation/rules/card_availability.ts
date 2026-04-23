@@ -3,6 +3,9 @@ import { VersionedContentRef } from '@/shared/contracts'
 import { GameState } from '../model'
 import { ConditionEvaluationState, evaluateNumericCondition } from './condition_evaluator'
 
+/**
+ * Reason a card is currently unavailable for play.
+ */
 export type CardUnavailableReason =
   | 'usage_limit_reached'
   | 'cooldown_active'
@@ -22,6 +25,9 @@ export interface CardAvailability {
   turns_until_available: number
 }
 
+/**
+ * Normalizes usage limit semantics: undefined/null means unlimited uses.
+ */
 function normalizeUsageLimit(card: Card): number | null {
   if (card.usage_limit === undefined || card.usage_limit === null) {
     return null
@@ -30,10 +36,16 @@ function normalizeUsageLimit(card: Card): number | null {
   return card.usage_limit
 }
 
+/**
+ * Normalizes cooldown semantics: undefined means zero-turn cooldown.
+ */
 function normalizeCooldownTurns(card: Card): number {
   return card.cooldown_turns ?? 0
 }
 
+/**
+ * Evaluates all card requirements against current condition state.
+ */
 function areRequirementsMet(card: Card, conditionState: ConditionEvaluationState): boolean {
   if (!card.requirements || card.requirements.length === 0) {
     return true
@@ -42,6 +54,9 @@ function areRequirementsMet(card: Card, conditionState: ConditionEvaluationState
   return card.requirements.every((requirement) => evaluateNumericCondition(requirement, conditionState))
 }
 
+/**
+ * Computes current card availability from usage, cooldown, and requirements.
+ */
 export function getCardAvailability(
   gameState: GameState,
   actionRef: VersionedContentRef,
@@ -88,6 +103,9 @@ export function getCardAvailability(
   }
 }
 
+/**
+ * Returns the next turn index where a card can be used after playing this turn.
+ */
 export function getCardNextAvailableTurn(currentTurn: number, cooldownTurns: number): number {
   return currentTurn + cooldownTurns + 1
 }

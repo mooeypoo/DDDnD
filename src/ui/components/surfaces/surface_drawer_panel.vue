@@ -25,6 +25,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+/**
+ * Generic bottom drawer surface primitive with toggle handle and optional footer.
+ */
 const props = defineProps<{
   isOpen: boolean
   title: string

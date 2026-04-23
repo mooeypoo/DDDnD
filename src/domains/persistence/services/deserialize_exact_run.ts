@@ -18,6 +18,9 @@ import {
   ExactRunSeedInfo
 } from './serialize_exact_run'
 
+/**
+ * Type guard for exact-run seed metadata.
+ */
 function isSeedInfo(value: unknown): value is ExactRunSeedInfo {
   if (!isRecord(value)) {
     return false
@@ -39,6 +42,9 @@ function isSeedInfo(value: unknown): value is ExactRunSeedInfo {
   return true
 }
 
+/**
+ * Type guard for exact-run outcome snapshot payload.
+ */
 function isOutcomeSnapshot(value: unknown): value is ExactRunOutcomeSnapshot {
   if (!isRecord(value)) {
     return false
@@ -76,6 +82,9 @@ function isOutcomeSnapshot(value: unknown): value is ExactRunOutcomeSnapshot {
   return hasValidFinalTurn && hasValidAverage
 }
 
+/**
+ * Validates scenario_ref compatibility with embedded game_state.
+ */
 function validateScenarioRefCompatibility(gameState: GameState, scenarioRef: ExactRunExport['scenario_ref']) {
   if (gameState.scenario_ref.id !== scenarioRef.id || gameState.scenario_ref.version !== scenarioRef.version) {
     return err(
@@ -90,6 +99,9 @@ function validateScenarioRefCompatibility(gameState: GameState, scenarioRef: Exa
   return ok(undefined)
 }
 
+/**
+ * Validates and deserializes unknown input into exact-run export payload.
+ */
 export function deserialize_exact_run(input: unknown): PersistenceResult<ExactRunExport> {
   if (!isRecord(input)) {
     return err(createPersistenceError('invalid_input', 'Exact run payload must be an object'))

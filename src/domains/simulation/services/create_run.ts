@@ -17,6 +17,9 @@ import { VersionedContentRef } from '@/shared/contracts'
 import { createSeededRandom } from '@/shared/random/seeded_random'
 import { CreateInitialGameStateInput, GameState, ScoreSnapshot, createInitialGameState } from '../model'
 
+/**
+ * Converts content refs to shared versioned content refs.
+ */
 function toVersionedContentRef(ref: { id: string; version: number }): VersionedContentRef {
   return {
     id: ref.id,
@@ -24,6 +27,9 @@ function toVersionedContentRef(ref: { id: string; version: number }): VersionedC
   }
 }
 
+/**
+ * Deterministic seed hash used for stable run ids and timestamps.
+ */
 function hashSeed(seed: string): number {
   let hash = 0
   for (let index = 0; index < seed.length; index += 1) {
@@ -32,6 +38,9 @@ function hashSeed(seed: string): number {
   return Math.abs(hash)
 }
 
+/**
+ * Applies deterministic per-score variance for scenario start values.
+ */
 function applyScoreVariance(
   startingScores: ScoreSnapshot,
   variance: number,
@@ -46,6 +55,9 @@ function applyScoreVariance(
   return result
 }
 
+/**
+ * Builds a deterministic run id from scenario ref and seed hash.
+ */
 function createDeterministicRunId(scenarioBundle: ScenarioBundle, seed: string): string {
   const scenarioKey = versionRefKey({
     id: scenarioBundle.scenario.id,
@@ -55,11 +67,17 @@ function createDeterministicRunId(scenarioBundle: ScenarioBundle, seed: string):
   return `run__${scenarioKey}__${hashSeed(seed).toString(36)}`
 }
 
+/**
+ * Creates deterministic timestamp derived from seed.
+ */
 function createDeterministicTimestamp(seed: string): string {
   const secondsSinceEpoch = hashSeed(seed)
   return new Date(secondsSinceEpoch * 1000).toISOString()
 }
 
+/**
+ * Applies challenge-modifier score adjustments with score clamping.
+ */
 function applyScoreAdjustments(
   scores: ScoreSnapshot,
   adjustments: Record<string, number>
@@ -73,10 +91,16 @@ function applyScoreAdjustments(
   return result
 }
 
+/**
+ * Optional inputs for run creation.
+ */
 export interface CreateRunOptions {
   challenge_modifier?: ChallengeModifier
 }
 
+/**
+ * Creates deterministic initial run state from scenario content and seed.
+ */
 export function createRun(scenarioBundle: ScenarioBundle, seed: string, options?: CreateRunOptions): GameState {
   const variance = scenarioBundle.scenario.score_variance ?? 0
   let startingScores = variance > 0

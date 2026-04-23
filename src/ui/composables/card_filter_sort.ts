@@ -2,6 +2,7 @@
  * Card filtering and sorting logic for the Action Satchel.
  *
  * Pure functions — no Vue dependency — so they can be tested independently.
+ * This is a UI helper layer only; it does not change gameplay availability rules.
  */
 
 import type { ScoreChange } from '@/domains/content/model/content_types'

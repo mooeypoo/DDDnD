@@ -25,6 +25,10 @@
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import SocialLinksPanel from './social_links_panel.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
+
+/**
+ * Informational modal containing creator profile and outbound links.
+ */
 defineProps<{ isOpen: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 function close() { emit('close') }

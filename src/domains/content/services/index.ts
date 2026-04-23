@@ -1,7 +1,7 @@
 /**
  * Content Services
  * 
- * Exports all content domain services.
+ * Barrel export for content loading, validation, and pack registry services.
  */
 
 export * from './content_provider'

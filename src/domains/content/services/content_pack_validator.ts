@@ -3,6 +3,9 @@ import { buildScenarioBundle } from './bundle_builder'
 import { validateScenarioBundle, type ValidationError } from './bundle_validator'
 import type { VersionRef } from '../model'
 
+/**
+ * Per-scenario validation result in a content pack report.
+ */
 export interface ContentPackScenarioValidationResult {
   scenario_ref: VersionRef
   valid: boolean
@@ -10,23 +13,37 @@ export interface ContentPackScenarioValidationResult {
   build_error?: string
 }
 
+/**
+ * Aggregate validation counts for a pack validation run.
+ */
 export interface ContentPackValidationSummary {
   scenarios_checked: number
   valid_scenarios: number
   invalid_scenarios: number
 }
 
+/**
+ * Top-level result for content pack scenario validation.
+ */
 export interface ContentPackValidationReport {
   overall_valid: boolean
   summary: ContentPackValidationSummary
   scenarios: ContentPackScenarioValidationResult[]
 }
 
+/**
+ * Inputs required to validate a set of scenario refs for one provider.
+ */
 export interface ValidateContentPackInput {
   scenario_refs: VersionRef[]
   provider: ContentProvider
 }
 
+/**
+ * Builds and validates bundles for all provided scenario refs.
+ *
+ * Build failures are captured per scenario and do not stop other validations.
+ */
 export async function validateContentPack(input: ValidateContentPackInput): Promise<ContentPackValidationReport> {
   const scenarios: ContentPackScenarioValidationResult[] = []
 

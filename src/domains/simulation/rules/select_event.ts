@@ -8,12 +8,18 @@ import {
   parseConditionDescription
 } from './condition_evaluator'
 
+/**
+ * Event candidate eligible for weighted selection this turn.
+ */
 export interface EligibleEvent {
   event_ref: VersionedContentRef
   event: Event
   weight: number
 }
 
+/**
+ * Collects all currently eligible events with positive occurrence weight.
+ */
 export function collectEligibleEvents(
   gameState: GameState,
   scenarioBundle: ScenarioBundle,
@@ -56,6 +62,9 @@ export function collectEligibleEvents(
   })
 }
 
+/**
+ * Performs weighted event selection using seeded randomness.
+ */
 export function selectEvent(
   gameState: GameState,
   scenarioBundle: ScenarioBundle,

@@ -25,6 +25,9 @@ function netStakeholderDelta(rule: StakeholderReactionRule, stakeholderId?: stri
 
 // ── Synthesis ───────────────────────────────────────────────────
 
+/**
+ * Audits static scenario content structure for balance and completeness risks.
+ */
 export function auditStructuralContent(bundle: ScenarioBundle): AuditFinding[] {
   const findings: AuditFinding[] = []
 

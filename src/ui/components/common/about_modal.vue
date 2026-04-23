@@ -85,6 +85,11 @@
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import SocialLinksPanel from './social_links_panel.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
+
+/**
+ * Informational modal that explains the game premise and supporting links.
+ * It is static UI content and does not mutate game state beyond close events.
+ */
 defineProps<{
   isOpen: boolean
 }>()

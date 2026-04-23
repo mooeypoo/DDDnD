@@ -67,6 +67,9 @@
 import { computed } from 'vue'
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 
+/**
+ * UI-only severity metadata for the event details modal.
+ */
 const SEVERITY_META: Record<string, { label: string; subtitle: string; accent: string }> = {
   low:      { label: 'Low Severity',      subtitle: 'Minor · Informational',  accent: '#60a5fa' },
   medium:   { label: 'Medium Severity',   subtitle: 'Caution · Monitor',      accent: '#fbbf24' },
@@ -76,6 +79,10 @@ const SEVERITY_META: Record<string, { label: string; subtitle: string; accent: s
 
 const DEFAULT_META = { label: 'Event', subtitle: 'System notification', accent: 'var(--text-secondary)' }
 
+/**
+ * Modal for inspecting a resolved event in more detail. It remains informational
+ * only and never triggers gameplay actions.
+ */
 const props = withDefaults(
   defineProps<{
     isOpen: boolean
@@ -94,6 +101,9 @@ const emit = defineEmits<{
   close: []
 }>()
 
+/**
+ * Normalized severity presentation values for modal copy and accent styling.
+ */
 const severityMeta = computed(() => SEVERITY_META[props.severity ?? 'medium'] ?? DEFAULT_META)
 const severityLabel    = computed(() => severityMeta.value.label)
 const severitySubtitle = computed(() => severityMeta.value.subtitle)

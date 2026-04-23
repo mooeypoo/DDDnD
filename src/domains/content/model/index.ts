@@ -1,7 +1,8 @@
 /**
  * Content Model
  * 
- * Exports all content model types and utilities.
+ * Barrel export for content domain model contracts and helpers.
+ * Keeps import surfaces stable for content, simulation, and persistence layers.
  */
 
 export * from './content_types'

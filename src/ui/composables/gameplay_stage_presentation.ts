@@ -3,11 +3,17 @@ import type { AvatarMood, AvatarRoleId, SceneBackgroundId } from '@/ui/config/pr
 import type { SceneActorSlot } from '@/ui/composables/scene_avatar_positioning'
 import type { StakeholderReactionBubbleTone } from '@/ui/config/stakeholder_reaction_bubble_language'
 
+/**
+ * UI-only speech bubble presentation payload for scene actors.
+ */
 export interface StakeholderSpeechBubblePresentation {
   text: string
   tone: StakeholderReactionBubbleTone
 }
 
+/**
+ * UI-only scene actor projection derived from stakeholder runtime state.
+ */
 export interface GameplayStageActor {
   id: string
   displayName: string
@@ -38,10 +44,16 @@ export const AVATAR_ROLE_ROTATION: AvatarRoleId[] = [
 
 const ACTOR_SLOTS: SceneActorSlot[] = ['left', 'center', 'right', 'far']
 
+/**
+ * Picks a random background for presentation-only variation.
+ */
 export function pickRandomSceneId(): SceneBackgroundId {
   return ALL_SCENE_BACKGROUND_IDS[Math.floor(Math.random() * ALL_SCENE_BACKGROUND_IDS.length)]
 }
 
+/**
+ * Randomizes avatar-role pool order for presentation-only variation.
+ */
 export function shuffleAvatarRoles(): AvatarRoleId[] {
   const roles = [...AVATAR_ROLE_ROTATION]
   for (let i = roles.length - 1; i > 0; i--) {
@@ -51,6 +63,9 @@ export function shuffleAvatarRoles(): AvatarRoleId[] {
   return roles
 }
 
+/**
+ * Resolves default scene background from scenario id heuristics.
+ */
 export function resolveGameplaySceneId(scenarioId: string | undefined): SceneBackgroundId {
   if (!scenarioId) {
     return 'fortified_monolith_hall'
@@ -67,6 +82,9 @@ export function resolveGameplaySceneId(scenarioId: string | undefined): SceneBac
   return 'fortified_monolith_hall'
 }
 
+/**
+ * Maps stakeholder satisfaction to presentation mood.
+ */
 export function resolveStakeholderMood(satisfaction: number): AvatarMood {
   if (satisfaction >= 70) {
     return 'happy'
@@ -83,11 +101,17 @@ export function resolveStakeholderMood(satisfaction: number): AvatarMood {
   return 'angry'
 }
 
+/**
+ * Resolves deterministic avatarRole assignment from stakeholder id.
+ */
 export function resolveStakeholderAvatarRole(stakeholderId: string, rolePool: AvatarRoleId[] = AVATAR_ROLE_ROTATION): AvatarRoleId {
   const hash = stakeholderId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
   return rolePool[hash % rolePool.length]
 }
 
+/**
+ * Builds scene actor presentation models from stakeholder runtime snapshots.
+ */
 export function buildGameplayStageActors(
   stakeholders: StakeholderSnapshot | undefined,
   stakeholderNames: Record<string, string>,

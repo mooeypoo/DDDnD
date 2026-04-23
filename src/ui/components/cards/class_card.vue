@@ -88,6 +88,9 @@ import type { PlayerClass } from '@/domains/content/model'
 import { getClassAccentColor } from '@/ui/composables/class_artwork'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 
+/**
+ * Selectable class tile used during run setup.
+ */
 const props = withDefaults(
   defineProps<{
     playerClass: PlayerClass

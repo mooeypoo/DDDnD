@@ -23,8 +23,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 
+/**
+ * Presentational result panel for a resolved outcome archetype.
+ * It renders already-derived labels, summaries, and optional portrait artwork.
+ */
 const props = withDefaults(
   defineProps<{
     archetype: OutcomeArchetypeId
@@ -40,6 +44,9 @@ const props = withDefaults(
   }
 )
 
+/**
+ * Emoji fallback map used until a portrait URL is supplied for an archetype.
+ */
 const archetypeIcon = computed(() => {
   const icons: Record<OutcomeArchetypeId, string> = {
     boundary_builder:     '🏗️',
@@ -56,6 +63,9 @@ const archetypeIcon = computed(() => {
   return icons[props.archetype]
 })
 
+/**
+ * Lightweight tier badge copy used by result summaries.
+ */
 const tierDisplay = computed(() => {
   const labels: Record<string, string> = {
     triumph:  '🏆 Triumph',

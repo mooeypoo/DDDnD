@@ -64,6 +64,10 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import IconBarChart from '@/ui/components/icons/IconBarChart.vue'
 
+/**
+ * Compact score HUD with an expandable detail popover.
+ * It formats simulation score snapshots for persistent gameplay chrome.
+ */
 const props = defineProps<{
   scores: Record<string, number>
 }>()
@@ -103,6 +107,9 @@ function getScoreClass(value: number): string {
   return 'critical'
 }
 
+/**
+ * Overall health summary derived from the weakest current metric.
+ */
 const overallHealth = computed(() => {
   const values = Object.values(props.scores)
   if (!values.length) return { label: 'Unknown', cssClass: '' }

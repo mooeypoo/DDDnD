@@ -1,7 +1,13 @@
 import type { SimulationReport } from './simulation_runner'
 
+/**
+ * Severity levels for audit findings.
+ */
 export type AuditFindingSeverity = 'info' | 'warning' | 'critical'
 
+/**
+ * Taxonomy for audit finding categorization.
+ */
 export type AuditFindingCategory =
   | 'scenario_difficulty'
   | 'score_balance'
@@ -12,6 +18,9 @@ export type AuditFindingCategory =
   | 'ui_explainability'
   | 'content_completeness'
 
+/**
+ * Primary area where a finding should be addressed.
+ */
 export type AuditFixSurface = 'content' | 'simulation' | 'runner' | 'ui' | 'docs'
 
 export interface StructuralAuditCheck {
@@ -43,6 +52,9 @@ export interface AuditFinding {
   recommended_fix_surface: AuditFixSurface
 }
 
+/**
+ * Summary counters for final audit status.
+ */
 export interface AuditSummary {
   overall_status: 'pass' | 'warning' | 'critical'
   info_count: number
@@ -50,6 +62,9 @@ export interface AuditSummary {
   critical_count: number
 }
 
+/**
+ * Full content audit report combining structural and telemetry-derived findings.
+ */
 export interface ContentAuditReport {
   content_pack_id: string
   scenario_id: string

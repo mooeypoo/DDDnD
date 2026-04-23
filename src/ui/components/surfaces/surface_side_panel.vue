@@ -32,6 +32,9 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
+/**
+ * Accessible side-panel primitive with focus trap and escape/backdrop closing.
+ */
 const props = withDefaults(
   defineProps<{
     isOpen: boolean

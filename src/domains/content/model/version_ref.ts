@@ -3,6 +3,7 @@
  * 
  * Represents a reference to a versioned content entity.
  * Used throughout content files to reference other content.
+ * The pair id+version is the canonical cross-file identity.
  */
 
 export interface VersionRef {
@@ -23,6 +24,7 @@ export function versionRefKey(ref: VersionRef): string {
  * Filename format: <id>-v<version>.json
  * 
  * Returns null if filename doesn't match expected format.
+ * Parsing does not validate that the referenced content actually exists.
  */
 export function parseFilename(filename: string): VersionRef | null {
   const match = filename.match(/^(.+)-v(\d+)\.json$/)

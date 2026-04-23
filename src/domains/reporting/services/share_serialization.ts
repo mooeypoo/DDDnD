@@ -25,7 +25,7 @@ import {
   type SharePayload,
   type SharePayloadParseResult
 } from './share_payload'
-import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 
 // ─── Base64url helpers ───────────────────────────────────────
 

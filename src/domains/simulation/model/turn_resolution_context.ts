@@ -7,6 +7,8 @@ import {
 
 /**
  * Generic presentation fields suitable for logs and UI surfaces.
+ *
+ * These fields are simulation outputs and do not introduce UI-owned rule logic.
  */
 export interface PresentationRecord {
   title: string
@@ -23,6 +25,9 @@ export interface QueuedDelayedEffectReference {
   trigger_phase: TriggerPhase
 }
 
+/**
+ * Runtime record of a delayed effect resolved in aftershocks phase.
+ */
 export interface ResolvedAftershockRecord {
   effect_instance_id: string
   effect_id: string
@@ -35,6 +40,9 @@ export interface ResolvedAftershockRecord {
   presentation: PresentationRecord
 }
 
+/**
+ * Runtime record of player action resolution for one turn.
+ */
 export interface ActionResolutionRecord {
   selected_action: VersionedContentRef
   score_changes: ScoreChangeRecord[]
@@ -43,6 +51,9 @@ export interface ActionResolutionRecord {
   presentation: PresentationRecord
 }
 
+/**
+ * Runtime record of selected system event resolution.
+ */
 export interface EventResolutionRecord {
   selected_event: VersionedContentRef
   score_changes: ScoreChangeRecord[]
@@ -51,6 +62,9 @@ export interface EventResolutionRecord {
   presentation: PresentationRecord
 }
 
+/**
+ * Runtime record of one stakeholder's applied rules for a turn.
+ */
 export interface StakeholderReactionRecord {
   stakeholder_id: string
   applied_rule_refs: VersionedContentRef[]
@@ -59,6 +73,9 @@ export interface StakeholderReactionRecord {
   presentation: PresentationRecord
 }
 
+/**
+ * Aggregated stakeholder resolution details for the turn.
+ */
 export interface StakeholderResolutionRecord {
   reactions: StakeholderReactionRecord[]
   presentation: PresentationRecord
@@ -66,6 +83,8 @@ export interface StakeholderResolutionRecord {
 
 /**
  * Transient per-turn resolution context for internal engine flow.
+ *
+ * This context is not the persisted turn archive format.
  */
 export interface TurnResolutionContext {
   turn_number: number

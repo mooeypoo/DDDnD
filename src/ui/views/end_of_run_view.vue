@@ -199,10 +199,16 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * End-of-run presentation surface.
+ *
+ * Reads finalized simulation/reporting outputs and provides share actions.
+ * Does not own gameplay rule evaluation.
+ */
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
-import type { OutcomeArchetypeId } from '@/domains/simulation/rules'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import ShareResultCard from '@/ui/components/results/share_result_card.vue'

@@ -21,5 +21,8 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Crossed-swords icon primitive for turn/action combat metaphors.
+ */
 withDefaults(defineProps<{ size?: number }>(), { size: 20 })
 </script>

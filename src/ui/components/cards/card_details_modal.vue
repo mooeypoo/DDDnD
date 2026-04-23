@@ -174,6 +174,11 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Detailed action-card modal for inspection and play confirmation.
+ *
+ * Uses simulation-derived availability/effects and does not compute rules.
+ */
 import { computed } from 'vue'
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import type { Card } from '@/domains/content/model/content_types';

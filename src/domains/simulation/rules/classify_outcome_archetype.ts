@@ -1,22 +1,17 @@
 import { GameState, RunAnalytics } from '../model'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 
-export type OutcomeArchetypeId =
-  | 'boundary_builder'
-  | 'stakeholder_whisperer'
-  | 'runaway_refactorer'
-  | 'firefighter'
-  | 'system_stabilizer'
-  | 'the_diplomat'
-  | 'budget_hawk'
-  | 'the_pragmatist'
-  | 'the_visionary'
-  | 'burnout_machine'
-
+/**
+ * Accepted input shapes for archetype classification.
+ */
 export interface ClassifyOutcomeArchetypeInput {
   game_state?: Pick<GameState, 'scores' | 'run_analytics'>
   run_analytics?: RunAnalytics
 }
 
+/**
+ * Derived metrics used by archetype predicates.
+ */
 interface ArchetypeMetrics {
   architecture_delta: number
   delivery_and_budget_delta: number

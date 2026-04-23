@@ -8,6 +8,9 @@ import {
 } from '../model'
 import { RunStatus, ScoreChangeRecord, StakeholderChangeRecord } from '@/shared/contracts'
 
+/**
+ * Deep-clones stakeholder satisfaction snapshot for persisted turn history.
+ */
 function cloneStakeholderSnapshot(
   stakeholders: GameState['stakeholders']
 ): GameState['stakeholders'] {
@@ -22,6 +25,9 @@ function cloneStakeholderSnapshot(
   return cloned
 }
 
+/**
+ * Aggregates score changes by score id for compact history storage.
+ */
 function aggregateScoreChanges(scoreChanges: ScoreChangeRecord[]): ScoreChangeRecord[] {
   const totals = new Map<string, number>()
 
@@ -35,6 +41,9 @@ function aggregateScoreChanges(scoreChanges: ScoreChangeRecord[]): ScoreChangeRe
     .map(([score_id, delta]) => ({ score_id, delta }))
 }
 
+/**
+ * Aggregates stakeholder changes by stakeholder id for compact history storage.
+ */
 function aggregateStakeholderChanges(
   stakeholderChanges: StakeholderChangeRecord[]
 ): StakeholderChangeRecord[] {
@@ -50,6 +59,9 @@ function aggregateStakeholderChanges(
     .map(([stakeholder_id, delta]) => ({ stakeholder_id, delta }))
 }
 
+/**
+ * Inputs required to construct a persisted turn-history entry.
+ */
 export interface BuildTurnHistoryEntryInput {
   turn_number: number
   resolved_aftershocks: ResolvedAftershockRecord[]
@@ -63,6 +75,9 @@ export interface BuildTurnHistoryEntryInput {
   run_status_after_turn: RunStatus
 }
 
+/**
+ * Builds a canonical persisted turn-history record from turn-resolution outputs.
+ */
 export function buildTurnHistoryEntry(input: BuildTurnHistoryEntryInput): TurnHistoryEntry {
   return {
     turn_number: input.turn_number,

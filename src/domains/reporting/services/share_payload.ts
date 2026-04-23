@@ -13,7 +13,7 @@
  * readable in code through the type definition.
  */
 
-import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 
 /**
  * Share payload version.

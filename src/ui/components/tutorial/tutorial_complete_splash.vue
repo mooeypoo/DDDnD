@@ -86,6 +86,9 @@ import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AppButton from '@/ui/components/common/AppButton.vue'
 import IconSwords from '@/ui/components/icons/IconSwords.vue'
 
+/**
+ * Tutorial completion splash that routes players to another tutorial or real run.
+ */
 const props = defineProps<{
   isOpen: boolean
   currentScenarioId: string

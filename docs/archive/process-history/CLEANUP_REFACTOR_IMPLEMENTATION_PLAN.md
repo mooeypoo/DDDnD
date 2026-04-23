@@ -1,0 +1,320 @@
+# Cleanup and Refactor Implementation Plan
+
+Purpose: execute approved cleanup findings without gameplay behavior changes.
+
+Inputs:
+- docs/archive/process-history/CODEBASE_CLEANUP_ANALYSIS.md
+- docs/archive/process-history/CODE_DOCUMENTATION_PASS_TRACKER.md
+
+## 1. Scope and Guardrails
+
+In scope:
+- F-002 simulation runner orchestration concentration (do now)
+- F-006 game store responsibility concentration (do now)
+- F-005 type contract leakage (scheduled follow-up)
+- F-004 repeated rule helper conversions (scheduled follow-up)
+
+Out of scope for this plan cycle:
+- F-001 large game view decomposition (watch)
+- F-003 component filename casing migration (watch)
+
+Non-negotiable guardrails:
+- No intentional gameplay behavior change.
+- Determinism preserved for simulation runs and turn pipelines.
+- Layer boundaries remain intact: UI does not execute simulation rules.
+- Each slice lands with tests and boundary checks.
+
+## 2. Milestones
+
+### M1: Do-Now Design and Slice Plan
+
+Goal:
+- Define and land the first safe extraction slices for F-002 and F-006.
+
+Exit criteria:
+- Simulation runner has explicit internal stage helpers extracted with unchanged external API.
+- Game store has at least one extracted concern module/service adapter integrated behind the same store facade.
+- Focused regression suite passes.
+
+### M2: Scheduled Boundary and Utility Cleanup
+
+Goal:
+- Implement F-005 and F-004 with low-risk contract and utility refactors.
+
+Exit criteria:
+- Outcome archetype types imported from stable shared contract surface, not rules modules.
+- Duplicated score/stakeholder conversion helpers consolidated in simulation rules layer.
+- Regression and boundary checks pass.
+
+### M3: Watch-List Reassessment
+
+Goal:
+- Reassess F-001 and F-003 after M1/M2 changes stabilize.
+
+Exit criteria:
+- Decision note: promote to schedule or remain watch.
+
+## 3. Workstream Plans
+
+## WS-1 F-002 Simulation Runner Decomposition
+
+Primary file:
+- src/domains/simulation/services/simulation_runner.ts
+
+Objective:
+- Reduce orchestration density by extracting pure stage helpers while preserving report contract and deterministic behavior.
+
+Target structure:
+- run execution stage helpers
+- telemetry mapping stage helpers
+- aggregate/fingerprint stage helpers
+
+Planned PR slices:
+1. PR-1A Internal helper extraction only
+- Move run-seed, delta-map, opening-sequence, and pair-calculation helpers into clearly named local sections or sibling helper module.
+- Keep exported interfaces and simulate_runs entrypoint unchanged.
+
+2. PR-1B Execute-run pipeline shaping
+- Split executeRun into step-oriented helpers with explicit inputs/outputs.
+- Keep action selection behavior and run loop semantics identical.
+
+3. PR-1C Aggregate stage shaping
+- Split computeAggregate into focused reducers.
+- Preserve AggregateTelemetry shape exactly.
+
+Acceptance criteria:
+- No type/interface changes in public simulation runner API unless explicitly planned and reviewed.
+- Existing telemetry tests continue to pass.
+- Determinism checks continue to pass.
+
+Validation commands:
+- npx vitest run tests/simulation/strategy_fingerprint_telemetry.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/engine_shell.test.ts
+
+## WS-2 F-006 Game Store Responsibility Decomposition
+
+Primary file:
+- src/ui/stores/game_store.ts
+
+Objective:
+- Reduce responsibility concentration while preserving current store consumer API for UI components.
+
+Candidate concern slices:
+- content loading and registry management
+- run lifecycle orchestration
+- persistence and restore path
+- modal/chrome state handling
+- tutorial lifecycle coordination
+
+Planned PR slices:
+1. PR-2A Extract content-loading service adapter
+- Move content pack load/merge/provider logic to dedicated adapter module under UI services or store helpers.
+- Keep store method names and return types unchanged.
+
+2. PR-2B Extract persistence/restore adapter
+- Move persist_run_state and restore_saved_run flow into dedicated helper with same behavior.
+
+3. PR-2C Extract run-lifecycle coordinator
+- Isolate start_new_run, refresh_turn_briefing, and play_turn orchestration internals into helper while retaining store facade.
+
+Acceptance criteria:
+- Store public API remains backward-compatible for current views/components.
+- Intro splash, tutorial triggers, and run completion flow remain unchanged.
+- Save/restore behavior remains unchanged.
+
+Validation commands:
+- npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts tests/simulation/turn_pipeline.test.ts
+- Optional manual smoke: start run, play turn, complete run, restore run
+
+## WS-3 F-005 Stable Archetype Type Surface
+
+Primary files:
+- src/ui/components/results/share_result_card.vue
+- src/ui/components/results/outcome_panel.vue
+- src/ui/views/end_of_run_view.vue
+
+Objective:
+- Remove UI type imports from simulation rules modules and use stable shared contract type.
+
+Planned approach:
+- Introduce or reuse archetype id type in shared runtime/reporting contract module.
+- Update UI imports to new contract location.
+- Keep runtime behavior unchanged (type-level refactor).
+
+Acceptance criteria:
+- UI files no longer import from simulation rules paths for archetype types.
+- Boundary grep remains clean for rule execution leakage.
+
+Validation commands:
+- npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts
+- grep boundary check used in tracker.
+
+## WS-4 F-004 Rule Helper Consolidation
+
+Primary files:
+- src/domains/simulation/rules/resolve_action.ts
+- neighboring simulation rule modules using duplicate conversion logic
+
+Objective:
+- Consolidate duplicated score/stakeholder conversion helper patterns.
+
+Planned approach:
+- Add shared helper utility file in simulation rules layer.
+- Migrate duplicate call sites in small batches.
+
+Acceptance criteria:
+- Fewer duplicate helper implementations.
+- Rule ordering and clamping behavior unchanged.
+
+Validation commands:
+- npx vitest run tests/simulation/turn_pipeline.test.ts tests/simulation/card_availability.test.ts tests/simulation/system_coupling_rules.test.ts
+
+## 4. Sequencing and Dependencies
+
+Recommended order:
+1. WS-1 PR-1A then PR-2A in parallel-safe branches.
+2. WS-1 PR-1B then PR-2B.
+3. WS-1 PR-1C then PR-2C.
+4. WS-3 then WS-4.
+5. Reassess watch items (M3).
+
+Dependency notes:
+- F-001 should wait until F-006 decomposition stabilizes to avoid duplicate file churn in game view wiring.
+- F-005 is low risk and can be done before or after F-004; prefer before to strengthen boundary contracts early.
+
+## 5. Owners and Cadence
+
+Owner placeholders:
+- Simulation refactor owner: TBD
+- Store decomposition owner: TBD
+- Contract cleanup owner: TBD
+- Test and regression verifier: TBD
+
+Cadence:
+- One small PR per slice.
+- Max two active slices in parallel.
+- Merge only on green tests and boundary checks.
+
+## 6. Acceptance Gates
+
+Per-PR mandatory gates:
+- Focused vitest subset for affected area.
+- No new type or lint errors in changed files.
+- If touching UI/simulation boundaries, run boundary grep check.
+
+Per-milestone gates:
+- M1: all WS-1 and WS-2 slice criteria satisfied.
+- M2: WS-3 and WS-4 criteria satisfied.
+- M3: explicit decision log for watch items.
+
+## 7. Risk Register
+
+Risk: hidden behavior drift in run orchestration.
+- Mitigation: keep external contracts unchanged, use small extraction-only slices first.
+
+Risk: UI regressions from store decomposition.
+- Mitigation: preserve store facade API, extract internals incrementally.
+
+Risk: contract churn from type surface move.
+- Mitigation: type-only PR first, no runtime changes.
+
+## 8. First Execution Checklist
+
+1. Assign owners for WS-1 and WS-2.
+2. Open PR-1A (simulation helper extraction).
+3. Open PR-2A (content-loading adapter extraction in store internals).
+4. Run focused test suites and boundary checks.
+5. Update tracker with slice status after each merge.
+
+## 9. Execution Status
+
+- 2026-04-20: PR-1A complete.
+	- Scope: extracted deterministic helper and aggregate computation logic from
+		simulation runner into `simulation_runner_helpers.ts` with full module and
+		function-level documentation.
+	- Validation: `npx vitest run tests/simulation/strategy_fingerprint_telemetry.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/engine_shell.test.ts tests/reporting/share_payload.test.ts`
+	- Result: pass (4 files, 64 tests).
+	- Behavior/API: unchanged.
+
+- 2026-04-21: PR-2A complete.
+	- Scope: extracted content-loading adapter logic from game store into
+		`src/ui/stores/game_store_content_adapter.ts` and rewired
+		`src/ui/stores/game_store.ts` to delegate manifest URL resolution,
+		manifest loading, and merged provider creation through the adapter.
+	- Added tests: `tests/ui/game_store_content_adapter.test.ts`
+	- Validation: `npx vitest run tests/ui/game_store_content_adapter.test.ts tests/ui/game_store_orchestration.test.ts`
+	- Result: pass (2 files, 9 tests).
+	- Behavior/API: unchanged.
+
+- 2026-04-21: PR-2B complete.
+	- Scope: extracted save serialization and saved-run payload loading/
+		deserialization/cleanup from game store into
+		`src/ui/stores/game_store_persistence_adapter.ts`, while keeping run
+		rehydration orchestration in `src/ui/stores/game_store.ts`.
+	- Added tests: `tests/ui/game_store_persistence_adapter.test.ts`
+	- Validation: `npx vitest run tests/ui/game_store_persistence_adapter.test.ts tests/ui/game_store_orchestration.test.ts tests/ui/game_store_content_adapter.test.ts`
+	- Result: pass (3 files, 14 tests).
+	- Behavior/API: unchanged.
+
+- 2026-04-21: PR-2C complete.
+	- Scope: extracted run lifecycle coordinator internals from game store into
+		`src/ui/stores/game_store_run_lifecycle_coordinator.ts` and delegated
+		`start_new_run`, `refresh_turn_briefing`, and `play_turn` orchestration to
+		the coordinator while preserving store facade behavior/API.
+	- Added tests: `tests/ui/game_store_run_lifecycle_coordinator.test.ts`
+	- Validation: `npx vitest run tests/ui/game_store_run_lifecycle_coordinator.test.ts tests/ui/game_store_orchestration.test.ts tests/ui/game_store_content_adapter.test.ts tests/ui/game_store_persistence_adapter.test.ts`
+	- Result: pass (4 files, 18 tests).
+	- Behavior/API: unchanged.
+
+- 2026-04-21: WS-3 / F-005 complete.
+	- Scope: moved `OutcomeArchetypeId` to the stable shared contract surface
+		(`src/shared/contracts/simulation_runtime.ts`) and updated reporting/UI/
+		story consumers to import from `@/shared/contracts` instead of simulation
+		rule modules.
+	- Validation: `npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts`
+	- Result: pass (2 files, 32 tests).
+	- Behavior/API: unchanged (type-surface refactor only).
+
+- 2026-04-21: WS-4 / F-004 complete.
+	- Scope: consolidated duplicated score/stakeholder conversion helpers used by
+		rule resolvers into
+		`src/domains/simulation/rules/change_record_converters.ts` and migrated
+		`resolve_action.ts`, `resolve_event.ts`,
+		`resolve_stakeholder_rules.ts`, and
+		`resolve_architectural_aftershocks.ts` to shared helpers.
+	- Validation: `npx vitest run tests/simulation/turn_pipeline.test.ts tests/simulation/card_availability.test.ts tests/simulation/system_coupling_rules.test.ts`
+	- Result: pass (3 files, 31 tests).
+	- Behavior/API: unchanged.
+
+- 2026-04-22: PR-1B complete.
+	- Scope: decomposed `executeRun` orchestration in
+		`src/domains/simulation/services/simulation_runner.ts` into internal
+		step helpers (`createRunExecutionState`, `selectPlayableActionId`,
+		`appendTurnTelemetry`, `buildFinalStakeholderSatisfaction`,
+		`buildPerRunTelemetry`) without changing external runner API.
+	- Validation: `npx vitest run tests/simulation/strategy_fingerprint_telemetry.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/engine_shell.test.ts tests/reporting/share_payload.test.ts`
+	- Result: pass (4 files, 64 tests).
+	- Behavior/API: unchanged.
+
+- 2026-04-23: PR-1C complete.
+	- Scope: decomposed `computeAggregate` in
+		`src/domains/simulation/services/simulation_runner_helpers.ts` into
+		focused reducer helpers (`computeOutcomeDistribution`,
+		`computeAverageScores`, `computeAverageStakeholderSatisfaction`,
+		`countItemFrequency`, `computeArchetypeDistribution`,
+		`computeOpeningFrequencies`, `computeAverageScoreByTurn`,
+		`computeStakeholderTurnAggregates`, `computeWinningCardPairs`,
+		`computeSuccessfulLowScoreRates`) while preserving aggregate output
+		contract and behavior.
+	- Validation: `npx vitest run tests/simulation/simulation_runner_helpers.test.ts tests/simulation/strategy_fingerprint_telemetry.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/engine_shell.test.ts tests/reporting/share_payload.test.ts`
+	- Result: pass (5 files, 72 tests).
+	- Behavior/API: unchanged.
+
+- 2026-04-23: M3 watch-list reassessment complete.
+	- Decision: keep F-001 on watch for the next planning cycle.
+		Rationale: `src/ui/views/game_view.vue` complexity remains notable, but
+		recent WS-2 store decomposition reduced immediate coordination risk;
+		splitting this view now would introduce broad UI churn near cycle close.
+	- Decision: keep F-003 on watch for the next planning cycle.
+		Rationale: filename-casing migration remains low impact and best handled
+		as a dedicated consistency pass with repo-wide import updates.
+	- Milestone outcome: M3 complete; current cleanup/refactor plan cycle closed.

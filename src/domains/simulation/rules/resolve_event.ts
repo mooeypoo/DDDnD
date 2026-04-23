@@ -4,7 +4,11 @@ import { EventResolutionRecord, createDelayedEffectInstance, DelayedEffectInstan
 import { ConditionEvaluationState } from './condition_evaluator'
 import { EligibleEvent, selectEvent } from './select_event'
 import { SeededRandom } from '@/shared/random/seeded_random'
+import { toScoreChanges, toStakeholderChanges } from './change_record_converters'
 
+/**
+ * Result payload for system event resolution.
+ */
 export interface ResolveEventResult {
   event_resolution: EventResolutionRecord | null
   score_changes: ScoreChangeRecord[]
@@ -13,26 +17,9 @@ export interface ResolveEventResult {
   selected_event_ref: { id: string; version: number } | null
 }
 
-function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): ScoreChangeRecord[] {
-  return scoreChanges.map((change) => ({
-    score_id: change.score_id,
-    delta: change.delta
-  }))
-}
-
-function toStakeholderChanges(
-  stakeholderChanges: { stakeholder_id: string; delta: number }[] | undefined
-): StakeholderChangeRecord[] {
-  if (!stakeholderChanges) {
-    return []
-  }
-
-  return stakeholderChanges.map((change) => ({
-    stakeholder_id: change.stakeholder_id,
-    delta: change.delta
-  }))
-}
-
+/**
+ * Builds queued delayed-effect instances created by the selected event.
+ */
 function buildQueuedDelayedEffects(
   eligibleEvent: EligibleEvent,
   gameState: GameState,
@@ -60,6 +47,11 @@ function buildQueuedDelayedEffects(
     .filter((value): value is DelayedEffectInstance => value !== null)
 }
 
+/**
+ * Resolves at most one event for the current turn.
+ *
+ * Event selection randomness must come from the seeded RNG input.
+ */
 export function resolveEvent(
   gameState: GameState,
   scenarioBundle: ScenarioBundle,

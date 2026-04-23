@@ -3,6 +3,8 @@
  * 
  * A complete, validated collection of all content needed to run a scenario.
  * Contains no missing references - everything is fully resolved.
+ *
+ * This is the authoritative content input for deterministic simulation.
  */
 
 import {
@@ -37,7 +39,9 @@ export interface ScenarioBundle {
 }
 
 /**
- * Creates an empty scenario bundle.
+ * Creates an empty bundle shell for a validated scenario.
+ *
+ * Callers populate maps through bundle-building services.
  */
 export function createEmptyBundle(scenario: Scenario): ScenarioBundle {
   return {
@@ -55,7 +59,7 @@ export function createEmptyBundle(scenario: Scenario): ScenarioBundle {
 
 /**
  * Adds an entity to the appropriate map in the bundle.
- * Returns the key used for storage.
+ * Returns the version-ref storage key used by the map.
  */
 export function addToBundle(
   bundle: ScenarioBundle,
@@ -95,7 +99,7 @@ export function addToBundle(
 }
 
 /**
- * Looks up an entity in the bundle by version ref.
+ * Looks up an entity in a bundle map by version ref.
  */
 export function getFromBundle<T>(
   map: Map<string, T>,

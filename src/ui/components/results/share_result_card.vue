@@ -117,9 +117,12 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Share-card renderer for downloadable/shareable end-of-run snapshots.
+ */
 import { computed, ref } from 'vue'
 import type { SharePayload } from '@/domains/reporting/services/share_payload'
-import type { OutcomeArchetypeId } from '@/domains/simulation/rules/classify_outcome_archetype'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import { requestAvatarRoleImage } from '@/ui/composables/presentation_asset_lookup'
 import {
@@ -150,6 +153,9 @@ const siteDomain = computed(() => {
 
 // ─── Display helpers ─────────────────────────────────────────
 
+/**
+ * Tier label formatting for compact share cards.
+ */
 const tierDisplayName = computed(() => {
   const tier = props.payload.tid ?? props.payload.tier
   const labels: Record<string, string> = {
@@ -164,6 +170,9 @@ const tierDisplayName = computed(() => {
   return labels[tier] ?? tier.charAt(0).toUpperCase() + tier.slice(1)
 })
 
+/**
+ * Tier icon fallback map for compact share cards.
+ */
 const tierIcon = computed(() => {
   const tier = props.payload.tid ?? props.payload.tier
   const icons: Record<string, string> = {
@@ -178,11 +187,17 @@ const tierIcon = computed(() => {
   return icons[tier] ?? '🎯'
 })
 
+/**
+ * CSS modifier class for tier-specific styling.
+ */
 const tierClass = computed(() => {
   const tier = props.payload.tid ?? props.payload.tier
   return `tier-${tier.replace('_', '-')}`
 })
 
+/**
+ * Emoji archetype fallback used when no portrait artwork is rendered.
+ */
 const archetypeIcon = computed(() => {
   const icons: Record<OutcomeArchetypeId, string> = {
     boundary_builder: '🏗️',
@@ -250,6 +265,9 @@ interface StakeholderEntry {
   stateLabel: 'Supportive' | 'Neutral' | 'Concerned' | 'Critical'
 }
 
+/**
+ * Presentational stakeholder rows derived from serialized share payload values.
+ */
 const stakeholderEntries = computed<StakeholderEntry[]>(() => {
   if (!props.payload.stakeholders) {
     return []

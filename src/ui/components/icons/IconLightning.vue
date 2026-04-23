@@ -19,5 +19,8 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Lightning icon primitive for aftershock and urgency indicators.
+ */
 withDefaults(defineProps<{ size?: number }>(), { size: 20 })
 </script>

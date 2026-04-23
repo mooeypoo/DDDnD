@@ -3,7 +3,11 @@ import { ScoreChangeRecord, StakeholderChangeRecord, VersionedContentRef } from 
 import { ActionResolutionRecord, createDelayedEffectInstance, DelayedEffectInstance, GameState } from '../model'
 import { ConditionEvaluationState, evaluateNumericCondition } from './condition_evaluator'
 import { getCardAvailability } from './card_availability'
+import { toScoreChanges, toStakeholderChanges } from './change_record_converters'
 
+/**
+ * Result payload for player action resolution.
+ */
 export interface ResolveActionResult {
   action_resolution: ActionResolutionRecord
   score_changes: ScoreChangeRecord[]
@@ -13,26 +17,9 @@ export interface ResolveActionResult {
   style_tags: string[]
 }
 
-function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): ScoreChangeRecord[] {
-  return scoreChanges.map((change) => ({
-    score_id: change.score_id,
-    delta: change.delta
-  }))
-}
-
-function toStakeholderChanges(
-  stakeholderChanges: { stakeholder_id: string; delta: number }[] | undefined
-): StakeholderChangeRecord[] {
-  if (!stakeholderChanges) {
-    return []
-  }
-
-  return stakeholderChanges.map((change) => ({
-    stakeholder_id: change.stakeholder_id,
-    delta: change.delta
-  }))
-}
-
+/**
+ * Resolves selected action id to a run-available card reference and bundle card.
+ */
 function findCardFromActionId(
   actionId: string,
   gameState: GameState,
@@ -52,6 +39,9 @@ function findCardFromActionId(
   return { actionRef, card }
 }
 
+/**
+ * Validates card requirements against current condition state.
+ */
 function assertActionRequirements(
   card: Card,
   conditionState: ConditionEvaluationState
@@ -68,6 +58,9 @@ function assertActionRequirements(
   }
 }
 
+/**
+ * Validates card availability constraints (requirements, usage, cooldown).
+ */
 function assertActionAvailability(
   actionRef: VersionedContentRef,
   card: Card,
@@ -91,6 +84,9 @@ function assertActionAvailability(
   throw new Error(`Action requirements are not met for card: ${card.id}-v${card.version}`)
 }
 
+/**
+ * Resolves a player action into deterministic runtime records and queued effects.
+ */
 export function resolveAction(
   actionId: string,
   gameState: GameState,

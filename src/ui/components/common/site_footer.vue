@@ -1,4 +1,7 @@
 <template>
+  <!--
+    Lightweight site-credit footer for external author and repository links.
+  -->
   <footer class="site-footer" aria-label="Site credits">
     <a href="https://moriel.tech" target="_blank" rel="noopener noreferrer" class="footer-link">
       Made by Moriel Schottlender

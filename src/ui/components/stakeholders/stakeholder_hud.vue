@@ -63,6 +63,10 @@ import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import IconGroup from '@/ui/components/icons/IconGroup.vue'
 
+/**
+ * Compact stakeholder HUD with an expandable detail panel for current
+ * satisfaction levels.
+ */
 const props = defineProps<{
   stakeholders: StakeholderSnapshot
   stakeholderNames?: Record<string, string>
@@ -88,6 +92,9 @@ function formatName(stakeholderId: string): string {
   return resolveStakeholderName(stakeholderId, props.stakeholderNames)
 }
 
+/**
+ * Emoji shorthand used in the compact stakeholder HUD.
+ */
 const STAKEHOLDER_ICONS: Record<string, string> = {
   cto: '🏛️',
   vp_product: '📋',

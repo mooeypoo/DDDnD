@@ -17,5 +17,8 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Bar-chart icon primitive for score/system health UI labels.
+ */
 withDefaults(defineProps<{ size?: number }>(), { size: 20 })
 </script>

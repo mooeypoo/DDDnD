@@ -27,5 +27,8 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Arcane spell icon primitive for action/magic-themed affordances.
+ */
 withDefaults(defineProps<{ size?: number }>(), { size: 20 })
 </script>

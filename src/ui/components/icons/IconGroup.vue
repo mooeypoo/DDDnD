@@ -17,5 +17,8 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Group icon primitive for stakeholder-related UI labels.
+ */
 withDefaults(defineProps<{ size?: number }>(), { size: 20 })
 </script>

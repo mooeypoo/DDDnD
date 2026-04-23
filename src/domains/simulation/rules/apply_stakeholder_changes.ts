@@ -1,6 +1,9 @@
 import { StakeholderChangeRecord } from '@/shared/contracts'
 import { GameState } from '../model'
 
+/**
+ * Applies stakeholder satisfaction deltas and clamps results to [0, 100].
+ */
 export function applyStakeholderChanges(
   stakeholders: GameState['stakeholders'],
   stakeholderChanges: StakeholderChangeRecord[]

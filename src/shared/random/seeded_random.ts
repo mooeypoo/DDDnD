@@ -41,6 +41,8 @@ export interface SeededRandom {
 /**
  * Creates a seeded random number generator.
  * Uses a simple LCG (Linear Congruential Generator) algorithm.
+ *
+ * Given the same seed string, generated sequences are identical.
  */
 export function createSeededRandom(seed: string): SeededRandom {
   // Simple hash function to convert seed string to number

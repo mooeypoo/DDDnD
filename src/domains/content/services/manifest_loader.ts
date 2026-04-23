@@ -1,6 +1,9 @@
 import type { ContentPackManifest } from '../model/content_pack_manifest'
 import { assertValidContentPackManifest } from './manifest_validator'
 
+/**
+ * Error used for manifest fetch/parse/validation failures.
+ */
 export class ManifestLoadError extends Error {
   constructor(message: string) {
     super(message)
@@ -8,6 +11,11 @@ export class ManifestLoadError extends Error {
   }
 }
 
+/**
+ * Loads and validates a content pack manifest from a URL.
+ *
+ * Returns a typed manifest only after structural validation succeeds.
+ */
 export async function loadManifest(manifestUrl: string): Promise<ContentPackManifest> {
   let response: Response
   try {

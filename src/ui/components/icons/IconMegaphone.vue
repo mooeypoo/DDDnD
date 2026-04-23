@@ -21,5 +21,8 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Megaphone icon primitive for system-event and announcement labels.
+ */
 withDefaults(defineProps<{ size?: number }>(), { size: 20 })
 </script>

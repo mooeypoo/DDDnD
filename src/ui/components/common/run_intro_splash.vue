@@ -252,6 +252,11 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * Intro splash summarizing selected setup and starting state.
+ *
+ * This component is presentation-only and consumes precomputed run data.
+ */
 import { computed } from 'vue'
 import type { StakeholderSnapshot, ScoreSnapshot } from '@/domains/simulation/model'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'

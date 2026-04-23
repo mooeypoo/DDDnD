@@ -14,11 +14,17 @@ import {
   SaveFileExport
 } from './serialize_save_file'
 
+/**
+ * Successful save-file deserialization payload.
+ */
 export interface DeserializeSaveFileSuccess {
   save_file: SaveFileExport
   game_state: GameState
 }
 
+/**
+ * Validates scenario reference compatibility for restored game state.
+ */
 function validateScenarioRefCompatibility(gameState: GameState): PersistenceResult<void> {
   if (!isVersionedRef(gameState.scenario_ref)) {
     return err(
@@ -33,6 +39,9 @@ function validateScenarioRefCompatibility(gameState: GameState): PersistenceResu
   return ok(undefined)
 }
 
+/**
+ * Validates and deserializes unknown input into save-file export payload.
+ */
 export function deserialize_save_file(input: unknown): PersistenceResult<DeserializeSaveFileSuccess> {
   if (!isRecord(input)) {
     return err(createPersistenceError('invalid_input', 'Save file payload must be an object'))

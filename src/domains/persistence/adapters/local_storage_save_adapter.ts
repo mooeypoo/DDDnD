@@ -1,19 +1,31 @@
 import { createPersistenceError } from '../services/persistence_error'
 import { err, ok, PersistenceResult } from '../services/persistence_result'
 
+/**
+ * Default storage key for serialized save-file payloads.
+ */
 export const DEFAULT_SAVE_STORAGE_KEY = 'dddnd.mvp.save_file'
 
+/**
+ * Storage adapter for save-file JSON persistence.
+ */
 export interface LocalStorageSaveAdapter {
   save_serialized_save_file(serialized_save_file: string): PersistenceResult<void>
   load_serialized_save_file(): PersistenceResult<string | null>
   clear_saved_run(): PersistenceResult<void>
 }
 
+/**
+ * Adapter construction options.
+ */
 interface CreateLocalStorageSaveAdapterInput {
   storage_key?: string
   storage?: Storage
 }
 
+/**
+ * Resolves storage backend and returns structured error when unavailable.
+ */
 function getStorage(storage: Storage | undefined): PersistenceResult<Storage> {
   if (storage) {
     return ok(storage)
@@ -31,6 +43,9 @@ function getStorage(storage: Storage | undefined): PersistenceResult<Storage> {
   return ok(globalThis.localStorage)
 }
 
+/**
+ * Creates a localStorage-backed save adapter.
+ */
 export function create_local_storage_save_adapter(
   input: CreateLocalStorageSaveAdapterInput = {}
 ): LocalStorageSaveAdapter {

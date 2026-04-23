@@ -1,10 +1,17 @@
 import { ScenarioBundle } from '@/domains/content/model'
+import type { OutcomeArchetypeId } from '@/shared/contracts'
 import { GameState, RunAnalytics } from '../model'
 import { evaluateNumericCondition } from './condition_evaluator'
-import { classifyOutcomeArchetype, OutcomeArchetypeId } from './classify_outcome_archetype'
+import { classifyOutcomeArchetype } from './classify_outcome_archetype'
 
+/**
+ * Terminal reason for run completion classification.
+ */
 export type RunCompletionReason = 'failure_condition_met' | 'max_turns_reached'
 
+/**
+ * Stable outcome snapshot used by persistence/reporting surfaces.
+ */
 export interface RunOutcomeClassification {
   has_outcome: boolean
   completion_reason: RunCompletionReason
@@ -20,6 +27,9 @@ export interface RunOutcomeClassification {
   analytics_snapshot: RunAnalytics
 }
 
+/**
+ * Computes scenario-score average for coarse tier classification.
+ */
 function computeScoreAverage(gameState: GameState, scenarioBundle: ScenarioBundle): number {
   const scoreIds = scenarioBundle.scenario.score_refs.map((ref) => ref.id)
   if (scoreIds.length === 0) {
@@ -30,6 +40,9 @@ function computeScoreAverage(gameState: GameState, scenarioBundle: ScenarioBundl
   return total / scoreIds.length
 }
 
+/**
+ * Selects a tier id from score average when matching tier ids exist in content.
+ */
 function classifyTierId(scoreAverage: number, scenarioBundle: ScenarioBundle): string | null {
   const existingTierIds = new Set(Array.from(scenarioBundle.outcome_tiers.values()).map((tier) => tier.id))
 
@@ -56,10 +69,18 @@ function classifyTierId(scoreAverage: number, scenarioBundle: ScenarioBundle): s
   return null
 }
 
+/**
+ * Selects legacy archetype classification from current game state.
+ */
 function selectArchetypeId(gameState: GameState, _scenarioBundle: ScenarioBundle): OutcomeArchetypeId {
   return classifyOutcomeArchetype({ game_state: gameState })
 }
 
+/**
+ * Classifies run outcome when terminal conditions are met.
+ *
+ * Returns null while the run is still in-progress.
+ */
 export function classifyRunOutcome(
   gameState: GameState,
   scenarioBundle: ScenarioBundle

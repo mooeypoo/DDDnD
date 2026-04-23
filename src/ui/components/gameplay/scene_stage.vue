@@ -64,6 +64,9 @@ import {
 } from '@/ui/composables/scene_avatar_positioning'
 import type { AvatarMood, AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 
+/**
+ * UI actor contract for the live gameplay stage.
+ */
 interface StageActor {
   id: string
   displayName: string
@@ -74,6 +77,10 @@ interface StageActor {
   speechBubble?: GameplayStageActor['speechBubble']
 }
 
+/**
+ * Gameplay stage surface that renders already-prepared actor presentation data
+ * on top of a presentation-only scene background.
+ */
 const props = defineProps<{
   sceneId: SceneBackgroundId | string
   actors: StageActor[]
@@ -81,6 +88,9 @@ const props = defineProps<{
 
 const sceneUrl = computed(() => requestSceneBackground(props.sceneId))
 
+/**
+ * Applies layout guardrails so simultaneous actors remain readable on stage.
+ */
 const guardrailedActors = computed(() => {
   const resolvedSlots = resolveGuardrailedActorSlots(props.actors)
   const horizontalNudges = buildGuardrailedNudges(resolvedSlots)

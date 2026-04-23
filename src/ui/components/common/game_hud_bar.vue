@@ -52,6 +52,10 @@ import IconSwords from '@/ui/components/icons/IconSwords.vue'
 import IconBarChart from '@/ui/components/icons/IconBarChart.vue'
 import IconGroup from '@/ui/components/icons/IconGroup.vue'
 
+/**
+ * Persistent gameplay HUD that aggregates turn progress, score HUD,
+ * stakeholder HUD, and coupling alerts.
+ */
 const props = defineProps<{
   currentTurn: number
   maxTurns: number
@@ -60,6 +64,9 @@ const props = defineProps<{
   stakeholderNames?: Record<string, string>
 }>()
 
+/**
+ * Progress percentage for the turn tracker bar.
+ */
 const turnProgress = computed(() => {
   if (!props.maxTurns) return 0
   return Math.round((props.currentTurn / props.maxTurns) * 100)

@@ -56,6 +56,8 @@ function stepTriggerKey(step: TutorialStep): string {
 
 /**
  * Composable for managing tutorial hint state.
+ *
+ * State is module-scoped so tutorial UI stays synchronized across consumers.
  */
 export function useTutorialState() {
   const currentStep = computed<TutorialStep | null>(() => {

@@ -43,11 +43,17 @@ import { computed } from 'vue'
 import type { StakeholderReactionRecord } from '@/domains/simulation'
 import { mapStakeholderDrivers } from '@/ui/composables/stakeholder_drivers'
 
+/**
+ * Presentational panel for stakeholder reaction rows after a turn resolves.
+ */
 const props = defineProps<{
   reactions: StakeholderReactionRecord[]
   stakeholderNames?: Record<string, string>
 }>()
 
+/**
+ * UI rows derived from simulation reactions plus optional display names.
+ */
 const drivers = computed(() => mapStakeholderDrivers(props.reactions, props.stakeholderNames))
 
 function formatScoreName(scoreId: string): string {

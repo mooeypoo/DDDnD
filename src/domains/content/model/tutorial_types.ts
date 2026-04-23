@@ -13,7 +13,7 @@ import type { VersionRef } from './version_ref'
 /**
  * Trigger for a tutorial hint step.
  *
- * Determines when a hint is shown during gameplay.
+ * Determines when a hint is shown during gameplay lifecycle.
  */
 export interface TutorialStepTrigger {
   type: 'run_start' | 'turn_start' | 'turn_end' | 'run_end'
@@ -23,6 +23,8 @@ export interface TutorialStepTrigger {
 
 /**
  * A single tutorial hint step.
+ *
+ * This is content metadata only. UI controls rendering and interaction.
  */
 export interface TutorialStep {
   id: string
