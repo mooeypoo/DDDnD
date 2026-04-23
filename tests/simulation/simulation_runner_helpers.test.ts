@@ -183,7 +183,7 @@ describe('simulation_runner_helpers', () => {
       const runB = buildRunTelemetry({
         run_index: 1,
         seed: 'seed__run_1',
-        outcome_tier: 'struggle',
+        outcome_tier: 'partial_success',
         archetype: 'firefighter',
         cards_played: ['card_a', 'card_x'],
         events_triggered: ['event_b'],
@@ -209,7 +209,7 @@ describe('simulation_runner_helpers', () => {
       const aggregate = computeAggregate([runA, runB])
 
       expect(aggregate.total_runs).toBe(2)
-      expect(aggregate.outcome_distribution).toEqual({ success: 1, struggle: 1 })
+      expect(aggregate.outcome_distribution).toEqual({ success: 1, partial_success: 1 })
       expect(aggregate.win_rate).toBe(0.5)
 
       expect(aggregate.opening_card_frequency.card_a).toBe(2)
@@ -237,7 +237,7 @@ describe('simulation_runner_helpers', () => {
 
     it('returns zero successful low-score rates when there are no successful runs', () => {
       const run = buildRunTelemetry({
-        outcome_tier: 'collapse',
+        outcome_tier: 'failure',
         cards_played: ['card_a'],
       })
 
