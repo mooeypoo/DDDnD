@@ -164,93 +164,117 @@ export interface SimulationReport {
 
 // ── Single run execution ────────────────────────────────────────
 
-function executeRun(
-  engine: SimulationEngine,
-  _scenarioBundle: ScenarioBundle,
-  runIndex: number,
-  runSeed: string
-): PerRunTelemetry {
-  let gameState = engine.create_run()
-  const maxTurns = gameState.progress.max_turns
-  const cardsPlayed: string[] = []
-  const eventsTriggered: string[] = []
-  const reactionsTriggered: string[] = []
-  const scoreSnapshotsByTurn: Record<string, number>[] = []
-  const stakeholderTelemetryByTurn: StakeholderTurnTelemetry[] = []
-  const eventTelemetryByTurn: EventTurnTelemetry[] = []
-  const actionTelemetryByTurn: ActionTurnTelemetry[] = []
+interface RunExecutionState {
+  cardsPlayed: string[]
+  eventsTriggered: string[]
+  reactionsTriggered: string[]
+  scoreSnapshotsByTurn: Record<string, number>[]
+  stakeholderTelemetryByTurn: StakeholderTurnTelemetry[]
+  eventTelemetryByTurn: EventTurnTelemetry[]
+  actionTelemetryByTurn: ActionTurnTelemetry[]
+}
 
-  // Use a per-run PRNG for card selection (separate from engine random)
+/**
+ * Initializes mutable per-run telemetry collections.
+ */
+function createRunExecutionState(): RunExecutionState {
+  return {
+    cardsPlayed: [],
+    eventsTriggered: [],
+    reactionsTriggered: [],
+    scoreSnapshotsByTurn: [],
+    stakeholderTelemetryByTurn: [],
+    eventTelemetryByTurn: [],
+    actionTelemetryByTurn: [],
+  }
+}
+
+/**
+ * Selects one random playable action card for the current turn.
+ */
+function selectPlayableActionId(engine: SimulationEngine, runSeed: string): () => string | null {
   const selectionRandom = createSeededRandom(`${runSeed}__selection`)
 
-  while (gameState.progress.run_status === 'in_progress') {
+  return () => {
     const briefing = engine.get_turn_briefing()
-
-    // Pick a random playable card
     const playableCards = briefing.available_action_summaries.filter((a) => a.is_playable)
     if (playableCards.length === 0) {
-      // No playable cards – shouldn't normally happen, but guard against infinite loop
-      break
+      return null
     }
 
-    const chosen = selectionRandom.choice(playableCards)
-    const actionId = chosen.card_id
+    return selectionRandom.choice(playableCards).card_id
+  }
+}
 
-    const result = engine.play_turn(actionId)
-    gameState = result.game_state
-    cardsPlayed.push(chosen.card_id)
+/**
+ * Appends turn-level telemetry produced by one executed action.
+ */
+function appendTurnTelemetry(
+  state: RunExecutionState,
+  actionId: string,
+  turnEntry: ReturnType<SimulationEngine['play_turn']>['turn_history_entry']
+): void {
+  state.cardsPlayed.push(actionId)
+  state.scoreSnapshotsByTurn.push({ ...turnEntry.end_of_turn_scores })
 
-    // Capture end-of-turn score snapshot for trajectory tracking
-    const turnEntry = result.turn_history_entry
-    scoreSnapshotsByTurn.push({ ...turnEntry.end_of_turn_scores })
-
-    // Track events from turn history
-    if (turnEntry.event_resolution?.selected_event) {
-      eventsTriggered.push(turnEntry.event_resolution.selected_event.id)
-    }
-
-    // Track stakeholder reactions
-    const matchedRulesByStakeholder: Record<string, string[]> = {}
-    for (const reaction of turnEntry.stakeholder_resolution.reactions) {
-      matchedRulesByStakeholder[reaction.stakeholder_id] = reaction.applied_rule_refs.map((ruleRef) => ruleRef.id)
-      for (const ruleRef of reaction.applied_rule_refs) {
-        reactionsTriggered.push(ruleRef.id)
-      }
-    }
-
-    stakeholderTelemetryByTurn.push({
-      turn_number: turnEntry.turn_number,
-      satisfaction_by_stakeholder: Object.fromEntries(
-        Object.entries(turnEntry.end_of_turn_stakeholders).map(([id, state]) => [id, state.satisfaction])
-      ),
-      delta_by_stakeholder: buildStakeholderDeltaMap(turnEntry.total_stakeholder_changes),
-      matched_reaction_rule_ids_by_stakeholder: matchedRulesByStakeholder,
-    })
-
-    eventTelemetryByTurn.push({
-      turn_number: turnEntry.turn_number,
-      triggered_event_id: turnEntry.event_resolution?.selected_event?.id ?? null,
-      score_deltas: buildScoreDeltaMap(turnEntry.event_resolution?.score_changes ?? []),
-      stakeholder_deltas: buildStakeholderDeltaMap(turnEntry.event_resolution?.stakeholder_changes ?? []),
-    })
-
-    actionTelemetryByTurn.push({
-      turn_number: turnEntry.turn_number,
-      selected_card_id: turnEntry.action_resolution.selected_action.id,
-      score_deltas: buildScoreDeltaMap(turnEntry.action_resolution.score_changes),
-      stakeholder_deltas: buildStakeholderDeltaMap(turnEntry.action_resolution.stakeholder_changes),
-    })
+  if (turnEntry.event_resolution?.selected_event) {
+    state.eventsTriggered.push(turnEntry.event_resolution.selected_event.id)
   }
 
-  // Collect outcome
-  const outcome: RunOutcome | null = engine.get_run_outcome()
+  const matchedRulesByStakeholder: Record<string, string[]> = {}
+  for (const reaction of turnEntry.stakeholder_resolution.reactions) {
+    matchedRulesByStakeholder[reaction.stakeholder_id] = reaction.applied_rule_refs.map((ruleRef) => ruleRef.id)
+    for (const ruleRef of reaction.applied_rule_refs) {
+      state.reactionsTriggered.push(ruleRef.id)
+    }
+  }
 
-  const finalScores = { ...gameState.scores }
+  state.stakeholderTelemetryByTurn.push({
+    turn_number: turnEntry.turn_number,
+    satisfaction_by_stakeholder: Object.fromEntries(
+      Object.entries(turnEntry.end_of_turn_stakeholders).map(([id, currentState]) => [id, currentState.satisfaction])
+    ),
+    delta_by_stakeholder: buildStakeholderDeltaMap(turnEntry.total_stakeholder_changes),
+    matched_reaction_rule_ids_by_stakeholder: matchedRulesByStakeholder,
+  })
+
+  state.eventTelemetryByTurn.push({
+    turn_number: turnEntry.turn_number,
+    triggered_event_id: turnEntry.event_resolution?.selected_event?.id ?? null,
+    score_deltas: buildScoreDeltaMap(turnEntry.event_resolution?.score_changes ?? []),
+    stakeholder_deltas: buildStakeholderDeltaMap(turnEntry.event_resolution?.stakeholder_changes ?? []),
+  })
+
+  state.actionTelemetryByTurn.push({
+    turn_number: turnEntry.turn_number,
+    selected_card_id: turnEntry.action_resolution.selected_action.id,
+    score_deltas: buildScoreDeltaMap(turnEntry.action_resolution.score_changes),
+    stakeholder_deltas: buildStakeholderDeltaMap(turnEntry.action_resolution.stakeholder_changes),
+  })
+}
+
+/**
+ * Converts final stakeholder state into aggregate-friendly primitive map.
+ */
+function buildFinalStakeholderSatisfaction(gameState: ReturnType<SimulationEngine['create_run']>): Record<string, number> {
   const finalStakeholders: Record<string, number> = {}
-  for (const [id, state] of Object.entries(gameState.stakeholders)) {
-    finalStakeholders[id] = state.satisfaction
+  for (const [id, currentState] of Object.entries(gameState.stakeholders)) {
+    finalStakeholders[id] = currentState.satisfaction
   }
+  return finalStakeholders
+}
 
+/**
+ * Builds the final per-run telemetry output from execution state and outcome.
+ */
+function buildPerRunTelemetry(
+  runIndex: number,
+  runSeed: string,
+  gameState: ReturnType<SimulationEngine['create_run']>,
+  maxTurns: number,
+  outcome: RunOutcome | null,
+  executionState: RunExecutionState
+): PerRunTelemetry {
   return {
     run_index: runIndex,
     seed: runSeed,
@@ -259,17 +283,45 @@ function executeRun(
     run_status: gameState.progress.run_status,
     turns_completed: gameState.progress.current_turn - 1,
     max_turns: maxTurns,
-    final_scores: finalScores,
-    final_stakeholder_satisfaction: finalStakeholders,
-    cards_played: cardsPlayed,
-    events_triggered: eventsTriggered,
-    reactions_triggered: reactionsTriggered,
+    final_scores: { ...gameState.scores },
+    final_stakeholder_satisfaction: buildFinalStakeholderSatisfaction(gameState),
+    cards_played: executionState.cardsPlayed,
+    events_triggered: executionState.eventsTriggered,
+    reactions_triggered: executionState.reactionsTriggered,
     score_average: outcome?.score_average ?? null,
-    score_snapshots_by_turn: scoreSnapshotsByTurn,
-    stakeholder_telemetry_by_turn: stakeholderTelemetryByTurn,
-    event_telemetry_by_turn: eventTelemetryByTurn,
-    action_telemetry_by_turn: actionTelemetryByTurn,
+    score_snapshots_by_turn: executionState.scoreSnapshotsByTurn,
+    stakeholder_telemetry_by_turn: executionState.stakeholderTelemetryByTurn,
+    event_telemetry_by_turn: executionState.eventTelemetryByTurn,
+    action_telemetry_by_turn: executionState.actionTelemetryByTurn,
   }
+}
+
+function executeRun(
+  engine: SimulationEngine,
+  _scenarioBundle: ScenarioBundle,
+  runIndex: number,
+  runSeed: string
+): PerRunTelemetry {
+  let gameState = engine.create_run()
+  const maxTurns = gameState.progress.max_turns
+  const executionState = createRunExecutionState()
+  const chooseActionId = selectPlayableActionId(engine, runSeed)
+
+  while (gameState.progress.run_status === 'in_progress') {
+    const actionId = chooseActionId()
+    if (!actionId) {
+      break
+    }
+
+    const result = engine.play_turn(actionId)
+    gameState = result.game_state
+    const turnEntry = result.turn_history_entry
+    appendTurnTelemetry(executionState, actionId, turnEntry)
+  }
+
+  const outcome: RunOutcome | null = engine.get_run_outcome()
+
+  return buildPerRunTelemetry(runIndex, runSeed, gameState, maxTurns, outcome, executionState)
 }
 
 // ── Public API ──────────────────────────────────────────────────

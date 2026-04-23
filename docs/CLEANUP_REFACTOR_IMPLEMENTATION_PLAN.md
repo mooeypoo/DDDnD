@@ -284,3 +284,27 @@ Risk: contract churn from type surface move.
 	- Validation: `npx vitest run tests/simulation/turn_pipeline.test.ts tests/simulation/card_availability.test.ts tests/simulation/system_coupling_rules.test.ts`
 	- Result: pass (3 files, 31 tests).
 	- Behavior/API: unchanged.
+
+- 2026-04-22: PR-1B complete.
+	- Scope: decomposed `executeRun` orchestration in
+		`src/domains/simulation/services/simulation_runner.ts` into internal
+		step helpers (`createRunExecutionState`, `selectPlayableActionId`,
+		`appendTurnTelemetry`, `buildFinalStakeholderSatisfaction`,
+		`buildPerRunTelemetry`) without changing external runner API.
+	- Validation: `npx vitest run tests/simulation/strategy_fingerprint_telemetry.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/engine_shell.test.ts tests/reporting/share_payload.test.ts`
+	- Result: pass (4 files, 64 tests).
+	- Behavior/API: unchanged.
+
+- 2026-04-23: PR-1C complete.
+	- Scope: decomposed `computeAggregate` in
+		`src/domains/simulation/services/simulation_runner_helpers.ts` into
+		focused reducer helpers (`computeOutcomeDistribution`,
+		`computeAverageScores`, `computeAverageStakeholderSatisfaction`,
+		`countItemFrequency`, `computeArchetypeDistribution`,
+		`computeOpeningFrequencies`, `computeAverageScoreByTurn`,
+		`computeStakeholderTurnAggregates`, `computeWinningCardPairs`,
+		`computeSuccessfulLowScoreRates`) while preserving aggregate output
+		contract and behavior.
+	- Validation: `npx vitest run tests/simulation/simulation_runner_helpers.test.ts tests/simulation/strategy_fingerprint_telemetry.test.ts tests/simulation/turn_pipeline.test.ts tests/simulation/engine_shell.test.ts tests/reporting/share_payload.test.ts`
+	- Result: pass (5 files, 72 tests).
+	- Behavior/API: unchanged.

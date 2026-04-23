@@ -247,7 +247,7 @@ Start date: 2026-04-20
 | ID | Area | Finding | Evidence | Importance (1-5) | Effort (1-5) | Priority (I/E) | Risk | Bucket | Owner | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
 | F-001 | ui | Large view file likely high cognitive load for maintenance | src/ui/views/game_view.vue | 4 | 4 | 1.00 | medium | schedule | unassigned | open |
-| F-002 | simulation | Orchestration concentration in one service may reduce readability/testability | src/domains/simulation/services/simulation_runner.ts | 5 | 3 | 1.67 | medium | schedule | unassigned | open |
+| F-002 | simulation | Orchestration concentration in one service may reduce readability/testability | src/domains/simulation/services/simulation_runner.ts | 5 | 3 | 1.67 | medium | schedule | unassigned | completed |
 | F-003 | ui | Mixed component filename casing may reduce consistency | src/ui/components | 2 | 2 | 1.00 | low | watch | unassigned | open |
 | F-004 | simulation | Repeated score/stakeholder change conversion helpers across rule files suggest shared utility opportunity | src/domains/simulation/rules/resolve_action.ts | 3 | 2 | 1.50 | low | watch | unassigned | completed |
 | F-005 | ui | UI imports outcome archetype types from simulation rule modules, suggesting contract leakage that could be moved to a shared reporting/runtime type surface | src/ui/components/results/share_result_card.vue | 3 | 2 | 1.50 | low | watch | unassigned | completed |
@@ -270,5 +270,5 @@ Start date: 2026-04-20
 
 ## Next Actions
 
-1. Execute WS-1 / PR-1B from docs/CLEANUP_REFACTOR_IMPLEMENTATION_PLAN.md (split simulation runner execute-run pipeline into step helpers)
+1. Execute M3 watch-list reassessment from docs/CLEANUP_REFACTOR_IMPLEMENTATION_PLAN.md (decide schedule vs watch for F-001 and F-003)
 2. Assign owners for WS-1, WS-2, and verification gates

@@ -11,7 +11,6 @@ import type {
   AggregateTelemetry,
   AverageScoreByTurn,
   AverageStakeholderSatisfactionByTurn,
-  EventTurnTelemetry,
   OpeningCardFrequency,
   OpeningSequenceFrequency,
   PerRunTelemetry,
@@ -106,22 +105,21 @@ function computeWinningCardPairsForRun(cardsPlayed: string[]): string[] {
 }
 
 /**
- * Computes aggregate telemetry across all per-run outputs.
+ * Counts occurrences of outcome tier values across runs.
  */
-export function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry {
-  const total = perRun.length
-
+function computeOutcomeDistribution(perRun: PerRunTelemetry[]): Record<string, number> {
   const outcomeDistribution: Record<string, number> = {}
   for (const run of perRun) {
     const key = run.outcome_tier ?? 'unknown'
     outcomeDistribution[key] = (outcomeDistribution[key] ?? 0) + 1
   }
+  return outcomeDistribution
+}
 
-  const wins = perRun.filter((r) => r.outcome_tier === 'success').length
-  const winRate = total > 0 ? wins / total : 0
-
-  const avgTurns = average(perRun.map((r) => r.turns_completed))
-
+/**
+ * Computes average final score values by score id.
+ */
+function computeAverageScores(perRun: PerRunTelemetry[]): Record<string, number> {
   const scoreAccumulators: Record<string, number[]> = {}
   for (const run of perRun) {
     for (const [scoreId, value] of Object.entries(run.final_scores)) {
@@ -129,11 +127,19 @@ export function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry 
       scoreAccumulators[scoreId].push(value)
     }
   }
+
   const averageScores: Record<string, number> = {}
   for (const [scoreId, values] of Object.entries(scoreAccumulators)) {
     averageScores[scoreId] = average(values)
   }
 
+  return averageScores
+}
+
+/**
+ * Computes average final stakeholder satisfaction values by stakeholder id.
+ */
+function computeAverageStakeholderSatisfaction(perRun: PerRunTelemetry[]): Record<string, number> {
   const stakeholderAccumulators: Record<string, number[]> = {}
   for (const run of perRun) {
     for (const [id, value] of Object.entries(run.final_stakeholder_satisfaction)) {
@@ -141,38 +147,47 @@ export function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry 
       stakeholderAccumulators[id].push(value)
     }
   }
+
   const averageStakeholderSatisfaction: Record<string, number> = {}
   for (const [id, values] of Object.entries(stakeholderAccumulators)) {
     averageStakeholderSatisfaction[id] = average(values)
   }
 
-  const cardUsage: Record<string, number> = {}
+  return averageStakeholderSatisfaction
+}
+
+/**
+ * Counts arbitrary string items across all runs.
+ */
+function countItemFrequency(perRun: PerRunTelemetry[], pickItems: (run: PerRunTelemetry) => string[]): Record<string, number> {
+  const frequency: Record<string, number> = {}
   for (const run of perRun) {
-    for (const card of run.cards_played) {
-      cardUsage[card] = (cardUsage[card] ?? 0) + 1
+    for (const item of pickItems(run)) {
+      frequency[item] = (frequency[item] ?? 0) + 1
     }
   }
+  return frequency
+}
 
-  const eventFrequency: Record<string, number> = {}
-  for (const run of perRun) {
-    for (const event of run.events_triggered) {
-      eventFrequency[event] = (eventFrequency[event] ?? 0) + 1
-    }
-  }
-
+/**
+ * Counts archetype labels across runs.
+ */
+function computeArchetypeDistribution(perRun: PerRunTelemetry[]): Record<string, number> {
   const archetypeDistribution: Record<string, number> = {}
   for (const run of perRun) {
     const key = run.archetype ?? 'unknown'
     archetypeDistribution[key] = (archetypeDistribution[key] ?? 0) + 1
   }
+  return archetypeDistribution
+}
 
-  const reactionFrequency: Record<string, number> = {}
-  for (const run of perRun) {
-    for (const reaction of run.reactions_triggered) {
-      reactionFrequency[reaction] = (reactionFrequency[reaction] ?? 0) + 1
-    }
-  }
-
+/**
+ * Computes opening-card and opening-sequence frequencies.
+ */
+function computeOpeningFrequencies(perRun: PerRunTelemetry[]): {
+  openingCardFrequency: OpeningCardFrequency
+  openingSequenceFrequency: OpeningSequenceFrequency
+} {
   const openingCardFrequency: OpeningCardFrequency = {}
   const openingSequenceFrequency: OpeningSequenceFrequency = {}
 
@@ -189,38 +204,59 @@ export function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry 
     }
   }
 
+  return { openingCardFrequency, openingSequenceFrequency }
+}
+
+/**
+ * Computes average score values by turn index for each score id.
+ */
+function computeAverageScoreByTurn(perRun: PerRunTelemetry[]): AverageScoreByTurn {
   const averageScoreByTurn: AverageScoreByTurn = {}
 
-  if (perRun.length > 0) {
-    const maxTurnCount = Math.max(...perRun.map((r) => r.score_snapshots_by_turn.length))
+  if (perRun.length === 0) {
+    return averageScoreByTurn
+  }
 
-    const scoreIds = new Set<string>()
-    for (const run of perRun) {
-      for (const snapshot of run.score_snapshots_by_turn) {
-        for (const scoreId of Object.keys(snapshot)) {
-          scoreIds.add(scoreId)
-        }
-      }
-    }
+  const maxTurnCount = Math.max(...perRun.map((r) => r.score_snapshots_by_turn.length))
 
-    for (const scoreId of scoreIds) {
-      const turnAverages: number[] = []
-      for (let turn = 0; turn < maxTurnCount; turn++) {
-        const values: number[] = []
-        for (const run of perRun) {
-          if (turn < run.score_snapshots_by_turn.length) {
-            const value = run.score_snapshots_by_turn[turn][scoreId]
-            if (value !== undefined) {
-              values.push(value)
-            }
-          }
-        }
-        turnAverages.push(values.length > 0 ? average(values) : 0)
+  const scoreIds = new Set<string>()
+  for (const run of perRun) {
+    for (const snapshot of run.score_snapshots_by_turn) {
+      for (const scoreId of Object.keys(snapshot)) {
+        scoreIds.add(scoreId)
       }
-      averageScoreByTurn[scoreId] = turnAverages
     }
   }
 
+  for (const scoreId of scoreIds) {
+    const turnAverages: number[] = []
+    for (let turn = 0; turn < maxTurnCount; turn++) {
+      const values: number[] = []
+      for (const run of perRun) {
+        if (turn < run.score_snapshots_by_turn.length) {
+          const value = run.score_snapshots_by_turn[turn][scoreId]
+          if (value !== undefined) {
+            values.push(value)
+          }
+        }
+      }
+      turnAverages.push(values.length > 0 ? average(values) : 0)
+    }
+    averageScoreByTurn[scoreId] = turnAverages
+  }
+
+  return averageScoreByTurn
+}
+
+/**
+ * Computes stakeholder turn-series averages and derived rates.
+ */
+function computeStakeholderTurnAggregates(perRun: PerRunTelemetry[]): {
+  averageStakeholderSatisfactionByTurn: AverageStakeholderSatisfactionByTurn
+  stakeholderRecoveryRate: StakeholderRecoveryRate
+  stakeholderDeclineRate: StakeholderDeclineRate
+  ruleTriggerRateByStakeholder: RuleTriggerRateByStakeholder
+} {
   const averageStakeholderSatisfactionByTurn: AverageStakeholderSatisfactionByTurn = {}
   const stakeholderRecoveryRate: StakeholderRecoveryRate = {}
   const stakeholderDeclineRate: StakeholderDeclineRate = {}
@@ -296,6 +332,18 @@ export function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry 
     }
   }
 
+  return {
+    averageStakeholderSatisfactionByTurn,
+    stakeholderRecoveryRate,
+    stakeholderDeclineRate,
+    ruleTriggerRateByStakeholder,
+  }
+}
+
+/**
+ * Computes winning card pair frequencies from successful runs.
+ */
+function computeWinningCardPairs(perRun: PerRunTelemetry[]): WinningCardPairs {
   const winningCardPairs: WinningCardPairs = {}
   const successfulRuns = perRun.filter((r) => r.outcome_tier === 'success')
 
@@ -306,7 +354,15 @@ export function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry 
     }
   }
 
+  return winningCardPairs
+}
+
+/**
+ * Computes low-score threshold rates across successful runs.
+ */
+function computeSuccessfulLowScoreRates(perRun: PerRunTelemetry[]): SuccessfulLowScoreRates {
   const successfulLowScoreRates: SuccessfulLowScoreRates = {}
+  const successfulRuns = perRun.filter((r) => r.outcome_tier === 'success')
   const successCount = successfulRuns.length
 
   if (successCount > 0) {
@@ -322,6 +378,36 @@ export function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry 
       successfulLowScoreRates[check.label] = 0
     }
   }
+
+  return successfulLowScoreRates
+}
+
+/**
+ * Computes aggregate telemetry across all per-run outputs.
+ */
+export function computeAggregate(perRun: PerRunTelemetry[]): AggregateTelemetry {
+  const total = perRun.length
+  const outcomeDistribution = computeOutcomeDistribution(perRun)
+  const wins = perRun.filter((r) => r.outcome_tier === 'success').length
+  const winRate = total > 0 ? wins / total : 0
+  const avgTurns = average(perRun.map((r) => r.turns_completed))
+
+  const averageScores = computeAverageScores(perRun)
+  const averageStakeholderSatisfaction = computeAverageStakeholderSatisfaction(perRun)
+  const cardUsage = countItemFrequency(perRun, (run) => run.cards_played)
+  const eventFrequency = countItemFrequency(perRun, (run) => run.events_triggered)
+  const reactionFrequency = countItemFrequency(perRun, (run) => run.reactions_triggered)
+  const archetypeDistribution = computeArchetypeDistribution(perRun)
+  const { openingCardFrequency, openingSequenceFrequency } = computeOpeningFrequencies(perRun)
+  const averageScoreByTurn = computeAverageScoreByTurn(perRun)
+  const {
+    averageStakeholderSatisfactionByTurn,
+    stakeholderRecoveryRate,
+    stakeholderDeclineRate,
+    ruleTriggerRateByStakeholder,
+  } = computeStakeholderTurnAggregates(perRun)
+  const winningCardPairs = computeWinningCardPairs(perRun)
+  const successfulLowScoreRates = computeSuccessfulLowScoreRates(perRun)
 
   return {
     total_runs: total,
