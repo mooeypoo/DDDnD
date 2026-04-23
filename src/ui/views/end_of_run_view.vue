@@ -108,7 +108,7 @@
               <span class="score-value" :class="getScoreClass(value)">{{ Math.round(value) }}</span>
             </div>
             <div class="score-bar">
-              <div class="score-fill" :class="getScoreClass(value)" :style="{ width: value + '%' }"></div>
+              <div class="score-fill" :class="getScoreClass(value)" :style="{ width: getDisplayScore(value) + '%' }"></div>
             </div>
           </div>
         </div>
@@ -408,6 +408,10 @@ function getScoreClass(value: number): string {
   if (value >= 40) return 'medium'
   if (value >= 20) return 'low'
   return 'critical'
+}
+
+function getDisplayScore(value: number): number {
+  return Math.max(0, Math.min(value, 100))
 }
 
 function getSatisfactionLabel(value: number): string {

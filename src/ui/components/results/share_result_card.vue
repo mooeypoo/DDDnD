@@ -72,10 +72,10 @@
           <div
             class="score-bar-fill"
             :class="scoreClass(value)"
-            :style="{ width: Math.min(value, 100) + '%' }"
+            :style="{ width: displayScore(value) + '%' }"
           ></div>
         </div>
-        <span class="score-value" :class="scoreClass(value)">{{ value }}</span>
+        <span class="score-value" :class="scoreClass(value)">{{ Math.round(value) }}</span>
       </div>
     </div>
 
@@ -255,6 +255,10 @@ function scoreClass(value: number): string {
   if (value >= 40) return 'medium'
   if (value >= 20) return 'low'
   return 'critical'
+}
+
+function displayScore(value: number): number {
+  return Math.max(0, Math.min(value, 100))
 }
 
 interface StakeholderEntry {
