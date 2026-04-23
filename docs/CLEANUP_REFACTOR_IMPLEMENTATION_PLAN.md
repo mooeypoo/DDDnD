@@ -273,3 +273,14 @@ Risk: contract churn from type surface move.
 	- Validation: `npx vitest run tests/reporting/share_payload.test.ts tests/simulation/engine_shell.test.ts`
 	- Result: pass (2 files, 32 tests).
 	- Behavior/API: unchanged (type-surface refactor only).
+
+- 2026-04-21: WS-4 / F-004 complete.
+	- Scope: consolidated duplicated score/stakeholder conversion helpers used by
+		rule resolvers into
+		`src/domains/simulation/rules/change_record_converters.ts` and migrated
+		`resolve_action.ts`, `resolve_event.ts`,
+		`resolve_stakeholder_rules.ts`, and
+		`resolve_architectural_aftershocks.ts` to shared helpers.
+	- Validation: `npx vitest run tests/simulation/turn_pipeline.test.ts tests/simulation/card_availability.test.ts tests/simulation/system_coupling_rules.test.ts`
+	- Result: pass (3 files, 31 tests).
+	- Behavior/API: unchanged.

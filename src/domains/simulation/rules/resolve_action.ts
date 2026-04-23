@@ -3,6 +3,7 @@ import { ScoreChangeRecord, StakeholderChangeRecord, VersionedContentRef } from 
 import { ActionResolutionRecord, createDelayedEffectInstance, DelayedEffectInstance, GameState } from '../model'
 import { ConditionEvaluationState, evaluateNumericCondition } from './condition_evaluator'
 import { getCardAvailability } from './card_availability'
+import { toScoreChanges, toStakeholderChanges } from './change_record_converters'
 
 /**
  * Result payload for player action resolution.
@@ -14,32 +15,6 @@ export interface ResolveActionResult {
   queued_delayed_effects: DelayedEffectInstance[]
   selected_action_ref: VersionedContentRef
   style_tags: string[]
-}
-
-/**
- * Converts content score deltas to runtime change records.
- */
-function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): ScoreChangeRecord[] {
-  return scoreChanges.map((change) => ({
-    score_id: change.score_id,
-    delta: change.delta
-  }))
-}
-
-/**
- * Converts optional stakeholder deltas to runtime change records.
- */
-function toStakeholderChanges(
-  stakeholderChanges: { stakeholder_id: string; delta: number }[] | undefined
-): StakeholderChangeRecord[] {
-  if (!stakeholderChanges) {
-    return []
-  }
-
-  return stakeholderChanges.map((change) => ({
-    stakeholder_id: change.stakeholder_id,
-    delta: change.delta
-  }))
 }
 
 /**

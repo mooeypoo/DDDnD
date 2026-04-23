@@ -6,6 +6,7 @@ import {
   evaluateNumericCondition,
   parseConditionDescription
 } from './condition_evaluator'
+import { toScoreChanges, toStakeholderChanges } from './change_record_converters'
 
 /**
  * Result payload for stakeholder resolution phase.
@@ -14,32 +15,6 @@ export interface ResolveStakeholderRulesResult {
   stakeholder_resolution: StakeholderResolutionRecord
   score_changes: ScoreChangeRecord[]
   stakeholder_changes: StakeholderChangeRecord[]
-}
-
-/**
- * Converts content score deltas to runtime change records.
- */
-function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): ScoreChangeRecord[] {
-  return scoreChanges.map((change) => ({
-    score_id: change.score_id,
-    delta: change.delta
-  }))
-}
-
-/**
- * Converts optional stakeholder deltas to runtime change records.
- */
-function toStakeholderChanges(
-  stakeholderChanges: { stakeholder_id: string; delta: number }[] | undefined
-): StakeholderChangeRecord[] {
-  if (!stakeholderChanges) {
-    return []
-  }
-
-  return stakeholderChanges.map((change) => ({
-    stakeholder_id: change.stakeholder_id,
-    delta: change.delta
-  }))
 }
 
 interface MatchedRule {

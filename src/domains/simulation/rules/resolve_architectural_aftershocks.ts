@@ -1,6 +1,7 @@
 import { ScenarioBundle, versionRefKey } from '@/domains/content/model'
 import { ScoreChangeRecord, StakeholderChangeRecord } from '@/shared/contracts'
 import { DelayedEffectInstance, GameState, ResolvedAftershockRecord } from '../model'
+import { toScoreChanges, toStakeholderChanges } from './change_record_converters'
 
 /**
  * Result payload for architectural aftershocks phase resolution.
@@ -11,32 +12,6 @@ export interface ResolveArchitecturalAftershocksResult {
   stakeholder_changes: StakeholderChangeRecord[]
   remaining_pending_effects: DelayedEffectInstance[]
   resolved_effect_instance_ids: string[]
-}
-
-/**
- * Converts content score deltas to runtime change records.
- */
-function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): ScoreChangeRecord[] {
-  return scoreChanges.map((change) => ({
-    score_id: change.score_id,
-    delta: change.delta
-  }))
-}
-
-/**
- * Converts optional stakeholder deltas to runtime change records.
- */
-function toStakeholderChanges(
-  stakeholderChanges: { stakeholder_id: string; delta: number }[] | undefined
-): StakeholderChangeRecord[] {
-  if (!stakeholderChanges) {
-    return []
-  }
-
-  return stakeholderChanges.map((change) => ({
-    stakeholder_id: change.stakeholder_id,
-    delta: change.delta
-  }))
 }
 
 /**

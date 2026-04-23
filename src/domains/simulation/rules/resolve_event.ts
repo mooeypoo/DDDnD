@@ -4,6 +4,7 @@ import { EventResolutionRecord, createDelayedEffectInstance, DelayedEffectInstan
 import { ConditionEvaluationState } from './condition_evaluator'
 import { EligibleEvent, selectEvent } from './select_event'
 import { SeededRandom } from '@/shared/random/seeded_random'
+import { toScoreChanges, toStakeholderChanges } from './change_record_converters'
 
 /**
  * Result payload for system event resolution.
@@ -14,32 +15,6 @@ export interface ResolveEventResult {
   stakeholder_changes: StakeholderChangeRecord[]
   queued_delayed_effects: DelayedEffectInstance[]
   selected_event_ref: { id: string; version: number } | null
-}
-
-/**
- * Converts content score deltas to runtime change records.
- */
-function toScoreChanges(scoreChanges: { score_id: string; delta: number }[]): ScoreChangeRecord[] {
-  return scoreChanges.map((change) => ({
-    score_id: change.score_id,
-    delta: change.delta
-  }))
-}
-
-/**
- * Converts optional stakeholder deltas to runtime change records.
- */
-function toStakeholderChanges(
-  stakeholderChanges: { stakeholder_id: string; delta: number }[] | undefined
-): StakeholderChangeRecord[] {
-  if (!stakeholderChanges) {
-    return []
-  }
-
-  return stakeholderChanges.map((change) => ({
-    stakeholder_id: change.stakeholder_id,
-    delta: change.delta
-  }))
 }
 
 /**
