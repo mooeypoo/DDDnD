@@ -70,6 +70,7 @@ export default defineConfig({
         {
           text: 'Content Catalog',
           items: [
+            { text: 'Overview', link: '/dashboard/content-catalog-intro' },
             { text: 'Scenarios', link: '/dashboard/scenarios' },
             { text: 'Cards', link: '/dashboard/cards' },
             { text: 'Stakeholders', link: '/dashboard/stakeholders' },
