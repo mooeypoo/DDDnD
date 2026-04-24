@@ -63,8 +63,8 @@ export default defineConfig({
         {
           text: 'Audit',
           items: [
+            { text: 'What Is The Audit?', link: '/dashboard/audit-intro' },
             { text: 'Audit Overview', link: '/dashboard/' },
-            { text: 'Metrics', link: '/dashboard/metrics' },
           ],
         },
         {

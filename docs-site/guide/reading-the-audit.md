@@ -60,8 +60,10 @@ Whether delayed effects are legible and proportionate. Flags aftershocks that ar
 The [Audit Dashboard](/dashboard/) shows:
 
 - **Scenario Overview** — Pass/Warning/Critical status per scenario with win rate
+- **Balance Metrics** — Win rate and average turns per scenario as bar charts
 - **Findings Table** — All findings across all scenarios, filterable by severity and category
-- **Metrics Overview** — Win rate and average turns per scenario as bar charts
+
+If you want a quick orientation before diving into data, read [What Is The Audit?](/dashboard/audit-intro).
 
 ### Overall Status
 
