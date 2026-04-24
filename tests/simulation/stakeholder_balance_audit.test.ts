@@ -189,4 +189,72 @@ describe('auditStakeholderBalance', () => {
     const second = auditStakeholderBalance(report)
     expect(first).toEqual(second)
   })
+
+  it('uses scenario-specific low-satisfaction floor when available', () => {
+    const report: SimulationReport = {
+      scenario_id: 'microservice_sprawl',
+      scenario_version: 1,
+      base_seed: 'scenario-floor',
+      total_runs: 10,
+      per_run: [],
+      aggregate: {
+        total_runs: 10,
+        outcome_distribution: {},
+        win_rate: 0.5,
+        average_turns_completed: 6,
+        average_scores: {},
+        average_stakeholder_satisfaction: { cto: 43 },
+        card_usage: {},
+        event_frequency: {},
+        reaction_frequency: {},
+        archetype_distribution: {},
+        opening_card_frequency: {},
+        opening_sequence_frequency: {},
+        average_score_by_turn: {},
+        average_stakeholder_satisfaction_by_turn: {},
+        stakeholder_recovery_rate: { cto: 0.3 },
+        stakeholder_decline_rate: { cto: 0.3 },
+        rule_trigger_rate_by_stakeholder: {},
+        winning_card_pairs: {},
+        successful_low_score_rates: {},
+      },
+    }
+
+    const findings = auditStakeholderBalance(report)
+    expect(findings.some(f => f.id === 'stakeholder_balance.low_satisfaction.warning.cto')).toBe(false)
+  })
+
+  it('still emits low-satisfaction warning when below scenario-specific floor', () => {
+    const report: SimulationReport = {
+      scenario_id: 'microservice_sprawl',
+      scenario_version: 1,
+      base_seed: 'scenario-floor-warning',
+      total_runs: 10,
+      per_run: [],
+      aggregate: {
+        total_runs: 10,
+        outcome_distribution: {},
+        win_rate: 0.5,
+        average_turns_completed: 6,
+        average_scores: {},
+        average_stakeholder_satisfaction: { cto: 35 },
+        card_usage: {},
+        event_frequency: {},
+        reaction_frequency: {},
+        archetype_distribution: {},
+        opening_card_frequency: {},
+        opening_sequence_frequency: {},
+        average_score_by_turn: {},
+        average_stakeholder_satisfaction_by_turn: {},
+        stakeholder_recovery_rate: { cto: 0.3 },
+        stakeholder_decline_rate: { cto: 0.3 },
+        rule_trigger_rate_by_stakeholder: {},
+        winning_card_pairs: {},
+        successful_low_score_rates: {},
+      },
+    }
+
+    const findings = auditStakeholderBalance(report)
+    expect(findings.some(f => f.id === 'stakeholder_balance.low_satisfaction.warning.cto')).toBe(true)
+  })
 })

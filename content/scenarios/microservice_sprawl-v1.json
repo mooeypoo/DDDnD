@@ -9,11 +9,11 @@
   "score_variance": 5,
   "starting_scores": {
     "domain_clarity": 25,
-    "maintainability": 40,
-    "delivery_confidence": 48,
+    "maintainability": 41,
+    "delivery_confidence": 43,
     "team_morale": 55,
-    "user_trust": 55,
-    "budget": 65
+    "user_trust": 52,
+    "budget": 62
   },
   "score_refs": [
     { "id": "domain_clarity", "version": 1 },

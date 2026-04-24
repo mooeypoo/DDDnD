@@ -81,7 +81,7 @@ const SEVERITY_ICON: Record<string, string> = {
 async function main() {
   const args = process.argv.slice(2)
   const runsArg = args.indexOf('--runs')
-  const runs = runsArg !== -1 ? parseInt(args[runsArg + 1], 10) : 50
+  const runs = runsArg !== -1 ? parseInt(args[runsArg + 1], 10) : 100
 
   if (isNaN(runs) || runs < 1) {
     console.error('Error: --runs must be a positive integer')

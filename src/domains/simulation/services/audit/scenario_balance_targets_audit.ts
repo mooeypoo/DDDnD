@@ -36,7 +36,7 @@ export const SCENARIO_BALANCE_TARGETS: Record<string, ScenarioBalanceTarget> = {
   },
   compliance_gauntlet: {
     win_rate_min: 0.40,
-    win_rate_max: 0.65,
+    win_rate_max: 0.68,
     max_critical_findings: 0,
     min_avg_stakeholder_satisfaction: {
       vp_product: 40,

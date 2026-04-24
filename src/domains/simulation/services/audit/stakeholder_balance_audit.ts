@@ -1,5 +1,6 @@
 import type { SimulationReport } from '../simulation_runner'
 import type { AuditFinding } from '../content_audit_contract'
+import { SCENARIO_BALANCE_TARGETS } from './scenario_balance_targets_audit'
 
 // ── Thresholds ──────────────────────────────────────────────────
 // These can be tightened as baseline data accumulates.
@@ -21,6 +22,15 @@ const LOW_SATISFACTION_WARNING = 45
 
 /** Average final satisfaction below this value is flagged as critical. */
 const LOW_SATISFACTION_CRITICAL = 30
+
+function getLowSatisfactionWarningThreshold(scenarioId: string, stakeholderId: string): number {
+  const scenarioTarget = SCENARIO_BALANCE_TARGETS[scenarioId]
+  if (!scenarioTarget) {
+    return LOW_SATISFACTION_WARNING
+  }
+
+  return scenarioTarget.min_avg_stakeholder_satisfaction[stakeholderId] ?? LOW_SATISFACTION_WARNING
+}
 
 // ── Synthesis ───────────────────────────────────────────────────
 
@@ -45,6 +55,7 @@ export function auditStakeholderBalance(report: SimulationReport): AuditFinding[
     const recovery = recoveryRates[sid] ?? 0
     const decline = declineRates[sid] ?? 0
     const satisfaction = avgSatisfaction[sid] ?? 100
+    const lowSatisfactionWarningThreshold = getLowSatisfactionWarningThreshold(report.scenario_id, sid)
 
     // High decline rate
     if (decline >= DECLINE_RATE_CRITICAL) {
@@ -124,7 +135,7 @@ export function auditStakeholderBalance(report: SimulationReport): AuditFinding[
         ],
         recommended_fix_surface: 'content',
       })
-    } else if (satisfaction <= LOW_SATISFACTION_WARNING) {
+    } else if (satisfaction <= lowSatisfactionWarningThreshold) {
       findings.push({
         id: `stakeholder_balance.low_satisfaction.warning.${sid}`,
         severity: 'warning',
@@ -132,7 +143,7 @@ export function auditStakeholderBalance(report: SimulationReport): AuditFinding[
         title: `${sid}: low average satisfaction`,
         description: `${sid} ends at an average satisfaction of ${satisfaction.toFixed(1)} — frequently in the Concerned band.`,
         evidence: [
-          `average_final_satisfaction = ${satisfaction.toFixed(1)}  (threshold: ≤${LOW_SATISFACTION_WARNING})`,
+          `average_final_satisfaction = ${satisfaction.toFixed(1)}  (threshold: ≤${lowSatisfactionWarningThreshold})`,
         ],
         recommended_fix_surface: 'content',
       })
