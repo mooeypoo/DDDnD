@@ -9,7 +9,6 @@
             <h4>
               <a :href="scenarioLink(scenario.id)">{{ scenario.name }}</a>
             </h4>
-            <span class="id">{{ scenario.id }}</span>
           </header>
 
           <p class="desc">{{ scenario.short_description || scenario.description }}</p>
@@ -150,12 +149,6 @@ onMounted(async () => {
 
 .catalog-card__header h4 a:hover {
   text-decoration: underline;
-}
-
-.id {
-  color: var(--text-secondary);
-  font-family: var(--vp-font-family-mono);
-  font-size: 0.75rem;
 }
 
 .desc {

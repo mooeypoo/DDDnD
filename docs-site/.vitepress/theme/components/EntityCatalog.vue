@@ -9,7 +9,6 @@
             <h4>
               <a :href="entityLink(entity.id)">{{ entity.name || entity.id }}</a>
             </h4>
-            <span v-if="showIdInCatalog" class="id">{{ entity.id }}</span>
           </header>
 
           <p v-if="entity.description" class="desc">{{ entity.description }}</p>
@@ -74,7 +73,6 @@ const typeConfig = computed(() => {
 
 const title = computed(() => typeConfig.value.title)
 const entityLabel = computed(() => typeConfig.value.entityLabel)
-const showIdInCatalog = computed(() => props.entityType !== 'card')
 
 function entityLink(id: string): string {
   return withBase(`${typeConfig.value.basePath}/${id}`)
@@ -131,12 +129,6 @@ onMounted(async () => {
 
 .catalog-card__header h4 a:hover {
   text-decoration: underline;
-}
-
-.id {
-  color: var(--text-secondary);
-  font-family: var(--vp-font-family-mono);
-  font-size: 0.75rem;
 }
 
 .desc {
