@@ -64,7 +64,7 @@ describe('Balance pass A — telemetry-informed tuning', () => {
       const provider = createFileContentProvider(contentRoot)
       const scenario = await provider.loadScenario({ id: 'compliance_gauntlet', version: 1 })
 
-      expect(scenario.starting_scores.delivery_confidence).toBe(38)
+      expect(scenario.starting_scores.delivery_confidence).toBe(35)
       expect(scenario.starting_scores.user_trust).toBe(55)
       expect(scenario.starting_scores.team_morale).toBe(32)
       expect(scenario.starting_scores.maintainability).toBe(44)
@@ -75,7 +75,7 @@ describe('Balance pass A — telemetry-informed tuning', () => {
       const scenario = await provider.loadScenario({ id: 'monolith_of_mild_despair', version: 1 })
 
       expect(scenario.max_turns).toBe(10)
-      expect(scenario.starting_scores.delivery_confidence).toBe(50)
+      expect(scenario.starting_scores.delivery_confidence).toBe(55)
       expect(scenario.starting_scores.budget).toBe(58)
     })
 
@@ -90,15 +90,15 @@ describe('Balance pass A — telemetry-informed tuning', () => {
       const provider = createFileContentProvider(contentRoot)
       const scenario = await provider.loadScenario({ id: 'startup_hypergrowth', version: 1 })
 
-      expect(scenario.starting_scores.budget).toBe(53)
+      expect(scenario.starting_scores.budget).toBe(57)
       expect(scenario.starting_scores.team_morale).toBe(45)
     })
 
-    it('microservice_sprawl has slightly higher starting user_trust', async () => {
+    it('microservice_sprawl uses tuned starting user_trust', async () => {
       const provider = createFileContentProvider(contentRoot)
       const scenario = await provider.loadScenario({ id: 'microservice_sprawl', version: 1 })
 
-      expect(scenario.starting_scores.user_trust).toBe(55)
+      expect(scenario.starting_scores.user_trust).toBe(52)
     })
   })
 
