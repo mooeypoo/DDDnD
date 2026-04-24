@@ -7,9 +7,7 @@
 </template>
 
 <script setup lang="ts">
-import { useData } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
 
-const { site } = useData()
 const layout = DefaultTheme.Layout
 </script>
