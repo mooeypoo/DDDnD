@@ -22,14 +22,14 @@ hero:
 
 ## Game Health Overview
 
-Coming in Phase 3: Scenario health badges and audit summary.
+<ScenarioAuditSummary />
 
 ## Latest From The Blog
 
-Coming in Phase 3: Latest blog posts about DDDnD from blog.moriel.tech.
+<LatestBlogPosts />
 
 ---
 
 ## Created By
 
-Coming in Phase 3: Author credit and links.
+<AuthorBlock />
