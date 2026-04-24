@@ -40,6 +40,33 @@ npm run simulate -- --scenario monolith_of_mild_despair --runs 50
 npm run generate-og
 ```
 
+## Documentation Site (VitePress)
+
+The docs site lives in `docs-site/` and is deployed to GitHub Pages on every push to `main`.
+
+### Local Preview
+
+The site depends on two categories of generated artifacts that are gitignored and must be created before building:
+
+- **JSON data files** (`docs-site/public/data/`) — audit report, content catalog, blog feed
+- **Per-entity markdown pages** (`docs-site/dashboard/{scenarios,cards,stakeholders,events}/`) — one page per scenario, card, stakeholder, and event
+
+Run both steps together:
+
+```bash
+npm run docs:build:full
+```
+
+Or separately:
+
+```bash
+npm run docs:generate-data   # generates JSON data + markdown pages
+npm run docs:build           # VitePress build (requires generated files)
+npm run docs:preview         # serve the built site locally
+```
+
+`docs:build` will fail with missing page errors if `docs:generate-data` has not been run first.
+
 ## Content Validation And Audit
 
 Validation and audit flows are exposed through `package.json` shortcuts and can also be run directly with `tsx` when you need custom paths or flags.

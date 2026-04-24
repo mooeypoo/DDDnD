@@ -14,6 +14,13 @@ dist-ssr
 *.local
 .env
 temp
+docs-site/public/data
+docs-site/.vitepress/dist
+docs-site/.vitepress/cache
+docs-site/dashboard/scenarios/*.md
+docs-site/dashboard/cards/*.md
+docs-site/dashboard/stakeholders/*.md
+docs-site/dashboard/events/*.md
 
 # Editor directories and files
 .vscode/*

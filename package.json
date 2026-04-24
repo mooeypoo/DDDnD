@@ -23,7 +23,12 @@
     "simulate": "npx tsx scripts/run-simulation.ts",
     "audit:gate": "npx tsx scripts/audit-gate.ts",
     "content:validate": "npx tsx scripts/validate-content-pack.ts",
-    "content:validate:audit": "npx tsx scripts/validate-content-pack.ts --audit --runs 50 --fail-on-audit-critical"
+    "content:validate:audit": "npx tsx scripts/validate-content-pack.ts --audit --runs 50 --fail-on-audit-critical",
+    "docs:dev": "vitepress dev docs-site",
+    "docs:build": "vitepress build docs-site",
+    "docs:preview": "vitepress preview docs-site",
+    "docs:generate-data": "npx tsx scripts/generate-audit-report.ts && npx tsx scripts/generate-content-catalog.ts && npx tsx scripts/generate-blog-feed.ts && npx tsx scripts/generate-docs-scenario-pages.ts",
+    "docs:build:full": "npm run docs:generate-data && npm run docs:build"
   },
   "dependencies": {
     "pinia": "^2.1.0",
@@ -46,6 +51,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5.4.0",
     "vite": "^5.2.0",
+    "vitepress": "^1.6.4",
     "vitest": "^1.5.0",
     "vue-tsc": "^2.0.0"
   }
