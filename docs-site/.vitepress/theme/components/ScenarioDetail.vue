@@ -32,23 +32,29 @@
       </div>
 
       <section class="detail-block">
-        <h2>Stakeholders ({{ stakeholderNames.length }})</h2>
+        <h2>Stakeholders ({{ stakeholderLinks.length }})</h2>
         <ul>
-          <li v-for="name in stakeholderNames" :key="name">{{ name }}</li>
+          <li v-for="stakeholder in stakeholderLinks" :key="stakeholder.id">
+            <a :href="stakeholder.href">{{ stakeholder.name }}</a>
+          </li>
         </ul>
       </section>
 
       <section class="detail-block">
-        <h2>Cards ({{ cardNames.length }})</h2>
+        <h2>Cards ({{ cardLinks.length }})</h2>
         <ul class="card-list">
-          <li v-for="name in cardNames" :key="name">{{ name }}</li>
+          <li v-for="card in cardLinks" :key="card.id">
+            <a :href="card.href">{{ card.name }}</a>
+          </li>
         </ul>
       </section>
 
       <section class="detail-block">
-        <h2>Events ({{ eventNames.length }})</h2>
+        <h2>Events ({{ eventLinks.length }})</h2>
         <ul>
-          <li v-for="name in eventNames" :key="name">{{ name }}</li>
+          <li v-for="event in eventLinks" :key="event.id">
+            <a :href="event.href">{{ event.name }}</a>
+          </li>
         </ul>
       </section>
     </template>
@@ -70,6 +76,7 @@ type Scenario = {
 }
 
 type NamedContent = { id: string; name: string }
+type LinkedContent = { id: string; name: string; href: string }
 
 type AuditScenarioReport = {
   simulation?: {
@@ -123,19 +130,32 @@ const avgTurnsLabel = computed(() => {
   return avgTurns.toFixed(1)
 })
 
-function resolveNames(refs: VersionRef[] | undefined, contentById: Map<string, NamedContent>): string[] {
+function resolveLinks(
+  refs: VersionRef[] | undefined,
+  contentById: Map<string, NamedContent>,
+  hrefPrefix: string
+): LinkedContent[] {
   if (!refs || refs.length === 0) {
     return []
   }
 
   return refs
-    .map((ref) => contentById.get(ref.id)?.name ?? ref.id)
-    .sort((a, b) => a.localeCompare(b))
+    .map((ref) => {
+      const content = contentById.get(ref.id)
+      return {
+        id: ref.id,
+        name: content?.name ?? ref.id,
+        href: `${hrefPrefix}/${ref.id}`,
+      }
+    })
+    .sort((a, b) => a.name.localeCompare(b.name))
 }
 
-const stakeholderNames = computed(() => resolveNames(scenario.value?.stakeholder_refs, stakeholderById.value))
-const cardNames = computed(() => resolveNames(scenario.value?.card_refs, cardById.value))
-const eventNames = computed(() => resolveNames(scenario.value?.event_refs, eventById.value))
+const stakeholderLinks = computed(() =>
+  resolveLinks(scenario.value?.stakeholder_refs, stakeholderById.value, '/dashboard/stakeholders')
+)
+const cardLinks = computed(() => resolveLinks(scenario.value?.card_refs, cardById.value, '/dashboard/cards'))
+const eventLinks = computed(() => resolveLinks(scenario.value?.event_refs, eventById.value, '/dashboard/events'))
 
 onMounted(async () => {
   try {

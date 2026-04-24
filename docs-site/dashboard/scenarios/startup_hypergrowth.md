@@ -1,6 +1,6 @@
-<!-- GENERATED_SCENARIO_PAGE: DO NOT EDIT -->
+<!-- GENERATED_ENTITY_PAGE: DO NOT EDIT -->
 ---
-title: Startup Hypergrowth
+title: "Startup Hypergrowth"
 ---
 
 <ScenarioDetail scenario-id="startup_hypergrowth" />

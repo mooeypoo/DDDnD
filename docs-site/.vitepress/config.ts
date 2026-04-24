@@ -61,6 +61,9 @@ export default defineConfig({
       '/dashboard/': [
         { text: 'Audit Overview', link: '/dashboard/' },
         { text: 'Scenarios', link: '/dashboard/scenarios' },
+        { text: 'Cards', link: '/dashboard/cards' },
+        { text: 'Stakeholders', link: '/dashboard/stakeholders' },
+        { text: 'Events', link: '/dashboard/events' },
         { text: 'Metrics', link: '/dashboard/metrics' },
       ],
     },

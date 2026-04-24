@@ -1,6 +1,6 @@
-<!-- GENERATED_SCENARIO_PAGE: DO NOT EDIT -->
+<!-- GENERATED_ENTITY_PAGE: DO NOT EDIT -->
 ---
-title: Compliance Gauntlet
+title: "Compliance Gauntlet"
 ---
 
 <ScenarioDetail scenario-id="compliance_gauntlet" />
