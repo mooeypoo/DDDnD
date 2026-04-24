@@ -1,5 +1,7 @@
 # Scenario Catalog
 
-Complete inventory of all scenarios, their linked cards, stakeholders, and balance targets.
+Quick overview of all scenarios.
+
+Use "View full scenario details" on any card to open a dedicated page for that scenario, with full cards/stakeholders/events and audit metrics.
 
 <ScenarioCatalog />

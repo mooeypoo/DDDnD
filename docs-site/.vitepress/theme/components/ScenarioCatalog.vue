@@ -6,27 +6,27 @@
       <div class="catalog-grid">
         <article v-for="scenario in scenarios" :key="scenario.id" class="catalog-card">
           <header class="catalog-card__header">
-            <h4>{{ scenario.name }}</h4>
+            <h4>
+              <a :href="scenarioLink(scenario.id)">{{ scenario.name }}</a>
+            </h4>
             <span class="id">{{ scenario.id }}</span>
           </header>
 
           <p class="desc">{{ scenario.short_description || scenario.description }}</p>
 
-          <div class="group">
-            <h5>Cards ({{ scenarioCards(scenario.id).length }})</h5>
-            <ul>
-              <li v-for="card in scenarioCards(scenario.id).slice(0, 8)" :key="card.id">{{ card.name }}</li>
-            </ul>
-            <p v-if="scenarioCards(scenario.id).length > 8" class="muted small">
-              + {{ scenarioCards(scenario.id).length - 8 }} more
+          <div class="meta-grid">
+            <p>
+              <strong>Cards:</strong>
+              {{ scenarioCards(scenario.id).length }}
+            </p>
+            <p>
+              <strong>Stakeholders:</strong>
+              {{ scenarioStakeholders(scenario.id).length }}
             </p>
           </div>
 
-          <div class="group">
-            <h5>Stakeholders</h5>
-            <ul>
-              <li v-for="stakeholder in scenarioStakeholders(scenario.id)" :key="stakeholder.id">{{ stakeholder.name }}</li>
-            </ul>
+          <div class="catalog-card__actions">
+            <a :href="scenarioLink(scenario.id)">View full scenario details</a>
           </div>
         </article>
       </div>
@@ -91,6 +91,10 @@ function scenarioStakeholders(scenarioId: string): Stakeholder[] {
     .filter((value): value is Stakeholder => Boolean(value))
 }
 
+function scenarioLink(scenarioId: string): string {
+  return `/dashboard/scenarios/${scenarioId}`
+}
+
 onMounted(async () => {
   try {
     const response = await fetch('/data/content-catalog.json')
@@ -138,6 +142,15 @@ onMounted(async () => {
   margin: 0;
 }
 
+.catalog-card__header h4 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.catalog-card__header h4 a:hover {
+  text-decoration: underline;
+}
+
 .id {
   color: var(--text-secondary);
   font-family: var(--vp-font-family-mono);
@@ -153,6 +166,23 @@ onMounted(async () => {
   margin: 0 0 0.4rem;
   color: var(--text-bright);
   font-size: 0.86rem;
+}
+
+.meta-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+}
+
+.meta-grid p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+}
+
+.catalog-card__actions a {
+  color: var(--vp-c-brand-1);
+  font-weight: var(--font-semibold);
 }
 
 .group ul {

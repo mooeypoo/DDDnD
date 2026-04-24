@@ -27,7 +27,7 @@
     "docs:dev": "vitepress dev docs-site",
     "docs:build": "vitepress build docs-site",
     "docs:preview": "vitepress preview docs-site",
-    "docs:generate-data": "npx tsx scripts/generate-audit-report.ts && npx tsx scripts/generate-content-catalog.ts && npx tsx scripts/generate-blog-feed.ts",
+    "docs:generate-data": "npx tsx scripts/generate-audit-report.ts && npx tsx scripts/generate-content-catalog.ts && npx tsx scripts/generate-blog-feed.ts && npx tsx scripts/generate-docs-scenario-pages.ts",
     "docs:build:full": "npm run docs:generate-data && npm run docs:build"
   },
   "dependencies": {
