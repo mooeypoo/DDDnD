@@ -63,6 +63,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { withBase } from 'vitepress'
 
 type VersionRef = { id: string; version: number }
 
@@ -152,16 +153,16 @@ function resolveLinks(
 }
 
 const stakeholderLinks = computed(() =>
-  resolveLinks(scenario.value?.stakeholder_refs, stakeholderById.value, '/dashboard/stakeholders')
+  resolveLinks(scenario.value?.stakeholder_refs, stakeholderById.value, withBase('/dashboard/stakeholders'))
 )
-const cardLinks = computed(() => resolveLinks(scenario.value?.card_refs, cardById.value, '/dashboard/cards'))
-const eventLinks = computed(() => resolveLinks(scenario.value?.event_refs, eventById.value, '/dashboard/events'))
+const cardLinks = computed(() => resolveLinks(scenario.value?.card_refs, cardById.value, withBase('/dashboard/cards')))
+const eventLinks = computed(() => resolveLinks(scenario.value?.event_refs, eventById.value, withBase('/dashboard/events')))
 
 onMounted(async () => {
   try {
     const [catalogResponse, auditResponse] = await Promise.all([
-      fetch('/data/content-catalog.json'),
-      fetch('/data/audit-report.json'),
+      fetch(withBase('/data/content-catalog.json')),
+      fetch(withBase('/data/audit-report.json')),
     ])
 
     if (!catalogResponse.ok) {

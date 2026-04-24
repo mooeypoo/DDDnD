@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { withBase } from 'vitepress'
 
 type VersionRef = { id: string; version: number }
 
@@ -92,12 +93,12 @@ function scenarioStakeholders(scenarioId: string): Stakeholder[] {
 }
 
 function scenarioLink(scenarioId: string): string {
-  return `/dashboard/scenarios/${scenarioId}`
+  return withBase(`/dashboard/scenarios/${scenarioId}`)
 }
 
 onMounted(async () => {
   try {
-    const response = await fetch('/data/content-catalog.json')
+    const response = await fetch(withBase('/data/content-catalog.json'))
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`)
     }

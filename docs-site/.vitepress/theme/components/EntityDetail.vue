@@ -58,7 +58,7 @@
               <tbody>
                 <tr v-for="change in cardEntity?.stakeholder_changes ?? []" :key="change.stakeholder_id">
                   <td>
-                    <a :href="`/dashboard/stakeholders/${change.stakeholder_id}`">{{ stakeholderName(change.stakeholder_id) }}</a>
+                    <a :href="withBase(`/dashboard/stakeholders/${change.stakeholder_id}`)">{{ stakeholderName(change.stakeholder_id) }}</a>
                   </td>
                   <td :class="deltaClass(change.delta)">{{ signedDelta(change.delta) }}</td>
                 </tr>
@@ -131,7 +131,7 @@
         <h2>Used In Scenarios ({{ relatedScenarios.length }})</h2>
         <ul>
           <li v-for="scenario in relatedScenarios" :key="scenario.id">
-            <a :href="`/dashboard/scenarios/${scenario.id}`">{{ scenario.name }}</a>
+            <a :href="withBase(`/dashboard/scenarios/${scenario.id}`)">{{ scenario.name }}</a>
           </li>
         </ul>
       </section>
@@ -149,6 +149,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { withBase } from 'vitepress'
 
 type EntityType = 'card' | 'stakeholder' | 'event'
 type VersionRef = { id: string; version: number }
@@ -270,7 +271,7 @@ function stakeholderName(id: string): string {
 
 onMounted(async () => {
   try {
-    const response = await fetch('/data/content-catalog.json')
+    const response = await fetch(withBase('/data/content-catalog.json'))
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`)
     }

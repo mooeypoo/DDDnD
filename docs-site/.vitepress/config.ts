@@ -7,6 +7,7 @@ export default defineConfig({
   lang: 'en-US',
   title: 'DDDnD — Technical Dashboard',
   description: 'Audit reports, scenario catalog, and balance metrics for Domain-Driven Design Card Game',
+  base: '/DDDnD/',
 
   root: path.join(projectRoot, 'docs-site'),
   outDir: path.join(projectRoot, 'docs-site/.vitepress/dist'),

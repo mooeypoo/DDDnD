@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { withBase } from 'vitepress'
 
 type BlogPost = {
   title: string
@@ -31,7 +32,7 @@ const posts = ref<BlogPost[]>([])
 
 onMounted(async () => {
   try {
-    const response = await fetch('/data/blog-feed.json')
+    const response = await fetch(withBase('/data/blog-feed.json'))
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`)
     }

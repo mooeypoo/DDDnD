@@ -7,7 +7,7 @@
         <article v-for="scenario in scenarios" :key="scenario.scenario_id" class="summary-card">
           <header class="summary-card__header">
             <h4>
-              <a :href="`/dashboard/scenarios/${scenario.scenario_id}`">{{ scenarioName(scenario.scenario_id) }}</a>
+              <a :href="withBase(`/dashboard/scenarios/${scenario.scenario_id}`)">{{ scenarioName(scenario.scenario_id) }}</a>
             </h4>
             <AuditStatusBadge :status="scenario.audit.summary.overall_status" />
           </header>
@@ -27,6 +27,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { withBase } from 'vitepress'
 
 type ScenarioReport = {
   scenario_id: string
@@ -61,8 +62,8 @@ function scenarioName(id: string): string {
 onMounted(async () => {
   try {
     const [auditRes, catalogRes] = await Promise.all([
-      fetch('/data/audit-report.json'),
-      fetch('/data/content-catalog.json'),
+      fetch(withBase('/data/audit-report.json')),
+      fetch(withBase('/data/content-catalog.json')),
     ])
     if (!auditRes.ok) throw new Error(`HTTP ${auditRes.status}`)
     const auditPayload = await auditRes.json()

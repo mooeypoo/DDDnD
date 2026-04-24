@@ -20,6 +20,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { withBase } from 'vitepress'
 
 type ScenarioMetrics = {
   scenario_id: string
@@ -40,7 +41,7 @@ const scenarios = computed(() => Object.values(scenarioMap.value).sort((a, b) =>
 
 onMounted(async () => {
   try {
-    const response = await fetch('/data/audit-report.json')
+    const response = await fetch(withBase('/data/audit-report.json'))
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`)
     }

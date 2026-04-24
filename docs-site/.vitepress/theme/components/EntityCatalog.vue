@@ -26,6 +26,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { withBase } from 'vitepress'
 
 type EntityType = 'card' | 'stakeholder' | 'event'
 
@@ -76,12 +77,12 @@ const entityLabel = computed(() => typeConfig.value.entityLabel)
 const showIdInCatalog = computed(() => props.entityType !== 'card')
 
 function entityLink(id: string): string {
-  return `${typeConfig.value.basePath}/${id}`
+  return withBase(`${typeConfig.value.basePath}/${id}`)
 }
 
 onMounted(async () => {
   try {
-    const response = await fetch('/data/content-catalog.json')
+    const response = await fetch(withBase('/data/content-catalog.json'))
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}`)
     }
