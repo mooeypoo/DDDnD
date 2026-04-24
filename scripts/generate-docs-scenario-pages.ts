@@ -122,10 +122,11 @@ function buildEntityPage(
   const safeName = escapeYamlTitle(baseName)
 
   return [
-    GENERATED_MARKER,
     '---',
     `title: "${safeName}"`,
+    'outline: false',
     '---',
+    GENERATED_MARKER,
     '',
     definition.kind === 'scenario'
       ? `<ScenarioDetail scenario-id="${entityId}" />`
@@ -151,7 +152,7 @@ async function cleanupRemovedEntityPages(outputDir: string, validEntityIds: Set<
 
     const filePath = path.join(outputDir, entry.name)
     const content = await readFile(filePath, 'utf8')
-    if (!content.startsWith(GENERATED_MARKER)) {
+    if (!content.includes(GENERATED_MARKER)) {
       continue
     }
 

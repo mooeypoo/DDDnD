@@ -6,7 +6,9 @@
       <div class="summary-grid">
         <article v-for="scenario in scenarios" :key="scenario.scenario_id" class="summary-card">
           <header class="summary-card__header">
-            <h4>{{ scenario.scenario_id }}</h4>
+            <h4>
+              <a :href="`/dashboard/scenarios/${scenario.scenario_id}`">{{ scenarioName(scenario.scenario_id) }}</a>
+            </h4>
             <AuditStatusBadge :status="scenario.audit.summary.overall_status" />
           </header>
           <div class="summary-card__metrics">
@@ -46,19 +48,34 @@ type ScenarioReport = {
 const loading = ref(true)
 const error = ref<string | null>(null)
 const data = ref<Record<string, ScenarioReport>>({})
+const nameMap = ref<Record<string, string>>({})
 
 const scenarios = computed(() =>
   Object.values(data.value).sort((a, b) => a.scenario_id.localeCompare(b.scenario_id))
 )
 
+function scenarioName(id: string): string {
+  return nameMap.value[id] ?? id
+}
+
 onMounted(async () => {
   try {
-    const response = await fetch('/data/audit-report.json')
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
+    const [auditRes, catalogRes] = await Promise.all([
+      fetch('/data/audit-report.json'),
+      fetch('/data/content-catalog.json'),
+    ])
+    if (!auditRes.ok) throw new Error(`HTTP ${auditRes.status}`)
+    const auditPayload = await auditRes.json()
+    data.value = auditPayload.scenarios ?? {}
+
+    if (catalogRes.ok) {
+      const catalog = await catalogRes.json()
+      const map: Record<string, string> = {}
+      for (const s of catalog.scenarios ?? []) {
+        map[s.id] = s.name
+      }
+      nameMap.value = map
     }
-    const payload = await response.json()
-    data.value = payload.scenarios ?? {}
   } catch (err) {
     error.value = err instanceof Error ? err.message : String(err)
   } finally {
