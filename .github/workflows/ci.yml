@@ -1,4 +1,4 @@
-name: CI
+name: CI & Content Audit
 
 on:
   push:
