@@ -49,10 +49,14 @@ export default defineConfig({
 
     sidebar: {
       '/guide/': [
-        { text: 'Gameplay', link: '/guide/gameplay' },
-        { text: 'Strategy', link: '/guide/strategy' },
-        { text: 'Content Authoring', link: '/guide/content-authoring' },
-        { text: 'Reading the Audit', link: '/guide/reading-the-audit' },
+        { text: 'Playing the Game', items: [
+          { text: 'Gameplay', link: '/guide/gameplay' },
+          { text: 'Strategy', link: '/guide/strategy' },
+        ] },
+        { text: 'Development', items: [
+          { text: 'Content Authoring', link: '/guide/content-authoring' },
+          { text: 'Reading the Audit', link: '/guide/reading-the-audit' },
+        ] },
       ],
       '/dashboard/': [
         { text: 'Audit Overview', link: '/dashboard/' },
