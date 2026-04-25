@@ -38,7 +38,7 @@ export default defineConfig({
       github: 'https://github.com/mooeypoo',
       website: 'https://moriel.tech',
       blog: 'https://blog.moriel.tech',
-      blurb: 'The blog covers the design thinking, architecture decisions, and ongoing development of DDDnD.',
+      blurb: 'Software engineer passionate about human-centric development and the quiet superpowers of localization — building tools that are fun, thoughtful, and work for everyone.',
     },
 
     nav: [
