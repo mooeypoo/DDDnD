@@ -3,6 +3,9 @@ name: Deploy Docs to GitHub Pages
 on:
   push:
     branches: [main]
+  schedule:
+    # Rebuild daily at 06:00 UTC to keep blog feed and audit data fresh
+    - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
       run_count:
