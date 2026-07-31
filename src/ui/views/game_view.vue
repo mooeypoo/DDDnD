@@ -226,7 +226,7 @@
           </div>
 
           <button
-            v-if="canCollapseHeader"
+            v-if="!isSidebarVisible"
             class="header-collapse-btn"
             type="button"
             :aria-expanded="true"
@@ -640,11 +640,7 @@ function handleWindowResize(): void {
 }
 
 const isHeaderCollapsedView = computed(() => {
-  return canCollapseHeader.value && isHeaderCollapsed.value
-})
-
-const canCollapseHeader = computed(() => {
-  return isHeaderStuck.value && !isSidebarVisible.value
+  return isHeaderCollapsed.value && !isSidebarVisible.value
 })
 
 function setHeaderCollapsed(collapsed: boolean): void {
@@ -1121,6 +1117,7 @@ function goToEndScreen() {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  overflow-anchor: none;
 }
 
 .play-header-sentinel {
@@ -1140,6 +1137,7 @@ function goToEndScreen() {
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow-panel);
   padding: 0.65rem 0.8rem;
+  overflow-anchor: none;
   transition: padding var(--duration-fast) var(--ease-standard),
               background var(--duration-fast) var(--ease-standard),
               box-shadow var(--duration-fast) var(--ease-standard),
