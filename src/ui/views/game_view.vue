@@ -69,7 +69,8 @@
     />
 
     <div ref="gameShellEl" class="game-shell" :class="{ 'drawer-open': isSatchelOpen }">
-      <header class="play-header">
+      <div ref="headerSentinelEl" class="play-header-sentinel" aria-hidden="true"></div>
+      <header class="play-header" :class="{ 'is-stuck': isHeaderStuck }">
         <div class="header-row">
           <p class="turn-pill">Turn {{ gameStore.currentTurn }} / {{ gameStore.maxTurns }}</p>
 
@@ -470,13 +471,16 @@ const satchelSort = ref<SortOption>('default')
 const pendingStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 const activeStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 const gameShellEl = ref<HTMLElement | null>(null)
+const headerSentinelEl = ref<HTMLElement | null>(null)
 const isSidebarVisible = ref(false)
+const isHeaderStuck = ref(false)
 
 const MIN_MAIN_COLUMN_WIDTH_PX = 700
 const DEFAULT_SIDEBAR_WIDTH_PX = 280
 const DEFAULT_COLUMN_GAP_PX = 12
 
 let shellResizeObserver: ResizeObserver | null = null
+let headerStickObserver: IntersectionObserver | null = null
 let sidebarWidthPx = DEFAULT_SIDEBAR_WIDTH_PX
 let columnGapPx = DEFAULT_COLUMN_GAP_PX
 
@@ -710,12 +714,28 @@ onMounted(() => {
     })
     shellResizeObserver.observe(gameShellEl.value)
   }
+
+  if (headerSentinelEl.value) {
+    headerStickObserver = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0]
+        isHeaderStuck.value = entry ? entry.intersectionRatio < 1 : false
+      },
+      {
+        threshold: [1],
+        rootMargin: '-8px 0px 0px 0px',
+      }
+    )
+    headerStickObserver.observe(headerSentinelEl.value)
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleWindowResize)
   shellResizeObserver?.disconnect()
   shellResizeObserver = null
+  headerStickObserver?.disconnect()
+  headerStickObserver = null
 })
 
 function handleResetRun() {
@@ -835,6 +855,13 @@ function goToEndScreen() {
   gap: 0.9rem;
 }
 
+.play-header-sentinel {
+  position: relative;
+  height: 1px;
+  margin-top: -1px;
+  pointer-events: none;
+}
+
 .play-header {
   position: sticky;
   top: 0.4rem;
@@ -845,6 +872,17 @@ function goToEndScreen() {
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow-panel);
   padding: 0.65rem 0.8rem;
+  transition: padding var(--duration-fast) var(--ease-standard),
+              background var(--duration-fast) var(--ease-standard),
+              box-shadow var(--duration-fast) var(--ease-standard),
+              border-color var(--duration-fast) var(--ease-standard);
+}
+
+.play-header.is-stuck {
+  padding: 0.5rem 0.7rem;
+  background: rgba(9, 11, 20, 0.86);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  border-color: color-mix(in oklab, var(--border-subtle), rgba(255, 255, 255, 0.2) 18%);
 }
 
 .header-row {
@@ -852,6 +890,7 @@ function goToEndScreen() {
   align-items: center;
   gap: 0.7rem;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .turn-pill {
@@ -1055,10 +1094,18 @@ function goToEndScreen() {
 
 .header-stat-zone {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.7rem;
   flex-wrap: wrap;
-  margin-left: auto;
+  flex: 1 0 100%;
+  width: 100%;
+  margin-left: 0;
+  min-width: 0;
+}
+
+.header-stat-zone > * {
+  flex: 1 1 320px;
+  min-width: 0;
 }
 
 .play-main {

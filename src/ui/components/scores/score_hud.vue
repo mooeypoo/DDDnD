@@ -124,13 +124,17 @@ const overallHealth = computed(() => {
 <style scoped>
 .score-hud {
   position: relative;
+  width: 100%;
+  min-width: 0;
 }
 
 .hud-scores {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-1);
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
   appearance: none;
   background: none;
   border: 1px solid transparent;
@@ -154,7 +158,7 @@ const overallHealth = computed(() => {
   border: 1px solid var(--dng-divider);
   border-radius: var(--radius-md);
   padding: 2px 6px;
-  flex-shrink: 0;
+  flex: 0 1 auto;
   min-width: 0;
   line-height: 1;
 }
@@ -172,6 +176,7 @@ const overallHealth = computed(() => {
   font-size: var(--text-2xs);
   color: var(--dng-footer-muted);
   transition: transform var(--duration-fast) var(--ease-standard);
+  margin-left: auto;
   flex-shrink: 0;
   line-height: 1;
 }
@@ -247,7 +252,6 @@ const overallHealth = computed(() => {
 /* Compact labels on mobile: wrap to two lines */
 @media (max-width: 768px) {
   .hud-scores {
-    flex-wrap: wrap;
     row-gap: 3px;
   }
   .hud-metric {
