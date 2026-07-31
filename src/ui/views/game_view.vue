@@ -787,7 +787,7 @@ function goToEndScreen() {
 .play-header {
   position: sticky;
   top: 0.4rem;
-  z-index: var(--z-sticky);
+  z-index: var(--z-drawer);
   background: rgba(9, 11, 20, 0.68);
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
