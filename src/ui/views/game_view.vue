@@ -68,7 +68,7 @@
       @leave="handleLeaveTutorial"
     />
 
-    <div class="game-shell" :class="{ 'drawer-open': isSatchelOpen }">
+    <div ref="gameShellEl" class="game-shell" :class="{ 'drawer-open': isSatchelOpen }">
       <header class="play-header">
         <div class="header-row">
           <p class="turn-pill">Turn {{ gameStore.currentTurn }} / {{ gameStore.maxTurns }}</p>
@@ -98,7 +98,7 @@
           </div>
 
           <!-- Scores + stakeholders: hidden on desktop where sidebar is visible -->
-          <div class="header-stat-zone">
+          <div v-if="!isSidebarVisible" class="header-stat-zone">
             <ScoreHud
               v-if="gameStore.turnBriefing?.current_scores"
               :scores="gameStore.turnBriefing.current_scores"
@@ -113,7 +113,7 @@
       </header>
 
       <div class="play-body">
-        <div class="play-sidebar-wrapper">
+        <div v-if="isSidebarVisible" class="play-sidebar-wrapper">
           <GameHudSidebar
             :currentTurn="gameStore.currentTurn"
             :maxTurns="gameStore.maxTurns"
@@ -404,7 +404,7 @@
  * This view orchestrates UI composition and user interactions using game store
  * outputs. Gameplay rules remain simulation-domain responsibilities.
  */
-import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { Card } from '@/domains/content/model'
@@ -469,6 +469,40 @@ const satchelCategory = ref<CategoryFilter>('all')
 const satchelSort = ref<SortOption>('default')
 const pendingStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 const activeStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
+const gameShellEl = ref<HTMLElement | null>(null)
+const isSidebarVisible = ref(false)
+
+const MIN_MAIN_COLUMN_WIDTH_PX = 700
+const DEFAULT_SIDEBAR_WIDTH_PX = 280
+const DEFAULT_COLUMN_GAP_PX = 12
+
+let shellResizeObserver: ResizeObserver | null = null
+let sidebarWidthPx = DEFAULT_SIDEBAR_WIDTH_PX
+let columnGapPx = DEFAULT_COLUMN_GAP_PX
+
+function readPxToken(tokenName: string, fallbackPx: number): number {
+  const raw = getComputedStyle(document.documentElement).getPropertyValue(tokenName).trim()
+  if (!raw) return fallbackPx
+
+  const parsed = Number.parseFloat(raw)
+  return Number.isFinite(parsed) ? parsed : fallbackPx
+}
+
+function updateSidebarVisibility(shellWidth?: number): void {
+  const width = shellWidth ?? gameShellEl.value?.clientWidth ?? 0
+  const minShellWidthForSidebar = sidebarWidthPx + columnGapPx + MIN_MAIN_COLUMN_WIDTH_PX
+  isSidebarVisible.value = width >= minShellWidthForSidebar
+}
+
+function refreshSidebarLayout(shellWidth?: number): void {
+  sidebarWidthPx = readPxToken('--layout-sidebar-width', DEFAULT_SIDEBAR_WIDTH_PX)
+  columnGapPx = readPxToken('--space-md', DEFAULT_COLUMN_GAP_PX)
+  updateSidebarVisibility(shellWidth)
+}
+
+function handleWindowResize(): void {
+  refreshSidebarLayout()
+}
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
 
@@ -665,6 +699,23 @@ onMounted(() => {
 
   // Ensure gameplay starts at the top instead of restoring a stale scroll position.
   window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+
+  refreshSidebarLayout()
+  window.addEventListener('resize', handleWindowResize)
+
+  if (gameShellEl.value) {
+    shellResizeObserver = new ResizeObserver((entries) => {
+      const nextWidth = entries[0]?.contentRect.width
+      refreshSidebarLayout(nextWidth)
+    })
+    shellResizeObserver.observe(gameShellEl.value)
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleWindowResize)
+  shellResizeObserver?.disconnect()
+  shellResizeObserver = null
 })
 
 function handleResetRun() {
@@ -990,7 +1041,7 @@ function goToEndScreen() {
 }
 
 .play-sidebar-wrapper {
-  display: none;
+  display: block;
   flex-shrink: 0;
 }
 
@@ -1217,16 +1268,6 @@ function goToEndScreen() {
 .run-complete-popup-leave-to {
   opacity: 0;
   transform: scale(0.97) translateY(6px);
-}
-
-@media (min-width: 1040px) {
-  .play-sidebar-wrapper {
-    display: block;
-  }
-
-  .header-stat-zone {
-    display: none;
-  }
 }
 
 @media (max-width: 768px) {
