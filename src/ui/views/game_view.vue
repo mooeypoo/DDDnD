@@ -70,8 +70,54 @@
 
     <div ref="gameShellEl" class="game-shell" :class="{ 'drawer-open': isSatchelOpen }">
       <div ref="headerSentinelEl" class="play-header-sentinel" aria-hidden="true"></div>
-      <header class="play-header" :class="{ 'is-stuck': isHeaderStuck }">
-        <div class="header-row">
+      <header class="play-header" :class="{ 'is-stuck': isHeaderStuck, 'is-collapsed': isHeaderCollapsedView }">
+        <div v-if="isHeaderCollapsedView" class="header-collapsed-row">
+          <p class="turn-pill turn-pill-collapsed">Turn {{ gameStore.currentTurn }} / {{ gameStore.maxTurns }}</p>
+
+          <div class="header-indicators header-indicators-collapsed" v-if="gameStore.turnBriefing && !gameStore.isRunComplete">
+            <span class="header-pill header-pill-compact actions-pill" :title="`${currentAvailableActions} action card${currentAvailableActions === 1 ? '' : 's'} available`">
+              ⚔️ {{ currentAvailableActions }}
+            </span>
+            <span
+              v-if="pendingAftershockCount > 0"
+              class="header-pill header-pill-compact aftershock-pill"
+              :title="`${pendingAftershockCount} delayed effect${pendingAftershockCount === 1 ? '' : 's'} resolving this turn`"
+            >
+              ⚡ {{ pendingAftershockCount }}
+            </span>
+            <span
+              v-if="isLowTurns"
+              class="header-pill header-pill-compact low-turns-pill"
+              :title="`${turnsRemaining} turn${turnsRemaining === 1 ? '' : 's'} remaining`"
+            >
+              ⏰ {{ turnsRemaining }}
+            </span>
+            <button
+              v-if="hiddenScoreStateVisible"
+              class="header-pill header-pill-compact score-state-pill score-state-pill-button"
+              :class="hiddenScoreState.cssClass"
+              :title="hiddenScoreStateTitle"
+              type="button"
+              :aria-label="hiddenScoreStateTitle"
+              @click="setHeaderCollapsed(false)"
+            >
+              ◉ Expand for scores
+            </button>
+          </div>
+
+          <button
+            class="header-collapse-btn"
+            type="button"
+            :aria-expanded="false"
+            aria-label="Expand gameplay HUD"
+            @click="setHeaderCollapsed(false)"
+          >
+            <span class="collapse-btn-icon" aria-hidden="true">▾</span>
+            <span class="collapse-btn-label">Expand HUD</span>
+          </button>
+        </div>
+
+        <div v-else class="header-row">
           <p class="turn-pill">Turn {{ gameStore.currentTurn }} / {{ gameStore.maxTurns }}</p>
 
           <button
@@ -110,6 +156,18 @@
               :stakeholderNames="stakeholderNames"
             />
           </div>
+
+          <button
+            v-if="canCollapseHeader"
+            class="header-collapse-btn"
+            type="button"
+            :aria-expanded="true"
+            aria-label="Collapse gameplay HUD"
+            @click="setHeaderCollapsed(true)"
+          >
+            <span class="collapse-btn-icon" aria-hidden="true">▴</span>
+            <span class="collapse-btn-label">Collapse HUD</span>
+          </button>
         </div>
       </header>
 
@@ -474,10 +532,12 @@ const gameShellEl = ref<HTMLElement | null>(null)
 const headerSentinelEl = ref<HTMLElement | null>(null)
 const isSidebarVisible = ref(false)
 const isHeaderStuck = ref(false)
+const isHeaderCollapsed = ref(false)
 
 const MIN_MAIN_COLUMN_WIDTH_PX = 700
 const DEFAULT_SIDEBAR_WIDTH_PX = 280
 const DEFAULT_COLUMN_GAP_PX = 12
+const HEADER_COLLAPSE_STORAGE_KEY = 'dddnd:game-hud-collapsed'
 
 let shellResizeObserver: ResizeObserver | null = null
 let headerStickObserver: IntersectionObserver | null = null
@@ -506,6 +566,18 @@ function refreshSidebarLayout(shellWidth?: number): void {
 
 function handleWindowResize(): void {
   refreshSidebarLayout()
+}
+
+const isHeaderCollapsedView = computed(() => {
+  return canCollapseHeader.value && isHeaderCollapsed.value
+})
+
+const canCollapseHeader = computed(() => {
+  return isHeaderStuck.value && !isSidebarVisible.value
+})
+
+function setHeaderCollapsed(collapsed: boolean): void {
+  isHeaderCollapsed.value = collapsed
 }
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
@@ -588,6 +660,25 @@ const pendingAftershockCount = computed(() => {
 })
 
 const currentScores = computed(() => gameStore.turnBriefing?.current_scores ?? {})
+
+const hiddenScoreState = computed(() => {
+  const values = Object.values(currentScores.value)
+  if (!values.length) return { label: 'Unknown', cssClass: '' }
+
+  const min = Math.min(...values)
+  if (min < 20) return { label: 'Critical', cssClass: 'status-critical' }
+  if (min < 40) return { label: 'Warning', cssClass: 'status-warning' }
+  if (min < 60) return { label: 'Caution', cssClass: 'status-caution' }
+  return { label: 'Stable', cssClass: 'status-stable' }
+})
+
+const hiddenScoreStateVisible = computed(() => {
+  return gameStore.turnBriefing && !gameStore.isRunComplete && Object.keys(currentScores.value).length > 0
+})
+
+const hiddenScoreStateTitle = computed(() => {
+  return 'System scores are hidden in the collapsed HUD. Expand to view the full score panel.'
+})
 
 const collapseWarnings = computed(() => getCollapseWarnings(currentScores.value))
 
@@ -695,6 +786,20 @@ watch(scenario, (newScenario, oldScenario) => {
   }
 }, { immediate: false })
 
+watch(isHeaderCollapsed, (collapsed) => {
+  try {
+    localStorage.setItem(HEADER_COLLAPSE_STORAGE_KEY, collapsed ? '1' : '0')
+  } catch {
+    // Ignore persistence failures in constrained browser contexts.
+  }
+})
+
+watch(isSidebarVisible, (visible) => {
+  if (visible) {
+    isHeaderCollapsed.value = false
+  }
+})
+
 onMounted(() => {
   if (!gameStore.hasActiveRun) {
     router.push('/play')
@@ -703,6 +808,12 @@ onMounted(() => {
 
   // Ensure gameplay starts at the top instead of restoring a stale scroll position.
   window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+
+  try {
+    isHeaderCollapsed.value = localStorage.getItem(HEADER_COLLAPSE_STORAGE_KEY) === '1'
+  } catch {
+    isHeaderCollapsed.value = false
+  }
 
   refreshSidebarLayout()
   window.addEventListener('resize', handleWindowResize)
@@ -885,10 +996,22 @@ function goToEndScreen() {
   border-color: color-mix(in oklab, var(--border-subtle), rgba(255, 255, 255, 0.2) 18%);
 }
 
+.play-header.is-collapsed {
+  padding: 0.45rem 0.65rem;
+}
+
 .header-row {
   display: flex;
   align-items: center;
   gap: 0.7rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.header-collapsed-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   flex-wrap: wrap;
   min-width: 0;
 }
@@ -904,6 +1027,11 @@ function goToEndScreen() {
   border-radius: 999px;
   padding: 0.25rem 0.55rem;
   background: rgba(255, 255, 255, 0.04);
+}
+
+.turn-pill-collapsed {
+  padding: 0.2rem 0.5rem;
+  font-size: 10px;
 }
 
 .scenario-pill {
@@ -979,6 +1107,10 @@ function goToEndScreen() {
   flex-wrap: wrap;
 }
 
+.header-indicators-collapsed {
+  gap: 0.3rem;
+}
+
 .header-pill {
   display: inline-flex;
   align-items: center;
@@ -990,6 +1122,79 @@ function goToEndScreen() {
   font-weight: var(--font-semibold);
   background: rgba(255, 255, 255, 0.04);
   white-space: nowrap;
+}
+
+.header-pill-compact {
+  padding: 0.15rem 0.45rem;
+  font-size: 10px;
+  min-width: 0;
+}
+
+.score-state-pill {
+  letter-spacing: 0.02em;
+}
+
+.score-state-pill-button {
+  appearance: none;
+  cursor: pointer;
+  font: inherit;
+  text-transform: none;
+}
+
+.score-state-pill-button:hover {
+  filter: brightness(1.08);
+}
+
+.score-state-pill-button:focus-visible {
+  outline: 2px solid var(--border-focus, rgba(38, 212, 185, 0.7));
+  outline-offset: 2px;
+}
+
+.score-state-pill.status-critical { color: var(--score-critical); border-color: color-mix(in oklab, var(--score-critical), transparent 45%); background: rgba(248, 113, 113, 0.08); }
+.score-state-pill.status-warning { color: var(--score-low); border-color: color-mix(in oklab, var(--score-low), transparent 45%); background: rgba(251, 191, 36, 0.08); }
+.score-state-pill.status-caution { color: var(--score-medium); border-color: color-mix(in oklab, var(--score-medium), transparent 45%); background: rgba(96, 165, 250, 0.08); }
+.score-state-pill.status-stable { color: var(--score-high); border-color: color-mix(in oklab, var(--score-high), transparent 45%); background: rgba(52, 211, 153, 0.08); }
+
+.header-collapse-btn {
+  all: unset;
+  box-sizing: border-box;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color var(--duration-fast) var(--ease-standard),
+              color var(--duration-fast) var(--ease-standard),
+              background var(--duration-fast) var(--ease-standard);
+}
+
+.header-collapse-btn:hover {
+  color: var(--text-bright);
+  border-color: color-mix(in oklab, var(--dng-bronze-mid), transparent 35%);
+  background: rgba(160, 112, 24, 0.12);
+}
+
+.header-collapse-btn:focus-visible {
+  outline: 2px solid var(--border-focus, rgba(38, 212, 185, 0.7));
+  outline-offset: 2px;
+}
+
+.collapse-btn-icon {
+  font-size: 0.75em;
+  line-height: 1;
+}
+
+.collapse-btn-label {
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
 }
 
 .actions-pill {
@@ -1322,6 +1527,16 @@ function goToEndScreen() {
     width: min(1280px, 100% - 1rem);
   }
 
+  .header-collapse-btn {
+    padding: 0.18rem 0.5rem;
+    font-size: 10px;
+  }
+
+  .turn-pill-collapsed,
+  .header-pill-compact {
+    font-size: 9px;
+  }
+
   .aftershock-alert {
     max-width: 160px;
     padding: 0.3rem 0.5rem;
@@ -1337,6 +1552,10 @@ function goToEndScreen() {
   .run-complete-popup-panel {
     width: 100%;
     border-radius: 18px 18px 0 0;
+  }
+
+  .collapse-btn-label {
+    display: none;
   }
 }
 
