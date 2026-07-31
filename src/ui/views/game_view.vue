@@ -660,7 +660,11 @@ watch(scenario, (newScenario, oldScenario) => {
 onMounted(() => {
   if (!gameStore.hasActiveRun) {
     router.push('/play')
+    return
   }
+
+  // Ensure gameplay starts at the top instead of restoring a stale scroll position.
+  window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
 })
 
 function handleResetRun() {
@@ -781,8 +785,9 @@ function goToEndScreen() {
 }
 
 .play-header {
-  position: relative;
-  z-index: 10;
+  position: sticky;
+  top: 0.4rem;
+  z-index: var(--z-sticky);
   background: rgba(9, 11, 20, 0.68);
   border: 1px solid var(--border-subtle);
   border-radius: 14px;
@@ -1214,7 +1219,7 @@ function goToEndScreen() {
   transform: scale(0.97) translateY(6px);
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1040px) {
   .play-sidebar-wrapper {
     display: block;
   }
