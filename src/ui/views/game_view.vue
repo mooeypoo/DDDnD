@@ -43,16 +43,84 @@
 
     <SurfaceModalPanel
       :is-open="isScenarioInfoOpen"
-      :title="scenario?.name ?? 'Scenario'"
+      :title="scenarioInfoTitle"
       size="md"
-      @close="isScenarioInfoOpen = false"
+      @close="closeScenarioInfo"
     >
       <div class="scenario-info-body">
-        <p v-if="scenario?.description" class="scenario-info-desc">{{ scenario.description }}</p>
-        <p v-if="scenario?.flavor_text" class="scenario-info-flavor">"{{ scenario.flavor_text }}"</p>
+        <template v-if="!isScenarioInfoExpanded">
+          <p class="scenario-info-summary">{{ scenarioShortDescription }}</p>
+
+          <div class="scenario-info-facts">
+            <div v-for="fact in scenarioQuickFacts" :key="fact.label" class="scenario-info-fact">
+              <span class="scenario-info-fact-label">{{ fact.label }}</span>
+              <span class="scenario-info-fact-value">{{ fact.value }}</span>
+            </div>
+          </div>
+
+          <p class="scenario-info-nudge">
+            Want the full briefing? Expand for the detailed scenario introduction.
+          </p>
+        </template>
+
+        <template v-else>
+          <section class="scenario-info-section">
+            <div class="section-header scenario-info-section-header">
+              <span class="section-icon" aria-hidden="true">📖</span>
+              <h3 class="section-title">Scenario Introduction</h3>
+            </div>
+            <p v-if="scenario?.description" class="scenario-info-desc">{{ scenario.description }}</p>
+            <p v-if="scenario?.flavor_text" class="scenario-info-flavor">"{{ scenario.flavor_text }}"</p>
+          </section>
+
+          <section class="scenario-info-section">
+            <div class="section-header scenario-info-section-header">
+              <span class="section-icon" aria-hidden="true">📊</span>
+              <h3 class="section-title">System Ledger</h3>
+            </div>
+            <p class="scenario-info-section-copy">
+              These are the starting system conditions for this run.
+            </p>
+            <div class="scenario-info-score-grid">
+              <div
+                v-for="(value, scoreId) in scenarioScoreSnapshot"
+                :key="scoreId"
+                class="scenario-info-metric"
+              >
+                <span class="scenario-info-metric-icon">{{ getMetricIcon(scoreId) }}</span>
+                <span class="scenario-info-metric-label">{{ getMetricLabel(scoreId) }}</span>
+                <span class="scenario-info-metric-value" :class="getScoreClass(value)">{{ Math.round(value) }}</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="scenario-info-section">
+            <div class="section-header scenario-info-section-header">
+              <span class="section-icon" aria-hidden="true">👥</span>
+              <h3 class="section-title">Stakeholder Pulse</h3>
+            </div>
+            <p class="scenario-info-section-copy">
+              These are the stakeholders who will react to your decisions.
+            </p>
+            <div class="scenario-info-stakeholder-grid">
+              <div
+                v-for="(data, stakeholderId) in scenarioStakeholderSnapshot"
+                :key="stakeholderId"
+                class="scenario-info-stakeholder"
+              >
+                <span class="scenario-info-stakeholder-icon">{{ getStakeholderIcon(stakeholderId) }}</span>
+                <span class="scenario-info-stakeholder-name">{{ formatStakeholderName(stakeholderId) }}</span>
+                <span class="scenario-info-stakeholder-value" :class="getSatisfactionClass(data.satisfaction)">{{ Math.round(data.satisfaction) }}</span>
+              </div>
+            </div>
+          </section>
+        </template>
       </div>
       <template #footer>
-        <AppButton variant="primary" @click="isScenarioInfoOpen = false">Got it!</AppButton>
+        <AppButton variant="subtle" @click="toggleScenarioInfoDetails">
+          {{ isScenarioInfoExpanded ? 'Back to summary' : 'More details' }}
+        </AppButton>
+        <AppButton variant="primary" @click="closeScenarioInfo">Got it!</AppButton>
       </template>
     </SurfaceModalPanel>
 
@@ -123,7 +191,7 @@
           <button
             v-if="scenario?.name"
             class="scenario-pill"
-            @click="isScenarioInfoOpen = true"
+            @click="openScenarioInfo"
             :title="'View scenario info: ' + scenario.name"
           >
             <span class="scenario-pill-icon">📜</span>
@@ -474,6 +542,8 @@ import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentat
 import { getCollapseWarnings, hasActiveCoupling } from '@/ui/composables/system_coupling'
 import { getActiveCouplingEffects } from '@/domains/simulation'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { resolveScenarioShortDescription } from '@/ui/composables/scenario_presentation'
+import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import {
   buildGameplayStageActors,
   pickRandomSceneId,
@@ -520,6 +590,7 @@ const isSatchelOpen = ref(false)
 const resolutionPopupOpen = ref(false)
 const isResolutionExpanded = ref(false)
 const isScenarioInfoOpen = ref(false)
+const isScenarioInfoExpanded = ref(false)
 const activeEffectsPopupOpen = ref(false)
 const runCompletePopupOpen = ref(false)
 const randomSceneId = ref<SceneBackgroundId>(pickRandomSceneId())
@@ -595,6 +666,78 @@ const playerClassName = computed(() => {
 
 const playerClassId = computed(() => {
   return gameStore.gameState?.player_profile.selected_class_ref?.id
+})
+
+function getMetricIcon(scoreId: string): string {
+  return getMetricPresentation(scoreId).icon
+}
+
+function getMetricLabel(scoreId: string): string {
+  return getMetricPresentation(scoreId).label
+}
+
+function getScoreClass(value: number): string {
+  if (value >= 70) return 'high'
+  if (value >= 40) return 'medium'
+  if (value >= 20) return 'low'
+  return 'critical'
+}
+
+const STAKEHOLDER_ICONS: Record<string, string> = {
+  cto: '🏛️',
+  vp_product: '📋',
+  lead_developer: '💻',
+  lead_engineer: '💻',
+  operations_manager: '⚙️',
+  operations_team: '⚙️',
+  engineering_team: '🔧',
+  product_team: '📦',
+  finance_team: '💵',
+  users: '👤',
+  support_team: '🎧',
+  leadership_team: '👔',
+}
+
+function getStakeholderIcon(stakeholderId: string): string {
+  return STAKEHOLDER_ICONS[stakeholderId] ?? '👤'
+}
+
+function formatStakeholderName(stakeholderId: string): string {
+  return resolveStakeholderName(stakeholderId, gameStore.scenarioBundle?.scenario ? stakeholderNames.value : undefined)
+}
+
+function getSatisfactionClass(value: number): string {
+  if (value >= 70) return 'supportive'
+  if (value >= 50) return 'neutral'
+  if (value >= 30) return 'concerned'
+  return 'critical'
+}
+
+const scenarioShortDescription = computed(() => {
+  if (!scenario.value) return 'A troubled realm awaits your command.'
+  return resolveScenarioShortDescription(scenario.value)
+})
+
+const scenarioInfoTitle = computed(() => {
+  if (!scenario.value) return 'Scenario'
+  return isScenarioInfoExpanded.value ? `${scenario.value.name} · Introduction` : scenario.value.name
+})
+
+const scenarioScoreSnapshot = computed(() => {
+  return gameStore.gameState?.scores ?? scenario.value?.starting_scores ?? {}
+})
+
+const scenarioStakeholderSnapshot = computed(() => {
+  return gameStore.gameState?.stakeholders ?? {}
+})
+
+const scenarioQuickFacts = computed(() => {
+  return [
+    { label: 'Turns', value: `${gameStore.maxTurns}` },
+    { label: 'Scores', value: `${Object.keys(scenarioScoreSnapshot.value).length}` },
+    { label: 'Stakeholders', value: `${Object.keys(scenarioStakeholderSnapshot.value).length}` },
+    { label: 'Cards', value: `${gameStore.scenarioBundle?.cards.size ?? 0}` },
+  ]
 })
 
 const activeChallengeModifier = computed(() => {
@@ -854,6 +997,20 @@ function handleResetRun() {
   router.push('/play')
 }
 
+function openScenarioInfo() {
+  isScenarioInfoExpanded.value = false
+  isScenarioInfoOpen.value = true
+}
+
+function closeScenarioInfo() {
+  isScenarioInfoOpen.value = false
+  isScenarioInfoExpanded.value = false
+}
+
+function toggleScenarioInfoDetails() {
+  isScenarioInfoExpanded.value = !isScenarioInfoExpanded.value
+}
+
 function handleLeaveTutorial() {
   gameStore.reset()
   router.push('/play')
@@ -1082,6 +1239,127 @@ function goToEndScreen() {
   flex-direction: column;
   gap: 1rem;
   padding: 0.5rem 0;
+}
+
+.scenario-info-summary {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  line-height: 1.65;
+}
+
+.scenario-info-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.scenario-info-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-sm);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.scenario-info-fact-label {
+  font-size: var(--text-2xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.scenario-info-fact-value {
+  font-size: var(--text-sm);
+  color: var(--text-bright);
+  font-weight: var(--font-semibold);
+}
+
+.scenario-info-nudge {
+  margin: 0;
+  color: var(--dng-footer-muted);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.scenario-info-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+}
+
+.scenario-info-section-header {
+  margin-bottom: 0;
+}
+
+.scenario-info-section-copy {
+  margin: 0;
+  color: var(--dng-subtitle-warm);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.scenario-info-score-grid,
+.scenario-info-stakeholder-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.scenario-info-metric,
+.scenario-info-stakeholder {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.scenario-info-metric-icon,
+.scenario-info-stakeholder-icon {
+  line-height: 1;
+}
+
+.scenario-info-metric-label,
+.scenario-info-stakeholder-name {
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.scenario-info-metric-value,
+.scenario-info-stakeholder-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+}
+
+.scenario-info-metric-value.high,
+.scenario-info-stakeholder-value.supportive { color: var(--score-high); }
+.scenario-info-metric-value.medium,
+.scenario-info-stakeholder-value.neutral { color: var(--score-medium); }
+.scenario-info-metric-value.low,
+.scenario-info-stakeholder-value.concerned { color: var(--score-low); }
+.scenario-info-metric-value.critical,
+.scenario-info-stakeholder-value.critical { color: var(--score-critical); }
+
+@media (max-width: 640px) {
+  .scenario-info-facts,
+  .scenario-info-score-grid,
+  .scenario-info-stakeholder-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .scenario-info-desc {
