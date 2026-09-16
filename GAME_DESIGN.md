@@ -225,6 +225,14 @@ Hints are driven entirely by content — they are not hard-coded in the UI.
 
 ---
 
+# Gameplay v2
+
+The live play surface is being rebuilt on branch `gameplay-v2` so a run feels like a game (war table, legal hand, inspect-only deck, turn theater) without replacing the engine or content packs.
+
+The canonical plan, including what stays in simulation vs UI and how fairness tests must change, is [docs/GAMEPLAY_V2.md](docs/GAMEPLAY_V2.md). Until that work lands in production, the player-facing loop described above is still the catalog-and-satchel surface.
+
+---
+
 # Implementation Notes
 
 The underlying simulation engine is implemented in TypeScript.

@@ -70,9 +70,12 @@ The simulation engine exposes the following API:
 - `create_run`
 - `get_turn_briefing`
 - `play_turn`
+- `consult_archives`
 - `get_run_outcome`
 
 `get_run_outcome` returns the current or final outcome state for the overall run.
+
+`play_turn` plays one architecture card from the current **hand**. `consult_archives` spends a turn replacing a hand card from the deck without resolving card effects; aftershocks, events, and stakeholders still resolve. Both are simulation rules, not UI filters. See [docs/GAMEPLAY_V2.md](docs/GAMEPLAY_V2.md).
 
 These APIs should be defined with explicit TypeScript interfaces.
 
@@ -93,6 +96,7 @@ Key elements include:
 - current turn
 - score values
 - stakeholder satisfaction
+- current hand and remaining playable deck
 - queued delayed effects
 - turn history
 - run analytics

@@ -173,7 +173,7 @@ describe('game_store orchestration', () => {
     expect(store.gameState).not.toBe(previousGameState)
     expect(store.turnBriefing).not.toBeNull()
     expect(store.turnBriefing?.turn_number).toBeGreaterThan(previousBriefing?.turn_number ?? 0)
-    expect(store.lastTurnResolution?.turn_resolution_context.selected_action.id).toBe(actionId)
+    expect(store.lastTurnResolution?.turn_resolution_context.selected_action?.id).toBe(actionId)
   })
 
   it('exposes card availability data in turn briefing summaries', async () => {

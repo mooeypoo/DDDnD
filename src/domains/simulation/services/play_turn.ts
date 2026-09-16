@@ -1,113 +1,60 @@
 /**
  * Play Turn
- * 
+ *
  * Resolves a complete turn following the turn resolution pipeline:
- * 
+ *
  * 1. Architectural Aftershocks - delayed effects resolve
- * 2. Player Action - selected card resolves
+ * 2. Player Action - selected card from the legal hand resolves
  * 3. System Event - random event may trigger
  * 4. Stakeholder Resolution - stakeholders react to current state
  * 5. Turn Wrap-Up - update totals, record history, check outcomes
- * 
+ *
  * This is the CORE of the simulation engine.
- * 
- * Returns:
- * - Updated game state (immutable update)
- * - Turn resolution record (what happened this turn)
- * 
+ *
  * IMPORTANT: This function must be deterministic.
  * Given the same state, bundle, action, and seed - it must produce identical results.
  */
 
-import { ScenarioBundle } from '@/domains/content/model'
-import { ScoreChangeRecord, StakeholderChangeRecord } from '@/shared/contracts'
+import { ScenarioBundle, versionRefKey } from '@/domains/content/model'
+import { ScoreChangeRecord } from '@/shared/contracts'
 import { SeededRandom } from '@/shared/random/seeded_random'
-import {
-  GameState,
-  TurnHistoryEntry,
-  TurnResolutionContext
-} from '../model'
+import { GameState } from '../model'
 import {
   applyScoreChanges,
   applyStakeholderChanges,
-  buildTurnHistoryEntry,
-  classifyRunOutcome,
+  applyPlayedCardToHand,
+  containsContentRef,
+  getCardAvailability,
   getCardNextAvailableTurn,
   resolveAction,
-  resolveArchitecturalAftershocks,
-  resolveEvent,
-  resolveStakeholderRules
+  resolveArchitecturalAftershocks
 } from '../rules'
-import { versionRefKey } from '@/domains/content/model'
+import { completeTurn, PlayTurnResult } from './complete_turn'
 
-export interface PlayTurnResult {
-  game_state: GameState
-  turn_resolution_context: TurnResolutionContext
-  turn_history_entry: TurnHistoryEntry
-}
+export type { PlayTurnResult }
 
-/**
- * Merges score deltas into cumulative analytics totals.
- */
-function mergeScoreDeltas(
-  existing: Record<string, number>,
-  changes: ScoreChangeRecord[]
-): Record<string, number> {
-  const next = { ...existing }
-
-  for (const change of changes) {
-    next[change.score_id] = (next[change.score_id] ?? 0) + change.delta
+function assertCardIsLegalToPlay(
+  gameState: GameState,
+  scenarioBundle: ScenarioBundle,
+  actionId: string
+): void {
+  const isInHand = gameState.hand_state.hand_refs.some((ref) => ref.id === actionId)
+  if (isInHand) {
+    return
   }
 
-  return next
-}
+  throwIfUnplayablePoolCard(gameState, scenarioBundle, actionId)
 
-/**
- * Merges stakeholder deltas into cumulative analytics totals.
- */
-function mergeStakeholderDeltas(
-  existing: Record<string, number>,
-  changes: StakeholderChangeRecord[]
-): Record<string, number> {
-  const next = { ...existing }
-
-  for (const change of changes) {
-    next[change.stakeholder_id] = (next[change.stakeholder_id] ?? 0) + change.delta
+  const actionRef = gameState.action_state.available_action_refs.find((candidate) => candidate.id === actionId)
+  if (!actionRef) {
+    throw new Error(`Action is not available for this run: ${actionId}`)
   }
 
-  return next
+  throw new Error(`Action is not in the current hand: ${actionId}`)
 }
 
 /**
- * Merges usage counters (card usage, style tags) into analytics totals.
- */
-function mergeUsageCounters(
-  existing: Record<string, number>,
-  keys: string[]
-): Record<string, number> {
-  const next = { ...existing }
-
-  for (const key of keys) {
-    next[key] = (next[key] ?? 0) + 1
-  }
-
-  return next
-}
-
-/**
- * Computes deterministic last-updated timestamp from created_at and turn count.
- */
-function computeDeterministicLastUpdatedAt(createdAtUtc: string, turnsCompleted: number): string {
-  const baseTimestamp = Date.parse(createdAtUtc)
-  if (Number.isNaN(baseTimestamp)) {
-    return createdAtUtc
-  }
-
-  return new Date(baseTimestamp + turnsCompleted * 1000).toISOString()
-}
-
-/**
- * Resolves one full deterministic turn and returns updated state + turn records.
+ * Resolves one full deterministic turn for a card played from the legal hand.
  */
 export function playTurn(
   gameState: GameState,
@@ -119,6 +66,8 @@ export function playTurn(
     throw new Error('Cannot play a turn on a completed run.')
   }
 
+  assertCardIsLegalToPlay(gameState, scenarioBundle, actionId)
+
   const aftershocksResult = resolveArchitecturalAftershocks(gameState, scenarioBundle)
   let nextScores = applyScoreChanges(gameState.scores, aftershocksResult.score_changes, scenarioBundle)
   let nextStakeholders = applyStakeholderChanges(
@@ -126,12 +75,17 @@ export function playTurn(
     aftershocksResult.stakeholder_changes
   )
 
-  const actionResult = resolveAction(actionId, gameState, scenarioBundle, {
+  const postAftershockState: GameState = {
+    ...gameState,
+    scores: nextScores,
+    stakeholders: nextStakeholders
+  }
+
+  const actionResult = resolveAction(actionId, postAftershockState, scenarioBundle, {
     scores: nextScores,
     stakeholders: nextStakeholders
   })
 
-  // Class affinity bonus: +1 to the class's affinity score during action phase
   const classAffinityBonus: ScoreChangeRecord[] = []
   if (gameState.player_profile.class_score_affinity) {
     classAffinityBonus.push({
@@ -142,122 +96,6 @@ export function playTurn(
 
   nextScores = applyScoreChanges(nextScores, [...actionResult.score_changes, ...classAffinityBonus], scenarioBundle)
   nextStakeholders = applyStakeholderChanges(nextStakeholders, actionResult.stakeholder_changes)
-
-  const eventResult = resolveEvent(gameState, scenarioBundle, random, {
-    scores: nextScores,
-    stakeholders: nextStakeholders
-  })
-
-  nextScores = applyScoreChanges(nextScores, eventResult.score_changes, scenarioBundle)
-  nextStakeholders = applyStakeholderChanges(nextStakeholders, eventResult.stakeholder_changes)
-
-  const stakeholderResult = resolveStakeholderRules(scenarioBundle, {
-    scores: nextScores,
-    stakeholders: nextStakeholders
-  })
-
-  nextScores = applyScoreChanges(nextScores, stakeholderResult.score_changes, scenarioBundle)
-  nextStakeholders = applyStakeholderChanges(nextStakeholders, stakeholderResult.stakeholder_changes)
-
-  const allScoreChanges = [
-    ...aftershocksResult.score_changes,
-    ...actionResult.score_changes,
-    ...classAffinityBonus,
-    ...eventResult.score_changes,
-    ...stakeholderResult.score_changes
-  ]
-
-  const allStakeholderChanges = [
-    ...aftershocksResult.stakeholder_changes,
-    ...actionResult.stakeholder_changes,
-    ...eventResult.stakeholder_changes,
-    ...stakeholderResult.stakeholder_changes
-  ]
-
-  const turnsCompleted = gameState.run_analytics.turns_completed + 1
-  const pendingDelayedEffects = [
-    ...aftershocksResult.remaining_pending_effects,
-    ...actionResult.queued_delayed_effects,
-    ...eventResult.queued_delayed_effects
-  ]
-
-  const tentativeGameState: GameState = {
-    ...gameState,
-    scores: nextScores,
-    stakeholders: nextStakeholders,
-    effect_state: {
-      ...gameState.effect_state,
-      pending_delayed_effects: pendingDelayedEffects,
-      resolved_effect_instance_ids: [
-        ...gameState.effect_state.resolved_effect_instance_ids,
-        ...aftershocksResult.resolved_effect_instance_ids
-      ]
-    },
-    run_analytics: {
-      ...gameState.run_analytics,
-      turns_completed: turnsCompleted,
-      total_aftershocks_resolved:
-        gameState.run_analytics.total_aftershocks_resolved + aftershocksResult.resolved_aftershocks.length,
-      total_events_triggered:
-        gameState.run_analytics.total_events_triggered + (eventResult.event_resolution ? 1 : 0),
-      total_actions_played: gameState.run_analytics.total_actions_played + 1,
-      cumulative_score_deltas: mergeScoreDeltas(
-        gameState.run_analytics.cumulative_score_deltas,
-        allScoreChanges
-      ),
-      cumulative_stakeholder_deltas: mergeStakeholderDeltas(
-        gameState.run_analytics.cumulative_stakeholder_deltas,
-        allStakeholderChanges
-      ),
-      card_usage: mergeUsageCounters(gameState.run_analytics.card_usage, [actionResult.selected_action_ref.id]),
-      style_tags_used: mergeUsageCounters(
-        gameState.run_analytics.style_tags_used,
-        actionResult.style_tags
-      )
-    }
-  }
-
-  const outcome = classifyRunOutcome(tentativeGameState, scenarioBundle)
-
-  const runStatusAfterTurn =
-    outcome?.run_status ??
-    (turnsCompleted >= gameState.progress.max_turns ? 'completed_max_turns' : 'in_progress')
-
-  const turnHistoryEntry = buildTurnHistoryEntry({
-    turn_number: gameState.progress.current_turn,
-    resolved_aftershocks: aftershocksResult.resolved_aftershocks,
-    action_resolution: actionResult.action_resolution,
-    event_resolution: eventResult.event_resolution,
-    stakeholder_resolution: stakeholderResult.stakeholder_resolution,
-    all_score_changes: allScoreChanges,
-    all_stakeholder_changes: allStakeholderChanges,
-    end_of_turn_scores: nextScores,
-    end_of_turn_stakeholders: nextStakeholders,
-    run_status_after_turn: runStatusAfterTurn
-  })
-
-  const totalScoreChanges: ScoreChangeRecord[] = turnHistoryEntry.total_score_changes.map((change) => ({
-    score_id: change.score_id,
-    delta: change.delta
-  }))
-
-  const totalStakeholderChanges: StakeholderChangeRecord[] = turnHistoryEntry.total_stakeholder_changes.map(
-    (change) => ({
-      stakeholder_id: change.stakeholder_id,
-      delta: change.delta
-    })
-  )
-
-  const turnResolutionContext: TurnResolutionContext = {
-    turn_number: gameState.progress.current_turn,
-    resolved_aftershocks: aftershocksResult.resolved_aftershocks,
-    selected_action: actionResult.selected_action_ref,
-    action_resolution: actionResult.action_resolution,
-    event_resolution: eventResult.event_resolution,
-    stakeholder_resolution: stakeholderResult.stakeholder_resolution,
-    total_score_changes: totalScoreChanges,
-    total_stakeholder_changes: totalStakeholderChanges
-  }
 
   const selectedCardKey = versionRefKey(actionResult.selected_action_ref)
   const selectedCard = scenarioBundle.cards.get(selectedCardKey)
@@ -278,40 +116,74 @@ export function playTurn(
     }
   }
 
-  const nextGameState: GameState = {
-    ...tentativeGameState,
-    meta: {
-      ...gameState.meta,
-      last_updated_at: computeDeterministicLastUpdatedAt(gameState.meta.created_at_utc, turnsCompleted)
-    },
-    progress: {
-      ...gameState.progress,
-      current_turn:
-        runStatusAfterTurn === 'in_progress'
-          ? gameState.progress.current_turn + 1
-          : Math.min(gameState.progress.current_turn, gameState.progress.max_turns),
-      run_status: runStatusAfterTurn
-    },
+  const stateForHand: GameState = {
+    ...postAftershockState,
+    scores: nextScores,
+    stakeholders: nextStakeholders,
     action_state: {
       ...gameState.action_state,
-      card_usage_state: nextCardUsageState,
-      selected_action_ref: actionResult.selected_action_ref,
-      actions_played: gameState.action_state.actions_played + 1,
-      played_action_refs: [...gameState.action_state.played_action_refs, actionResult.selected_action_ref]
-    },
-    event_state: {
-      ...gameState.event_state,
-      last_event_ref: eventResult.selected_event_ref,
-      triggered_event_refs: eventResult.selected_event_ref
-        ? [...gameState.event_state.triggered_event_refs, eventResult.selected_event_ref]
-        : gameState.event_state.triggered_event_refs
-    },
-    history: [...gameState.history, turnHistoryEntry]
+      card_usage_state: nextCardUsageState
+    }
   }
 
-  return {
-    game_state: nextGameState,
-    turn_resolution_context: turnResolutionContext,
-    turn_history_entry: turnHistoryEntry
+  const handMutation = applyPlayedCardToHand(
+    stateForHand,
+    scenarioBundle,
+    actionResult.selected_action_ref
+  )
+
+  return completeTurn(gameState, scenarioBundle, random, aftershocksResult, {
+    next_scores: nextScores,
+    next_stakeholders: nextStakeholders,
+    action_resolution: actionResult.action_resolution,
+    additional_score_changes: classAffinityBonus,
+    selected_action_ref: actionResult.selected_action_ref,
+    queued_delayed_effects: actionResult.queued_delayed_effects,
+    style_tags: actionResult.style_tags,
+    player_intent: {
+      type: 'play_card',
+      action_ref: actionResult.selected_action_ref
+    },
+    card_usage_state: nextCardUsageState,
+    hand_state: handMutation.hand_state,
+    count_as_card_action: true
+  })
+}
+
+/**
+ * Shared availability error for a pool card that is no longer legal to play.
+ * Used so usage/cooldown tests keep their original error text when the card
+ * has already left the hand.
+ */
+export function throwIfUnplayablePoolCard(
+  gameState: GameState,
+  scenarioBundle: ScenarioBundle,
+  actionId: string
+): void {
+  const actionRef = gameState.action_state.available_action_refs.find((candidate) => candidate.id === actionId)
+  if (!actionRef) {
+    return
+  }
+
+  const card = scenarioBundle.cards.get(versionRefKey(actionRef))
+  if (!card) {
+    return
+  }
+
+  const availability = getCardAvailability(gameState, actionRef, card, {
+    scores: gameState.scores,
+    stakeholders: gameState.stakeholders
+  })
+
+  if (availability.is_playable || containsContentRef(gameState.hand_state.hand_refs, actionRef)) {
+    return
+  }
+
+  if (availability.unavailable_reason === 'usage_limit_reached') {
+    throw new Error(`Action usage limit reached for card: ${card.id}-v${card.version}`)
+  }
+
+  if (availability.unavailable_reason === 'cooldown_active') {
+    throw new Error(`Action is on cooldown for card: ${card.id}-v${card.version}`)
   }
 }

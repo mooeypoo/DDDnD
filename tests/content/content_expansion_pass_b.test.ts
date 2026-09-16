@@ -578,23 +578,26 @@ describe('Pass B content expansion', () => {
       const provider = createFileContentProvider(contentRoot)
       const bundle = await buildScenarioBundle('monolith_of_mild_despair', 1, provider)
 
-      // Run enough turns to allow delayed effects to resolve
-      const report = simulate_runs({ scenario_bundle: bundle, runs: 5, seed: 'delayed-fx-test' })
+      const delayedCardIds = new Set(
+        [...bundle.cards.values()]
+          .filter((card) => card.delayed_effect_refs.length > 0)
+          .map((card) => card.id)
+      )
 
-      // At least some runs should have evidence of delayed effect resolution
-      // (cards like refactor_module queue improved_clarity which resolves after 2 turns)
-      let anyNonZeroAfterShocks = false
+      // Runner now plays from the legal hand, not the full catalog.
+      const report = simulate_runs({ scenario_bundle: bundle, runs: 12, seed: 'delayed-fx-test' })
+
+      let anyDelayedEffectCardPlayed = false
       for (const run of report.per_run) {
-        // If the run played refactor_module, improved_clarity should have resolved
         if (
-          run.cards_played.includes('refactor_module') &&
-          run.turns_completed > 3
+          run.turns_completed > 3 &&
+          run.cards_played.some((cardId) => delayedCardIds.has(cardId))
         ) {
-          anyNonZeroAfterShocks = true
+          anyDelayedEffectCardPlayed = true
           break
         }
       }
-      expect(anyNonZeroAfterShocks).toBe(true)
+      expect(anyDelayedEffectCardPlayed).toBe(true)
     })
   })
 })

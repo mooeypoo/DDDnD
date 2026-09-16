@@ -197,7 +197,7 @@ function selectPlayableActionId(engine: SimulationEngine, runSeed: string): () =
 
   return () => {
     const briefing = engine.get_turn_briefing()
-    const playableCards = briefing.available_action_summaries.filter((a) => a.is_playable)
+    const playableCards = briefing.hand_action_summaries.filter((a) => a.is_playable)
     if (playableCards.length === 0) {
       return null
     }

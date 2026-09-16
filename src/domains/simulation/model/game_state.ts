@@ -75,6 +75,18 @@ export interface ActionState {
 }
 
 /**
+ * Simulation-owned legal hand and remaining playable deck.
+ *
+ * The scenario card pool stays on action_state.available_action_refs.
+ * Hand cards are the only legal play_turn targets. Deck cards are inspectable
+ * but not playable until drawn. See docs/GAMEPLAY_V2.md.
+ */
+export interface HandState {
+  hand_refs: VersionedContentRef[]
+  deck_refs: VersionedContentRef[]
+}
+
+/**
  * Delayed-effect queue state for turn-phase resolution.
  */
 export interface EffectState {
@@ -118,6 +130,7 @@ export interface GameState {
   scores: ScoreSnapshot
   stakeholders: StakeholderSnapshot
   action_state: ActionState
+  hand_state: HandState
   effect_state: EffectState
   event_state: EventState
   history: TurnHistoryEntry[]
@@ -187,6 +200,10 @@ export function createInitialGameState(input: CreateInitialGameStateInput): Game
       selected_action_ref: null,
       actions_played: 0,
       played_action_refs: []
+    },
+    hand_state: {
+      hand_refs: [...input.available_action_refs],
+      deck_refs: []
     },
     effect_state: {
       pending_delayed_effects: [],

@@ -54,6 +54,7 @@ function makeEngine(input: {
     restore_run: vi.fn((gameState: GameState) => gameState),
     get_turn_briefing: vi.fn(() => briefing),
     play_turn: vi.fn(() => playResult),
+    consult_archives: vi.fn(() => playResult),
     get_run_outcome: vi.fn(() => outcome),
   }
 }

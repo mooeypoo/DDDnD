@@ -18,7 +18,8 @@
  * API surface:
  * - createRun(): Initialize a new game state
  * - getTurnBriefing(): Get current turn info for UI
- * - playTurn(actionId): Resolve a turn with player action
+ * - playTurn(actionId): Resolve a turn with a card from the legal hand
+ * - consultArchives(discardIds): Spend a turn replacing a hand card from the deck
  * - getRunOutcome(): Determine final outcome of completed run
  */
 
@@ -29,6 +30,7 @@ import { createRun, CreateRunOptions } from './create_run'
 import { RunOutcome, getRunOutcome } from './get_run_outcome'
 import { TurnBriefing, getTurnBriefing } from './get_turn_briefing'
 import { PlayTurnResult, playTurn } from './play_turn'
+import { consultArchives } from './consult_archives'
 
 export interface CreateEngineInput {
   scenario_bundle: ScenarioBundle
@@ -53,6 +55,7 @@ export interface SimulationEngine {
   restore_run(game_state: GameState): GameState
   get_turn_briefing(): TurnBriefing
   play_turn(action_id: string): PlayTurnResult
+  consult_archives(discard_ids: string[]): PlayTurnResult
   get_run_outcome(): RunOutcome | null
 }
 
@@ -103,6 +106,18 @@ export function create_engine(input: CreateEngineInput): SimulationEngine {
         getActiveGameState(engineState),
         engineState.scenario_bundle,
         action_id,
+        engineState.random
+      )
+
+      engineState.game_state = result.game_state
+      return result
+    },
+
+    consult_archives: (discard_ids: string[]) => {
+      const result = consultArchives(
+        getActiveGameState(engineState),
+        engineState.scenario_bundle,
+        discard_ids,
         engineState.random
       )
 

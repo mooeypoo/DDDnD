@@ -1,21 +1,25 @@
-# Coding-Agent Implementation Constraints (Redesign Branch)
+# Coding-Agent Implementation Constraints (Gameplay v2)
 
-Date: 2026-04-01
-Status: Canonical execution constraints for redesign implementation work
+Date: 2026-09-17
+Status: Canonical execution constraints for the `gameplay-v2` overhaul
 
-This file is the operational contract for coding agents working on the redesign branch.
+This file is the operational contract for coding agents working on gameplay v2. For the full plan, play model, and slice sequence, read [GAMEPLAY_V2.md](GAMEPLAY_V2.md) first.
 
-## 1. Scope Lock
+## 1. Scope by slice
 
-- UI-only redesign work.
-- Do not change simulation/engine/domain logic.
-- Do not change deterministic gameplay behavior.
+Follow the slice sequence in [GAMEPLAY_V2.md](GAMEPLAY_V2.md). Do not skip ahead to the war table or Three.js while the engine hand contract is unfinished.
+
+- Slice 1 (current): simulation hand, deal, consult, briefing, tests.
+- Later slices: audit, persistence, wiring the current UI, content `max_turns` v2, then `src/ui/play/`.
 
 ## 2. Boundary Rules
 
 - Keep strict separation between UI/presentation and simulation/domain.
-- Scene selection and avatarRole assignment are UI-only concerns.
+- A legal hand is a **simulation rule**. Do not implement it only in Vue.
+- `consult_archives` is an **engine verb**, not a content card.
+- Scene selection and avatarRole assignment remain UI-only.
 - Do not leak scene/avatar logic into domain models, content schema, or simulation rules.
+- Simulation must not import Vue, Pinia, DOM, or browser storage.
 
 ## 3. Terminology Rules
 
@@ -34,14 +38,16 @@ Legacy references may remain only where already established.
 - UI chrome, ornamental frames/surfaces, icons, and badges should be SVG assets.
 - Use individual transparent avatar mood files as implementation assets.
 - Mood sheets are reference-only.
+- Pack authors must not need to ship 3D assets.
 
-## 5. Cleanup Rules
+## 5. Test Rules
 
-- Delete stale docs and stale visual scaffolding tied to the rejected dashboard-like direction.
-- Do not archive stale redesign docs; delete or overwrite them.
-- Do not implement the full redesign in cleanup tasks.
+- Do not change tests only to force passing status.
+- When the rule under test changes (catalog-legal vs hand-legal), update the test to exercise the new rule and say so.
+- New hand/consult behavior needs new simulation tests, including determinism.
 
 ## 6. Companion Docs
 
-- [docs/SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md)
-- [docs/PRESENTATION_ASSET_PLAN.md](PRESENTATION_ASSET_PLAN.md)
+- [GAMEPLAY_V2.md](GAMEPLAY_V2.md)
+- [SCENE_VISUAL_DIRECTION.md](SCENE_VISUAL_DIRECTION.md)
+- [PRESENTATION_ASSET_PLAN.md](PRESENTATION_ASSET_PLAN.md)

@@ -2,6 +2,7 @@ import {
   ActionResolutionRecord,
   EventResolutionRecord,
   GameState,
+  PlayerTurnIntent,
   ResolvedAftershockRecord,
   StakeholderResolutionRecord,
   TurnHistoryEntry
@@ -65,6 +66,7 @@ function aggregateStakeholderChanges(
 export interface BuildTurnHistoryEntryInput {
   turn_number: number
   resolved_aftershocks: ResolvedAftershockRecord[]
+  player_intent: PlayerTurnIntent
   action_resolution: ActionResolutionRecord
   event_resolution: EventResolutionRecord | null
   stakeholder_resolution: StakeholderResolutionRecord
@@ -82,6 +84,7 @@ export function buildTurnHistoryEntry(input: BuildTurnHistoryEntryInput): TurnHi
   return {
     turn_number: input.turn_number,
     resolved_aftershocks: input.resolved_aftershocks,
+    player_intent: input.player_intent,
     action_resolution: input.action_resolution,
     event_resolution: input.event_resolution,
     stakeholder_resolution: input.stakeholder_resolution,

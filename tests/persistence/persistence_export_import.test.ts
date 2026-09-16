@@ -40,6 +40,10 @@ function createHistoryEntry(): TurnHistoryEntry {
   return {
     turn_number: 1,
     resolved_aftershocks: [],
+    player_intent: {
+      type: 'play_card',
+      action_ref: { id: 'define_bounded_context', version: 1 }
+    },
     action_resolution: {
       selected_action: { id: 'define_bounded_context', version: 1 },
       score_changes: [{ score_id: 'domain_clarity', delta: 5 }],

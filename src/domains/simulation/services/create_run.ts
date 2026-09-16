@@ -16,6 +16,7 @@ import { ChallengeModifier, ScenarioBundle, versionRefKey } from '@/domains/cont
 import { VersionedContentRef } from '@/shared/contracts'
 import { createSeededRandom } from '@/shared/random/seeded_random'
 import { CreateInitialGameStateInput, GameState, ScoreSnapshot, createInitialGameState } from '../model'
+import { dealOpeningHand } from '../rules'
 
 /**
  * Converts content refs to shared versioned content refs.
@@ -136,5 +137,10 @@ export function createRun(scenarioBundle: ScenarioBundle, seed: string, options?
     stakeholder_satisfaction_override: stakeholderSatisfactionOverride
   }
 
-  return createInitialGameState(input)
+  const gameState = createInitialGameState(input)
+
+  return {
+    ...gameState,
+    hand_state: dealOpeningHand(gameState, scenarioBundle, seed)
+  }
 }

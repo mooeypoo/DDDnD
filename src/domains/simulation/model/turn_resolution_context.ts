@@ -82,6 +82,20 @@ export interface StakeholderResolutionRecord {
 }
 
 /**
+ * Player commitment for one turn. Consult is an engine verb, not a content card.
+ */
+export type PlayerTurnIntent =
+  | {
+      type: 'play_card'
+      action_ref: VersionedContentRef
+    }
+  | {
+      type: 'consult_archives'
+      discarded_refs: VersionedContentRef[]
+      drawn_refs: VersionedContentRef[]
+    }
+
+/**
  * Transient per-turn resolution context for internal engine flow.
  *
  * This context is not the persisted turn archive format.
@@ -89,7 +103,8 @@ export interface StakeholderResolutionRecord {
 export interface TurnResolutionContext {
   turn_number: number
   resolved_aftershocks: ResolvedAftershockRecord[]
-  selected_action: VersionedContentRef
+  player_intent: PlayerTurnIntent
+  selected_action: VersionedContentRef | null
   action_resolution: ActionResolutionRecord
   event_resolution: EventResolutionRecord | null
   stakeholder_resolution: StakeholderResolutionRecord

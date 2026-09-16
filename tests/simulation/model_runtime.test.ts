@@ -146,6 +146,10 @@ describe('Simulation model runtime structures', () => {
           }
         }
       ],
+      player_intent: {
+        type: 'play_card',
+        action_ref: { id: 'define_bounded_context', version: 1 }
+      },
       action_resolution,
       event_resolution,
       stakeholder_resolution,
