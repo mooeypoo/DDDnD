@@ -74,6 +74,11 @@ describe('run_setup_view quest integration', () => {
       availableTutorials: [],
       isLoadingTutorials: false,
       start_new_run: vi.fn().mockResolvedValue(undefined),
+      load_available_challenge_modifiers: vi.fn().mockResolvedValue(undefined),
+      availableChallengeModifiers: [],
+      isDungeonMasterModalOpen: false,
+      openDungeonMasterModal: vi.fn(),
+      closeDungeonMasterModal: vi.fn(),
       openAboutModal: vi.fn(),
       closeAboutModal: vi.fn(),
       openRulesModal: vi.fn(),
@@ -90,21 +95,22 @@ describe('run_setup_view quest integration', () => {
     const wrapper = mount(RunSetupView)
     await flushPromises()
 
-    const questCards = wrapper.findAll('.dungeon-qc')
+    const questCards = wrapper.findAll('.table-quest')
     expect(questCards).toHaveLength(2)
+    expect(wrapper.findAll('.class-seat')).toHaveLength(1)
+    expect(wrapper.find('.rim-seats').exists()).toBe(true)
     expect(wrapper.text()).toContain('The Monolith of Mild Despair')
     expect(wrapper.text()).toContain('Microservice Sprawl')
+    expect(wrapper.text()).toContain('Boundary Mage')
   })
 
   it('starts the run with the selected quest id/version', async () => {
     const wrapper = mount(RunSetupView)
     await flushPromises()
 
-    const questCards = wrapper.findAll('.dungeon-qc')
+    const questCards = wrapper.findAll('.table-quest')
     await questCards[1].trigger('click')
-
-    await wrapper.find('.dungeon-cc').trigger('click')
-    await wrapper.find('.variant-primary').trigger('click')
+    await wrapper.find('.sit-btn').trigger('click')
 
     expect(storeMock.start_new_run).toHaveBeenCalledWith({
       scenario_id: 'microservice_sprawl',

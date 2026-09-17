@@ -3,296 +3,245 @@
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
     <DungeonMasterModal :isOpen="gameStore.isDungeonMasterModalOpen" @close="gameStore.closeDungeonMasterModal" />
-    
-    <div class="welcome-container">
-      <div class="hero-section">
-        <!-- Logo / Hero Visual Area -->
-        <div class="hero-visual">
-          <GameLogo size="large" />
-        </div>
-        
-        <!-- Hero Content -->
-        <div class="hero-content">
-          <h1 class="hero-title">Choose Your Quest. Shape the System.</h1>
-          
-          <p class="hero-tagline">
-            A narrative simulation about architectural decisions, technical debt, 
-            and the humans who manage both
-          </p>
-          
-          <div class="hero-description">
-            <AppCard variant="aged">
-              <p>
-                Enter a realm of software systems where each quest presents a different architectural challenge.
-                As the systems architect, you will wield action cards to balance domain clarity, delivery pace,
-                stakeholder trust, and team resilience before the final turn.
-              </p>
-              <p class="description-emphasis">
-                Every choice has tradeoffs. Every action has consequences.
-                Can you guide your system to a worthy ending?
-              </p>
-            </AppCard>
-          </div>
-          
-          <!-- CTA Section -->
-          <div class="cta-section">
-            <AppButton size="hero" variant="primary" @click="goToSetup()">
-              <span>🎲</span>
-              Start Your Journey
-            </AppButton>
 
-            <div class="tutorial-links">
-              <span class="tutorial-links-label">New here?</span>
-              <AppButton variant="subtle" @click="goToSetup('basics')">
-                <span>📖</span> Basics Tutorial
-              </AppButton>
-              <span class="link-separator">•</span>
-              <AppButton variant="subtle" @click="goToSetup('advanced')">
-                <span>⚙️</span> Advanced Tutorial
-              </AppButton>
-            </div>
-            
-            <div class="helper-links">
-              <AppButton variant="subtle" @click="gameStore.openAboutModal">
-                <span>ℹ️</span> What is this?
-              </AppButton>
-              <span class="link-separator">•</span>
-              <AppButton variant="subtle" @click="gameStore.openRulesModal">
-                <span>📖</span> How to play
-              </AppButton>
-              <span class="link-separator">•</span>
-              <AppButton variant="subtle" @click="gameStore.openDungeonMasterModal">
-                <span>🧙‍♂️</span> Dungeon Master
-              </AppButton>
-            </div>
-          </div>
-        </div>
+    <div class="chamber-glow" aria-hidden="true" />
+    <div class="chamber-grain" aria-hidden="true" />
+
+    <div class="door-stage">
+      <div class="door-table" aria-hidden="true">
+        <img class="door-map" :src="sceneUrl" alt="" />
+        <div class="door-veil" />
       </div>
-      
-      <!-- Footer attribution -->
-      <footer class="welcome-footer">
-        <p class="footer-text">
-          A playful exploration of software architecture patterns and tradeoffs
+
+      <div class="door-copy">
+        <GameLogo size="large" />
+        <p class="door-kicker">A council is gathering</p>
+        <h1 class="door-title">
+          <span>Choose Your Quest.</span>
+          <span>Shape the System.</span>
+        </h1>
+        <p class="door-line">
+          Welcome, architecture explorer. The system needs you.
+          Come join an adventure of software architecture: choose a quest,
+          sit with the council, and play cards to shape a living system
+          before time runs out.
         </p>
-      </footer>
+        <p class="door-line door-hook">
+          Every choice has tradeoffs. Every action has consequences.
+          Can you guide your system to a worthy ending?
+        </p>
+
+        <button class="sit-btn" type="button" @click="goToSetup()">
+          Enter the chamber
+        </button>
+
+        <div class="door-ropes">
+          <button type="button" class="rope-link" @click="goToSetup('basics')">Basics tutorial</button>
+          <button type="button" class="rope-link" @click="goToSetup('advanced')">Advanced tutorial</button>
+        </div>
+
+        <nav class="door-plaques" aria-label="Table lore">
+          <button type="button" class="plaque-link" @click="gameStore.openAboutModal">What is this?</button>
+          <button type="button" class="plaque-link" @click="gameStore.openRulesModal">How to play</button>
+          <button type="button" class="plaque-link" @click="gameStore.openDungeonMasterModal">Dungeon Master</button>
+        </nav>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
-import AppButton from '@/ui/components/common/AppButton.vue'
-import AppCard from '@/ui/components/cards/AppCard.vue'
+import { requestSceneBackground } from '@/ui/composables/presentation_asset_lookup'
+import { resolveGameplaySceneId } from '@/ui/composables/gameplay_stage_presentation'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
-import GameLogo from '@/ui/components/branding/game_logo.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
+import GameLogo from '@/ui/components/branding/game_logo.vue'
 
 /**
- * Landing view for first-time entry into the game. It owns only welcome-page
- * navigation and modal toggles, leaving run setup and gameplay to later views.
+ * Chamber door. Presentation only; run setup still lives at /play.
  */
 const router = useRouter()
 const gameStore = useGameStore()
 
+const sceneUrl = computed(() => requestSceneBackground(resolveGameplaySceneId('monolith_of_mild_despair')))
+
 function goToSetup(tutorialType?: string) {
   if (tutorialType) {
     router.push({ path: '/play', query: { tutorial: tutorialType } })
-  } else {
-    router.push('/play')
+    return
   }
+
+  router.push('/play')
 }
 </script>
 
 <style scoped>
 .welcome-view {
-  min-height: 100vh;
-  background: linear-gradient(135deg, 
-    var(--dng-shell-bg) 0%, 
-    var(--dng-shell-bg) 50%, 
-    rgba(16, 11, 5, 0.9) 100%
-  );
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-2xl);
   position: relative;
+  min-height: 100dvh;
+  background: #070504;
+  color: var(--text-primary);
+  overflow-x: hidden;
+  padding-bottom: 5.5rem;
 }
 
-.welcome-container {
-  max-width: 900px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3xl);
+.chamber-glow,
+.chamber-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
-.hero-section {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3xl);
-  text-align: center;
+.chamber-glow {
+  background:
+    radial-gradient(ellipse at 50% 12%, rgba(110, 68, 18, 0.32), transparent 48%),
+    radial-gradient(ellipse at 50% 100%, rgba(8, 4, 2, 0.9), transparent 40%);
 }
 
-/* Hero Visual / Logo */
-.hero-visual {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-  padding: var(--space-xl) 0;
-  animation: fadeInUp 0.8s ease-out;
+.chamber-grain {
+  opacity: 0.16;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
 }
 
-/* Hero Content */
-.hero-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2xl);
-  animation: fadeInUp 1s ease-out 0.2s both;
-}
-
-.hero-title {
-  font-size: clamp(1.75rem, 4vw, 2.75rem);
-  color: var(--dng-title-gold);
-  font-weight: var(--font-bold);
-  line-height: var(--leading-tight);
-  margin: 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.hero-tagline {
-  font-size: var(--text-lg);
-  color: var(--dng-subtitle-warm);
-  line-height: var(--leading-relaxed);
-  margin: 0;
-  font-style: italic;
-  max-width: 700px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.hero-description {
-  max-width: 750px;
-  margin: 0 auto;
-}
-
-.description-emphasis {
-  color: var(--dng-title-gold);
-  font-weight: var(--font-semibold);
-}
-
-/* CTA Section */
-.cta-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-xl);
-  margin-top: var(--space-lg);
-}
-
-.btn-icon {
-  font-size: var(--text-2xl);
+.door-stage {
   position: relative;
   z-index: 1;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.4rem 1rem 2rem;
 }
 
-.helper-links {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  flex-wrap: wrap;
-  justify-content: center;
+.door-table {
+  position: absolute;
+  inset: 8% 6% 10%;
+  border-radius: 18px 18px 46% 46% / 18px 18px 32px 32px;
+  overflow: hidden;
+  box-shadow:
+    0 40px 70px rgba(0, 0, 0, 0.6),
+    inset 0 0 0 2px rgba(176, 132, 42, 0.25);
 }
 
-.link-separator {
-  color: var(--dng-footer-muted);
-  user-select: none;
+.door-map,
+.door-veil {
+  position: absolute;
+  inset: 0;
 }
 
-/* Tutorial Links */
-.tutorial-links {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
-  justify-content: center;
+.door-map {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.8) brightness(0.72);
 }
 
-.tutorial-links-label {
-  color: var(--dng-footer-muted);
-  font-size: var(--text-sm);
-  font-style: italic;
+.door-veil {
+  background: linear-gradient(180deg, rgba(7, 5, 4, 0.15), rgba(7, 5, 4, 0.72));
 }
 
-/* Footer */
-.welcome-footer {
+.door-copy {
+  position: relative;
+  width: min(38rem, 100%);
+  padding: 1.15rem 1.35rem 1.25rem;
   text-align: center;
-  padding-top: var(--space-2xl);
-  border-top: 1px solid var(--dng-divider);
-  animation: fadeIn 1.2s ease-out 0.4s both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  background: rgba(8, 5, 3, 0.72);
+  border: 1px solid rgba(176, 132, 42, 0.32);
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 220, 140, 0.08);
+  clip-path: polygon(0 12px, 16px 0, calc(100% - 20px) 8px, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px));
 }
 
-.footer-text {
-  color: var(--dng-footer-muted);
-  font-size: var(--text-sm);
-  font-style: italic;
+.door-kicker {
+  margin: 0.6rem 0 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #f0c060;
+}
+
+.door-title {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 5.2vw, 2.7rem);
+  line-height: 1.12;
+  color: #ffe7b0;
 }
 
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+.door-line {
+  margin: 0;
+  max-width: 34rem;
+  color: #f4d8b8;
+  line-height: 1.45;
+}
+
+.door-hook {
+  font-family: var(--font-heading);
+  color: #ead58a;
+}
+
+.sit-btn {
+  appearance: none;
+  margin-top: 0.4rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 196, 96, 0.75);
+  background: linear-gradient(180deg, rgba(78, 52, 16, 0.98), rgba(26, 16, 6, 0.96));
+  color: var(--dng-title-gold);
+  font-family: var(--font-heading);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.door-ropes,
+.door-plaques {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1rem;
+}
+
+.rope-link,
+.plaque-link {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #e2c48a;
+  font-family: var(--font-heading);
+  cursor: pointer;
+}
+
+.rope-link {
+  font-size: 0.82rem;
+}
+
+.plaque-link {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 720px) {
+  .door-copy {
+    clip-path: none;
+    border-radius: 8px 18px 8px 18px;
+    padding: 1rem 1rem 1.1rem;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  .door-title {
+    font-size: clamp(1.45rem, 8vw, 2rem);
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .welcome-view {
-    padding: var(--space-xl);
-  }
-  
-  .hero-visual {
-    min-height: 140px;
-  }
-}
-
-@media (max-width: 480px) {
-  .welcome-view {
-    padding: var(--space-lg);
-  }
-  
-  .hero-section {
-    gap: var(--space-2xl);
-  }
-  
-  .hero-content {
-    gap: var(--space-xl);
-  }
-  
-  .helper-links {
-    flex-direction: column;
-    gap: var(--space-sm);
-  }
-  
-  .link-separator {
-    display: none;
-  }
-}
 </style>

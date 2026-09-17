@@ -25,6 +25,7 @@
       :playerClassName="playerClassName"
       :playerClassId="playerClassId"
       :scenarioName="scenario?.name"
+      :flavorText="scenario?.flavor_text ?? scenario?.description"
       :scores="gameStore.gameState?.scores ?? {}"
       :challengeModifierName="activeChallengeModifier?.name"
       :scoreAdjustments="modifierScoreAdjustments"

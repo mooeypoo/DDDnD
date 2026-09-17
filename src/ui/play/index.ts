@@ -9,5 +9,6 @@ export {
   remainingTurns,
 } from './weather_band'
 export { diffHandCards, consultReplaceSummary } from './hand_swap'
+export { classAffinityCopy } from './class_affinity'
 export { useTurnTheater } from './use_turn_theater'
 export { tableFxDurationMs, prefersReducedPlayMotion, impactTone } from './table_moment'

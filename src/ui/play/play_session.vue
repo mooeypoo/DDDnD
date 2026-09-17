@@ -10,6 +10,7 @@
       :playerClassName="playerClassName"
       :playerClassId="playerClassId"
       :scenarioName="scenario?.name"
+      :flavorText="scenario?.flavor_text ?? scenario?.description"
       :scores="gameStore.gameState?.scores ?? {}"
       :challengeModifierName="activeChallengeModifier?.name"
       :scoreAdjustments="modifierScoreAdjustments"
@@ -83,6 +84,7 @@
       :class="{
         'is-collapsing': isCollapsing,
         'is-compound-storm': collapseCount > 1,
+        'is-briefing': gameStore.isIntroSplashOpen,
       }"
     >
       <div class="chamber-glow chamber-atmosphere" aria-hidden="true" />
@@ -276,7 +278,13 @@ const pendingStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePres
 const activeStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 
 const tableLocked = computed(() => {
-  return gameStore.isPlayingTurn || isTheaterActive.value || Boolean(commitmentFlight.value) || Boolean(archiveOffer.value)
+  return (
+    gameStore.isPlayingTurn
+    || gameStore.isIntroSplashOpen
+    || isTheaterActive.value
+    || Boolean(commitmentFlight.value)
+    || Boolean(archiveOffer.value)
+  )
 })
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
@@ -949,6 +957,11 @@ function goToEndScreen() {
 .tutorial-popup-enter-from,
 .tutorial-popup-leave-to {
   opacity: 0;
+}
+
+.play-chamber.is-briefing :deep(.hand-dock) {
+  opacity: 0.42;
+  pointer-events: none;
 }
 
 @media (max-width: 720px) {

@@ -290,6 +290,15 @@ Immersion pass on the finished table. Still no Three.js and no `max_turns` bump.
 - Engine collapses (morale, delivery, trust, tutorial capacity/health) take over the chamber: a torn storm banner names the bound system and what withers, the triggering vial burns, and the table rim smolders until the trigger score recovers. Thresholds stay in the engine.
 - Cards that the engine drops as unplayable after a turn are thrown back to the shelves with the same replace overlay. The player cannot cancel that refill; the hand stays at legal size.
 
+### Slice 10 — Antechamber: sit down at the table
+
+The start flow was still a website: marketing landing, settings form, spreadsheet briefing. Presentation-only. Still no Three.js and no `max_turns` bump.
+
+- `/` is a chamber door, not a landing essay. It still names the game for a cold landing (quest, architect, tradeoffs) without restoring the old marketing page. About / Rules / Dungeon Master stay modals.
+- `/play` is a council lobby in the same candlelit room. Choosing a scenario lights that scene on the table (`resolveGameplaySceneId` is UI-only). Tutorials remain a short “learn the ropes” launch that calls `start_new_run` with the first `playerClass`.
+- `playerClass` packs are unchanged. The lobby shows portraits on the near rim and the engine affinity (`+1` on `play_turn` to `score_affinity`). Name is optional under the seat. Challenge modifiers tuck behind a harder-table plaque. The lobby only calls `load_available_*` and `start_new_run`.
+- The opening welcome is a **table moment** over the real war table after the engine has created the run. Weather vials and seats *are* the inherited state. The plaque names the scenario, flavor, turns, and (if any) modifier from content. It does not re-ledger scores.
+
 ---
 
 ## 9. How to talk about this later (notes for writing)
@@ -328,6 +337,8 @@ These are the reversals and refinements that happened after a human sat at `/gam
 
 **Score glance during replace.** Bigger laid-out hand cards hid the compact `+N / −N` deltas. Replace lives in the Grimoire so glance, inspect, and decide share one place.
 
+**The start was still a website.** Welcome, setup, and briefing were three site pages in front of the table. Setup is now walking into the chamber: the door, the lobby (choose a table, take a seat), then a table moment over the real weather and council. `start_new_run` is still the only verb. Classes and modifiers stay packs.
+
 ### Challenges worth a slide
 
 - Do not implement a legal hand only in Vue. The war table renders the briefing and calls verbs.
@@ -342,7 +353,7 @@ These are the reversals and refinements that happened after a human sat at `/gam
 
 ## 10. Working agreements for agents and humans
 
-1. Read this file before changing play, hand, consult, or the war table.
+1. Read this file before changing play, hand, consult, the war table, or the start/antechamber flow.
 2. Simulation still must not import Vue, Pinia, DOM, or browser storage.
 3. UI still must not resolve actions, pick events, or apply stakeholder rules.
 4. Do not implement a legal hand only in Vue.
@@ -372,3 +383,4 @@ These are the reversals and refinements that happened after a human sat at `/gam
 - **2026-09-17** — Stakeholder seats stay enlarged and lit while their reaction plaque is on the table.
 - **2026-09-17** — Consult opens the Grimoire as the replace picker (hand mark + deck choose + random). Approval names both pages, then `consult_archives` may take an optional `draw_id`. Unplayable cards still return to the shelves without cancel.
 - **2026-09-17** — After more play, theater shows the player's card or swap first, then aftershocks. Engine pipeline order is unchanged. See [Decisions from sitting at the table](#decisions-from-sitting-at-the-table-2026-09-17).
+- **2026-09-17** — Slice 10: the start flow sits in the chamber. `/` is a door, `/play` is a council lobby, the intro is a table moment over engine starting state. Setup still only calls `start_new_run`.

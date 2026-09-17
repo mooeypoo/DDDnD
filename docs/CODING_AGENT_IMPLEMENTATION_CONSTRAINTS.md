@@ -12,7 +12,8 @@ Follow the slice sequence in [GAMEPLAY_V2.md](GAMEPLAY_V2.md). Do not skip ahead
 - Slices 1–5: complete (engine hand, player-true audit, persistence, satchel wiring; +2 `max_turns` deferred).
 - Slice 6: war table in `src/ui/play/`. `/game` defaults to the table; `?stage=legacy` restores the satchel stage.
 - Slice 8: player-paced theater, Annals history panel, Consult as a spent-turn action.
-- Slice 9 (current): table moments — card flight, kind-specific beat interludes, remaining-turns clock. Still no Three.js; still no `max_turns` bump.
+- Slice 9: table moments — card flight, kind-specific beat interludes, remaining-turns clock.
+- Slice 10 (current): antechamber — chamber door, council lobby, table-moment welcome. Still no Three.js; still no `max_turns` bump.
 
 Do not mix simulation rules into Vue. The war table only renders the briefing hand and calls `play_turn` / `consult_archives`. Consult may pass an optional `draw_id` that names a remaining deck card; omitting it draws the next legal page. Random replacement peeks that page so the approval can name it. This is still a spent turn, not a free catalog.
 
@@ -49,6 +50,10 @@ Legacy references may remain only where already established.
 - Do not change tests only to force passing status.
 - When the rule under test changes (catalog-legal vs hand-legal), update the test to exercise the new rule and say so.
 - New hand/consult behavior needs new simulation tests, including determinism.
+
+## 5a. Local verification (do not hang the session)
+
+Vite on this machine binds `127.0.0.1:5173` outside the agent sandbox. Cursor IDE `browser_navigate` to localhost **hangs** — the MCP browser cannot reach that loopback socket and waits on page load. Do not retry it. Verify with host `curl`, headless Chrome, tests, or the human's own browser tab.
 
 ## 6. Companion Docs
 
