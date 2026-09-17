@@ -4,22 +4,6 @@
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
     <DungeonMasterModal :isOpen="gameStore.isDungeonMasterModalOpen" @close="gameStore.closeDungeonMasterModal" />
 
-    <CardDetailsModal
-      v-if="modalCardId && modalCard"
-      :isOpen="!!modalCardId"
-      :card="modalCard"
-      :isDisabled="tableLocked"
-      :isTutorialLocked="!isConsultMode && isTutorialCardLocked(modalCardId)"
-      :isInspectOnly="!isModalCardInHand"
-      :availability="modalCardAvailability"
-      :stakeholderNames="stakeholderNames"
-      :scores="gameStore.turnBriefing?.current_scores"
-      :scoreAdjustments="modifierScoreAdjustments"
-      :primaryActionLabel="isConsultMode && isModalCardInHand ? 'Set aside' : undefined"
-      @close="modalCardId = null"
-      @play="handleHandCardAction"
-    />
-
     <RunIntroSplash
       :isOpen="gameStore.isIntroSplashOpen"
       :playerName="playerDisplayName"
@@ -37,7 +21,7 @@
     />
 
     <TutorialCompleteSplash
-      :isOpen="gameStore.isTutorialCompleteSplashOpen"
+      :isOpen="gameStore.isTutorialCompleteSplashOpen && !isTheaterActive"
       :currentScenarioId="scenario?.id ?? ''"
       :availableTutorials="gameStore.availableTutorials"
       @launchTutorial="handleLaunchAnotherTutorial"
@@ -49,6 +33,22 @@
       :cards="deckCardEntries"
       @close="isGrimoireOpen = false"
       @inspect="handleInspectFromGrimoire"
+    />
+
+    <CardDetailsModal
+      v-if="modalCardId && modalCard"
+      :isOpen="!!modalCardId"
+      :card="modalCard"
+      :isDisabled="tableLocked"
+      :isTutorialLocked="!isConsultMode && isTutorialCardLocked(modalCardId)"
+      :isInspectOnly="!isModalCardInHand"
+      :availability="modalCardAvailability"
+      :stakeholderNames="stakeholderNames"
+      :scores="gameStore.turnBriefing?.current_scores"
+      :scoreAdjustments="modifierScoreAdjustments"
+      :primaryActionLabel="isConsultMode && isModalCardInHand ? 'Set aside' : undefined"
+      @close="modalCardId = null"
+      @play="handleHandCardAction"
     />
 
     <GameMasthead
@@ -72,6 +72,7 @@
         :currentTurn="gameStore.currentTurn"
         :maxTurns="gameStore.maxTurns"
         :aftershockCount="pendingAftershockCount"
+        :highlight="tableHighlight"
       />
 
       <p v-if="isConsultMode" class="consult-banner" role="status">
@@ -82,6 +83,7 @@
         :actors="stageActors"
         :sceneId="gameplaySceneId"
         :currentBeat="currentBeat"
+        :highlight="tableHighlight"
         @skipTheater="skipTheater"
       />
 
@@ -124,17 +126,17 @@
 
     <Transition name="tutorial-popup">
       <div
-        v-if="gameStore.tutorial.isTutorialMode && gameStore.tutorial.isHintVisible && gameStore.tutorial.currentStep"
+        v-if="showTutorialPopup"
         class="tutorial-popup-backdrop"
       >
         <div class="tutorial-popup-panel" role="dialog" aria-modal="true" aria-labelledby="play-tutorial-title">
           <div class="tutorial-popup-header">
-            <h3 id="play-tutorial-title">{{ gameStore.tutorial.currentStep.title }}</h3>
+            <h3 id="play-tutorial-title">{{ gameStore.tutorial.currentStep?.title }}</h3>
             <span v-if="gameStore.tutorial.totalSteps > 0">
               {{ gameStore.tutorial.currentStepNumber }}/{{ gameStore.tutorial.totalSteps }}
             </span>
           </div>
-          <p>{{ gameStore.tutorial.currentStep.message }}</p>
+          <p>{{ gameStore.tutorial.currentStep?.message }}</p>
           <AppButton
             :label="gameStore.tutorial.isLastStep ? 'Got it' : 'Next →'"
             variant="primary"
@@ -323,13 +325,34 @@ const stageActors = computed(() => {
 
 const canConsultArchives = computed(() => gameStore.turnBriefing?.can_consult_archives === true)
 
-const showHandArrow = computed(() => {
-  const highlight = gameStore.tutorial.currentStepHighlight
+const tableHighlight = computed(() => {
+  if (!gameStore.tutorial.isTutorialMode || gameStore.tutorial.isHintVisible || isTheaterActive.value) {
+    return null
+  }
+
+  return gameStore.tutorial.currentStepHighlight
+})
+
+const showTutorialPopup = computed(() => {
   return (
     gameStore.tutorial.isTutorialMode
-    && !gameStore.tutorial.isHintVisible
-    && (tutorialRequiredCardId.value !== null || highlight === 'hand' || highlight === 'satchel')
+    && gameStore.tutorial.isHintVisible
+    && Boolean(gameStore.tutorial.currentStep)
+    && !isTheaterActive.value
   )
+})
+
+const showHandArrow = computed(() => {
+  if (!gameStore.tutorial.isTutorialMode || gameStore.tutorial.isHintVisible || isTheaterActive.value) {
+    return false
+  }
+
+  if (tutorialRequiredCardId.value) {
+    return true
+  }
+
+  const highlight = gameStore.tutorial.currentStepHighlight
+  return highlight === 'hand' || highlight === 'satchel'
 })
 
 watch(scenario, (newScenario, oldScenario) => {
@@ -402,7 +425,6 @@ function handleShowDetails(cardId: string) {
 }
 
 function handleInspectFromGrimoire(cardId: string) {
-  isGrimoireOpen.value = false
   modalCardId.value = cardId
 }
 
@@ -480,6 +502,7 @@ function goToEndScreen() {
   background: #070504;
   color: var(--text-primary);
   --hand-dock-height: 260px;
+  overflow-x: hidden;
 }
 
 .play-chamber {

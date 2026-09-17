@@ -17,7 +17,7 @@ import MobileNotice from '@/ui/components/common/mobile_notice.vue'
 const route = useRoute()
 
 const showFooter = computed(() => {
-  return route.name === 'welcome' || route.name === 'play' || route.name === 'game' || route.name === 'end' || route.name === 'share'
+  return route.name === 'welcome' || route.name === 'play' || route.name === 'end' || route.name === 'share'
 })
 </script>
 

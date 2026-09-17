@@ -1,5 +1,13 @@
 <template>
-  <div class="weather-strip" role="group" aria-label="System weather">
+  <div
+    class="weather-strip"
+    :class="{
+      'is-highlighted': highlight === 'scores',
+      'aftershock-highlighted': highlight === 'aftershocks',
+    }"
+    role="group"
+    aria-label="System weather"
+  >
     <p class="weather-clock">
       <span class="weather-clock-kicker">Turn</span>
       <span class="weather-clock-value">{{ currentTurn }}</span>
@@ -38,6 +46,7 @@ const props = defineProps<{
   currentTurn: number
   maxTurns: number
   aftershockCount?: number
+  highlight?: string | null
 }>()
 
 const aftershockCount = computed(() => props.aftershockCount ?? 0)
@@ -73,6 +82,18 @@ const meters = computed(() => {
   box-shadow:
     inset 0 1px 0 rgba(232, 196, 96, 0.18),
     0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.weather-strip.is-highlighted {
+  box-shadow:
+    inset 0 1px 0 rgba(232, 196, 96, 0.18),
+    0 0 0 2px rgba(240, 208, 96, 0.55),
+    0 10px 28px rgba(0, 0, 0, 0.45);
+}
+
+.weather-strip.aftershock-highlighted .weather-aftershock {
+  color: #fff3c0;
+  text-shadow: 0 0 12px rgba(240, 192, 80, 0.7);
 }
 
 .weather-clock {

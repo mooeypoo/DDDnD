@@ -261,6 +261,14 @@ The hand bot almost never consults, and two scenarios are already too easy on th
 
 Landed: `/game` is a candlelit council table. Scores are weather vials. The legal hand sits on the near rim. Consult and Grimoire are table tools. After `play_turn` / `consult_archives`, the UI replays aftershocks → commitment → event → stakeholder voices. The engine APIs are unchanged.
 
+### Slice 7 — War table playability (in progress)
+
+Human-play polish on the slice 6 shell. Still no Three.js and no `max_turns` bump.
+
+- Hide the site-credit footer on `/game` so the table is the whole field.
+- Card details stack above the Grimoire instead of under it.
+- Tutorial popups wait until turn theater finishes. `satchel` / `scores` / `stakeholders` / `aftershocks` highlights map onto the hand, weather strip, and seats.
+
 ---
 
 ## 9. How to talk about this later (notes for writing)
@@ -300,3 +308,4 @@ When a slice lands, add a short dated note under [Changelog for writers](#change
 - **2026-09-17** — Slice 4 wired the current satchel: play from the legal hand, inspect-only Grimoire, Consult the Archives spends the turn. War table is still slice 6.
 - **2026-09-17** — Slice 5 deferred: v1 player-true baseline is not clock-starved (bots consult <1 time per run; sprawl and hypergrowth already sit above their win-rate bands). Retune `max_turns` after human play.
 - **2026-09-17** — Slice 6 war table landed: `/game` is a CSS/2.5D council table with a fanned hand, weather vials, Grimoire, Consult, and turn-beat replay. `?stage=legacy` keeps the satchel stage. Tutorial `satchel` highlights alias to `hand`.
+- **2026-09-17** — Slice 7 started: hide credits on `/game`, Grimoire under details, hold tutorial popups during theater, highlight weather/seats.

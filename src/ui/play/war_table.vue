@@ -1,5 +1,9 @@
 <template>
-  <section class="war-table" aria-label="War table">
+  <section
+    class="war-table"
+    :class="{ 'seats-highlighted': highlight === 'stakeholders' }"
+    aria-label="War table"
+  >
     <div class="seat-ring" aria-label="Council">
       <TableSeat
         v-for="actor in actors"
@@ -46,6 +50,7 @@ const props = defineProps<{
   actors: GameplayStageActor[]
   sceneId: SceneBackgroundId
   currentBeat: TurnBeat | null
+  highlight?: string | null
 }>()
 
 defineEmits<{
@@ -142,6 +147,10 @@ const eventSceneUrl = computed(() => {
   inset: 4% 6% 28%;
   pointer-events: none;
   z-index: 2;
+}
+
+.seats-highlighted .seat-ring {
+  filter: drop-shadow(0 0 12px rgba(240, 208, 96, 0.55));
 }
 
 .seat-ring :deep(.seat-left) { position: absolute; left: 0; top: 38%; }
