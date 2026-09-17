@@ -81,9 +81,8 @@ function fanStyle(index: number) {
 
 <style scoped>
 .hand-dock {
-  --hand-dock-height: 260px;
   position: relative;
-  min-height: var(--hand-dock-height);
+  min-height: var(--hand-dock-height, 260px);
   padding: 0.2rem 0.4rem 1.6rem;
 }
 

@@ -55,3 +55,31 @@ const SHORT_METRIC_LABEL: Record<string, string> = {
 export function shortMetricLabel(scoreId: string, fallbackLabel: string): string {
   return SHORT_METRIC_LABEL[scoreId] ?? fallbackLabel
 }
+
+/**
+ * One storm chip for engine-owned coupling collapses.
+ *
+ * Titles come from presentation mapping over `getActiveCouplingEffects`.
+ * This does not invent thresholds.
+ */
+export function compactCouplingLabel(titles: string[]): string | null {
+  if (titles.length === 0) return null
+  if (titles.length === 1) return titles[0]
+  return `${titles.length} systems bound`
+}
+
+/**
+ * Late-clock presentation for the remaining turns.
+ *
+ * Tutorial clocks are short on purpose, so they never use this cue.
+ */
+export function isLateTurnClock(
+  currentTurn: number,
+  maxTurns: number,
+  options: { isTutorial?: boolean } = {},
+): boolean {
+  if (options.isTutorial) return false
+  if (maxTurns <= 0) return false
+  const remaining = maxTurns - currentTurn + 1
+  return remaining > 0 && remaining <= 3
+}

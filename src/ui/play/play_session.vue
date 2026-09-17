@@ -71,8 +71,9 @@
         :scores="currentScores"
         :currentTurn="gameStore.currentTurn"
         :maxTurns="gameStore.maxTurns"
-        :aftershockCount="pendingAftershockCount"
+        :aftershockCount="isAdjourned ? 0 : pendingAftershockCount"
         :highlight="tableHighlight"
+        :isTutorial="gameStore.tutorial.isTutorialMode"
       />
 
       <p v-if="isConsultMode" class="consult-banner" role="status">
@@ -84,7 +85,13 @@
         :sceneId="gameplaySceneId"
         :currentBeat="currentBeat"
         :highlight="tableHighlight"
+        :scenarioName="scenario?.name"
+        :playerName="playerDisplayName"
+        :playerClassId="playerClassId"
+        :playerClassName="playerClassName"
+        :isAdjourned="isAdjourned"
         @skipTheater="skipTheater"
+        @viewResults="goToEndScreen"
       />
 
       <TutorialHintPanel
@@ -115,13 +122,6 @@
       />
 
       <TutorialPointerArrow :show="showHandArrow" target="hand" />
-
-      <div v-if="gameStore.isRunComplete" class="adjourn-card">
-        <p class="adjourn-kicker">The council adjourns</p>
-        <h2>Run complete</h2>
-        <p>Your architectural journey has reached its conclusion.</p>
-        <AppButton label="View Results" variant="primary" @click="goToEndScreen" />
-      </div>
     </div>
 
     <Transition name="tutorial-popup">
@@ -210,9 +210,13 @@ const playerClassId = computed(() => gameStore.gameState?.player_profile.selecte
 const playerClassName = computed(() => {
   const classRef = gameStore.gameState?.player_profile.selected_class_ref
   if (!classRef) return undefined
-  return gameStore.availableClasses.find(
+  const exact = gameStore.availableClasses.find(
     (playerClass) => playerClass.id === classRef.id && playerClass.version === classRef.version,
   )?.name
+  if (exact) return exact
+  const byId = gameStore.availableClasses.find((playerClass) => playerClass.id === classRef.id)?.name
+  if (byId) return byId
+  return classRef.id.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
 })
 
 const activeChallengeModifier = computed(() => {
@@ -324,6 +328,8 @@ const stageActors = computed(() => {
 })
 
 const canConsultArchives = computed(() => gameStore.turnBriefing?.can_consult_archives === true)
+
+const isAdjourned = computed(() => gameStore.isRunComplete && !isTheaterActive.value)
 
 const tableHighlight = computed(() => {
   if (!gameStore.tutorial.isTutorialMode || gameStore.tutorial.isHintVisible || isTheaterActive.value) {
@@ -551,25 +557,6 @@ function goToEndScreen() {
   color: var(--dng-title-gold);
 }
 
-.adjourn-card {
-  position: relative;
-  z-index: 1;
-  margin: 0 auto;
-  width: min(420px, 100%);
-  text-align: center;
-  padding: 1.2rem 1rem;
-  border: 1px solid rgba(176, 132, 42, 0.4);
-  background: rgba(10, 8, 4, 0.82);
-}
-
-.adjourn-kicker {
-  margin: 0 0 0.3rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-size: 0.68rem;
-  color: var(--dng-title-gold);
-}
-
 .tutorial-popup-backdrop {
   position: fixed;
   inset: 0;
@@ -615,6 +602,22 @@ function goToEndScreen() {
 @media (max-width: 720px) {
   .play-session {
     --hand-dock-height: 210px;
+  }
+
+  .play-chamber {
+    padding: 0.45rem 0.45rem 1.2rem;
+    gap: 0.45rem;
+  }
+}
+
+@media (max-width: 720px) and (orientation: portrait) {
+  .play-session {
+    --hand-dock-height: 188px;
+  }
+
+  .play-chamber {
+    padding: 0.35rem 0.4rem 0.9rem;
+    gap: 0.35rem;
   }
 }
 </style>

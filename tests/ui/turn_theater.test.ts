@@ -7,7 +7,12 @@ import {
   resolveEventSceneId,
 } from '@/ui/play/turn_theater'
 import { isWarTableEnabled, resolvePlayStage } from '@/ui/play/use_war_table_flag'
-import { scoreWeather, shortMetricLabel } from '@/ui/play/weather_band'
+import {
+  compactCouplingLabel,
+  isLateTurnClock,
+  scoreWeather,
+  shortMetricLabel,
+} from '@/ui/play/weather_band'
 
 function emptyActionPresentation() {
   return {
@@ -157,6 +162,18 @@ describe('scoreWeather', () => {
 
   it('keeps compact labels presentation-only', () => {
     expect(shortMetricLabel('maintainability', 'Maintainability')).toBe('Craft')
+  })
+
+  it('collapses coupling titles into one weather chip', () => {
+    expect(compactCouplingLabel([])).toBeNull()
+    expect(compactCouplingLabel(['Delivery Collapse'])).toBe('Delivery Collapse')
+    expect(compactCouplingLabel(['Delivery Collapse', 'Morale Collapse'])).toBe('2 systems bound')
+  })
+
+  it('marks a late clock without treating tutorial clocks as late', () => {
+    expect(isLateTurnClock(8, 10)).toBe(true)
+    expect(isLateTurnClock(4, 10)).toBe(false)
+    expect(isLateTurnClock(2, 3, { isTutorial: true })).toBe(false)
   })
 })
 

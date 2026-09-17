@@ -11,7 +11,7 @@ Follow the slice sequence in [GAMEPLAY_V2.md](GAMEPLAY_V2.md). Do not skip ahead
 
 - Slices 1–5: complete (engine hand, player-true audit, persistence, satchel wiring; +2 `max_turns` deferred).
 - Slice 6: war table in `src/ui/play/`. `/game` defaults to the table; `?stage=legacy` restores the satchel stage.
-- Slice 7 (current): playability polish on that table (tutorial, consult, chrome). Still no Three.js; still no `max_turns` bump.
+- Slice 7 (current): finish the war table (player seat, nameplate, coupling weather, adjourn, portrait). Still no Three.js; still no `max_turns` bump.
 
 Do not mix simulation rules into Vue. The war table only renders the briefing hand and calls `play_turn` / `consult_archives`.
 

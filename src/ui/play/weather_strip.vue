@@ -4,11 +4,12 @@
     :class="{
       'is-highlighted': highlight === 'scores',
       'aftershock-highlighted': highlight === 'aftershocks',
+      'is-bound': Boolean(couplingLabel),
     }"
     role="group"
     aria-label="System weather"
   >
-    <p class="weather-clock">
+    <p class="weather-clock" :class="{ 'is-late': isLate }">
       <span class="weather-clock-kicker">Turn</span>
       <span class="weather-clock-value">{{ currentTurn }}</span>
       <span class="weather-clock-of">of {{ maxTurns }}</span>
@@ -32,6 +33,15 @@
     <p v-if="aftershockCount > 0" class="weather-aftershock" role="status">
       {{ aftershockCount }} aftershock{{ aftershockCount === 1 ? '' : 's' }} waiting
     </p>
+
+    <p
+      v-if="couplingLabel"
+      class="weather-bound"
+      role="status"
+      :title="couplingDetail"
+    >
+      {{ couplingLabel }}
+    </p>
   </div>
 </template>
 
@@ -39,7 +49,13 @@
 import { computed } from 'vue'
 
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
-import { describeScoreWeather, shortMetricLabel } from '@/ui/play/weather_band'
+import { getCollapseWarnings } from '@/ui/composables/system_coupling'
+import {
+  compactCouplingLabel,
+  describeScoreWeather,
+  isLateTurnClock,
+  shortMetricLabel,
+} from '@/ui/play/weather_band'
 
 const props = defineProps<{
   scores: Record<string, number>
@@ -47,9 +63,25 @@ const props = defineProps<{
   maxTurns: number
   aftershockCount?: number
   highlight?: string | null
+  isTutorial?: boolean
 }>()
 
 const aftershockCount = computed(() => props.aftershockCount ?? 0)
+
+const collapseWarnings = computed(() => getCollapseWarnings(props.scores))
+const couplingLabel = computed(() => {
+  return compactCouplingLabel(collapseWarnings.value.map((warning) => warning.title))
+})
+const couplingDetail = computed(() => {
+  return collapseWarnings.value
+    .map((warning) => `${warning.title}: ${warning.description}`)
+    .join(' ')
+})
+const isLate = computed(() => {
+  return isLateTurnClock(props.currentTurn, props.maxTurns, {
+    isTutorial: props.isTutorial,
+  })
+})
 
 const meters = computed(() => {
   return Object.entries(props.scores).map(([id, value]) => {
@@ -91,6 +123,10 @@ const meters = computed(() => {
     0 10px 28px rgba(0, 0, 0, 0.45);
 }
 
+.weather-strip.is-bound {
+  border-color: rgba(196, 72, 64, 0.42);
+}
+
 .weather-strip.aftershock-highlighted .weather-aftershock {
   color: #fff3c0;
   text-shadow: 0 0 12px rgba(240, 192, 80, 0.7);
@@ -122,6 +158,10 @@ const meters = computed(() => {
   font-size: 0.68rem;
   color: var(--text-secondary);
   letter-spacing: 0.04em;
+}
+
+.weather-clock.is-late {
+  color: #f0a098;
 }
 
 .weather-vials {
@@ -206,6 +246,19 @@ const meters = computed(() => {
   color: #f0c060;
 }
 
+.weather-bound {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #f0a098;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(196, 72, 64, 0.45);
+  background: rgba(72, 18, 12, 0.45);
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
@@ -242,6 +295,11 @@ const meters = computed(() => {
   .weather-vial {
     min-width: 0;
     grid-template-columns: auto auto;
+  }
+
+  .weather-bound {
+    width: 100%;
+    text-align: center;
   }
 }
 </style>

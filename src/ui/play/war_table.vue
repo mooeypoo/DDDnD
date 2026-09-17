@@ -1,7 +1,10 @@
 <template>
   <section
     class="war-table"
-    :class="{ 'seats-highlighted': highlight === 'stakeholders' }"
+    :class="{
+      'seats-highlighted': highlight === 'stakeholders',
+      'is-adjourned': isAdjourned,
+    }"
     aria-label="War table"
   >
     <div class="seat-ring" aria-label="Council">
@@ -30,8 +33,30 @@
       </div>
     </div>
 
+    <p v-if="scenarioName" class="table-nameplate">{{ scenarioName }}</p>
+
+    <figure v-if="playerName || playerClassId" class="player-seat">
+      <ClassPortrait
+        :classId="playerClassId"
+        :className="playerClassName"
+        size="md"
+      />
+      <figcaption class="player-caption">
+        <span class="player-name">{{ playerName || 'You' }}</span>
+        <span class="player-class">{{ playerClassName || 'Architect' }}</span>
+      </figcaption>
+    </figure>
+
     <div class="table-focus">
       <TurnBeatOverlay :beat="currentBeat" @skip="$emit('skipTheater')" />
+      <div v-if="isAdjourned && !currentBeat" class="adjourn-plate" role="status">
+        <p class="adjourn-kicker">The council adjourns</p>
+        <h2>The table stills</h2>
+        <p>Your architectural journey has reached its conclusion.</p>
+        <button type="button" class="adjourn-action" @click="$emit('viewResults')">
+          View Results
+        </button>
+      </div>
     </div>
   </section>
 </template>
@@ -42,6 +67,7 @@ import { computed } from 'vue'
 import type { GameplayStageActor } from '@/ui/composables/gameplay_stage_presentation'
 import { requestEventScene, requestSceneBackground } from '@/ui/composables/presentation_asset_lookup'
 import type { SceneBackgroundId } from '@/ui/config/presentation_asset_types'
+import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import TableSeat from '@/ui/play/table_seat.vue'
 import TurnBeatOverlay from '@/ui/play/turn_beat_overlay.vue'
 import { resolveEventSceneId, type TurnBeat } from '@/ui/play/turn_theater'
@@ -51,10 +77,16 @@ const props = defineProps<{
   sceneId: SceneBackgroundId
   currentBeat: TurnBeat | null
   highlight?: string | null
+  scenarioName?: string
+  playerName?: string
+  playerClassId?: string
+  playerClassName?: string
+  isAdjourned?: boolean
 }>()
 
 defineEmits<{
   skipTheater: []
+  viewResults: []
 }>()
 
 const sceneUrl = computed(() => requestSceneBackground(props.sceneId))
@@ -72,10 +104,11 @@ const eventSceneUrl = computed(() => {
 .war-table {
   position: relative;
   isolation: isolate;
-  min-height: 22rem;
+  min-height: 24rem;
   display: grid;
   place-items: center;
-  padding: 0.25rem 0.5rem 0.4rem;
+  padding: 0.25rem 0.5rem 6.8rem;
+  overflow: hidden;
 }
 
 .table-board {
@@ -163,18 +196,141 @@ const eventSceneUrl = computed(() => {
   inset: 22% 18% 34%;
   display: grid;
   place-items: center;
-  z-index: 4;
+  z-index: 6;
   pointer-events: none;
 }
 
-.table-focus :deep(.turn-beat) {
+.table-focus :deep(.turn-beat),
+.adjourn-plate {
   pointer-events: auto;
+}
+
+.table-nameplate {
+  position: absolute;
+  left: 50%;
+  bottom: 7.2rem;
+  z-index: 3;
+  margin: 0;
+  max-width: min(70%, 22rem);
+  padding: 0.22rem 0.9rem;
+  transform: translateX(-50%);
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--dng-title-gold);
+  background: rgba(12, 8, 4, 0.78);
+  border: 1px solid rgba(176, 132, 42, 0.45);
+  box-shadow: inset 0 1px 0 rgba(232, 196, 96, 0.16);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.player-seat {
+  position: absolute;
+  left: 50%;
+  bottom: 0.2rem;
+  z-index: 5;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  transform: translateX(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
+}
+
+.player-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  max-width: 10rem;
+  padding: 0.15rem 0.5rem 0.2rem;
+  border-radius: 999px;
+  background: rgba(10, 7, 3, 0.78);
+  border: 1px solid rgba(176, 132, 42, 0.45);
+}
+
+.player-name {
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  color: var(--text-bright);
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.player-class {
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--dng-title-gold);
+}
+
+.adjourn-plate {
+  width: min(420px, 92%);
+  padding: 1rem 1.1rem 0.95rem;
+  border-radius: 16px;
+  text-align: center;
+  background:
+    linear-gradient(180deg, rgba(28, 20, 8, 0.92) 0%, rgba(10, 8, 4, 0.9) 100%);
+  border: 1px solid rgba(232, 196, 96, 0.42);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.adjourn-kicker {
+  margin: 0 0 0.3rem;
+  font-size: 0.64rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dng-title-gold);
+}
+
+.adjourn-plate h2 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  color: var(--text-bright);
+}
+
+.adjourn-plate p:last-of-type {
+  margin: 0 0 0.85rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+.adjourn-action {
+  appearance: none;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 196, 96, 0.55);
+  background: rgba(42, 30, 12, 0.92);
+  color: var(--dng-title-gold);
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.adjourn-action:hover {
+  color: var(--text-bright);
+}
+
+.is-adjourned .table-board {
+  filter: saturate(0.7) brightness(0.72);
 }
 
 @media (max-width: 720px) {
   .war-table {
-    min-height: 18rem;
-    padding-bottom: 0.25rem;
+    min-height: 18.5rem;
+    padding-bottom: 5.4rem;
   }
 
   .table-board {
@@ -182,7 +338,43 @@ const eventSceneUrl = computed(() => {
   }
 
   .seat-ring {
-    inset: 0 2% 34%;
+    inset: 2% 8% 36%;
+  }
+
+  .table-nameplate {
+    bottom: 5.8rem;
+    max-width: min(82%, 18rem);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+  }
+
+  .player-seat :deep(.class-portrait) {
+    width: 44px;
+    height: 44px;
+  }
+
+  .player-name {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 720px) and (orientation: portrait) {
+  .war-table {
+    min-height: 16.5rem;
+    padding-bottom: 5rem;
+  }
+
+  .table-board {
+    width: min(560px, 92vw);
+    transform: perspective(780px) rotateX(32deg);
+  }
+
+  .seat-ring {
+    inset: 4% 10% 40%;
+  }
+
+  .seat-ring :deep(.table-seat) {
+    width: min(18vw, 72px);
   }
 }
 
