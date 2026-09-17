@@ -166,33 +166,53 @@ export function createGameStoreRunLifecycleCoordinator(
 
     try {
       const result = state.engine.value.play_turn(actionId)
-
-      state.gameState.value = result.game_state
-      state.lastTurnResolution.value = result
-      deps.persistRunState()
-
-      const completedTurn = (state.gameState.value?.progress.current_turn ?? 2) - 1
-      deps.tutorial.advanceToTrigger('turn_end', completedTurn > 0 ? completedTurn : 1)
-
-      if (!state.isRunComplete.value) {
-        refreshTurnBriefing()
-      } else {
-        state.runOutcome.value = state.engine.value.get_run_outcome()
-        deps.tutorial.advanceToTrigger('run_end')
-        if (deps.tutorial.isTutorialMode.value) {
-          state.isTutorialCompleteSplashOpen.value = true
-        }
-      }
-
-      return result
+      return applyResolvedTurn(result)
     } finally {
       state.isPlayingTurn.value = false
     }
+  }
+
+  async function consultArchives(discardIds: string[]): Promise<PlayTurnResult> {
+    if (!state.engine.value) {
+      throw new Error('No active engine')
+    }
+
+    state.isPlayingTurn.value = true
+
+    try {
+      const result = state.engine.value.consult_archives(discardIds)
+      return applyResolvedTurn(result)
+    } finally {
+      state.isPlayingTurn.value = false
+    }
+  }
+
+  function applyResolvedTurn(result: PlayTurnResult): PlayTurnResult {
+    state.gameState.value = result.game_state
+    state.lastTurnResolution.value = result
+    deps.persistRunState()
+
+    const completedTurn = state.gameState.value?.run_analytics?.turns_completed
+      ?? ((state.gameState.value?.progress.current_turn ?? 2) - 1)
+    deps.tutorial.advanceToTrigger('turn_end', completedTurn > 0 ? completedTurn : 1)
+
+    if (!state.isRunComplete.value) {
+      refreshTurnBriefing()
+    } else {
+      state.runOutcome.value = state.engine.value!.get_run_outcome()
+      deps.tutorial.advanceToTrigger('run_end')
+      if (deps.tutorial.isTutorialMode.value) {
+        state.isTutorialCompleteSplashOpen.value = true
+      }
+    }
+
+    return result
   }
 
   return {
     startNewRun,
     refreshTurnBriefing,
     playTurn,
+    consultArchives,
   }
 }

@@ -75,7 +75,9 @@ The simulation engine exposes the following API:
 
 `get_run_outcome` returns the current or final outcome state for the overall run.
 
-`play_turn` plays one architecture card from the current **hand**. `consult_archives` spends a turn replacing a hand card from the deck without resolving card effects; aftershocks, events, and stakeholders still resolve. Both are simulation rules, not UI filters. See [docs/GAMEPLAY_V2.md](docs/GAMEPLAY_V2.md).
+`play_turn` plays one architecture card from the current **hand**. `consult_archives` spends a turn replacing a hand card from the deck without resolving card effects; aftershocks, events, and stakeholders still resolve. Both are simulation rules, not UI filters.
+
+Fairness audits use two runner policies: **player-true** (legal hand plus consult; this is the pass gate) and a **full-pool oracle** (diagnostic catalog bot). Catalog-only recovery is an info finding, not a reason to reopen the satchel. See [docs/GAMEPLAY_V2.md](docs/GAMEPLAY_V2.md).
 
 These APIs should be defined with explicit TypeScript interfaces.
 
@@ -291,6 +293,8 @@ Persistence manages:
 - import functionality
 
 Persistence must not change simulation behavior.
+
+Save files restore `game_state`, including the legal hand and remaining deck. Exact-run exports are format v2: `turn_intents` is the replay sequence (`play_card` or `consult_archives`). `action_sequence` lists only architecture cards that were actually played. Legacy v1 exact-run files still import as all `play_card` intents.
 
 ---
 

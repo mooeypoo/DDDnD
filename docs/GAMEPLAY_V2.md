@@ -107,7 +107,7 @@ This is an **engine verb**, not a fake content card. Pack authors should not hav
 - `play_turn(action_id)` — play a card from hand
 - `consult_archives(discard_ids)` — spend the turn, replace 1 card, no card effects, full pipeline otherwise
 
-History records a `player_intent` so exact-run replay knows whether the turn was a card or a consult, and which card was discarded. Persistence will need that (slice 3). Until then, `game_state` already serializes `hand_state` if the save stores the whole state.
+History records a `player_intent` so exact-run replay knows whether the turn was a card or a consult, and which card was discarded. Exact-run format v2 stores `turn_intents` for that sequence. Saves restore `hand_state`.
 
 ### Why a legal hand is not a skin
 
@@ -171,7 +171,7 @@ Small pools (1–5 cards) fit in a hand of 6. `tests/simulation/engine_shell.tes
 
 ### Audit / runner
 
-`simulation_runner.ts` currently picks a random playable card from the full briefing list. As soon as `play_turn` rejects off-hand cards, a full-pool pick will throw. Slice 1 includes a **minimal** runner change: pick from the hand. The richer “bots may consult” policy and the oracle report are slice 2. Do not pretend slice 1 finished fairness.
+`simulation_runner.ts` currently picks a random playable card from the full briefing list. As soon as `play_turn` rejects off-hand cards, a full-pool pick will throw. Slice 1 includes a **minimal** runner change: pick from the hand. Slice 2 adds the consult policy and the oracle report.
 
 ### New tests that must exist
 
@@ -198,7 +198,7 @@ Leave them until slice 4. Do not teach `game_view` to lie about the hand in slic
 
 Work one domain at a time. Mergeable slices, in this order.
 
-### Slice 1 — Hand engine (current)
+### Slice 1 — Hand engine (done)
 
 Simulation only.
 
@@ -213,19 +213,32 @@ Simulation only.
 
 Not in slice 1: Vue, scenario JSON, Three.js, war table, `max_turns` bumps.
 
-### Slice 2 — Player-true audit
+### Slice 2 — Player-true audit (done)
 
 Runner bots may consult under the same cost. Oracle full-pool report exists and is not the pass gate. Catalog-only recovery becomes a diagnostic.
 
-### Slice 3 — Persistence
+- Default `simulate_runs` policy is `player_true`: play from the legal hand; consult when the hand cannot address current pressure and the deck still might.
+- `full_pool_oracle` deals the entire playable pool (`legal_hand_size` override stored on `hand_state` so replenish does not shrink it).
+- `buildContentAuditReport` still gates on the player-true report. An optional oracle report can emit an **info** `catalog_only_recovery` finding. Info does not fail `audit:gate`.
+- Audit scripts (`audit-gate`, `generate-audit-report`, `validate-content-pack`, `run-simulation --audit`) run both policies.
+
+### Slice 3 — Persistence (done)
 
 Saves restore hand and deck. Exact-run replay includes consult intents. Bump exact-run format version if the action sequence shape changes.
 
-### Slice 4 — Current UI, new contract
+- Save files still wrap `game_state`. Missing `hand_state` migrates to the full available pool (the old catalog) with legal hand size 6. Missing `legal_hand_size` defaults to 6.
+- Exact-run format is **v2**: `turn_intents` is the replay sequence. `action_sequence` is only cards actually played. Consults are not rewritten as plays of the discarded card.
+- Exact-run **v1** still deserializes: each action_sequence ref becomes a `play_card` intent, and the payload is upgraded to v2.
+
+### Slice 4 — Current UI, new contract (done)
 
 `game_view` plays only the hand. Grimoire inspects the deck. Consult control exists. The old stage is still the old stage. The mechanic is live and testable by a human.
 
-### Slice 5 — Turn budget
+- Satchel lists `hand_action_summaries` only.
+- Deck cards render in an inspect-only Grimoire section. Details modal play is hidden for those cards.
+- Consult the Archives is an engine call (`consult_archives`), not a fake content card. The player picks one hand card to set aside.
+
+### Slice 5 — Turn budget (current)
 
 Main scenario **v2** files, about +2 `max_turns`, after a baseline audit. Tutorials unchanged unless a tutorial script needs a consult beat (it probably does not).
 
@@ -267,3 +280,6 @@ When a slice lands, add a short dated note under [Changelog for writers](#change
 
 - **2026-09-17** — Plan locked: war table, legal hand of 6, inspect-only Grimoire, turn-costing consult, player-true audit later, CSS/2.5D first.
 - **2026-09-17** — Slice 1 engine landed on `gameplay-v2`: `hand_state`, seeded deal, `play_turn` rejects off-hand cards, `consult_archives` is an engine verb, briefing exposes hand/deck, runner picks from the hand. Catalog-assuming tests now play from the hand. Vue play shell is still the old satchel (slice 4).
+- **2026-09-17** — Slice 2 audit landed: player-true bots may consult; full-pool oracle is a diagnostic report; catalog-only recovery is an info finding and not the pass gate.
+- **2026-09-17** — Slice 3 persistence landed: saves restore hand/deck; exact-run v2 records `turn_intents` so consults replay as consults.
+- **2026-09-17** — Slice 4 wired the current satchel: play from the legal hand, inspect-only Grimoire, Consult the Archives spends the turn. War table is still slice 6.

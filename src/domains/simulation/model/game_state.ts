@@ -84,6 +84,12 @@ export interface ActionState {
 export interface HandState {
   hand_refs: VersionedContentRef[]
   deck_refs: VersionedContentRef[]
+  /**
+   * Target legal hand size for this run. Default play is 6; audit oracles
+   * may raise this so the full playable pool stays legal. Replenish uses
+   * this value so a large opening deal does not shrink after the first play.
+   */
+  legal_hand_size: number
 }
 
 /**
@@ -203,7 +209,8 @@ export function createInitialGameState(input: CreateInitialGameStateInput): Game
     },
     hand_state: {
       hand_refs: [...input.available_action_refs],
-      deck_refs: []
+      deck_refs: [],
+      legal_hand_size: 6
     },
     effect_state: {
       pending_delayed_effects: [],

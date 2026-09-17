@@ -8,13 +8,14 @@
       :isOpen="!!modalCardId"
       :card="modalCard"
       :isDisabled="gameStore.isPlayingTurn"
-      :isTutorialLocked="isTutorialCardLocked(modalCardId)"
+      :isTutorialLocked="!isConsultMode && isTutorialCardLocked(modalCardId)"
+      :isInspectOnly="!isModalCardInHand"
       :availability="modalCardAvailability"
       :stakeholderNames="stakeholderNames"
       :scores="gameStore.turnBriefing?.current_scores"
       :scoreAdjustments="modifierScoreAdjustments"
       @close="modalCardId = null"
-      @play="handlePlayCard"
+      @play="handleHandCardAction"
     />
 
     <RunIntroSplash
@@ -487,7 +488,7 @@
 
     <SatchelToggleButton
       v-if="!gameStore.isRunComplete && !isSatchelOpen"
-      :totalCards="availableCardEntries.length"
+      :totalCards="handCardEntries.length"
       :playableCards="playableCardCount"
       @open="isSatchelOpen = true"
     />
@@ -495,17 +496,38 @@
     <CardSatchelDrawer
       v-if="!gameStore.isRunComplete"
       v-model:isOpen="isSatchelOpen"
-      :totalCards="availableCardEntries.length"
+      :totalCards="handCardEntries.length"
       :playableCards="playableCardCount"
     >
       <template #toolbar>
         <SatchelToolbar
-          v-if="availableCardEntries.length > 0"
+          v-if="handCardEntries.length > 0"
           :availableCategories="availableCategories"
           :affectedMetrics="affectedMetrics"
           v-model:activeCategory="satchelCategory"
           v-model:activeSort="satchelSort"
         />
+        <div v-if="canConsultArchives" class="consult-bar">
+          <p class="consult-copy">
+            {{ isConsultMode
+              ? 'Choose one hand card to set aside. The system keeps moving.'
+              : 'Spend this turn searching the remaining scrolls instead of committing a move.' }}
+          </p>
+          <AppButton
+            v-if="!isConsultMode"
+            label="Consult the Archives"
+            variant="secondary"
+            :disabled="gameStore.isPlayingTurn"
+            @click="isConsultMode = true"
+          />
+          <AppButton
+            v-else
+            label="Cancel search"
+            variant="subtle"
+            :disabled="gameStore.isPlayingTurn"
+            @click="isConsultMode = false"
+          />
+        </div>
       </template>
 
       <ActionCard
@@ -514,12 +536,31 @@
         :card="entry.card"
         :availability="entry.availability"
         :isDisabled="gameStore.isPlayingTurn"
-        :isTutorialLocked="isTutorialCardLocked(entry.card.id)"
-        :isTutorialHighlighted="isTutorialCardHighlighted(entry.card.id)"
+        :isTutorialLocked="!isConsultMode && isTutorialCardLocked(entry.card.id)"
+        :isTutorialHighlighted="!isConsultMode && isTutorialCardHighlighted(entry.card.id)"
+        :primaryActionLabel="isConsultMode ? 'Set aside' : undefined"
         :scores="gameStore.turnBriefing?.current_scores"
         @showDetails="handleShowDetails(entry.card.id)"
-        @play="handlePlayCard"
+        @play="handleHandCardAction"
       />
+
+      <template #after>
+        <section v-if="deckCardEntries.length > 0" class="grimoire-section" aria-label="Grimoire">
+          <h3 class="grimoire-title">Grimoire</h3>
+          <p class="grimoire-copy">Inspect the remaining deck. These cards are not legal to play until drawn.</p>
+          <div class="cards-grid">
+            <ActionCard
+              v-for="entry in deckCardEntries"
+              :key="'grimoire-' + entry.card.id + '-v' + entry.card.version"
+              :card="entry.card"
+              :availability="entry.availability"
+              :isInspectOnly="true"
+              :scores="gameStore.turnBriefing?.current_scores"
+              @showDetails="handleShowDetails(entry.card.id)"
+            />
+          </div>
+        </section>
+      </template>
     </CardSatchelDrawer>
   </div>
 </template>
@@ -597,6 +638,7 @@ const randomSceneId = ref<SceneBackgroundId>(pickRandomSceneId())
 const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const satchelCategory = ref<CategoryFilter>('all')
 const satchelSort = ref<SortOption>('default')
+const isConsultMode = ref(false)
 const pendingStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 const activeStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 const gameShellEl = ref<HTMLElement | null>(null)
@@ -839,43 +881,55 @@ const detailedCouplingEffects = computed(() => {
 const availabilitySummaryByKey = computed(() => {
   const entries = new Map<string, TurnBriefingActionSummary>()
 
-  for (const summary of gameStore.turnBriefing?.available_action_summaries ?? []) {
+  for (const summary of [
+    ...(gameStore.turnBriefing?.hand_action_summaries ?? []),
+    ...(gameStore.turnBriefing?.deck_action_summaries ?? []),
+    ...(gameStore.turnBriefing?.available_action_summaries ?? []),
+  ]) {
     entries.set(versionRefKey({ id: summary.card_id, version: summary.card_version }), summary)
   }
 
   return entries
 })
 
-const availableCardEntries = computed(() => {
-  if (!gameStore.turnBriefing || !gameStore.scenarioBundle) {
-    return []
+function cardsFromSummaries(summaries: TurnBriefingActionSummary[]) {
+  if (!gameStore.scenarioBundle) {
+    return [] as Array<{ card: Card; availability: TurnBriefingActionSummary | undefined }>
   }
 
   const cards: Array<{ card: Card; availability: TurnBriefingActionSummary | undefined }> = []
-  for (const actionRef of gameStore.gameState?.action_state.available_action_refs || []) {
-    const card = gameStore.scenarioBundle.cards.get(versionRefKey(actionRef))
+  for (const summary of summaries) {
+    const card = gameStore.scenarioBundle.cards.get(
+      versionRefKey({ id: summary.card_id, version: summary.card_version })
+    )
     if (card) {
       cards.push({
         card,
-        availability: availabilitySummaryByKey.value.get(versionRefKey(actionRef)),
+        availability: availabilitySummaryByKey.value.get(
+          versionRefKey({ id: summary.card_id, version: summary.card_version })
+        ),
       })
     }
   }
 
   return cards
-})
+}
+
+const handCardEntries = computed(() => cardsFromSummaries(gameStore.turnBriefing?.hand_action_summaries ?? []))
+const deckCardEntries = computed(() => cardsFromSummaries(gameStore.turnBriefing?.deck_action_summaries ?? []))
+const availableCardEntries = computed(() => [...handCardEntries.value, ...deckCardEntries.value])
 
 const playableCardCount = computed(() => {
-  return availableCardEntries.value.filter(
+  return handCardEntries.value.filter(
     entry => !entry.availability || entry.availability.is_playable
   ).length
 })
 
-const availableCategories = computed(() => getAvailableCategories(availableCardEntries.value))
-const affectedMetrics = computed(() => getAffectedMetrics(availableCardEntries.value))
+const availableCategories = computed(() => getAvailableCategories(handCardEntries.value))
+const affectedMetrics = computed(() => getAffectedMetrics(handCardEntries.value))
 
 const filteredSortedCards = computed(() => {
-  const filtered = filterByCategory(availableCardEntries.value, satchelCategory.value)
+  const filtered = filterByCategory(handCardEntries.value, satchelCategory.value)
   return sortCards(filtered, satchelSort.value)
 })
 
@@ -903,6 +957,14 @@ const modalCardAvailability = computed(() => {
   }
 
   return availableCardEntries.value.find(entry => entry.card.id === modalCardId.value)?.availability
+})
+
+const isModalCardInHand = computed(() => {
+  if (!modalCardId.value) {
+    return false
+  }
+
+  return handCardEntries.value.some(entry => entry.card.id === modalCardId.value)
 })
 
 const stakeholderNames = computed((): Record<string, string> => {
@@ -1043,13 +1105,9 @@ function handleShowDetails(cardId: string) {
   modalCardId.value = cardId
 }
 
-async function handlePlayCard(cardId: string) {
-  modalCardId.value = null
-  isSatchelOpen.value = false
-  activeStakeholderBubbles.value = {}
-  pendingStakeholderBubbles.value = {}
-  await gameStore.play_turn(cardId)
+const canConsultArchives = computed(() => gameStore.turnBriefing?.can_consult_archives === true)
 
+async function applyCommittedTurn() {
   const turnResolution = gameStore.lastTurnResolution?.turn_resolution_context
 
   if (turnResolution) {
@@ -1069,6 +1127,35 @@ async function handlePlayCard(cardId: string) {
     await nextTick()
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
+}
+
+async function handleHandCardAction(cardId: string) {
+  if (isConsultMode.value) {
+    await handleConsultCard(cardId)
+    return
+  }
+
+  await handlePlayCard(cardId)
+}
+
+async function handlePlayCard(cardId: string) {
+  modalCardId.value = null
+  isSatchelOpen.value = false
+  isConsultMode.value = false
+  activeStakeholderBubbles.value = {}
+  pendingStakeholderBubbles.value = {}
+  await gameStore.play_turn(cardId)
+  await applyCommittedTurn()
+}
+
+async function handleConsultCard(cardId: string) {
+  modalCardId.value = null
+  isSatchelOpen.value = false
+  isConsultMode.value = false
+  activeStakeholderBubbles.value = {}
+  pendingStakeholderBubbles.value = {}
+  await gameStore.consult_archives([cardId])
+  await applyCommittedTurn()
 }
 
 function dismissResolutionPopup() {
@@ -2371,6 +2458,54 @@ function goToEndScreen() {
   .coupling-effects-badge {
     max-width: 160px;
     padding: 0.3rem 0.5rem;
+  }
+}
+
+.consult-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: var(--space-md) 0;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--dng-bronze-mid);
+  background: color-mix(in srgb, var(--dng-shell-bg) 88%, black);
+}
+
+.consult-copy,
+.grimoire-copy {
+  margin: 0;
+  flex: 1 1 16rem;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+.grimoire-section {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid color-mix(in srgb, var(--dng-bronze-mid) 55%, transparent);
+}
+
+.grimoire-title {
+  margin: 0 0 var(--space-xs);
+  color: var(--dng-title-gold);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+
+.grimoire-section .cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+@media (max-width: 480px) {
+  .grimoire-section .cards-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

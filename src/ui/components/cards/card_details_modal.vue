@@ -161,6 +161,7 @@
           Close
         </button>
         <button
+          v-if="!isInspectOnly"
           class="cdm-btn cdm-btn--play"
           type="button"
           :disabled="isPlayDisabled"
@@ -202,6 +203,8 @@ interface Props {
   scoreAdjustments?: Record<string, { base: number; adjusted: number; modifierName: string }>;
   /** Optional artwork for the modal illustration frame. Renders an image when illustration_url is present. */
   artwork?: ArtworkMeta
+  /** Grimoire inspection: hide the play action. */
+  isInspectOnly?: boolean
 }
 
 interface Emits {

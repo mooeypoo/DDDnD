@@ -18,7 +18,7 @@ import type {
 import type { ContentProvider } from '../src/domains/content/services/content_provider.js'
 import { validateContentPack } from '../src/domains/content/services/content_pack_validator.js'
 import { assertValidContentPackManifest } from '../src/domains/content/services/manifest_validator.js'
-import { simulate_runs } from '../src/domains/simulation/services/simulation_runner.js'
+import { simulate_player_true_and_oracle } from '../src/domains/simulation/services/simulation_runner.js'
 import { buildContentAuditReport } from '../src/domains/simulation/services/audit/content_audit_report_builder.js'
 import { buildScenarioBundle } from '../src/domains/content/services/bundle_builder.js'
 
@@ -198,7 +198,7 @@ async function main() {
       }
 
       const bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
-      const simulationReport = simulate_runs({
+      const { player_true: simulationReport, oracle: oracleReport } = simulate_player_true_and_oracle({
         scenario_bundle: bundle,
         runs: options.runs,
         seed: 'content-pack-validation',
@@ -208,6 +208,7 @@ async function main() {
         content_pack_id: resolvedPackId,
         scenario_bundle: bundle,
         simulation_report: simulationReport,
+        oracle_simulation_report: oracleReport,
       })
 
       totalAuditCritical += auditReport.summary.critical_count

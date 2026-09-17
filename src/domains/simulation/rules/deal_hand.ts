@@ -79,7 +79,10 @@ function shuffleRefs(refs: VersionedContentRef[], random: SeededRandom): Version
   return shuffled
 }
 
-function lowestScoreIds(scores: Record<string, number>, count: number): string[] {
+/**
+ * Lowest score ids, stable-sorted, used by the opening deal and player-true consult.
+ */
+export function listPressureScoreIds(scores: Record<string, number>, count: number): string[] {
   return Object.entries(scores)
     .sort((left, right) => {
       if (left[1] !== right[1]) {
@@ -92,7 +95,10 @@ function lowestScoreIds(scores: Record<string, number>, count: number): string[]
     .map(([scoreId]) => scoreId)
 }
 
-function pressureValue(card: Card, pressureScoreIds: string[]): number {
+/**
+ * Positive contribution a card makes to the current pressure scores.
+ */
+export function pressureValue(card: Card, pressureScoreIds: string[]): number {
   return card.score_changes.reduce((total, change) => {
     if (change.delta <= 0 || !pressureScoreIds.includes(change.score_id)) {
       return total
@@ -107,7 +113,7 @@ function pickPressureRefs(
   scenarioBundle: ScenarioBundle,
   scores: Record<string, number>
 ): VersionedContentRef[] {
-  const pressureScoreIds = lowestScoreIds(scores, PRESSURE_DEAL_COUNT)
+  const pressureScoreIds = listPressureScoreIds(scores, PRESSURE_DEAL_COUNT)
   if (pressureScoreIds.length === 0) {
     return []
   }
@@ -132,13 +138,31 @@ function pickPressureRefs(
   return ranked.slice(0, PRESSURE_DEAL_COUNT).map((entry) => entry.actionRef)
 }
 
+function resolveLegalHandSize(gameState: GameState, fallback: number = DEFAULT_HAND_SIZE): number {
+  const size = gameState.hand_state.legal_hand_size
+  return typeof size === 'number' && size > 0 ? size : fallback
+}
+
+function toHandState(
+  gameState: GameState,
+  handRefs: VersionedContentRef[],
+  deckRefs: VersionedContentRef[],
+  handSize: number = resolveLegalHandSize(gameState)
+): HandState {
+  return {
+    hand_refs: handRefs,
+    deck_refs: deckRefs,
+    legal_hand_size: handSize
+  }
+}
+
 /**
  * Rebuilds a legal hand from the current playable set, drawing from the deck.
  */
 export function replenishHand(
   gameState: GameState,
   scenarioBundle: ScenarioBundle,
-  handSize: number = DEFAULT_HAND_SIZE
+  handSize: number = resolveLegalHandSize(gameState)
 ): HandMutationResult {
   const playableRefs = listPlayableActionRefs(gameState, scenarioBundle)
   const playableKeys = new Set(playableRefs.map((ref) => versionRefKey(ref)))
@@ -175,10 +199,7 @@ export function replenishHand(
   }
 
   return {
-    hand_state: {
-      hand_refs: handRefs,
-      deck_refs: deckRefs
-    },
+    hand_state: toHandState(gameState, handRefs, deckRefs, handSize),
     drawn_refs: drawnRefs
   }
 }
@@ -196,7 +217,8 @@ export function dealOpeningHand(
   if (playableRefs.length <= handSize) {
     return {
       hand_refs: [...playableRefs],
-      deck_refs: []
+      deck_refs: [],
+      legal_hand_size: handSize
     }
   }
 
@@ -212,7 +234,8 @@ export function dealOpeningHand(
 
   return {
     hand_refs: [...pressureRefs, ...randomHandRefs],
-    deck_refs: remainingRefs.slice(remainingSlots)
+    deck_refs: remainingRefs.slice(remainingSlots),
+    legal_hand_size: handSize
   }
 }
 
@@ -223,15 +246,16 @@ export function applyPlayedCardToHand(
   gameState: GameState,
   scenarioBundle: ScenarioBundle,
   playedRef: VersionedContentRef,
-  handSize: number = DEFAULT_HAND_SIZE
+  handSize: number = resolveLegalHandSize(gameState)
 ): HandMutationResult {
   const playedKey = versionRefKey(playedRef)
   const nextState: GameState = {
     ...gameState,
-    hand_state: {
-      hand_refs: gameState.hand_state.hand_refs.filter((ref) => versionRefKey(ref) !== playedKey),
-      deck_refs: gameState.hand_state.deck_refs.filter((ref) => versionRefKey(ref) !== playedKey)
-    }
+    hand_state: toHandState(
+      gameState,
+      gameState.hand_state.hand_refs.filter((ref) => versionRefKey(ref) !== playedKey),
+      gameState.hand_state.deck_refs.filter((ref) => versionRefKey(ref) !== playedKey)
+    )
   }
 
   return replenishHand(nextState, scenarioBundle, handSize)
@@ -244,7 +268,7 @@ export function applyConsultToHand(
   gameState: GameState,
   scenarioBundle: ScenarioBundle,
   discardedRef: VersionedContentRef,
-  handSize: number = DEFAULT_HAND_SIZE
+  handSize: number = resolveLegalHandSize(gameState)
 ): HandMutationResult {
   const discardedKey = versionRefKey(discardedRef)
   const remainingHand = gameState.hand_state.hand_refs.filter((ref) => versionRefKey(ref) !== discardedKey)
@@ -255,10 +279,7 @@ export function applyConsultToHand(
 
   const nextState: GameState = {
     ...gameState,
-    hand_state: {
-      hand_refs: remainingHand,
-      deck_refs: nextDeck
-    }
+    hand_state: toHandState(gameState, remainingHand, nextDeck)
   }
 
   return replenishHand(nextState, scenarioBundle, handSize)

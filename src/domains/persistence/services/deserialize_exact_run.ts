@@ -4,15 +4,18 @@ import { err, ok, PersistenceResult } from './persistence_result'
 import {
   isGameState,
   isNonEmptyString,
+  isPlayerTurnIntentArray,
   isPositiveInteger,
   isRecord,
   isTurnHistoryArray,
   isVersionedRef,
-  isVersionedRefArray
+  isVersionedRefArray,
+  normalizeGameState
 } from './validation'
 import {
   EXACT_RUN_EXPORT_TYPE,
   EXACT_RUN_FORMAT_VERSION,
+  EXACT_RUN_LEGACY_FORMAT_VERSION,
   ExactRunExport,
   ExactRunOutcomeSnapshot,
   ExactRunSeedInfo
@@ -127,7 +130,7 @@ export function deserialize_exact_run(input: unknown): PersistenceResult<ExactRu
     )
   }
 
-  if (input.format_version !== EXACT_RUN_FORMAT_VERSION) {
+  if (input.format_version !== EXACT_RUN_FORMAT_VERSION && input.format_version !== EXACT_RUN_LEGACY_FORMAT_VERSION) {
     return err(
       createPersistenceError(
         'unsupported_format_version',
@@ -187,6 +190,24 @@ export function deserialize_exact_run(input: unknown): PersistenceResult<ExactRu
     )
   }
 
+  const turnIntents =
+    input.format_version === EXACT_RUN_LEGACY_FORMAT_VERSION
+      ? input.action_sequence.map((actionRef) => ({
+          type: 'play_card' as const,
+          action_ref: actionRef
+        }))
+      : input.turn_intents
+
+  if (!isPlayerTurnIntentArray(turnIntents)) {
+    return err(
+      createPersistenceError(
+        'malformed_export',
+        'Exact run export turn_intents must contain play_card or consult_archives intents',
+        'turn_intents'
+      )
+    )
+  }
+
   if (!isTurnHistoryArray(input.turn_history)) {
     return err(
       createPersistenceError(
@@ -217,7 +238,8 @@ export function deserialize_exact_run(input: unknown): PersistenceResult<ExactRu
     )
   }
 
-  const compatibilityValidation = validateScenarioRefCompatibility(input.game_state, input.scenario_ref)
+  const gameState = normalizeGameState(input.game_state)
+  const compatibilityValidation = validateScenarioRefCompatibility(gameState, input.scenario_ref)
   if (!compatibilityValidation.ok) {
     return compatibilityValidation
   }
@@ -230,9 +252,10 @@ export function deserialize_exact_run(input: unknown): PersistenceResult<ExactRu
     seed_info: input.seed_info,
     player_profile: input.player_profile,
     action_sequence: input.action_sequence,
+    turn_intents: turnIntents,
     turn_history: input.turn_history,
     outcome_snapshot: input.outcome_snapshot,
-    game_state: input.game_state
+    game_state: gameState
   }
 
   return ok(exactRun)

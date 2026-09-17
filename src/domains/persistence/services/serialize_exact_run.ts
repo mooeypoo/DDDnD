@@ -1,4 +1,4 @@
-import { GameState } from '@/domains/simulation/model'
+import { GameState, PlayerTurnIntent } from '@/domains/simulation/model'
 import { classifyOutcomeArchetype } from '@/domains/simulation/rules'
 import { OutcomeArchetypeId, RunStatus, VersionedContentRef } from '@/shared/contracts'
 
@@ -7,9 +7,11 @@ import { OutcomeArchetypeId, RunStatus, VersionedContentRef } from '@/shared/con
  */
 export const EXACT_RUN_EXPORT_TYPE = 'exact_run' as const
 /**
- * Exact-run format version.
+ * Exact-run format version. v2 records consult intents instead of treating
+ * discarded cards as if they were played.
  */
-export const EXACT_RUN_FORMAT_VERSION = 1 as const
+export const EXACT_RUN_FORMAT_VERSION = 2 as const
+export const EXACT_RUN_LEGACY_FORMAT_VERSION = 1 as const
 
 /**
  * Deterministic seed and run identity metadata.
@@ -46,7 +48,13 @@ export interface ExactRunExport {
   scenario_ref: VersionedContentRef
   seed_info: ExactRunSeedInfo
   player_profile: GameState['player_profile']
+  /**
+   * Architecture cards actually played. Consult turns are omitted.
+   * Replay must use `turn_intents`, not this list.
+   */
   action_sequence: VersionedContentRef[]
+  /** Full player intent sequence for deterministic replay, including consults. */
+  turn_intents: PlayerTurnIntent[]
   turn_history: GameState['history']
   outcome_snapshot: ExactRunOutcomeSnapshot
   game_state: GameState
@@ -124,7 +132,10 @@ export function serialize_exact_run(
   game_state: GameState,
   exported_at: string = new Date().toISOString()
 ): ExactRunExport {
-  const actionSequence = game_state.history.map((entry) => entry.action_resolution.selected_action)
+  const turnIntents = game_state.history.map((entry) => entry.player_intent)
+  const actionSequence = game_state.history.flatMap((entry) =>
+    entry.player_intent.type === 'play_card' ? [entry.player_intent.action_ref] : []
+  )
 
   return {
     export_type: EXACT_RUN_EXPORT_TYPE,
@@ -140,6 +151,7 @@ export function serialize_exact_run(
     },
     player_profile: cloneSerializable(game_state.player_profile),
     action_sequence: cloneSerializable(actionSequence),
+    turn_intents: cloneSerializable(turnIntents),
     turn_history: cloneSerializable(game_state.history),
     outcome_snapshot: buildOutcomeSnapshot(game_state),
     game_state: cloneSerializable(game_state)

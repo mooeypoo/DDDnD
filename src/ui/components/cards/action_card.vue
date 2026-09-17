@@ -179,6 +179,7 @@
             Inspect
           </button>
           <button
+            v-if="!isInspectOnly"
             class="ac-btn ac-btn--play"
             type="button"
             :disabled="isCardDisabled"
@@ -221,6 +222,10 @@ const props = defineProps<{
   scores?: Record<string, number>
   /** Optional artwork metadata. Renders a thumbnail in the card header when illustration_url is present. */
   artwork?: ArtworkMeta
+  /** Grimoire cards can be inspected but not played. */
+  isInspectOnly?: boolean
+  /** Overrides the primary action label (for example consult discard). */
+  primaryActionLabel?: string
 }>()
 
 defineEmits<{
@@ -297,6 +302,10 @@ const playButtonHint = computed(() => {
   return 'Unavailable: requirements are not currently met.'
 })
 const primaryButtonLabel = computed(() => {
+  if (props.primaryActionLabel) {
+    return props.primaryActionLabel
+  }
+
   if (props.isDisabled) {
     return 'Resolving…'
   }

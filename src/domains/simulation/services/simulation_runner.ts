@@ -3,14 +3,14 @@
  *
  * Automated multi-run gameplay simulation with telemetry collection.
  *
- * Runs N deterministic games against a ScenarioBundle, selecting random
- * available cards each turn via a seeded PRNG. Collects per-run and
- * aggregate telemetry suitable for balance tuning.
+ * Runs N deterministic games against a ScenarioBundle. The default player-true
+ * policy holds the legal hand and may consult the archives under the same cost.
+ * A full-pool oracle policy exists as a diagnostic, not the pass gate.
  *
  * Constraints:
  * - Pure, deterministic, no browser / Vue / Pinia imports
  * - Each run derives a unique seed from the base seed + run index
- * - Respects card cooldowns, usage limits, and requirements
+ * - Respects card cooldowns, usage limits, requirements, and the legal hand
  * - Returns a structured telemetry report, never writes to disk
  */
 
@@ -24,6 +24,15 @@ import {
   computeAggregate,
   deriveRunSeed,
 } from './simulation_runner_helpers'
+import {
+  chooseOracleTurn,
+  choosePlayerTrueTurn,
+  legalHandSizeForPolicy,
+  type RunnerTurnChoice,
+  type SimulationPlayPolicy,
+} from './simulation_runner_play_policy'
+
+export type { SimulationPlayPolicy } from './simulation_runner_play_policy'
 
 // ── Public input / output types ─────────────────────────────────
 
@@ -33,6 +42,11 @@ export interface SimulationRunnerInput {
   runs: number
   /** Base seed – each run derives a child seed from this */
   seed: string
+  /**
+   * Default `player_true` is the pass-gate policy: legal hand plus consult.
+   * `full_pool_oracle` is a diagnostic catalog bot, not the pass gate.
+   */
+  play_policy?: SimulationPlayPolicy
 }
 
 /**
@@ -64,6 +78,7 @@ export interface EventTurnTelemetry {
 export interface ActionTurnTelemetry {
   turn_number: number
   selected_card_id: string
+  player_intent: 'play_card' | 'consult_archives'
   score_deltas: Record<string, number>
   stakeholder_deltas: Record<string, number>
 }
@@ -79,6 +94,8 @@ export interface PerRunTelemetry {
   final_scores: Record<string, number>
   final_stakeholder_satisfaction: Record<string, number>
   cards_played: string[]
+  /** Turns spent consulting the archives instead of playing a card. */
+  consults_used: number
   events_triggered: string[]
   reactions_triggered: string[]
   score_average: number | null
@@ -157,15 +174,23 @@ export interface SimulationReport {
   scenario_id: string
   scenario_version: number
   base_seed: string
+  /** Present on runner-produced reports. Omitted on some synthetic audit fixtures. */
+  play_policy?: SimulationPlayPolicy
   total_runs: number
   per_run: PerRunTelemetry[]
   aggregate: AggregateTelemetry
+}
+
+export interface PlayerTrueAndOracleReports {
+  player_true: SimulationReport
+  oracle: SimulationReport
 }
 
 // ── Single run execution ────────────────────────────────────────
 
 interface RunExecutionState {
   cardsPlayed: string[]
+  consultsUsed: number
   eventsTriggered: string[]
   reactionsTriggered: string[]
   scoreSnapshotsByTurn: Record<string, number>[]
@@ -180,6 +205,7 @@ interface RunExecutionState {
 function createRunExecutionState(): RunExecutionState {
   return {
     cardsPlayed: [],
+    consultsUsed: 0,
     eventsTriggered: [],
     reactionsTriggered: [],
     scoreSnapshotsByTurn: [],
@@ -189,20 +215,21 @@ function createRunExecutionState(): RunExecutionState {
   }
 }
 
-/**
- * Selects one random playable action card for the current turn.
- */
-function selectPlayableActionId(engine: SimulationEngine, runSeed: string): () => string | null {
+function createTurnChooser(
+  engine: SimulationEngine,
+  scenarioBundle: ScenarioBundle,
+  runSeed: string,
+  playPolicy: SimulationPlayPolicy
+): () => RunnerTurnChoice {
   const selectionRandom = createSeededRandom(`${runSeed}__selection`)
 
   return () => {
     const briefing = engine.get_turn_briefing()
-    const playableCards = briefing.hand_action_summaries.filter((a) => a.is_playable)
-    if (playableCards.length === 0) {
-      return null
+    if (playPolicy === 'full_pool_oracle') {
+      return chooseOracleTurn(briefing, selectionRandom)
     }
 
-    return selectionRandom.choice(playableCards).card_id
+    return choosePlayerTrueTurn(briefing, scenarioBundle, selectionRandom)
   }
 }
 
@@ -211,10 +238,15 @@ function selectPlayableActionId(engine: SimulationEngine, runSeed: string): () =
  */
 function appendTurnTelemetry(
   state: RunExecutionState,
-  actionId: string,
   turnEntry: ReturnType<SimulationEngine['play_turn']>['turn_history_entry']
 ): void {
-  state.cardsPlayed.push(actionId)
+  const intentType = turnEntry.player_intent.type
+  if (intentType === 'play_card') {
+    state.cardsPlayed.push(turnEntry.action_resolution.selected_action.id)
+  } else {
+    state.consultsUsed += 1
+  }
+
   state.scoreSnapshotsByTurn.push({ ...turnEntry.end_of_turn_scores })
 
   if (turnEntry.event_resolution?.selected_event) {
@@ -248,6 +280,7 @@ function appendTurnTelemetry(
   state.actionTelemetryByTurn.push({
     turn_number: turnEntry.turn_number,
     selected_card_id: turnEntry.action_resolution.selected_action.id,
+    player_intent: intentType,
     score_deltas: buildScoreDeltaMap(turnEntry.action_resolution.score_changes),
     stakeholder_deltas: buildStakeholderDeltaMap(turnEntry.action_resolution.stakeholder_changes),
   })
@@ -281,11 +314,12 @@ function buildPerRunTelemetry(
     outcome_tier: outcome?.tier ?? null,
     archetype: outcome?.archetype ?? null,
     run_status: gameState.progress.run_status,
-    turns_completed: gameState.progress.current_turn - 1,
+    turns_completed: gameState.run_analytics.turns_completed,
     max_turns: maxTurns,
     final_scores: { ...gameState.scores },
     final_stakeholder_satisfaction: buildFinalStakeholderSatisfaction(gameState),
     cards_played: executionState.cardsPlayed,
+    consults_used: executionState.consultsUsed,
     events_triggered: executionState.eventsTriggered,
     reactions_triggered: executionState.reactionsTriggered,
     score_average: outcome?.score_average ?? null,
@@ -298,30 +332,41 @@ function buildPerRunTelemetry(
 
 function executeRun(
   engine: SimulationEngine,
-  _scenarioBundle: ScenarioBundle,
+  scenarioBundle: ScenarioBundle,
   runIndex: number,
-  runSeed: string
+  runSeed: string,
+  playPolicy: SimulationPlayPolicy
 ): PerRunTelemetry {
-  let gameState = engine.create_run()
+  const legalHandSize = legalHandSizeForPolicy(playPolicy)
+  let gameState = engine.create_run(
+    legalHandSize != null ? { legal_hand_size: legalHandSize } : undefined
+  )
   const maxTurns = gameState.progress.max_turns
   const executionState = createRunExecutionState()
-  const chooseActionId = selectPlayableActionId(engine, runSeed)
+  const chooseTurn = createTurnChooser(engine, scenarioBundle, runSeed, playPolicy)
 
   while (gameState.progress.run_status === 'in_progress') {
-    const actionId = chooseActionId()
-    if (!actionId) {
+    const choice = chooseTurn()
+    if (choice.type === 'stop') {
       break
     }
 
-    const result = engine.play_turn(actionId)
+    const result =
+      choice.type === 'consult_archives'
+        ? engine.consult_archives(choice.discard_ids)
+        : engine.play_turn(choice.action_id)
+
     gameState = result.game_state
-    const turnEntry = result.turn_history_entry
-    appendTurnTelemetry(executionState, actionId, turnEntry)
+    appendTurnTelemetry(executionState, result.turn_history_entry)
   }
 
   const outcome: RunOutcome | null = engine.get_run_outcome()
 
   return buildPerRunTelemetry(runIndex, runSeed, gameState, maxTurns, outcome, executionState)
+}
+
+function resolvePlayPolicy(input: SimulationRunnerInput): SimulationPlayPolicy {
+  return input.play_policy ?? 'player_true'
 }
 
 // ── Public API ──────────────────────────────────────────────────
@@ -332,7 +377,7 @@ function executeRun(
  * Each run:
  * 1. Derives a deterministic child seed from `input.seed`
  * 2. Creates a fresh engine + run
- * 3. Each turn selects a random playable card via seeded PRNG
+ * 3. Each turn selects a player-true or oracle action via seeded PRNG
  * 4. Plays until run completes (max turns or failure condition)
  * 5. Collects outcome + telemetry
  *
@@ -340,12 +385,13 @@ function executeRun(
  */
 export function simulate_runs(input: SimulationRunnerInput): SimulationReport {
   const { scenario_bundle, runs, seed } = input
+  const playPolicy = resolvePlayPolicy(input)
   const perRun: PerRunTelemetry[] = []
 
   for (let i = 0; i < runs; i++) {
     const runSeed = deriveRunSeed(seed, i)
     const engine = createEngine(scenario_bundle, runSeed)
-    const telemetry = executeRun(engine, scenario_bundle, i, runSeed)
+    const telemetry = executeRun(engine, scenario_bundle, i, runSeed, playPolicy)
     perRun.push(telemetry)
   }
 
@@ -353,8 +399,22 @@ export function simulate_runs(input: SimulationRunnerInput): SimulationReport {
     scenario_id: scenario_bundle.scenario.id,
     scenario_version: scenario_bundle.scenario.version,
     base_seed: seed,
+    play_policy: playPolicy,
     total_runs: runs,
     per_run: perRun,
     aggregate: computeAggregate(perRun)
+  }
+}
+
+/**
+ * Runs the player-true pass-gate policy and the full-pool oracle on the same
+ * seeds so catalog-only recovery can be reported without replacing the gate.
+ */
+export function simulate_player_true_and_oracle(
+  input: Omit<SimulationRunnerInput, 'play_policy'>
+): PlayerTrueAndOracleReports {
+  return {
+    player_true: simulate_runs({ ...input, play_policy: 'player_true' }),
+    oracle: simulate_runs({ ...input, play_policy: 'full_pool_oracle' }),
   }
 }

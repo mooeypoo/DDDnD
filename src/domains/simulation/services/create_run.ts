@@ -16,7 +16,7 @@ import { ChallengeModifier, ScenarioBundle, versionRefKey } from '@/domains/cont
 import { VersionedContentRef } from '@/shared/contracts'
 import { createSeededRandom } from '@/shared/random/seeded_random'
 import { CreateInitialGameStateInput, GameState, ScoreSnapshot, createInitialGameState } from '../model'
-import { dealOpeningHand } from '../rules'
+import { DEFAULT_HAND_SIZE, dealOpeningHand } from '../rules'
 
 /**
  * Converts content refs to shared versioned content refs.
@@ -97,6 +97,11 @@ function applyScoreAdjustments(
  */
 export interface CreateRunOptions {
   challenge_modifier?: ChallengeModifier
+  /**
+   * Audit/debug override for the legal hand size. Player-facing play uses the
+   * engine default of 6. The UI must not pass this; full-pool oracles may.
+   */
+  legal_hand_size?: number
 }
 
 /**
@@ -139,8 +144,10 @@ export function createRun(scenarioBundle: ScenarioBundle, seed: string, options?
 
   const gameState = createInitialGameState(input)
 
+  const legalHandSize = options?.legal_hand_size ?? DEFAULT_HAND_SIZE
+
   return {
     ...gameState,
-    hand_state: dealOpeningHand(gameState, scenarioBundle, seed)
+    hand_state: dealOpeningHand(gameState, scenarioBundle, seed, legalHandSize)
   }
 }

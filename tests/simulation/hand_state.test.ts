@@ -111,6 +111,7 @@ describe('Legal hand and consult archives', () => {
     expect(stateA.hand_state.deck_refs).toEqual(stateB.hand_state.deck_refs)
     expect(stateA.hand_state.hand_refs).toHaveLength(DEFAULT_HAND_SIZE)
     expect(stateA.hand_state.deck_refs).toHaveLength(4)
+    expect(stateA.hand_state.legal_hand_size).toBe(DEFAULT_HAND_SIZE)
   })
 
   it('deals the entire playable pool when it is smaller than the hand size', () => {
@@ -200,5 +201,27 @@ describe('Legal hand and consult archives', () => {
     expect(resultA.game_state.history.map((entry) => entry.player_intent)).toEqual(
       resultB.game_state.history.map((entry) => entry.player_intent)
     )
+  })
+
+  it('keeps the full playable pool legal when legal_hand_size is raised', () => {
+    const bundle = buildHandBundle(10)
+    const playerEngine = create_engine({ scenario_bundle: bundle, seed: 'oracle-hand' })
+    const playerState = playerEngine.create_run()
+    const oracleEngine = create_engine({ scenario_bundle: bundle, seed: 'oracle-hand' })
+    const oracleState = oracleEngine.create_run({ legal_hand_size: Number.MAX_SAFE_INTEGER })
+    const playerDeckIds = playerState.hand_state.deck_refs.map((ref) => ref.id)
+    const playedId = oracleState.hand_state.hand_refs[0].id
+    const result = oracleEngine.play_turn(playedId)
+
+    expect(playerDeckIds.length).toBeGreaterThan(0)
+    expect(oracleState.hand_state.hand_refs).toHaveLength(10)
+    expect(oracleState.hand_state.deck_refs).toHaveLength(0)
+    for (const cardId of playerDeckIds) {
+      expect(oracleState.hand_state.hand_refs.some((ref) => ref.id === cardId)).toBe(true)
+    }
+
+    expect(result.game_state.hand_state.deck_refs).toHaveLength(0)
+    expect(result.game_state.hand_state.hand_refs.length).toBeGreaterThan(DEFAULT_HAND_SIZE)
+    expect(result.game_state.hand_state.legal_hand_size).toBe(Number.MAX_SAFE_INTEGER)
   })
 })

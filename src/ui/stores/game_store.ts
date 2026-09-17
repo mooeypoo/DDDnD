@@ -242,6 +242,10 @@ export const useGameStore = defineStore('game', () => {
   async function play_turn(action_id: string) {
     return runLifecycleCoordinator.playTurn(action_id)
   }
+
+  async function consult_archives(discard_ids: string[]) {
+    return runLifecycleCoordinator.consultArchives(discard_ids)
+  }
   
   /**
    * Get run outcome (if complete)
@@ -389,6 +393,7 @@ export const useGameStore = defineStore('game', () => {
     start_new_run,
     refresh_turn_briefing,
     play_turn,
+    consult_archives,
     get_run_outcome,
     restore_saved_run,
     reset,

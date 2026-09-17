@@ -29,7 +29,7 @@
       <!-- Drawer body: scrollable content area -->
       <div id="satchel-content" class="drawer-body" role="region" aria-label="Action cards">
         <div class="drawer-inner">
-          <p class="drawer-hint">Review your available scrolls of architecture and choose your next move.</p>
+          <p class="drawer-hint">Hold six legal scrolls. The Grimoire lets you inspect the rest. Consulting the Archives spends the turn.</p>
 
           <!-- Toolbar slot (filter / sort controls) -->
           <slot name="toolbar"></slot>
@@ -37,6 +37,8 @@
           <div class="cards-grid">
             <slot></slot>
           </div>
+
+          <slot name="after"></slot>
 
           <p v-if="totalCards === 0" class="drawer-empty">
             No action cards are currently available.
