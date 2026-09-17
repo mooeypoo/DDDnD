@@ -1,9 +1,8 @@
 <template>
   <div class="social-links-panel">
     <div class="social-links-message">
-      <span class="social-emoji">🧙‍♂️</span>
       <span>
-        Enjoying your quest? Connect with the Dungeon Master beyond the dungeon gates:
+        Enjoying the quest? Find the Dungeon Master beyond the gates:
       </span>
     </div>
     <div class="social-links-list">
@@ -82,9 +81,6 @@ const socials: SocialNetwork[] = [
   align-items: center;
   justify-content: center;
   gap: 0.5em;
-}
-.social-emoji {
-  font-size: 1.5em;
 }
 .social-links-list {
   display: flex;

@@ -5,19 +5,20 @@ import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import RunSetupView from '@/ui/views/run_setup_view.vue'
 
 const pushSpy = vi.fn()
+const routeQuery: Record<string, string> = {}
 
 let storeMock: any
 
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: pushSpy }),
-  useRoute: () => ({ query: {} })
+  useRoute: () => ({ query: routeQuery })
 }))
 
 vi.mock('@/ui/stores/game_store', () => ({
   useGameStore: () => storeMock
 }))
 
-function makeQuest(id: string, name: string): QuestDisplayModel {
+function makeQuest(id: string, name: string, extras: Partial<QuestDisplayModel> = {}): QuestDisplayModel {
   return {
     id,
     version: 1,
@@ -27,7 +28,8 @@ function makeQuest(id: string, name: string): QuestDisplayModel {
     flavorText: `${name} flavor`,
     turnCount: 8,
     stakeholderCount: 4,
-    actionCardCount: 10
+    actionCardCount: 10,
+    ...extras
   }
 }
 
@@ -58,6 +60,9 @@ describe('run_setup_view quest integration', () => {
     // Ensure the default tab is 'quests' for tests
     localStorage.setItem('dddnd.tutorialsComplete', 'true')
     pushSpy.mockReset()
+    for (const key of Object.keys(routeQuery)) {
+      delete routeQuery[key]
+    }
 
     storeMock = {
       isAboutModalOpen: false,
@@ -121,6 +126,75 @@ describe('run_setup_view quest integration', () => {
       },
       character_name: undefined,
       is_tutorial: false
+    })
+    expect(pushSpy).toHaveBeenCalledWith('/game')
+  })
+
+  it('selects a lobby tutorial and joins through start_new_run', async () => {
+    storeMock.availableTutorials = [
+      makeQuest('tutorial_basics', 'The Basics', {
+        isTutorial: true,
+        tutorialOrder: 1,
+        turnCount: 5,
+        stakeholderCount: 2
+      }),
+      makeQuest('tutorial_pressure', 'Systems Under Pressure', {
+        isTutorial: true,
+        tutorialOrder: 2,
+        turnCount: 5,
+        stakeholderCount: 2
+      })
+    ]
+
+    const wrapper = mount(RunSetupView)
+    await flushPromises()
+
+    await wrapper.findAll('.deck-tab')[0].trigger('click')
+    await flushPromises()
+
+    expect(storeMock.start_new_run).not.toHaveBeenCalled()
+    expect(wrapper.text()).toContain('The Basics')
+    expect(wrapper.text()).toContain('Tutorial')
+
+    await wrapper.findAll('.table-quest')[1].trigger('click')
+    await wrapper.find('.sit-btn').trigger('click')
+    await flushPromises()
+
+    expect(storeMock.start_new_run).toHaveBeenCalledWith({
+      scenario_id: 'tutorial_pressure',
+      scenario_version: 1,
+      selected_class_ref: {
+        id: 'boundary_mage',
+        version: 1
+      },
+      character_name: undefined,
+      is_tutorial: true
+    })
+    expect(pushSpy).toHaveBeenCalledWith('/game')
+  })
+
+  it('auto-launches a door tutorial without waiting on Join', async () => {
+    routeQuery.tutorial = 'basics'
+    storeMock.availableTutorials = [
+      makeQuest('tutorial_basics', 'The Basics', {
+        isTutorial: true,
+        tutorialOrder: 1,
+        turnCount: 5,
+        stakeholderCount: 2
+      })
+    ]
+
+    mount(RunSetupView)
+    await flushPromises()
+
+    expect(storeMock.start_new_run).toHaveBeenCalledWith({
+      scenario_id: 'tutorial_basics',
+      scenario_version: 1,
+      selected_class_ref: {
+        id: 'boundary_mage',
+        version: 1
+      },
+      is_tutorial: true
     })
     expect(pushSpy).toHaveBeenCalledWith('/game')
   })

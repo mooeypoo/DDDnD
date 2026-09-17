@@ -20,7 +20,8 @@
             <TableCard
               :card="entry.card"
               :availability="entry.availability"
-              :isTutorialHighlighted="selectedHandId === entry.card.id"
+              :isTutorialLocked="isHandLocked(entry.card.id)"
+              :isTutorialHighlighted="selectedHandId === entry.card.id || requiredDiscardId === entry.card.id"
               primaryActionLabel="Set aside"
               @showDetails="$emit('inspect', entry.card.id)"
               @play="$emit('selectHand', entry.card.id)"
@@ -40,7 +41,8 @@
             <TableCard
               :card="entry.card"
               :availability="entry.availability"
-              :isTutorialHighlighted="selectedDeckId === entry.card.id"
+              :isTutorialLocked="isDeckLocked(entry.card.id)"
+              :isTutorialHighlighted="selectedDeckId === entry.card.id || requiredDrawId === entry.card.id"
               primaryActionLabel="Take this"
               @showDetails="$emit('inspect', entry.card.id)"
               @play="$emit('selectDeck', entry.card.id)"
@@ -71,7 +73,7 @@
         <button
           class="grimoire-footer-btn"
           type="button"
-          :disabled="!selectedHandId"
+          :disabled="!selectedHandId || Boolean(requiredDrawId)"
           @click="$emit('randomReplace')"
         >
           Replace with a random card
@@ -106,6 +108,8 @@ const props = defineProps<{
   replaceMode?: boolean
   selectedHandId?: string | null
   selectedDeckId?: string | null
+  requiredDiscardId?: string | null
+  requiredDrawId?: string | null
 }>()
 
 defineEmits<{
@@ -129,6 +133,14 @@ const selectableHand = computed(() => {
       : entry.availability,
   }))
 })
+
+function isHandLocked(cardId: string): boolean {
+  return Boolean(props.requiredDiscardId && cardId !== props.requiredDiscardId)
+}
+
+function isDeckLocked(cardId: string): boolean {
+  return Boolean(props.requiredDrawId && cardId !== props.requiredDrawId)
+}
 
 function scoreGlance(card: Card): string {
   if (card.score_changes.length === 0) return 'No immediate score shift'
@@ -180,7 +192,7 @@ function scoreGlance(card: Card): string {
 
 .grimoire-effects {
   display: block;
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #ead58a;
@@ -189,9 +201,9 @@ function scoreGlance(card: Card): string {
 
 .grimoire-copy {
   display: block;
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .grimoire-replace {
@@ -209,7 +221,7 @@ function scoreGlance(card: Card): string {
 
 .grimoire-kicker {
   margin: 0;
-  font-size: 0.62rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #f0c060;
@@ -244,7 +256,7 @@ function scoreGlance(card: Card): string {
   background: rgba(18, 12, 6, 0.9);
   color: var(--text-secondary);
   font-family: var(--font-heading);
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;

@@ -205,6 +205,51 @@ export function replenishHand(
 }
 
 /**
+ * Deals a scenario-authored opening hand. Remaining playable cards stay
+ * in the deck in playable/`card_refs` order so authored lessons can name
+ * both the fan and the Grimoire.
+ */
+function dealAuthoredOpeningHand(
+  playableRefs: VersionedContentRef[],
+  authoredIds: readonly string[],
+  handSize: number
+): HandState {
+  const playableById = new Map(playableRefs.map((actionRef) => [actionRef.id, actionRef]))
+  const usedIds = new Set<string>()
+  const handRefs: VersionedContentRef[] = []
+  const overflowRefs: VersionedContentRef[] = []
+
+  for (const cardId of authoredIds) {
+    const actionRef = playableById.get(cardId)
+    if (!actionRef || usedIds.has(cardId)) {
+      continue
+    }
+
+    usedIds.add(cardId)
+    if (handRefs.length < handSize) {
+      handRefs.push(actionRef)
+    } else {
+      overflowRefs.push(actionRef)
+    }
+  }
+
+  const remainingRefs = playableRefs.filter((actionRef) => !usedIds.has(actionRef.id))
+  while (handRefs.length < handSize && remainingRefs.length > 0) {
+    const nextRef = remainingRefs.shift()
+    if (!nextRef) {
+      break
+    }
+    handRefs.push(nextRef)
+  }
+
+  return {
+    hand_refs: handRefs,
+    deck_refs: [...overflowRefs, ...remainingRefs],
+    legal_hand_size: handSize
+  }
+}
+
+/**
  * Deals the opening legal hand from currently playable cards.
  */
 export function dealOpeningHand(
@@ -220,6 +265,11 @@ export function dealOpeningHand(
       deck_refs: [],
       legal_hand_size: handSize
     }
+  }
+
+  const authoredIds = scenarioBundle.scenario.opening_hand_card_ids
+  if (authoredIds && authoredIds.length > 0) {
+    return dealAuthoredOpeningHand(playableRefs, authoredIds, handSize)
   }
 
   const random = createSeededRandom(`${seed}__hand_deal`)

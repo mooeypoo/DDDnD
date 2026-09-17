@@ -46,7 +46,13 @@ describe('quest loader', () => {
       loadScenario: vi.fn().mockResolvedValue(mockScenario),
       // Mock other required methods
       loadScore: vi.fn(),
-      loadStakeholder: vi.fn(),
+      loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id === 'cto' ? 'CTO' : 'Product Manager',
+        description: '',
+        reaction_rule_refs: []
+      })),
       loadStakeholderReactionRule: vi.fn(),
       loadCard: vi.fn(),
       loadEvent: vi.fn(),
@@ -70,7 +76,10 @@ describe('quest loader', () => {
     expect(quest.turnCount).toBe(10)
     expect(quest.stakeholderCount).toBe(2)
     expect(quest.actionCardCount).toBe(3)
+    expect(quest.startingScores).toEqual({ clarity: 50 })
+    expect(quest.councilNames).toEqual(['CTO', 'Product Manager'])
     expect(mockProvider.loadScenario).toHaveBeenCalledWith({ id: 'test_scenario', version: 1 })
+    expect(mockProvider.loadStakeholder).toHaveBeenCalledTimes(2)
   })
 
   it('loads multiple quests and returns successful ones', async () => {
@@ -85,7 +94,13 @@ describe('quest loader', () => {
         }),
       // Mock other required methods
       loadScore: vi.fn(),
-      loadStakeholder: vi.fn(),
+      loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id === 'cto' ? 'CTO' : 'Product Manager',
+        description: '',
+        reaction_rule_refs: []
+      })),
       loadStakeholderReactionRule: vi.fn(),
       loadCard: vi.fn(),
       loadEvent: vi.fn(),
@@ -118,7 +133,13 @@ describe('quest loader', () => {
       loadScenario: vi.fn().mockRejectedValue(new Error('Content not found')),
       // Mock other required methods
       loadScore: vi.fn(),
-      loadStakeholder: vi.fn(),
+      loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id === 'cto' ? 'CTO' : 'Product Manager',
+        description: '',
+        reaction_rule_refs: []
+      })),
       loadStakeholderReactionRule: vi.fn(),
       loadCard: vi.fn(),
       loadEvent: vi.fn(),
@@ -162,7 +183,13 @@ describe('quest loader', () => {
       loadScenario: vi.fn().mockResolvedValue(scenarioWithDifferentStats),
       // Mock other required methods
       loadScore: vi.fn(),
-      loadStakeholder: vi.fn(),
+      loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id === 'cto' ? 'CTO' : 'Product Manager',
+        description: '',
+        reaction_rule_refs: []
+      })),
       loadStakeholderReactionRule: vi.fn(),
       loadCard: vi.fn(),
       loadEvent: vi.fn(),

@@ -16,11 +16,11 @@ describe('run_intro_splash table moment', () => {
       }
     })
 
-    expect(wrapper.text()).toContain('The council is seated')
+    expect(wrapper.text()).toContain('The council gathers')
     expect(wrapper.text()).toContain('The Monolith of Mild Despair')
     expect(wrapper.text()).toContain('You inherit a codebase where every change touches everything')
     expect(wrapper.text()).toContain('10 turns remain')
-    expect(wrapper.text()).toContain('Take your seat')
+    expect(wrapper.text()).toContain('Join the adventure')
     expect(wrapper.text()).not.toContain('40')
     expect(wrapper.text()).not.toContain('55')
   })

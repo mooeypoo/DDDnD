@@ -95,7 +95,7 @@ function stakeholderLabel(stakeholderId: string): string {
 
 .annals-kicker {
   margin: 0 0 0.25rem;
-  font-size: 0.62rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--dng-title-gold);
@@ -110,8 +110,8 @@ function stakeholderLabel(stakeholderId: string): string {
 
 .annals-summary {
   margin: 0 0 0.5rem;
-  font-size: 0.86rem;
-  line-height: 1.4;
+  font-size: var(--text-base);
+  line-height: 1.45;
   color: var(--text-primary);
 }
 
@@ -125,7 +125,7 @@ function stakeholderLabel(stakeholderId: string): string {
 }
 
 .annals-deltas li {
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 0.15rem 0.4rem;
@@ -153,7 +153,7 @@ function stakeholderLabel(stakeholderId: string): string {
 }
 
 .annals-beat-kicker {
-  font-size: 0.58rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -161,13 +161,13 @@ function stakeholderLabel(stakeholderId: string): string {
 
 .annals-beat-title {
   font-family: var(--font-heading);
-  font-size: 0.86rem;
+  font-size: var(--text-base);
   color: var(--text-bright);
 }
 
 .annals-beat-copy {
-  font-size: 0.78rem;
-  line-height: 1.35;
+  font-size: var(--text-sm);
+  line-height: 1.4;
   color: var(--text-secondary);
 }
 </style>

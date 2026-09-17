@@ -12,16 +12,85 @@
       </nav>
     </header>
 
-    <section class="table-stage" aria-label="The table you will sit at">
+    <section class="quest-deck" :aria-label="deckMode === 'tutorials' ? 'Tutorials' : 'Choose your adventure'">
+      <div v-if="tutorials.length > 0" class="deck-toggle" role="tablist" aria-label="Tutorials or adventures">
+        <button
+          class="deck-tab"
+          type="button"
+          role="tab"
+          :aria-selected="deckMode === 'tutorials'"
+          :class="{ selected: deckMode === 'tutorials' }"
+          :disabled="isLoading"
+          @click="setDeckMode('tutorials')"
+        >
+          Tutorials
+        </button>
+        <button
+          class="deck-tab"
+          type="button"
+          role="tab"
+          :aria-selected="deckMode === 'adventures'"
+          :class="{ selected: deckMode === 'adventures' }"
+          :disabled="isLoading"
+          @click="setDeckMode('adventures')"
+        >
+          Adventures
+        </button>
+      </div>
+      <p class="row-kicker">
+        {{ deckMode === 'tutorials' ? 'Learn the ropes' : 'Choose your adventure' }}
+      </p>
+      <div class="quest-fan" role="list">
+        <div
+          v-for="(quest, index) in fanQuests"
+          :key="quest.id + '-v' + quest.version"
+          class="fan-slot"
+          :class="{ 'is-selected': isQuestSelected(quest) }"
+          :style="fanStyle(index)"
+          role="listitem"
+        >
+          <button
+            class="table-quest"
+            type="button"
+            :class="{ selected: isQuestSelected(quest), 'is-tutorial': quest.isTutorial }"
+            :disabled="isLoading"
+            @click="$emit('selectQuest', quest)"
+          >
+            <span class="quest-scene" :style="{ backgroundImage: `url(${sceneFor(quest.id)})` }" />
+            <span v-if="quest.isTutorial" class="tutorial-mark">Tutorial</span>
+            <span class="quest-kicker">{{ quest.turnCount }} turns · {{ councilCountLabel(quest.stakeholderCount) }}</span>
+            <span class="quest-name">{{ quest.name }}</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="table-stage" aria-label="The council gathers">
+      <p class="row-kicker">Join the council</p>
       <div class="table-assembly">
         <div class="table-board">
           <div class="table-grain" />
           <div class="table-inlay">
             <img class="table-map" :src="sceneUrl" alt="" />
             <div class="table-veil" />
+            <div v-if="selectedQuest" class="table-brief">
+              <p class="table-nameplate">{{ selectedQuest.name }}</p>
+              <p class="table-hook">{{ questHook(selectedQuest) }}</p>
+              <p v-if="questFlavorLine(selectedQuest)" class="table-flavor">
+                {{ questFlavorLine(selectedQuest) }}
+              </p>
+              <button
+                class="brief-more"
+                type="button"
+                :disabled="isLoading"
+                @click="briefingOpen = true"
+              >
+                Read more
+              </button>
+            </div>
           </div>
         </div>
-        <div class="rim-seats" role="list" aria-label="Take a seat">
+        <div class="rim-seats" role="list" aria-label="Choose your class">
           <button
             v-for="playerClass in classes"
             :key="playerClass.id"
@@ -42,10 +111,6 @@
           </button>
         </div>
       </div>
-      <p class="table-nameplate">{{ selectedQuest?.name ?? 'Choose a table' }}</p>
-      <p v-if="selectedQuest" class="table-flavor">
-        {{ selectedQuest.flavorText || selectedQuest.shortDescription || selectedQuest.description }}
-      </p>
       <p v-if="selectedClass" class="seat-reading">
         <span class="seat-reading-name">{{ selectedClass.name }}</span>
         <span class="seat-reading-affinity">{{ affinityLine(selectedClass.score_affinity) }}</span>
@@ -63,45 +128,8 @@
       </label>
     </section>
 
-    <section v-if="tutorials.length > 0" class="rope-row" aria-label="Learn the ropes">
-      <p class="row-kicker">Learn the ropes</p>
-      <div class="quest-rail">
-        <button
-          v-for="tutorial in tutorials"
-          :key="'tutorial-' + tutorial.id + '-v' + tutorial.version"
-          class="table-quest is-tutorial"
-          type="button"
-          :disabled="isLoading"
-          @click="$emit('launchTutorial', tutorial)"
-        >
-          <span class="quest-kicker">Tutorial</span>
-          <span class="quest-name">{{ tutorial.name }}</span>
-          <span class="quest-meta">{{ tutorial.turnCount }} turns</span>
-        </button>
-      </div>
-    </section>
-
-    <section class="quest-row" aria-label="Choose a quest">
-      <p class="row-kicker">Choose the table</p>
-      <div class="quest-rail">
-        <button
-          v-for="quest in quests"
-          :key="quest.id + '-v' + quest.version"
-          class="table-quest"
-          type="button"
-          :class="{ selected: isQuestSelected(quest) }"
-          :disabled="isLoading"
-          @click="$emit('selectQuest', quest)"
-        >
-          <span class="quest-scene" :style="{ backgroundImage: `url(${sceneFor(quest.id)})` }" />
-          <span class="quest-kicker">{{ quest.turnCount }} turns · {{ quest.stakeholderCount }} voices</span>
-          <span class="quest-name">{{ quest.name }}</span>
-        </button>
-      </div>
-    </section>
-
-    <details class="harder-table" :open="selectedModifier !== null">
-      <summary>Harder table</summary>
+    <details v-if="!selectedQuest?.isTutorial" class="harder-table" :open="selectedModifier !== null">
+      <summary>Raise the stakes</summary>
       <p class="harder-copy">Optional challenge modifiers from the pack. Standard play uses none.</p>
       <div class="modifier-rail">
         <button
@@ -138,9 +166,14 @@
         :disabled="!canSit || isLoading"
         @click="$emit('sit')"
       >
-        {{ isLoading ? 'The table is being set…' : 'Sit at this table' }}
+        {{ isLoading ? 'The council is gathering…' : 'Join this adventure' }}
       </button>
     </footer>
+    <QuestBriefingPlaque
+      :is-open="briefingOpen"
+      :quest="selectedQuest"
+      @close="briefingOpen = false"
+    />
   </div>
 </template>
 
@@ -151,9 +184,14 @@ import type { ChallengeModifier, PlayerClass } from '@/domains/content/model'
 import { requestSceneBackground } from '@/ui/composables/presentation_asset_lookup'
 import { resolveGameplaySceneId } from '@/ui/composables/gameplay_stage_presentation'
 import { classAffinityCopy } from '@/ui/play/class_affinity'
+import { councilCountLabel } from '@/ui/play/council_copy'
+import { handFanTransform } from '@/ui/play/card_fan'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
+import QuestBriefingPlaque from '@/ui/play/quest_briefing_plaque.vue'
+
+type DeckMode = 'adventures' | 'tutorials'
 
 const props = defineProps<{
   quests: QuestDisplayModel[]
@@ -167,11 +205,10 @@ const props = defineProps<{
   isLoading?: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   selectQuest: [quest: QuestDisplayModel]
   selectClass: [playerClass: PlayerClass]
   selectModifier: [modifier: ChallengeModifier | null]
-  launchTutorial: [quest: QuestDisplayModel]
   'update:characterName': [value: string]
   sit: []
   back: []
@@ -181,10 +218,23 @@ defineEmits<{
 }>()
 
 const nameDraft = ref(props.characterName)
+const deckMode = ref<DeckMode>(props.selectedQuest?.isTutorial ? 'tutorials' : 'adventures')
+const briefingOpen = ref(false)
 
 watch(() => props.characterName, (value) => {
   if (value !== nameDraft.value) {
     nameDraft.value = value
+  }
+})
+
+watch(() => props.selectedQuest, (quest) => {
+  briefingOpen.value = false
+  if (quest?.isTutorial) {
+    deckMode.value = 'tutorials'
+    return
+  }
+  if (quest) {
+    deckMode.value = 'adventures'
   }
 })
 
@@ -194,16 +244,53 @@ const sceneUrl = computed(() => {
 
 const canSit = computed(() => Boolean(props.selectedQuest && props.selectedClass))
 
+const fanQuests = computed(() => {
+  return deckMode.value === 'tutorials' ? props.tutorials : props.quests
+})
+
+function setDeckMode(mode: DeckMode) {
+  if (mode === 'tutorials' && props.tutorials.length === 0) {
+    return
+  }
+
+  deckMode.value = mode
+  const list = mode === 'tutorials' ? props.tutorials : props.quests
+  const alreadyShowing = list.some((quest) => isQuestSelected(quest))
+  if (!alreadyShowing && list[0]) {
+    emit('selectQuest', list[0])
+  }
+}
+
 function isQuestSelected(quest: QuestDisplayModel): boolean {
   return props.selectedQuest?.id === quest.id && props.selectedQuest?.version === quest.version
+}
+
+function fanStyle(index: number) {
+  const { rotate, y } = handFanTransform(index, fanQuests.value.length)
+  return {
+    transform: `rotate(${rotate}deg) translateY(${y}px)`,
+    zIndex: String(index + 1),
+  }
 }
 
 function sceneFor(scenarioId: string): string {
   return requestSceneBackground(resolveGameplaySceneId(scenarioId))
 }
 
+function questHook(quest: QuestDisplayModel): string {
+  return quest.shortDescription || quest.description
+}
+
+function questFlavorLine(quest: QuestDisplayModel): string | null {
+  const hook = questHook(quest)
+  if (!quest.flavorText || quest.flavorText === hook) {
+    return null
+  }
+  return quest.flavorText
+}
+
 function affinityLine(scoreId: string | undefined): string {
-  return classAffinityCopy(scoreId) ?? 'Identity at the table'
+  return classAffinityCopy(scoreId) ?? 'Identity in the council'
 }
 </script>
 
@@ -237,8 +324,7 @@ function affinityLine(scoreId: string | undefined): string {
 
 .lobby-mast,
 .table-stage,
-.rope-row,
-.quest-row,
+.quest-deck,
 .harder-table,
 .lobby-actions {
   position: relative;
@@ -266,10 +352,15 @@ function affinityLine(scoreId: string | undefined): string {
   background: transparent;
   color: #e2c48a;
   font-family: var(--font-heading);
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
+}
+
+.quest-deck {
+  width: min(920px, 100%);
+  margin: 0 auto 0.35rem;
 }
 
 .table-stage {
@@ -280,7 +371,7 @@ function affinityLine(scoreId: string | undefined): string {
 
 .table-assembly {
   position: relative;
-  padding-bottom: 3.6rem;
+  padding-bottom: 4.6rem;
 }
 
 .table-board {
@@ -312,32 +403,102 @@ function affinityLine(scoreId: string | undefined): string {
   background: linear-gradient(180deg, rgba(8, 4, 2, 0.15), rgba(8, 4, 2, 0.55));
 }
 
+.table-brief {
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  top: 10%;
+  z-index: 2;
+  padding: 0.65rem 0.8rem 0.7rem;
+  border-radius: 8px;
+  background: rgba(8, 5, 2, 0.62);
+  box-shadow: inset 0 1px 0 rgba(255, 220, 140, 0.12);
+}
+
 .table-nameplate {
-  margin: 0.7rem 0 0.2rem;
+  margin: 0;
   font-family: var(--font-heading);
-  font-size: 1.35rem;
+  font-size: 1.2rem;
+  line-height: 1.25;
   color: #ffe7b0;
 }
 
-.table-flavor {
-  margin: 0 auto;
-  max-width: 42rem;
+.table-hook {
+  margin: 0.35rem 0 0;
   color: #f4d8b8;
-  font-size: 0.92rem;
+  font-size: var(--text-base);
   line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.table-flavor {
+  margin: 0.3rem 0 0;
+  color: #ead58a;
+  font-size: var(--text-sm);
+  font-style: italic;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.brief-more {
+  appearance: none;
+  margin-top: 0.45rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #f0c060;
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
 .row-kicker {
   margin: 0 0 0.4rem;
-  font-size: 0.62rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #f0c060;
+  text-align: center;
 }
 
-.quest-rail,
+.deck-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-bottom: 0.55rem;
+}
+
+.deck-tab {
+  appearance: none;
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(176, 132, 42, 0.4);
+  background: rgba(12, 8, 4, 0.72);
+  color: #d7b36a;
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.deck-tab.selected {
+  border-color: rgba(240, 208, 96, 0.85);
+  background: linear-gradient(180deg, rgba(78, 52, 16, 0.98), rgba(26, 16, 6, 0.96));
+  color: var(--dng-title-gold);
+}
+
 .modifier-rail {
   display: flex;
+  justify-content: safe center;
   gap: 0.6rem;
   overflow-x: auto;
   padding-bottom: 0.45rem;
@@ -346,15 +507,43 @@ function affinityLine(scoreId: string | undefined): string {
   scrollbar-color: rgba(176, 132, 42, 0.45) transparent;
 }
 
-.quest-rail::-webkit-scrollbar,
 .modifier-rail::-webkit-scrollbar {
   height: 4px;
 }
 
-.quest-rail::-webkit-scrollbar-thumb,
 .modifier-rail::-webkit-scrollbar-thumb {
   background: rgba(176, 132, 42, 0.45);
   border-radius: 999px;
+}
+
+.quest-fan {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 292px;
+  padding: 2.2rem 0.6rem 1.8rem;
+  overflow: visible;
+}
+
+.fan-slot {
+  margin-left: -2.6rem;
+  transform-origin: 50% 110%;
+  transition: transform 200ms ease, z-index 0s;
+}
+
+.fan-slot:first-child {
+  margin-left: 0;
+}
+
+.fan-slot:hover,
+.fan-slot:focus-within {
+  transform: translateY(-16px) rotate(0deg) scale(1.06) !important;
+  z-index: 18 !important;
+}
+
+.fan-slot.is-selected {
+  transform: translateY(-30px) rotate(0deg) scale(1.14) !important;
+  z-index: 24 !important;
 }
 
 .table-quest,
@@ -370,21 +559,30 @@ function affinityLine(scoreId: string | undefined): string {
 }
 
 .table-quest {
-  width: min(220px, 72vw);
+  position: relative;
+  width: 176px;
+  min-height: 228px;
   padding: 0;
   overflow: hidden;
-  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px 10px 12px 12px;
+  box-shadow:
+    0 14px 24px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 214, 120, 0.18);
 }
 
 .table-quest.selected,
 .modifier-chip.selected {
   border-color: rgba(240, 208, 96, 0.85);
-  box-shadow: 0 0 0 1px rgba(240, 208, 96, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(240, 208, 96, 0.28),
+    0 18px 32px rgba(0, 0, 0, 0.55);
 }
 
 .quest-scene {
   display: block;
-  height: 72px;
+  height: 118px;
   background-size: cover;
   background-position: center;
 }
@@ -393,12 +591,12 @@ function affinityLine(scoreId: string | undefined): string {
 .quest-name,
 .quest-meta {
   display: block;
-  padding: 0 0.7rem;
+  padding: 0 0.6rem;
 }
 
 .quest-kicker,
 .quest-meta {
-  font-size: 0.62rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #d7b36a;
@@ -411,19 +609,30 @@ function affinityLine(scoreId: string | undefined): string {
 .quest-name {
   font-family: var(--font-heading);
   color: #ffe7b0;
-  padding-bottom: 0.55rem;
-  font-size: 0.92rem;
-  line-height: 1.2;
+  padding-bottom: 0.6rem;
+  font-size: var(--text-lg);
+  line-height: 1.25;
 }
 
-.is-tutorial {
-  width: min(16rem, 78vw);
-  min-width: 14rem;
-  padding: 0.7rem 0.8rem;
+.table-quest.is-tutorial {
+  border-color: rgba(232, 196, 96, 0.7);
+  background:
+    linear-gradient(180deg, rgba(72, 48, 14, 0.96), rgba(16, 10, 4, 0.92));
 }
 
-.is-tutorial .quest-name {
-  white-space: normal;
+.tutorial-mark {
+  position: absolute;
+  top: 0.55rem;
+  left: 0;
+  right: 0;
+  padding: 0.22rem 0.35rem;
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-align: center;
+  color: #1a1004;
+  background: linear-gradient(180deg, #f0c060, #c99428);
 }
 
 .rim-seats {
@@ -436,7 +645,9 @@ function affinityLine(scoreId: string | undefined): string {
   justify-content: center;
   align-items: flex-end;
   gap: 0.15rem;
+  padding-top: 1.2rem;
   overflow-x: auto;
+  overflow-y: hidden;
   scrollbar-width: none;
 }
 
@@ -447,7 +658,7 @@ function affinityLine(scoreId: string | undefined): string {
 .class-seat {
   appearance: none;
   flex: 0 0 auto;
-  width: 6.4rem;
+  width: 7.6rem;
   padding: 0;
   border: 0;
   background: transparent;
@@ -455,57 +666,62 @@ function affinityLine(scoreId: string | undefined): string {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.2rem;
+  gap: 0.28rem;
   cursor: pointer;
   filter: grayscale(0.28) brightness(0.78);
-  transform: translateY(0);
-  transition: transform 160ms ease, filter 160ms ease;
+  transition: filter 160ms ease;
+}
+
+.class-seat :deep(.class-portrait) {
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
 .class-seat.selected {
   filter: none;
-  transform: translateY(-0.7rem);
 }
 
 .class-seat.selected :deep(.class-portrait) {
+  transform: translateY(-0.7rem);
   box-shadow:
     0 0 0 2px rgba(240, 208, 96, 0.9),
     0 0 18px rgba(240, 208, 96, 0.38);
 }
 
 .seat-name {
-  max-width: 6.2rem;
-  padding: 0.12rem 0.35rem 0.18rem;
-  border-radius: 999px;
+  max-width: 7.4rem;
+  min-height: 2.5em;
+  padding: 0.38rem 0.45rem 0.32rem;
+  border-radius: 10px;
   background: rgba(10, 7, 3, 0.82);
   border: 1px solid rgba(176, 132, 42, 0.4);
   font-family: var(--font-heading);
-  font-size: 0.62rem;
-  line-height: 1.2;
+  font-size: var(--text-sm);
+  line-height: 1.4;
   text-align: center;
   color: #ffe7b0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
 }
 
 .seat-reading {
-  margin: 0.55rem auto 0;
+  margin: 0.7rem auto 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.2rem;
 }
 
 .seat-reading-name {
   font-family: var(--font-heading);
   color: #ead58a;
-  font-size: 0.95rem;
+  font-size: var(--text-xl);
+  line-height: 1.35;
+  padding-top: 0.12rem;
 }
 
 .seat-reading-affinity {
-  font-size: 0.72rem;
-  color: #d7b36a;
+  font-size: var(--text-base);
+  line-height: 1.4;
+  color: #ead58a;
 }
 
 .call-me {
@@ -514,7 +730,7 @@ function affinityLine(scoreId: string | undefined): string {
   gap: 0.55rem;
   margin: 0.7rem auto 0;
   width: min(22rem, 100%);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #d7b36a;
@@ -545,12 +761,12 @@ function affinityLine(scoreId: string | undefined): string {
   font-family: var(--font-heading);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   color: #e2c48a;
 }
 
 .harder-copy {
-  font-size: 0.82rem;
+  font-size: var(--text-base);
   margin: 0.4rem 0 0.55rem;
 }
 
@@ -569,11 +785,11 @@ function affinityLine(scoreId: string | undefined): string {
 .modifier-name {
   font-family: var(--font-heading);
   color: #ffe7b0;
-  font-size: 0.82rem;
+  font-size: var(--text-base);
 }
 
 .modifier-desc {
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
   margin-top: 0.2rem;
 }
@@ -590,9 +806,10 @@ function affinityLine(scoreId: string | undefined): string {
 .ghost-btn,
 .sit-btn {
   appearance: none;
-  padding: 0.55rem 1rem;
+  padding: 0.6rem 1.1rem;
   border-radius: 999px;
   font-family: var(--font-heading);
+  font-size: var(--text-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -613,32 +830,84 @@ function affinityLine(scoreId: string | undefined): string {
 .sit-btn:disabled,
 .ghost-btn:disabled,
 .table-quest:disabled,
-.class-seat:disabled {
+.class-seat:disabled,
+.deck-tab:disabled,
+.brief-more:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 @media (max-width: 720px) {
   .table-board {
-    height: 176px;
+    height: 200px;
+  }
+
+  .table-brief {
+    top: 6%;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .table-nameplate {
+    font-size: var(--text-lg);
+  }
+
+  .table-hook {
+    font-size: var(--text-sm);
+    -webkit-line-clamp: 2;
+  }
+
+  .table-flavor {
+    -webkit-line-clamp: 1;
   }
 
   .table-assembly {
-    padding-bottom: 3.1rem;
+    padding-bottom: 4.4rem;
   }
 
   .class-seat {
-    width: 4.6rem;
+    width: 6.1rem;
   }
 
   .class-seat :deep(.class-portrait) {
-    width: 48px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
   }
 
   .seat-name {
-    max-width: 4.5rem;
-    font-size: 0.52rem;
+    max-width: 6rem;
+    font-size: var(--text-sm);
+  }
+
+  .quest-fan {
+    justify-content: flex-start;
+    overflow-x: auto;
+    min-height: 250px;
+    padding: 1.8rem 0.4rem 1.2rem;
+    scroll-snap-type: x proximity;
+  }
+
+  .fan-slot {
+    margin-left: -1.8rem;
+    scroll-snap-align: center;
+    flex: 0 0 auto;
+  }
+
+  .fan-slot:hover,
+  .fan-slot:focus-within {
+    transform: translateY(-12px) rotate(0deg) scale(1.05) !important;
+  }
+
+  .fan-slot.is-selected {
+    transform: translateY(-22px) rotate(0deg) scale(1.1) !important;
+  }
+
+  .table-quest {
+    width: 148px;
+    min-height: 200px;
+  }
+
+  .quest-scene {
+    height: 96px;
   }
 
   .lobby-actions {
@@ -653,9 +922,14 @@ function affinityLine(scoreId: string | undefined): string {
 
 @media (prefers-reduced-motion: reduce) {
   .class-seat,
-  .class-seat.selected {
+  .class-seat :deep(.class-portrait),
+  .class-seat.selected :deep(.class-portrait),
+  .fan-slot,
+  .fan-slot.is-selected,
+  .fan-slot:hover,
+  .fan-slot:focus-within {
     transition: none;
-    transform: none;
+    transform: none !important;
   }
 }
 </style>

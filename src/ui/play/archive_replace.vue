@@ -195,7 +195,7 @@ onMounted(() => {
 
 .archive-kicker {
   margin: 0;
-  font-size: 0.68rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: #f0c060;
@@ -210,8 +210,8 @@ onMounted(() => {
 
 .archive-copy {
   margin: 0 0 0.9rem;
-  font-size: 0.9rem;
-  line-height: 1.4;
+  font-size: var(--text-base);
+  line-height: 1.45;
   color: #f4d8b8;
 }
 
@@ -268,7 +268,7 @@ onMounted(() => {
 
 .swap-kicker {
   margin: 0 0 0.35rem;
-  font-size: 0.58rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #f0c060;
@@ -286,7 +286,7 @@ onMounted(() => {
   list-style: none;
   margin: 0 0 0.8rem;
   padding: 0;
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
@@ -302,7 +302,7 @@ onMounted(() => {
   padding: 0.45rem 0.9rem;
   border-radius: 999px;
   font-family: var(--font-heading);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;

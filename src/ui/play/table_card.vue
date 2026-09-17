@@ -172,7 +172,7 @@ function shortLabelFor(scoreId: string): string {
 
 .table-card-ribbon {
   align-self: flex-start;
-  font-size: 0.58rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: color-mix(in oklab, var(--card-accent), #fff 18%);
@@ -183,8 +183,8 @@ function shortLabelFor(scoreId: string): string {
 .table-card-title {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: 0.92rem;
-  line-height: 1.15;
+  font-size: var(--text-base);
+  line-height: 1.2;
   color: var(--text-bright);
   letter-spacing: 0.01em;
 }
@@ -199,7 +199,7 @@ function shortLabelFor(scoreId: string): string {
 }
 
 .table-card-effects li {
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -214,7 +214,7 @@ function shortLabelFor(scoreId: string): string {
 
 .table-card-empty {
   margin: auto 0 0;
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
 }
 
@@ -225,7 +225,7 @@ function shortLabelFor(scoreId: string): string {
   background: rgba(8, 6, 2, 0.72);
   color: var(--dng-title-gold);
   font-family: var(--font-heading);
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   padding: 0.4rem 0.5rem;
@@ -252,7 +252,7 @@ function shortLabelFor(scoreId: string): string {
   }
 
   .table-card-title {
-    font-size: 0.8rem;
+    font-size: var(--text-base);
   }
 }
 </style>

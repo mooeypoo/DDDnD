@@ -66,7 +66,7 @@
     <div class="sidebar-section" v-if="stakeholders">
       <div class="section-header">
         <span class="section-icon">👥</span>
-        <h3 class="section-title">Stakeholder Pulse</h3>
+        <h3 class="section-title">The council</h3>
       </div>
       <div class="sidebar-stakeholders">
         <div

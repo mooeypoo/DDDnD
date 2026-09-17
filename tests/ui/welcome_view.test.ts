@@ -32,6 +32,8 @@ describe('welcome_view chamber door', () => {
     expect(wrapper.text()).toContain('Welcome, architecture explorer')
     expect(wrapper.text()).toContain('The system needs you')
     expect(wrapper.text()).toContain('adventure of software architecture')
+    expect(wrapper.text()).toContain('join the council')
+    expect(wrapper.text()).not.toContain('sit with the council')
     expect(wrapper.text()).toContain('worthy ending')
     expect(wrapper.text()).not.toContain('Start Your Journey')
     expect(wrapper.find('.sit-btn').text()).toContain('Enter the chamber')

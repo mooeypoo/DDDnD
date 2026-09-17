@@ -9,21 +9,21 @@
     >
       <div class="briefing-veil" />
       <section class="briefing-plaque">
-        <p class="briefing-kicker">The council is seated</p>
-        <h2 id="table-briefing-title" class="briefing-title">{{ scenarioName || 'A troubled table' }}</h2>
+        <p class="briefing-kicker">The council gathers</p>
+        <h2 id="table-briefing-title" class="briefing-title">{{ scenarioName || 'A troubled quest' }}</h2>
         <p class="briefing-hail">{{ welcomeHeading }}</p>
         <p v-if="flavorText" class="briefing-flavor">{{ flavorText }}</p>
         <p class="briefing-turns">
-          {{ maxTurns }} turns remain. The weather and the seats already show what you inherit.
+          {{ maxTurns }} turns remain. The vials and the council already show what you inherit.
         </p>
         <p v-if="challengeModifierName" class="briefing-modifier">
-          Harder table: {{ challengeModifierName }}
+          Raised stakes: {{ challengeModifierName }}
         </p>
         <p v-if="isTutorial" class="briefing-tutorial">
-          This is a guided tutorial. Tips will appear as the table moves. There are no wrong answers here.
+          This is a guided tutorial. Tips will appear as the adventure unfolds. There are no wrong answers here.
         </p>
         <button class="briefing-start" type="button" @click="emit('start')">
-          Take your seat
+          Join the adventure
         </button>
       </section>
     </div>
@@ -111,7 +111,7 @@ const welcomeHeading = computed(() => {
 
 .briefing-kicker {
   margin: 0;
-  font-size: 0.62rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #f0c060;
@@ -131,7 +131,8 @@ const welcomeHeading = computed(() => {
 .briefing-tutorial {
   margin: 0 0 0.4rem;
   color: #f4d8b8;
-  line-height: 1.4;
+  font-size: var(--text-base);
+  line-height: 1.45;
 }
 
 .briefing-hail {
@@ -148,6 +149,7 @@ const welcomeHeading = computed(() => {
   background: rgba(42, 30, 12, 0.95);
   color: var(--dng-title-gold);
   font-family: var(--font-heading);
+  font-size: var(--text-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;

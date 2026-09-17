@@ -22,7 +22,7 @@
     />
 
     <TutorialCompleteSplash
-      :isOpen="gameStore.isTutorialCompleteSplashOpen && !isTheaterActive"
+      :isOpen="gameStore.isTutorialCompleteSplashOpen && !isTheaterActive && !gameStore.tutorial.isHintVisible && refillPhase === 'idle'"
       :currentScenarioId="scenario?.id ?? ''"
       :availableTutorials="gameStore.availableTutorials"
       @launchTutorial="handleLaunchAnotherTutorial"
@@ -36,6 +36,8 @@
       :replaceMode="isConsultMode"
       :selectedHandId="pendingDiscardId"
       :selectedDeckId="pendingDrawId"
+      :requiredDiscardId="tutorialRequiredVerb === 'consult' ? tutorialRequiredCardId : null"
+      :requiredDrawId="tutorialRequiredVerb === 'consult' ? tutorialRequiredDrawId : null"
       @close="closeGrimoire"
       @inspect="handleInspectFromGrimoire"
       @selectHand="selectConsultHand"
@@ -133,7 +135,7 @@
       />
 
       <TableTools
-        v-if="deckCardEntries.length > 0 || annalsTurns.length > 0"
+        v-if="deckCardEntries.length > 0 || annalsTurns.length > 0 || pendingRefillIds.length > 0"
         :deckCount="deckCardEntries.length"
         :historyCount="annalsTurns.length"
         @openGrimoire="openGrimoire"
@@ -142,17 +144,19 @@
 
       <HandDock
         v-if="!gameStore.isRunComplete"
-        :cards="handCardEntries"
+        :cards="visibleHandCardEntries"
         :isDisabled="tableLocked"
         :requiredCardId="tutorialRequiredCardId"
+        :requiredVerb="tutorialRequiredVerb"
         :consultMode="isConsultMode"
         :canConsult="canConsultArchives"
+        :arrivingCardIds="refillPhase === 'flying' ? pendingRefillIds : []"
         @showDetails="handleShowDetails"
         @play="handleHandCardAction"
         @toggleConsult="toggleConsult"
       />
 
-      <TutorialPointerArrow :show="showHandArrow" target="hand" />
+      <TutorialPointerArrow :show="showTutorialArrow" :selector="tutorialArrowSelector" />
     </div>
 
     <CommitmentFlight :flight="commitmentFlight" />
@@ -195,7 +199,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { Card } from '@/domains/content/model'
@@ -232,6 +236,7 @@ import GrimoirePanel from '@/ui/play/grimoire_panel.vue'
 import AnnalsPanel from '@/ui/play/annals_panel.vue'
 import CommitmentFlight from '@/ui/play/commitment_flight.vue'
 import ArchiveReplace from '@/ui/play/archive_replace.vue'
+import { tutorialPointerSelector } from '@/ui/play/tutorial_pointer'
 import { diffHandCards, peekConsultDrawId, type ArchiveReplaceOffer } from '@/ui/play/hand_swap'
 import { buildAnnalsTurns } from '@/ui/play/turn_theater'
 import { useTurnTheater } from '@/ui/play/use_turn_theater'
@@ -260,6 +265,7 @@ const {
   capture: captureCommitment,
   holdCaptured,
   playCaptured: playCommitmentFlight,
+  playRefill,
   settle: settleCommitment,
   clear: clearCommitment,
 } = useCommitmentFlight()
@@ -271,6 +277,8 @@ const pendingDiscardId = ref<string | null>(null)
 const pendingDrawId = ref<string | null>(null)
 const pendingTheaterAfterReplace = ref(false)
 const pendingForcedReplace = ref<ArchiveReplaceOffer | null>(null)
+const pendingRefillIds = ref<string[]>([])
+const refillPhase = ref<'idle' | 'hidden' | 'flying'>('idle')
 const isGrimoireOpen = ref(false)
 const isAnnalsOpen = ref(false)
 const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
@@ -376,12 +384,48 @@ function cardsFromSummaries(summaries: TurnBriefingActionSummary[]) {
 }
 
 const handCardEntries = computed(() => cardsFromSummaries(gameStore.turnBriefing?.hand_action_summaries ?? []))
+const visibleHandCardEntries = computed(() => {
+  if (refillPhase.value !== 'hidden') {
+    return handCardEntries.value
+  }
+
+  const hidden = new Set(pendingRefillIds.value)
+  return handCardEntries.value.filter((entry) => !hidden.has(entry.card.id))
+})
 const deckCardEntries = computed(() => cardsFromSummaries(gameStore.turnBriefing?.deck_action_summaries ?? []))
 const availableCardEntries = computed(() => [...handCardEntries.value, ...deckCardEntries.value])
 
 const tutorialRequiredCardId = computed(() => gameStore.tutorial.requiredCardId ?? null)
+const tutorialRequiredVerb = computed(() => gameStore.tutorial.requiredVerb ?? null)
+const tutorialRequiredDrawId = computed(() => gameStore.tutorial.requiredDrawId ?? null)
+
+const isModalCardInHand = computed(() => {
+  if (!modalCardId.value) return false
+  return handCardEntries.value.some((entry) => entry.card.id === modalCardId.value)
+})
+
+const isModalCardInDeck = computed(() => {
+  if (!modalCardId.value) return false
+  return deckCardEntries.value.some((entry) => entry.card.id === modalCardId.value)
+})
 
 function isTutorialCardLocked(cardId: string): boolean {
+  if (tutorialRequiredVerb.value === 'consult') {
+    if (!isConsultMode.value) {
+      return true
+    }
+
+    if (isModalCardInHand.value) {
+      return tutorialRequiredCardId.value !== null && cardId !== tutorialRequiredCardId.value
+    }
+
+    if (isModalCardInDeck.value) {
+      return tutorialRequiredDrawId.value !== null && cardId !== tutorialRequiredDrawId.value
+    }
+
+    return true
+  }
+
   return tutorialRequiredCardId.value !== null && cardId !== tutorialRequiredCardId.value
 }
 
@@ -397,16 +441,6 @@ const modalCardAvailability = computed(() => {
     return { ...availability, is_playable: true }
   }
   return availability
-})
-
-const isModalCardInHand = computed(() => {
-  if (!modalCardId.value) return false
-  return handCardEntries.value.some((entry) => entry.card.id === modalCardId.value)
-})
-
-const isModalCardInDeck = computed(() => {
-  if (!modalCardId.value) return false
-  return deckCardEntries.value.some((entry) => entry.card.id === modalCardId.value)
 })
 
 const isModalInspectOnly = computed(() => {
@@ -473,17 +507,23 @@ const showTutorialPopup = computed(() => {
   )
 })
 
-const showHandArrow = computed(() => {
+const tutorialArrowSelector = computed(() => {
+  return tutorialPointerSelector(
+    tutorialRequiredCardId.value,
+    gameStore.tutorial.currentStepHighlight,
+    {
+      requiredVerb: tutorialRequiredVerb.value,
+      consultMode: isConsultMode.value,
+    },
+  )
+})
+
+const showTutorialArrow = computed(() => {
   if (!gameStore.tutorial.isTutorialMode || gameStore.tutorial.isHintVisible || isTheaterActive.value) {
     return false
   }
 
-  if (tutorialRequiredCardId.value) {
-    return true
-  }
-
-  const highlight = gameStore.tutorial.currentStepHighlight
-  return highlight === 'hand' || highlight === 'satchel'
+  return Boolean(tutorialArrowSelector.value)
 })
 
 watch(scenario, (newScenario, oldScenario) => {
@@ -513,6 +553,7 @@ watch(isTheaterComplete, (done) => {
       archiveOffer.value = pendingForcedReplace.value
       pendingForcedReplace.value = null
     }
+    void playPendingRefill()
   }
 })
 
@@ -611,6 +652,10 @@ async function applyCommittedTurn() {
 
   playTheater(turnResolution, theaterNames.value)
 
+  if (!isTheaterActive.value) {
+    void playPendingRefill()
+  }
+
   if (gameStore.isRunComplete) {
     gameStore.get_run_outcome()
   }
@@ -650,11 +695,19 @@ function toggleConsult() {
 }
 
 function selectConsultHand(cardId: string) {
+  if (tutorialRequiredVerb.value === 'consult' && tutorialRequiredCardId.value && cardId !== tutorialRequiredCardId.value) {
+    return
+  }
+
   pendingDiscardId.value = cardId
   modalCardId.value = null
 }
 
 function selectConsultDeck(cardId: string) {
+  if (tutorialRequiredVerb.value === 'consult' && tutorialRequiredDrawId.value && cardId !== tutorialRequiredDrawId.value) {
+    return
+  }
+
   pendingDrawId.value = cardId
   modalCardId.value = null
 }
@@ -748,6 +801,31 @@ async function confirmConsultReplace() {
   void applyCommittedTurn()
 }
 
+async function playPendingRefill() {
+  if (refillPhase.value !== 'hidden' || pendingRefillIds.value.length === 0) {
+    if (refillPhase.value !== 'flying') {
+      refillPhase.value = 'idle'
+      pendingRefillIds.value = []
+    }
+    return
+  }
+
+  refillPhase.value = 'flying'
+  await nextTick()
+
+  for (const cardId of pendingRefillIds.value) {
+    await playRefill(cardId, cardLabel(cardId))
+  }
+
+  pendingRefillIds.value = []
+  refillPhase.value = 'idle'
+}
+
+function queueHandRefill(arrivedIds: string[]) {
+  pendingRefillIds.value = arrivedIds
+  refillPhase.value = arrivedIds.length > 0 ? 'hidden' : 'idle'
+}
+
 function acceptArchiveReplace() {
   archiveOffer.value = null
   if (pendingTheaterAfterReplace.value) {
@@ -797,6 +875,7 @@ async function handlePlayCard(cardId: string) {
   activeStakeholderBubbles.value = {}
   await gameStore.play_turn(cardId)
   const diff = diffHandCards(previousIds, snapshotHandIds(), { playedId: cardId })
+  queueHandRefill(diff.unplayableDepartedIds.length > 0 ? [] : diff.arrivedIds)
   pendingForcedReplace.value = diff.unplayableDepartedIds.length > 0
     ? {
         kind: 'forced',
@@ -946,7 +1025,13 @@ function goToEndScreen() {
 
 .tutorial-popup-header h3 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--text-xl);
+}
+
+.tutorial-popup-panel p {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
 }
 
 .tutorial-popup-enter-active,

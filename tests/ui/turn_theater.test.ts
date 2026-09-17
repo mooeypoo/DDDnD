@@ -17,6 +17,7 @@ import {
   isLateTurnClock,
   remainingTurns,
   scoreWeather,
+  describeScoreWeather,
   shortMetricLabel,
 } from '@/ui/play/weather_band'
 import * as tableMoment from '@/ui/play/table_moment'
@@ -196,6 +197,7 @@ describe('buildAnnalsTurns', () => {
     expect(turns[0]?.summary).toContain('Quick Patch')
     expect(turns[0]?.score_changes).toEqual([{ score_id: 'budget', delta: -2 }])
     expect(beatKicker('consult')).toBe('You search')
+    expect(beatKicker('stakeholder')).toBe('The council speaks')
   })
 })
 
@@ -223,6 +225,10 @@ describe('scoreWeather', () => {
     expect(scoreWeather(55)).toBe('overcast')
     expect(scoreWeather(25)).toBe('squall')
     expect(scoreWeather(10)).toBe('tempest')
+    expect(describeScoreWeather(80).label).toBe('Steady')
+    expect(describeScoreWeather(55).label).toBe('Strained')
+    expect(describeScoreWeather(25).label).toBe('Troubled')
+    expect(describeScoreWeather(10).label).toBe('Critical')
   })
 
   it('keeps compact labels presentation-only', () => {

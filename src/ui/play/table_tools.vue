@@ -1,5 +1,6 @@
 <template>
   <div class="table-tools">
+    <span data-refill-origin class="refill-origin" aria-hidden="true" />
     <button
       v-if="deckCount > 0"
       class="tool-plaque"
@@ -37,10 +38,20 @@ defineEmits<{
 
 <style scoped>
 .table-tools {
+  position: relative;
   display: flex;
   justify-content: flex-end;
   gap: 0.6rem;
   padding: 0 0.4rem;
+}
+
+.refill-origin {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  pointer-events: none;
 }
 
 .tool-plaque {
@@ -63,7 +74,7 @@ defineEmits<{
 
 .tool-kicker {
   display: block;
-  font-size: 0.58rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -72,7 +83,7 @@ defineEmits<{
 .tool-title {
   display: block;
   font-family: var(--font-heading);
-  font-size: 0.82rem;
+  font-size: var(--text-base);
   color: var(--dng-title-gold);
 }
 
@@ -86,7 +97,7 @@ defineEmits<{
   }
 
   .tool-title {
-    font-size: 0.72rem;
+    font-size: var(--text-base);
   }
 }
 </style>

@@ -1,0 +1,14 @@
+{
+  "id": "tutorial_call_in_help",
+  "version": 1,
+  "name": "Call In Help",
+  "description": "Bring in extra hands for a short burst. A partial recovery that eases capacity and health without fixing the foundation.",
+  "flavor_text": "The guild answers. They cannot stay forever.",
+  "score_changes": [
+    { "score_id": "team_capacity", "delta": 12 },
+    { "score_id": "system_health", "delta": 10 },
+    { "score_id": "stakeholder_trust", "delta": -2 }
+  ],
+  "delayed_effect_refs": [],
+  "style_tags": ["team"]
+}

@@ -70,7 +70,7 @@ export function beatKicker(kind: TurnBeatKind | undefined): string {
     case 'event':
       return 'The system moves'
     case 'stakeholder':
-      return 'A voice at the table'
+      return 'The council speaks'
     default:
       return 'The table'
   }
@@ -208,19 +208,4 @@ export function resolveEventSceneId(eventId: string, title = ''): EventSceneAsse
   return 'system_incident'
 }
 
-/**
- * Fan placement for a legal hand along the near edge of the table.
- */
-export function handFanTransform(index: number, count: number): { rotate: number; y: number } {
-  if (count <= 1) {
-    return { rotate: 0, y: 0 }
-  }
-
-  const spread = Math.min(42, 9 * (count - 1))
-  const start = -spread / 2
-  const step = spread / (count - 1)
-  const rotate = start + step * index
-  const y = Math.abs(rotate) * 0.5
-
-  return { rotate, y }
-}
+export { handFanTransform } from './card_fan'

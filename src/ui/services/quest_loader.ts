@@ -32,11 +32,13 @@ export async function loadQuestDisplayModel(
   scenarioRef: VersionRef,
   contentProvider: ContentProvider
 ): Promise<QuestDisplayModel> {
-  // Load the scenario content
   const scenario = await contentProvider.loadScenario(scenarioRef)
-  
-  // Transform into display model
-  return transformScenarioToQuestDisplay(scenario)
+  const councilNames = await loadCouncilNames(scenario.stakeholder_refs, contentProvider)
+
+  return {
+    ...transformScenarioToQuestDisplay(scenario),
+    councilNames,
+  }
 }
 
 /**
@@ -98,5 +100,23 @@ function transformScenarioToQuestDisplay(scenario: Scenario): QuestDisplayModel 
     actionCardCount: scenario.card_refs.length,
     isTutorial: scenario.is_tutorial ?? false,
     tutorialOrder: scenario.tutorial_order,
+    startingScores: { ...scenario.starting_scores },
   }
+}
+
+async function loadCouncilNames(
+  refs: VersionRef[],
+  contentProvider: ContentProvider
+): Promise<string[]> {
+  const results = await Promise.allSettled(
+    refs.map((ref) => contentProvider.loadStakeholder(ref))
+  )
+
+  const names: string[] = []
+  for (const result of results) {
+    if (result.status === 'fulfilled' && result.value.name) {
+      names.push(result.value.name)
+    }
+  }
+  return names
 }

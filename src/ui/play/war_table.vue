@@ -4,7 +4,6 @@
     :class="{
       'seats-highlighted': highlight === 'stakeholders',
       'is-adjourned': isAdjourned,
-      'is-shaking': fxKind === 'aftershock',
       'is-collapsing': isCollapsing,
       'is-compound-storm': collapseCount > 1,
       [`fx-${fxKind}`]: Boolean(fxKind),
@@ -12,7 +11,8 @@
     }"
     aria-label="War table"
   >
-    <div class="seat-ring" aria-label="Council">
+    <div class="table-quake-root" :class="{ 'is-shaking': fxKind === 'aftershock' }">
+    <div class="seat-ring" data-play-highlight="stakeholders" aria-label="Council">
       <TableSeat
         v-for="actor in actors"
         :key="actor.id"
@@ -100,6 +100,7 @@
     </div>
 
     <p v-if="scenarioName" class="table-nameplate">{{ scenarioName }}</p>
+    </div>
 
     <figure v-if="playerName || playerClassId" class="player-seat">
       <ClassPortrait
@@ -337,7 +338,7 @@ const eventSceneUrl = computed(() => {
   border-radius: 8px;
   text-align: center;
   font-family: var(--font-heading);
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   line-height: 1.25;
   color: var(--dng-title-gold);
   background: rgba(18, 12, 6, 0.82);
@@ -485,7 +486,15 @@ const eventSceneUrl = computed(() => {
   animation-name: aftershock-hold-boon;
 }
 
-.war-table.is-shaking {
+.table-quake-root {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.table-quake-root.is-shaking {
   animation: table-quake 1400ms cubic-bezier(0.22, 0.08, 0.28, 1) both;
 }
 
@@ -736,7 +745,7 @@ const eventSceneUrl = computed(() => {
   padding: 0.22rem 0.9rem;
   transform: translateX(-50%);
   font-family: var(--font-heading);
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   text-align: center;
@@ -770,8 +779,8 @@ const eventSceneUrl = computed(() => {
   flex-direction: column;
   align-items: center;
   min-width: 0;
-  max-width: 10rem;
-  padding: 0.15rem 0.5rem 0.2rem;
+  max-width: 12rem;
+  padding: 0.2rem 0.55rem 0.25rem;
   border-radius: 999px;
   background: rgba(10, 7, 3, 0.78);
   border: 1px solid rgba(176, 132, 42, 0.45);
@@ -779,7 +788,7 @@ const eventSceneUrl = computed(() => {
 
 .player-name {
   font-family: var(--font-heading);
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   color: var(--text-bright);
   letter-spacing: 0.03em;
   line-height: 1.2;
@@ -787,8 +796,8 @@ const eventSceneUrl = computed(() => {
 }
 
 .player-class {
-  font-size: 0.58rem;
-  letter-spacing: 0.08em;
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--dng-title-gold);
 }
@@ -806,7 +815,7 @@ const eventSceneUrl = computed(() => {
 
 .adjourn-kicker {
   margin: 0 0 0.3rem;
-  font-size: 0.64rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--dng-title-gold);
@@ -821,8 +830,8 @@ const eventSceneUrl = computed(() => {
 
 .adjourn-plate p:last-of-type {
   margin: 0 0 0.85rem;
-  font-size: 0.88rem;
-  line-height: 1.4;
+  font-size: var(--text-base);
+  line-height: 1.45;
   color: var(--text-primary);
 }
 
@@ -834,7 +843,7 @@ const eventSceneUrl = computed(() => {
   background: rgba(42, 30, 12, 0.92);
   color: var(--dng-title-gold);
   font-family: var(--font-heading);
-  font-size: 0.78rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -869,20 +878,21 @@ const eventSceneUrl = computed(() => {
   .table-nameplate {
     bottom: 5.8rem;
     max-width: min(82%, 18rem);
-    font-size: 0.62rem;
+    font-size: var(--text-sm);
     letter-spacing: 0.1em;
   }
 
   .player-seat :deep(.class-portrait) {
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
   }
 
-  .player-name {
-    font-size: 0.6rem;
+  .player-name,
+  .player-class {
+    font-size: var(--text-sm);
   }
 
-  .war-table.is-shaking {
+  .table-quake-root.is-shaking {
     animation-name: table-quake-soft;
   }
 }
@@ -932,7 +942,7 @@ const eventSceneUrl = computed(() => {
   }
 
   .table-board.is-thump,
-  .war-table.is-shaking,
+  .table-quake-root.is-shaking,
   .aftershock-strike,
   .strike-bolt path,
   .fx-ripple,

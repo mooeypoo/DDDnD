@@ -90,11 +90,13 @@ Think of three piles, all simulation-owned:
 
 Cards that are on cooldown, exhausted, or failing requirements sit in none of the last two. When they become playable again, they return to the deck, then can be drawn.
 
-`hand_size = min(6, playable_count)`. Tutorial basics has 4 cards; the pressure tutorial has 6. Those runs *are* the whole pool in hand. `required_card_id` in tutorial scripts keeps working. Consult hides when the deck is empty. The engine does not special-case tutorials.
+`hand_size = min(6, playable_count)`. Tutorial basics has 4 cards, so the whole pool is the hand and Consult hides. The pressure tutorial authors 8 cards plus `opening_hand_card_ids`: the opening fan is scripted, Rest the Team sits in the Grimoire, and Consult is legal. `required_card_id` / `required_verb` in tutorial scripts keep working. The engine does not special-case tutorials.
 
 ### Opening deal
 
 Seeded. Not `Math.random()`. Two cards biased toward current pressure (lowest scores), the rest shuffled from the remainder. A fully weighted deal plays the game for you. A fully random deal bricks too often.
+
+Scenarios may set `opening_hand_card_ids` to pin the opening fan in order; remaining playable cards stay in the deck in `card_refs` order. That is how a tutorial can name both the hand and the Grimoire without a Vue deal.
 
 ### Playing a card
 
@@ -294,10 +296,51 @@ Immersion pass on the finished table. Still no Three.js and no `max_turns` bump.
 
 The start flow was still a website: marketing landing, settings form, spreadsheet briefing. Presentation-only. Still no Three.js and no `max_turns` bump.
 
-- `/` is a chamber door, not a landing essay. It still names the game for a cold landing (quest, architect, tradeoffs) without restoring the old marketing page. About / Rules / Dungeon Master stay modals.
-- `/play` is a council lobby in the same candlelit room. Choosing a scenario lights that scene on the table (`resolveGameplaySceneId` is UI-only). Tutorials remain a short “learn the ropes” launch that calls `start_new_run` with the first `playerClass`.
-- `playerClass` packs are unchanged. The lobby shows portraits on the near rim and the engine affinity (`+1` on `play_turn` to `score_affinity`). Name is optional under the seat. Challenge modifiers tuck behind a harder-table plaque. The lobby only calls `load_available_*` and `start_new_run`.
+- `/` is a chamber door, not a landing essay. It still names the game for a cold landing (quest, architect, tradeoffs) without restoring the old marketing page. About / How to play / Dungeon Master are table plaques: legal hand, Grimoire look, Consult costs a turn.
+- `/play` is a council lobby in the same candlelit room. The fan comes first: choose the adventure, then the table lights that scene and you join the council (`resolveGameplaySceneId` is UI-only). Clicking a plate selects it; Join this adventure calls `start_new_run`. Door links `?tutorial=basics|advanced` still auto-launch.
+- `playerClass` packs are unchanged. The lobby shows portraits on the near rim and the engine affinity (`+1` on `play_turn` to `score_affinity`). Name is optional under the seat. Challenge modifiers tuck behind Raise the stakes (hidden for tutorials). The lobby only calls `load_available_*` and `start_new_run`.
 - The opening welcome is a **table moment** over the real war table after the engine has created the run. Weather vials and seats *are* the inherited state. The plaque names the scenario, flavor, turns, and (if any) modifier from content. It does not re-ledger scores.
+
+### Slice 11 — Tutorial audit (plan)
+
+The table, hand, Consult, and theater landed. The two tutorial packs and their scripts still describe the satchel stage. Presentation and content — not new engine rules. Still no Three.js and no `max_turns` bump.
+
+**What is already true in the engine**
+
+- Tutorials use the same run verbs (`start_new_run`, `play_turn`, `consult_archives`).
+- Basics has 4 cards, so the whole pool is the hand. Consult hides. Pressure authors 8 cards and `opening_hand_card_ids`, so the opening fan is scripted and Rest the Team sits in the Grimoire.
+- `required_card_id` still locks other cards in the UI until that card is played. `required_verb: "consult"` plus `required_draw_id` teaches Consult without inventing a content card.
+- Authored highlight `satchel` aliases to `hand` in `useTutorialState`. Highlight `consult` points at Consult the Archives. Popups wait until theater finishes.
+
+**What currently lies (content and UI, not simulation)**
+
+| Authored thing | What the table does | Audit note |
+|---|---|---|
+| Script copy: “Action Satchel”, “scrolls”, “score bars” | Hand dock, weather vials, seats | Pressure script now speaks the table (hand, vials, Grimoire, Consult). Basics still needs the same pass. |
+| Highlight `satchel` | Aliased to `hand` | Prefer authoring `hand` going forward. Keep the alias. |
+| Highlight `scores` | Weather strip | Copy should say vials / weather. |
+| Highlight `stakeholders` | Seats | Copy should say the council / seats. |
+| Highlight `aftershocks` | Weather strip aftershock glow; theater beats | Teach Continue + the aftershock plaque, not “the alert below.” |
+| Highlight `coupling` | Collapse weather plaque | Pressure `coupling_warning` points at the coupling weather, with the weather strip as fallback. |
+| `TutorialPointerArrow` | Follows the highlighted card (or weather / seats / coupling / aftershocks) via `getBoundingClientRect` | Confirm after dismissing the hint that “Cast your first scroll” sits on Plan Ahead, not the left edge. |
+| No Consult / Grimoire steps | Consult is a real verb; basics cannot consult | Basics: mention the Grimoire as look-only. Pressure: turn 2 is an honest Consult beat (set aside Deep Refactor, draw Rest the Team). |
+| Collapse hand feels unwinnable | Pressure used to deal the whole 6-card pool, with no Grimoire and weak post-collapse math | Opening hand keeps Rally / Stabilize; Call In Help refills after Push Through; Rest waits in the Grimoire. Random tutorial events are omitted so the scripted recovery is deterministic. |
+| `run_start` welcome vs intro splash | Table-moment splash already opens | Two welcomes stack. Decide which plaque speaks first. |
+| `turn_end` hints vs player-first theater | Engine still aftershock-first; replay is player-first | Aftershock lessons must not fire until the player has seen the storm beat. |
+| Complete splash + `run_end` script | Both exist | One ending, not two speeches. |
+| Pointer / inline hint / popup chrome | Chamber vs site toast | Restyle to plaques once copy is true. |
+
+**How to audit (human + tests, in this order)**
+
+1. Play basics end to end on `/` → Basics tutorial. Write down every sentence that names a UI that is not on the table.
+2. Play pressure the same way. Note collapse weather, coupling highlight miss, and whether Consult appears unexplained.
+3. Check `required_card_id` still glows the named hand card and locks the others.
+4. Confirm tutorial popups do not cover Continue, Grimoire, or Consult.
+5. Only then rewrite `content/tutorial/scripts/*.json` (and, if needed, scenario flavor). Bump script `version` if the content schema requires it.
+6. Update highlight mapping if `coupling` stays a target. Do not add Vue rules.
+7. Tests: script strings that must not regress (`satchel`, `score bars`); highlight alias; popup held during theater.
+
+Not in this slice: changing tutorial `max_turns`, merging tutorial scores into the main pack, teaching Consult as a free catalog, or Three.js.
 
 ---
 
@@ -337,7 +380,7 @@ These are the reversals and refinements that happened after a human sat at `/gam
 
 **Score glance during replace.** Bigger laid-out hand cards hid the compact `+N / −N` deltas. Replace lives in the Grimoire so glance, inspect, and decide share one place.
 
-**The start was still a website.** Welcome, setup, and briefing were three site pages in front of the table. Setup is now walking into the chamber: the door, the lobby (choose a table, take a seat), then a table moment over the real weather and council. `start_new_run` is still the only verb. Classes and modifiers stay packs.
+**The start was still a website.** Welcome, setup, and briefing were three site pages in front of the table. Setup is now walking into the chamber: the door, the lobby (choose your adventure, join the council), then a table moment over the real weather and council. `start_new_run` is still the only verb. Classes and modifiers stay packs.
 
 ### Challenges worth a slide
 
@@ -353,7 +396,7 @@ These are the reversals and refinements that happened after a human sat at `/gam
 
 ## 10. Working agreements for agents and humans
 
-1. Read this file before changing play, hand, consult, the war table, or the start/antechamber flow.
+1. Read this file before changing play, hand, consult, the war table, the start/antechamber flow, or tutorials.
 2. Simulation still must not import Vue, Pinia, DOM, or browser storage.
 3. UI still must not resolve actions, pick events, or apply stakeholder rules.
 4. Do not implement a legal hand only in Vue.
@@ -384,3 +427,10 @@ These are the reversals and refinements that happened after a human sat at `/gam
 - **2026-09-17** — Consult opens the Grimoire as the replace picker (hand mark + deck choose + random). Approval names both pages, then `consult_archives` may take an optional `draw_id`. Unplayable cards still return to the shelves without cancel.
 - **2026-09-17** — After more play, theater shows the player's card or swap first, then aftershocks. Engine pipeline order is unchanged. See [Decisions from sitting at the table](#decisions-from-sitting-at-the-table-2026-09-17).
 - **2026-09-17** — Slice 10: the start flow sits in the chamber. `/` is a door, `/play` is a council lobby, the intro is a table moment over engine starting state. Setup still only calls `start_new_run`.
+- **2026-09-17** — About / How to play / Dungeon Master plaques speak the table: legal hand, Grimoire look, Consult costs a turn, weather and seats. Winning is tier + ending, not archetype.
+- **2026-09-17** — Slice 11 planned: full tutorial audit. Scripts still teach the satchel; `coupling` highlight has no war-table mapping. See [Slice 11](#slice-11--tutorial-audit-plan).
+- **2026-09-17** — Tutorial pointer follows the highlighted hand card (and weather / seats / coupling) instead of a leftover satchel slot.
+- **2026-09-17** — Pressure tutorial: authored opening hand, recovery pages after collapse, Consult beat to pull Rest the Team, and a Grimoire-to-hand refill flight after a play. Presentation only; `consult_archives` is still the engine verb.
+- **2026-09-17** — Lobby copy: choose your adventure, join this adventure / join the council. Tutorial cards carry a larger Tutorial mark. Learn the ropes and Choose your adventure rails are centered. Start verbs no longer say sit at the table.
+- **2026-09-17** — Player-facing score bands are system mood (Steady / Strained / Troubled / Critical), not Fair / Overcast / Squall / Tempest. Storm animation stays; lobby briefing says how the system starts.
+- **2026-09-18** — Each adventure has its own scene. `resolveGameplaySceneId` is an explicit UI map (not pack JSON, not random). Dungeon, throne, and forge join the hall, war room, and archive. Tutorials use the forge and the dungeon.

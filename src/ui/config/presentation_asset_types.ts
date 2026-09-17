@@ -24,6 +24,9 @@ export type SceneBackgroundId =
   | 'fortified_monolith_hall'
   | 'strategic_war_room'
   | 'archive_library_chamber'
+  | 'dark_dungeon_room'
+  | 'medieval_throne_room'
+  | 'forge_of_heroes'
 
 /**
  * Event-scene artwork ids.

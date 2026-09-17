@@ -118,7 +118,7 @@
       <div v-if="gameStore.gameState" class="stakeholders-card">
         <h3 class="card-title">
           <span class="title-icon"><IconGroup :size="24" /></span>
-          Final Stakeholder States
+          How the council stands
         </h3>
         
         <div class="stakeholders-list">
@@ -359,9 +359,9 @@ function getArchetypeDescription(archetype: OutcomeArchetypeId): string {
     'boundary_builder': 'You focused on establishing clear domain boundaries and architectural structure, laying the foundation for sustainable growth.',
     'firefighter': 'You responded swiftly to immediate crises and kept the system running under pressure, saving the day when it mattered most.',
     'runaway_refactorer': 'You pursued aggressive refactoring and technical excellence, sometimes at the cost of delivery speed.',
-    'stakeholder_whisperer': 'You skillfully navigated organizational politics and stakeholder relationships, building consensus for change.',
+    'stakeholder_whisperer': 'You skillfully navigated the council, building consensus for change.',
     'system_stabilizer': 'You brought balance and stability to a chaotic system, carefully managing competing priorities.',
-    'the_diplomat': 'You kept every stakeholder at the table, even when the system was on fire.',
+    'the_diplomat': 'You kept every council member with you, even when the system was on fire.',
     'budget_hawk': 'You proved that good architecture doesn\'t have to break the bank.',
     'the_pragmatist': 'You balanced short-term fixes with long-term investments, never going to extremes.',
     'the_visionary': 'You saw the big picture and reshaped the domain, even when others couldn\'t see why it mattered.',

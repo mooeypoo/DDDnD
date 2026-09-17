@@ -44,6 +44,9 @@ Known scene backdrop set already available:
 - Fortified Monolith Hall
 - Strategic War Room
 - Archive / Library Chamber
+- Dark Dungeon Room
+- Medieval Throne Room
+- Forge of Heroes
 
 ## 4. Avatar Direction
 

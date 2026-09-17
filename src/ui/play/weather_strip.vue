@@ -2,13 +2,14 @@
   <div class="weather-stack">
     <div
       class="weather-strip"
+      data-play-highlight="weather"
       :class="{
         'is-highlighted': highlight === 'scores',
         'aftershock-highlighted': highlight === 'aftershocks',
         'is-bound': collapseWarnings.length > 0,
       }"
       role="group"
-      aria-label="Turns remaining and system weather"
+      aria-label="Turns remaining and the system's state"
     >
       <p class="turn-clock" :class="{ 'is-late': isLate }" aria-live="polite">
         <span class="turn-clock-count">{{ turnsLeft }}</span>
@@ -39,7 +40,7 @@
         </li>
       </ol>
 
-      <p v-if="aftershockCount > 0" class="weather-aftershock" role="status">
+      <p v-if="aftershockCount > 0" class="weather-aftershock" data-play-highlight="aftershocks" role="status">
         {{ aftershockCount }} aftershock{{ aftershockCount === 1 ? '' : 's' }} waiting
       </p>
     </div>
@@ -47,6 +48,7 @@
     <aside
       v-if="collapseWarnings.length > 0"
       class="collapse-front"
+      data-play-highlight="coupling"
       :class="{ 'is-compound': collapseWarnings.length > 1 }"
       role="alert"
       aria-label="System collapse"
@@ -205,14 +207,14 @@ const meters = computed(() => {
 }
 
 .turn-clock-kicker {
-  font-size: 0.72rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #f0c060;
 }
 
 .turn-clock-range {
-  font-size: 0.62rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-bright);
@@ -249,18 +251,18 @@ const meters = computed(() => {
   grid-template-columns: auto auto auto;
   align-items: center;
   gap: 0.22rem;
-  min-width: 4.6rem;
+  min-width: 5.2rem;
   padding: 0.18rem 0.5rem 0.18rem 0.35rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(8, 6, 2, 0.45);
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .weather-vial-icon {
-  font-size: 0.78rem;
+  font-size: var(--text-base);
 }
 
 .weather-vial-label {
@@ -310,7 +312,7 @@ const meters = computed(() => {
 .weather-aftershock {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #f0c060;
@@ -416,7 +418,7 @@ const meters = computed(() => {
 .collapse-kicker {
   margin: 0 0 0.12rem;
   font-family: var(--font-heading);
-  font-size: 0.68rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: #ffb078;
@@ -439,8 +441,8 @@ const meters = computed(() => {
 .collapse-copy {
   margin: 0.22rem 0 0;
   max-width: 42rem;
-  font-size: 0.88rem;
-  line-height: 1.35;
+  font-size: var(--text-base);
+  line-height: 1.4;
   color: #f4d0b8;
 }
 
@@ -528,7 +530,7 @@ const meters = computed(() => {
   }
 
   .collapse-copy {
-    font-size: 0.82rem;
+    font-size: var(--text-base);
   }
 }
 </style>

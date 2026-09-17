@@ -59,7 +59,7 @@
       <div v-if="turnResolution.stakeholder_resolution.reactions.length > 0" class="resolution-section">
         <h4 class="section-title">
           <span class="section-icon"><IconGroup :size="16" /></span>
-          Stakeholder Reactions
+          The council reacts
         </h4>
         <StakeholderDriversPanel
           :reactions="turnResolution.stakeholder_resolution.reactions"

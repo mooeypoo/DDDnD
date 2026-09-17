@@ -17,7 +17,6 @@
       @selectQuest="selectQuest"
       @selectClass="selectClass"
       @selectModifier="selectModifier"
-      @launchTutorial="launchTutorial"
       @update:characterName="characterName = $event"
       @sit="startRun"
       @back="goBack"
@@ -151,6 +150,9 @@ function selectClass(playerClass: PlayerClass) {
 
 function selectQuest(quest: QuestDisplayModel) {
   selectedQuest.value = quest
+  if (quest.isTutorial) {
+    selectedModifier.value = null
+  }
 }
 
 function selectModifier(modifier: ChallengeModifier | null) {
@@ -164,6 +166,14 @@ function goBack() {
 async function startRun() {
   if (!selectedClass.value || !selectedQuest.value) return
 
+  const modifierRef =
+    selectedQuest.value.isTutorial || !selectedModifier.value
+      ? undefined
+      : {
+          id: selectedModifier.value.id,
+          version: selectedModifier.value.version,
+        }
+
   await gameStore.start_new_run({
     scenario_id: selectedQuest.value.id,
     scenario_version: selectedQuest.value.version,
@@ -171,12 +181,7 @@ async function startRun() {
       id: selectedClass.value.id,
       version: selectedClass.value.version,
     },
-    selected_challenge_modifier_ref: selectedModifier.value
-      ? {
-          id: selectedModifier.value.id,
-          version: selectedModifier.value.version,
-        }
-      : undefined,
+    ...(modifierRef ? { selected_challenge_modifier_ref: modifierRef } : {}),
     character_name: characterName.value || undefined,
     is_tutorial: selectedQuest.value.isTutorial ?? false,
   })

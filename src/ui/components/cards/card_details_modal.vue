@@ -119,7 +119,7 @@
         v-if="card.stakeholder_changes && card.stakeholder_changes.length > 0"
         class="cdm-section"
       >
-        <h3 class="cdm-section__title">Stakeholder Reactions</h3>
+        <h3 class="cdm-section__title">Council reactions</h3>
         <ul class="cdm-delta-list">
           <li
             v-for="(change, index) in card.stakeholder_changes"
@@ -450,7 +450,7 @@ const couplingReasonText = computed(() =>
 .cdm-description {
   margin: 0;
   color: var(--text-primary);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   line-height: var(--leading-relaxed);
 }
 
@@ -482,7 +482,7 @@ const couplingReasonText = computed(() =>
 .cdm-section__title {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: var(--text-xs);
+  font-size: var(--text-kicker);
   font-weight: var(--font-semibold);
   color: var(--text-secondary);
   letter-spacing: var(--tracking-wider);

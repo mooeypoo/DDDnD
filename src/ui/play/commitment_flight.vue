@@ -9,7 +9,11 @@
     <span class="flight-kicker">{{
       flight.held
         ? (flight.mode === 'consult' ? 'Holding' : 'Committed')
-        : (flight.mode === 'consult' ? 'Set aside' : 'Played')
+        : flight.mode === 'consult'
+          ? 'Set aside'
+          : flight.mode === 'refill'
+            ? 'Drawn'
+            : 'Played'
     }}</span>
     <span class="flight-name">{{ flight.name }}</span>
   </div>
@@ -19,7 +23,7 @@
 import { computed } from 'vue'
 
 import type { CommitmentFlight } from '@/ui/play/use_commitment_flight'
-import { CARD_FLIGHT_DURATION_MS } from '@/ui/play/table_moment'
+import { CARD_FLIGHT_DURATION_MS, REFILL_FLIGHT_DURATION_MS } from '@/ui/play/table_moment'
 
 const props = defineProps<{
   flight: CommitmentFlight | null
@@ -35,7 +39,9 @@ const flightStyle = computed(() => {
     width: `${flight.width}px`,
     height: `${flight.height}px`,
     transform: `translate3d(${flight.x}px, ${flight.y}px, 0) rotate(${flight.rotate}deg) scale(${flight.scale})`,
-    transitionDuration: flight.moving ? `${CARD_FLIGHT_DURATION_MS}ms` : '0ms',
+    transitionDuration: flight.moving
+      ? `${flight.mode === 'refill' ? REFILL_FLIGHT_DURATION_MS : CARD_FLIGHT_DURATION_MS}ms`
+      : '0ms',
   }
 })
 </script>
@@ -68,6 +74,12 @@ const flightStyle = computed(() => {
   border-color: rgba(196, 168, 96, 0.55);
 }
 
+.commitment-flight.refill {
+  border-color: rgba(120, 176, 196, 0.7);
+  background:
+    linear-gradient(180deg, rgba(28, 46, 58, 0.96), rgba(10, 16, 22, 0.96));
+}
+
 .commitment-flight.held {
   z-index: 70;
   box-shadow:
@@ -83,7 +95,7 @@ const flightStyle = computed(() => {
 }
 
 .flight-kicker {
-  font-size: 0.58rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #f0c060;
@@ -91,7 +103,7 @@ const flightStyle = computed(() => {
 
 .flight-name {
   font-family: var(--font-heading);
-  font-size: 0.82rem;
+  font-size: var(--text-base);
   line-height: 1.2;
   color: var(--dng-title-gold);
 }

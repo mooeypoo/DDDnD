@@ -100,10 +100,10 @@
           <section class="scenario-info-section">
             <div class="section-header scenario-info-section-header">
               <span class="section-icon" aria-hidden="true">👥</span>
-              <h3 class="section-title">Stakeholder Pulse</h3>
+              <h3 class="section-title">The council</h3>
             </div>
             <p class="scenario-info-section-copy">
-              These are the stakeholders who will react to your decisions.
+              These are the people on the council who will react to your decisions.
             </p>
             <div class="scenario-info-stakeholder-grid">
               <div
@@ -775,7 +775,7 @@ const scenarioQuickFacts = computed(() => {
   return [
     { label: 'Turns', value: `${gameStore.maxTurns}` },
     { label: 'Scores', value: `${Object.keys(scenarioScoreSnapshot.value).length}` },
-    { label: 'Stakeholders', value: `${Object.keys(scenarioStakeholderSnapshot.value).length}` },
+    { label: 'The council', value: `${Object.keys(scenarioStakeholderSnapshot.value).length}` },
     { label: 'Cards', value: `${gameStore.scenarioBundle?.cards.size ?? 0}` },
   ]
 })

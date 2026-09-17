@@ -91,6 +91,28 @@ export function useTutorialState() {
   })
 
   /**
+   * Which table verb the current step requires. Reads from the raw step
+   * index so it persists after the popup is dismissed.
+   */
+  const requiredVerb = computed<'play' | 'consult' | null>(() => {
+    if (!tutorialScript.value) return null
+    const step = tutorialScript.value.steps[currentStepIndex.value]
+    if (!step) return null
+    if (step.required_verb) return step.required_verb
+    return step.required_card_id ? 'play' : null
+  })
+
+  /**
+   * Grimoire page the current consult step requires the player to draw.
+   */
+  const requiredDrawId = computed<string | null>(() => {
+    if (!tutorialScript.value) return null
+    const step = tutorialScript.value.steps[currentStepIndex.value]
+    if (!step) return null
+    return step.required_draw_id ?? null
+  })
+
+  /**
    * The highlight target for the current step (e.g. "hand", "scores").
    * Authored "satchel" highlights alias to "hand" for the war table.
    * Like requiredCardId, reads from the raw step index so it persists after
@@ -245,6 +267,8 @@ export function useTutorialState() {
     currentStepNumber,
     hasMoreSteps,
     requiredCardId,
+    requiredVerb,
+    requiredDrawId,
     currentStepHighlight,
     isLastStep,
     lastShownStep: lastShownStep as Ref<TutorialStep | null>,

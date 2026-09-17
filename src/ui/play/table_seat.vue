@@ -121,11 +121,11 @@ const moodLabel = computed(() => {
 
 .seat-name {
   font-family: var(--font-heading);
-  font-size: 0.62rem;
+  font-size: var(--text-sm);
   color: var(--text-bright);
   letter-spacing: 0.03em;
   text-align: center;
-  line-height: 1.2;
+  line-height: 1.25;
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -133,7 +133,7 @@ const moodLabel = computed(() => {
 }
 
 .seat-mood {
-  font-size: 0.58rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -151,8 +151,8 @@ const moodLabel = computed(() => {
   background: rgba(18, 14, 8, 0.92);
   border: 1px solid rgba(232, 196, 96, 0.28);
   color: var(--text-primary);
-  font-size: 0.72rem;
-  line-height: 1.3;
+  font-size: var(--text-sm);
+  line-height: 1.35;
 }
 
 .tone-positive { border-color: rgba(120, 180, 130, 0.5); }

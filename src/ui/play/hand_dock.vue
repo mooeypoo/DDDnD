@@ -8,8 +8,9 @@
       <button
         v-if="canConsult"
         class="consult-action"
+        data-play-highlight="consult"
         type="button"
-        :class="{ armed: consultMode }"
+        :class="{ armed: consultMode, 'is-tutorial-lit': consultHighlighted }"
         :disabled="isDisabled"
         @click="$emit('toggleConsult')"
       >
@@ -34,6 +35,7 @@
             :key="entry.card.id + '-v' + entry.card.version"
             class="fan-slot"
             :data-card-id="entry.card.id"
+            :class="{ 'is-arriving': isCardArriving(entry.card.id) }"
             :style="fanStyle(index)"
             role="listitem"
           >
@@ -57,14 +59,17 @@
 import type { Card } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import TableCard from '@/ui/play/table_card.vue'
-import { handFanTransform } from '@/ui/play/turn_theater'
+import { handFanTransform } from '@/ui/play/card_fan'
+import { computed } from 'vue'
 
 const props = defineProps<{
   cards: Array<{ card: Card; availability?: TurnBriefingActionSummary }>
   isDisabled?: boolean
   requiredCardId?: string | null
+  requiredVerb?: 'play' | 'consult' | null
   consultMode?: boolean
   canConsult?: boolean
+  arrivingCardIds?: string[]
 }>()
 
 defineEmits<{
@@ -74,20 +79,32 @@ defineEmits<{
 }>()
 
 function isCardLocked(cardId: string): boolean {
+  if (props.requiredVerb === 'consult' && !props.consultMode) {
+    return true
+  }
+
   if (props.consultMode) {
-    return false
+    return Boolean(props.requiredCardId && cardId !== props.requiredCardId)
   }
 
   return Boolean(props.requiredCardId && cardId !== props.requiredCardId)
 }
 
 function isCardHighlighted(cardId: string): boolean {
-  if (props.consultMode) {
+  if (props.requiredVerb === 'consult' && !props.consultMode) {
     return false
   }
 
   return Boolean(props.requiredCardId && cardId === props.requiredCardId)
 }
+
+function isCardArriving(cardId: string): boolean {
+  return Boolean(props.arrivingCardIds?.includes(cardId))
+}
+
+const consultHighlighted = computed(() => {
+  return props.requiredVerb === 'consult' && !props.consultMode
+})
 
 function fanStyle(index: number) {
   const { rotate, y } = handFanTransform(index, props.cards.length)
@@ -148,9 +165,21 @@ function fanStyle(index: number) {
     0 10px 22px rgba(0, 0, 0, 0.4);
 }
 
+.consult-action.is-tutorial-lit {
+  box-shadow:
+    0 0 0 2px rgba(240, 208, 96, 0.7),
+    0 0 22px rgba(232, 196, 96, 0.45),
+    0 10px 22px rgba(0, 0, 0, 0.4);
+}
+
+.fan-slot.is-arriving {
+  pointer-events: none;
+  opacity: 0;
+}
+
 .consult-kicker {
   display: block;
-  font-size: 0.58rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #f0c060;
@@ -167,8 +196,8 @@ function fanStyle(index: number) {
 
 .consult-copy {
   display: block;
-  font-size: 0.72rem;
-  line-height: 1.35;
+  font-size: var(--text-sm);
+  line-height: 1.4;
   color: var(--text-secondary);
 }
 
@@ -179,14 +208,14 @@ function fanStyle(index: number) {
   align-items: baseline;
   gap: 0.4rem;
   font-family: var(--font-heading);
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--dng-title-gold);
 }
 
 .hand-count {
-  font-size: 0.86rem;
+  font-size: var(--text-base);
   color: var(--text-bright);
 }
 

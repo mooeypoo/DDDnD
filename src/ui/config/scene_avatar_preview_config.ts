@@ -21,6 +21,9 @@ export const SCENE_PREVIEW_OPTIONS: ReadonlyArray<{
   { id: 'fortified_monolith_hall', label: 'Fortified Monolith Hall' },
   { id: 'strategic_war_room', label: 'Strategic War Room' },
   { id: 'archive_library_chamber', label: 'Archive / Library Chamber' },
+  { id: 'dark_dungeon_room', label: 'Dark Dungeon Room' },
+  { id: 'medieval_throne_room', label: 'Medieval Throne Room' },
+  { id: 'forge_of_heroes', label: 'Forge of Heroes' },
 ]
 
 export const AVATAR_ROLE_OPTIONS: ReadonlyArray<AvatarRoleId> = [

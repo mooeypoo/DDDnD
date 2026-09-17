@@ -29,7 +29,7 @@
 
       <!-- Stakeholders section -->
       <div class="hud-section" v-if="stakeholders">
-        <span class="hud-section-label"><IconGroup :size="12" /><span class="hud-section-label-text">Stakeholders</span></span>
+        <span class="hud-section-label"><IconGroup :size="12" /><span class="hud-section-label-text">The council</span></span>
         <StakeholderHud
           :stakeholders="stakeholders"
           :stakeholderNames="stakeholderNames"

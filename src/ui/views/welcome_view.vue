@@ -23,7 +23,7 @@
         <p class="door-line">
           Welcome, architecture explorer. The system needs you.
           Come join an adventure of software architecture: choose a quest,
-          sit with the council, and play cards to shape a living system
+          join the council, and play cards to shape a living system
           before time runs out.
         </p>
         <p class="door-line door-hook">
@@ -162,7 +162,7 @@ function goToSetup(tutorialType?: string) {
 
 .door-kicker {
   margin: 0.6rem 0 0;
-  font-size: 0.68rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: #f0c060;
@@ -223,11 +223,11 @@ function goToSetup(tutorialType?: string) {
 }
 
 .rope-link {
-  font-size: 0.82rem;
+  font-size: var(--text-base);
 }
 
 .plaque-link {
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }

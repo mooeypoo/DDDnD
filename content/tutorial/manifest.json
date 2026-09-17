@@ -38,10 +38,12 @@
     ],
     "cards": [
       "tutorial_clean_up_code-v1.json",
+      "tutorial_call_in_help-v1.json",
       "tutorial_deep_refactor-v1.json",
       "tutorial_plan_ahead-v1.json",
       "tutorial_push_through-v1.json",
       "tutorial_quick_patch-v1.json",
+      "tutorial_rally_the_guild-v1.json",
       "tutorial_rest_the_team-v1.json",
       "tutorial_ship_a_feature-v1.json",
       "tutorial_stabilize_system-v1.json"

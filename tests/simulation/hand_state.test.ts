@@ -114,6 +114,29 @@ describe('Legal hand and consult archives', () => {
     expect(stateA.hand_state.legal_hand_size).toBe(DEFAULT_HAND_SIZE)
   })
 
+  it('honors scenario opening_hand_card_ids and leaves the rest in card_refs order', () => {
+    const bundle = buildHandBundle(10)
+    bundle.scenario.opening_hand_card_ids = ['move_10', 'move_9', 'move_8', 'move_7', 'move_6', 'move_5']
+    const engine = create_engine({ scenario_bundle: bundle, seed: 'authored-deal' })
+    const state = engine.create_run()
+
+    expect(state.hand_state.hand_refs.map((ref) => ref.id)).toEqual([
+      'move_10',
+      'move_9',
+      'move_8',
+      'move_7',
+      'move_6',
+      'move_5'
+    ])
+    expect(state.hand_state.deck_refs.map((ref) => ref.id)).toEqual([
+      'move_1',
+      'move_2',
+      'move_3',
+      'move_4'
+    ])
+    expect(engine.get_turn_briefing().can_consult_archives).toBe(true)
+  })
+
   it('deals the entire playable pool when it is smaller than the hand size', () => {
     const engine = create_engine({ scenario_bundle: buildHandBundle(4), seed: 'small-pool' })
     const state = engine.create_run()

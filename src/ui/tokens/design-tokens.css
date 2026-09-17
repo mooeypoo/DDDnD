@@ -161,8 +161,11 @@
   /* Backward compat alias */
   --font-sans: var(--font-body);
 
-  /* Size scale */
-  --text-2xs:  0.625rem;    /* 10px */
+  /* Size scale
+     Live-UI floor: 12px kickers, 14px names/captions, 16px sentences.
+     Do not author type below --text-2xs. */
+  --text-2xs:  0.75rem;     /* 12px — kicker floor (was 10px) */
+  --text-kicker: var(--text-2xs);
   --text-xs:   0.75rem;     /* 12px */
   --text-sm:   0.875rem;    /* 14px */
   --text-base: 1rem;        /* 16px */

@@ -1,8 +1,9 @@
 /**
- * Compact weather presentation for score meters.
+ * Compact presentation for score meters.
  *
- * Weather is a display mapping over engine scores. It does not change
- * thresholds, outcomes, or card legality.
+ * Visual storm/vial animation can still look like weather. Player-facing
+ * labels are the system's mood. This mapping does not change thresholds,
+ * outcomes, or card legality.
  */
 
 export type ScoreWeather = 'fair' | 'overcast' | 'squall' | 'tempest'
@@ -12,11 +13,11 @@ export interface ScoreWeatherPresentation {
   label: string
 }
 
-const WEATHER_LABEL: Record<ScoreWeather, string> = {
-  fair: 'Fair',
-  overcast: 'Overcast',
-  squall: 'Squall',
-  tempest: 'Tempest',
+const MOOD_LABEL: Record<ScoreWeather, string> = {
+  fair: 'Steady',
+  overcast: 'Strained',
+  squall: 'Troubled',
+  tempest: 'Critical',
 }
 
 /**
@@ -30,13 +31,13 @@ export function scoreWeather(value: number): ScoreWeather {
 }
 
 /**
- * Resolves weather plus a short player-facing label.
+ * Resolves a mood band plus a short player-facing label.
  */
 export function describeScoreWeather(value: number): ScoreWeatherPresentation {
   const weather = scoreWeather(value)
   return {
     weather,
-    label: WEATHER_LABEL[weather],
+    label: MOOD_LABEL[weather],
   }
 }
 

@@ -81,7 +81,7 @@
 
     <!-- Stakeholder States -->
     <div v-if="stakeholderEntries.length > 0" class="stakeholders-section">
-      <div class="stakeholders-heading">Stakeholder States</div>
+      <div class="stakeholders-heading">The council</div>
       <div class="stakeholders-list">
         <div
           v-for="stakeholder in stakeholderEntries"

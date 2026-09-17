@@ -31,6 +31,11 @@ export interface QuestDisplayModel {
   stakeholderCount: number
   actionCardCount: number
 
+  /** Stakeholder display names from pack content. Presentation only. */
+  councilNames?: string[]
+  /** Authored scenario starting_scores. Weather mapping happens in the UI. */
+  startingScores?: Record<string, number>
+
   // Tutorial metadata (only present for tutorial quests)
   isTutorial?: boolean
   tutorialOrder?: number

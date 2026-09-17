@@ -1,8 +1,13 @@
 import { nextTick, ref } from 'vue'
 
-import { CARD_FLIGHT_DURATION_MS, prefersReducedPlayMotion, waitForMs } from '@/ui/play/table_moment'
+import {
+  CARD_FLIGHT_DURATION_MS,
+  REFILL_FLIGHT_DURATION_MS,
+  prefersReducedPlayMotion,
+  waitForMs,
+} from '@/ui/play/table_moment'
 
-export type CommitmentFlightMode = 'play' | 'consult'
+export type CommitmentFlightMode = 'play' | 'consult' | 'refill'
 
 export interface CommitmentFlight {
   name: string
@@ -139,6 +144,63 @@ export function useCommitmentFlight() {
     flight.value = null
   }
 
+  /**
+   * Flies a newly drawn page from the Grimoire into the empty hand slot.
+   * Presentation only; the engine already replenished the hand.
+   */
+  async function playRefill(cardId: string, name: string) {
+    if (prefersReducedPlayMotion()) {
+      flight.value = null
+      return
+    }
+
+    const originEl = document.querySelector('[data-look-grimoire], [data-refill-origin]')
+    const destEl = document.querySelector(`.fan-slot[data-card-id="${escapeSelector(cardId)}"]`)
+    const origin = originEl?.getBoundingClientRect()
+    const dest = destEl?.getBoundingClientRect()
+
+    if (!origin || !dest || dest.width === 0) {
+      flight.value = null
+      return
+    }
+
+    const width = dest.width
+    const height = dest.height
+    const originX = origin.left + origin.width / 2 - width / 2
+    const originY = origin.top + origin.height / 2 - height / 2
+
+    flight.value = {
+      name,
+      mode: 'refill',
+      x: originX,
+      y: originY,
+      width,
+      height,
+      rotate: 16,
+      scale: 0.62,
+      moving: false,
+      held: false,
+    }
+
+    await nextTick()
+    if (!flight.value) {
+      return
+    }
+
+    flight.value = {
+      ...flight.value,
+      x: dest.left,
+      y: dest.top,
+      rotate: -4,
+      scale: 1,
+      moving: true,
+      held: false,
+    }
+
+    await waitForMs(REFILL_FLIGHT_DURATION_MS)
+    flight.value = null
+  }
+
   function cancelFlight() {
     captured.value = null
     flight.value = null
@@ -163,6 +225,7 @@ export function useCommitmentFlight() {
     capture,
     holdCaptured,
     playCaptured,
+    playRefill,
     cancelFlight,
     settle,
     clear,

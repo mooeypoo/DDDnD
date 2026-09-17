@@ -137,7 +137,7 @@ function formatScoreName(scoreId: string): string {
 
 .kind-aftershock .beat-summary,
 .kind-aftershock .beat-flavor {
-  font-size: 0.92rem;
+  font-size: var(--text-base);
 }
 
 .kind-aftershock .beat-summary,
@@ -211,7 +211,7 @@ function formatScoreName(scoreId: string): string {
 
 .beat-kicker {
   margin: 0 0 0.15rem;
-  font-size: 0.64rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--dng-title-gold);
@@ -219,7 +219,7 @@ function formatScoreName(scoreId: string): string {
 
 .beat-progress {
   margin: 0 0 0.35rem;
-  font-size: 0.62rem;
+  font-size: var(--text-kicker);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-secondary);
@@ -235,8 +235,8 @@ function formatScoreName(scoreId: string): string {
 .beat-summary,
 .beat-flavor {
   margin: 0 0 0.45rem;
-  font-size: 0.88rem;
-  line-height: 1.4;
+  font-size: var(--text-base);
+  line-height: 1.45;
   color: var(--text-primary);
 }
 
@@ -256,7 +256,7 @@ function formatScoreName(scoreId: string): string {
 }
 
 .beat-deltas li {
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 0.15rem 0.4rem;
@@ -283,7 +283,7 @@ function formatScoreName(scoreId: string): string {
   background: rgba(42, 30, 12, 0.92);
   color: var(--dng-title-gold);
   font-family: var(--font-heading);
-  font-size: 0.82rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -299,7 +299,7 @@ function formatScoreName(scoreId: string): string {
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--font-heading);
-  font-size: 0.68rem;
+  font-size: var(--text-sm);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;

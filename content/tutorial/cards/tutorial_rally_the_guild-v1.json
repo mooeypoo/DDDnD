@@ -1,0 +1,14 @@
+{
+  "id": "tutorial_rally_the_guild",
+  "version": 1,
+  "name": "Rally the Guild",
+  "description": "Call the team back from the brink. Lifts team capacity and system health together, at a modest cost to stakeholder patience.",
+  "flavor_text": "One horn blast. The table stops shaking long enough to breathe.",
+  "score_changes": [
+    { "score_id": "team_capacity", "delta": 24 },
+    { "score_id": "system_health", "delta": 18 },
+    { "score_id": "stakeholder_trust", "delta": -4 }
+  ],
+  "delayed_effect_refs": [],
+  "style_tags": ["team"]
+}

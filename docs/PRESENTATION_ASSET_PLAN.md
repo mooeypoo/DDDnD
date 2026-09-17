@@ -21,6 +21,9 @@ Known raster scene backgrounds already available:
 - Fortified Monolith Hall
 - Strategic War Room
 - Archive / Library Chamber
+- Dark Dungeon Room
+- Medieval Throne Room
+- Forge of Heroes
 
 Known raster avatar input already available:
 

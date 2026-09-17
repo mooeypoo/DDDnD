@@ -6,6 +6,7 @@ import type { TurnBeatKind } from '@/ui/play/turn_theater'
  * These waits are UI-only. The engine turn is already resolved.
  */
 export const CARD_FLIGHT_DURATION_MS = 820
+export const REFILL_FLIGHT_DURATION_MS = 720
 export const AFTERSHOCK_FX_DURATION_MS = 1400
 
 export type ImpactTone = 'boon' | 'blow' | 'mixed'

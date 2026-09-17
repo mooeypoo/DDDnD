@@ -13,9 +13,10 @@ Follow the slice sequence in [GAMEPLAY_V2.md](GAMEPLAY_V2.md). Do not skip ahead
 - Slice 6: war table in `src/ui/play/`. `/game` defaults to the table; `?stage=legacy` restores the satchel stage.
 - Slice 8: player-paced theater, Annals history panel, Consult as a spent-turn action.
 - Slice 9: table moments — card flight, kind-specific beat interludes, remaining-turns clock.
-- Slice 10 (current): antechamber — chamber door, council lobby, table-moment welcome. Still no Three.js; still no `max_turns` bump.
+- Slice 10: antechamber — chamber door, council lobby, table-moment welcome. Lore plaques (About / How to play / Dungeon Master) match the table. Lobby quests fan as overlapping plates with a Tutorials / Adventures toggle; that is presentation, not a second legal hand.
+- Slice 11 (current): tutorial audit — pressure now authors an opening hand and a Consult beat; basics still has no Grimoire. Still no Three.js; still no `max_turns` bump.
 
-Do not mix simulation rules into Vue. The war table only renders the briefing hand and calls `play_turn` / `consult_archives`. Consult may pass an optional `draw_id` that names a remaining deck card; omitting it draws the next legal page. Random replacement peeks that page so the approval can name it. This is still a spent turn, not a free catalog.
+Do not mix simulation rules into Vue. The war table only renders the briefing hand and calls `play_turn` / `consult_archives`. Consult may pass an optional `draw_id` that names a remaining deck card; omitting it draws the next legal page. Random replacement peeks that page so the approval can name it. This is still a spent turn, not a free catalog. After a play, the UI may fly a replenished page from the Grimoire into the empty fan slot; that is presentation of `diffHandCards` arrived ids, not a second draw. Scenarios may pin `opening_hand_card_ids` so a tutorial can name the opening fan without a Vue deal.
 
 ## 2. Boundary Rules
 
