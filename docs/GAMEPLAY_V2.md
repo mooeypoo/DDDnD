@@ -238,9 +238,21 @@ Saves restore hand and deck. Exact-run replay includes consult intents. Bump exa
 - Deck cards render in an inspect-only Grimoire section. Details modal play is hidden for those cards.
 - Consult the Archives is an engine call (`consult_archives`), not a fake content card. The player picks one hand card to set aside.
 
-### Slice 5 — Turn budget (current)
+### Slice 5 — Turn budget (deferred until human play)
 
 Main scenario **v2** files, about +2 `max_turns`, after a baseline audit. Tutorials unchanged unless a tutorial script needs a consult beat (it probably does not).
+
+**v1 player-true baseline (2026-09-17, 25 runs, seed `audit-gate`):**
+
+| Scenario | Clock | Player-true win | Oracle win | Avg consults |
+|---|---|---|---|---|
+| monolith_of_mild_despair | 10 | 64% | 52% | 0.68 |
+| microservice_sprawl | 9 | 76% (above 25–50% band) | 68% | 0.20 |
+| compliance_gauntlet | 12 | 68% | 72% | 0.76 |
+| startup_hypergrowth | 10 | 72% (above 35–60% band) | 76% | 0.00 |
+| merger_of_minor_chaos | 11 | 80% (top of 50–80% band) | 80% | 0.16 |
+
+The hand bot almost never consults, and two scenarios are already too easy on the current clock. A blanket +2 would likely push them further. Humans will consult more than this bot; retune after visual play, not before.
 
 ### Slice 6 — War table shell
 
@@ -283,3 +295,4 @@ When a slice lands, add a short dated note under [Changelog for writers](#change
 - **2026-09-17** — Slice 2 audit landed: player-true bots may consult; full-pool oracle is a diagnostic report; catalog-only recovery is an info finding and not the pass gate.
 - **2026-09-17** — Slice 3 persistence landed: saves restore hand/deck; exact-run v2 records `turn_intents` so consults replay as consults.
 - **2026-09-17** — Slice 4 wired the current satchel: play from the legal hand, inspect-only Grimoire, Consult the Archives spends the turn. War table is still slice 6.
+- **2026-09-17** — Slice 5 deferred: v1 player-true baseline is not clock-starved (bots consult <1 time per run; sprawl and hypergrowth already sit above their win-rate bands). Retune `max_turns` after human play.
