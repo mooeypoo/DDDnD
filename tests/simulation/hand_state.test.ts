@@ -170,6 +170,38 @@ describe('Legal hand and consult archives', () => {
     expect(result.turn_resolution_context.action_resolution.score_changes).toEqual([])
   })
 
+  it('draws a named remaining deck card when consulting', () => {
+    const engine = create_engine({ scenario_bundle: buildHandBundle(10), seed: 'named-draw' })
+    const initial = engine.create_run()
+    const discardedId = initial.hand_state.hand_refs[0].id
+    const fifoId = initial.hand_state.deck_refs[0].id
+    const requestedId = initial.hand_state.deck_refs[1].id
+
+    const result = engine.consult_archives([discardedId], requestedId)
+    const drawnIds = result.turn_resolution_context.player_intent.type === 'consult_archives'
+      ? result.turn_resolution_context.player_intent.drawn_refs.map((ref) => ref.id)
+      : []
+
+    expect(requestedId).not.toBe(fifoId)
+    expect(drawnIds).toContain(requestedId)
+    expect(result.game_state.hand_state.hand_refs.some((ref) => ref.id === requestedId)).toBe(true)
+    expect(result.game_state.hand_state.hand_refs.some((ref) => ref.id === discardedId)).toBe(false)
+    expect(result.game_state.hand_state.deck_refs.some((ref) => ref.id === fifoId)).toBe(true)
+  })
+
+  it('rejects a named consult draw that is not in the remaining deck', () => {
+    const engine = create_engine({ scenario_bundle: buildHandBundle(10), seed: 'bad-draw' })
+    const initial = engine.create_run()
+    const discardedId = initial.hand_state.hand_refs[0].id
+
+    expect(() => engine.consult_archives([discardedId], discardedId)).toThrow(
+      'Consult the Archives cannot draw the same card it discards.',
+    )
+    expect(() => engine.consult_archives([discardedId], 'missing_page')).toThrow(
+      'Action is not in the remaining deck: missing_page',
+    )
+  })
+
   it('cannot consult when the deck is empty', () => {
     const engine = create_engine({ scenario_bundle: buildHandBundle(4), seed: 'empty-deck' })
     engine.create_run()

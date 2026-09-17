@@ -263,23 +263,43 @@ export function applyPlayedCardToHand(
 
 /**
  * Discards one hand card onto the deck and draws a replacement.
+ *
+ * `requested_draw_ref`, when present, must currently sit in the remaining
+ * deck. It is pulled to the front so replenishHand draws that page first.
+ * If aftershocks made it unplayable, replenishHand skips it and draws the
+ * next legal page.
  */
 export function applyConsultToHand(
   gameState: GameState,
   scenarioBundle: ScenarioBundle,
   discardedRef: VersionedContentRef,
-  handSize: number = resolveLegalHandSize(gameState)
+  options: {
+    requested_draw_ref?: VersionedContentRef | null
+    handSize?: number
+  } = {},
 ): HandMutationResult {
+  const handSize = options.handSize ?? resolveLegalHandSize(gameState)
   const discardedKey = versionRefKey(discardedRef)
   const remainingHand = gameState.hand_state.hand_refs.filter((ref) => versionRefKey(ref) !== discardedKey)
-  const nextDeck = [
-    ...gameState.hand_state.deck_refs.filter((ref) => versionRefKey(ref) !== discardedKey),
-    discardedRef
-  ]
+  const remainingDeck = gameState.hand_state.deck_refs.filter((ref) => versionRefKey(ref) !== discardedKey)
+
+  const requested = options.requested_draw_ref
+  const requestedKey = requested ? versionRefKey(requested) : null
+  const requestedIndex = requestedKey
+    ? remainingDeck.findIndex((ref) => versionRefKey(ref) === requestedKey)
+    : -1
+
+  const orderedDeck = [...remainingDeck]
+  if (requestedIndex >= 0) {
+    const [drawn] = orderedDeck.splice(requestedIndex, 1)
+    orderedDeck.unshift(drawn)
+  }
+
+  orderedDeck.push(discardedRef)
 
   const nextState: GameState = {
     ...gameState,
-    hand_state: toHandState(gameState, remainingHand, nextDeck)
+    hand_state: toHandState(gameState, remainingHand, orderedDeck)
   }
 
   return replenishHand(nextState, scenarioBundle, handSize)

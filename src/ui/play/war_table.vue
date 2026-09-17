@@ -4,6 +4,11 @@
     :class="{
       'seats-highlighted': highlight === 'stakeholders',
       'is-adjourned': isAdjourned,
+      'is-shaking': fxKind === 'aftershock',
+      'is-collapsing': isCollapsing,
+      'is-compound-storm': collapseCount > 1,
+      [`fx-${fxKind}`]: Boolean(fxKind),
+      [`tone-${fxTone}`]: fxKind === 'aftershock' && Boolean(fxTone),
     }"
     aria-label="War table"
   >
@@ -16,10 +21,15 @@
         :mood="actor.mood"
         :slot="actor.slot"
         :speechBubble="actor.speechBubble"
+        :voicing="voicingStakeholderId === actor.id"
       />
     </div>
 
-    <div class="table-board" aria-hidden="true">
+    <div
+      class="table-board"
+      :class="{ 'is-thump': fxKind === 'action' || fxKind === 'consult' }"
+      aria-hidden="true"
+    >
       <div class="table-grain" />
       <div class="table-inlay">
         <img class="table-map" :src="sceneUrl" alt="" />
@@ -30,7 +40,63 @@
           alt=""
         />
         <div class="table-veil" />
+        <div class="table-landing" data-table-landing>
+          <p v-if="landedCardName" class="landed-card">
+            {{ landedCardName }}
+          </p>
+        </div>
+        <div
+          v-if="fxKind"
+          class="table-fx"
+          :class="[`fx-${fxKind}`, fxKind === 'aftershock' && fxTone ? `tone-${fxTone}` : '']"
+        >
+          <span class="fx-ripple" />
+          <span class="fx-ember" />
+          <span class="fx-ember ember-2" />
+          <svg class="fx-bolt" viewBox="0 0 40 80" aria-hidden="true">
+            <path d="M22 2 L10 34 H21 L14 78 L32 36 H20 Z" />
+          </svg>
+          <svg class="fx-crack" viewBox="0 0 200 140" aria-hidden="true">
+            <polyline
+              class="crack-main"
+              points="28,6 46,22 40,40 68,52 62,74 96,88 88,108 124,122 158,134"
+            />
+            <polyline
+              class="crack-branch"
+              points="68,52 86,46 102,58 98,72"
+            />
+            <polyline
+              class="crack-branch crack-branch-2"
+              points="96,88 118,82 132,94"
+            />
+          </svg>
+        </div>
       </div>
+    </div>
+
+    <div
+      v-if="isCollapsing"
+      class="table-hearth"
+      :class="{ 'is-compound': collapseCount > 1 }"
+      aria-hidden="true"
+    >
+      <span class="hearth-lick lick-1" />
+      <span class="hearth-lick lick-2" />
+      <span class="hearth-lick lick-3" />
+      <span class="hearth-spark spark-1" />
+      <span class="hearth-spark spark-2" />
+      <span class="hearth-spark spark-3" />
+    </div>
+
+    <div
+      v-if="fxKind === 'aftershock'"
+      class="aftershock-strike"
+      :class="`tone-${fxTone || 'mixed'}`"
+      aria-hidden="true"
+    >
+      <svg class="strike-bolt" viewBox="0 0 90 180">
+        <path d="M52 4 L18 76 H44 L16 176 L82 80 H52 Z" />
+      </svg>
     </div>
 
     <p v-if="scenarioName" class="table-nameplate">{{ scenarioName }}</p>
@@ -48,7 +114,17 @@
     </figure>
 
     <div class="table-focus">
-      <TurnBeatOverlay :beat="currentBeat" @skip="$emit('skipTheater')" />
+      <Transition name="beat-card">
+        <TurnBeatOverlay
+          v-if="currentBeat"
+          :key="currentBeat.id"
+          :beat="currentBeat"
+          :beatIndex="beatIndex"
+          :beatCount="beatCount"
+          @continue="$emit('continueTheater')"
+          @skip="$emit('skipTheater')"
+        />
+      </Transition>
       <div v-if="isAdjourned && !currentBeat" class="adjourn-plate" role="status">
         <p class="adjourn-kicker">The council adjourns</p>
         <h2>The table stills</h2>
@@ -70,7 +146,8 @@ import type { SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import TableSeat from '@/ui/play/table_seat.vue'
 import TurnBeatOverlay from '@/ui/play/turn_beat_overlay.vue'
-import { resolveEventSceneId, type TurnBeat } from '@/ui/play/turn_theater'
+import { resolveEventSceneId, type TurnBeat, type TurnBeatKind } from '@/ui/play/turn_theater'
+import type { ImpactTone } from '@/ui/play/table_moment'
 
 const props = defineProps<{
   actors: GameplayStageActor[]
@@ -82,21 +159,38 @@ const props = defineProps<{
   playerClassId?: string
   playerClassName?: string
   isAdjourned?: boolean
+  beatIndex?: number
+  beatCount?: number
+  fxKind?: TurnBeatKind | null
+  voicingStakeholderId?: string | null
+  fxEventId?: string | null
+  fxTone?: ImpactTone | null
+  landedCardName?: string | null
+  isCollapsing?: boolean
+  collapseCount?: number
 }>()
 
 defineEmits<{
+  continueTheater: []
   skipTheater: []
   viewResults: []
 }>()
 
 const sceneUrl = computed(() => requestSceneBackground(props.sceneId))
+const isCollapsing = computed(() => Boolean(props.isCollapsing))
+const collapseCount = computed(() => props.collapseCount ?? 0)
 
 const eventSceneUrl = computed(() => {
-  if (props.currentBeat?.kind !== 'event' || !props.currentBeat.event_id) {
+  const eventId = props.currentBeat?.kind === 'event'
+    ? props.currentBeat.event_id
+    : props.fxKind === 'event'
+      ? props.fxEventId
+      : null
+  if (!eventId) {
     return null
   }
 
-  return requestEventScene(resolveEventSceneId(props.currentBeat.event_id, props.currentBeat.title))
+  return requestEventScene(resolveEventSceneId(eventId, props.currentBeat?.title))
 })
 </script>
 
@@ -112,6 +206,7 @@ const eventSceneUrl = computed(() => {
 }
 
 .table-board {
+  position: relative;
   width: min(620px, 86vw);
   aspect-ratio: 1.22 / 1;
   border-radius: 50% / 44%;
@@ -132,6 +227,64 @@ const eventSceneUrl = computed(() => {
     inset 0 0 0 14px #1a1006,
     inset 0 18px 40px rgba(255, 196, 96, 0.12);
 }
+
+.war-table.is-collapsing .table-board {
+  box-shadow:
+    0 40px 50px rgba(0, 0, 0, 0.55),
+    0 0 48px rgba(220, 40, 8, 0.42),
+    inset 0 0 0 10px #6a2410,
+    inset 0 0 0 14px #1a0804,
+    inset 0 18px 48px rgba(255, 96, 32, 0.28);
+}
+
+.table-hearth {
+  position: absolute;
+  width: min(620px, 86vw);
+  aspect-ratio: 1.22 / 1;
+  border-radius: 50% / 44%;
+  transform: perspective(1400px) rotateX(52deg);
+  transform-origin: center 62%;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow:
+    0 0 52px 14px rgba(255, 72, 16, 0.32),
+    inset 0 -22px 42px rgba(255, 64, 8, 0.4);
+  animation: hearth-breathe 2.2s ease-in-out infinite;
+}
+
+.table-hearth.is-compound {
+  box-shadow:
+    0 0 58px 16px rgba(255, 48, 8, 0.32),
+    inset 0 -22px 42px rgba(255, 48, 0, 0.38);
+}
+
+.hearth-lick {
+  position: absolute;
+  bottom: 6%;
+  width: 16%;
+  height: 20%;
+  background: radial-gradient(ellipse at 50% 88%, rgba(255, 196, 80, 0.78), rgba(255, 48, 0, 0) 72%);
+  filter: blur(3px);
+  animation: lick-rise 1.35s ease-in-out infinite;
+}
+
+.lick-1 { left: 16%; }
+.lick-2 { left: 42%; height: 26%; animation-delay: 0.28s; }
+.lick-3 { left: 66%; animation-delay: 0.56s; }
+
+.hearth-spark {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #ffe7a8;
+  box-shadow: 0 0 10px #ff8020;
+  animation: spark-drift 2s linear infinite;
+}
+
+.spark-1 { left: 28%; bottom: 18%; animation-delay: 0.1s; }
+.spark-2 { left: 52%; bottom: 12%; animation-delay: 0.7s; }
+.spark-3 { left: 71%; bottom: 20%; animation-delay: 1.2s; }
 
 .table-grain {
   position: absolute;
@@ -168,11 +321,379 @@ const eventSceneUrl = computed(() => {
   opacity: 0.72;
 }
 
-.table-veil {
+.table-landing {
+  position: absolute;
+  inset: 56% 22% 10%;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.landed-card {
+  margin: 0;
+  max-width: 9.5rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  line-height: 1.25;
+  color: var(--dng-title-gold);
+  background: rgba(18, 12, 6, 0.82);
+  border: 1px solid rgba(232, 196, 96, 0.55);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.35);
+}
+
+.table-fx {
   position: absolute;
   inset: 0;
-  background:
-    radial-gradient(circle at 50% 40%, transparent 28%, rgba(8, 5, 2, 0.55) 100%);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.fx-ripple {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: 22%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid rgba(232, 196, 96, 0.55);
+  transform: translate(-50%, -50%) scale(0.35);
+  opacity: 0;
+}
+
+.fx-action .fx-ripple,
+.fx-consult .fx-ripple {
+  animation: table-ripple 820ms ease-out forwards;
+}
+
+.fx-ember {
+  position: absolute;
+  left: 42%;
+  bottom: 18%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(240, 140, 64, 0);
+}
+
+.fx-aftershock .fx-ember {
+  animation: ember-rise 1400ms 220ms ease-out forwards;
+}
+
+.fx-aftershock .ember-2 {
+  left: 58%;
+  animation-delay: 300ms;
+}
+
+.fx-bolt {
+  position: absolute;
+  left: 52%;
+  top: 8%;
+  width: 28px;
+  height: 56px;
+  fill: rgba(214, 232, 255, 0);
+  filter: drop-shadow(0 0 8px rgba(180, 210, 255, 0.0));
+  transform: translateX(-50%);
+}
+
+.fx-event .fx-bolt {
+  animation: bolt-strike 760ms ease-out forwards;
+}
+
+.fx-aftershock .fx-bolt {
+  width: 42px;
+  height: 78px;
+  left: 48%;
+  animation: bolt-strike 900ms 180ms ease-out forwards;
+}
+
+.fx-event {
+  background: radial-gradient(circle at 55% 18%, rgba(180, 210, 255, 0.0), transparent 52%);
+  animation: event-wash 760ms ease-out forwards;
+}
+
+.fx-crack {
+  display: none;
+  position: absolute;
+  inset: -4%;
+  width: 108%;
+  height: 108%;
+  overflow: visible;
+}
+
+.fx-aftershock .fx-crack {
+  display: block;
+}
+
+.fx-crack polyline {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 280;
+  stroke-dashoffset: 280;
+}
+
+.crack-main {
+  stroke: rgba(240, 208, 128, 0.92);
+  stroke-width: 1.7;
+  filter: drop-shadow(0 0 6px rgba(214, 160, 64, 0.5));
+  animation: crack-draw 520ms 260ms ease-out forwards;
+}
+
+.crack-branch {
+  stroke: rgba(240, 208, 128, 0.92);
+  stroke-width: 1.1;
+  filter: drop-shadow(0 0 5px rgba(214, 160, 64, 0.4));
+  animation: crack-draw 440ms 340ms ease-out forwards;
+}
+
+.crack-branch-2 {
+  animation-delay: 400ms;
+}
+
+.fx-aftershock.tone-blow .crack-main,
+.fx-aftershock.tone-blow .crack-branch {
+  stroke: rgba(255, 168, 112, 0.92);
+  filter: drop-shadow(0 0 6px rgba(232, 96, 48, 0.55));
+}
+
+.fx-aftershock.tone-boon .crack-main,
+.fx-aftershock.tone-boon .crack-branch {
+  stroke: rgba(186, 232, 176, 0.9);
+  filter: drop-shadow(0 0 6px rgba(96, 176, 112, 0.5));
+}
+
+.fx-aftershock.tone-mixed .crack-main,
+.fx-aftershock.tone-mixed .crack-branch {
+  stroke: rgba(240, 208, 128, 0.92);
+  filter: drop-shadow(0 0 6px rgba(214, 160, 64, 0.5));
+}
+
+.fx-aftershock {
+  background: radial-gradient(circle at 50% 42%, rgba(8, 4, 2, 0), transparent 62%);
+  animation: aftershock-hold 1400ms ease-out forwards;
+}
+
+.fx-aftershock.tone-blow {
+  animation-name: aftershock-hold-blow;
+}
+
+.fx-aftershock.tone-boon {
+  animation-name: aftershock-hold-boon;
+}
+
+.war-table.is-shaking {
+  animation: table-quake 1400ms cubic-bezier(0.22, 0.08, 0.28, 1) both;
+}
+
+.aftershock-strike {
+  position: absolute;
+  left: 50%;
+  top: -2%;
+  z-index: 5;
+  width: min(150px, 32vw);
+  height: 56%;
+  transform: translateX(-46%);
+  pointer-events: none;
+}
+
+.strike-bolt {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 18px rgba(255, 220, 140, 0.85));
+}
+
+.strike-bolt path {
+  fill: #fff6d0;
+  stroke: rgba(255, 248, 220, 0.95);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+  transform-origin: 50% 0;
+  animation: bolt-slam 1400ms ease-out forwards;
+}
+
+.aftershock-strike.tone-blow .strike-bolt {
+  filter: drop-shadow(0 0 18px rgba(255, 150, 80, 0.9));
+}
+
+.aftershock-strike.tone-blow path {
+  fill: #ffe0b8;
+}
+
+.aftershock-strike.tone-boon .strike-bolt {
+  filter: drop-shadow(0 0 18px rgba(170, 230, 160, 0.85));
+}
+
+.aftershock-strike.tone-boon path {
+  fill: #e8ffd8;
+}
+
+.fx-stakeholder {
+  background: radial-gradient(circle at 50% 20%, rgba(186, 160, 255, 0.0), transparent 55%);
+  animation: council-wash 620ms ease-out forwards;
+}
+
+.fx-consult {
+  background: radial-gradient(circle at 78% 18%, rgba(232, 210, 140, 0.0), transparent 50%);
+  animation: archive-wash 820ms ease-out forwards;
+}
+
+.table-board.is-thump {
+  animation: table-thump 820ms ease-out;
+}
+
+.beat-card-enter-active,
+.beat-card-leave-active {
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.beat-card-enter-from,
+.beat-card-leave-to {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+}
+
+@keyframes table-ripple {
+  0% { opacity: 0.7; transform: translate(-50%, -50%) scale(0.3); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.7); }
+}
+
+@keyframes ember-rise {
+  0% { opacity: 0; transform: translateY(8px) scale(0.6); background: rgba(240, 140, 64, 0.85); }
+  40% { opacity: 0.8; }
+  100% { opacity: 0; transform: translateY(-28px) scale(1.1); background: rgba(240, 180, 96, 0); }
+}
+
+@keyframes bolt-strike {
+  0% { fill: rgba(214, 232, 255, 0); filter: drop-shadow(0 0 0 rgba(180, 210, 255, 0)); }
+  18% { fill: rgba(234, 244, 255, 0.92); filter: drop-shadow(0 0 10px rgba(180, 210, 255, 0.55)); }
+  42% { fill: rgba(214, 232, 255, 0.2); }
+  100% { fill: rgba(214, 232, 255, 0); filter: drop-shadow(0 0 0 rgba(180, 210, 255, 0)); }
+}
+
+@keyframes event-wash {
+  0%, 100% { background: radial-gradient(circle at 55% 18%, rgba(180, 210, 255, 0), transparent 52%); }
+  20% { background: radial-gradient(circle at 55% 18%, rgba(180, 210, 255, 0.22), transparent 52%); }
+}
+
+@keyframes ember-wash {
+  0%, 100% { background: radial-gradient(circle at 50% 70%, rgba(240, 120, 48, 0), transparent 58%); }
+  30% { background: radial-gradient(circle at 50% 70%, rgba(240, 120, 48, 0.2), transparent 58%); }
+}
+
+@keyframes aftershock-hold {
+  0% { background: radial-gradient(circle at 50% 42%, rgba(8, 4, 2, 0), transparent 62%); }
+  8% { background: radial-gradient(circle at 50% 42%, rgba(8, 4, 2, 0.38), transparent 62%); }
+  54% { background: radial-gradient(circle at 50% 42%, rgba(8, 4, 2, 0.4), transparent 62%); }
+  64% { background: radial-gradient(circle at 48% 38%, rgba(48, 22, 8, 0.28), transparent 64%); }
+  100% { background: radial-gradient(circle at 50% 42%, rgba(8, 4, 2, 0), transparent 62%); }
+}
+
+@keyframes aftershock-hold-blow {
+  0% { background: radial-gradient(circle at 50% 42%, rgba(8, 4, 2, 0), transparent 62%); }
+  8% { background: radial-gradient(circle at 50% 42%, rgba(10, 4, 2, 0.44), transparent 62%); }
+  54% { background: radial-gradient(circle at 50% 42%, rgba(10, 4, 2, 0.46), transparent 62%); }
+  64% { background: radial-gradient(circle at 46% 36%, rgba(96, 28, 12, 0.32), transparent 64%); }
+  100% { background: radial-gradient(circle at 50% 42%, rgba(8, 4, 2, 0), transparent 62%); }
+}
+
+@keyframes aftershock-hold-boon {
+  0% { background: radial-gradient(circle at 50% 42%, rgba(8, 4, 2, 0), transparent 62%); }
+  8% { background: radial-gradient(circle at 50% 42%, rgba(6, 10, 6, 0.38), transparent 62%); }
+  54% { background: radial-gradient(circle at 50% 42%, rgba(6, 10, 6, 0.4), transparent 62%); }
+  64% { background: radial-gradient(circle at 52% 36%, rgba(48, 78, 42, 0.28), transparent 64%); }
+  100% { background: radial-gradient(circle at 50% 42%, rgba(8, 4, 2, 0), transparent 62%); }
+}
+
+@keyframes crack-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes table-quake {
+  0%, 14% { transform: translate3d(0, 0, 0); }
+  18% { transform: translate3d(-18px, 10px, 0) rotate(-1.35deg); }
+  24% { transform: translate3d(20px, -11px, 0) rotate(1.5deg); }
+  30% { transform: translate3d(-16px, 8px, 0) rotate(-1.2deg); }
+  38% { transform: translate3d(15px, -7px, 0) rotate(1.05deg); }
+  46% { transform: translate3d(-11px, 6px, 0) rotate(-0.75deg); }
+  56% { transform: translate3d(9px, -4px, 0) rotate(0.5deg); }
+  68% { transform: translate3d(-5px, 3px, 0) rotate(-0.25deg); }
+  82% { transform: translate3d(3px, -1px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes table-quake-soft {
+  0%, 14% { transform: translate3d(0, 0, 0); }
+  20% { transform: translate3d(-11px, 7px, 0) rotate(-0.9deg); }
+  28% { transform: translate3d(12px, -7px, 0) rotate(1deg); }
+  38% { transform: translate3d(-8px, 5px, 0) rotate(-0.6deg); }
+  50% { transform: translate3d(6px, -3px, 0); }
+  66% { transform: translate3d(-3px, 2px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes bolt-slam {
+  0%, 10% {
+    opacity: 0;
+    transform: translateY(-18px) scaleY(0.4);
+  }
+  16%, 36% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1.06);
+  }
+  52% { opacity: 0.35; }
+  100% { opacity: 0; transform: translateY(8px) scaleY(1); }
+}
+
+@keyframes bolt-slam-blow {
+  0%, 10% { opacity: 0; transform: translateY(-18px) scaleY(0.4); }
+  16%, 36% { opacity: 1; transform: translateY(0) scaleY(1.06); }
+  52% { opacity: 0.35; }
+  100% { opacity: 0; transform: translateY(8px) scaleY(1); }
+}
+
+@keyframes bolt-slam-boon {
+  0%, 10% { opacity: 0; transform: translateY(-18px) scaleY(0.4); }
+  16%, 36% { opacity: 1; transform: translateY(0) scaleY(1.06); }
+  52% { opacity: 0.35; }
+  100% { opacity: 0; transform: translateY(8px) scaleY(1); }
+}
+
+@keyframes council-wash {
+  0%, 100% { background: radial-gradient(circle at 50% 20%, rgba(186, 160, 255, 0), transparent 55%); }
+  35% { background: radial-gradient(circle at 50% 20%, rgba(186, 160, 255, 0.18), transparent 55%); }
+}
+
+@keyframes archive-wash {
+  0%, 100% { background: radial-gradient(circle at 78% 18%, rgba(232, 210, 140, 0), transparent 50%); }
+  40% { background: radial-gradient(circle at 78% 18%, rgba(232, 210, 140, 0.16), transparent 50%); }
+}
+
+@keyframes table-thump {
+  0%, 100% { filter: brightness(1); }
+  28% { filter: brightness(1.1); }
+}
+
+@keyframes hearth-breathe {
+  0%, 100% { opacity: 0.72; }
+  50% { opacity: 1; }
+}
+
+@keyframes lick-rise {
+  0%, 100% { transform: scaleY(0.82) translateY(6px); opacity: 0.45; }
+  50% { transform: scaleY(1.18) translateY(-4px); opacity: 0.95; }
+}
+
+@keyframes spark-drift {
+  0% { transform: translateY(0) scale(0.7); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-42px) scale(0.4); opacity: 0; }
 }
 
 .seat-ring {
@@ -337,6 +858,10 @@ const eventSceneUrl = computed(() => {
     transform: perspective(900px) rotateX(38deg);
   }
 
+  .table-hearth {
+    transform: perspective(900px) rotateX(38deg);
+  }
+
   .seat-ring {
     inset: 2% 8% 36%;
   }
@@ -356,6 +881,10 @@ const eventSceneUrl = computed(() => {
   .player-name {
     font-size: 0.6rem;
   }
+
+  .war-table.is-shaking {
+    animation-name: table-quake-soft;
+  }
 }
 
 @media (max-width: 720px) and (orientation: portrait) {
@@ -365,6 +894,11 @@ const eventSceneUrl = computed(() => {
   }
 
   .table-board {
+    width: min(560px, 92vw);
+    transform: perspective(780px) rotateX(32deg);
+  }
+
+  .table-hearth {
     width: min(560px, 92vw);
     transform: perspective(780px) rotateX(32deg);
   }
@@ -383,6 +917,41 @@ const eventSceneUrl = computed(() => {
     transform: none;
     border-radius: 28px;
     aspect-ratio: 16 / 10;
+  }
+
+  .table-hearth {
+    transform: none;
+    border-radius: 28px;
+    aspect-ratio: 16 / 10;
+    animation: none;
+  }
+
+  .hearth-lick,
+  .hearth-spark {
+    animation: none;
+  }
+
+  .table-board.is-thump,
+  .war-table.is-shaking,
+  .aftershock-strike,
+  .strike-bolt path,
+  .fx-ripple,
+  .fx-ember,
+  .fx-bolt,
+  .fx-crack polyline,
+  .fx-event,
+  .fx-aftershock,
+  .fx-stakeholder,
+  .fx-consult,
+  .beat-card-enter-active,
+  .beat-card-leave-active {
+    animation: none;
+    transition: none;
+  }
+
+  .table-fx,
+  .aftershock-strike {
+    display: none;
   }
 }
 </style>

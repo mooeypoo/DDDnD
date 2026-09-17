@@ -1,7 +1,7 @@
 <template>
   <figure
     class="table-seat"
-    :class="[`seat-${slot}`, `mood-${mood}`, { speaking: Boolean(speechBubble) }]"
+    :class="[`seat-${slot}`, `mood-${mood}`, { speaking: Boolean(speechBubble), voicing }]"
   >
     <Transition name="seat-bubble">
       <div
@@ -35,6 +35,7 @@ const props = defineProps<{
   mood: AvatarMood | string
   slot: SceneActorSlot
   speechBubble?: GameplayStageActor['speechBubble']
+  voicing?: boolean
 }>()
 
 const portraitUrl = computed(() => {
@@ -75,6 +76,28 @@ const moodLabel = computed(() => {
 .table-seat.speaking {
   transform: translateY(-6px) scale(1.04);
   z-index: 3;
+}
+
+.table-seat.voicing {
+  transform: translateY(-12px) scale(1.18);
+  z-index: 4;
+  filter:
+    drop-shadow(0 0 18px rgba(255, 214, 110, 0.72))
+    drop-shadow(0 12px 18px rgba(0, 0, 0, 0.55));
+  animation: seat-voice-glow 1.8s ease-in-out infinite;
+}
+
+.table-seat.voicing .seat-portrait {
+  filter: drop-shadow(0 0 10px rgba(255, 232, 160, 0.45));
+}
+
+.table-seat.voicing .seat-caption {
+  border-color: rgba(232, 196, 96, 0.82);
+  box-shadow: 0 0 14px rgba(232, 196, 96, 0.32);
+}
+
+.table-seat.voicing .seat-name {
+  color: #ffe7b0;
 }
 
 .seat-portrait {
@@ -145,6 +168,28 @@ const moodLabel = computed(() => {
 .seat-bubble-leave-to {
   opacity: 0;
   transform: translateY(6px);
+}
+
+@keyframes seat-voice-glow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 14px rgba(255, 214, 110, 0.55))
+      drop-shadow(0 12px 18px rgba(0, 0, 0, 0.55));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 26px rgba(255, 210, 96, 0.9))
+      drop-shadow(0 12px 18px rgba(0, 0, 0, 0.55));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table-seat.voicing {
+    transform: none;
+    animation: none;
+    outline: 2px solid rgba(232, 196, 96, 0.7);
+    outline-offset: 4px;
+  }
 }
 
 @media (max-width: 720px) {

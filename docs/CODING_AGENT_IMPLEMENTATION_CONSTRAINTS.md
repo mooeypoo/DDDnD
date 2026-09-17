@@ -11,9 +11,10 @@ Follow the slice sequence in [GAMEPLAY_V2.md](GAMEPLAY_V2.md). Do not skip ahead
 
 - Slices 1–5: complete (engine hand, player-true audit, persistence, satchel wiring; +2 `max_turns` deferred).
 - Slice 6: war table in `src/ui/play/`. `/game` defaults to the table; `?stage=legacy` restores the satchel stage.
-- Slice 7 (current): finish the war table (player seat, nameplate, coupling weather, adjourn, portrait). Still no Three.js; still no `max_turns` bump.
+- Slice 8: player-paced theater, Annals history panel, Consult as a spent-turn action.
+- Slice 9 (current): table moments — card flight, kind-specific beat interludes, remaining-turns clock. Still no Three.js; still no `max_turns` bump.
 
-Do not mix simulation rules into Vue. The war table only renders the briefing hand and calls `play_turn` / `consult_archives`.
+Do not mix simulation rules into Vue. The war table only renders the briefing hand and calls `play_turn` / `consult_archives`. Consult may pass an optional `draw_id` that names a remaining deck card; omitting it draws the next legal page. Random replacement peeks that page so the approval can name it. This is still a spent turn, not a free catalog.
 
 ## 2. Boundary Rules
 

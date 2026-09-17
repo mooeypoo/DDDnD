@@ -243,8 +243,8 @@ export const useGameStore = defineStore('game', () => {
     return runLifecycleCoordinator.playTurn(action_id)
   }
 
-  async function consult_archives(discard_ids: string[]) {
-    return runLifecycleCoordinator.consultArchives(discard_ids)
+  async function consult_archives(discard_ids: string[], draw_id?: string) {
+    return runLifecycleCoordinator.consultArchives(discard_ids, draw_id)
   }
   
   /**

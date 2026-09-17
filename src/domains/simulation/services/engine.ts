@@ -55,7 +55,7 @@ export interface SimulationEngine {
   restore_run(game_state: GameState): GameState
   get_turn_briefing(): TurnBriefing
   play_turn(action_id: string): PlayTurnResult
-  consult_archives(discard_ids: string[]): PlayTurnResult
+  consult_archives(discard_ids: string[], draw_id?: string): PlayTurnResult
   get_run_outcome(): RunOutcome | null
 }
 
@@ -113,12 +113,13 @@ export function create_engine(input: CreateEngineInput): SimulationEngine {
       return result
     },
 
-    consult_archives: (discard_ids: string[]) => {
+    consult_archives: (discard_ids: string[], draw_id?: string) => {
       const result = consultArchives(
         getActiveGameState(engineState),
         engineState.scenario_bundle,
         discard_ids,
-        engineState.random
+        engineState.random,
+        draw_id,
       )
 
       engineState.game_state = result.game_state

@@ -47,6 +47,9 @@ const SHORT_METRIC_LABEL: Record<string, string> = {
   user_trust: 'Trust',
   budget: 'Purse',
   domain_clarity: 'Clarity',
+  team_capacity: 'Capacity',
+  system_health: 'Health',
+  code_clarity: 'Code',
 }
 
 /**
@@ -69,6 +72,33 @@ export function compactCouplingLabel(titles: string[]): string | null {
 }
 
 /**
+ * Player-facing urgency for an engine collapse: what withers, and what to raise.
+ *
+ * Score names stay presentation labels. Thresholds stay in the engine.
+ */
+export function collapseUrgencyCopy(
+  triggerScoreId: string,
+  affectedScoreIds: string[],
+  fallback: string,
+): string {
+  const trigger = shortMetricLabel(triggerScoreId, triggerScoreId)
+  const affected = affectedScoreIds
+    .map((id) => shortMetricLabel(id, id))
+    .join(' and ')
+  if (!affected) return fallback
+  return `${affected} gains wither until ${trigger} recovers.`
+}
+
+/**
+ * Turns still on the clock, including the current one.
+ */
+export function remainingTurns(currentTurn: number, maxTurns: number): number {
+  if (maxTurns <= 0) return 0
+  if (currentTurn <= 0) return maxTurns
+  return Math.max(0, maxTurns - currentTurn + 1)
+}
+
+/**
  * Late-clock presentation for the remaining turns.
  *
  * Tutorial clocks are short on purpose, so they never use this cue.
@@ -79,7 +109,6 @@ export function isLateTurnClock(
   options: { isTutorial?: boolean } = {},
 ): boolean {
   if (options.isTutorial) return false
-  if (maxTurns <= 0) return false
-  const remaining = maxTurns - currentTurn + 1
+  const remaining = remainingTurns(currentTurn, maxTurns)
   return remaining > 0 && remaining <= 3
 }

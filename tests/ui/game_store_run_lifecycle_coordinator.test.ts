@@ -285,4 +285,40 @@ describe('game_store_run_lifecycle_coordinator', () => {
     expect(state.turnBriefing.value).toEqual(nextBriefing)
     expect(persistRunState).toHaveBeenCalledTimes(1)
   })
+
+  it('passes a named draw id through to consult_archives', async () => {
+    const nextBriefing = { turn_number: 2, can_consult_archives: true } as unknown as TurnBriefing
+    const consultResult = {
+      game_state: {
+        progress: { current_turn: 2, run_status: 'in_progress' },
+        run_analytics: { turns_completed: 1 },
+      },
+      turn_resolution_context: { selected_action: { id: 'card_a', version: 1 } },
+      turn_history_entry: { turn_number: 1, player_intent: { type: 'consult_archives' } },
+    } as unknown as PlayTurnResult
+
+    const engine = makeEngine({ playResult: consultResult, briefing: nextBriefing })
+    const state = makeState({
+      engine: ref(engine),
+      isRunComplete: ref(false),
+      isIntroSplashOpen: ref(false),
+    })
+
+    const coordinator = createGameStoreRunLifecycleCoordinator(state, {
+      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
+      initializeEngine: vi.fn(),
+      persistRunState: vi.fn(),
+      tutorial: {
+        isTutorialMode: ref(false),
+        initTutorial: vi.fn(async () => undefined),
+        resetTutorial: vi.fn(),
+        advanceToTrigger: vi.fn(),
+      },
+    })
+
+    await coordinator.consultArchives(['card_a'], 'card_b')
+
+    expect(engine.consult_archives).toHaveBeenCalledWith(['card_a'], 'card_b')
+  })
 })

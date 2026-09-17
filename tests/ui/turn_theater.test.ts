@@ -1,18 +1,25 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import type { TurnResolutionContext } from '@/domains/simulation/model/turn_resolution_context'
 import {
+  buildAnnalsTurns,
   buildTurnBeats,
+  beatKicker,
   handFanTransform,
   resolveEventSceneId,
 } from '@/ui/play/turn_theater'
+import { tableFxDurationMs, impactTone } from '@/ui/play/table_moment'
+import { useTurnTheater } from '@/ui/play/use_turn_theater'
 import { isWarTableEnabled, resolvePlayStage } from '@/ui/play/use_war_table_flag'
 import {
   compactCouplingLabel,
+  collapseUrgencyCopy,
   isLateTurnClock,
+  remainingTurns,
   scoreWeather,
   shortMetricLabel,
 } from '@/ui/play/weather_band'
+import * as tableMoment from '@/ui/play/table_moment'
 
 function emptyActionPresentation() {
   return {
@@ -72,7 +79,7 @@ function baseContext(overrides: Partial<TurnResolutionContext> = {}): TurnResolu
 }
 
 describe('buildTurnBeats', () => {
-  it('replays engine phases in pipeline order without inventing extra beats', () => {
+  it('shows the player move first, then aftershocks, without inventing extra beats', () => {
     const beats = buildTurnBeats(baseContext({
       resolved_aftershocks: [
         {
@@ -95,19 +102,35 @@ describe('buildTurnBeats', () => {
     })
 
     expect(beats.map((beat) => beat.kind)).toEqual([
-      'aftershock',
       'action',
+      'aftershock',
       'event',
       'stakeholder',
     ])
-    expect(beats[0]?.title).toBe('The cut still stings')
-    expect(beats[1]?.title).toBe('Split the Monolith')
+    expect(beats[0]?.title).toBe('Split the Monolith')
+    expect(beats[1]?.title).toBe('The cut still stings')
     expect(beats[3]?.title).toBe('Chief Wizard')
     expect(beats[3]?.stakeholder_id).toBe('cto')
   })
 
   it('treats consult as a search beat, not a played card', () => {
     const beats = buildTurnBeats(baseContext({
+      resolved_aftershocks: [
+        {
+          effect_instance_id: 'ash-consult',
+          effect_id: 'delayed_split_cost',
+          effect_version: 1,
+          source_type: 'card',
+          source_id: 'card_split',
+          source_version: 1,
+          score_changes: [{ score_id: 'team_morale', delta: -3 }],
+          stakeholder_changes: [],
+          presentation: {
+            title: 'The cut still stings',
+            summary: 'Yesterday’s boundary work lands.',
+          },
+        },
+      ],
       player_intent: {
         type: 'consult_archives',
         discarded_refs: [{ id: 'card_patch', version: 1 }],
@@ -125,12 +148,54 @@ describe('buildTurnBeats', () => {
         },
       },
     }), {
-      cardName: (id) => (id === 'card_patch' ? 'Quick Patch' : id),
+      cardName: (id) => {
+        if (id === 'card_patch') return 'Quick Patch'
+        if (id === 'card_split') return 'Split the Monolith'
+        return id
+      },
     })
 
+    expect(beats.map((beat) => beat.kind).slice(0, 2)).toEqual(['consult', 'aftershock'])
     expect(beats[0]?.kind).toBe('consult')
     expect(beats[0]?.title).toBe('Consult the Archives')
     expect(beats[0]?.summary).toContain('Quick Patch')
+    expect(beats[0]?.summary).toContain('Split the Monolith')
+  })
+})
+
+describe('buildAnnalsTurns', () => {
+  it('lists engine history newest first without inventing turns', () => {
+    const turns = buildAnnalsTurns([
+      baseContext({ turn_number: 1 }),
+      baseContext({
+        turn_number: 2,
+        player_intent: {
+          type: 'consult_archives',
+          discarded_refs: [{ id: 'card_patch', version: 1 }],
+          drawn_refs: [{ id: 'card_split', version: 1 }],
+        },
+        action_resolution: {
+          selected_action: { id: 'card_patch', version: 1 },
+          score_changes: [],
+          stakeholder_changes: [],
+          queued_delayed_effects: [],
+          presentation: {
+            title: 'Consult the Archives',
+            summary: 'You searched instead of committing.',
+          },
+        },
+        total_score_changes: [{ score_id: 'budget', delta: -2 }],
+      }),
+    ], {
+      cardName: (id) => (id === 'card_patch' ? 'Quick Patch' : id),
+    })
+
+    expect(turns.map((turn) => turn.turn_number)).toEqual([2, 1])
+    expect(turns[0]?.intent).toBe('consult_archives')
+    expect(turns[0]?.title).toBe('Consult the Archives')
+    expect(turns[0]?.summary).toContain('Quick Patch')
+    expect(turns[0]?.score_changes).toEqual([{ score_id: 'budget', delta: -2 }])
+    expect(beatKicker('consult')).toBe('You search')
   })
 })
 
@@ -170,10 +235,110 @@ describe('scoreWeather', () => {
     expect(compactCouplingLabel(['Delivery Collapse', 'Morale Collapse'])).toBe('2 systems bound')
   })
 
+  it('says which gains wither until the trigger recovers', () => {
+    expect(collapseUrgencyCopy('team_morale', ['maintainability'], 'fallback')).toBe(
+      'Craft gains wither until Morale recovers.',
+    )
+    expect(
+      collapseUrgencyCopy('delivery_confidence', ['domain_clarity', 'maintainability'], 'fallback'),
+    ).toBe('Clarity and Craft gains wither until Delivery recovers.')
+    expect(collapseUrgencyCopy('user_trust', [], 'Delivery improvements reduced.')).toBe(
+      'Delivery improvements reduced.',
+    )
+  })
+
   it('marks a late clock without treating tutorial clocks as late', () => {
     expect(isLateTurnClock(8, 10)).toBe(true)
     expect(isLateTurnClock(4, 10)).toBe(false)
     expect(isLateTurnClock(2, 3, { isTutorial: true })).toBe(false)
+  })
+
+  it('counts remaining turns including the current one', () => {
+    expect(remainingTurns(1, 10)).toBe(10)
+    expect(remainingTurns(8, 10)).toBe(3)
+    expect(remainingTurns(10, 10)).toBe(1)
+    expect(remainingTurns(11, 10)).toBe(0)
+    expect(remainingTurns(0, 10)).toBe(10)
+  })
+})
+
+describe('table moments', () => {
+  it('keeps full fx duration when reduced motion is not requested', () => {
+    expect(tableFxDurationMs('action')).toBeGreaterThan(0)
+    expect(tableFxDurationMs('event')).toBeGreaterThan(0)
+    expect(tableFxDurationMs('aftershock')).toBeGreaterThan(tableFxDurationMs('event'))
+    expect(tableFxDurationMs('stakeholder')).toBeGreaterThan(0)
+  })
+
+  it('colors an aftershock from engine score deltas', () => {
+    expect(impactTone([{ delta: 5 }, { delta: 3 }])).toBe('boon')
+    expect(impactTone([{ delta: -5 }, { delta: -3 }])).toBe('blow')
+    expect(impactTone([{ delta: 4 }, { delta: -4 }])).toBe('mixed')
+    expect(impactTone([])).toBe('mixed')
+  })
+
+  it('holds a stakeholder voice through the readable card, then releases it', () => {
+    const spy = vi.spyOn(tableMoment, 'tableFxDurationMs').mockReturnValue(100)
+    vi.useFakeTimers()
+    const theater = useTurnTheater()
+    theater.play(baseContext())
+
+    expect(theater.voicingStakeholderId.value).toBeNull()
+    vi.advanceTimersByTime(100)
+    theater.advance()
+    vi.advanceTimersByTime(100)
+    theater.advance()
+
+    expect(theater.phase.value).toBe('fx')
+    expect(theater.voicingStakeholderId.value).toBe('cto')
+
+    vi.advanceTimersByTime(100)
+
+    expect(theater.phase.value).toBe('beat')
+    expect(theater.currentBeat.value?.kind).toBe('stakeholder')
+    expect(theater.voicingStakeholderId.value).toBe('cto')
+
+    theater.advance()
+
+    expect(theater.voicingStakeholderId.value).toBeNull()
+    expect(theater.phase.value).toBe('idle')
+
+    spy.mockRestore()
+    vi.useRealTimers()
+  })
+
+  it('holds an fx interlude before revealing the readable beat', () => {
+    const spy = vi.spyOn(tableMoment, 'tableFxDurationMs').mockReturnValue(100)
+    vi.useFakeTimers()
+    const theater = useTurnTheater()
+    theater.play(baseContext())
+
+    expect(theater.phase.value).toBe('fx')
+    expect(theater.currentBeat.value).toBeNull()
+    expect(theater.fxKind.value).toBe('action')
+
+    vi.advanceTimersByTime(100)
+
+    expect(theater.phase.value).toBe('beat')
+    expect(theater.currentBeat.value?.kind).toBe('action')
+
+    spy.mockRestore()
+    vi.useRealTimers()
+  })
+
+  it('skips remaining beats even during an interlude', () => {
+    const spy = vi.spyOn(tableMoment, 'tableFxDurationMs').mockReturnValue(400)
+    vi.useFakeTimers()
+    const theater = useTurnTheater()
+    theater.play(baseContext())
+    theater.skip()
+
+    expect(theater.isComplete.value).toBe(true)
+    expect(theater.currentBeat.value).toBeNull()
+    expect(theater.phase.value).toBe('idle')
+
+    spy.mockRestore()
+    vi.useRealTimers()
   })
 })
 

@@ -10,8 +10,22 @@ import type {
   ScoreChangeRecord,
   StakeholderChangeRecord,
 } from '@/shared/contracts'
-import type { TurnResolutionContext } from '@/domains/simulation/model/turn_resolution_context'
+import type {
+  PlayerTurnIntent,
+  TurnResolutionContext,
+} from '@/domains/simulation/model/turn_resolution_context'
 import type { EventSceneAssetId } from '@/ui/config/presentation_asset_types'
+import { consultReplaceSummary } from '@/ui/play/hand_swap'
+
+export type TurnBeatSource = Pick<
+  TurnResolutionContext,
+  | 'turn_number'
+  | 'resolved_aftershocks'
+  | 'player_intent'
+  | 'action_resolution'
+  | 'event_resolution'
+  | 'stakeholder_resolution'
+>
 
 export type TurnBeatKind = 'aftershock' | 'action' | 'consult' | 'event' | 'stakeholder'
 
@@ -32,46 +46,59 @@ export interface TurnTheaterNames {
   stakeholderName?: (id: string) => string
 }
 
-export const TURN_BEAT_DURATION_MS: Record<TurnBeatKind, number> = {
-  aftershock: 1700,
-  action: 2100,
-  consult: 2100,
-  event: 1900,
-  stakeholder: 1500,
+export interface AnnalsTurn {
+  turn_number: number
+  intent: PlayerTurnIntent['type']
+  title: string
+  summary: string
+  score_changes: ScoreChangeRecord[]
+  stakeholder_changes: StakeholderChangeRecord[]
+  beats: TurnBeat[]
+}
+
+/**
+ * Player-facing kicker for one theater beat.
+ */
+export function beatKicker(kind: TurnBeatKind | undefined): string {
+  switch (kind) {
+    case 'aftershock':
+      return 'Aftershock'
+    case 'action':
+      return 'You play'
+    case 'consult':
+      return 'You search'
+    case 'event':
+      return 'The system moves'
+    case 'stakeholder':
+      return 'A voice at the table'
+    default:
+      return 'The table'
+  }
 }
 
 /**
  * Builds ordered presentation beats from one resolved turn.
  *
- * Order matches the engine pipeline: aftershocks, player intent, event,
- * then each stakeholder reaction.
+ * Replay order is the player's move, then aftershocks, then the system.
+ * The engine still computes aftershocks first; this only changes the table
+ * so the card the player just committed is visible before last turn lands.
  */
 export function buildTurnBeats(
-  context: TurnResolutionContext,
+  context: TurnBeatSource,
   names: TurnTheaterNames = {},
 ): TurnBeat[] {
   const beats: TurnBeat[] = []
-
-  for (const aftershock of context.resolved_aftershocks) {
-    beats.push({
-      id: `aftershock-${aftershock.effect_instance_id}`,
-      kind: 'aftershock',
-      title: aftershock.presentation.title,
-      summary: aftershock.presentation.summary,
-      flavor_text: aftershock.presentation.flavor_text,
-      score_changes: aftershock.score_changes,
-      stakeholder_changes: aftershock.stakeholder_changes,
-    })
-  }
 
   if (context.player_intent.type === 'consult_archives') {
     const discardedId = context.player_intent.discarded_refs[0]?.id
     const discardedName = discardedId
       ? names.cardName?.(discardedId) ?? discardedId
       : null
-    const summary = discardedName
-      ? `${context.action_resolution.presentation.summary} You set aside ${discardedName}.`
-      : context.action_resolution.presentation.summary
+    const drawnId = context.player_intent.drawn_refs[0]?.id
+    const drawnName = drawnId
+      ? names.cardName?.(drawnId) ?? drawnId
+      : null
+    const summary = consultReplaceSummary(discardedName, drawnName)
 
     beats.push({
       id: `consult-${context.turn_number}`,
@@ -91,6 +118,18 @@ export function buildTurnBeats(
       flavor_text: context.action_resolution.presentation.flavor_text,
       score_changes: context.action_resolution.score_changes,
       stakeholder_changes: context.action_resolution.stakeholder_changes,
+    })
+  }
+
+  for (const aftershock of context.resolved_aftershocks) {
+    beats.push({
+      id: `aftershock-${aftershock.effect_instance_id}`,
+      kind: 'aftershock',
+      title: aftershock.presentation.title,
+      summary: aftershock.presentation.summary,
+      flavor_text: aftershock.presentation.flavor_text,
+      score_changes: aftershock.score_changes,
+      stakeholder_changes: aftershock.stakeholder_changes,
     })
   }
 
@@ -122,6 +161,34 @@ export function buildTurnBeats(
   }
 
   return beats
+}
+
+/**
+ * Groups engine history into newest-first Annals turns.
+ *
+ * Presentation only. Totals come from the history entry when present.
+ */
+export function buildAnnalsTurns(
+  history: Array<TurnBeatSource & {
+    total_score_changes?: ScoreChangeRecord[]
+    total_stakeholder_changes?: StakeholderChangeRecord[]
+  }>,
+  names: TurnTheaterNames = {},
+): AnnalsTurn[] {
+  return [...history].reverse().map((entry) => {
+    const beats = buildTurnBeats(entry, names)
+    const commitment = beats.find((beat) => beat.kind === 'action' || beat.kind === 'consult')
+
+    return {
+      turn_number: entry.turn_number,
+      intent: entry.player_intent.type,
+      title: commitment?.title ?? `Turn ${entry.turn_number}`,
+      summary: commitment?.summary ?? '',
+      score_changes: entry.total_score_changes ?? commitment?.score_changes ?? [],
+      stakeholder_changes: entry.total_stakeholder_changes ?? commitment?.stakeholder_changes ?? [],
+      beats,
+    }
+  })
 }
 
 /**

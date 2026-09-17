@@ -1,47 +1,67 @@
 <template>
-  <div
-    class="weather-strip"
-    :class="{
-      'is-highlighted': highlight === 'scores',
-      'aftershock-highlighted': highlight === 'aftershocks',
-      'is-bound': Boolean(couplingLabel),
-    }"
-    role="group"
-    aria-label="System weather"
-  >
-    <p class="weather-clock" :class="{ 'is-late': isLate }">
-      <span class="weather-clock-kicker">Turn</span>
-      <span class="weather-clock-value">{{ currentTurn }}</span>
-      <span class="weather-clock-of">of {{ maxTurns }}</span>
-    </p>
-
-    <ol class="weather-vials">
-      <li
-        v-for="meter in meters"
-        :key="meter.id"
-        class="weather-vial"
-        :class="`weather-${meter.weather}`"
-        :title="`${meter.label}: ${meter.value} — ${meter.weatherLabel}`"
-      >
-        <span class="weather-vial-icon" aria-hidden="true">{{ meter.icon }}</span>
-        <span class="weather-vial-label">{{ meter.shortLabel }}</span>
-        <span class="weather-vial-value">{{ meter.value }}</span>
-        <span class="visually-hidden">{{ meter.label }} {{ meter.value }}, {{ meter.weatherLabel }}</span>
-      </li>
-    </ol>
-
-    <p v-if="aftershockCount > 0" class="weather-aftershock" role="status">
-      {{ aftershockCount }} aftershock{{ aftershockCount === 1 ? '' : 's' }} waiting
-    </p>
-
-    <p
-      v-if="couplingLabel"
-      class="weather-bound"
-      role="status"
-      :title="couplingDetail"
+  <div class="weather-stack">
+    <div
+      class="weather-strip"
+      :class="{
+        'is-highlighted': highlight === 'scores',
+        'aftershock-highlighted': highlight === 'aftershocks',
+        'is-bound': collapseWarnings.length > 0,
+      }"
+      role="group"
+      aria-label="Turns remaining and system weather"
     >
-      {{ couplingLabel }}
-    </p>
+      <p class="turn-clock" :class="{ 'is-late': isLate }" aria-live="polite">
+        <span class="turn-clock-count">{{ turnsLeft }}</span>
+        <span class="turn-clock-copy">
+          <span class="turn-clock-kicker">{{ turnsLeft === 1 ? 'turn left' : 'turns left' }}</span>
+          <span class="turn-clock-range">{{ currentTurn }} of {{ maxTurns }}</span>
+        </span>
+      </p>
+
+      <ol class="weather-vials">
+        <li
+          v-for="meter in meters"
+          :key="meter.id"
+          class="weather-vial"
+          :class="[
+            `weather-${meter.weather}`,
+            {
+              'is-collapsing': collapsingIds.has(meter.id),
+              'is-withering': witheringIds.has(meter.id) && !collapsingIds.has(meter.id),
+            },
+          ]"
+          :title="meter.title"
+        >
+          <span class="weather-vial-icon" aria-hidden="true">{{ meter.icon }}</span>
+          <span class="weather-vial-label">{{ meter.shortLabel }}</span>
+          <span class="weather-vial-value">{{ meter.value }}</span>
+          <span class="visually-hidden">{{ meter.label }} {{ meter.value }}, {{ meter.weatherLabel }}</span>
+        </li>
+      </ol>
+
+      <p v-if="aftershockCount > 0" class="weather-aftershock" role="status">
+        {{ aftershockCount }} aftershock{{ aftershockCount === 1 ? '' : 's' }} waiting
+      </p>
+    </div>
+
+    <aside
+      v-if="collapseWarnings.length > 0"
+      class="collapse-front"
+      :class="{ 'is-compound': collapseWarnings.length > 1 }"
+      role="alert"
+      aria-label="System collapse"
+    >
+      <span class="collapse-embers" aria-hidden="true" />
+      <article
+        v-for="warning in collapseWarnings"
+        :key="warning.triggerScoreId"
+        class="collapse-banner"
+      >
+        <p class="collapse-kicker">System bound</p>
+        <h2 class="collapse-title">{{ warning.title }}</h2>
+        <p class="collapse-copy">{{ urgencyCopy(warning) }}</p>
+      </article>
+    </aside>
   </div>
 </template>
 
@@ -49,11 +69,12 @@
 import { computed } from 'vue'
 
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
-import { getCollapseWarnings } from '@/ui/composables/system_coupling'
+import { getCollapseWarnings, type CollapseWarning } from '@/ui/composables/system_coupling'
 import {
-  compactCouplingLabel,
+  collapseUrgencyCopy,
   describeScoreWeather,
   isLateTurnClock,
+  remainingTurns,
   shortMetricLabel,
 } from '@/ui/play/weather_band'
 
@@ -69,19 +90,24 @@ const props = defineProps<{
 const aftershockCount = computed(() => props.aftershockCount ?? 0)
 
 const collapseWarnings = computed(() => getCollapseWarnings(props.scores))
-const couplingLabel = computed(() => {
-  return compactCouplingLabel(collapseWarnings.value.map((warning) => warning.title))
+const collapsingIds = computed(() => new Set(collapseWarnings.value.map((warning) => warning.triggerScoreId)))
+const witheringIds = computed(() => {
+  const ids = new Set<string>()
+  for (const warning of collapseWarnings.value) {
+    for (const scoreId of warning.affectedScoreIds) ids.add(scoreId)
+  }
+  return ids
 })
-const couplingDetail = computed(() => {
-  return collapseWarnings.value
-    .map((warning) => `${warning.title}: ${warning.description}`)
-    .join(' ')
-})
+const turnsLeft = computed(() => remainingTurns(props.currentTurn, props.maxTurns))
 const isLate = computed(() => {
   return isLateTurnClock(props.currentTurn, props.maxTurns, {
     isTutorial: props.isTutorial,
   })
 })
+
+function urgencyCopy(warning: CollapseWarning): string {
+  return collapseUrgencyCopy(warning.triggerScoreId, warning.affectedScoreIds, warning.description)
+}
 
 const meters = computed(() => {
   return Object.entries(props.scores).map(([id, value]) => {
@@ -95,12 +121,21 @@ const meters = computed(() => {
       shortLabel: shortMetricLabel(id, presentation.label),
       weather: weather.weather,
       weatherLabel: weather.label,
+      title: collapsingIds.value.has(id)
+        ? `${presentation.label}: ${Math.round(value)} — collapsing`
+        : `${presentation.label}: ${Math.round(value)} — ${weather.label}`,
     }
   })
 })
 </script>
 
 <style scoped>
+.weather-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+}
+
 .weather-strip {
   display: flex;
   align-items: center;
@@ -124,7 +159,11 @@ const meters = computed(() => {
 }
 
 .weather-strip.is-bound {
-  border-color: rgba(196, 72, 64, 0.42);
+  border-color: rgba(220, 72, 36, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 160, 80, 0.18),
+    0 0 22px rgba(196, 48, 24, 0.28),
+    0 10px 28px rgba(0, 0, 0, 0.45);
 }
 
 .weather-strip.aftershock-highlighted .weather-aftershock {
@@ -132,35 +171,66 @@ const meters = computed(() => {
   text-shadow: 0 0 12px rgba(240, 192, 80, 0.7);
 }
 
-.weather-clock {
+.turn-clock {
   margin: 0;
   display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.2rem 0.75rem 0.2rem 0.35rem;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(78, 52, 16, 0.96) 0%, rgba(32, 20, 8, 0.96) 100%);
+  border: 1px solid rgba(232, 196, 96, 0.72);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 140, 0.28),
+    0 0 18px rgba(232, 196, 96, 0.2);
   font-family: var(--font-heading);
-  color: var(--dng-title-gold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
   white-space: nowrap;
 }
 
-.weather-clock-kicker {
+.turn-clock-count {
+  min-width: 1.55rem;
+  font-size: 1.55rem;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  color: #f8e6a8;
+  text-shadow: 0 0 14px rgba(240, 200, 80, 0.5);
+}
+
+.turn-clock-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.04rem;
+}
+
+.turn-clock-kicker {
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f0c060;
+}
+
+.turn-clock-range {
   font-size: 0.62rem;
-  opacity: 0.72;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-bright);
 }
 
-.weather-clock-value {
-  font-size: 1.15rem;
-  font-weight: 600;
+.turn-clock.is-late {
+  border-color: rgba(240, 140, 120, 0.78);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 196, 168, 0.22),
+    0 0 18px rgba(196, 72, 64, 0.28);
 }
 
-.weather-clock-of {
-  font-size: 0.68rem;
-  color: var(--text-secondary);
-  letter-spacing: 0.04em;
+.turn-clock.is-late .turn-clock-count {
+  color: #f8c0b4;
+  text-shadow: 0 0 14px rgba(240, 120, 96, 0.45);
 }
 
-.weather-clock.is-late {
+.turn-clock.is-late .turn-clock-kicker {
   color: #f0a098;
 }
 
@@ -246,17 +316,132 @@ const meters = computed(() => {
   color: #f0c060;
 }
 
-.weather-bound {
-  margin: 0;
+.weather-vial.is-collapsing {
+  position: relative;
+  border-color: rgba(255, 140, 64, 0.78);
+  background: rgba(92, 18, 8, 0.72);
+  box-shadow:
+    0 0 14px rgba(255, 88, 24, 0.55),
+    inset 0 0 10px rgba(255, 120, 40, 0.28);
+  animation: collapse-flame 1.35s ease-in-out infinite;
+}
+
+.weather-vial.is-collapsing .weather-vial-value,
+.weather-vial.is-collapsing .weather-vial-label {
+  color: #ffd0b0;
+}
+
+.weather-vial.is-withering {
+  border-color: rgba(160, 72, 40, 0.55);
+  background: rgba(42, 14, 8, 0.58);
+  box-shadow: inset 0 0 0 1px rgba(180, 72, 36, 0.28);
+}
+
+.weather-vial.is-withering .weather-vial-value {
+  color: #e8a078;
+}
+
+.collapse-front {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.82rem 4.2rem 0.88rem 1.05rem;
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(255, 92, 28, 0.32), transparent 46%),
+    linear-gradient(165deg, rgba(78, 16, 8, 0.97) 0%, rgba(18, 6, 4, 0.98) 100%);
+  border: 1px solid rgba(255, 132, 56, 0.72);
+  clip-path: polygon(
+    0 8px,
+    14px 0,
+    38px 7px,
+    72% 0,
+    86% 8px,
+    calc(100% - 10px) 2px,
+    100% 10px,
+    100% calc(100% - 8px),
+    calc(100% - 16px) 100%,
+    64% calc(100% - 6px),
+    22% 100%,
+    0 calc(100% - 7px)
+  );
+  box-shadow:
+    0 0 0 1px rgba(8, 2, 0, 0.7),
+    0 0 32px rgba(220, 48, 16, 0.42),
+    0 14px 28px rgba(0, 0, 0, 0.45);
+}
+
+.collapse-front::after {
+  content: '';
+  position: absolute;
+  right: 1.05rem;
+  top: 50%;
+  width: 2.55rem;
+  height: 2.55rem;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 32%, #ffe7a8 0%, #ff7a28 42%, #8a1808 78%, #2a0804 100%);
+  box-shadow:
+    0 0 16px rgba(255, 88, 24, 0.8),
+    inset 0 0 8px rgba(255, 220, 140, 0.35);
+  pointer-events: none;
+}
+
+.collapse-front.is-compound {
+  box-shadow:
+    0 0 0 1px rgba(8, 2, 0, 0.7),
+    0 0 36px rgba(255, 48, 16, 0.48),
+    0 14px 28px rgba(0, 0, 0, 0.45);
+}
+
+.collapse-embers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 18% 82%, rgba(255, 180, 64, 0.55) 0 1.4px, transparent 1.8px),
+    radial-gradient(circle at 72% 70%, rgba(255, 96, 32, 0.5) 0 1.2px, transparent 1.6px),
+    radial-gradient(circle at 46% 90%, rgba(255, 220, 120, 0.45) 0 1px, transparent 1.4px);
+  animation: ember-rise 2.4s linear infinite;
+  opacity: 0.85;
+}
+
+.collapse-banner {
+  position: relative;
+  z-index: 1;
+}
+
+.collapse-kicker {
+  margin: 0 0 0.12rem;
   font-family: var(--font-heading);
   font-size: 0.68rem;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #f0a098;
-  padding: 0.18rem 0.55rem;
-  border-radius: 999px;
-  border: 1px solid rgba(196, 72, 64, 0.45);
-  background: rgba(72, 18, 12, 0.45);
+  color: #ffb078;
+}
+
+.collapse-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.48rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: #ffe0c0;
+  text-shadow:
+    0 0 16px rgba(255, 96, 32, 0.55),
+    0 2px 12px rgba(0, 0, 0, 0.7);
+}
+
+.collapse-copy {
+  margin: 0.22rem 0 0;
+  max-width: 42rem;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: #f4d0b8;
 }
 
 .visually-hidden {
@@ -276,8 +461,29 @@ const meters = computed(() => {
   50% { background: rgba(90, 18, 12, 0.55); }
 }
 
+@keyframes collapse-flame {
+  0%, 100% {
+    box-shadow:
+      0 0 10px rgba(255, 88, 24, 0.42),
+      inset 0 0 8px rgba(255, 120, 40, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 18px rgba(255, 120, 40, 0.72),
+      inset 0 0 14px rgba(255, 160, 64, 0.38);
+  }
+}
+
+@keyframes ember-rise {
+  0% { transform: translateY(8px); opacity: 0.35; }
+  50% { opacity: 0.9; }
+  100% { transform: translateY(-10px); opacity: 0.2; }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .weather-tempest {
+  .weather-tempest,
+  .weather-vial.is-collapsing,
+  .collapse-embers {
     animation: none;
   }
 }
@@ -286,6 +492,16 @@ const meters = computed(() => {
   .weather-strip {
     border-radius: 18px;
     padding: 0.5rem 0.6rem;
+  }
+
+  .turn-clock {
+    width: 100%;
+    justify-content: center;
+    padding: 0.35rem 0.7rem;
+  }
+
+  .turn-clock-count {
+    font-size: 1.7rem;
   }
 
   .weather-vial-label {
@@ -297,9 +513,22 @@ const meters = computed(() => {
     grid-template-columns: auto auto;
   }
 
-  .weather-bound {
-    width: 100%;
-    text-align: center;
+  .collapse-front {
+    padding: 0.7rem 0.8rem 0.75rem;
+    clip-path: none;
+    border-radius: 4px 18px 4px 18px;
+  }
+
+  .collapse-front::after {
+    display: none;
+  }
+
+  .collapse-title {
+    font-size: 1.22rem;
+  }
+
+  .collapse-copy {
+    font-size: 0.82rem;
   }
 }
 </style>

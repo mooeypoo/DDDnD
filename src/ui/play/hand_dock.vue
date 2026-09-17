@@ -4,37 +4,56 @@
     data-play-highlight="hand"
     aria-label="Your hand"
   >
-    <p class="hand-kicker">
-      <span>Hand</span>
-      <span class="hand-count">{{ cards.length }}</span>
-    </p>
-
-    <div class="hand-fan" role="list">
-      <div
-        v-for="(entry, index) in cards"
-        :key="entry.card.id + '-v' + entry.card.version"
-        class="fan-slot"
-        :style="fanStyle(index)"
-        role="listitem"
+    <div class="hand-stage">
+      <button
+        v-if="canConsult"
+        class="consult-action"
+        type="button"
+        :class="{ armed: consultMode }"
+        :disabled="isDisabled"
+        @click="$emit('toggleConsult')"
       >
-        <TableCard
-          :card="entry.card"
-          :availability="entry.availability"
-          :isDisabled="isDisabled"
-          :isTutorialLocked="isCardLocked(entry.card.id)"
-          :isTutorialHighlighted="isCardHighlighted(entry.card.id)"
-          :primaryActionLabel="primaryActionLabel"
-          @showDetails="$emit('showDetails', entry.card.id)"
-          @play="$emit('play', $event)"
-        />
+        <span class="consult-kicker">{{ consultMode ? 'Searching the shelves' : 'Replace a card in hand' }}</span>
+        <span class="consult-title">{{ consultMode ? 'Cancel search' : 'Consult the Archives' }}</span>
+        <span class="consult-copy">
+          {{ consultMode
+            ? 'Mark a hand card and choose a Grimoire page, or take a random one.'
+            : 'Spend the turn. Search the Grimoire for a replacement.' }}
+        </span>
+      </button>
+
+      <div class="hand-main">
+        <p class="hand-kicker">
+          <span>Hand</span>
+          <span class="hand-count">{{ cards.length }}</span>
+        </p>
+
+        <div class="hand-fan" role="list">
+          <div
+            v-for="(entry, index) in cards"
+            :key="entry.card.id + '-v' + entry.card.version"
+            class="fan-slot"
+            :data-card-id="entry.card.id"
+            :style="fanStyle(index)"
+            role="listitem"
+          >
+            <TableCard
+              :card="entry.card"
+              :availability="entry.availability"
+              :isDisabled="isDisabled"
+              :isTutorialLocked="isCardLocked(entry.card.id)"
+              :isTutorialHighlighted="isCardHighlighted(entry.card.id)"
+              @showDetails="$emit('showDetails', entry.card.id)"
+              @play="$emit('play', $event)"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-
 import type { Card } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import TableCard from '@/ui/play/table_card.vue'
@@ -45,14 +64,14 @@ const props = defineProps<{
   isDisabled?: boolean
   requiredCardId?: string | null
   consultMode?: boolean
+  canConsult?: boolean
 }>()
 
 defineEmits<{
   play: [cardId: string]
   showDetails: [cardId: string]
+  toggleConsult: []
 }>()
-
-const primaryActionLabel = computed(() => (props.consultMode ? 'Set aside' : undefined))
 
 function isCardLocked(cardId: string): boolean {
   if (props.consultMode) {
@@ -84,6 +103,73 @@ function fanStyle(index: number) {
   position: relative;
   min-height: var(--hand-dock-height, 260px);
   padding: 0.2rem 0.4rem 1.6rem;
+}
+
+.hand-stage {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0.7rem;
+}
+
+.hand-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.consult-action {
+  appearance: none;
+  flex: 0 0 auto;
+  width: min(13.5rem, 36vw);
+  margin-bottom: 1.4rem;
+  padding: 0.85rem 0.85rem 0.9rem;
+  text-align: left;
+  border-radius: 14px;
+  border: 1px solid rgba(232, 196, 96, 0.7);
+  background:
+    linear-gradient(180deg, rgba(78, 52, 16, 0.98), rgba(26, 16, 6, 0.96));
+  color: var(--text-primary);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 220, 140, 0.28),
+    0 0 18px rgba(232, 196, 96, 0.18),
+    0 10px 22px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+
+.consult-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.consult-action.armed {
+  border-color: rgba(240, 208, 96, 0.85);
+  box-shadow:
+    0 0 0 1px rgba(240, 208, 96, 0.35),
+    0 10px 22px rgba(0, 0, 0, 0.4);
+}
+
+.consult-kicker {
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f0c060;
+}
+
+.consult-title {
+  display: block;
+  margin: 0.2rem 0 0.3rem;
+  font-family: var(--font-heading);
+  font-size: 1.02rem;
+  line-height: 1.2;
+  color: var(--dng-title-gold);
+}
+
+.consult-copy {
+  display: block;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--text-secondary);
 }
 
 .hand-kicker {
@@ -133,6 +219,16 @@ function fanStyle(index: number) {
     --hand-dock-height: 210px;
   }
 
+  .hand-stage {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .consult-action {
+    width: 100%;
+    margin-bottom: 0;
+  }
+
   .hand-fan {
     justify-content: flex-start;
     overflow-x: auto;
@@ -146,6 +242,7 @@ function fanStyle(index: number) {
     scroll-snap-align: center;
     flex: 0 0 auto;
   }
+
 }
 
 @media (prefers-reduced-motion: reduce) {

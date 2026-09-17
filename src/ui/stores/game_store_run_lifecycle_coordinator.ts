@@ -172,7 +172,7 @@ export function createGameStoreRunLifecycleCoordinator(
     }
   }
 
-  async function consultArchives(discardIds: string[]): Promise<PlayTurnResult> {
+  async function consultArchives(discardIds: string[], drawId?: string): Promise<PlayTurnResult> {
     if (!state.engine.value) {
       throw new Error('No active engine')
     }
@@ -180,7 +180,9 @@ export function createGameStoreRunLifecycleCoordinator(
     state.isPlayingTurn.value = true
 
     try {
-      const result = state.engine.value.consult_archives(discardIds)
+      const result = drawId
+        ? state.engine.value.consult_archives(discardIds, drawId)
+        : state.engine.value.consult_archives(discardIds)
       return applyResolvedTurn(result)
     } finally {
       state.isPlayingTurn.value = false

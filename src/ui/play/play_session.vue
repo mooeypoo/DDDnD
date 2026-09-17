@@ -31,8 +31,23 @@
     <GrimoirePanel
       :isOpen="isGrimoireOpen"
       :cards="deckCardEntries"
-      @close="isGrimoireOpen = false"
+      :handCards="handCardEntries"
+      :replaceMode="isConsultMode"
+      :selectedHandId="pendingDiscardId"
+      :selectedDeckId="pendingDrawId"
+      @close="closeGrimoire"
       @inspect="handleInspectFromGrimoire"
+      @selectHand="selectConsultHand"
+      @selectDeck="selectConsultDeck"
+      @randomReplace="beginRandomConsultReplace"
+      @confirmReplace="beginChosenConsultReplace"
+    />
+
+    <AnnalsPanel
+      :isOpen="isAnnalsOpen"
+      :turns="annalsTurns"
+      :stakeholderNames="stakeholderNames"
+      @close="isAnnalsOpen = false"
     />
 
     <CardDetailsModal
@@ -41,12 +56,12 @@
       :card="modalCard"
       :isDisabled="tableLocked"
       :isTutorialLocked="!isConsultMode && isTutorialCardLocked(modalCardId)"
-      :isInspectOnly="!isModalCardInHand"
+      :isInspectOnly="isModalInspectOnly"
       :availability="modalCardAvailability"
       :stakeholderNames="stakeholderNames"
       :scores="gameStore.turnBriefing?.current_scores"
       :scoreAdjustments="modifierScoreAdjustments"
-      :primaryActionLabel="isConsultMode && isModalCardInHand ? 'Set aside' : undefined"
+      :primaryActionLabel="modalPrimaryActionLabel"
       @close="modalCardId = null"
       @play="handleHandCardAction"
     />
@@ -63,9 +78,17 @@
       @leave="handleLeaveTutorial"
     />
 
-    <div class="play-chamber">
-      <div class="chamber-glow" aria-hidden="true" />
-      <div class="chamber-grain" aria-hidden="true" />
+    <div
+      class="play-chamber"
+      :class="{
+        'is-collapsing': isCollapsing,
+        'is-compound-storm': collapseCount > 1,
+      }"
+    >
+      <div class="chamber-glow chamber-atmosphere" aria-hidden="true" />
+      <div v-if="isCollapsing" class="chamber-smoke chamber-atmosphere" aria-hidden="true" />
+      <div v-if="isCollapsing" class="chamber-ember chamber-atmosphere" aria-hidden="true" />
+      <div class="chamber-grain chamber-atmosphere" aria-hidden="true" />
 
       <WeatherStrip
         :scores="currentScores"
@@ -75,10 +98,6 @@
         :highlight="tableHighlight"
         :isTutorial="gameStore.tutorial.isTutorialMode"
       />
-
-      <p v-if="isConsultMode" class="consult-banner" role="status">
-        Choose one hand card to set aside. The system keeps moving.
-      </p>
 
       <WarTable
         :actors="stageActors"
@@ -90,7 +109,17 @@
         :playerClassId="playerClassId"
         :playerClassName="playerClassName"
         :isAdjourned="isAdjourned"
-        @skipTheater="skipTheater"
+        :beatIndex="theaterBeatIndex"
+        :beatCount="theaterBeatCount"
+        :fxKind="fxKind"
+        :voicingStakeholderId="voicingStakeholderId"
+        :fxEventId="fxEventId"
+        :fxTone="fxTone"
+        :landedCardName="landedCardName"
+        :isCollapsing="isCollapsing"
+        :collapseCount="collapseCount"
+        @continueTheater="continueTheater"
+        @skipTheater="handleSkipTheater"
         @viewResults="goToEndScreen"
       />
 
@@ -102,13 +131,11 @@
       />
 
       <TableTools
-        v-if="!gameStore.isRunComplete && (canConsultArchives || deckCardEntries.length > 0)"
-        :canConsult="canConsultArchives"
-        :consultMode="isConsultMode"
+        v-if="deckCardEntries.length > 0 || annalsTurns.length > 0"
         :deckCount="deckCardEntries.length"
-        :disabled="tableLocked"
-        @toggleConsult="isConsultMode = !isConsultMode"
-        @openGrimoire="isGrimoireOpen = true"
+        :historyCount="annalsTurns.length"
+        @openGrimoire="openGrimoire"
+        @openAnnals="openAnnals"
       />
 
       <HandDock
@@ -117,12 +144,29 @@
         :isDisabled="tableLocked"
         :requiredCardId="tutorialRequiredCardId"
         :consultMode="isConsultMode"
+        :canConsult="canConsultArchives"
         @showDetails="handleShowDetails"
         @play="handleHandCardAction"
+        @toggleConsult="toggleConsult"
       />
 
       <TutorialPointerArrow :show="showHandArrow" target="hand" />
     </div>
+
+    <CommitmentFlight :flight="commitmentFlight" />
+
+    <ArchiveReplace
+      v-if="archiveOffer"
+      :kind="archiveOffer.kind"
+      :phase="archiveOffer.phase"
+      :outgoing="archiveOffer.outgoing"
+      :incoming="archiveOffer.incoming"
+      :canCancel="archiveOffer.canCancel"
+      :swapping="archiveOffer.swapping"
+      @cancel="cancelArchiveReplace"
+      @confirm="confirmConsultReplace"
+      @accept="acceptArchiveReplace"
+    />
 
     <Transition name="tutorial-popup">
       <div
@@ -164,6 +208,7 @@ import {
   type StakeholderSpeechBubblePresentation,
 } from '@/ui/composables/gameplay_stage_presentation'
 import { buildStakeholderSpeechBubbles } from '@/ui/composables/stakeholder_reaction_bubbles'
+import { getCollapseWarnings, hasActiveCoupling } from '@/ui/composables/system_coupling'
 import type { AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AboutModal from '@/ui/components/common/about_modal.vue'
@@ -182,27 +227,57 @@ import WarTable from '@/ui/play/war_table.vue'
 import HandDock from '@/ui/play/hand_dock.vue'
 import TableTools from '@/ui/play/table_tools.vue'
 import GrimoirePanel from '@/ui/play/grimoire_panel.vue'
+import AnnalsPanel from '@/ui/play/annals_panel.vue'
+import CommitmentFlight from '@/ui/play/commitment_flight.vue'
+import ArchiveReplace from '@/ui/play/archive_replace.vue'
+import { diffHandCards, peekConsultDrawId, type ArchiveReplaceOffer } from '@/ui/play/hand_swap'
+import { buildAnnalsTurns } from '@/ui/play/turn_theater'
 import { useTurnTheater } from '@/ui/play/use_turn_theater'
+import { useCommitmentFlight } from '@/ui/play/use_commitment_flight'
 
 const router = useRouter()
 const gameStore = useGameStore()
 const {
   currentBeat,
+  beatIndex: theaterBeatIndex,
+  beatCount: theaterBeatCount,
   isActive: isTheaterActive,
   isComplete: isTheaterComplete,
+  fxKind,
+  voicingStakeholderId,
+  fxEventId,
+  fxTone,
   play: playTheater,
+  advance: continueTheater,
   skip: skipTheater,
   dismiss: dismissTheater,
 } = useTurnTheater()
+const {
+  flight: commitmentFlight,
+  landedName: landedCardName,
+  capture: captureCommitment,
+  holdCaptured,
+  playCaptured: playCommitmentFlight,
+  settle: settleCommitment,
+  clear: clearCommitment,
+} = useCommitmentFlight()
 
 const modalCardId = ref<string | null>(null)
 const isConsultMode = ref(false)
+const archiveOffer = ref<ArchiveReplaceOffer | null>(null)
+const pendingDiscardId = ref<string | null>(null)
+const pendingDrawId = ref<string | null>(null)
+const pendingTheaterAfterReplace = ref(false)
+const pendingForcedReplace = ref<ArchiveReplaceOffer | null>(null)
 const isGrimoireOpen = ref(false)
+const isAnnalsOpen = ref(false)
 const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const pendingStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 const activeStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 
-const tableLocked = computed(() => gameStore.isPlayingTurn || isTheaterActive.value)
+const tableLocked = computed(() => {
+  return gameStore.isPlayingTurn || isTheaterActive.value || Boolean(commitmentFlight.value) || Boolean(archiveOffer.value)
+})
 
 const scenario = computed(() => gameStore.scenarioBundle?.scenario)
 const playerDisplayName = computed(() => gameStore.gameState?.player_profile.display_name)
@@ -247,6 +322,9 @@ const modifierScoreAdjustments = computed(() => {
 })
 
 const currentScores = computed(() => gameStore.turnBriefing?.current_scores ?? {})
+const collapseWarnings = computed(() => getCollapseWarnings(currentScores.value))
+const isCollapsing = computed(() => hasActiveCoupling(currentScores.value))
+const collapseCount = computed(() => collapseWarnings.value.length)
 const pendingAftershockCount = computed(() => {
   return gameStore.turnBriefing?.pending_delayed_effects_resolving_this_turn.length ?? 0
 })
@@ -306,12 +384,35 @@ const modalCard = computed(() => {
 
 const modalCardAvailability = computed(() => {
   if (!modalCardId.value) return undefined
-  return availableCardEntries.value.find((entry) => entry.card.id === modalCardId.value)?.availability
+  const availability = availableCardEntries.value.find((entry) => entry.card.id === modalCardId.value)?.availability
+  if (isConsultMode.value && isModalCardInHand.value && availability) {
+    return { ...availability, is_playable: true }
+  }
+  return availability
 })
 
 const isModalCardInHand = computed(() => {
   if (!modalCardId.value) return false
   return handCardEntries.value.some((entry) => entry.card.id === modalCardId.value)
+})
+
+const isModalCardInDeck = computed(() => {
+  if (!modalCardId.value) return false
+  return deckCardEntries.value.some((entry) => entry.card.id === modalCardId.value)
+})
+
+const isModalInspectOnly = computed(() => {
+  if (isConsultMode.value) {
+    return !isModalCardInHand.value && !isModalCardInDeck.value
+  }
+  return !isModalCardInHand.value
+})
+
+const modalPrimaryActionLabel = computed(() => {
+  if (!isConsultMode.value) return undefined
+  if (isModalCardInHand.value) return 'Set aside'
+  if (isModalCardInDeck.value) return 'Take this'
+  return undefined
 })
 
 const stakeholderNames = computed((): Record<string, string> => {
@@ -328,6 +429,22 @@ const stageActors = computed(() => {
 })
 
 const canConsultArchives = computed(() => gameStore.turnBriefing?.can_consult_archives === true)
+
+const theaterNames = computed(() => ({
+  cardName: (id: string) => {
+    const found = gameStore.scenarioBundle?.cards
+    if (!found) return id
+    for (const card of found.values()) {
+      if (card.id === id) return card.name
+    }
+    return id
+  },
+  stakeholderName: (id: string) => stakeholderNames.value[id] ?? id,
+}))
+
+const annalsTurns = computed(() => {
+  return buildAnnalsTurns(gameStore.gameState?.history ?? [], theaterNames.value)
+})
 
 const isAdjourned = computed(() => gameStore.isRunComplete && !isTheaterActive.value)
 
@@ -367,6 +484,13 @@ watch(scenario, (newScenario, oldScenario) => {
   }
 })
 
+watch([fxKind, currentBeat], ([kind, beat]) => {
+  const momentKind = kind ?? beat?.kind
+  if (momentKind === 'action' || momentKind === 'consult') {
+    void playCommitmentFlight()
+  }
+})
+
 watch(currentBeat, (beat) => {
   if (beat?.kind === 'stakeholder' && beat.stakeholder_id) {
     const bubble = pendingStakeholderBubbles.value[beat.stakeholder_id]
@@ -377,6 +501,10 @@ watch(currentBeat, (beat) => {
 watch(isTheaterComplete, (done) => {
   if (done) {
     activeStakeholderBubbles.value = pendingStakeholderBubbles.value
+    if (pendingForcedReplace.value) {
+      archiveOffer.value = pendingForcedReplace.value
+      pendingForcedReplace.value = null
+    }
   }
 })
 
@@ -434,6 +562,30 @@ function handleInspectFromGrimoire(cardId: string) {
   modalCardId.value = cardId
 }
 
+function openGrimoire() {
+  isAnnalsOpen.value = false
+  isGrimoireOpen.value = true
+}
+
+function closeGrimoire() {
+  isGrimoireOpen.value = false
+  if (isConsultMode.value && !archiveOffer.value) {
+    isConsultMode.value = false
+    pendingDiscardId.value = null
+    pendingDrawId.value = null
+  }
+}
+
+function openAnnals() {
+  isGrimoireOpen.value = false
+  isAnnalsOpen.value = true
+  if (isConsultMode.value && !archiveOffer.value) {
+    isConsultMode.value = false
+    pendingDiscardId.value = null
+    pendingDrawId.value = null
+  }
+}
+
 async function applyCommittedTurn() {
   const turnResolution = gameStore.lastTurnResolution?.turn_resolution_context
   if (!turnResolution) {
@@ -449,51 +601,204 @@ async function applyCommittedTurn() {
   )
   activeStakeholderBubbles.value = {}
 
-  playTheater(turnResolution, {
-    cardName: (id) => {
-      const found = gameStore.scenarioBundle?.cards
-      if (!found) return id
-      for (const card of found.values()) {
-        if (card.id === id) return card.name
-      }
-      return id
-    },
-    stakeholderName: (id) => stakeholderNames.value[id] ?? id,
-  })
+  playTheater(turnResolution, theaterNames.value)
 
   if (gameStore.isRunComplete) {
     gameStore.get_run_outcome()
   }
 }
 
+function snapshotHandIds(): string[] {
+  return handCardEntries.value.map((entry) => entry.card.id)
+}
+
+function cardLabel(cardId: string): string {
+  const fromBriefing = availableCardEntries.value.find((entry) => entry.card.id === cardId)?.card.name
+  if (fromBriefing) return fromBriefing
+  if (!gameStore.scenarioBundle) return cardId
+  for (const card of gameStore.scenarioBundle.cards.values()) {
+    if (card.id === cardId) return card.name
+  }
+  return cardId
+}
+
+function labeledCards(ids: string[]) {
+  return ids.map((id) => ({ id, name: cardLabel(id) }))
+}
+
+function toggleConsult() {
+  if (archiveOffer.value) return
+  if (isConsultMode.value) {
+    isConsultMode.value = false
+    pendingDiscardId.value = null
+    pendingDrawId.value = null
+    isGrimoireOpen.value = false
+    return
+  }
+
+  isConsultMode.value = true
+  isAnnalsOpen.value = false
+  isGrimoireOpen.value = true
+}
+
+function selectConsultHand(cardId: string) {
+  pendingDiscardId.value = cardId
+  modalCardId.value = null
+}
+
+function selectConsultDeck(cardId: string) {
+  pendingDrawId.value = cardId
+  modalCardId.value = null
+}
+
+function peekRandomDrawId(): string | null {
+  const playableDeckIds = deckCardEntries.value
+    .filter((entry) => entry.availability?.is_playable !== false)
+    .map((entry) => entry.card.id)
+  return peekConsultDrawId(
+    deckCardEntries.value.map((entry) => entry.card.id),
+    playableDeckIds,
+  )
+}
+
+function openConsultApproval() {
+  const discardedId = pendingDiscardId.value
+  const drawId = pendingDrawId.value
+  if (!discardedId || !drawId) return
+
+  modalCardId.value = null
+  isGrimoireOpen.value = false
+  archiveOffer.value = {
+    kind: 'consult',
+    phase: 'confirm',
+    outgoing: labeledCards([discardedId]),
+    incoming: labeledCards([drawId]),
+    canCancel: true,
+    swapping: false,
+  }
+}
+
+function beginChosenConsultReplace() {
+  if (!pendingDiscardId.value || !pendingDrawId.value) return
+  openConsultApproval()
+}
+
+function beginRandomConsultReplace() {
+  if (!pendingDiscardId.value) return
+  const drawId = peekRandomDrawId()
+  if (!drawId) return
+  pendingDrawId.value = drawId
+  openConsultApproval()
+}
+
+function cancelArchiveReplace() {
+  const wasConsultApproval = archiveOffer.value?.kind === 'consult' && archiveOffer.value.canCancel
+  archiveOffer.value = null
+  if (wasConsultApproval) {
+    isConsultMode.value = true
+    isGrimoireOpen.value = true
+    return
+  }
+
+  pendingDiscardId.value = null
+  pendingDrawId.value = null
+}
+
+async function confirmConsultReplace() {
+  const discardedId = pendingDiscardId.value
+  const drawId = pendingDrawId.value
+  if (!discardedId || !drawId) {
+    cancelArchiveReplace()
+    return
+  }
+
+  const previousIds = snapshotHandIds()
+  isConsultMode.value = false
+  isGrimoireOpen.value = false
+  isAnnalsOpen.value = false
+  dismissTheater()
+  clearCommitment()
+  pendingStakeholderBubbles.value = {}
+  activeStakeholderBubbles.value = {}
+  await gameStore.consult_archives([discardedId], drawId)
+
+  const diff = diffHandCards(previousIds, snapshotHandIds(), { discardedId })
+  archiveOffer.value = null
+  pendingTheaterAfterReplace.value = false
+  pendingForcedReplace.value = diff.unplayableDepartedIds.length > 0
+    ? {
+        kind: 'forced',
+        phase: 'reveal',
+        outgoing: labeledCards(diff.unplayableDepartedIds),
+        incoming: labeledCards(diff.arrivedIds.filter((id) => id !== drawId)),
+        canCancel: false,
+        swapping: true,
+      }
+    : null
+  pendingDiscardId.value = null
+  pendingDrawId.value = null
+  void applyCommittedTurn()
+}
+
+function acceptArchiveReplace() {
+  archiveOffer.value = null
+  if (pendingTheaterAfterReplace.value) {
+    pendingTheaterAfterReplace.value = false
+    void applyCommittedTurn()
+  }
+}
+
 async function handleHandCardAction(cardId: string) {
   if (isConsultMode.value) {
-    await handleConsultCard(cardId)
+    if (handCardEntries.value.some((entry) => entry.card.id === cardId)) {
+      selectConsultHand(cardId)
+      return
+    }
+    if (deckCardEntries.value.some((entry) => entry.card.id === cardId)) {
+      selectConsultDeck(cardId)
+      return
+    }
     return
   }
 
   await handlePlayCard(cardId)
 }
 
+function handleSkipTheater() {
+  skipTheater()
+  settleCommitment()
+}
+
+function cardNameInHand(cardId: string): string {
+  return handCardEntries.value.find((entry) => entry.card.id === cardId)?.card.name ?? cardId
+}
+
 async function handlePlayCard(cardId: string) {
   modalCardId.value = null
   isConsultMode.value = false
   isGrimoireOpen.value = false
+  isAnnalsOpen.value = false
+  pendingDiscardId.value = null
+  pendingDrawId.value = null
   dismissTheater()
+  clearCommitment()
+  const previousIds = snapshotHandIds()
+  captureCommitment(cardId, cardNameInHand(cardId), 'play')
+  holdCaptured()
   pendingStakeholderBubbles.value = {}
   activeStakeholderBubbles.value = {}
   await gameStore.play_turn(cardId)
-  await applyCommittedTurn()
-}
-
-async function handleConsultCard(cardId: string) {
-  modalCardId.value = null
-  isConsultMode.value = false
-  isGrimoireOpen.value = false
-  dismissTheater()
-  pendingStakeholderBubbles.value = {}
-  activeStakeholderBubbles.value = {}
-  await gameStore.consult_archives([cardId])
+  const diff = diffHandCards(previousIds, snapshotHandIds(), { playedId: cardId })
+  pendingForcedReplace.value = diff.unplayableDepartedIds.length > 0
+    ? {
+        kind: 'forced',
+        phase: 'reveal',
+        outgoing: labeledCards(diff.unplayableDepartedIds),
+        incoming: labeledCards(diff.arrivedIds),
+        canCancel: false,
+        swapping: true,
+      }
+    : null
   await applyCommittedTurn()
 }
 
@@ -521,7 +826,7 @@ function goToEndScreen() {
   gap: 0.65rem;
 }
 
-.play-chamber > *:not(.chamber-glow):not(.chamber-grain) {
+.play-chamber > *:not(.chamber-atmosphere) {
   position: relative;
   z-index: 1;
 }
@@ -536,6 +841,46 @@ function goToEndScreen() {
     radial-gradient(ellipse at 50% 72%, rgba(18, 48, 56, 0.28), transparent 48%);
 }
 
+.play-chamber.is-collapsing .chamber-glow {
+  background:
+    radial-gradient(ellipse at 50% 12%, rgba(210, 48, 12, 0.38), transparent 46%),
+    radial-gradient(ellipse at 18% 80%, rgba(120, 24, 8, 0.32), transparent 42%),
+    radial-gradient(ellipse at 82% 78%, rgba(80, 16, 8, 0.28), transparent 44%);
+}
+
+.play-chamber.is-compound-storm .chamber-glow {
+  background:
+    radial-gradient(ellipse at 50% 10%, rgba(255, 40, 8, 0.48), transparent 48%),
+    radial-gradient(ellipse at 12% 84%, rgba(140, 16, 4, 0.4), transparent 44%),
+    radial-gradient(ellipse at 88% 80%, rgba(96, 8, 4, 0.36), transparent 46%);
+}
+
+.chamber-smoke {
+  position: absolute;
+  inset: -8% 0 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 30% 18%, rgba(48, 16, 10, 0.42), transparent 36%),
+    radial-gradient(ellipse at 72% 8%, rgba(28, 10, 6, 0.38), transparent 32%);
+  filter: blur(18px);
+  animation: chamber-drift 7s ease-in-out infinite;
+}
+
+.chamber-ember {
+  position: absolute;
+  inset: auto 8% 12% 8%;
+  height: 42%;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 18% 80%, rgba(255, 140, 48, 0.55) 0 2px, transparent 2.6px),
+    radial-gradient(circle at 46% 70%, rgba(255, 80, 24, 0.5) 0 1.6px, transparent 2.2px),
+    radial-gradient(circle at 78% 84%, rgba(255, 196, 96, 0.45) 0 1.4px, transparent 2px);
+  animation: chamber-sparks 2.6s linear infinite;
+  opacity: 0.8;
+}
+
 .chamber-grain {
   position: absolute;
   inset: 0;
@@ -546,15 +891,22 @@ function goToEndScreen() {
   background-size: 3px 3px;
 }
 
-.consult-banner {
-  position: relative;
-  z-index: 1;
-  margin: 0;
-  text-align: center;
-  font-family: var(--font-heading);
-  font-size: 0.82rem;
-  letter-spacing: 0.06em;
-  color: var(--dng-title-gold);
+@keyframes chamber-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.72; }
+  50% { transform: translate3d(2%, -3%, 0); opacity: 1; }
+}
+
+@keyframes chamber-sparks {
+  0% { transform: translateY(8px); opacity: 0.35; }
+  50% { opacity: 0.9; }
+  100% { transform: translateY(-18px); opacity: 0.2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chamber-smoke,
+  .chamber-ember {
+    animation: none;
+  }
 }
 
 .tutorial-popup-backdrop {

@@ -61,7 +61,7 @@ That is the lecture version of the bet: if you keep the rules UI-agnostic, you c
 
 - **Legal hand of 6**, not a catalog of 21–26 playable buttons.
 - **Inspect-only Grimoire** for the remaining deck. Seeing the pack is still part of teaching. Playing from it is not.
-- **Consult the Archives**: spend the turn to discard 1 card from hand and draw a replacement. Aftershocks, event, and stakeholders still resolve. Searching for a better option is delay. That is the architecture joke.
+- **Consult the Archives**: spend the turn to set aside 1 hand card and draw a replacement from the remaining deck. The player may name a remaining deck card, or take the next legal page. Aftershocks, event, and stakeholders still resolve. Searching for a better option is delay. That is the architecture joke.
 - **Turn theater**: `play_turn` stays atomic in the engine. The UI later *replays* the phase records as beats.
 - **War table presentation**: portrait-first, scene-as-place, compact “weather” instead of an observability HUD.
 - **Modest extra turn budget** on main scenarios (about +2), as a new content version, after we have an audit baseline under the new hand rules. Not a doubled clock. Tutorials stay small.
@@ -105,7 +105,7 @@ Seeded. Not `Math.random()`. Two cards biased toward current pressure (lowest sc
 This is an **engine verb**, not a fake content card. Pack authors should not have to remember to include a “search” card. The engine grows a sibling API:
 
 - `play_turn(action_id)` — play a card from hand
-- `consult_archives(discard_ids)` — spend the turn, replace 1 card, no card effects, full pipeline otherwise
+- `consult_archives(discard_ids, draw_id?)` — spend the turn, replace 1 card, no card effects, full pipeline otherwise. `draw_id` names a remaining deck card; omit it to draw the next legal page.
 
 History records a `player_intent` so exact-run replay knows whether the turn was a card or a consult, and which card was discarded. Exact-run format v2 stores `turn_intents` for that sequence. Saves restore `hand_state`.
 
@@ -237,7 +237,7 @@ Saves restore hand and deck. Exact-run replay includes consult intents. Bump exa
 
 - Satchel lists `hand_action_summaries` only.
 - Deck cards render in an inspect-only Grimoire section. Details modal play is hidden for those cards.
-- Consult the Archives is an engine call (`consult_archives`), not a fake content card. The player picks one hand card to set aside.
+- Consult the Archives is an engine call (`consult_archives`), not a fake content card. The player marks one hand card to set aside and may name a remaining deck card to pull. Omitting `draw_id` still draws FIFO. This is not a free catalog: it costs the turn.
 
 ### Slice 5 — Turn budget (deferred until human play)
 
@@ -259,7 +259,7 @@ The hand bot almost never consults, and two scenarios are already too easy on th
 
 `src/ui/play/`: session director that replays `turn_resolution_context` phases, portrait table, hand dock, compact meters, existing scene/avatar registries. Route `/game` defaults to the table; `?stage=legacy` restores the satchel stage. Tutorial highlight `satchel` maps to `hand` in UI (alias, not a content rewrite). CSS/2.5D first.
 
-Landed: `/game` is a candlelit council table. Scores are weather vials. The legal hand sits on the near rim. Consult and Grimoire are table tools. After `play_turn` / `consult_archives`, the UI replays aftershocks → commitment → event → stakeholder voices. The engine APIs are unchanged.
+Landed: `/game` is a candlelit council table. Scores are weather vials. The legal hand sits on the near rim. Consult and Grimoire are table tools. After `play_turn` / `consult_archives`, the UI replays the player's move, then aftershocks, then event and stakeholder voices. `consult_archives` may name a remaining deck card. The engine still computes aftershocks first.
 
 ### Slice 7 — War table finish
 
@@ -269,8 +269,26 @@ Human-play polish on the slice 6 shell. Still no Three.js and no `max_turns` bum
 - Card details stack above the Grimoire instead of under it.
 - Tutorial popups wait until turn theater finishes. `satchel` / `scores` / `stakeholders` / `aftershocks` highlights map onto the hand, weather strip, and seats.
 - The player sits at the near rim with their `playerClass` portrait. The scenario name is engraved on the table.
-- Coupling is compact weather from `getCollapseWarnings` (engine thresholds), not a HUD popup.
+- Coupling is a table-wide storm from `getCollapseWarnings` (engine thresholds): a torn banner naming the collapse and what withers, fire on the triggering vial, ember on the table rim. Not a HUD popup.
 - Adjourn is a table moment after theater. Portrait layout tightens the chamber.
+
+### Slice 8 — Player-paced theater, Annals, and Consult as a turn
+
+Human-play corrections on the finished table. Still no Three.js and no `max_turns` bump.
+
+- Turn theater waits for **Continue**. Skip remaining stays for people who want speed. The engine turn is still atomic.
+- **Annals** is an inspect-only panel over `gameState.history`, opened from a look plaque next to Grimoire.
+- **Consult the Archives** opens the Grimoire in replace mode: mark a hand card, choose a remaining page (score glance and inspect stay available), or take a random legal page. An approval names both cards — “X replaced by Y” — and only then does `consult_archives(discard_ids, draw_id)` spend the turn. Cancel returns to the Grimoire. Forced unplayable refills still have no cancel.
+
+### Slice 9 — Table moments: card flight, beat interludes, remaining-turn clock
+
+Immersion pass on the finished table. Still no Three.js and no `max_turns` bump. The engine turn is still atomic.
+
+- Playing a card (or finishing a consult swap) lands on the table first. Aftershocks follow as last turn catching up. The engine still computes aftershocks first; only the replay order changed so the move the player just made is visible before the storm. Consult is a Grimoire search: mark, choose or randomize, approve both names, then the engine spends the turn.
+- Each beat opens with a short, kind-specific interlude. Aftershocks pause, shake the table hard, and drop a visible lightning bolt plus a crack across the inlay. The aftershock note is a broken-tablet plaque with a large **Aftershock** stamp and an outer glow tinted by engine deltas (boon / blow). System events keep a muted bolt. The speaking stakeholder stays enlarged and gold-lit while their reaction plaque is up, and only returns to seat size on Continue. Reduced motion skips the flourishes and still waits for Continue.
+- The weather strip clock counts **turns left**, not only "Turn N of M", and stays a full-width chip on mobile.
+- Engine collapses (morale, delivery, trust, tutorial capacity/health) take over the chamber: a torn storm banner names the bound system and what withers, the triggering vial burns, and the table rim smolders until the trigger score recovers. Thresholds stay in the engine.
+- Cards that the engine drops as unplayable after a turn are thrown back to the shelves with the same replace overlay. The player cannot cancel that refill; the hand stays at legal size.
 
 ---
 
@@ -284,8 +302,41 @@ A few sentences that are true and useful:
 - Consult is the fairness valve that is also the lesson: waiting for a better option is a decision the system will charge you for.
 - Domain-driven design here is not ceremony. It is why the engine tests still mean something after the interface changes.
 - Content packs are the expansion model. The war table is a client of packs, not a replacement for them.
+- Honesty about **rules** is not the same as honesty about **attention**. The engine may resolve last turn first. The player still needs to see the move they just made land before the world answers.
 
 When a slice lands, add a short dated note under [Changelog for writers](#changelog-for-writers) so the story stays in sync with the code.
+
+### Decisions from sitting at the table (2026-09-17)
+
+These are the reversals and refinements that happened after a human sat at `/game`. Useful for a talk because they show the architecture surviving contact with play, not a design doc surviving contact with a whiteboard.
+
+**The table has to wait.** First theater autoplayed every phase. Aftershocks, the card, the event, and stakeholder voices stacked faster than anyone could read. **Continue** is the smallest honest pacing: the engine turn stays atomic; the replay is player-paced. Skip remaining stays for people who want speed.
+
+**History is a look, not a HUD.** Annals reads `gameState.history`. Same boundary as the Grimoire: inspect, do not invent.
+
+**Consult looked broken because the ceremony lied.** The engine already FIFO-drew a replacement, but the table spent the turn on tap and never showed the incoming page. First repair: spread the hand, confirm, reveal the engine draw. That still failed — spreading hid the score-impact glance, the Grimoire never opened, and the player could not aim at what should enter. Second repair: **Consult opens the Grimoire**. Mark a hand card, choose a remaining page (or take a random legal one), inspect if needed, then approve **“X replaced by Y.”** Only that approval calls `consult_archives`. Cancel returns to the picker.
+
+**A chosen replacement cannot be a Vue lie.** Letting the UI swap in a deck card the engine did not draw would recreate the catalog. The engine grew an optional `draw_id`. Omit it and consult is still FIFO (bots keep that). Name it and that page is pulled to the front of the remaining deck. If aftershocks make it unplayable, replenish skips it and draws the next legal page. Random peeks the current briefing deck so the approval can name both cards before the turn is spent. Forced unplayable refill has **no cancel**: legal hand size is a rule, not a preference.
+
+**Aftershock-first was true and still felt wrong.** The engine resolves last turn’s delayed effects before this turn’s card. We presented that order, and held a clone of the played card so you would not forget what you had chosen while the table shook. After more play — especially on consult swaps — it felt disjointed: you committed, then lightning, then your card. Replay now shows the **player’s move first**, then aftershocks. The math did not change. The talk beat is attention, not pipeline: last turn can still catch up, but not in front of the decision the player just made.
+
+**Collapse was a side chip.** Morale Collapse (and the other engine couplings) wither the whole system. A compact HUD chip failed that story. The chamber becomes weather: a torn banner naming the bound system, fire on the triggering vial, ember on the table rim. Thresholds stay in `getCollapseWarnings`.
+
+**Stakeholders pulsed and shrank.** A voice belongs to a person at the table. The seat stays enlarged and gold-lit until Continue dismisses their plaque.
+
+**Aftershocks needed a different shape.** The same callout box as other beats made them feel like UI chrome. The table now pauses, shakes, cracks a broken-line bolt (not a strobe), and drops a tablet plaque with a large **Aftershock** stamp whose glow follows engine deltas.
+
+**Score glance during replace.** Bigger laid-out hand cards hid the compact `+N / −N` deltas. Replace lives in the Grimoire so glance, inspect, and decide share one place.
+
+### Challenges worth a slide
+
+- Do not implement a legal hand only in Vue. The war table renders the briefing and calls verbs.
+- Do not add a fake `consult_archives` content card. Searching is delay, so it has to cost a turn in the engine.
+- The engine turn is atomic; theater is a replay. The hand has already mutated when the flight starts, which is why a committed clone exists.
+- Humans may name a remaining deck card. Player-true bots still consult FIFO. Fairness audits must not silently become a catalog.
+- Aftershocks can invalidate a named page. Fallback is FIFO, not a UI retry that pretends the turn did not happen.
+- Do not bump `max_turns` because consult now feels better. Retune from a player-true baseline after more human play.
+- CSS/2.5D first. Three.js is still not the application.
 
 ---
 
@@ -313,3 +364,11 @@ When a slice lands, add a short dated note under [Changelog for writers](#change
 - **2026-09-17** — Slice 6 war table landed: `/game` is a CSS/2.5D council table with a fanned hand, weather vials, Grimoire, Consult, and turn-beat replay. `?stage=legacy` keeps the satchel stage. Tutorial `satchel` highlights alias to `hand`.
 - **2026-09-17** — Slice 7 started: hide credits on `/game`, Grimoire under details, hold tutorial popups during theater, highlight weather/seats.
 - **2026-09-17** — Slice 7 finished the table: player seat, scenario nameplate, coupling weather, adjourn on the table, portrait layout. Corrections from play notes come next.
+- **2026-09-17** — Slice 8: beats wait for Continue, Annals opens engine history, Consult sits with the hand as a spent-turn action.
+- **2026-09-17** — Slice 9: card-to-table flight, kind-specific beat interludes, remaining-turns countdown on the weather strip.
+- **2026-09-17** — Aftershocks pause, shake the table, and crack a lightning line before a glowing inscription tinted by engine score deltas.
+- **2026-09-17** — First aftershock pass held a committed card in the hand while last turn landed (engine order: aftershocks, then the player). A visible bolt and a broken-tablet plaque follow.
+- **2026-09-17** — Collapse weather: storm banner + vial fire + chamber/table ember from engine coupling, not a side chip. Aftershock stamp is larger.
+- **2026-09-17** — Stakeholder seats stay enlarged and lit while their reaction plaque is on the table.
+- **2026-09-17** — Consult opens the Grimoire as the replace picker (hand mark + deck choose + random). Approval names both pages, then `consult_archives` may take an optional `draw_id`. Unplayable cards still return to the shelves without cancel.
+- **2026-09-17** — After more play, theater shows the player's card or swap first, then aftershocks. Engine pipeline order is unchanged. See [Decisions from sitting at the table](#decisions-from-sitting-at-the-table-2026-09-17).

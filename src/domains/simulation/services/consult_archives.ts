@@ -20,12 +20,16 @@ import type { PlayTurnResult } from './complete_turn'
 
 /**
  * Spends the current turn searching the deck instead of playing a card.
+ *
+ * `drawId`, when provided, names a remaining deck card to pull into hand.
+ * Omitting it draws the next legal page (the previous consult behavior).
  */
 export function consultArchives(
   gameState: GameState,
   scenarioBundle: ScenarioBundle,
   discardIds: string[],
-  random: SeededRandom
+  random: SeededRandom,
+  drawId?: string,
 ): PlayTurnResult {
   if (gameState.progress.run_status !== 'in_progress') {
     throw new Error('Cannot play a turn on a completed run.')
@@ -45,6 +49,17 @@ export function consultArchives(
     throw new Error('Cannot consult the archives: the deck is empty.')
   }
 
+  let requestedDrawRef: GameState['hand_state']['deck_refs'][number] | null = null
+  if (drawId) {
+    if (drawId === discardId) {
+      throw new Error('Consult the Archives cannot draw the same card it discards.')
+    }
+    requestedDrawRef = gameState.hand_state.deck_refs.find((ref) => ref.id === drawId) ?? null
+    if (!requestedDrawRef) {
+      throw new Error(`Action is not in the remaining deck: ${drawId}`)
+    }
+  }
+
   const aftershocksResult = resolveArchitecturalAftershocks(gameState, scenarioBundle)
   const nextScores = applyScoreChanges(gameState.scores, aftershocksResult.score_changes, scenarioBundle)
   const nextStakeholders = applyStakeholderChanges(
@@ -58,7 +73,9 @@ export function consultArchives(
     stakeholders: nextStakeholders
   }
 
-  const handMutation = applyConsultToHand(postAftershockState, scenarioBundle, discardedRef)
+  const handMutation = applyConsultToHand(postAftershockState, scenarioBundle, discardedRef, {
+    requested_draw_ref: requestedDrawRef,
+  })
 
   return completeTurn(gameState, scenarioBundle, random, aftershocksResult, {
     next_scores: nextScores,
