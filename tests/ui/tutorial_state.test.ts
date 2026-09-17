@@ -200,6 +200,7 @@ describe('useTutorialState', () => {
     expect(tutorial.currentStep.value?.id).toBe('step_action')
     expect(tutorial.isHintVisible.value).toBe(true)
     expect(tutorial.currentStepNumber.value).toBe(2)
+    expect(tutorial.currentStepHighlight.value).toBe('hand')
   })
 
   it('advances through multiple triggers in order', async () => {

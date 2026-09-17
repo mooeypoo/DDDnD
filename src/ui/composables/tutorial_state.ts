@@ -91,7 +91,8 @@ export function useTutorialState() {
   })
 
   /**
-   * The highlight target for the current step (e.g. "satchel", "scores").
+   * The highlight target for the current step (e.g. "hand", "scores").
+   * Authored "satchel" highlights alias to "hand" for the war table.
    * Like requiredCardId, reads from the raw step index so it persists after
    * popup dismissal until the next trigger advances the step.
    */
@@ -99,7 +100,12 @@ export function useTutorialState() {
     if (!tutorialScript.value) return null
     const step = tutorialScript.value.steps[currentStepIndex.value]
     if (!step) return null
-    return step.highlight ?? null
+    const highlight = step.highlight ?? null
+    // War-table alias: authored satchel highlights point at the visible hand.
+    if (highlight === 'satchel') {
+      return 'hand'
+    }
+    return highlight
   })
 
   /**

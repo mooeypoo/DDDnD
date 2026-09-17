@@ -40,3 +40,16 @@ export function getSceneBackgroundAssetUrl(
 
   return SCENE_BACKGROUND_ASSETS[sceneId as SceneBackgroundId]
 }
+
+/**
+ * Resolves event-scene artwork URL with a safe fallback.
+ */
+export function getEventSceneAssetUrl(
+  sceneId: EventSceneAssetId | string | undefined
+): string {
+  if (!sceneId || !(sceneId in EVENT_SCENE_ASSETS)) {
+    return EVENT_SCENE_ASSETS.system_incident
+  }
+
+  return EVENT_SCENE_ASSETS[sceneId as EventSceneAssetId]
+}

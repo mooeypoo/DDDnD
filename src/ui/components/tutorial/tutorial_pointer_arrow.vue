@@ -1,6 +1,6 @@
 <template>
   <Transition name="arrow-fade">
-    <div v-if="show" class="tutorial-arrow" aria-hidden="true">
+    <div v-if="show" class="tutorial-arrow" :class="{ 'target-hand': target === 'hand' }" aria-hidden="true">
       <!--
         Downward-pointing chevron arrow that glows above the satchel toggle button.
         Fixed to the bottom-right of the viewport, vertically above the satchel icon.
@@ -61,11 +61,14 @@
 
 <script setup lang="ts">
 /**
- * Guided pointer overlay used by tutorial steps to draw attention to satchel UI.
+ * Guided pointer overlay used by tutorial steps to draw attention to hand or satchel UI.
  */
-defineProps<{
+withDefaults(defineProps<{
   show: boolean
-}>()
+  target?: 'satchel' | 'hand'
+}>(), {
+  target: 'satchel',
+})
 </script>
 
 <style scoped>
@@ -77,8 +80,15 @@ defineProps<{
   bottom: calc(var(--drawer-handle-height, 48px) + 16px + 96px + 6px);
   z-index: calc(var(--z-drawer, 300) + 8);
   pointer-events: none;
-
   animation: arrow-bob 1.3s ease-in-out infinite;
+}
+
+.tutorial-arrow.target-hand {
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--hand-dock-height, 210px) + 12px);
+  animation: arrow-bob-hand 1.3s ease-in-out infinite;
 }
 
 .arrow-svg {
@@ -90,6 +100,11 @@ defineProps<{
 @keyframes arrow-bob {
   0%, 100% { transform: translateY(0); }
   50%       { transform: translateY(10px); }
+}
+
+@keyframes arrow-bob-hand {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(10px); }
 }
 
 @keyframes arrow-pulse {
@@ -118,6 +133,12 @@ defineProps<{
   .tutorial-arrow {
     right: 14px;
     bottom: calc(var(--drawer-handle-height, 48px) + 16px + 72px + 6px);
+  }
+
+  .tutorial-arrow.target-hand {
+    right: auto;
+    left: 50%;
+    bottom: calc(var(--hand-dock-height, 180px) + 8px);
   }
 
   .arrow-svg {

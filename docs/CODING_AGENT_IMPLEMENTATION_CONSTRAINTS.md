@@ -7,10 +7,13 @@ This file is the operational contract for coding agents working on gameplay v2. 
 
 ## 1. Scope by slice
 
-Follow the slice sequence in [GAMEPLAY_V2.md](GAMEPLAY_V2.md). Do not skip ahead to the war table or Three.js while the engine hand contract is unfinished.
+Follow the slice sequence in [GAMEPLAY_V2.md](GAMEPLAY_V2.md). Do not skip ahead to Three.js.
 
-- Slice 1 (current): simulation hand, deal, consult, briefing, tests.
-- Later slices: audit, persistence, wiring the current UI, content `max_turns` v2, then `src/ui/play/`.
+- Slices 1–5: complete (engine hand, player-true audit, persistence, satchel wiring; +2 `max_turns` deferred).
+- Slice 6 (current): war table in `src/ui/play/`. `/game` defaults to the table; `?stage=legacy` restores the satchel stage.
+- Later: content `max_turns` v2 only after human play evidence; optional Three.js diorama island.
+
+Do not mix simulation rules into Vue. The war table only renders the briefing hand and calls `play_turn` / `consult_archives`.
 
 ## 2. Boundary Rules
 

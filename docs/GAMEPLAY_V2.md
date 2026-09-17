@@ -149,8 +149,9 @@ Do not add a parallel product tree.
 | `src/domains/simulation/` | Hand, deck, deal, consult, briefing fields, tests |
 | `src/domains/content/` | Unchanged in slice 1. Scenario `max_turns` v2 files only when we retune |
 | `src/domains/persistence/` | Slice 3: exact-run intents, save restore of `hand_state` |
-| `src/ui/play/` | Slice 6: war table shell, session director, hand dock |
-| `src/ui/views/game_view.vue` | Slice 4: temporarily wire current satchel to the hand so the branch is playable before the new stage |
+| `src/ui/play/` | Slice 6: war table shell, session director, hand dock. `/game` defaults here. |
+| `src/ui/views/game_view.vue` | Slice 6 switcher: war table by default, satchel stage if `?stage=legacy` |
+| `src/ui/views/legacy_game_view.vue` | Slice 4 satchel stage, kept as the flagged fallback |
 | `src/ui/config/` + presentation composables | Existing scene/avatar registries. Keep using them |
 
 `docs/CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md` used to say “UI-only redesign.” That is no longer true. The hand is simulation. The war table is UI. Do not mix them in the same slice.
@@ -232,7 +233,7 @@ Saves restore hand and deck. Exact-run replay includes consult intents. Bump exa
 
 ### Slice 4 — Current UI, new contract (done)
 
-`game_view` plays only the hand. Grimoire inspects the deck. Consult control exists. The old stage is still the old stage. The mechanic is live and testable by a human.
+`game_view` (now `legacy_game_view.vue`) plays only the hand. Grimoire inspects the deck. Consult control exists. The old stage is still the old stage. The mechanic is live and testable by a human.
 
 - Satchel lists `hand_action_summaries` only.
 - Deck cards render in an inspect-only Grimoire section. Details modal play is hidden for those cards.
@@ -256,7 +257,9 @@ The hand bot almost never consults, and two scenarios are already too easy on th
 
 ### Slice 6 — War table shell
 
-`src/ui/play/`: session director that replays `turn_resolution_context` phases, portrait table, hand dock, compact meters, existing scene/avatar registries. Route `/game` can switch behind a flag. Tutorial highlight `satchel` maps to `hand` in UI (prefer an alias over a content rewrite). CSS/2.5D first.
+`src/ui/play/`: session director that replays `turn_resolution_context` phases, portrait table, hand dock, compact meters, existing scene/avatar registries. Route `/game` defaults to the table; `?stage=legacy` restores the satchel stage. Tutorial highlight `satchel` maps to `hand` in UI (alias, not a content rewrite). CSS/2.5D first.
+
+Landed: `/game` is a candlelit council table. Scores are weather vials. The legal hand sits on the near rim. Consult and Grimoire are table tools. After `play_turn` / `consult_archives`, the UI replays aftershocks → commitment → event → stakeholder voices. The engine APIs are unchanged.
 
 ---
 
@@ -296,3 +299,4 @@ When a slice lands, add a short dated note under [Changelog for writers](#change
 - **2026-09-17** — Slice 3 persistence landed: saves restore hand/deck; exact-run v2 records `turn_intents` so consults replay as consults.
 - **2026-09-17** — Slice 4 wired the current satchel: play from the legal hand, inspect-only Grimoire, Consult the Archives spends the turn. War table is still slice 6.
 - **2026-09-17** — Slice 5 deferred: v1 player-true baseline is not clock-starved (bots consult <1 time per run; sprawl and hypergrowth already sit above their win-rate bands). Retune `max_turns` after human play.
+- **2026-09-17** — Slice 6 war table landed: `/game` is a CSS/2.5D council table with a fanned hand, weather vials, Grimoire, Consult, and turn-beat replay. `?stage=legacy` keeps the satchel stage. Tutorial `satchel` highlights alias to `hand`.

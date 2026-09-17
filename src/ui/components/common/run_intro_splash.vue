@@ -201,13 +201,12 @@
               </svg>
             </span>
             <p class="hint-text hint-text-wide">
-              Both scores and stakeholder status are always visible in the
-              <strong>sidebar</strong> on the left side of the screen, fully expanded at a glance.
+              Scores sit as <strong>weather</strong> at the top of the table.
+              Stakeholders sit around it — watch their mood as the turn unfolds.
             </p>
             <p class="hint-text hint-text-narrow">
-              Both scores and stakeholder status are always visible in the
-              <strong>HUD bar</strong> at the top of the screen. Tap either section
-              to expand the full breakdown at any time.
+              Scores sit as <strong>weather</strong> along the top of the table.
+              Stakeholders sit around it. Tap a score vial if you need the full name.
             </p>
           </div>
 
@@ -224,9 +223,9 @@
           <section class="splash-action-blurb">
             <div class="blurb-icon" aria-hidden="true"><IconSatchel :size="28" /></div>
             <p class="blurb-text">
-              Open the <strong>Action Satchel</strong> at the bottom of the screen to choose
-              architectural scrolls that shape these numbers. Choose wisely —
-              some actions carry <em>Architectural Aftershocks</em> that echo in future turns,
+              Play from the <strong>hand</strong> at the near edge of the table.
+              The rest of the deck lives in the <strong>Grimoire</strong> — look, don't play.
+              Choose wisely — some actions carry <em>Architectural Aftershocks</em> that echo in future turns,
               altering scores and stakeholder attitudes when you least expect it.
             </p>
             <p class="blurb-turns">

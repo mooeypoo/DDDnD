@@ -205,6 +205,8 @@ interface Props {
   artwork?: ArtworkMeta
   /** Grimoire inspection: hide the play action. */
   isInspectOnly?: boolean
+  /** Overrides the primary action label (for example consult discard). */
+  primaryActionLabel?: string
 }
 
 interface Emits {
@@ -227,6 +229,10 @@ const { categoryLabel, categoryAccentColor } = useCategoryPresentation(
 
 const isPlayDisabled = computed(() => props.isDisabled || props.isTutorialLocked || (props.availability ? !props.availability.is_playable : false))
 const primaryButtonText = computed(() => {
+  if (props.primaryActionLabel) {
+    return props.primaryActionLabel
+  }
+
   if (props.isDisabled) {
     return 'Resolving…'
   }
