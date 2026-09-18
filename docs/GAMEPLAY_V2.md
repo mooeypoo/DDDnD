@@ -257,6 +257,8 @@ Main scenario **v2** files, about +2 `max_turns`, after a baseline audit. Tutori
 
 The hand bot almost never consults, and two scenarios are already too easy on the current clock. A blanket +2 would likely push them further. Humans will consult more than this bot; retune after visual play, not before.
 
+> **Correction (2026-09-18, slice 13).** Do not cite the win rates in that table. They were measured at 25 runs through a harness whose batches carried roughly a fifteenth of their nominal sample, so the "above band" readings were noise: re-measured after the seed fix, sprawl is 49% and hypergrowth sits inside its band. The deferral itself still stands — the consult counts are the real signal, and the clock should be retuned from human play — but it was decided on a broken instrument, which is worth saying out loud. See [Decisions from checking the instruments](#decisions-from-checking-the-instruments-2026-09-18).
+
 ### Slice 6 — War table shell
 
 `src/ui/play/`: session director that replays `turn_resolution_context` phases, portrait table, hand dock, compact meters, existing scene/avatar registries. Route `/game` defaults to the table; `?stage=legacy` restores the satchel stage. Tutorial highlight `satchel` maps to `hand` in UI (alias, not a content rewrite). CSS/2.5D first.
@@ -288,6 +290,7 @@ Immersion pass on the finished table. Still no Three.js and no `max_turns` bump.
 
 - Playing a card (or finishing a consult swap) lands on the table first. Aftershocks follow as last turn catching up. The engine still computes aftershocks first; only the replay order changed so the move the player just made is visible before the storm. Consult is a Grimoire search: mark, choose or randomize, approve both names, then the engine spends the turn.
 - Each beat opens with a short, kind-specific interlude. Aftershocks pause, shake the table hard, and drop a visible lightning bolt plus a crack across the inlay. The aftershock note is a broken-tablet plaque with a large **Aftershock** stamp and an outer glow tinted by engine deltas (boon / blow). System events keep a muted bolt. The speaking stakeholder stays enlarged and gold-lit while their reaction plaque is up, and only returns to seat size on Continue. Reduced motion skips the flourishes and still waits for Continue.
+- Theater plaques (`You play`, aftershocks, adjourn) teleport to the viewport. They cannot live inside `.war-table`: the table `isolation` + `overflow: hidden` contains the 3D board, and the hand dock is a later sibling that paints over anything still leaking. Continue must never sit under the cards, especially on a phone.
 - The weather strip clock counts **turns left**, not only "Turn N of M", and stays a full-width chip on mobile.
 - Engine collapses (morale, delivery, trust, tutorial capacity/health) take over the chamber: a torn storm banner names the bound system and what withers, the triggering vial burns, and the table rim smolders until the trigger score recovers. Thresholds stay in the engine.
 - Cards that the engine drops as unplayable after a turn are thrown back to the shelves with the same replace overlay. The player cannot cancel that refill; the hand stays at legal size.
@@ -342,6 +345,122 @@ The table, hand, Consult, and theater landed. The two tutorial packs and their s
 
 Not in this slice: changing tutorial `max_turns`, merging tutorial scores into the main pack, teaching Consult as a free catalog, or Three.js.
 
+### Slice 12 — First contact: say what the game is
+
+A playtester reached the table, played a card, and could not say what they had been choosing between or what winning looked like. The tutorials are not the problem; nothing routes a cold player to them, and **no surface in a normal run ever states the objective**. Presentation and copy only. No engine change, no content schema change, no `max_turns` bump, still no Three.js.
+
+**What a cold player is actually told today**
+
+| Surface | What it says | What is missing |
+|---|---|---|
+| `/` door | "choose a quest, join the council, and play cards to shape a living system before time runs out" | No win condition. No turn shape. Tutorial links are footnote-weight text between the CTA and the lore plaques. |
+| `/play` lobby | Quest plates (`N turns · council of M`), class seats, Raise the stakes | Nothing says what the numbers on the briefing plaque are *for*. Tutorials is a tab label, not a recommendation. |
+| `RunIntroSplash` | "N turns remain. The vials and the council already show what you inherit." | Points at the vials and the council as if the player already knows what they are. Zero instruction at the one moment the player is definitely reading. |
+| Weather strip | Six vials, value at `--text-sm` | Smaller than the turn clock beside it (1.55rem), so the clock outranks the thing being optimised. No delta, so nothing teaches that up is good. Mobile hides the label entirely: emoji plus a number. |
+| Tutorial completion | `dddnd.tutorialsComplete` appears in docs and tests | Nothing in `src/` reads or writes it. "Recommend the tutorial to first-timers" currently has no signal behind it. |
+
+**Design rules for this slice**
+
+Borrowed from board-game teaching practice and the Crusader Kings III tutorial rework, and consistent with the tone rules in [GAME_DESIGN.md](../GAME_DESIGN.md):
+
+1. **Objective before rules.** One sentence on what you are trying to do, before any vocabulary. A player who cannot answer "what am I trying to do on my first turn?" has not been taught.
+2. **The goal stays visible.** A legible scoreboard outperforms a modal that explains the scoreboard. Score prominence is an onboarding fix, not a separate cosmetic ask.
+3. **One welcome.** Slice 11 already flagged that `run_start` script steps and the intro splash stack. Do not add a fourth greeting. The briefing is the teach; the door is the invitation.
+4. **Everything is skippable and stays reachable.** How to play is already a permanent plaque. New copy is dismissible, and dismissal persists.
+5. **No jargon in the first sixty seconds.** "Bounded context" is the reward for playing, not the price of entry.
+
+**Layer A — the door states the quest (`/`, `welcome_view.vue`)**
+
+Copy and layout only. Name the win condition in plain words before the flavour hook, and promote the tutorial from a rope link to a real affordance for players who have never finished one. No popup over the door: the door *is* the welcome screen, and stacking a modal on it repeats the slice 11 mistake.
+
+**Layer B — the run briefing is the teach (`run_intro_splash.vue`)**
+
+Upgrade the existing table moment rather than adding a surface. Fixed, scannable shape, in this order:
+
+- scenario name and authored `flavor_text` (unchanged, content-owned)
+- **Your charge** — the objective, naming the two weakest starting scores and the clock
+- **A turn** — play one card; aftershocks land, the system strikes, the council answers
+- **The catch** — every card trades something away
+- existing `Raised stakes` line when a modifier is active
+- footer: Join the adventure, a `Don't show this again` checkbox, and a Basics tutorial link shown **only** when no tutorial has been completed
+
+Needs `max-height` and scroll on the plaque. The current 720px rule centres it with no overflow guard, and this copy is longer than what it holds today.
+
+**Layer C — the scoreboard reads as a scoreboard (`weather_strip.vue`)**
+
+- Vial value up to roughly `--text-xl` with tabular figures; label demoted to a kicker but **kept at every breakpoint**.
+- A per-vial delta chip from the last turn, read from `gameState.history.at(-1).total_score_changes`. That is presentation of an engine record, the same boundary the Annals panel already sits behind. Direction teaches itself; no copy needed.
+- Three breakpoints instead of one. See the responsive contract below.
+
+**Derived charge, not an authored objective field**
+
+The charge line is computed in the UI from the run's starting `ScoreSnapshot` — lowest scores by value, named with `shortMetricLabel`. Reasons:
+
+- No content schema change and no version bump across five scenarios.
+- Every future pack gets an objective line for free, including packs whose authors never heard of this slice.
+- It stays honest: the charge names the pressure the engine actually dealt, including after a challenge modifier adjusted the start.
+
+This is view-model logic over engine output, in the same category as `weather_band.ts`. It must not move into content or simulation. If packs later want authored prose, add it as an optional override, not a replacement.
+
+**Player preferences**
+
+"Never show this again" and "have they finished a tutorial" both need somewhere to live. Today there are four storage keys in three naming conventions (`dddnd.mvp.save_file`, `dddnd:play-stage`, `dddnd_mobile_notice_dismissed`, `dddnd:game-hud-collapsed`), and `dddnd.tutorialsComplete` is referenced but never written.
+
+Add one small UI-owned module for player preferences on the `dddnd:` namespace, guarded for absent or throwing storage the way `use_war_table_flag.ts` already guards `window`. Preferences are presentation state: they must not reach simulation, and they must never change what a run does.
+
+**Responsive contract**
+
+The play surface has exactly one breakpoint today (720px), so tablet portrait runs the desktop layout untuned.
+
+| Width | Weather strip | Briefing plaque |
+|---|---|---|
+| ≥ 1025px | Single row: clock plus six vials, labels inline | Centred plaque, current placement |
+| 721–1024px | Clock on its own line, vials as a 3×2 grid with labels | Centred, constrained height |
+| ≤ 720px | Full-width clock chip, vials as a 3×2 grid, abbreviated labels **kept** | Centred, `max-height` with scroll |
+
+Verify all three. Per [CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md](CODING_AGENT_IMPLEMENTATION_CONSTRAINTS.md) §5a, do not point the IDE browser at localhost.
+
+**Tests**
+
+- Briefing renders a charge line naming the weakest starting scores, and the line changes when starting scores change.
+- The tutorial recommendation appears only when no tutorial has been completed.
+- `Don't show this again` persists, and a later run with the flag set does not open the splash.
+- Preference reads survive storage being unavailable or throwing.
+- Weather strip renders the label at every breakpoint and shows a delta only when history has a prior turn.
+- Existing `run_intro_splash`, `council_lobby`, `lore_plaques`, and `welcome_view` suites keep their meaning; update expectations only where the copy under test deliberately changed, and say which.
+
+**Not in this slice**
+
+A lobby popup, a multi-step intro carousel, changes to the tutorial scripts (slice 11 owns those), new authored content fields, `max_turns`, or Three.js.
+
+**Landed.** The door names the objective in plain words and promotes the Basics tutorial until one is finished. `RunIntroSplash` now carries Your charge / How a turn goes / The catch, with a derived charge line from `run_briefing.ts`, a mute checkbox, and a first-timer tutorial link. The weather strip is a scoreboard: values at `--text-xl`, labels kept at every breakpoint, and `+N` / `−N` movement read from the last history entry. `player_preferences.ts` owns the two flags on the `dddnd:` namespace.
+
+One correction from measuring the real layout: giving the strip `flex-direction: column` on tablet stretched the vial grid rows to ~153px each, because the base `flex: 1` on `.weather-vials` grows along the main axis once that axis is vertical. The strip stays row-wrap; the clock takes its own line with `flex: 0 0 100%` instead. On mobile the label spans the full cell (`'label label' / 'icon readout'`) so score names are not truncated by the icon column.
+
+---
+
+### Slice 13 — Pick with knowledge, and an audit that can be trusted
+
+**The ask.** The lobby offered five plates with a name, a turn count and a council size, and no way to tell which one a newcomer should open. Say what varies between adventures, mark how hard each one is, make the chosen class obviously chosen — and confirm the fairness harness still measures the v2 game before leaning on its numbers for any of it.
+
+**Difficulty is derived from the band, not authored.** Same bet as the charge line in slice 12. `SCENARIO_BALANCE_TARGETS` already states, per scenario, the win-rate envelope the audit gates on: sprawl is meant to be won 25–50% of the time, merger 50–80%. That *is* intended difficulty, written down, checked in, and enforced in CI. `quest_difficulty.ts` reads the band midpoint and returns Easy / Normal / Hard. No new content field, no second source of truth to drift, and any retune of a band moves the badge with it. A test pins the label for all five shipped scenarios so a band change that flips what a newcomer is told fails loudly rather than silently.
+
+Measured win rates are the wrong input here even though they sound more honest: the generated report is gitignored, regenerated per build, and not available to the client at all.
+
+**A badge the player has to hunt for is not a recommendation.** Pack order put Monolith first and Merger — the only Easy plate — last. A newcomer who does not yet know the marks will click the first card. Once the marks exist, leaving that order in place is the interface saying the wrong quest is the one to start. `sortQuestsByDifficulty` orders on the same expected win rate the badges threshold, so the fan is Easy, then Normal, then Hard, and a plate cannot sit left of one the pack considers gentler. The lobby opens on the first of that list. Returning from the tutorial tab does the same, rather than restoring pack-first. Tutorials are not graded and keep teaching order. No `sort_order` field: a second number would drift from the band the way an authored `difficulty` field would.
+
+The store sorts on load so every consumer sees gentlest first. The lobby sorts again so the fan cannot regress if a caller forgets. Default selection is `sortQuestsByDifficulty(quests)[0]`, not `quests[0]` of whatever arrived. Tests pin both: shuffled input still fans Merger → Monolith → Compliance → Hypergrowth → Sprawl, and a setup mock that lists Hard first still opens on Easy.
+
+**The harness was already v2-correct.** Worth stating plainly because it was the thing to verify: `player_true` builds its choice from `TurnBriefing.hand_action_summaries` — the legal hand of six — and consults the archives when the hand cannot reach the scores under pressure. `full_pool_oracle` is the catalog diagnostic and is not the gate. Slice 2 did that work and it held.
+
+**The harness could not answer the question it was asked.** Running the gate at 100 runs passed with warnings. Running it again under a different base seed moved `microservice_sprawl` from 56.5% to 31.5%. At n=200 a win rate has a binomial standard error of 3.5%, so a 32-point spread across eight seeds is not sampling noise — and the same spread appeared *within* one seed's own stream, across its own consecutive run indices: 31.5, 63.5, 59.0, 48.0, 33.0, 40.5, 53.5, 62.0. Variance inflation over independent sampling: **13×**. A 200-run batch was carrying about 15 runs of information.
+
+**Root cause was one missing line in the seed hash.** `createSeededRandom` folded the seed string with `state = state * 31 + charCode` and handed the result straight to an LCG. Seeds differing only in a trailing character therefore started the generator a few steps apart, and an LCG started a few steps apart stays a few steps apart forever. Batch seeds are exactly that shape — `pooled__run_1`, `pooled__run_2` — so neighbouring runs were near-replays of each other. Adding a MurmurHash3 finalizer between the fold and the LCG took inflation from 13× to 1.09× (95% CI 0.61–1.58 over 40 batches of 200), matching an independently SHA-256-seeded control.
+
+**And the fairness answer.** With sampling fixed, all five scenarios sit inside their authored bands except `microservice_sprawl`, which reads 52.0% at 400 runs against a 50% ceiling and 49.0% over 8,000. It is at the top of its envelope, not out of it — and the earlier "76% above band" baseline recorded in slice 5, plus the monolith `vp_product` satisfaction warning, were both artefacts of correlated sampling rather than content problems. **No content was retuned.** CI moved from 50 runs to 400: at 50 the 95% margin on a win rate is ±14 points, wider than the bands being checked, and 400 costs about ten seconds.
+
+**Landed.** A sentence under Choose your adventure naming what differs (starting health, council, surprises, clock). An Easy / Normal / Hard chip on each plate, tutorials excluded. The fan is gentlest first — Easy, then Normal, then Hard — and the lobby opens on the Easy plate, so a newcomer is not staring at Hard by default. A "Choose your class" heading over the seat row, the unselected seats dimmed harder, the chosen portrait 18% larger under a gold ring with a gold-filled nameplate. On phones the seat row drops out of the board overlay into normal flow, because a 200px board has no room for a heading without landing it on the quest brief, and the row switches to `flex-start` since centring a row that always overflows puts its first seat out of reach.
+
 ---
 
 ## 9. How to talk about this later (notes for writing)
@@ -355,6 +474,13 @@ A few sentences that are true and useful:
 - Domain-driven design here is not ceremony. It is why the engine tests still mean something after the interface changes.
 - Content packs are the expansion model. The war table is a client of packs, not a replacement for them.
 - Honesty about **rules** is not the same as honesty about **attention**. The engine may resolve last turn first. The player still needs to see the move they just made land before the world answers.
+- Continue under the cards is a stacking-context bug, not a missing tutorial. A layer that clips the 3D board will clip the beat plaque too; teleport it to the viewport.
+- We built a game that was honest about its rules and legible to us, and still failed to tell a stranger what winning meant. Comprehension is a third axis, separate from correctness and from feel.
+- Every surface in the run had *atmosphere*. None had an *objective*. Flavour is not orientation, and a game can have a great deal of the first while having none of the second.
+- The clearest onboarding fix was not a tutorial. It was making the score numbers bigger. If the thing the player optimises is smaller than the clock beside it, the interface is telling them the wrong thing matters.
+- A one-time modal that explains the scoreboard is weaker than a scoreboard the player can read. Persistent legibility beats an explanation they have to remember.
+- The objective line is *derived* from the engine's starting scores, not authored per scenario. That is the pack architecture paying out again: every future pack gets an objective sentence without its author writing one.
+- A difficulty badge the player has to hunt for is not a recommendation. Once you mark Easy / Normal / Hard, the first plate has to *be* Easy, already selected. Pack order is not a difficulty order.
 
 When a slice lands, add a short dated note under [Changelog for writers](#changelog-for-writers) so the story stays in sync with the code.
 
@@ -382,8 +508,52 @@ These are the reversals and refinements that happened after a human sat at `/gam
 
 **The start was still a website.** Welcome, setup, and briefing were three site pages in front of the table. Setup is now walking into the chamber: the door, the lobby (choose your adventure, join the council), then a table moment over the real weather and council. `start_new_run` is still the only verb. Classes and modifiers stay packs.
 
+**Continue was under the cards.** The `You play` plaque lived inside `.war-table`. That node `isolation: isolate`s and `overflow: hidden`s so the 3D board stays contained, and the hand dock is a later sibling in the chamber, so it paints over anything that still leaks. A phone made it worse: Continue sat in the hand. Theater plaques now teleport to a fixed viewport layer. The table still shakes; the plaque is no longer part of the table's stacking context. Presentation only — beat order and engine turns did not change.
+
+### Decisions from watching someone else play (2026-09-18)
+
+Every prior correction in this document came from **us** sitting at the table. This set came from a stranger sitting at it, and it found a different class of problem. That contrast is the story: the builder tests whether the game is right, and a newcomer tests whether the game is *legible*. Slices 7 through 11 were all feel. Slice 12 was comprehension, and none of our own play sessions had surfaced it, because we already knew what the numbers were for.
+
+**The feedback, in one sentence.** They did not understand what they were choosing, and after choosing, they did not understand what the cards were for or what the goal was.
+
+**We had tutorials. That was not the problem.** Two guided quests exist and both work. Nothing routed a cold player to them — the door's tutorial links were footnote-weight text between the main call to action and the lore plaques — and, more importantly, a player who *skipped* them then met a run that never stated its objective anywhere. Onboarding is not a mode you can opt into. It is a property of the normal path.
+
+**The audit that stung.** Reading every onboarding string in the app end to end, the closest thing to a goal statement was the door's "play cards to shape a living system before time runs out." Everything else was atmosphere. The opening table moment — the one screen a player is guaranteed to read — said "the vials and the council already show what you inherit," pointing at two nouns it had never defined. We had written a briefing that assumed the briefing had already happened.
+
+**Objective before vocabulary.** Board-game teaching practice and the Crusader Kings III tutorial rework converge on the same order: say what the player is trying to do, then show a normal turn, then defer everything else until it becomes relevant. The briefing now runs Your charge, How a turn goes, The catch — three short blocks, in that order, with no game jargon in the first one.
+
+**The charge is derived, not authored.** The obvious move was a `player_charge` field in scenario JSON: better prose, full control. We did not take it. A derived line — the objective, the clock, and the two weakest starting scores named from the engine's `ScoreSnapshot` — needs no schema change, no version bump across five scenarios, and stays true after a challenge modifier has adjusted the start. It also means a pack written next year gets an objective sentence for free. Same bet as everything else here: put the logic where the data already is, and the surface generalises.
+
+**Making the numbers bigger *was* the onboarding work.** These arrived as two separate pieces of feedback — "I did not understand the goal" and "the scores feel small" — and they turned out to be one problem. The score value rendered at `--text-sm`, smaller than the turn clock sitting beside it at 1.55rem, so the interface was quietly ranking the countdown above the thing being optimised. Worse, mobile removed the label entirely: an emoji and a number, unnamed. A `+8` / `−3` chip from the last turn now teaches direction with no copy at all. Persistent legibility did more for comprehension than any modal would have.
+
+**One welcome, not four.** The temptation was a lobby popup, plus an intro carousel, plus the scenario briefing, plus the tutorial. Slice 11 had already flagged the two-welcomes-stack defect. The door is the welcome screen, so it states the objective directly rather than hosting a modal on top of itself, and the run briefing does the teaching. Adding surfaces was the wrong instinct; loading the existing ones was the right one.
+
+**The bug that only measurement found.** Making the tablet strip `flex-direction: column` looked obviously correct and was obviously wrong: the base `flex: 1` on the vial list, harmless along a horizontal axis, became a vertical grow the moment the axis flipped, stretching each grid row from 40px to 153px. The scoreboard ate half a phone screen. Reading the CSS did not catch it; driving a headless browser through the real flow at three widths and measuring the boxes did. Worth a slide on its own: responsive claims should be screenshotted, not reasoned about.
+
+**Marking difficulty is not the same as recommending a start.** The Easy / Normal / Hard chips landed, and the first plate a newcomer met was still not Easy — pack order had put Merger last. A badge the player has to hunt for is weaker than putting the recommended quest first and already selected. The fan now reads left to right as Easy, then Normal, then Hard, and the lobby opens on Merger. Same derivation as the chip: the expected win rate from the balance band, not a new authored field. See [Slice 13](#slice-13--pick-with-knowledge-and-an-audit-that-can-be-trusted).
+
+### Decisions from checking the instruments (2026-09-18)
+
+The last two sections came from watching people play. This one came from doubting a number, and it is the best story in the document because the bug had been shipping green CI for months.
+
+**The question was routine.** Gameplay v2 changed what the bot is allowed to play — a hand of six instead of the whole catalog — so before tagging scenarios Easy / Normal / Hard from the audit's bands, the harness needed a look. It turned out to be correct: `player_true` plays the legal hand and consults. The check should have ended there.
+
+**It did not, because the answer moved.** Re-running the same scenario with a different base seed swung its win rate by 25 points. That is the moment worth describing at length: a passing gate and a reproducible number are not the same thing as a *meaningful* number. Determinism had been treated as the quality bar — same seed, same result, replayable, tested — and determinism is orthogonal to whether 200 samples contain 200 samples' worth of information.
+
+**The diagnosis was a variance ratio, not a debugger.** Split 8,000 runs into forty batches of 200, take the standard deviation of the batch win rates, and compare it to the binomial standard error those batches should have. It came out 13× too large. That single number localises the fault to sampling without knowing anything about the game, and it gives a pass/fail criterion for the fix — which is how we knew an early "1.9×, much better" reading was really just eight batches of noise.
+
+**The fix is five lines and the lesson is not.** A string hash without avalanche plus a linear congruential generator means adjacent seed strings produce adjacent random sequences. Nothing in the codebase was *wrong* in an obvious way; `deriveRunSeed` produces distinct seeds, the PRNG is deterministic, the first draws are uniformly distributed, and every existing test passed. The defect only exists in the relationship between *neighbouring* seeds, which is a property no single-seed test can see. The regression test had to be written as a statement about a family of seeds: 256 seeds differing only in a trailing index should have a mean gap between first draws near 1/3, the value independent uniforms give.
+
+**What it cost to have been wrong.** Slice 5 was *deferred* on the strength of a 25-run measurement that said sprawl and hypergrowth were above their bands. That reading was noise. A balance decision had already been made on a broken instrument, and the honest version of this talk says so.
+
 ### Challenges worth a slide
 
+- A deterministic PRNG is not an independent one. Adjacent seed strings plus a hash without avalanche gave a 200-run audit batch roughly 15 runs of information, and every test passed.
+- Measure a harness before trusting it: batch variance against binomial expectation localises a sampling fault without knowing anything about the domain.
+- Size a statistical gate to the thing it checks. 50 runs carries a ±14 point margin on a win rate, which cannot police a 25-point band.
+- Properties that live *between* inputs need tests written over families of inputs. No single-seed assertion can see seed correlation.
+- Derive player-facing difficulty from the balance bands CI already enforces, and pin the resulting labels, or the badge and the design intent drift apart.
+- Once the marks exist, sort the fan on the same number and open on the gentlest plate. A badge in the corner of the last card is not a recommendation. Do not add a `sort_order` field to do this.
 - Do not implement a legal hand only in Vue. The war table renders the briefing and calls verbs.
 - Do not add a fake `consult_archives` content card. Searching is delay, so it has to cost a turn in the engine.
 - The engine turn is atomic; theater is a replay. The hand has already mutated when the flight starts, which is why a committed clone exists.
@@ -391,6 +561,12 @@ These are the reversals and refinements that happened after a human sat at `/gam
 - Aftershocks can invalidate a named page. Fallback is FIFO, not a UI retry that pretends the turn did not happen.
 - Do not bump `max_turns` because consult now feels better. Retune from a player-true baseline after more human play.
 - CSS/2.5D first. Three.js is still not the application.
+- Test comprehension on someone who has never seen the game. Our own play sessions could not find the missing objective, because we already knew it.
+- A tutorial does not excuse an unexplained normal path. Assume the player skipped it.
+- Derive player-facing objectives from engine state rather than authoring them per scenario, or every new pack re-opens the question.
+- Preferences like "never show this again" are presentation state. They persist in UI-owned storage and must never change what a run does.
+- Verify responsive work by driving a real browser and measuring, not by reading the stylesheet. A flex property that is inert on one axis is not inert on the other.
+- Theater plaques belong on the viewport, not in the table. A stacking context that clips the 3D board will also clip Continue, and the hand paints on top of later siblings.
 
 ---
 
@@ -434,3 +610,13 @@ These are the reversals and refinements that happened after a human sat at `/gam
 - **2026-09-17** — Lobby copy: choose your adventure, join this adventure / join the council. Tutorial cards carry a larger Tutorial mark. Learn the ropes and Choose your adventure rails are centered. Start verbs no longer say sit at the table.
 - **2026-09-17** — Player-facing score bands are system mood (Steady / Strained / Troubled / Critical), not Fair / Overcast / Squall / Tempest. Storm animation stays; lobby briefing says how the system starts.
 - **2026-09-18** — Each adventure has its own scene. `resolveGameplaySceneId` is an explicit UI map (not pack JSON, not random). Dungeon, throne, and forge join the hall, war room, and archive. Tutorials use the forge and the dungeon.
+- **2026-09-18** — Slice 12 from playtest feedback: a cold player never learned the objective. The door names the quest, the run briefing became the teach (derived charge line, turn shape, tradeoff, mute, first-timer tutorial link), and the weather strip became a readable scoreboard with per-turn deltas at three breakpoints. Copy and presentation only; the charge is view-model logic over the starting scores, not a content field. See [Slice 12](#slice-12--first-contact-say-what-the-game-is).
+- **2026-09-18** — Score prominence is an onboarding fix, not a cosmetic one. A modal that explains the numbers is weaker than numbers a player can read; the `+N` / `−N` chip teaches that up is good without a sentence. Mobile used to hide the vial label entirely, so a phone player saw an emoji and a number with no name.
+- **2026-09-18** — First correction set that came from a stranger rather than from us. Builder play finds whether the game is right; newcomer play finds whether it is legible. See [Decisions from watching someone else play](#decisions-from-watching-someone-else-play-2026-09-18).
+- **2026-09-18** — The door's first fix for "no objective" was more prose, which made it a wall of text. Second pass: three plaques — Your quest / Each turn / The catch — across on desktop and tablet, stacked below 720px. Explaining more and writing more are not the same move; the reader needed structure, not sentences.
+- **2026-09-18** — Slice 13: the lobby says what varies between adventures and marks each plate Easy / Normal / Hard. The mark is derived from `SCENARIO_BALANCE_TARGETS`, the same win-rate bands the audit gates on, so the badge cannot drift from design intent. Class picker gets a heading, a harder dim on unchosen seats, and a larger gold-ringed chosen portrait; on phones the seat row leaves the board overlay for normal flow. See [Slice 13](#slice-13--pick-with-knowledge-and-an-audit-that-can-be-trusted).
+- **2026-09-18** — A badge the player has to hunt for is not a recommendation. Pack order put the only Easy plate last; a newcomer clicks the first card. The fan now sorts on the same expected win rate as the marks — Easy, then Normal, then Hard — and the lobby opens on that first plate. Returning from tutorials does the same. Tutorials keep teaching order. No `sort_order` field. The store sorts on load; the lobby sorts again so the fan cannot regress if a caller forgets.
+- **2026-09-18** — The fairness harness was v2-correct (player-true plays the legal hand of six and consults) but statistically broken. `createSeededRandom` hashed seeds without avalanche, so `..._run_1` and `..._run_2` started an LCG a few steps apart and stayed correlated: a 200-run batch carried ~15 runs of information, 13x variance inflation. A MurmurHash3 finalizer brings it to 1.09x. See [Decisions from checking the instruments](#decisions-from-checking-the-instruments-2026-09-18).
+- **2026-09-18** — With sampling fixed, fairness holds under v2: four scenarios inside their bands, `microservice_sprawl` at 52.0% against a 50% ceiling (49.0% over 8,000 runs). No content retuned. The slice 5 note that sprawl and hypergrowth sat "above their bands" was a sampling artefact, and a balance decision had been deferred on it.
+- **2026-09-18** — CI audit gate moved from 50 runs to 400. At 50 the 95% margin on a win rate is +/-14 points, wider than the bands it checks; 400 costs about ten seconds.
+- **2026-09-18** — Theater plaques (`You play`, aftershocks, adjourn) teleport to a fixed viewport layer. The table clips overflow to contain the 3D board, and the hand dock is a later sibling, so Continue was sitting under the cards — worse on a phone. Presentation only; beat order and engine turns are unchanged.
