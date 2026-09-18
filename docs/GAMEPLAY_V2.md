@@ -280,7 +280,7 @@ Human-play polish on the slice 6 shell. Still no Three.js and no `max_turns` bum
 
 Human-play corrections on the finished table. Still no Three.js and no `max_turns` bump.
 
-- Turn theater waits for **Continue**. Skip remaining stays for people who want speed. The engine turn is still atomic.
+- Turn theater waits for **Continue**. Skip remaining stays for people who want speed, set apart from Continue so a Continue tap cannot take the rest of the replay. The engine turn is still atomic.
 - **Annals** is an inspect-only panel over `gameState.history`, opened from a look plaque next to Grimoire.
 - **Consult the Archives** opens the Grimoire in replace mode: mark a hand card, choose a remaining page (score glance and inspect stay available), or take a random legal page. An approval names both cards — “X replaced by Y” — and only then does `consult_archives(discard_ids, draw_id)` spend the turn. Cancel returns to the Grimoire. Forced unplayable refills still have no cancel.
 
@@ -289,7 +289,7 @@ Human-play corrections on the finished table. Still no Three.js and no `max_turn
 Immersion pass on the finished table. Still no Three.js and no `max_turns` bump. The engine turn is still atomic.
 
 - Playing a card (or finishing a consult swap) lands on the table first. Aftershocks follow as last turn catching up. The engine still computes aftershocks first; only the replay order changed so the move the player just made is visible before the storm. Consult is a Grimoire search: mark, choose or randomize, approve both names, then the engine spends the turn.
-- Each beat opens with a short, kind-specific interlude. Aftershocks pause, shake the table hard, and drop a visible lightning bolt plus a crack across the inlay. The aftershock note is a broken-tablet plaque with a large **Aftershock** stamp and an outer glow tinted by engine deltas (boon / blow). System events keep a muted bolt. The speaking stakeholder stays enlarged and gold-lit while their reaction plaque is up, and only returns to seat size on Continue. Reduced motion skips the flourishes and still waits for Continue.
+- Each beat opens with a short, kind-specific interlude. Aftershocks pause, shake the table hard, and drop a visible lightning bolt plus a crack across the inlay. The aftershock note is a broken-tablet plaque with a large **Aftershock** stamp and an outer glow tinted by engine deltas (boon / blow). System events arrive from the rafters: a shaft of cold light, a hanging seal, a ribbon — no shake, no crack (those belong to last turn catching up). Less than an aftershock, more than the old 22% blue flash. The speaking stakeholder stays enlarged and gold-lit while their reaction plaque is up, and only returns to seat size on Continue. Reduced motion skips the flourishes and still waits for Continue.
 - Theater plaques (`You play`, aftershocks, adjourn) teleport to the viewport. They cannot live inside `.war-table`: the table `isolation` + `overflow: hidden` contains the 3D board, and the hand dock is a later sibling that paints over anything still leaking. Continue must never sit under the cards, especially on a phone.
 - The weather strip clock counts **turns left**, not only "Turn N of M", and stays a full-width chip on mobile.
 - Engine collapses (morale, delivery, trust, tutorial capacity/health) take over the chamber: a torn storm banner names the bound system and what withers, the triggering vial burns, and the table rim smolders until the trigger score recovers. Thresholds stay in the engine.
@@ -510,6 +510,8 @@ These are the reversals and refinements that happened after a human sat at `/gam
 
 **Continue was under the cards.** The `You play` plaque lived inside `.war-table`. That node `isolation: isolate`s and `overflow: hidden`s so the 3D board stays contained, and the hand dock is a later sibling in the chamber, so it paints over anything that still leaks. A phone made it worse: Continue sat in the hand. Theater plaques now teleport to a fixed viewport layer. The table still shakes; the plaque is no longer part of the table's stacking context. Presentation only — beat order and engine turns did not change.
 
+**The system moved and nobody saw it.** Aftershocks slam lightning into the table. The player's card flies. Council seats grow. The event beat was a 22% blue wash and a 28px bolt inside the inlay — a flash you could miss while looking at the hand. Events are the world acting *on* you, so they arrive from the rafters: a shaft of cold light, a hanging seal, a ribbon, teleported to the viewport so the table's overflow clip cannot swallow them. No shake and no crack; those are last turn catching up. Less than an aftershock, more than a blink.
+
 ### Decisions from watching someone else play (2026-09-18)
 
 Every prior correction in this document came from **us** sitting at the table. This set came from a stranger sitting at it, and it found a different class of problem. That contrast is the story: the builder tests whether the game is right, and a newcomer tests whether the game is *legible*. Slices 7 through 11 were all feel. Slice 12 was comprehension, and none of our own play sessions had surfaced it, because we already knew what the numbers were for.
@@ -567,6 +569,7 @@ The last two sections came from watching people play. This one came from doubtin
 - Preferences like "never show this again" are presentation state. They persist in UI-owned storage and must never change what a run does.
 - Verify responsive work by driving a real browser and measuring, not by reading the stylesheet. A flex property that is inert on one axis is not inert on the other.
 - Theater plaques belong on the viewport, not in the table. A stacking context that clips the 3D board will also clip Continue, and the hand paints on top of later siblings.
+- Aftershocks slam. Events descend. If both are a bolt, the player cannot tell last turn from the world acting now.
 
 ---
 
@@ -620,3 +623,5 @@ The last two sections came from watching people play. This one came from doubtin
 - **2026-09-18** — With sampling fixed, fairness holds under v2: four scenarios inside their bands, `microservice_sprawl` at 52.0% against a 50% ceiling (49.0% over 8,000 runs). No content retuned. The slice 5 note that sprawl and hypergrowth sat "above their bands" was a sampling artefact, and a balance decision had been deferred on it.
 - **2026-09-18** — CI audit gate moved from 50 runs to 400. At 50 the 95% margin on a win rate is +/-14 points, wider than the bands it checks; 400 costs about ten seconds.
 - **2026-09-18** — Theater plaques (`You play`, aftershocks, adjourn) teleport to a fixed viewport layer. The table clips overflow to contain the 3D board, and the hand dock is a later sibling, so Continue was sitting under the cards — worse on a phone. Presentation only; beat order and engine turns are unchanged.
+- **2026-09-18** — System events arrive from the rafters: a shaft of cold light, a hanging seal, a ribbon. The old beat was a 22% blue wash and a 28px inlay bolt. No shake and no crack — those stay aftershock. See [Decisions from sitting at the table](#decisions-from-sitting-at-the-table-2026-09-17).
+- **2026-09-18** — Skip remaining sits further from Continue on theater plaques. The two used to share 0.35rem, so a Continue tap could skip the rest of the replay.

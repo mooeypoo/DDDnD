@@ -7,6 +7,7 @@ import type { TurnBeatKind } from '@/ui/play/turn_theater'
  */
 export const CARD_FLIGHT_DURATION_MS = 820
 export const REFILL_FLIGHT_DURATION_MS = 720
+export const EVENT_FX_DURATION_MS = 1100
 export const AFTERSHOCK_FX_DURATION_MS = 1400
 
 export type ImpactTone = 'boon' | 'blow' | 'mixed'
@@ -42,7 +43,7 @@ export function tableFxDurationMs(kind: TurnBeatKind): number {
     case 'consult':
       return CARD_FLIGHT_DURATION_MS
     case 'event':
-      return 760
+      return EVENT_FX_DURATION_MS
     case 'aftershock':
       return AFTERSHOCK_FX_DURATION_MS
     case 'stakeholder':

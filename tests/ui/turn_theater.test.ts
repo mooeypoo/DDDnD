@@ -271,7 +271,7 @@ describe('scoreWeather', () => {
 describe('table moments', () => {
   it('keeps full fx duration when reduced motion is not requested', () => {
     expect(tableFxDurationMs('action')).toBeGreaterThan(0)
-    expect(tableFxDurationMs('event')).toBeGreaterThan(0)
+    expect(tableFxDurationMs('event')).toBeGreaterThan(tableFxDurationMs('action'))
     expect(tableFxDurationMs('aftershock')).toBeGreaterThan(tableFxDurationMs('event'))
     expect(tableFxDurationMs('stakeholder')).toBeGreaterThan(0)
   })

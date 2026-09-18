@@ -27,7 +27,10 @@
 
     <div
       class="table-board"
-      :class="{ 'is-thump': fxKind === 'action' || fxKind === 'consult' }"
+      :class="{
+        'is-thump': fxKind === 'action' || fxKind === 'consult',
+        'is-omen': fxKind === 'event',
+      }"
       aria-hidden="true"
     >
       <div class="table-grain" />
@@ -113,6 +116,25 @@
         <span class="player-class">{{ playerClassName || 'Architect' }}</span>
       </figcaption>
     </figure>
+
+    <Teleport to="body">
+      <div
+        v-if="fxKind === 'event'"
+        class="system-omen"
+        :class="`tone-${fxTone || 'mixed'}`"
+        aria-hidden="true"
+      >
+        <span class="omen-veil" />
+        <span class="omen-shaft" />
+        <span class="omen-ribbon" />
+        <svg class="omen-seal" viewBox="0 0 72 100">
+          <line class="seal-chain" x1="36" y1="0" x2="36" y2="30" />
+          <circle class="seal-ring" cx="36" cy="56" r="20" />
+          <circle class="seal-core" cx="36" cy="56" r="9" />
+          <polygon class="seal-eye" points="36,46 46,56 36,66 26,56" />
+        </svg>
+      </div>
+    </Teleport>
 
     <Teleport to="body">
       <div
@@ -327,6 +349,10 @@ const eventSceneUrl = computed(() => {
   opacity: 0.72;
 }
 
+.war-table.fx-event .table-event {
+  animation: event-scene-drop 1100ms ease-out forwards;
+}
+
 .table-landing {
   position: absolute;
   inset: 56% 22% 10%;
@@ -406,7 +432,7 @@ const eventSceneUrl = computed(() => {
 }
 
 .fx-event .fx-bolt {
-  animation: bolt-strike 760ms ease-out forwards;
+  display: none;
 }
 
 .fx-aftershock .fx-bolt {
@@ -417,8 +443,8 @@ const eventSceneUrl = computed(() => {
 }
 
 .fx-event {
-  background: radial-gradient(circle at 55% 18%, rgba(180, 210, 255, 0.0), transparent 52%);
-  animation: event-wash 760ms ease-out forwards;
+  background: radial-gradient(circle at 50% 0%, rgba(160, 200, 230, 0.0), transparent 58%);
+  animation: event-wash 1100ms ease-out forwards;
 }
 
 .fx-crack {
@@ -546,6 +572,127 @@ const eventSceneUrl = computed(() => {
   fill: #e8ffd8;
 }
 
+.system-omen {
+  position: fixed;
+  left: 50%;
+  top: 0;
+  z-index: var(--z-overlay);
+  width: min(340px, 72vw);
+  height: min(58vh, 30rem);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.omen-veil {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 220%;
+  height: 100%;
+  transform: translateX(-50%);
+  background:
+    linear-gradient(180deg, rgba(8, 16, 28, 0.55) 0%, rgba(10, 18, 32, 0.18) 42%, transparent 78%);
+  opacity: 0;
+  animation: omen-veil 1100ms ease-out forwards;
+}
+
+.omen-shaft {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 28%;
+  height: 100%;
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: 50% 0;
+  background:
+    linear-gradient(180deg, rgba(210, 232, 255, 0.72) 0%, rgba(140, 190, 230, 0.28) 38%, transparent 100%);
+  filter: blur(1.5px);
+  animation: omen-shaft 1100ms cubic-bezier(0.18, 0.7, 0.22, 1) forwards;
+}
+
+.omen-ribbon {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  width: 0;
+  height: 3px;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, transparent, rgba(214, 236, 255, 0.95), transparent);
+  box-shadow: 0 0 14px rgba(170, 210, 255, 0.7);
+  animation: omen-ribbon 1100ms ease-out forwards;
+}
+
+.omen-seal {
+  position: absolute;
+  left: 50%;
+  top: 8%;
+  width: 5.4rem;
+  height: 7.6rem;
+  overflow: visible;
+  transform: translate(-50%, -36%) scale(0.72);
+  opacity: 0;
+  filter: drop-shadow(0 0 16px rgba(180, 220, 255, 0.7));
+  animation: omen-seal 1100ms cubic-bezier(0.2, 0.8, 0.24, 1) forwards;
+}
+
+.seal-chain {
+  stroke: rgba(220, 236, 255, 0.85);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.seal-ring {
+  fill: none;
+  stroke: rgba(232, 244, 255, 0.95);
+  stroke-width: 2.4;
+}
+
+.seal-core {
+  fill: rgba(186, 220, 255, 0.22);
+  stroke: rgba(210, 234, 255, 0.8);
+  stroke-width: 1.4;
+}
+
+.seal-eye {
+  fill: rgba(240, 248, 255, 0.92);
+}
+
+.system-omen.tone-blow .omen-shaft {
+  background:
+    linear-gradient(180deg, rgba(255, 196, 176, 0.7) 0%, rgba(210, 96, 80, 0.28) 40%, transparent 100%);
+}
+
+.system-omen.tone-blow .omen-ribbon {
+  background: linear-gradient(90deg, transparent, rgba(255, 198, 170, 0.95), transparent);
+  box-shadow: 0 0 14px rgba(232, 120, 80, 0.65);
+}
+
+.system-omen.tone-blow .omen-seal {
+  filter: drop-shadow(0 0 16px rgba(255, 160, 110, 0.7));
+}
+
+.system-omen.tone-blow .seal-eye {
+  fill: #ffe0c8;
+}
+
+.system-omen.tone-boon .omen-shaft {
+  background:
+    linear-gradient(180deg, rgba(198, 240, 196, 0.7) 0%, rgba(110, 176, 120, 0.26) 40%, transparent 100%);
+}
+
+.system-omen.tone-boon .omen-ribbon {
+  background: linear-gradient(90deg, transparent, rgba(198, 240, 190, 0.95), transparent);
+  box-shadow: 0 0 14px rgba(120, 200, 130, 0.6);
+}
+
+.system-omen.tone-boon .omen-seal {
+  filter: drop-shadow(0 0 16px rgba(160, 230, 160, 0.7));
+}
+
+.system-omen.tone-boon .seal-eye {
+  fill: #e4ffd8;
+}
+
 .fx-stakeholder {
   background: radial-gradient(circle at 50% 20%, rgba(186, 160, 255, 0.0), transparent 55%);
   animation: council-wash 620ms ease-out forwards;
@@ -558,6 +705,10 @@ const eventSceneUrl = computed(() => {
 
 .table-board.is-thump {
   animation: table-thump 820ms ease-out;
+}
+
+.table-board.is-omen {
+  animation: omen-press 1100ms ease-out;
 }
 
 .beat-card-enter-active,
@@ -590,8 +741,49 @@ const eventSceneUrl = computed(() => {
 }
 
 @keyframes event-wash {
-  0%, 100% { background: radial-gradient(circle at 55% 18%, rgba(180, 210, 255, 0), transparent 52%); }
-  20% { background: radial-gradient(circle at 55% 18%, rgba(180, 210, 255, 0.22), transparent 52%); }
+  0%, 100% { background: radial-gradient(circle at 50% 0%, rgba(160, 200, 230, 0), transparent 58%); }
+  18% { background: radial-gradient(circle at 50% 0%, rgba(170, 214, 255, 0.38), transparent 62%); }
+  48% { background: radial-gradient(circle at 50% 12%, rgba(150, 196, 240, 0.22), transparent 68%); }
+}
+
+@keyframes event-scene-drop {
+  0% { opacity: 0; transform: scale(1.08) translateY(-10%); }
+  28% { opacity: 0.78; transform: scale(1.08) translateY(0); }
+  100% { opacity: 0.72; transform: scale(1.08) translateY(0); }
+}
+
+@keyframes omen-veil {
+  0% { opacity: 0; }
+  16% { opacity: 1; }
+  62% { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+
+@keyframes omen-shaft {
+  0% { transform: translateX(-50%) scaleY(0); opacity: 0; }
+  18% { transform: translateX(-50%) scaleY(1); opacity: 1; }
+  58% { opacity: 0.85; }
+  100% { transform: translateX(-50%) scaleY(1.04); opacity: 0; }
+}
+
+@keyframes omen-ribbon {
+  0%, 12% { width: 0; opacity: 0; }
+  28% { width: 92%; opacity: 1; }
+  70% { opacity: 0.8; }
+  100% { width: 100%; opacity: 0; }
+}
+
+@keyframes omen-seal {
+  0% { opacity: 0; transform: translate(-50%, -42%) scale(0.62); }
+  22% { opacity: 1; transform: translate(-50%, 0) scale(1.06); }
+  40% { transform: translate(-50%, 4%) scale(1); }
+  72% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, 10%) scale(0.96); }
+}
+
+@keyframes omen-press {
+  0%, 100% { filter: brightness(1); }
+  20% { filter: brightness(1.14) saturate(0.86); }
 }
 
 @keyframes ember-wash {
@@ -731,6 +923,8 @@ const eventSceneUrl = computed(() => {
  * context and clips overflow so the 3D board stays contained; the hand dock is
  * a later sibling and paints over anything that still leaks. Teleport to body
  * and pin the layer to the viewport so Continue is never under the cards.
+ * The event omen teleports for the same clip: it has to drop from the chamber
+ * ceiling, not from inside a box that hides overflow.
  */
 .table-focus {
   position: fixed;
@@ -959,8 +1153,10 @@ const eventSceneUrl = computed(() => {
   }
 
   .table-board.is-thump,
+  .table-board.is-omen,
   .table-quake-root.is-shaking,
   .aftershock-strike,
+  .system-omen,
   .strike-bolt path,
   .fx-ripple,
   .fx-ember,
@@ -977,7 +1173,8 @@ const eventSceneUrl = computed(() => {
   }
 
   .table-fx,
-  .aftershock-strike {
+  .aftershock-strike,
+  .system-omen {
     display: none;
   }
 }

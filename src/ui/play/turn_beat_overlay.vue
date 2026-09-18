@@ -17,6 +17,15 @@
     >
       <polyline points="8,6 38,4 62,8 96,3 128,9 162,5 192,7" />
     </svg>
+    <svg
+      v-if="beat.kind === 'event'"
+      class="omen-rule"
+      viewBox="0 0 200 16"
+      aria-hidden="true"
+    >
+      <line x1="18" y1="8" x2="182" y2="8" />
+      <polygon points="100,2 108,8 100,14 92,8" />
+    </svg>
     <p class="beat-summary">{{ beat.summary }}</p>
     <p v-if="beat.flavor_text" class="beat-flavor">{{ beat.flavor_text }}</p>
     <ul v-if="beat.score_changes.length" class="beat-deltas">
@@ -87,6 +96,35 @@ function formatScoreName(scoreId: string): string {
 .kind-consult,
 .kind-action {
   border-color: rgba(232, 196, 96, 0.4);
+}
+
+.kind-event {
+  border-color: rgba(160, 210, 240, 0.52);
+  box-shadow:
+    0 0 22px rgba(120, 180, 230, 0.28),
+    0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.kind-event .beat-kicker {
+  letter-spacing: 0.22em;
+  color: #c8e4f8;
+}
+
+.omen-rule {
+  display: block;
+  width: min(14rem, 70%);
+  height: 16px;
+  margin: 0.05rem auto 0.4rem;
+}
+
+.omen-rule line {
+  stroke: rgba(186, 220, 255, 0.85);
+  stroke-width: 1.4;
+}
+
+.omen-rule polygon {
+  fill: rgba(232, 244, 255, 0.95);
+  filter: drop-shadow(0 0 4px rgba(160, 210, 255, 0.7));
 }
 
 .kind-aftershock {
@@ -273,7 +311,8 @@ function formatScoreName(scoreId: string): string {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
+  gap: 1.05rem;
+  margin-top: 0.15rem;
 }
 
 .beat-continue {
@@ -305,10 +344,12 @@ function formatScoreName(scoreId: string): string {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
+  opacity: 0.78;
 }
 
 .beat-skip:hover {
   color: var(--text-bright);
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -330,6 +371,10 @@ function formatScoreName(scoreId: string): string {
   .kind-aftershock .beat-continue {
     min-width: 9rem;
     padding: 0.5rem 1rem;
+  }
+
+  .beat-actions {
+    gap: 1.25rem;
   }
 }
 </style>
