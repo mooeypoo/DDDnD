@@ -26,8 +26,11 @@ jobs:
       - name: Run tests
         run: npm test -- --run
 
+      # 50 runs leaves a +/-14 point margin on a win rate, which is wider than
+      # the bands being checked. 400 costs about ten seconds and makes the
+      # scenario_difficulty findings mean something.
       - name: Content audit gate
-        run: npm run audit:gate -- --runs 50
+        run: npm run audit:gate -- --runs 400
 
   external-content-pack-validation:
     runs-on: ubuntu-latest
