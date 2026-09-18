@@ -500,7 +500,7 @@ These are the reversals and refinements that happened after a human sat at `/gam
 
 **Collapse was a side chip.** Morale Collapse (and the other engine couplings) wither the whole system. A compact HUD chip failed that story. The chamber becomes weather: a torn banner naming the bound system, fire on the triggering vial, ember on the table rim. Thresholds stay in `getCollapseWarnings`.
 
-**Stakeholders pulsed and shrank.** A voice belongs to a person at the table. The seat stays enlarged and gold-lit until Continue dismisses their plaque.
+**Stakeholders pulsed and shrank.** A voice belongs to a person at the table. The seat stays enlarged and gold-lit until Continue dismisses their plaque. The speech bubble floats above the portrait (absolute), grows from the feet, and only auto-opens while that seat is voicing — after the beat, hover or tap recalls it. Persistent in-flow bubbles used to shove seats under the hand.
 
 **Aftershocks needed a different shape.** The same callout box as other beats made them feel like UI chrome. The table now pauses, shakes, cracks a broken-line bolt (not a strobe), and drops a tablet plaque with a large **Aftershock** stamp whose glow follows engine deltas. The plaque also says which card (or event) queued it and how many turns ago. The engine already stored `source_id` and `source_turn` on the delayed instance; the resolved record now keeps `source_turn` so the UI does not reconstruct origin from history.
 
@@ -629,3 +629,4 @@ The last two sections came from watching people play. This one came from doubtin
 - **2026-09-18** — Aftershock plaques name the card (or event) that queued them and how many turns ago. The delayed instance already had `source_id` / `source_turn`; the resolved record now keeps `source_turn`. The UI derives the line. It does not walk history.
 - **2026-09-18** — Event plaques say **Reality hits**, not "the system moves." "The system" already means the living scores. Teaching copy (door, briefing, rules, consult) now says a random event may land.
 - **2026-09-18** — `/play` holds a chamber veil until lobby scene art and class portraits are preloaded. Content loading already disabled the sit button; the images were still popping in behind it.
+- **2026-09-18** — Council speech bubbles float above the seat and only auto-open while that stakeholder is voicing. After the beat, hover or tap recalls the line. In-flow bubbles were shoving seats under the hand.

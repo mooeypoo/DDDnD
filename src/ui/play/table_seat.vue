@@ -1,11 +1,29 @@
 <template>
   <figure
     class="table-seat"
-    :class="[`seat-${slot}`, `mood-${mood}`, { speaking: Boolean(speechBubble), voicing }]"
+    :class="[
+      `seat-${slot}`,
+      `mood-${mood}`,
+      {
+        speaking: Boolean(speechBubble),
+        voicing,
+        'is-open': isOpen,
+        'has-reaction': Boolean(speechBubble),
+      },
+    ]"
+    :tabindex="speechBubble ? 0 : undefined"
+    :aria-expanded="speechBubble ? isOpen : undefined"
+    @mouseenter="onEnter"
+    @mouseleave="onLeave"
+    @focusin="onEnter"
+    @focusout="onLeave"
+    @click="onActivate"
+    @keydown.enter.prevent="onActivate"
+    @keydown.space.prevent="onActivate"
   >
     <Transition name="seat-bubble">
       <div
-        v-if="speechBubble"
+        v-if="speechBubble && showBubble"
         class="seat-bubble"
         :class="`tone-${speechBubble.tone}`"
         role="status"
@@ -22,13 +40,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import { requestAvatarRoleImage } from '@/ui/composables/presentation_asset_lookup'
 import type { GameplayStageActor } from '@/ui/composables/gameplay_stage_presentation'
 import type { AvatarMood, AvatarRoleId } from '@/ui/config/presentation_asset_types'
 import type { SceneActorSlot } from '@/ui/composables/scene_avatar_positioning'
 
+/**
+ * Council seat. Bubbles float above the portrait so they never push the seat
+ * into the hand. Auto-show only while voicing; after that, hover or tap.
+ */
 const props = defineProps<{
   displayName: string
   avatarRole: AvatarRoleId | string
@@ -37,6 +59,27 @@ const props = defineProps<{
   speechBubble?: GameplayStageActor['speechBubble']
   voicing?: boolean
 }>()
+
+const inspected = ref(false)
+
+watch(
+  () => props.voicing,
+  (isVoicing) => {
+    if (isVoicing) {
+      inspected.value = false
+    }
+  },
+)
+
+watch(
+  () => props.speechBubble?.text,
+  () => {
+    inspected.value = false
+  },
+)
+
+const showBubble = computed(() => Boolean(props.voicing) || inspected.value)
+const isOpen = computed(() => showBubble.value && Boolean(props.speechBubble))
 
 const portraitUrl = computed(() => {
   return requestAvatarRoleImage({
@@ -59,10 +102,26 @@ const moodLabel = computed(() => {
       return 'Present'
   }
 })
+
+function onEnter() {
+  if (props.voicing || !props.speechBubble) return
+  inspected.value = true
+}
+
+function onLeave() {
+  if (props.voicing) return
+  inspected.value = false
+}
+
+function onActivate() {
+  if (props.voicing || !props.speechBubble) return
+  inspected.value = !inspected.value
+}
 </script>
 
 <style scoped>
 .table-seat {
+  position: relative;
   margin: 0;
   width: min(22vw, 132px);
   display: flex;
@@ -70,16 +129,22 @@ const moodLabel = computed(() => {
   align-items: center;
   gap: 0.2rem;
   filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
+  transform-origin: 50% 100%;
   transition: transform 180ms ease;
+  pointer-events: auto;
 }
 
-.table-seat.speaking {
-  transform: translateY(-6px) scale(1.04);
-  z-index: 3;
+.table-seat.has-reaction {
+  cursor: pointer;
+}
+
+.table-seat.has-reaction:focus-visible {
+  outline: 2px solid rgba(232, 196, 96, 0.75);
+  outline-offset: 4px;
 }
 
 .table-seat.voicing {
-  transform: translateY(-12px) scale(1.18);
+  transform: translateY(-10px) scale(1.16);
   z-index: 4;
   filter:
     drop-shadow(0 0 18px rgba(255, 214, 110, 0.72))
@@ -143,16 +208,29 @@ const moodLabel = computed(() => {
 .mood-concerned .seat-mood { color: #f0b07a; }
 .mood-angry .seat-mood { color: #f0a098; }
 
+/*
+ * Float above the portrait. Never participate in the flex height, or a long
+ * line will shove the seat under the hand dock.
+ */
 .seat-bubble {
-  max-width: 11rem;
-  margin-bottom: 0.2rem;
-  padding: 0.35rem 0.5rem;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 0.15rem);
+  z-index: 5;
+  width: max-content;
+  max-width: min(12.5rem, 42vw);
+  margin: 0;
+  padding: 0.35rem 0.55rem;
   border-radius: 10px 10px 10px 2px;
-  background: rgba(18, 14, 8, 0.92);
-  border: 1px solid rgba(232, 196, 96, 0.28);
+  background: rgba(18, 14, 8, 0.94);
+  border: 1px solid rgba(232, 196, 96, 0.34);
   color: var(--text-primary);
   font-size: var(--text-sm);
   line-height: 1.35;
+  text-align: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45);
 }
 
 .tone-positive { border-color: rgba(120, 180, 130, 0.5); }
@@ -167,7 +245,7 @@ const moodLabel = computed(() => {
 .seat-bubble-enter-from,
 .seat-bubble-leave-to {
   opacity: 0;
-  transform: translateY(6px);
+  transform: translateX(-50%) translateY(6px);
 }
 
 @keyframes seat-voice-glow {
@@ -190,6 +268,11 @@ const moodLabel = computed(() => {
     outline: 2px solid rgba(232, 196, 96, 0.7);
     outline-offset: 4px;
   }
+
+  .seat-bubble-enter-active,
+  .seat-bubble-leave-active {
+    transition: none;
+  }
 }
 
 @media (max-width: 720px) {
@@ -198,7 +281,7 @@ const moodLabel = computed(() => {
   }
 
   .seat-bubble {
-    display: none;
+    max-width: min(11rem, 56vw);
   }
 }
 </style>

@@ -909,6 +909,10 @@ const eventSceneUrl = computed(() => {
   z-index: 2;
 }
 
+.seat-ring :deep(.table-seat) {
+  pointer-events: auto;
+}
+
 .seats-highlighted .seat-ring {
   filter: drop-shadow(0 0 12px rgba(240, 208, 96, 0.55));
 }

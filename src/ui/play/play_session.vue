@@ -573,6 +573,8 @@ watch(currentBeat, (beat) => {
 
 watch(isTheaterComplete, (done) => {
   if (done) {
+    // Keep last reactions for hover/tap on seats. Do not auto-open them —
+    // persistent bubbles used to shove seats under the hand.
     activeStakeholderBubbles.value = pendingStakeholderBubbles.value
     if (pendingForcedReplace.value) {
       archiveOffer.value = pendingForcedReplace.value
