@@ -108,6 +108,7 @@ Use these as working references:
 - scenario example: `content/scenarios/monolith_of_mild_despair-v1.json`
 - card example: `content/cards/define_bounded_context-v1.json`
 - stakeholder example: `content/stakeholders/cto-v1.json`
+- score example: `content/scores/maintainability-v1.json`
 - reaction rule example: `content/stakeholder-reaction-rules/cto_wants_clarity-v1.json`
 
 Key pattern to follow:
@@ -269,6 +270,7 @@ npm run build
 
 - create all referenced entities before wiring scenario refs
 - keep gameplay changes versioned by file (`-v2`, `-v3`, ...)
+- ensure every score file includes both `name` and `short_name`
 - keep entry points intentional:
   - `scenarios`: playable non-tutorial scenarios
   - `tutorials`: tutorial scenarios
@@ -282,6 +284,7 @@ npm run build
 - filename/version mismatch (`foo-v1.json` contains `"version": 2`)
 - adding a new file but forgetting to list it in manifest inventory
 - scenario references content not present in any registered pack
+- score file missing mandatory `short_name` (pack fails to load)
 - invalid SPDX license expression
 - using plain ids where `{ id, version }` refs are required
 
