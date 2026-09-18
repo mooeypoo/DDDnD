@@ -50,9 +50,8 @@ import { computed } from 'vue'
 
 import type { Card } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
-import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import { useCategoryPresentation } from '@/ui/composables/category_presentation'
-import { shortMetricLabel } from '@/ui/play/weather_band'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 
 const props = defineProps<{
   card: Card
@@ -68,6 +67,8 @@ defineEmits<{
   play: [cardId: string]
   showDetails: []
 }>()
+
+const scoreLabels = useScoreLabels()
 
 const { categoryId, categoryLabel } = useCategoryPresentation(
   computed(() => props.card.style_tags ?? []),
@@ -112,7 +113,7 @@ const playHint = computed(() => {
 })
 
 function shortLabelFor(scoreId: string): string {
-  return shortMetricLabel(scoreId, getMetricPresentation(scoreId).label)
+  return scoreLabels.short(scoreId)
 }
 </script>
 

@@ -185,6 +185,7 @@ import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import type { Card } from '@/domains/content/model/content_types';
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation';
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation';
 import { getAdjustedScoreChanges, getCollapseWarnings } from '@/ui/composables/system_coupling'
 import { useCategoryPresentation } from '@/ui/composables/category_presentation'
@@ -220,6 +221,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<Emits>();
+
+const scoreLabels = useScoreLabels()
 
 // ── Category accent system ────────────────────────────────────────────────────
 
@@ -301,7 +304,7 @@ function getMetricIcon(scoreId: string): string {
 }
 
 function getMetricLabel(scoreId: string): string {
-  return getMetricPresentation(scoreId).label;
+  return scoreLabels.short(scoreId);
 }
 
 function formatStakeholderName(stakeholderId: string): string {

@@ -35,6 +35,8 @@ export interface QuestDisplayModel {
   councilNames?: string[]
   /** Authored scenario starting_scores. Weather mapping happens in the UI. */
   startingScores?: Record<string, number>
+  /** Pack short_name for each starting score id. Presentation only. */
+  startingScoreShortNames?: Record<string, string>
 
   // Tutorial metadata (only present for tutorial quests)
   isTutorial?: boolean

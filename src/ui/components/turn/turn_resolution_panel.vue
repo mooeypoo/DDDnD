@@ -109,6 +109,7 @@ import IconTarget from '@/ui/components/icons/IconTarget.vue'
 import IconMegaphone from '@/ui/components/icons/IconMegaphone.vue'
 import IconGroup from '@/ui/components/icons/IconGroup.vue'
 import StakeholderDriversPanel from '@/ui/components/stakeholders/StakeholderDriversPanel.vue'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 
 /**
  * Turn resolution panel that renders already-resolved action, event,
@@ -118,6 +119,8 @@ const props = defineProps<{
   turnResolution: TurnResolutionContext
   stakeholderNames?: Record<string, string>
 }>()
+
+const scoreLabels = useScoreLabels()
 
 /**
  * Determines whether any non-action reaction sections should be displayed.
@@ -129,10 +132,7 @@ const hasSystemReaction = computed(() =>
 )
 
 function formatScoreName(scoreId: string): string {
-  return scoreId
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
+  return scoreLabels.short(scoreId)
 }
 </script>
 

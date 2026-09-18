@@ -208,6 +208,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import type { OutcomeArchetypeId } from '@/shared/contracts'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
@@ -234,6 +235,7 @@ import { buildShareUrl, type SharePayload } from '@/domains/reporting/services'
 
 const router = useRouter()
 const gameStore = useGameStore()
+const scoreLabels = useScoreLabels()
 
 const outcome = computed(() => gameStore.runOutcome)
 
@@ -389,10 +391,7 @@ function formatCompletionReason(reason?: string): string {
 }
 
 function formatScoreName(scoreId: string): string {
-  return scoreId
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
+  return scoreLabels.short(scoreId)
 }
 
 const stakeholderNames = computed((): Record<string, string> => {

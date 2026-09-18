@@ -45,7 +45,14 @@ describe('quest loader', () => {
     const mockProvider = {
       loadScenario: vi.fn().mockResolvedValue(mockScenario),
       // Mock other required methods
-      loadScore: vi.fn(),
+      loadScore: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id,
+        short_name: ref.id === 'clarity' ? 'Clarity' : 'Short',
+        description: '',
+        default_value: 50,
+      })),
       loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
         id: ref.id,
         version: 1,
@@ -77,6 +84,7 @@ describe('quest loader', () => {
     expect(quest.stakeholderCount).toBe(2)
     expect(quest.actionCardCount).toBe(3)
     expect(quest.startingScores).toEqual({ clarity: 50 })
+    expect(quest.startingScoreShortNames).toEqual({ clarity: 'Clarity' })
     expect(quest.councilNames).toEqual(['CTO', 'Product Manager'])
     expect(mockProvider.loadScenario).toHaveBeenCalledWith({ id: 'test_scenario', version: 1 })
     expect(mockProvider.loadStakeholder).toHaveBeenCalledTimes(2)
@@ -93,7 +101,14 @@ describe('quest loader', () => {
           name: 'Another Quest'
         }),
       // Mock other required methods
-      loadScore: vi.fn(),
+      loadScore: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id,
+        short_name: 'Short',
+        description: '',
+        default_value: 50,
+      })),
       loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
         id: ref.id,
         version: 1,
@@ -132,7 +147,14 @@ describe('quest loader', () => {
     const mockProvider = {
       loadScenario: vi.fn().mockRejectedValue(new Error('Content not found')),
       // Mock other required methods
-      loadScore: vi.fn(),
+      loadScore: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id,
+        short_name: 'Short',
+        description: '',
+        default_value: 50,
+      })),
       loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
         id: ref.id,
         version: 1,
@@ -182,7 +204,14 @@ describe('quest loader', () => {
     const mockProvider = {
       loadScenario: vi.fn().mockResolvedValue(scenarioWithDifferentStats),
       // Mock other required methods
-      loadScore: vi.fn(),
+      loadScore: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id,
+        short_name: 'Short',
+        description: '',
+        default_value: 50,
+      })),
       loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
         id: ref.id,
         version: 1,

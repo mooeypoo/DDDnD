@@ -98,8 +98,7 @@ import type { Card } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import TableCard from '@/ui/play/table_card.vue'
-import { getMetricPresentation } from '@/ui/composables/metric_presentation'
-import { shortMetricLabel } from '@/ui/play/weather_band'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 
 const props = defineProps<{
   isOpen: boolean
@@ -120,6 +119,8 @@ defineEmits<{
   randomReplace: []
   confirmReplace: []
 }>()
+
+const scoreLabels = useScoreLabels()
 
 const canConfirmChosen = computed(() => {
   return Boolean(props.selectedHandId && props.selectedDeckId)
@@ -145,7 +146,7 @@ function isDeckLocked(cardId: string): boolean {
 function scoreGlance(card: Card): string {
   if (card.score_changes.length === 0) return 'No immediate score shift'
   return card.score_changes.slice(0, 3).map((change) => {
-    const label = shortMetricLabel(change.score_id, getMetricPresentation(change.score_id).label)
+    const label = scoreLabels.short(change.score_id)
     const sign = change.delta > 0 ? '+' : ''
     return `${sign}${change.delta} ${label}`
   }).join(' · ')

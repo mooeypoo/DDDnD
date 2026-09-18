@@ -108,6 +108,7 @@
 import { computed } from 'vue'
 import type { StakeholderSnapshot } from '@/domains/simulation/model'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import SystemCouplingWarnings from '@/ui/components/scores/system_coupling_warnings.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
@@ -123,6 +124,8 @@ const props = defineProps<{
   playerName?: string
 }>()  
 
+const scoreLabels = useScoreLabels()
+
 const turnProgress = computed(() => {
   if (!props.maxTurns) return 0
   return Math.round((props.currentTurn / props.maxTurns) * 100)
@@ -133,7 +136,7 @@ function getMetricIcon(scoreId: string): string {
 }
 
 function getMetricLabel(scoreId: string): string {
-  return getMetricPresentation(scoreId).label
+  return scoreLabels.short(scoreId)
 }
 
 function getColorClass(scoreId: string): string {

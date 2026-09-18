@@ -8,8 +8,9 @@
  * Presentation only: this names scores, it does not score them.
  */
 
+import type { Score } from '@/domains/content/model/content_types'
 import type { ScoreSnapshot } from '@/domains/simulation/model'
-import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { scoreShortName } from '@/ui/play/score_labels'
 
 export const TURN_SHAPE_LINE =
   'A turn is one card. You place it, last turn’s delayed consequences catch up, '
@@ -34,8 +35,11 @@ export function weakestScoreIds(scores: ScoreSnapshot, limit = 2): string[] {
     .map(([scoreId]) => scoreId)
 }
 
-function scorePhrase(scoreId: string): string {
-  return getMetricPresentation(scoreId).label.toLowerCase()
+function scorePhrase(
+  scoreId: string,
+  resolveScore?: (scoreId: string) => Score | undefined,
+): string {
+  return scoreShortName(scoreId, resolveScore?.(scoreId) ?? null).toLowerCase()
 }
 
 function clockPhrase(maxTurns: number): string {
@@ -45,9 +49,13 @@ function clockPhrase(maxTurns: number): string {
 /**
  * One-sentence objective plus where the system is hurting most.
  */
-export function describeCharge(scores: ScoreSnapshot, maxTurns: number): string {
+export function describeCharge(
+  scores: ScoreSnapshot,
+  maxTurns: number,
+  resolveScore?: (scoreId: string) => Score | undefined,
+): string {
   const goal = 'Leave the system stronger than you found it, and keep the council with you.'
-  const weakest = weakestScoreIds(scores, 2).map(scorePhrase)
+  const weakest = weakestScoreIds(scores, 2).map((id) => scorePhrase(id, resolveScore))
 
   if (weakest.length === 0) {
     return `${goal} ${clockPhrase(maxTurns)}.`

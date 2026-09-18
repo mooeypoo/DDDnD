@@ -62,6 +62,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import IconBarChart from '@/ui/components/icons/IconBarChart.vue'
 
 /**
@@ -72,6 +73,7 @@ const props = defineProps<{
   scores: Record<string, number>
 }>()
 
+const scoreLabels = useScoreLabels()
 const isExpanded = ref(false)
 const rootEl = ref<HTMLElement | null>(null)
 
@@ -93,7 +95,7 @@ function getMetricIcon(scoreId: string): string {
 }
 
 function getMetricLabel(scoreId: string): string {
-  return getMetricPresentation(scoreId).label
+  return scoreLabels.short(scoreId)
 }
 
 function getColorClass(scoreId: string): string {

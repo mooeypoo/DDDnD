@@ -26,6 +26,8 @@ export interface ContentMetadata {
  */
 export interface Score extends ContentMetadata {
   name: string
+  /** Compact player-facing label used in play UI (weather strip, deltas, cards). */
+  short_name: string
   description: string
   default_value: number
   min_value?: number

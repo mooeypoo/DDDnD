@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import { beatKicker, type AnnalsTurn } from '@/ui/play/turn_theater'
 
@@ -63,8 +63,10 @@ defineEmits<{
   close: []
 }>()
 
+const scoreLabels = useScoreLabels()
+
 function formatScoreName(scoreId: string): string {
-  return getMetricPresentation(scoreId).label
+  return scoreLabels.short(scoreId)
 }
 
 function stakeholderLabel(stakeholderId: string): string {

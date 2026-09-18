@@ -55,8 +55,11 @@
  * war table (weather vials, seats). Does not invent scores or legality.
  */
 import { computed, ref } from 'vue'
+import { getActivePinia } from 'pinia'
 import type { StakeholderSnapshot, ScoreSnapshot } from '@/domains/simulation/model'
 import { describeCharge, TRADEOFF_LINE, TURN_SHAPE_LINE } from '@/ui/play/run_briefing'
+import { scoreLookupFromBundle } from '@/ui/play/score_labels'
+import { useGameStore } from '@/ui/stores/game_store'
 
 const props = defineProps<{
   isOpen: boolean
@@ -82,9 +85,17 @@ const emit = defineEmits<{
   muteBriefing: [muted: boolean]
 }>()
 
+const pinia = getActivePinia()
+const gameStore = pinia ? useGameStore() : null
 const isMuted = ref(false)
 
-const chargeLine = computed(() => describeCharge(props.scores, props.maxTurns))
+const chargeLine = computed(() =>
+  describeCharge(
+    props.scores,
+    props.maxTurns,
+    scoreLookupFromBundle(gameStore?.scenarioBundle),
+  ),
+)
 const turnShapeLine = TURN_SHAPE_LINE
 const tradeoffLine = TRADEOFF_LINE
 

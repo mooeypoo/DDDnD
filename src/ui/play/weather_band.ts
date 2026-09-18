@@ -4,7 +4,13 @@
  * Visual storm/vial animation can still look like weather. Player-facing
  * labels are the system's mood. This mapping does not change thresholds,
  * outcomes, or card legality.
+ *
+ * Compact score *names* come from pack `short_name` via score_labels —
+ * not from an id map here.
  */
+
+import { scoreShortName } from '@/ui/play/score_labels'
+import type { Score as ScoreDef } from '@/domains/content/model/content_types'
 
 export type ScoreWeather = 'fair' | 'overcast' | 'squall' | 'tempest'
 
@@ -41,25 +47,6 @@ export function describeScoreWeather(value: number): ScoreWeatherPresentation {
   }
 }
 
-const SHORT_METRIC_LABEL: Record<string, string> = {
-  maintainability: 'Craft',
-  delivery_confidence: 'Delivery',
-  team_morale: 'Morale',
-  user_trust: 'Trust',
-  budget: 'Purse',
-  domain_clarity: 'Clarity',
-  team_capacity: 'Capacity',
-  system_health: 'Health',
-  code_clarity: 'Code',
-}
-
-/**
- * Compact meter label for the weather strip.
- */
-export function shortMetricLabel(scoreId: string, fallbackLabel: string): string {
-  return SHORT_METRIC_LABEL[scoreId] ?? fallbackLabel
-}
-
 /**
  * One storm chip for engine-owned coupling collapses.
  *
@@ -72,20 +59,22 @@ export function compactCouplingLabel(titles: string[]): string | null {
   return `${titles.length} systems bound`
 }
 
+type ScoreResolver = (scoreId: string) => ScoreDef | undefined
+
 /**
  * Player-facing urgency for an engine collapse: what withers, and what to raise.
  *
- * Score names stay presentation labels. Thresholds stay in the engine.
+ * Score names stay pack presentation labels. Thresholds stay in the engine.
  */
 export function collapseUrgencyCopy(
   triggerScoreId: string,
   affectedScoreIds: string[],
   fallback: string,
+  resolveScore?: ScoreResolver,
 ): string {
-  const trigger = shortMetricLabel(triggerScoreId, triggerScoreId)
-  const affected = affectedScoreIds
-    .map((id) => shortMetricLabel(id, id))
-    .join(' and ')
+  const short = (id: string) => scoreShortName(id, resolveScore?.(id) ?? null)
+  const trigger = short(triggerScoreId)
+  const affected = affectedScoreIds.map((id) => short(id)).join(' and ')
   if (!affected) return fallback
   return `${affected} gains wither until ${trigger} recovers.`
 }

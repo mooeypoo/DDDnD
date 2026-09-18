@@ -53,6 +53,7 @@ function createMockProvider(label: string): ContentProvider {
     id: ref.id,
     version: ref.version,
     name: `${label}-score`,
+    short_name: label,
     description: label,
     default_value: 50,
   })

@@ -459,7 +459,7 @@
                 </div>
               </div>
               <div class="coupling-effect-score-info">
-                {{ getMetricPresentation(effect.triggerScoreId).label }} is at
+                {{ scoreLabels.short(effect.triggerScoreId) }} is at
                 <strong>{{ effect.currentValue }}</strong>
                 (collapses below {{ effect.threshold }})
               </div>
@@ -471,7 +471,7 @@
                     :key="scoreId"
                     class="coupling-affected-score"
                   >
-                    {{ getMetricPresentation(scoreId).label }}
+                    {{ scoreLabels.short(scoreId) }}
                     <span class="coupling-reduction">−{{ Math.round((1 - effect.multiplier) * 100) }}%</span>
                   </span>
                 </div>
@@ -585,6 +585,7 @@ import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentat
 import { getCollapseWarnings, hasActiveCoupling } from '@/ui/composables/system_coupling'
 import { getActiveCouplingEffects } from '@/domains/simulation'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import { resolveScenarioShortDescription } from '@/ui/composables/scenario_presentation'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import {
@@ -627,6 +628,7 @@ import type { CategoryFilter, SortOption } from '@/ui/composables/card_filter_so
 
 const router = useRouter()
 const gameStore = useGameStore()
+const scoreLabels = useScoreLabels()
 
 const modalCardId = ref<string | null>(null)
 const isSatchelOpen = ref(false)
@@ -713,7 +715,7 @@ function getMetricIcon(scoreId: string): string {
 }
 
 function getMetricLabel(scoreId: string): string {
-  return getMetricPresentation(scoreId).label
+  return scoreLabels.short(scoreId)
 }
 
 function getScoreClass(value: number): string {

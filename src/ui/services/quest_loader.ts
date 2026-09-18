@@ -33,11 +33,15 @@ export async function loadQuestDisplayModel(
   contentProvider: ContentProvider
 ): Promise<QuestDisplayModel> {
   const scenario = await contentProvider.loadScenario(scenarioRef)
-  const councilNames = await loadCouncilNames(scenario.stakeholder_refs, contentProvider)
+  const [councilNames, startingScoreShortNames] = await Promise.all([
+    loadCouncilNames(scenario.stakeholder_refs, contentProvider),
+    loadScoreShortNames(scenario.score_refs, contentProvider),
+  ])
 
   return {
     ...transformScenarioToQuestDisplay(scenario),
     councilNames,
+    startingScoreShortNames,
   }
 }
 
@@ -119,4 +123,22 @@ async function loadCouncilNames(
     }
   }
   return names
+}
+
+async function loadScoreShortNames(
+  refs: VersionRef[],
+  contentProvider: ContentProvider
+): Promise<Record<string, string>> {
+  const results = await Promise.allSettled(
+    refs.map((ref) => contentProvider.loadScore(ref))
+  )
+
+  const shortNames: Record<string, string> = {}
+  for (const result of results) {
+    if (result.status !== 'fulfilled' || !result.value) continue
+    if (result.value.id && result.value.short_name) {
+      shortNames[result.value.id] = result.value.short_name
+    }
+  }
+  return shortNames
 }

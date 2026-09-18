@@ -53,7 +53,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import { impactTone } from '@/ui/play/table_moment'
 import { beatKicker, type TurnBeat } from '@/ui/play/turn_theater'
 
@@ -68,6 +68,8 @@ defineEmits<{
   skip: []
 }>()
 
+const scoreLabels = useScoreLabels()
+
 const beatIndex = computed(() => props.beatIndex ?? 1)
 const beatCount = computed(() => props.beatCount ?? 1)
 const isLastBeat = computed(() => beatIndex.value >= beatCount.value)
@@ -75,7 +77,7 @@ const kicker = computed(() => beatKicker(props.beat?.kind))
 const tone = computed(() => impactTone(props.beat?.score_changes ?? []))
 
 function formatScoreName(scoreId: string): string {
-  return getMetricPresentation(scoreId).label
+  return scoreLabels.short(scoreId)
 }
 </script>
 

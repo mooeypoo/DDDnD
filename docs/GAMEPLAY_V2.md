@@ -394,7 +394,7 @@ Needs `max-height` and scroll on the plaque. The current 720px rule centres it w
 
 **Derived charge, not an authored objective field**
 
-The charge line is computed in the UI from the run's starting `ScoreSnapshot` — lowest scores by value, named with `shortMetricLabel`. Reasons:
+The charge line is computed in the UI from the run's starting `ScoreSnapshot` — lowest scores by value, named with pack `short_name` via `score_labels`. Reasons:
 
 - No content schema change and no version bump across five scenarios.
 - Every future pack gets an objective line for free, including packs whose authors never heard of this slice.
@@ -630,3 +630,4 @@ The last two sections came from watching people play. This one came from doubtin
 - **2026-09-18** — Event plaques say **Reality hits**, not "the system moves." "The system" already means the living scores. Teaching copy (door, briefing, rules, consult) now says a random event may land.
 - **2026-09-18** — `/play` holds a chamber veil until lobby scene art and class portraits are preloaded. Content loading already disabled the sit button; the images were still popping in behind it.
 - **2026-09-18** — Council speech bubbles float above the seat and only auto-open while that stakeholder is voicing. After the beat, hover or tap recalls the line. In-flow bubbles were shoving seats under the hand.
+- **2026-09-18** — Score shorts are pack data (`short_name` on every Score). Play UI uses the short everywhere; the weather strip teaches the long name on hover (desktop) or tap (mobile). No more UI id→Craft maps.

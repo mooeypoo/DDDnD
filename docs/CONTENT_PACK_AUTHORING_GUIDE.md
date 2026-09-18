@@ -116,6 +116,35 @@ Key pattern to follow:
 - each file's internal `id` and `version` must match filename
 - scenario refs (`score_refs`, `card_refs`, etc.) must resolve to actual files in registered packs
 
+## Score files
+
+Score JSON under `scores/` defines a tracked metric for scenarios.
+
+Required fields:
+
+- `id`, `version` (must match the filename `<id>-v<version>.json`)
+- `name`: full player-facing name (shown on weather-strip hover/tap and inspect surfaces)
+- `short_name`: compact label used throughout play UI (weather strip, card deltas, aftershocks, theater)
+- `description`: non-empty string
+- `default_value`: number
+
+Optional: `min_value`, `max_value`.
+
+`short_name` is mandatory. The UI does not invent compact titles from score ids — packs that omit it fail to load.
+
+Example:
+
+```json
+{
+  "id": "maintainability",
+  "version": 1,
+  "name": "Maintainability",
+  "short_name": "Craft",
+  "description": "How easy it is to modify and extend the codebase",
+  "default_value": 40
+}
+```
+
 ## Content directory layout
 
 Your pack content root should mirror the domain directories.

@@ -19,9 +19,37 @@ import {
   remainingTurns,
   scoreWeather,
   describeScoreWeather,
-  shortMetricLabel,
 } from '@/ui/play/weather_band'
+import {
+  resolveScoreLabels,
+  scoreConversionLabel,
+  scoreShortName,
+} from '@/ui/play/score_labels'
+import type { Score } from '@/domains/content/model/content_types'
 import * as tableMoment from '@/ui/play/table_moment'
+
+function packScore(id: string, name: string, short_name: string): Score {
+  return {
+    id,
+    version: 1,
+    name,
+    short_name,
+    description: name,
+    default_value: 50,
+  }
+}
+
+const SCORE_CATALOG: Record<string, Score> = {
+  maintainability: packScore('maintainability', 'Maintainability', 'Craft'),
+  team_morale: packScore('team_morale', 'Team Morale', 'Morale'),
+  delivery_confidence: packScore('delivery_confidence', 'Delivery Confidence', 'Delivery'),
+  domain_clarity: packScore('domain_clarity', 'Domain Clarity', 'Clarity'),
+  user_trust: packScore('user_trust', 'User Trust', 'Trust'),
+}
+
+function resolvePackScore(scoreId: string): Score | undefined {
+  return SCORE_CATALOG[scoreId]
+}
 
 function emptyActionPresentation() {
   return {
@@ -286,8 +314,12 @@ describe('scoreWeather', () => {
     expect(describeScoreWeather(10).label).toBe('Critical')
   })
 
-  it('keeps compact labels presentation-only', () => {
-    expect(shortMetricLabel('maintainability', 'Maintainability')).toBe('Craft')
+  it('resolves compact labels from pack short_name', () => {
+    expect(scoreShortName('maintainability', SCORE_CATALOG.maintainability)).toBe('Craft')
+    expect(scoreConversionLabel('maintainability', SCORE_CATALOG.maintainability)).toBe(
+      'Craft — Maintainability',
+    )
+    expect(resolveScoreLabels('unknown_metric').short).toBe('Unknown Metric')
   })
 
   it('collapses coupling titles into one weather chip', () => {
@@ -297,15 +329,20 @@ describe('scoreWeather', () => {
   })
 
   it('says which gains wither until the trigger recovers', () => {
-    expect(collapseUrgencyCopy('team_morale', ['maintainability'], 'fallback')).toBe(
-      'Craft gains wither until Morale recovers.',
-    )
     expect(
-      collapseUrgencyCopy('delivery_confidence', ['domain_clarity', 'maintainability'], 'fallback'),
+      collapseUrgencyCopy('team_morale', ['maintainability'], 'fallback', resolvePackScore),
+    ).toBe('Craft gains wither until Morale recovers.')
+    expect(
+      collapseUrgencyCopy(
+        'delivery_confidence',
+        ['domain_clarity', 'maintainability'],
+        'fallback',
+        resolvePackScore,
+      ),
     ).toBe('Clarity and Craft gains wither until Delivery recovers.')
-    expect(collapseUrgencyCopy('user_trust', [], 'Delivery improvements reduced.')).toBe(
-      'Delivery improvements reduced.',
-    )
+    expect(
+      collapseUrgencyCopy('user_trust', [], 'Delivery improvements reduced.', resolvePackScore),
+    ).toBe('Delivery improvements reduced.')
   })
 
   it('marks a late clock without treating tutorial clocks as late', () => {

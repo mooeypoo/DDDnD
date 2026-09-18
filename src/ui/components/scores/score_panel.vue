@@ -36,6 +36,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import AppFrame from '@/ui/components/surfaces/AppFrame.vue'
 
 /**
@@ -46,12 +47,14 @@ const props = defineProps<{
   scores: Record<string, number>
 }>()
 
+const scoreLabels = useScoreLabels()
+
 function getMetricIcon(scoreId: string): string {
   return getMetricPresentation(scoreId).icon
 }
 
 function getMetricLabel(scoreId: string): string {
-  return getMetricPresentation(scoreId).label
+  return scoreLabels.short(scoreId)
 }
 
 function getColorClass(scoreId: string): string {

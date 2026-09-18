@@ -11,9 +11,10 @@ const baseProps = {
 describe('weather_strip as a scoreboard', () => {
   it('names every score alongside its value', () => {
     const wrapper = mount(WeatherStrip, { props: baseProps })
-    const labels = wrapper.findAll('.weather-vial-label').map((node) => node.text())
+    const labels = wrapper.findAll('.weather-vial-short').map((node) => node.text())
 
-    expect(labels).toEqual(['Clarity', 'Morale'])
+    // Without a loaded pack, shorts fall back to title-cased ids.
+    expect(labels).toEqual(['Domain Clarity', 'Team Morale'])
     expect(wrapper.findAll('.weather-vial-value').map((node) => node.text())).toEqual(['62', '38'])
   })
 
@@ -37,12 +38,24 @@ describe('weather_strip as a scoreboard', () => {
     expect(settled.findAll('.weather-vial-delta').map((node) => node.text())).toEqual(['+5'])
   })
 
-  it('speaks the value, the mood, and the movement to screen readers', () => {
+  it('speaks the conversion, value, mood, and movement to screen readers', () => {
     const wrapper = mount(WeatherStrip, {
       props: { ...baseProps, scoreDeltas: { domain_clarity: 4 } }
     })
 
-    const spoken = wrapper.find('.visually-hidden').text().replace(/\s+/g, ' ')
-    expect(spoken).toBe('Domain Clarity 62, Strained, up 4 last turn')
+    const spoken = wrapper.find('.weather-vial').attributes('aria-label') ?? ''
+    expect(spoken.replace(/\s+/g, ' ')).toBe(
+      'Domain Clarity, 62, Strained, up 4 last turn',
+    )
+  })
+
+  it('reveals the full name on tap so mobile can learn the conversion', async () => {
+    const wrapper = mount(WeatherStrip, { props: baseProps })
+    const vial = wrapper.find('.weather-vial')
+
+    expect(vial.classes()).not.toContain('is-revealed')
+    await vial.trigger('click')
+    expect(vial.classes()).toContain('is-revealed')
+    expect(wrapper.find('.weather-vial-full').text()).toBe('Domain Clarity')
   })
 })

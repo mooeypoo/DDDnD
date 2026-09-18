@@ -43,8 +43,8 @@ import { computed } from 'vue'
 
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { councilCountLabel } from '@/ui/play/council_copy'
-import { describeScoreWeather, shortMetricLabel } from '@/ui/play/weather_band'
-import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { describeScoreWeather } from '@/ui/play/weather_band'
+import { scoreShortName } from '@/ui/play/score_labels'
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
 
@@ -63,11 +63,12 @@ const moodRows = computed(() => {
     return []
   }
 
+  const shortNames = props.quest?.startingScoreShortNames
   return Object.entries(scores).map(([scoreId, value]) => {
-    const fallback = getMetricPresentation(scoreId).label
+    const packShort = shortNames?.[scoreId]
     return {
       scoreId,
-      label: shortMetricLabel(scoreId, fallback),
+      label: packShort ?? scoreShortName(scoreId),
       value,
       mood: describeScoreWeather(value).label,
     }

@@ -29,12 +29,23 @@
             {
               'is-collapsing': collapsingIds.has(meter.id),
               'is-withering': witheringIds.has(meter.id) && !collapsingIds.has(meter.id),
+              'is-revealed': revealedId === meter.id,
             },
           ]"
           :title="meter.title"
+          role="button"
+          tabindex="0"
+          :aria-expanded="revealedId === meter.id"
+          :aria-label="meter.spoken"
+          @click="toggleReveal(meter.id)"
+          @keydown.enter.prevent="toggleReveal(meter.id)"
+          @keydown.space.prevent="toggleReveal(meter.id)"
         >
           <span class="weather-vial-icon" aria-hidden="true">{{ meter.icon }}</span>
-          <span class="weather-vial-label" aria-hidden="true">{{ meter.shortLabel }}</span>
+          <span class="weather-vial-label" aria-hidden="true">
+            <span class="weather-vial-short">{{ meter.shortLabel }}</span>
+            <span class="weather-vial-full">{{ meter.fullLabel }}</span>
+          </span>
           <span class="weather-vial-readout" aria-hidden="true">
             <span class="weather-vial-value">{{ meter.value }}</span>
             <span
@@ -42,9 +53,6 @@
               class="weather-vial-delta"
               :class="meter.delta > 0 ? 'is-gain' : 'is-loss'"
             >{{ meter.deltaLabel }}</span>
-          </span>
-          <span class="visually-hidden">
-            {{ meter.label }} {{ meter.value }}, {{ meter.weatherLabel }}{{ meter.deltaSpoken }}
           </span>
         </li>
       </ol>
@@ -77,17 +85,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import { getCollapseWarnings, type CollapseWarning } from '@/ui/composables/system_coupling'
+import { scoreLookupFromBundle } from '@/ui/play/score_labels'
 import {
   collapseUrgencyCopy,
   describeScoreWeather,
   isLateTurnClock,
   remainingTurns,
-  shortMetricLabel,
 } from '@/ui/play/weather_band'
+import { getActivePinia } from 'pinia'
+import { useGameStore } from '@/ui/stores/game_store'
 
 const props = defineProps<{
   scores: Record<string, number>
@@ -99,6 +110,11 @@ const props = defineProps<{
   highlight?: string | null
   isTutorial?: boolean
 }>()
+
+const pinia = getActivePinia()
+const gameStore = pinia ? useGameStore() : null
+const scoreLabels = useScoreLabels()
+const revealedId = ref<string | null>(null)
 
 const aftershockCount = computed(() => props.aftershockCount ?? 0)
 
@@ -119,17 +135,50 @@ const isLate = computed(() => {
 })
 
 function urgencyCopy(warning: CollapseWarning): string {
-  return collapseUrgencyCopy(warning.triggerScoreId, warning.affectedScoreIds, warning.description)
+  return collapseUrgencyCopy(
+    warning.triggerScoreId,
+    warning.affectedScoreIds,
+    warning.description,
+    scoreLookupFromBundle(gameStore?.scenarioBundle),
+  )
 }
+
+function toggleReveal(scoreId: string) {
+  revealedId.value = revealedId.value === scoreId ? null : scoreId
+}
+
+function onPointerDownOutside(event: PointerEvent) {
+  const target = event.target
+  if (!(target instanceof Element)) {
+    revealedId.value = null
+    return
+  }
+  if (!target.closest('.weather-vial')) {
+    revealedId.value = null
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('pointerdown', onPointerDownOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('pointerdown', onPointerDownOutside)
+})
 
 const meters = computed(() => {
   return Object.entries(props.scores).map(([id, value]) => {
     const presentation = getMetricPresentation(id)
     const weather = describeScoreWeather(value)
+    const labels = scoreLabels.labels(id)
+    const conversion = scoreLabels.conversion(id)
     const rawDelta = props.scoreDeltas?.[id]
     const delta = typeof rawDelta === 'number' && Math.round(rawDelta) !== 0
       ? Math.round(rawDelta)
       : null
+    const status = collapsingIds.value.has(id)
+      ? 'collapsing'
+      : weather.label
     return {
       id,
       value: Math.round(value),
@@ -139,13 +188,16 @@ const meters = computed(() => {
         ? ''
         : `, ${delta > 0 ? 'up' : 'down'} ${Math.abs(delta)} last turn`,
       icon: presentation.icon,
-      label: presentation.label,
-      shortLabel: shortMetricLabel(id, presentation.label),
+      shortLabel: labels.short,
+      fullLabel: labels.full,
       weather: weather.weather,
       weatherLabel: weather.label,
-      title: collapsingIds.value.has(id)
-        ? `${presentation.label}: ${Math.round(value)} — collapsing`
-        : `${presentation.label}: ${Math.round(value)} — ${weather.label}`,
+      title: `${conversion}: ${Math.round(value)} — ${status}`,
+      spoken: `${conversion}, ${Math.round(value)}, ${status}${
+        delta === null
+          ? ''
+          : `, ${delta > 0 ? 'up' : 'down'} ${Math.abs(delta)} last turn`
+      }`,
     }
   })
 })
@@ -281,6 +333,12 @@ const meters = computed(() => {
   background: rgba(8, 6, 2, 0.45);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  cursor: pointer;
+}
+
+.weather-vial:focus-visible {
+  outline: 2px solid rgba(240, 208, 96, 0.7);
+  outline-offset: 2px;
 }
 
 .weather-vial-icon {
@@ -297,6 +355,40 @@ const meters = computed(() => {
   font-size: var(--text-2xs);
   letter-spacing: 0.12em;
   color: var(--text-secondary);
+  position: relative;
+  min-height: 1.1em;
+}
+
+.weather-vial-short,
+.weather-vial-full {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weather-vial-full {
+  display: none;
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+
+.weather-vial.is-revealed .weather-vial-short {
+  display: none;
+}
+
+.weather-vial.is-revealed .weather-vial-full {
+  display: block;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .weather-vial:hover .weather-vial-short {
+    display: none;
+  }
+
+  .weather-vial:hover .weather-vial-full {
+    display: block;
+  }
 }
 
 .weather-vial-readout {

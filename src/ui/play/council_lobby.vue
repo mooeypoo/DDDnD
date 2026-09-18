@@ -369,7 +369,13 @@ function questFlavorLine(quest: QuestDisplayModel): string | null {
 }
 
 function affinityLine(scoreId: string | undefined): string {
-  return classAffinityCopy(scoreId) ?? 'Identity in the council'
+  if (!scoreId) {
+    return 'Identity in the council'
+  }
+  const shortFromQuests = [...props.quests, ...props.tutorials]
+    .map((quest) => quest.startingScoreShortNames?.[scoreId])
+    .find((name): name is string => Boolean(name))
+  return classAffinityCopy(scoreId, shortFromQuests) ?? 'Identity in the council'
 }
 </script>
 
