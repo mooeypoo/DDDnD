@@ -39,11 +39,13 @@ describe('chamber lore plaques', () => {
     expect(wrapper.text()).toContain('ending')
   })
 
-  it('Dungeon Master is a maker mark, not a second rulebook', () => {
+  it('Dungeon Master names the keeper of the adventure', () => {
     const wrapper = mount(DungeonMasterModal, { props: { isOpen: true } })
 
     expect(wrapper.text()).toContain('Moriel Schottlender')
-    expect(wrapper.text()).toContain("maker's mark")
+    expect(wrapper.text()).toContain("Dungeon Master's mark")
+    expect(wrapper.text()).toContain('keeper of the chamber')
+    expect(wrapper.text()).toContain('How to play')
     expect(wrapper.text()).toContain('Return to the council')
   })
 })

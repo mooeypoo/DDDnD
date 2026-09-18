@@ -1,8 +1,13 @@
 <template>
-  <div class="council-lobby">
+  <div
+    class="council-lobby"
+    :class="{ 'is-awaiting-chamber': isAwaitingChamber }"
+    :aria-busy="isAwaitingChamber"
+  >
     <div class="chamber-glow" aria-hidden="true" />
     <div class="chamber-grain" aria-hidden="true" />
 
+    <div class="lobby-body">
     <header class="lobby-mast">
       <GameLogo size="small" />
       <nav class="lobby-plaques" aria-label="Table lore">
@@ -20,7 +25,7 @@
           role="tab"
           :aria-selected="deckMode === 'tutorials'"
           :class="{ selected: deckMode === 'tutorials' }"
-          :disabled="isLoading"
+          :disabled="isAwaitingChamber"
           @click="setDeckMode('tutorials')"
         >
           Tutorials
@@ -31,7 +36,7 @@
           role="tab"
           :aria-selected="deckMode === 'adventures'"
           :class="{ selected: deckMode === 'adventures' }"
-          :disabled="isLoading"
+          :disabled="isAwaitingChamber"
           @click="setDeckMode('adventures')"
         >
           Adventures
@@ -58,7 +63,7 @@
             class="table-quest"
             type="button"
             :class="{ selected: isQuestSelected(quest), 'is-tutorial': quest.isTutorial }"
-            :disabled="isLoading"
+            :disabled="isAwaitingChamber"
             @click="$emit('selectQuest', quest)"
           >
             <span class="quest-scene" :style="{ backgroundImage: `url(${sceneFor(quest.id)})` }" />
@@ -93,7 +98,7 @@
               <button
                 class="brief-more"
                 type="button"
-                :disabled="isLoading"
+                :disabled="isAwaitingChamber"
                 @click="briefingOpen = true"
               >
                 Read more
@@ -112,13 +117,14 @@
               role="listitem"
               :class="{ selected: selectedClass?.id === playerClass.id }"
               :aria-pressed="selectedClass?.id === playerClass.id"
-              :disabled="isLoading"
+              :disabled="isAwaitingChamber"
               @click="$emit('selectClass', playerClass)"
             >
               <ClassPortrait
                 :classId="playerClass.id"
                 :className="playerClass.name"
                 size="md"
+                eager
               />
               <span class="seat-name">{{ playerClass.name }}</span>
             </button>
@@ -136,7 +142,7 @@
           type="text"
           maxlength="50"
           placeholder="optional"
-          :disabled="isLoading"
+          :disabled="isAwaitingChamber"
           @input="$emit('update:characterName', nameDraft)"
         />
       </label>
@@ -150,7 +156,7 @@
           class="modifier-chip"
           type="button"
           :class="{ selected: selectedModifier === null }"
-          :disabled="isLoading"
+          :disabled="isAwaitingChamber"
           @click="$emit('selectModifier', null)"
         >
           None
@@ -161,7 +167,7 @@
           class="modifier-chip"
           type="button"
           :class="{ selected: selectedModifier?.id === modifier.id }"
-          :disabled="isLoading"
+          :disabled="isAwaitingChamber"
           @click="$emit('selectModifier', modifier)"
         >
           <span class="modifier-name">{{ modifier.name }}</span>
@@ -171,16 +177,16 @@
     </details>
 
     <footer class="lobby-actions">
-      <button class="ghost-btn" type="button" :disabled="isLoading" @click="$emit('back')">
+      <button class="ghost-btn" type="button" :disabled="isAwaitingChamber" @click="$emit('back')">
         Back to the door
       </button>
       <button
         class="sit-btn"
         type="button"
-        :disabled="!canSit || isLoading"
+        :disabled="!canSit || isAwaitingChamber"
         @click="$emit('sit')"
       >
-        {{ isLoading ? 'The council is gathering…' : 'Join this adventure' }}
+        {{ isAwaitingChamber ? 'The council is gathering…' : 'Join this adventure' }}
       </button>
     </footer>
     <QuestBriefingPlaque
@@ -188,6 +194,21 @@
       :quest="selectedQuest"
       @close="briefingOpen = false"
     />
+    </div>
+
+    <div
+      v-if="isAwaitingChamber"
+      class="chamber-veil"
+      role="status"
+      aria-live="polite"
+    >
+      <div class="veil-sigil" aria-hidden="true">
+        <span class="veil-ring" />
+        <span class="veil-ember" />
+      </div>
+      <p class="veil-kicker">The council is gathering</p>
+      <p class="veil-copy">Lighting the chamber…</p>
+    </div>
   </div>
 </template>
 
@@ -195,8 +216,10 @@
 import { computed, ref, watch } from 'vue'
 
 import type { ChallengeModifier, PlayerClass } from '@/domains/content/model'
+import { getClassPortraitUrl } from '@/ui/composables/class_artwork'
 import { requestSceneBackground } from '@/ui/composables/presentation_asset_lookup'
 import { resolveGameplaySceneId } from '@/ui/composables/gameplay_stage_presentation'
+import { preloadImageUrls } from '@/ui/composables/preload_presentation_assets'
 import { classAffinityCopy } from '@/ui/play/class_affinity'
 import { councilCountLabel } from '@/ui/play/council_copy'
 import { questDifficulty, sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
@@ -235,6 +258,7 @@ const emit = defineEmits<{
 const nameDraft = ref(props.characterName)
 const deckMode = ref<DeckMode>(props.selectedQuest?.isTutorial ? 'tutorials' : 'adventures')
 const briefingOpen = ref(false)
+const assetsReady = ref(false)
 
 watch(() => props.characterName, (value) => {
   if (value !== nameDraft.value) {
@@ -259,11 +283,43 @@ const sceneUrl = computed(() => {
 
 const canSit = computed(() => Boolean(props.selectedQuest && props.selectedClass))
 
+const isAwaitingChamber = computed(() => Boolean(props.isLoading) || !assetsReady.value)
+
 const fanQuests = computed(() => {
   return deckMode.value === 'tutorials'
     ? props.tutorials
     : sortQuestsByDifficulty(props.quests)
 })
+
+const lobbyAssetKey = computed(() => {
+  const questIds = [...props.quests, ...props.tutorials].map((quest) => quest.id).join('|')
+  const classIds = props.classes.map((playerClass) => playerClass.id).join('|')
+  return `${questIds}::${classIds}`
+})
+
+function collectLobbyAssetUrls(): string[] {
+  const sceneUrls = [...props.quests, ...props.tutorials].map((quest) => sceneFor(quest.id))
+  const portraitUrls = props.classes
+    .map((playerClass) => getClassPortraitUrl(playerClass.id))
+    .filter((url): url is string => Boolean(url))
+  return [...sceneUrls, ...portraitUrls]
+}
+
+watch(
+  lobbyAssetKey,
+  async (_key, _previous, onCleanup) => {
+    let cancelled = false
+    onCleanup(() => {
+      cancelled = true
+    })
+    assetsReady.value = false
+    await preloadImageUrls(collectLobbyAssetUrls())
+    if (!cancelled) {
+      assetsReady.value = true
+    }
+  },
+  { immediate: true },
+)
 
 function setDeckMode(mode: DeckMode) {
   if (mode === 'tutorials' && props.tutorials.length === 0) {
@@ -345,6 +401,7 @@ function affinityLine(scoreId: string | undefined): string {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
 }
 
+.lobby-body,
 .lobby-mast,
 .table-stage,
 .quest-deck,
@@ -352,6 +409,81 @@ function affinityLine(scoreId: string | undefined): string {
 .lobby-actions {
   position: relative;
   z-index: 1;
+}
+
+.lobby-body {
+  display: contents;
+}
+
+.council-lobby.is-awaiting-chamber .lobby-body > * {
+  visibility: hidden;
+}
+
+.chamber-veil {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.45rem;
+  padding: 1.5rem;
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(72, 42, 16, 0.42), transparent 48%),
+    rgba(7, 5, 4, 0.94);
+  text-align: center;
+  pointer-events: auto;
+}
+
+.veil-sigil {
+  position: relative;
+  width: 7rem;
+  height: 7rem;
+  display: grid;
+  place-items: center;
+}
+
+.veil-ember {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 210, 120, 0.85), rgba(220, 96, 32, 0.2) 48%, transparent 70%);
+  box-shadow: 0 0 28px rgba(240, 140, 48, 0.35);
+  animation: veil-breathe 1.6s ease-in-out infinite;
+}
+
+.veil-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(232, 196, 96, 0.28);
+  animation: veil-ring 1.6s ease-in-out infinite;
+}
+
+.veil-kicker {
+  margin: 0.85rem 0 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dng-title-gold);
+}
+
+.veil-copy {
+  margin: 0;
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+}
+
+@keyframes veil-breathe {
+  0%, 100% { transform: scale(0.92); opacity: 0.72; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+
+@keyframes veil-ring {
+  0%, 100% { transform: scale(0.88); opacity: 0.35; }
+  50% { transform: scale(1.08); opacity: 0.7; }
 }
 
 .lobby-mast {
@@ -1034,9 +1166,12 @@ function affinityLine(scoreId: string | undefined): string {
   .fan-slot,
   .fan-slot.is-selected,
   .fan-slot:hover,
-  .fan-slot:focus-within {
+  .fan-slot:focus-within,
+  .veil-ember,
+  .veil-ring {
     transition: none;
     transform: none !important;
+    animation: none;
   }
 }
 </style>

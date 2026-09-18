@@ -628,3 +628,4 @@ The last two sections came from watching people play. This one came from doubtin
 - **2026-09-18** — Skip remaining sits further from Continue on theater plaques. The two used to share 0.35rem, so a Continue tap could skip the rest of the replay.
 - **2026-09-18** — Aftershock plaques name the card (or event) that queued them and how many turns ago. The delayed instance already had `source_id` / `source_turn`; the resolved record now keeps `source_turn`. The UI derives the line. It does not walk history.
 - **2026-09-18** — Event plaques say **Reality hits**, not "the system moves." "The system" already means the living scores. Teaching copy (door, briefing, rules, consult) now says a random event may land.
+- **2026-09-18** — `/play` holds a chamber veil until lobby scene art and class portraits are preloaded. Content loading already disabled the sit button; the images were still popping in behind it.
