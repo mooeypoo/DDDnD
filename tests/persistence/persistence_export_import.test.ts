@@ -40,6 +40,10 @@ function createHistoryEntry(): TurnHistoryEntry {
   return {
     turn_number: 1,
     resolved_aftershocks: [],
+    player_intent: {
+      type: 'play_card',
+      action_ref: { id: 'define_bounded_context', version: 1 }
+    },
     action_resolution: {
       selected_action: { id: 'define_bounded_context', version: 1 },
       score_changes: [{ score_id: 'domain_clarity', delta: 5 }],
@@ -106,6 +110,11 @@ function createFixtureGameState(): GameState {
   gameState.progress.current_turn = 2
   gameState.run_analytics.turns_completed = 1
   gameState.history = [createHistoryEntry()]
+  gameState.hand_state = {
+    hand_refs: [{ id: 'define_bounded_context', version: 1 }],
+    deck_refs: [{ id: 'event_storming_session', version: 1 }],
+    legal_hand_size: 6
+  }
 
   return gameState
 }
@@ -135,6 +144,11 @@ describe('Persistence export/import', () => {
 
     expect(parsed.value.save_file).toEqual(serialized)
     expect(parsed.value.game_state).toEqual(gameState)
+    expect(parsed.value.game_state.hand_state).toEqual({
+      hand_refs: [{ id: 'define_bounded_context', version: 1 }],
+      deck_refs: [{ id: 'event_storming_session', version: 1 }],
+      legal_hand_size: 6
+    })
   })
 
   it('exact-run serialization returns expected top-level structure', () => {
@@ -143,11 +157,14 @@ describe('Persistence export/import', () => {
     const exportPayload = serialize_exact_run(gameState, '2026-03-07T12:00:00.000Z')
 
     expect(exportPayload.export_type).toBe('exact_run')
-    expect(exportPayload.format_version).toBe(1)
+    expect(exportPayload.format_version).toBe(2)
     expect(exportPayload.scenario_ref).toEqual({ id: 'monolith_of_mild_despair', version: 1 })
     expect(exportPayload.seed_info.seed).toBe('seed-persistence-001')
     expect(exportPayload.turn_history).toHaveLength(1)
     expect(exportPayload.action_sequence).toHaveLength(1)
+    expect(exportPayload.turn_intents).toEqual([
+      { type: 'play_card', action_ref: { id: 'define_bounded_context', version: 1 } }
+    ])
     expect(exportPayload.outcome_snapshot.run_status).toBe('in_progress')
     expect(exportPayload.outcome_snapshot.archetype).toBeTruthy()
     expect(['success', 'partial_success', 'failure']).toContain(exportPayload.outcome_snapshot.tier)
@@ -253,5 +270,85 @@ describe('Persistence export/import', () => {
     expect(savePayload.game_state.meta.seed).toBe('seed-persistence-001')
     expect(exactPayload.seed_info.seed).toBe('seed-persistence-001')
     expect(exactPayload.game_state.history).toHaveLength(1)
+  })
+
+  it('exact-run exports consult intents without treating the discarded card as played', () => {
+    const gameState = createFixtureGameState()
+    gameState.history.push({
+      ...createHistoryEntry(),
+      turn_number: 2,
+      player_intent: {
+        type: 'consult_archives',
+        discarded_refs: [{ id: 'define_bounded_context', version: 1 }],
+        drawn_refs: [{ id: 'event_storming_session', version: 1 }]
+      },
+      action_resolution: {
+        ...createHistoryEntry().action_resolution,
+        selected_action: { id: 'define_bounded_context', version: 1 },
+        score_changes: [],
+        presentation: {
+          title: 'Consult the Archives',
+          summary: 'Searched the remaining options.'
+        }
+      }
+    })
+
+    const exportPayload = serialize_exact_run(gameState, '2026-03-07T12:00:00.000Z')
+    const parsed = deserialize_exact_run(exportPayload)
+
+    expect(exportPayload.action_sequence).toEqual([{ id: 'define_bounded_context', version: 1 }])
+    expect(exportPayload.turn_intents).toHaveLength(2)
+    expect(exportPayload.turn_intents[1]).toEqual({
+      type: 'consult_archives',
+      discarded_refs: [{ id: 'define_bounded_context', version: 1 }],
+      drawn_refs: [{ id: 'event_storming_session', version: 1 }]
+    })
+    expect(parsed.ok).toBe(true)
+    if (!parsed.ok) {
+      throw new Error(parsed.error.message)
+    }
+    expect(parsed.value.turn_intents).toEqual(exportPayload.turn_intents)
+  })
+
+  it('upgrades legacy exact-run v1 action sequences into play_card intents', () => {
+    const current = serialize_exact_run(createFixtureGameState(), '2026-03-07T12:00:00.000Z')
+    const legacyPayload = {
+      ...current,
+      format_version: 1
+    }
+    delete (legacyPayload as { turn_intents?: unknown }).turn_intents
+
+    const parsed = deserialize_exact_run(legacyPayload)
+
+    expect(parsed.ok).toBe(true)
+    if (!parsed.ok) {
+      throw new Error(parsed.error.message)
+    }
+    expect(parsed.value.format_version).toBe(2)
+    expect(parsed.value.turn_intents).toEqual([
+      { type: 'play_card', action_ref: { id: 'define_bounded_context', version: 1 } }
+    ])
+  })
+
+  it('restores a pre-hand save by treating the catalog as the legal hand', () => {
+    const serialized = serialize_save_file(createFixtureGameState(), '2026-03-07T12:00:00.000Z')
+    const legacyGameState = {
+      ...serialized.game_state,
+      hand_state: undefined
+    }
+    const parsed = deserialize_save_file({
+      ...serialized,
+      game_state: legacyGameState
+    })
+
+    expect(parsed.ok).toBe(true)
+    if (!parsed.ok) {
+      throw new Error(parsed.error.message)
+    }
+    expect(parsed.value.game_state.hand_state).toEqual({
+      hand_refs: [{ id: 'define_bounded_context', version: 1 }],
+      deck_refs: [],
+      legal_hand_size: 6
+    })
   })
 })

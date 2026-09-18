@@ -41,11 +41,11 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: var(--space-sm);
-  background: var(--surface-modal, #1a1a2e);
-  border: 1px solid var(--border-accent, #a989fa55);
-  border-radius: var(--radius-lg);
+  background: linear-gradient(165deg, rgba(62, 38, 14, 0.96) 0%, rgba(16, 10, 5, 0.96) 100%);
+  border: 1px solid rgba(232, 196, 96, 0.45);
+  border-radius: 8px 18px 8px 18px;
   padding: var(--space-md) var(--space-lg);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
 }
 
 .notice-icon {
@@ -63,7 +63,7 @@ onMounted(() => {
 }
 
 .notice-text strong {
-  color: var(--text-accent, #a989fa);
+  color: #ead58a;
   font-weight: var(--font-semibold);
 }
 

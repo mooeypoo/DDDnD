@@ -81,7 +81,7 @@
 
     <!-- Stakeholder States -->
     <div v-if="stakeholderEntries.length > 0" class="stakeholders-section">
-      <div class="stakeholders-heading">Stakeholder States</div>
+      <div class="stakeholders-heading">The council</div>
       <div class="stakeholders-list">
         <div
           v-for="stakeholder in stakeholderEntries"
@@ -130,11 +130,13 @@ import {
   resolveStakeholderMood,
 } from '@/ui/composables/gameplay_stage_presentation'
 import { formatStakeholderName } from '@/ui/composables/stakeholder_presentation'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 
 const props = defineProps<{
   payload: SharePayload
 }>()
 
+const scoreLabels = useScoreLabels()
 const cardRef = ref<HTMLElement | null>(null)
 
 // Expose the card element for external image export
@@ -244,10 +246,7 @@ const completionLabel = computed(() => {
 })
 
 function formatScoreName(scoreId: string): string {
-  return scoreId
-    .split('_')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
+  return scoreLabels.short(scoreId)
 }
 
 function scoreClass(value: number): string {

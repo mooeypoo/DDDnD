@@ -35,6 +35,39 @@ content/
 
 All files are versioned: `<id>-v<version>.json`. A file's internal `id` and `version` fields must match its filename.
 
+## Score Files
+
+Score JSON under `scores/` defines a tracked metric for scenarios (the weather-strip vials).
+
+Required fields:
+
+| Field | Description |
+|---|---|
+| `id`, `version` | Must match the filename `<id>-v<version>.json` |
+| `name` | Full player-facing name (weather-strip hover/tap) |
+| `short_name` | Compact label used in play UI (strip, card deltas, aftershocks, theater) |
+| `description` | Non-empty string |
+| `default_value` | Number |
+
+Optional: `min_value`, `max_value`.
+
+`short_name` is **mandatory**. The UI does not invent compact titles from score ids — packs that omit it fail to load. Prefer a short word players can scan on a phone (e.g. `Craft` for Maintainability, `Purse` for Budget).
+
+Example:
+
+```json
+{
+  "id": "maintainability",
+  "version": 1,
+  "name": "Maintainability",
+  "short_name": "Craft",
+  "description": "How easy it is to modify and extend the codebase",
+  "default_value": 40
+}
+```
+
+Adding or changing `short_name` alone is cosmetic — keep the same file version when gameplay values are unchanged (see `CONTENT_VERSIONING.md`).
+
 ## The Manifest
 
 The `manifest.json` is the entry point for your pack.
@@ -144,6 +177,7 @@ npm run build
 
 - Create all referenced entities before wiring scenario refs
 - Keep gameplay changes versioned by file (`-v2`, `-v3`, ...)
+- Ensure every score file includes both `name` and `short_name`
 - Ensure `scenarios`, `classes`, `tutorials` entry points are intentional
 - Include every owned file in `manifest.content.*`
 - Use a valid SPDX license expression
@@ -154,6 +188,7 @@ npm run build
 - **Filename/version mismatch** — `foo-v1.json` contains `"version": 2`
 - **Missing inventory entry** — new file not listed in manifest `content.*`
 - **Unresolved reference** — scenario references content not present in any registered pack
+- **Score missing `short_name`** — load fails; the UI will not invent a compact label
 - **Invalid SPDX license** — pack fails validation on load
 - **Plain ids vs. refs** — use `{ id, version }` objects where required, not bare id strings
 
@@ -164,6 +199,7 @@ Use these as working examples:
 - Base manifest: `content/manifest.json`
 - Scenario: `content/scenarios/monolith_of_mild_despair-v1.json`
 - Card: `content/cards/define_bounded_context-v1.json`
+- Score: `content/scores/maintainability-v1.json`
 - Stakeholder: `content/stakeholders/cto-v1.json`
 - Reaction rule: `content/stakeholder-reaction-rules/cto_wants_clarity-v1.json`
 

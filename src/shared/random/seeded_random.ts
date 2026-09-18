@@ -50,7 +50,23 @@ export function createSeededRandom(seed: string): SeededRandom {
   for (let i = 0; i < seed.length; i++) {
     state = ((state << 5) - state + seed.charCodeAt(i)) | 0
   }
-  
+
+  /*
+   * Avalanche the hash before it becomes LCG state.
+   *
+   * The loop above leaves seeds that differ only in a trailing character with
+   * hashes a few apart, and an LCG started a few apart stays close for its
+   * whole sequence. Batch seeds look exactly like that ("...__run_1",
+   * "...__run_2"), so neighbouring runs came out correlated and a batch of 200
+   * carried roughly 15 runs' worth of information. Mixing here makes every
+   * seed an unrelated starting point.
+   */
+  state ^= state >>> 16
+  state = Math.imul(state, 0x85ebca6b)
+  state ^= state >>> 13
+  state = Math.imul(state, 0xc2b2ae35)
+  state ^= state >>> 16
+
   // Ensure positive seed
   state = Math.abs(state) || 1
   

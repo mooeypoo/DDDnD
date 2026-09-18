@@ -12,6 +12,7 @@ const mockResolution: TurnResolutionContext = {
       source_type: 'card',
       source_id: 'define_bounded_context',
       source_version: 1,
+      source_turn: 2,
       score_changes: [
         { score_id: 'maintainability', delta: -8 },
         { score_id: 'delivery_confidence', delta: -4 },
@@ -23,6 +24,10 @@ const mockResolution: TurnResolutionContext = {
       },
     },
   ],
+  player_intent: {
+    type: 'play_card',
+    action_ref: { id: 'introduce_anti_corruption_layer', version: 1 },
+  },
   selected_action: { id: 'introduce_anti_corruption_layer', version: 1 },
   action_resolution: {
     selected_action: { id: 'introduce_anti_corruption_layer', version: 1 },

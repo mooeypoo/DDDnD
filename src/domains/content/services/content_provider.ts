@@ -30,6 +30,7 @@ import {
   versionRefKey,
   parseFilename
 } from '../model'
+import { assertScoreShape } from './score_shape'
 
 /**
  * Content type names matching directory structure.
@@ -140,10 +141,16 @@ export function createContentProvider(basePath = '/content'): ContentProvider {
     
     return content
   }
+
+  async function loadScore(ref: VersionRef): Promise<Score> {
+    const score = await loadContent<Score>('scores', ref)
+    assertScoreShape(score)
+    return score
+  }
   
   return {
     loadScenario: (ref) => loadContent<Scenario>('scenarios', ref),
-    loadScore: (ref) => loadContent<Score>('scores', ref),
+    loadScore,
     loadStakeholder: (ref) => loadContent<Stakeholder>('stakeholders', ref),
     loadStakeholderReactionRule: (ref) => loadContent<StakeholderReactionRule>('stakeholder-reaction-rules', ref),
     loadCard: (ref) => loadContent<Card>('cards', ref),

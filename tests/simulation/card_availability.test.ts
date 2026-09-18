@@ -37,6 +37,7 @@ function buildAvailabilityBundle(): ScenarioBundle {
     id: 'architecture_health',
     version: 1,
     name: 'Architecture Health',
+    short_name: 'Health',
     description: 'Overall architecture quality',
     default_value: 50,
     min_value: 0,

@@ -89,7 +89,7 @@ async function main() {
   }
 
   const { buildScenarioBundle } = await import('../src/domains/content/services/bundle_builder.js')
-  const { simulate_runs } = await import('../src/domains/simulation/services/simulation_runner.js')
+  const { simulate_player_true_and_oracle } = await import('../src/domains/simulation/services/simulation_runner.js')
   const { buildContentAuditReport } = await import('../src/domains/simulation/services/audit/content_audit_report_builder.js')
 
   const scenarios = await listProductionScenarios()
@@ -119,11 +119,16 @@ async function main() {
       continue
     }
 
-    const report = simulate_runs({ scenario_bundle: bundle, runs, seed: 'audit-gate' })
+    const { player_true: report, oracle: oracleReport } = simulate_player_true_and_oracle({
+      scenario_bundle: bundle,
+      runs,
+      seed: 'audit-gate',
+    })
     const auditReport = buildContentAuditReport({
       content_pack_id: 'core',
       scenario_bundle: bundle,
       simulation_report: report,
+      oracle_simulation_report: oracleReport,
     })
 
     const { summary, findings } = auditReport

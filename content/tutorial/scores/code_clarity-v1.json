@@ -2,6 +2,7 @@
   "id": "code_clarity",
   "version": 1,
   "name": "Code Clarity",
+  "short_name": "Code",
   "description": "How readable and understandable the codebase is. Higher means easier to work with.",
   "default_value": 40,
   "min_value": 0,

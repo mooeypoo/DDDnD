@@ -3,7 +3,9 @@ import {
   EffectState,
   EventState,
   GameState,
+  HandState,
   PlayerProfile,
+  PlayerTurnIntent,
   ProgressState,
   RunAnalytics,
   RunMeta,
@@ -237,6 +239,94 @@ function isRunAnalytics(value: unknown): value is RunAnalytics {
   )
 }
 
+function isHandState(value: unknown): value is HandState {
+  if (!isObject(value)) {
+    return false
+  }
+
+  if (!isVersionedContentRefArray(value.hand_refs) || !isVersionedContentRefArray(value.deck_refs)) {
+    return false
+  }
+
+  if (value.legal_hand_size !== undefined) {
+    return isNumber(value.legal_hand_size) && value.legal_hand_size >= 1
+  }
+
+  return true
+}
+
+function isPlayerTurnIntent(value: unknown): value is PlayerTurnIntent {
+  if (!isObject(value) || !isString(value.type)) {
+    return false
+  }
+
+  if (value.type === 'play_card') {
+    return isVersionedContentRef(value.action_ref)
+  }
+
+  if (value.type === 'consult_archives') {
+    return isVersionedContentRefArray(value.discarded_refs) && isVersionedContentRefArray(value.drawn_refs)
+  }
+
+  return false
+}
+
+function synthesizePlayCardIntent(actionRef: VersionedContentRef): PlayerTurnIntent {
+  return {
+    type: 'play_card',
+    action_ref: actionRef
+  }
+}
+
+function normalizeHistoryEntry(entry: TurnHistoryEntry): TurnHistoryEntry {
+  if (isPlayerTurnIntent(entry.player_intent)) {
+    return entry
+  }
+
+  const selectedAction = isObject(entry.action_resolution)
+    ? entry.action_resolution.selected_action
+    : undefined
+
+  return {
+    ...entry,
+    player_intent: isVersionedContentRef(selectedAction)
+      ? synthesizePlayCardIntent(selectedAction)
+      : synthesizePlayCardIntent({ id: 'unknown_action', version: 1 })
+  }
+}
+
+function normalizeHandState(
+  rawHandState: unknown,
+  availableActionRefs: VersionedContentRef[]
+): HandState {
+  if (isHandState(rawHandState)) {
+    return {
+      hand_refs: rawHandState.hand_refs,
+      deck_refs: rawHandState.deck_refs,
+      legal_hand_size: rawHandState.legal_hand_size ?? 6
+    }
+  }
+
+  return {
+    hand_refs: [...availableActionRefs],
+    deck_refs: [],
+    legal_hand_size: 6
+  }
+}
+
+/**
+ * Fills hand/intent fields added after the legal-hand overhaul so older saves
+ * still restore. Persistence does not invent new play; missing hands become
+ * the full available pool (the pre-hand catalog).
+ */
+export function normalizeGameState(gameState: GameState): GameState {
+  return {
+    ...gameState,
+    hand_state: normalizeHandState(gameState.hand_state, gameState.action_state.available_action_refs),
+    history: gameState.history.map(normalizeHistoryEntry)
+  }
+}
+
 function hasTurnHistoryCoreFields(entry: unknown): entry is TurnHistoryEntry {
   if (!isObject(entry)) {
     return false
@@ -270,6 +360,10 @@ function hasTurnHistoryCoreFields(entry: unknown): entry is TurnHistoryEntry {
     return false
   }
 
+  if (entry.player_intent !== undefined && !isPlayerTurnIntent(entry.player_intent)) {
+    return false
+  }
+
   return true
 }
 
@@ -293,6 +387,7 @@ export function isGameState(value: unknown): value is GameState {
     isScoreSnapshot(value.scores) &&
     isStakeholderSnapshot(value.stakeholders) &&
     isActionState(value.action_state) &&
+    (value.hand_state === undefined || isHandState(value.hand_state)) &&
     isEffectState(value.effect_state) &&
     isEventState(value.event_state) &&
     isTurnHistory(value.history) &&
@@ -340,4 +435,11 @@ export function isVersionedRefArray(value: unknown): value is VersionedContentRe
  */
 export function isTurnHistoryArray(value: unknown): value is TurnHistoryEntry[] {
   return isTurnHistory(value)
+}
+
+/**
+ * Type guard for player turn intents used by exact-run replay.
+ */
+export function isPlayerTurnIntentArray(value: unknown): value is PlayerTurnIntent[] {
+  return Array.isArray(value) && value.every(isPlayerTurnIntent)
 }

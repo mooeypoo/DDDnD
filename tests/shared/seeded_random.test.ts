@@ -21,6 +21,24 @@ describe('SeededRandom', () => {
     
     expect(value1).not.toEqual(value2)
   })
+
+  /*
+   * Batch harnesses seed runs as "<base>__run_0", "<base>__run_1", and so on.
+   * Without avalanche in the seed hash those neighbours started the generator a
+   * few steps apart and stayed correlated for their whole sequence, which made
+   * a 200-run audit batch behave like roughly 15 runs. "Different" is not
+   * enough here; adjacent seeds have to be unrelated.
+   */
+  it('should decorrelate seeds that differ only in a trailing index', () => {
+    const firstDraws = Array.from({ length: 256 }, (_, i) =>
+      createSeededRandom(`batch__run_${i}`).next())
+
+    const gaps = firstDraws.slice(1).map((value, i) => Math.abs(value - firstDraws[i]))
+    const meanGap = gaps.reduce((a, b) => a + b, 0) / gaps.length
+
+    // Independent uniforms average a gap of 1/3. Correlated ones average ~0.
+    expect(meanGap).toBeGreaterThan(0.25)
+  })
   
   it('should generate values in range [0, 1)', () => {
     const rng = createSeededRandom('range-test')

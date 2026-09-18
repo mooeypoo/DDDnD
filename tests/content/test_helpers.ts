@@ -22,6 +22,7 @@ export const mockScores: Record<string, Score> = {
     id: 'technical_debt',
     version: 1,
     name: 'Technical Debt',
+    short_name: 'Debt',
     description: 'Accumulated shortcuts and compromises in the codebase',
     default_value: 50
   },
@@ -29,6 +30,7 @@ export const mockScores: Record<string, Score> = {
     id: 'team_morale',
     version: 1,
     name: 'Team Morale',
+    short_name: 'Morale',
     description: 'Developer satisfaction and productivity',
     default_value: 60
   },
@@ -36,6 +38,7 @@ export const mockScores: Record<string, Score> = {
     id: 'wrong_id',
     version: 1,
     name: 'Mismatched Score',
+    short_name: 'Mismatch',
     description: 'This score has an ID that doesn\'t match its filename',
     default_value: 0
   },
@@ -43,6 +46,7 @@ export const mockScores: Record<string, Score> = {
     id: 'version_mismatch',
     version: 2,
     name: 'Version Mismatch Score',
+    short_name: 'Version',
     description: 'This score has a version that doesn\'t match its filename',
     default_value: 0
   }

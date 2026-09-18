@@ -58,6 +58,7 @@ function buildActionTurnTelemetry(
   return {
     turn_number: turn,
     selected_card_id: cardId,
+    player_intent: 'play_card',
     score_deltas: scoreDeltas,
     stakeholder_deltas: stakeholderDeltas,
   }
@@ -84,6 +85,7 @@ function buildRunTelemetry(overrides: Partial<PerRunTelemetry>): PerRunTelemetry
       tech_lead: 55,
     },
     cards_played: ['card_a', 'card_b', 'card_c'],
+    consults_used: 0,
     events_triggered: ['event_a'],
     reactions_triggered: ['rule_alpha'],
     score_average: 30,

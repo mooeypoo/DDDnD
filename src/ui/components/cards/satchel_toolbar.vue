@@ -39,7 +39,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { CATEGORY_META } from '@/ui/composables/card_filter_sort'
-import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import AppSelect from '@/ui/components/common/AppSelect.vue'
 
 /**
@@ -57,12 +57,14 @@ defineEmits<{
   'update:activeSort': [value: string]
 }>()
 
+const scoreLabels = useScoreLabels()
+
 function categoryMeta(cat: string) {
   return CATEGORY_META[cat] ?? { label: cat, icon: '📦' }
 }
 
 function metricLabel(scoreId: string): string {
-  return getMetricPresentation(scoreId).label
+  return scoreLabels.short(scoreId)
 }
 
 const sortOptions = computed(() => [

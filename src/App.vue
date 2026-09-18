@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="app-shell">
+  <div id="app" class="app-shell" :class="{ 'is-chamber': isChamber }">
     <main class="app-main">
       <RouterView />
     </main>
@@ -17,7 +17,11 @@ import MobileNotice from '@/ui/components/common/mobile_notice.vue'
 const route = useRoute()
 
 const showFooter = computed(() => {
-  return route.name === 'welcome' || route.name === 'play' || route.name === 'game' || route.name === 'end' || route.name === 'share'
+  return route.name === 'end' || route.name === 'share'
+})
+
+const isChamber = computed(() => {
+  return route.name === 'welcome' || route.name === 'play' || route.name === 'game'
 })
 </script>
 
@@ -60,6 +64,12 @@ body {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Ccircle cx='1' cy='1' r='0.75' fill='rgba(255%2C255%2C255%2C0.030)'/%3E%3C/svg%3E");
   background-repeat: no-repeat, no-repeat, repeat;
   background-position: center top, right bottom, 0 0;
+}
+
+.app-shell.is-chamber {
+  background-color: #070504;
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(92, 58, 18, 0.22), transparent 48%);
 }
 
 .app-main {

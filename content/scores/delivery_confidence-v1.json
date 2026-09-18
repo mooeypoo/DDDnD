@@ -2,6 +2,7 @@
   "id": "delivery_confidence",
   "version": 1,
   "name": "Delivery Confidence",
+  "short_name": "Delivery",
   "description": "Team's ability to ship features predictably and safely",
   "default_value": 45
 }

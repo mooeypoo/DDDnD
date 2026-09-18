@@ -82,6 +82,9 @@ function maybeOmitPerRun(auditReport: any) {
     dynamic_metrics: {
       ...auditReport.dynamic_metrics,
       simulation_report: omitPerRun(auditReport.dynamic_metrics.simulation_report),
+      oracle_simulation_report: auditReport.dynamic_metrics.oracle_simulation_report
+        ? omitPerRun(auditReport.dynamic_metrics.oracle_simulation_report)
+        : undefined,
     },
   }
 }
@@ -100,7 +103,7 @@ async function main() {
   const manifest = JSON.parse(manifestRaw) as Manifest
 
   const { buildScenarioBundle } = await import('../src/domains/content/services/bundle_builder.js')
-  const { simulate_runs } = await import('../src/domains/simulation/services/simulation_runner.js')
+  const { simulate_player_true_and_oracle } = await import('../src/domains/simulation/services/simulation_runner.js')
   const { buildContentAuditReport } = await import(
     '../src/domains/simulation/services/audit/content_audit_report_builder.js'
   )
@@ -113,7 +116,7 @@ async function main() {
     process.stdout.write(`Generating audit report for ${scenarioId}...`)
 
     const bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
-    const simulationReport = simulate_runs({
+    const { player_true: simulationReport, oracle: oracleReport } = simulate_player_true_and_oracle({
       scenario_bundle: bundle,
       runs: runCount,
       seed,
@@ -123,6 +126,7 @@ async function main() {
       content_pack_id: manifest.id,
       scenario_bundle: bundle,
       simulation_report: simulationReport,
+      oracle_simulation_report: oracleReport,
     })
 
     const simulation = includePerRun ? simulationReport : omitPerRun(simulationReport)

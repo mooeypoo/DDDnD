@@ -112,6 +112,41 @@ Cards must remain understandable to readers.
 
 ---
 
+# Score Structure
+
+Scores are tracked metrics for a scenario (the vials on the weather strip).
+
+Required fields:
+
+- `id`, `version` (must match `<id>-v<version>.json`)
+- `name` — full player-facing name (hover/tap teaching on the weather strip)
+- `short_name` — compact label used throughout play UI (strip, card deltas, aftershocks, theater, charge line)
+- `description`
+- `default_value`
+
+Optional:
+
+- `min_value`, `max_value`
+
+`short_name` is mandatory. The UI does not invent compact titles from score ids; packs that omit it fail to load.
+
+Example:
+
+```json
+{
+  "id": "maintainability",
+  "version": 1,
+  "name": "Maintainability",
+  "short_name": "Craft",
+  "description": "How easy it is to modify and extend the codebase",
+  "default_value": 40
+}
+```
+
+Adding or changing `short_name` alone is a cosmetic presentation change — see [CONTENT_VERSIONING.md](CONTENT_VERSIONING.md); no new score file version is required when gameplay numbers stay the same.
+
+---
+
 # Stakeholder Structure
 
 Stakeholders include:

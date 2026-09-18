@@ -73,7 +73,7 @@ const emit = defineEmits<{
   border-radius: var(--radius-full, 9999px);
   background: var(--dng-bronze-mid, #b8860b);
   color: var(--dng-shell-bg, #0e1117);
-  font-size: var(--text-2xs, 10px);
+  font-size: var(--text-2xs, 12px);
   font-weight: var(--font-bold, 700);
   font-family: var(--font-mono, monospace);
   display: inline-flex;
@@ -92,7 +92,7 @@ const emit = defineEmits<{
   border: 1px solid var(--dng-bronze-mid, #b8860b);
   border-radius: var(--radius-sm, 4px);
   color: var(--dng-title-gold, #c8981e);
-  font-size: var(--text-2xs, 10px);
+  font-size: var(--text-2xs, 12px);
   font-weight: var(--font-semibold, 600);
   letter-spacing: var(--tracking-wide, 0.05em);
   text-transform: uppercase;

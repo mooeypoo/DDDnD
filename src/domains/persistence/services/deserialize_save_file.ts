@@ -6,7 +6,8 @@ import {
   isNonEmptyString,
   isPositiveInteger,
   isRecord,
-  isVersionedRef
+  isVersionedRef,
+  normalizeGameState
 } from './validation'
 import {
   SAVE_FILE_EXPORT_TYPE,
@@ -97,7 +98,8 @@ export function deserialize_save_file(input: unknown): PersistenceResult<Deseria
     )
   }
 
-  const compatibilityValidation = validateScenarioRefCompatibility(input.game_state)
+  const gameState = normalizeGameState(input.game_state)
+  const compatibilityValidation = validateScenarioRefCompatibility(gameState)
   if (!compatibilityValidation.ok) {
     return compatibilityValidation
   }
@@ -106,12 +108,12 @@ export function deserialize_save_file(input: unknown): PersistenceResult<Deseria
     export_type: SAVE_FILE_EXPORT_TYPE,
     format_version: SAVE_FILE_FORMAT_VERSION,
     exported_at: input.exported_at,
-    game_state: input.game_state
+    game_state: gameState
   }
 
   return ok({
     save_file,
-    game_state: input.game_state
+    game_state: gameState
   })
 }
 

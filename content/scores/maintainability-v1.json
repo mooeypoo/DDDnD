@@ -2,6 +2,7 @@
   "id": "maintainability",
   "version": 1,
   "name": "Maintainability",
+  "short_name": "Craft",
   "description": "How easy it is to modify and extend the codebase",
   "default_value": 40
 }

@@ -42,6 +42,7 @@ describe('getCollapseWarnings', () => {
     expect(warnings).toHaveLength(1)
     expect(warnings[0].title).toBe('Delivery Collapse')
     expect(warnings[0].triggerScoreId).toBe('delivery_confidence')
+    expect(warnings[0].affectedScoreIds).toEqual(['domain_clarity', 'maintainability'])
     expect(warnings[0].currentValue).toBe(20)
     expect(warnings[0].threshold).toBe(25)
   })
@@ -51,6 +52,7 @@ describe('getCollapseWarnings', () => {
     expect(warnings).toHaveLength(1)
     expect(warnings[0].title).toBe('Morale Collapse')
     expect(warnings[0].triggerScoreId).toBe('team_morale')
+    expect(warnings[0].affectedScoreIds).toEqual(['maintainability'])
   })
 
   it('returns trust collapse warning when user_trust < 25', () => {

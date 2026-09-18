@@ -22,6 +22,7 @@ export interface CollapseWarning {
   icon: string
   currentValue: number
   threshold: number
+  affectedScoreIds: string[]
 }
 
 /** Display model for an adjusted score change on a card */
@@ -90,7 +91,8 @@ export function getCollapseWarnings(scores: Record<string, number>): CollapseWar
       description: display.description,
       icon: display.icon,
       currentValue: effect.current_value,
-      threshold: effect.threshold
+      threshold: effect.threshold,
+      affectedScoreIds: [...effect.affected_score_ids],
     }
   })
 }

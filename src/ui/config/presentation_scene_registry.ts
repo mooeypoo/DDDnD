@@ -1,6 +1,9 @@
 import fortifiedMonolithHallUrl from '@/assets/presentation/scenes/scenario/fortified_monolith_hall/background.png?url'
 import strategicWarRoomUrl from '@/assets/presentation/scenes/scenario/strategic_war_room/background.png?url'
 import archiveLibraryChamberUrl from '@/assets/presentation/scenes/scenario/archive_library_chamber/background.png?url'
+import darkDungeonRoomUrl from '@/assets/presentation/scenes/scenario/dark_dungeon_room/background.jpg?url'
+import medievalThroneRoomUrl from '@/assets/presentation/scenes/scenario/medieval_throne_room/background.jpg?url'
+import forgeOfHeroesUrl from '@/assets/presentation/scenes/scenario/forge_of_heroes/background.jpg?url'
 
 import systemIncidentSceneUrl from '@/assets/presentation/scenes/events/system_incident.svg?url'
 import auditPressureSceneUrl from '@/assets/presentation/scenes/events/audit_pressure.svg?url'
@@ -20,6 +23,9 @@ export const SCENE_BACKGROUND_ASSETS: Record<SceneBackgroundId, string> = {
   fortified_monolith_hall: fortifiedMonolithHallUrl,
   strategic_war_room: strategicWarRoomUrl,
   archive_library_chamber: archiveLibraryChamberUrl,
+  dark_dungeon_room: darkDungeonRoomUrl,
+  medieval_throne_room: medievalThroneRoomUrl,
+  forge_of_heroes: forgeOfHeroesUrl,
 }
 
 export const EVENT_SCENE_ASSETS: Record<EventSceneAssetId, string> = {
@@ -39,4 +45,17 @@ export function getSceneBackgroundAssetUrl(
   }
 
   return SCENE_BACKGROUND_ASSETS[sceneId as SceneBackgroundId]
+}
+
+/**
+ * Resolves event-scene artwork URL with a safe fallback.
+ */
+export function getEventSceneAssetUrl(
+  sceneId: EventSceneAssetId | string | undefined
+): string {
+  if (!sceneId || !(sceneId in EVENT_SCENE_ASSETS)) {
+    return EVENT_SCENE_ASSETS.system_incident
+  }
+
+  return EVENT_SCENE_ASSETS[sceneId as EventSceneAssetId]
 }

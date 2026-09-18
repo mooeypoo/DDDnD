@@ -1,5 +1,5 @@
 <template>
-  <AppFrame title="Stakeholders" class="stakeholder-panel">
+  <AppFrame title="The council" class="stakeholder-panel">
     <div class="stakeholders-list">
       <div 
         v-for="(data, stakeholderId) in stakeholders" 

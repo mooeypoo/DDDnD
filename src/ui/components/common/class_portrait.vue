@@ -11,7 +11,7 @@
       :src="portraitUrl"
       alt=""
       class="portrait-img"
-      loading="lazy"
+      :loading="eager ? 'eager' : 'lazy'"
     />
     <span v-else class="portrait-fallback">
       {{ fallbackInitial }}
@@ -30,8 +30,10 @@ const props = withDefaults(defineProps<{
   classId?: string
   className?: string
   size?: 'sm' | 'md' | 'lg'
+  eager?: boolean
 }>(), {
   size: 'md',
+  eager: false,
 })
 
 const portraitUrl = computed(() => getClassPortraitUrl(props.classId))

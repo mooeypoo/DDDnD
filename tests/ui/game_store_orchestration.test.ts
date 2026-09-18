@@ -173,7 +173,7 @@ describe('game_store orchestration', () => {
     expect(store.gameState).not.toBe(previousGameState)
     expect(store.turnBriefing).not.toBeNull()
     expect(store.turnBriefing?.turn_number).toBeGreaterThan(previousBriefing?.turn_number ?? 0)
-    expect(store.lastTurnResolution?.turn_resolution_context.selected_action.id).toBe(actionId)
+    expect(store.lastTurnResolution?.turn_resolution_context.selected_action?.id).toBe(actionId)
   })
 
   it('exposes card availability data in turn briefing summaries', async () => {
@@ -238,9 +238,9 @@ describe('game_store orchestration', () => {
     expect(store.availableQuests).toHaveLength(4)
     expect(store.availableQuests.map((quest) => quest.id)).toEqual([
       'monolith_of_mild_despair',
-      'microservice_sprawl',
       'compliance_gauntlet',
       'startup_hypergrowth',
+      'microservice_sprawl',
     ])
     expect(store.availableQuests.every((quest) => quest.turnCount > 0)).toBe(true)
     expect(store.availableQuests.every((quest) => quest.stakeholderCount > 0)).toBe(true)

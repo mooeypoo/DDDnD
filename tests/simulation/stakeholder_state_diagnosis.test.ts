@@ -148,8 +148,11 @@ describe('Stakeholder State Diagnosis', () => {
       initialSatisfaction[stakeholderId] = stakeholder.satisfaction
     }
 
-    // Play a turn - stakeholder reactions may fire
-    const result = engine.play_turn('define_bounded_context')
+    // Play a turn from the legal hand - stakeholder reactions may fire
+    const briefing = engine.get_turn_briefing()
+    const actionId = briefing.available_action_card_ids[0]
+    expect(actionId).toBeTruthy()
+    const result = engine.play_turn(actionId)
 
     // With stakeholder_changes now defined, at least some stakeholder satisfaction
     // may have changed (depends on which reactions fire)
@@ -172,7 +175,12 @@ describe('Stakeholder State Diagnosis', () => {
     // domain_clarity starts at 30 (< 40, so CTO should react)
     let foundReactions = false
     for (let i = 0; i < 8; i++) {
-      const result = engine.play_turn('define_bounded_context')
+      const briefing = engine.get_turn_briefing()
+      const actionId = briefing.available_action_card_ids[0]
+      if (!actionId) {
+        break
+      }
+      const result = engine.play_turn(actionId)
       if (result.turn_resolution_context.total_stakeholder_changes.length > 0) {
         foundReactions = true
         break
@@ -194,7 +202,12 @@ describe('Stakeholder State Diagnosis', () => {
     let minSatisfactionAchieved = 50
 
     for (let i = 0; i < 8; i++) {
-      const result = engine.play_turn('define_bounded_context')
+      const briefing = engine.get_turn_briefing()
+      const actionId = briefing.available_action_card_ids[0]
+      if (!actionId) {
+        break
+      }
+      const result = engine.play_turn(actionId)
 
       // Track satisfaction changes
       for (const stakeholder of Object.values(result.game_state.stakeholders)) {
@@ -216,7 +229,12 @@ describe('Stakeholder State Diagnosis', () => {
 
     let lastResult
     for (let i = 0; i < 8; i++) {
-      lastResult = engine.play_turn('define_bounded_context')
+      const briefing = engine.get_turn_briefing()
+      const actionId = briefing.available_action_card_ids[0]
+      if (!actionId) {
+        break
+      }
+      lastResult = engine.play_turn(actionId)
     }
 
     // With stakeholder_changes, cumulative deltas should be populated

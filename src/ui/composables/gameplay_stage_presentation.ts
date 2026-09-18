@@ -28,7 +28,24 @@ export const ALL_SCENE_BACKGROUND_IDS: SceneBackgroundId[] = [
   'fortified_monolith_hall',
   'strategic_war_room',
   'archive_library_chamber',
+  'dark_dungeon_room',
+  'medieval_throne_room',
+  'forge_of_heroes',
 ]
+
+/**
+ * Explicit scenario → scene map. Presentation only; content packs do not
+ * ship image paths. Unknown ids fall back to the fortified hall.
+ */
+const SCENARIO_SCENE_BY_ID: Record<string, SceneBackgroundId> = {
+  monolith_of_mild_despair: 'fortified_monolith_hall',
+  microservice_sprawl: 'strategic_war_room',
+  compliance_gauntlet: 'archive_library_chamber',
+  startup_hypergrowth: 'medieval_throne_room',
+  merger_of_minor_chaos: 'dark_dungeon_room',
+  tutorial_basics: 'forge_of_heroes',
+  tutorial_systems_under_pressure: 'dark_dungeon_room',
+}
 
 export const AVATAR_ROLE_ROTATION: AvatarRoleId[] = [
   'wizard',
@@ -64,22 +81,16 @@ export function shuffleAvatarRoles(): AvatarRoleId[] {
 }
 
 /**
- * Resolves default scene background from scenario id heuristics.
+ * Resolves the scene background for a scenario id.
+ *
+ * This is a UI map, not a content-pack field and not random.
  */
 export function resolveGameplaySceneId(scenarioId: string | undefined): SceneBackgroundId {
   if (!scenarioId) {
     return 'fortified_monolith_hall'
   }
 
-  if (/microservice|distributed|sprawl/i.test(scenarioId)) {
-    return 'strategic_war_room'
-  }
-
-  if (/compliance|audit|archive|library/i.test(scenarioId)) {
-    return 'archive_library_chamber'
-  }
-
-  return 'fortified_monolith_hall'
+  return SCENARIO_SCENE_BY_ID[scenarioId] ?? 'fortified_monolith_hall'
 }
 
 /**

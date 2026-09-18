@@ -2,6 +2,7 @@
   "id": "system_health",
   "version": 1,
   "name": "System Health",
+  "short_name": "Health",
   "description": "Overall health of the system. Higher is better.",
   "default_value": 50,
   "min_value": 0,

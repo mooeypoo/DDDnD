@@ -50,6 +50,7 @@ Do not increase version for cosmetic changes such as:
 - spelling corrections
 - flavor text improvements
 - clearer descriptions
+- adding or renaming presentation-only fields that do not change gameplay numbers (for example score `short_name`)
 
 As long as gameplay behavior remains identical, version may remain unchanged.
 
