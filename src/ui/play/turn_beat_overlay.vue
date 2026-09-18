@@ -71,7 +71,9 @@ function formatScoreName(scoreId: string): string {
 
 <style scoped>
 .turn-beat {
-  width: min(420px, 92%);
+  width: min(420px, calc(100vw - 1.5rem));
+  max-height: min(76dvh, 34rem);
+  overflow-y: auto;
   padding: 0.85rem 1rem 0.75rem;
   border-radius: 16px;
   background:
@@ -88,7 +90,7 @@ function formatScoreName(scoreId: string): string {
 }
 
 .kind-aftershock {
-  width: min(420px, 92%);
+  width: min(420px, calc(100vw - 1.5rem));
   padding: 0.95rem 1.15rem 0.9rem;
   border-radius: 3px 34px 3px 34px;
   background:

@@ -114,27 +114,32 @@
       </figcaption>
     </figure>
 
-    <div class="table-focus">
-      <Transition name="beat-card">
-        <TurnBeatOverlay
-          v-if="currentBeat"
-          :key="currentBeat.id"
-          :beat="currentBeat"
-          :beatIndex="beatIndex"
-          :beatCount="beatCount"
-          @continue="$emit('continueTheater')"
-          @skip="$emit('skipTheater')"
-        />
-      </Transition>
-      <div v-if="isAdjourned && !currentBeat" class="adjourn-plate" role="status">
-        <p class="adjourn-kicker">The council adjourns</p>
-        <h2>The table stills</h2>
-        <p>Your architectural journey has reached its conclusion.</p>
-        <button type="button" class="adjourn-action" @click="$emit('viewResults')">
-          View Results
-        </button>
+    <Teleport to="body">
+      <div
+        v-if="currentBeat || (isAdjourned && !currentBeat)"
+        class="table-focus"
+      >
+        <Transition name="beat-card">
+          <TurnBeatOverlay
+            v-if="currentBeat"
+            :key="currentBeat.id"
+            :beat="currentBeat"
+            :beatIndex="beatIndex"
+            :beatCount="beatCount"
+            @continue="$emit('continueTheater')"
+            @skip="$emit('skipTheater')"
+          />
+        </Transition>
+        <div v-if="isAdjourned && !currentBeat" class="adjourn-plate" role="status">
+          <p class="adjourn-kicker">The council adjourns</p>
+          <h2>The table stills</h2>
+          <p>Your architectural journey has reached its conclusion.</p>
+          <button type="button" class="adjourn-action" @click="$emit('viewResults')">
+            View Results
+          </button>
+        </div>
       </div>
-    </div>
+    </Teleport>
   </section>
 </template>
 
@@ -721,18 +726,30 @@ const eventSceneUrl = computed(() => {
 .seat-ring :deep(.seat-right) { position: absolute; right: 18%; top: 4%; }
 .seat-ring :deep(.seat-far) { position: absolute; right: 0; top: 38%; }
 
+/*
+ * Theater plaques cannot live inside .war-table. The table isolates a stacking
+ * context and clips overflow so the 3D board stays contained; the hand dock is
+ * a later sibling and paints over anything that still leaks. Teleport to body
+ * and pin the layer to the viewport so Continue is never under the cards.
+ */
 .table-focus {
-  position: absolute;
-  inset: 22% 18% 34%;
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
   display: grid;
   place-items: center;
-  z-index: 6;
+  padding:
+    max(0.75rem, env(safe-area-inset-top))
+    0.75rem
+    max(0.75rem, env(safe-area-inset-bottom));
   pointer-events: none;
 }
 
 .table-focus :deep(.turn-beat),
 .adjourn-plate {
   pointer-events: auto;
+  max-height: min(76dvh, 34rem);
+  overflow-y: auto;
 }
 
 .table-nameplate {
