@@ -39,6 +39,7 @@
           <li v-for="beat in turn.beats" :key="beat.id">
             <span class="annals-beat-kicker">{{ beatKicker(beat.kind) }}</span>
             <span class="annals-beat-title">{{ beat.title }}</span>
+            <span v-if="beat.origin" class="annals-beat-origin">{{ beat.origin }}</span>
             <span class="annals-beat-copy">{{ beat.summary }}</span>
           </li>
         </ol>
@@ -163,6 +164,11 @@ function stakeholderLabel(stakeholderId: string): string {
   font-family: var(--font-heading);
   font-size: var(--text-base);
   color: var(--text-bright);
+}
+
+.annals-beat-origin {
+  font-size: var(--text-sm);
+  color: var(--dng-title-gold);
 }
 
 .annals-beat-copy {

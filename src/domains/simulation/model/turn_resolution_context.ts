@@ -27,6 +27,10 @@ export interface QueuedDelayedEffectReference {
 
 /**
  * Runtime record of a delayed effect resolved in aftershocks phase.
+ *
+ * source_id / source_turn come from the queued DelayedEffectInstance.
+ * The UI may name the source and say how many turns ago; it must not
+ * invent either value from history.
  */
 export interface ResolvedAftershockRecord {
   effect_instance_id: string
@@ -35,6 +39,7 @@ export interface ResolvedAftershockRecord {
   source_type: 'card' | 'event'
   source_id: string
   source_version: number
+  source_turn: number
   score_changes: ScoreChangeRecord[]
   stakeholder_changes: StakeholderChangeRecord[]
   presentation: PresentationRecord

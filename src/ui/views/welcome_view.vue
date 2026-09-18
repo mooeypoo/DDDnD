@@ -37,7 +37,7 @@
           <li>
             <span class="scroll-label">Each turn</span>
             <span class="scroll-copy">
-              Play one card — a real architectural decision — and the system answers.
+              Play one card — a real architectural decision — then the world may interrupt, and the council answers.
             </span>
           </li>
           <li>

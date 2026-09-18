@@ -12,6 +12,7 @@ const mockResolution: TurnResolutionContext = {
       source_type: 'card',
       source_id: 'define_bounded_context',
       source_version: 1,
+      source_turn: 2,
       score_changes: [
         { score_id: 'maintainability', delta: -8 },
         { score_id: 'delivery_confidence', delta: -4 },

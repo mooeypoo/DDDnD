@@ -105,8 +105,8 @@ const title = computed(() => {
 const copy = computed(() => {
   if (props.phase === 'confirm') {
     return incomingCopy.value
-      ? `${outgoingCopy.value} ${incomingCopy.value} enters your hand. Aftershocks and the system still move. You may cancel until you replace.`
-      : 'Mark a hand card and choose a Grimoire page, then approve the swap. Aftershocks and the system still move while you look.'
+      ? `${outgoingCopy.value} ${incomingCopy.value} enters your hand. Aftershocks and random events still land. You may cancel until you replace.`
+      : 'Mark a hand card and choose a Grimoire page, then approve the swap. Aftershocks and random events still land while you look.'
   }
 
   if (props.kind === 'forced') {

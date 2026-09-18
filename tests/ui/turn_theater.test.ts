@@ -5,6 +5,7 @@ import {
   buildAnnalsTurns,
   buildTurnBeats,
   beatKicker,
+  aftershockOriginLine,
   handFanTransform,
   resolveEventSceneId,
 } from '@/ui/play/turn_theater'
@@ -90,6 +91,7 @@ describe('buildTurnBeats', () => {
           source_type: 'card',
           source_id: 'card_split',
           source_version: 1,
+          source_turn: 1,
           score_changes: [{ score_id: 'team_morale', delta: -6 }],
           stakeholder_changes: [],
           presentation: {
@@ -110,6 +112,7 @@ describe('buildTurnBeats', () => {
     ])
     expect(beats[0]?.title).toBe('Split the Monolith')
     expect(beats[1]?.title).toBe('The cut still stings')
+    expect(beats[1]?.origin).toBe('From card_split · last turn')
     expect(beats[3]?.title).toBe('Chief Wizard')
     expect(beats[3]?.stakeholder_id).toBe('cto')
   })
@@ -124,6 +127,7 @@ describe('buildTurnBeats', () => {
           source_type: 'card',
           source_id: 'card_split',
           source_version: 1,
+          source_turn: 1,
           score_changes: [{ score_id: 'team_morale', delta: -3 }],
           stakeholder_changes: [],
           presentation: {
@@ -162,6 +166,56 @@ describe('buildTurnBeats', () => {
     expect(beats[0]?.summary).toContain('Quick Patch')
     expect(beats[0]?.summary).toContain('Split the Monolith')
   })
+
+  it('names the queued card and how many turns ago from engine fields', () => {
+    const beats = buildTurnBeats(
+      baseContext({
+        turn_number: 4,
+        resolved_aftershocks: [
+          {
+            effect_instance_id: 'ash-age',
+            effect_id: 'delayed_split_cost',
+            effect_version: 1,
+            source_type: 'card',
+            source_id: 'card_split',
+            source_version: 1,
+            source_turn: 2,
+            score_changes: [],
+            stakeholder_changes: [],
+            presentation: {
+              title: 'The cut still stings',
+              summary: 'Yesterday’s boundary work lands.',
+            },
+          },
+        ],
+      }),
+      { cardName: (id) => (id === 'card_split' ? 'Split the Monolith' : id) },
+    )
+
+    expect(beats.find((beat) => beat.kind === 'aftershock')?.origin).toBe(
+      'From Split the Monolith · 2 turns ago',
+    )
+  })
+
+  it('names an event source without pretending it was a card', () => {
+    expect(
+      aftershockOriginLine(
+        { source_type: 'event', source_id: 'audit_surprise', source_turn: 1 },
+        3,
+        { eventName: (id) => (id === 'audit_surprise' ? 'Surprise Audit' : id) },
+      ),
+    ).toBe('From Surprise Audit · 2 turns ago')
+  })
+
+  it('still names the source when an old save omitted source_turn', () => {
+    expect(
+      aftershockOriginLine(
+        { source_type: 'card', source_id: 'card_split' },
+        4,
+        { cardName: () => 'Split the Monolith' },
+      ),
+    ).toBe('From Split the Monolith')
+  })
 })
 
 describe('buildAnnalsTurns', () => {
@@ -197,6 +251,7 @@ describe('buildAnnalsTurns', () => {
     expect(turns[0]?.summary).toContain('Quick Patch')
     expect(turns[0]?.score_changes).toEqual([{ score_id: 'budget', delta: -2 }])
     expect(beatKicker('consult')).toBe('You search')
+    expect(beatKicker('event')).toBe('Reality hits')
     expect(beatKicker('stakeholder')).toBe('The council speaks')
   })
 })

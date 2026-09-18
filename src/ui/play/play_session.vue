@@ -498,6 +498,14 @@ const theaterNames = computed(() => ({
     }
     return id
   },
+  eventName: (id: string) => {
+    const found = gameStore.scenarioBundle?.events
+    if (!found) return id
+    for (const event of found.values()) {
+      if (event.id === id) return event.name
+    }
+    return id
+  },
   stakeholderName: (id: string) => stakeholderNames.value[id] ?? id,
 }))
 

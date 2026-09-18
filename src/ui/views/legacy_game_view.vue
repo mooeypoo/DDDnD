@@ -512,7 +512,7 @@
         <div v-if="canConsultArchives" class="consult-bar">
           <p class="consult-copy">
             {{ isConsultMode
-              ? 'Choose one hand card to set aside. The system keeps moving.'
+              ? 'Choose one hand card to set aside. Aftershocks and random events still land.'
               : 'Spend this turn searching the remaining scrolls instead of committing a move.' }}
           </p>
           <AppButton

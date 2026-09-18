@@ -289,7 +289,7 @@ Human-play corrections on the finished table. Still no Three.js and no `max_turn
 Immersion pass on the finished table. Still no Three.js and no `max_turns` bump. The engine turn is still atomic.
 
 - Playing a card (or finishing a consult swap) lands on the table first. Aftershocks follow as last turn catching up. The engine still computes aftershocks first; only the replay order changed so the move the player just made is visible before the storm. Consult is a Grimoire search: mark, choose or randomize, approve both names, then the engine spends the turn.
-- Each beat opens with a short, kind-specific interlude. Aftershocks pause, shake the table hard, and drop a visible lightning bolt plus a crack across the inlay. The aftershock note is a broken-tablet plaque with a large **Aftershock** stamp and an outer glow tinted by engine deltas (boon / blow). System events arrive from the rafters: a shaft of cold light, a hanging seal, a ribbon — no shake, no crack (those belong to last turn catching up). Less than an aftershock, more than the old 22% blue flash. The speaking stakeholder stays enlarged and gold-lit while their reaction plaque is up, and only returns to seat size on Continue. Reduced motion skips the flourishes and still waits for Continue.
+- Each beat opens with a short, kind-specific interlude. Aftershocks pause, shake the table hard, and drop a visible lightning bolt plus a crack across the inlay. The aftershock note is a broken-tablet plaque with a large **Aftershock** stamp and an outer glow tinted by engine deltas (boon / blow). The plaque names the card (or event) that queued it and how many turns ago, from `source_id` / `source_turn` on the resolved record — not from a Vue walk of history. Random events arrive from the rafters as **Reality hits**: a shaft of cold light, a hanging seal, a ribbon — no shake, no crack (those belong to last turn catching up). Less than an aftershock, more than the old 22% blue flash. "The system" stays the living scores, not chance. The speaking stakeholder stays enlarged and gold-lit while their reaction plaque is up, and only returns to seat size on Continue. Reduced motion skips the flourishes and still waits for Continue.
 - Theater plaques (`You play`, aftershocks, adjourn) teleport to the viewport. They cannot live inside `.war-table`: the table `isolation` + `overflow: hidden` contains the 3D board, and the hand dock is a later sibling that paints over anything still leaking. Continue must never sit under the cards, especially on a phone.
 - The weather strip clock counts **turns left**, not only "Turn N of M", and stays a full-width chip on mobile.
 - Engine collapses (morale, delivery, trust, tutorial capacity/health) take over the chamber: a torn storm banner names the bound system and what withers, the triggering vial burns, and the table rim smolders until the trigger score recovers. Thresholds stay in the engine.
@@ -379,7 +379,7 @@ Upgrade the existing table moment rather than adding a surface. Fixed, scannable
 
 - scenario name and authored `flavor_text` (unchanged, content-owned)
 - **Your charge** — the objective, naming the two weakest starting scores and the clock
-- **A turn** — play one card; aftershocks land, the system strikes, the council answers
+- **A turn** — play one card; aftershocks land, a random event may land, the council answers
 - **The catch** — every card trades something away
 - existing `Raised stakes` line when a modifier is active
 - footer: Join the adventure, a `Don't show this again` checkbox, and a Basics tutorial link shown **only** when no tutorial has been completed
@@ -502,7 +502,7 @@ These are the reversals and refinements that happened after a human sat at `/gam
 
 **Stakeholders pulsed and shrank.** A voice belongs to a person at the table. The seat stays enlarged and gold-lit until Continue dismisses their plaque.
 
-**Aftershocks needed a different shape.** The same callout box as other beats made them feel like UI chrome. The table now pauses, shakes, cracks a broken-line bolt (not a strobe), and drops a tablet plaque with a large **Aftershock** stamp whose glow follows engine deltas.
+**Aftershocks needed a different shape.** The same callout box as other beats made them feel like UI chrome. The table now pauses, shakes, cracks a broken-line bolt (not a strobe), and drops a tablet plaque with a large **Aftershock** stamp whose glow follows engine deltas. The plaque also says which card (or event) queued it and how many turns ago. The engine already stored `source_id` and `source_turn` on the delayed instance; the resolved record now keeps `source_turn` so the UI does not reconstruct origin from history.
 
 **Score glance during replace.** Bigger laid-out hand cards hid the compact `+N / −N` deltas. Replace lives in the Grimoire so glance, inspect, and decide share one place.
 
@@ -510,7 +510,7 @@ These are the reversals and refinements that happened after a human sat at `/gam
 
 **Continue was under the cards.** The `You play` plaque lived inside `.war-table`. That node `isolation: isolate`s and `overflow: hidden`s so the 3D board stays contained, and the hand dock is a later sibling in the chamber, so it paints over anything that still leaks. A phone made it worse: Continue sat in the hand. Theater plaques now teleport to a fixed viewport layer. The table still shakes; the plaque is no longer part of the table's stacking context. Presentation only — beat order and engine turns did not change.
 
-**The system moved and nobody saw it.** Aftershocks slam lightning into the table. The player's card flies. Council seats grow. The event beat was a 22% blue wash and a 28px bolt inside the inlay — a flash you could miss while looking at the hand. Events are the world acting *on* you, so they arrive from the rafters: a shaft of cold light, a hanging seal, a ribbon, teleported to the viewport so the table's overflow clip cannot swallow them. No shake and no crack; those are last turn catching up. Less than an aftershock, more than a blink.
+**Reality hit and nobody saw it.** Aftershocks slam lightning into the table. The player's card flies. Council seats grow. The event beat was a 22% blue wash and a 28px bolt inside the inlay — a flash you could miss while looking at the hand. Random events are the world acting *on* you, not the score-vials answering, so they arrive from the rafters: a shaft of cold light, a hanging seal, a ribbon, teleported to the viewport so the table's overflow clip cannot swallow them. No shake and no crack; those are last turn catching up. Less than an aftershock, more than a blink. The plaque stamp is **Reality hits**, not "the system moves" — "the system" already means the living scores.
 
 ### Decisions from watching someone else play (2026-09-18)
 
@@ -569,7 +569,8 @@ The last two sections came from watching people play. This one came from doubtin
 - Preferences like "never show this again" are presentation state. They persist in UI-owned storage and must never change what a run does.
 - Verify responsive work by driving a real browser and measuring, not by reading the stylesheet. A flex property that is inert on one axis is not inert on the other.
 - Theater plaques belong on the viewport, not in the table. A stacking context that clips the 3D board will also clip Continue, and the hand paints on top of later siblings.
-- Aftershocks slam. Events descend. If both are a bolt, the player cannot tell last turn from the world acting now.
+- Aftershocks slam. Events descend as **Reality hits**. If both are a bolt, or if events say "the system," the player cannot tell the living scores from chance.
+- Aftershock origin is engine output. Copy `source_turn` onto the resolved record; do not join history in Vue to guess which card it was.
 
 ---
 
@@ -625,3 +626,5 @@ The last two sections came from watching people play. This one came from doubtin
 - **2026-09-18** — Theater plaques (`You play`, aftershocks, adjourn) teleport to a fixed viewport layer. The table clips overflow to contain the 3D board, and the hand dock is a later sibling, so Continue was sitting under the cards — worse on a phone. Presentation only; beat order and engine turns are unchanged.
 - **2026-09-18** — System events arrive from the rafters: a shaft of cold light, a hanging seal, a ribbon. The old beat was a 22% blue wash and a 28px inlay bolt. No shake and no crack — those stay aftershock. See [Decisions from sitting at the table](#decisions-from-sitting-at-the-table-2026-09-17).
 - **2026-09-18** — Skip remaining sits further from Continue on theater plaques. The two used to share 0.35rem, so a Continue tap could skip the rest of the replay.
+- **2026-09-18** — Aftershock plaques name the card (or event) that queued them and how many turns ago. The delayed instance already had `source_id` / `source_turn`; the resolved record now keeps `source_turn`. The UI derives the line. It does not walk history.
+- **2026-09-18** — Event plaques say **Reality hits**, not "the system moves." "The system" already means the living scores. Teaching copy (door, briefing, rules, consult) now says a random event may land.

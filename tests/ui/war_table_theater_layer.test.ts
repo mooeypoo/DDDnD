@@ -73,7 +73,7 @@ describe('war table theater plaques', () => {
       id: 'event-1',
       kind: 'event',
       title: 'Incident review',
-      summary: 'The system moves.',
+      summary: 'Compliance arrived uninvited.',
       score_changes: [],
       stakeholder_changes: [],
       event_id: 'incident_review',
@@ -85,7 +85,7 @@ describe('war table theater plaques', () => {
     expect(plaque!.classList.contains('kind-event')).toBe(true)
     expect(plaque!.querySelector('.omen-rule')).not.toBeNull()
     expect(plaque!.querySelector('.impact-rule')).toBeNull()
-    expect(document.body.textContent).toContain('The system moves')
+    expect(document.body.textContent).toContain('Reality hits')
 
     wrapper.unmount()
   })

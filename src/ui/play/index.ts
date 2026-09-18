@@ -1,6 +1,12 @@
 export { isWarTableEnabled, resolvePlayStage, PLAY_STAGE_STORAGE_KEY } from './use_war_table_flag'
 export { handFanTransform } from './card_fan'
-export { buildTurnBeats, buildAnnalsTurns, beatKicker, resolveEventSceneId } from './turn_theater'
+export {
+  buildTurnBeats,
+  buildAnnalsTurns,
+  beatKicker,
+  aftershockOriginLine,
+  resolveEventSceneId,
+} from './turn_theater'
 export {
   scoreWeather,
   describeScoreWeather,

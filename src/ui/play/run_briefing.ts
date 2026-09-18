@@ -13,7 +13,7 @@ import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 
 export const TURN_SHAPE_LINE =
   'A turn is one card. You place it, last turn’s delayed consequences catch up, '
-  + 'the system may throw something at you, and the council answers.'
+  + 'a random event may land, and the council answers.'
 
 export const TRADEOFF_LINE =
   'Every card trades something away. There is no move that only helps — deciding what to '

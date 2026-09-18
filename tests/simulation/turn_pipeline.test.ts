@@ -284,6 +284,8 @@ describe('Simulation deterministic turn pipeline', () => {
 
     expect(turnTwoResult.turn_resolution_context.resolved_aftershocks.length).toBeGreaterThan(0)
     expect(turnTwoResult.turn_resolution_context.resolved_aftershocks[0].effect_id).toBe('aftershock_a')
+    expect(turnTwoResult.turn_resolution_context.resolved_aftershocks[0].source_id).toBe('stabilize_module')
+    expect(turnTwoResult.turn_resolution_context.resolved_aftershocks[0].source_turn).toBe(1)
     expect(turnTwoResult.game_state.effect_state.resolved_effect_instance_ids.length).toBeGreaterThan(0)
   })
 

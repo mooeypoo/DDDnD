@@ -26,6 +26,7 @@
       <line x1="18" y1="8" x2="182" y2="8" />
       <polygon points="100,2 108,8 100,14 92,8" />
     </svg>
+    <p v-if="beat.origin" class="beat-origin">{{ beat.origin }}</p>
     <p class="beat-summary">{{ beat.summary }}</p>
     <p v-if="beat.flavor_text" class="beat-flavor">{{ beat.flavor_text }}</p>
     <ul v-if="beat.score_changes.length" class="beat-deltas">
@@ -263,6 +264,14 @@ function formatScoreName(scoreId: string): string {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-secondary);
+}
+
+.beat-origin {
+  margin: 0 0 0.4rem;
+  font-size: var(--text-sm);
+  letter-spacing: 0.04em;
+  color: var(--dng-title-gold);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
 }
 
 .beat-title {

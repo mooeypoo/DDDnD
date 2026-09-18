@@ -17,7 +17,7 @@
         <h3>What you will see</h3>
         <p>
           Playing a card (or finishing a consult) lands on the table first. Then last turn
-          may catch up as aftershocks. Then the system may strike, and the council may speak.
+          may catch up as aftershocks. Then a random event may land, and the council may speak.
           The engine still resolves delayed effects before your card; the table shows
           <em>your</em> move first so you can see what you just did. Press
           <strong>Continue</strong> through each beat. Skip remaining if you want speed.

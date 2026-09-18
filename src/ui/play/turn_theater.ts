@@ -29,12 +29,24 @@ export type TurnBeatSource = Pick<
 
 export type TurnBeatKind = 'aftershock' | 'action' | 'consult' | 'event' | 'stakeholder'
 
+export interface AftershockOrigin {
+  source: string
+  age: string | null
+}
+
+export interface OriginPill {
+  id: 'source' | 'age'
+  label: string
+}
+
 export interface TurnBeat {
   id: string
   kind: TurnBeatKind
   title: string
   summary: string
   flavor_text?: string
+  origin?: string
+  originPills?: OriginPill[]
   score_changes: ScoreChangeRecord[]
   stakeholder_changes: StakeholderChangeRecord[]
   stakeholder_id?: string
@@ -43,7 +55,64 @@ export interface TurnBeat {
 
 export interface TurnTheaterNames {
   cardName?: (id: string) => string
+  eventName?: (id: string) => string
   stakeholderName?: (id: string) => string
+}
+
+function formatTurnsAgo(turnsAgo: number): string {
+  if (turnsAgo <= 0) return 'this turn'
+  if (turnsAgo === 1) return 'last turn'
+  return `${turnsAgo} turns ago`
+}
+
+/**
+ * Player-facing origin for a resolved aftershock.
+ *
+ * Names and "N turns ago" are presentation of engine source_id / source_turn.
+ * This does not walk history or invent a source.
+ */
+export function aftershockOriginParts(
+  aftershock: {
+    source_type: 'card' | 'event'
+    source_id: string
+    source_turn?: number
+  },
+  turnNumber: number,
+  names: TurnTheaterNames = {},
+): AftershockOrigin {
+  const named =
+    aftershock.source_type === 'event'
+      ? names.eventName?.(aftershock.source_id)
+      : names.cardName?.(aftershock.source_id)
+
+  return {
+    source: named ?? aftershock.source_id,
+    age:
+      typeof aftershock.source_turn === 'number'
+        ? formatTurnsAgo(turnNumber - aftershock.source_turn)
+        : null,
+  }
+}
+
+export function aftershockOriginPills(origin: AftershockOrigin): OriginPill[] {
+  const pills: OriginPill[] = [{ id: 'source', label: origin.source }]
+  if (origin.age) {
+    pills.push({ id: 'age', label: origin.age })
+  }
+  return pills
+}
+
+export function aftershockOriginLine(
+  aftershock: {
+    source_type: 'card' | 'event'
+    source_id: string
+    source_turn?: number
+  },
+  turnNumber: number,
+  names: TurnTheaterNames = {},
+): string {
+  const origin = aftershockOriginParts(aftershock, turnNumber, names)
+  return origin.age ? `From ${origin.source} · ${origin.age}` : `From ${origin.source}`
 }
 
 export interface AnnalsTurn {
@@ -68,7 +137,7 @@ export function beatKicker(kind: TurnBeatKind | undefined): string {
     case 'consult':
       return 'You search'
     case 'event':
-      return 'The system moves'
+      return 'Reality hits'
     case 'stakeholder':
       return 'The council speaks'
     default:
@@ -79,7 +148,7 @@ export function beatKicker(kind: TurnBeatKind | undefined): string {
 /**
  * Builds ordered presentation beats from one resolved turn.
  *
- * Replay order is the player's move, then aftershocks, then the system.
+ * Replay order is the player's move, then aftershocks, then a random event.
  * The engine still computes aftershocks first; this only changes the table
  * so the card the player just committed is visible before last turn lands.
  */
@@ -122,12 +191,15 @@ export function buildTurnBeats(
   }
 
   for (const aftershock of context.resolved_aftershocks) {
+    const origin = aftershockOriginParts(aftershock, context.turn_number, names)
     beats.push({
       id: `aftershock-${aftershock.effect_instance_id}`,
       kind: 'aftershock',
       title: aftershock.presentation.title,
       summary: aftershock.presentation.summary,
       flavor_text: aftershock.presentation.flavor_text,
+      origin: aftershockOriginLine(aftershock, context.turn_number, names),
+      originPills: aftershockOriginPills(origin),
       score_changes: aftershock.score_changes,
       stakeholder_changes: aftershock.stakeholder_changes,
     })
