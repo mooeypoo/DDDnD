@@ -40,6 +40,11 @@
       <p class="row-kicker">
         {{ deckMode === 'tutorials' ? 'Learn the ropes' : 'Choose your adventure' }}
       </p>
+      <p class="row-blurb">
+        {{ deckMode === 'tutorials'
+          ? 'Short guided runs that teach the table one piece at a time.'
+          : 'Each is a different system: its own starting health, its own council, its own surprises, its own clock. The mark on a plate says how rough the going gets.' }}
+      </p>
       <div class="quest-fan" role="list">
         <div
           v-for="(quest, index) in fanQuests"
@@ -58,6 +63,12 @@
           >
             <span class="quest-scene" :style="{ backgroundImage: `url(${sceneFor(quest.id)})` }" />
             <span v-if="quest.isTutorial" class="tutorial-mark">Tutorial</span>
+            <span
+              v-else-if="difficultyFor(quest)"
+              class="quest-difficulty"
+              :class="`is-${difficultyFor(quest)!.id}`"
+              :title="difficultyFor(quest)!.blurb"
+            >{{ difficultyFor(quest)!.label }}</span>
             <span class="quest-kicker">{{ quest.turnCount }} turns · {{ councilCountLabel(quest.stakeholderCount) }}</span>
             <span class="quest-name">{{ quest.name }}</span>
           </button>
@@ -90,25 +101,28 @@
             </div>
           </div>
         </div>
-        <div class="rim-seats" role="list" aria-label="Choose your class">
-          <button
-            v-for="playerClass in classes"
-            :key="playerClass.id"
-            class="class-seat"
-            type="button"
-            role="listitem"
-            :class="{ selected: selectedClass?.id === playerClass.id }"
-            :aria-pressed="selectedClass?.id === playerClass.id"
-            :disabled="isLoading"
-            @click="$emit('selectClass', playerClass)"
-          >
-            <ClassPortrait
-              :classId="playerClass.id"
-              :className="playerClass.name"
-              size="md"
-            />
-            <span class="seat-name">{{ playerClass.name }}</span>
-          </button>
+        <div class="rim-zone">
+          <p class="rim-kicker">Choose your class</p>
+          <div class="rim-seats" role="list" aria-label="Choose your class">
+            <button
+              v-for="playerClass in classes"
+              :key="playerClass.id"
+              class="class-seat"
+              type="button"
+              role="listitem"
+              :class="{ selected: selectedClass?.id === playerClass.id }"
+              :aria-pressed="selectedClass?.id === playerClass.id"
+              :disabled="isLoading"
+              @click="$emit('selectClass', playerClass)"
+            >
+              <ClassPortrait
+                :classId="playerClass.id"
+                :className="playerClass.name"
+                size="md"
+              />
+              <span class="seat-name">{{ playerClass.name }}</span>
+            </button>
+          </div>
         </div>
       </div>
       <p v-if="selectedClass" class="seat-reading">
@@ -185,6 +199,7 @@ import { requestSceneBackground } from '@/ui/composables/presentation_asset_look
 import { resolveGameplaySceneId } from '@/ui/composables/gameplay_stage_presentation'
 import { classAffinityCopy } from '@/ui/play/class_affinity'
 import { councilCountLabel } from '@/ui/play/council_copy'
+import { questDifficulty, sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
 import { handFanTransform } from '@/ui/play/card_fan'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
@@ -245,7 +260,9 @@ const sceneUrl = computed(() => {
 const canSit = computed(() => Boolean(props.selectedQuest && props.selectedClass))
 
 const fanQuests = computed(() => {
-  return deckMode.value === 'tutorials' ? props.tutorials : props.quests
+  return deckMode.value === 'tutorials'
+    ? props.tutorials
+    : sortQuestsByDifficulty(props.quests)
 })
 
 function setDeckMode(mode: DeckMode) {
@@ -254,7 +271,9 @@ function setDeckMode(mode: DeckMode) {
   }
 
   deckMode.value = mode
-  const list = mode === 'tutorials' ? props.tutorials : props.quests
+  const list = mode === 'tutorials'
+    ? props.tutorials
+    : sortQuestsByDifficulty(props.quests)
   const alreadyShowing = list.some((quest) => isQuestSelected(quest))
   if (!alreadyShowing && list[0]) {
     emit('selectQuest', list[0])
@@ -275,6 +294,10 @@ function fanStyle(index: number) {
 
 function sceneFor(scenarioId: string): string {
   return requestSceneBackground(resolveGameplaySceneId(scenarioId))
+}
+
+function difficultyFor(quest: QuestDisplayModel) {
+  return questDifficulty(quest.id)
 }
 
 function questHook(quest: QuestDisplayModel): string {
@@ -469,6 +492,17 @@ function affinityLine(scoreId: string | undefined): string {
   text-align: center;
 }
 
+.row-blurb {
+  /* The fan lifts its cards into its own padding, so clear it deliberately. */
+  margin: 0 auto 2.2rem;
+  max-width: 44rem;
+  padding: 0 0.9rem;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  text-align: center;
+  color: #c6ab78;
+}
+
 .deck-toggle {
   display: flex;
   justify-content: center;
@@ -635,17 +669,60 @@ function affinityLine(scoreId: string | undefined): string {
   background: linear-gradient(180deg, #f0c060, #c99428);
 }
 
-.rim-seats {
+.quest-difficulty {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  padding: 0.16rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  background: rgba(8, 5, 2, 0.86);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.quest-difficulty.is-easy {
+  color: #8fd18f;
+}
+
+.quest-difficulty.is-normal {
+  color: #f0c060;
+}
+
+.quest-difficulty.is-hard {
+  color: #e08a6a;
+}
+
+.rim-zone {
   position: absolute;
   left: 2%;
   right: 2%;
   bottom: 0;
   z-index: 2;
+}
+
+.rim-kicker {
+  margin: 0 auto 0.5rem;
+  width: fit-content;
+  padding: 0.22rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(176, 132, 42, 0.45);
+  background: rgba(8, 5, 2, 0.78);
+  font-size: var(--text-kicker);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #f0c060;
+}
+
+.rim-seats {
   display: flex;
   justify-content: center;
   align-items: flex-end;
   gap: 0.15rem;
-  padding-top: 1.2rem;
+  /* Headroom for the selected portrait, which lifts and grows. */
+  padding-top: 1.9rem;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
@@ -668,7 +745,7 @@ function affinityLine(scoreId: string | undefined): string {
   align-items: center;
   gap: 0.28rem;
   cursor: pointer;
-  filter: grayscale(0.28) brightness(0.78);
+  filter: grayscale(0.5) brightness(0.6);
   transition: filter 160ms ease;
 }
 
@@ -676,15 +753,28 @@ function affinityLine(scoreId: string | undefined): string {
   transition: transform 160ms ease, box-shadow 160ms ease;
 }
 
+.class-seat:hover:not(.selected),
+.class-seat:focus-visible:not(.selected) {
+  filter: grayscale(0.2) brightness(0.85);
+}
+
 .class-seat.selected {
   filter: none;
 }
 
 .class-seat.selected :deep(.class-portrait) {
-  transform: translateY(-0.7rem);
+  transform: translateY(-0.85rem) scale(1.18);
   box-shadow:
-    0 0 0 2px rgba(240, 208, 96, 0.9),
-    0 0 18px rgba(240, 208, 96, 0.38);
+    0 0 0 3px rgba(240, 208, 96, 1),
+    0 0 26px rgba(240, 208, 96, 0.55);
+}
+
+.class-seat.selected .seat-name {
+  background: linear-gradient(180deg, #f0c060, #c99428);
+  border-color: #ffdf94;
+  color: #1a1004;
+  font-weight: 700;
+  box-shadow: 0 0 14px rgba(240, 208, 96, 0.35);
 }
 
 .seat-name {
@@ -860,12 +950,29 @@ function affinityLine(scoreId: string | undefined): string {
     -webkit-line-clamp: 1;
   }
 
+  /*
+   * A phone-height board has no room to seat the council on its rim: the
+   * heading would land on top of the quest brief. Drop the picker into flow
+   * below the board instead.
+   */
   .table-assembly {
-    padding-bottom: 4.4rem;
+    padding-bottom: 0;
+  }
+
+  .rim-zone {
+    position: static;
+    margin-top: 0.9rem;
+  }
+
+  /* Centring a row that always overflows puts its first seat out of reach. */
+  .rim-seats {
+    justify-content: flex-start;
+    scroll-snap-type: x proximity;
   }
 
   .class-seat {
     width: 6.1rem;
+    scroll-snap-align: center;
   }
 
   .class-seat :deep(.class-portrait) {

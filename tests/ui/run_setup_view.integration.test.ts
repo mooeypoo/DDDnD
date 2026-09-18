@@ -109,6 +109,31 @@ describe('run_setup_view quest integration', () => {
     expect(wrapper.text()).toContain('Boundary Mage')
   })
 
+  it('opens on the easiest adventure even when the pack listed a harder one first', async () => {
+    storeMock.availableQuests = [
+      makeQuest('microservice_sprawl', 'Microservice Sprawl'),
+      makeQuest('monolith_of_mild_despair', 'The Monolith of Mild Despair'),
+      makeQuest('merger_of_minor_chaos', 'The Merger of Minor Chaos'),
+    ]
+
+    const wrapper = mount(RunSetupView)
+    await flushPromises()
+
+    expect(wrapper.find('.table-nameplate').text()).toBe('The Merger of Minor Chaos')
+    expect(wrapper.find('.fan-slot.is-selected .quest-name').text()).toBe('The Merger of Minor Chaos')
+    expect(wrapper.findAll('.quest-difficulty').map((mark) => mark.text())).toEqual([
+      'Easy',
+      'Normal',
+      'Hard',
+    ])
+
+    await wrapper.find('.sit-btn').trigger('click')
+
+    expect(storeMock.start_new_run).toHaveBeenCalledWith(expect.objectContaining({
+      scenario_id: 'merger_of_minor_chaos',
+    }))
+  })
+
   it('starts the run with the selected quest id/version', async () => {
     const wrapper = mount(RunSetupView)
     await flushPromises()

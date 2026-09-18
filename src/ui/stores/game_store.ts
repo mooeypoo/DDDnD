@@ -31,6 +31,13 @@ import { create_engine } from '@/domains/simulation'
 import { createLocalStorageSaveAdapter } from '@/domains/persistence/adapters'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { loadQuestDisplayModels } from '@/ui/services/quest_loader'
+import { sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
+import {
+  hasCompletedTutorial,
+  isBriefingDismissed,
+  markTutorialCompleted,
+  setBriefingDismissed,
+} from '@/ui/services/player_preferences'
 import { useTutorialState } from '@/ui/composables/tutorial_state'
 import { createGameStoreContentAdapter } from './game_store_content_adapter'
 import { createGameStorePersistenceAdapter } from './game_store_persistence_adapter'
@@ -74,6 +81,9 @@ export const useGameStore = defineStore('game', () => {
   const isDungeonMasterModalOpen = ref(false)
   const isIntroSplashOpen = ref(false)
   const isTutorialCompleteSplashOpen = ref(false)
+
+  // Onboarding: offer the tutorial until the player has finished one.
+  const shouldRecommendTutorial = ref(!hasCompletedTutorial())
 
   // Loading state
   const isLoadingBundle = ref(false)
@@ -128,6 +138,11 @@ export const useGameStore = defineStore('game', () => {
       initializeEngine: initialize_engine,
       persistRunState: persist_run_state,
       tutorial,
+      shouldOpenIntroBriefing: () => !isBriefingDismissed(),
+      onTutorialCompleted: () => {
+        markTutorialCompleted()
+        shouldRecommendTutorial.value = false
+      },
     }
   )
   
@@ -201,7 +216,8 @@ export const useGameStore = defineStore('game', () => {
       const provider = await get_merged_content_provider()
       const questRefs = contentPackRegistry.value?.getAvailableScenarios() ?? []
       const quests = await loadQuestDisplayModels(questRefs, provider)
-      availableQuests.value = quests
+      // Gentlest first: the lobby fans these in order and opens the first one.
+      availableQuests.value = sortQuestsByDifficulty(quests)
     } finally {
       isLoadingQuests.value = false
     }
@@ -340,6 +356,13 @@ export const useGameStore = defineStore('game', () => {
     isDungeonMasterModalOpen.value = false
   }
 
+  /**
+   * Records whether future runs should skip the opening briefing.
+   */
+  function setIntroBriefingMuted(muted: boolean) {
+    setBriefingDismissed(muted)
+  }
+
   function dismissIntroSplash() {
     isIntroSplashOpen.value = false
     // Fire run_start tutorial trigger, then record turn_start so the next
@@ -367,6 +390,7 @@ export const useGameStore = defineStore('game', () => {
     isIntroSplashOpen,
     isDungeonMasterModalOpen,
     isTutorialCompleteSplashOpen,
+    shouldRecommendTutorial,
     isLoadingBundle,
     isPlayingTurn,
     isLoadingQuests,
@@ -403,6 +427,7 @@ export const useGameStore = defineStore('game', () => {
     closeRulesModal,
     openDungeonMasterModal,
     closeDungeonMasterModal,
+    setIntroBriefingMuted,
     dismissIntroSplash
   }
 })

@@ -18,7 +18,10 @@
       :stakeholderNames="stakeholderNames"
       :maxTurns="gameStore.maxTurns"
       :isTutorial="gameStore.tutorial.isTutorialMode"
+      :showTutorialInvite="gameStore.shouldRecommendTutorial && !gameStore.tutorial.isTutorialMode"
       @start="gameStore.dismissIntroSplash"
+      @startTutorial="handleStartBasicsTutorial"
+      @muteBriefing="gameStore.setIntroBriefingMuted"
     />
 
     <TutorialCompleteSplash
@@ -96,6 +99,7 @@
 
       <WeatherStrip
         :scores="currentScores"
+        :scoreDeltas="lastTurnScoreDeltas"
         :currentTurn="gameStore.currentTurn"
         :maxTurns="gameStore.maxTurns"
         :aftershockCount="isAdjourned ? 0 : pendingAftershockCount"
@@ -338,6 +342,19 @@ const modifierScoreAdjustments = computed(() => {
 })
 
 const currentScores = computed(() => gameStore.turnBriefing?.current_scores ?? {})
+
+/** Last resolved turn's movement, read from engine history. Presentation only. */
+const lastTurnScoreDeltas = computed(() => {
+  const history = gameStore.gameState?.history ?? []
+  const lastTurn = history[history.length - 1]
+  if (!lastTurn) return {}
+
+  const deltas: Record<string, number> = {}
+  for (const change of lastTurn.total_score_changes) {
+    deltas[change.score_id] = (deltas[change.score_id] ?? 0) + change.delta
+  }
+  return deltas
+})
 const collapseWarnings = computed(() => getCollapseWarnings(currentScores.value))
 const isCollapsing = computed(() => hasActiveCoupling(currentScores.value))
 const collapseCount = computed(() => collapseWarnings.value.length)
@@ -574,6 +591,11 @@ function handleResetRun() {
 function handleLeaveTutorial() {
   gameStore.reset()
   router.push('/play')
+}
+
+function handleStartBasicsTutorial() {
+  gameStore.reset()
+  router.push({ path: '/play', query: { tutorial: 'basics' } })
 }
 
 async function handleLaunchAnotherTutorial(tutorial: QuestDisplayModel) {

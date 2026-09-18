@@ -128,6 +128,85 @@ describe('game_store_run_lifecycle_coordinator', () => {
     expect(state.isLoadingBundle.value).toBe(false)
   })
 
+  it('skips the opening briefing when the player muted it, but never for a tutorial', async () => {
+    const bundle = { scenario: { id: 'scenario_a', version: 1 } } as unknown as ScenarioBundle
+
+    async function startWith(isTutorial: boolean) {
+      const engine = makeEngine()
+      const state = makeState({ isIntroSplashOpen: ref(false) })
+      const tutorial = {
+        isTutorialMode: ref(false),
+        initTutorial: vi.fn(async () => undefined),
+        resetTutorial: vi.fn(),
+        advanceToTrigger: vi.fn(),
+      }
+
+      const coordinator = createGameStoreRunLifecycleCoordinator(state, {
+        getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+        buildScenarioBundle: vi.fn(async () => bundle),
+        initializeEngine: vi.fn(() => {
+          state.engine.value = engine
+          state.scenarioBundle.value = bundle
+        }),
+        persistRunState: vi.fn(),
+        tutorial,
+        shouldOpenIntroBriefing: () => false,
+      })
+
+      await coordinator.startNewRun({
+        scenario_id: 'scenario_a',
+        scenario_version: 1,
+        is_tutorial: isTutorial,
+      })
+
+      return { state, tutorial }
+    }
+
+    const muted = await startWith(false)
+    expect(muted.state.isIntroSplashOpen.value).toBe(false)
+    // Nothing else would fire run_start once the splash is skipped.
+    expect(muted.tutorial.advanceToTrigger).toHaveBeenCalledWith('run_start')
+
+    const guided = await startWith(true)
+    expect(guided.state.isIntroSplashOpen.value).toBe(true)
+  })
+
+  it('records a finished tutorial so onboarding can stop recommending it', async () => {
+    const engine = makeEngine({
+      playResult: {
+        game_state: { progress: { current_turn: 4, run_status: 'completed' } },
+        turn_resolution_context: { selected_action: { id: 'card_a', version: 1 } },
+        turn_history_entry: { turn_number: 3 },
+      } as unknown as PlayTurnResult,
+    })
+
+    const state = makeState({
+      engine: ref(engine),
+      gameState: ref({ progress: { current_turn: 3 } } as unknown as GameState),
+      isRunComplete: ref(true),
+    })
+
+    const onTutorialCompleted = vi.fn()
+    const coordinator = createGameStoreRunLifecycleCoordinator(state, {
+      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
+      initializeEngine: vi.fn(),
+      persistRunState: vi.fn(),
+      tutorial: {
+        isTutorialMode: ref(true),
+        initTutorial: vi.fn(async () => undefined),
+        resetTutorial: vi.fn(),
+        advanceToTrigger: vi.fn(),
+      },
+      onTutorialCompleted,
+    })
+
+    await coordinator.playTurn('card_a')
+
+    expect(state.isTutorialCompleteSplashOpen.value).toBe(true)
+    expect(onTutorialCompleted).toHaveBeenCalledTimes(1)
+  })
+
   it('refreshes turn briefing and only triggers turn_start when intro splash is closed', () => {
     const briefing = { turn_number: 3 } as unknown as TurnBriefing
     const engine = makeEngine({ briefing })

@@ -34,9 +34,18 @@
           :title="meter.title"
         >
           <span class="weather-vial-icon" aria-hidden="true">{{ meter.icon }}</span>
-          <span class="weather-vial-label">{{ meter.shortLabel }}</span>
-          <span class="weather-vial-value">{{ meter.value }}</span>
-          <span class="visually-hidden">{{ meter.label }} {{ meter.value }}, {{ meter.weatherLabel }}</span>
+          <span class="weather-vial-label" aria-hidden="true">{{ meter.shortLabel }}</span>
+          <span class="weather-vial-readout" aria-hidden="true">
+            <span class="weather-vial-value">{{ meter.value }}</span>
+            <span
+              v-if="meter.delta !== null"
+              class="weather-vial-delta"
+              :class="meter.delta > 0 ? 'is-gain' : 'is-loss'"
+            >{{ meter.deltaLabel }}</span>
+          </span>
+          <span class="visually-hidden">
+            {{ meter.label }} {{ meter.value }}, {{ meter.weatherLabel }}{{ meter.deltaSpoken }}
+          </span>
         </li>
       </ol>
 
@@ -84,6 +93,8 @@ const props = defineProps<{
   scores: Record<string, number>
   currentTurn: number
   maxTurns: number
+  /** Last resolved turn's score movement, from engine history. */
+  scoreDeltas?: Record<string, number>
   aftershockCount?: number
   highlight?: string | null
   isTutorial?: boolean
@@ -115,9 +126,18 @@ const meters = computed(() => {
   return Object.entries(props.scores).map(([id, value]) => {
     const presentation = getMetricPresentation(id)
     const weather = describeScoreWeather(value)
+    const rawDelta = props.scoreDeltas?.[id]
+    const delta = typeof rawDelta === 'number' && Math.round(rawDelta) !== 0
+      ? Math.round(rawDelta)
+      : null
     return {
       id,
       value: Math.round(value),
+      delta,
+      deltaLabel: delta === null ? '' : `${delta > 0 ? '+' : '−'}${Math.abs(delta)}`,
+      deltaSpoken: delta === null
+        ? ''
+        : `, ${delta > 0 ? 'up' : 'down'} ${Math.abs(delta)} last turn`,
       icon: presentation.icon,
       label: presentation.label,
       shortLabel: shortMetricLabel(id, presentation.label),
@@ -147,7 +167,7 @@ const meters = computed(() => {
   background:
     linear-gradient(180deg, rgba(28, 20, 8, 0.92) 0%, rgba(14, 10, 4, 0.88) 100%);
   border: 1px solid rgba(176, 132, 42, 0.38);
-  border-radius: 999px;
+  border-radius: 22px;
   box-shadow:
     inset 0 1px 0 rgba(232, 196, 96, 0.18),
     0 10px 28px rgba(0, 0, 0, 0.45);
@@ -248,32 +268,66 @@ const meters = computed(() => {
 
 .weather-vial {
   display: grid;
-  grid-template-columns: auto auto auto;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    'icon label'
+    'icon readout';
   align-items: center;
-  gap: 0.22rem;
-  min-width: 5.2rem;
-  padding: 0.18rem 0.5rem 0.18rem 0.35rem;
-  border-radius: 999px;
+  column-gap: 0.4rem;
+  min-width: 6.4rem;
+  padding: 0.3rem 0.6rem 0.34rem 0.5rem;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(8, 6, 2, 0.45);
-  font-size: var(--text-sm);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .weather-vial-icon {
-  font-size: var(--text-base);
+  grid-area: icon;
+  font-size: var(--text-xl);
+  line-height: 1;
 }
 
 .weather-vial-label {
+  grid-area: label;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.12em;
   color: var(--text-secondary);
 }
 
+.weather-vial-readout {
+  grid-area: readout;
+  display: flex;
+  align-items: baseline;
+  gap: 0.28rem;
+}
+
 .weather-vial-value {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
   font-variant-numeric: tabular-nums;
   font-weight: 700;
+  line-height: 1.05;
   color: var(--text-bright);
-  justify-self: end;
+}
+
+.weather-vial-delta {
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.weather-vial-delta.is-gain {
+  color: #8fd6a4;
+}
+
+.weather-vial-delta.is-loss {
+  color: #f0a098;
 }
 
 .weather-fair {
@@ -490,15 +544,32 @@ const meters = computed(() => {
   }
 }
 
-@media (max-width: 720px) {
+/* Tablet: the clock takes its own line so the vials stay a readable grid. */
+@media (max-width: 1024px) {
   .weather-strip {
     border-radius: 18px;
+  }
+
+  .turn-clock {
+    flex: 0 0 100%;
+    justify-content: center;
+  }
+
+  /* Content height only: flex-grow would stretch the grid rows to fill. */
+  .weather-vials {
+    display: grid;
+    flex: 0 0 auto;
+    width: 100%;
+    grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .weather-strip {
     padding: 0.5rem 0.6rem;
   }
 
   .turn-clock {
-    width: 100%;
-    justify-content: center;
     padding: 0.35rem 0.7rem;
   }
 
@@ -506,13 +577,32 @@ const meters = computed(() => {
     font-size: 1.7rem;
   }
 
-  .weather-vial-label {
-    display: none;
+  /* Labels stay: an icon and a number alone do not name the score. */
+  .weather-vials {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.3rem;
   }
 
+  /* The label takes the full cell so score names are not truncated. */
   .weather-vial {
     min-width: 0;
-    grid-template-columns: auto auto;
+    grid-template-areas:
+      'label label'
+      'icon readout';
+    column-gap: 0.32rem;
+    padding: 0.26rem 0.4rem 0.3rem 0.4rem;
+  }
+
+  .weather-vial-label {
+    letter-spacing: 0.06em;
+  }
+
+  .weather-vial-icon {
+    font-size: var(--text-base);
+  }
+
+  .weather-vial-value {
+    font-size: var(--text-lg);
   }
 
   .collapse-front {

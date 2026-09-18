@@ -101,6 +101,99 @@ describe('council_lobby adventure fan', () => {
     expect(wrapper.emitted('sit')).toBeUndefined()
   })
 
+  it('says what varies between adventures and marks how hard each one is', () => {
+    const wrapper = mountLobby()
+
+    const blurb = wrapper.find('.row-blurb').text()
+    expect(blurb).toContain('starting health')
+    expect(blurb).toContain('council')
+    expect(blurb).toContain('clock')
+
+    const marks = wrapper.findAll('.quest-difficulty')
+    expect(marks.map((mark) => mark.text())).toEqual(['Normal', 'Hard'])
+    expect(marks[1].attributes('title')).toContain('unforgiving')
+  })
+
+  it('fans adventures easy to hard whatever order they arrive in', () => {
+    const shuffled = [
+      makeQuest('microservice_sprawl', 'Microservice Sprawl'),
+      makeQuest('startup_hypergrowth', 'Startup Hypergrowth'),
+      makeQuest('merger_of_minor_chaos', 'The Merger of Minor Chaos'),
+      makeQuest('compliance_gauntlet', 'Compliance Gauntlet'),
+      makeQuest('monolith_of_mild_despair', 'The Monolith of Mild Despair'),
+    ]
+    const wrapper = mount(CouncilLobby, {
+      props: {
+        quests: shuffled,
+        tutorials,
+        classes: [makeClass('boundary_mage', 'Boundary Mage')],
+        modifiers: [],
+        selectedQuest: shuffled[0],
+        selectedClass: makeClass('boundary_mage', 'Boundary Mage'),
+        selectedModifier: null,
+        characterName: '',
+      },
+    })
+
+    expect(wrapper.findAll('.quest-difficulty').map((mark) => mark.text())).toEqual([
+      'Easy',
+      'Normal',
+      'Normal',
+      'Normal',
+      'Hard',
+    ])
+    expect(wrapper.findAll('.quest-name').map((name) => name.text())).toEqual([
+      'The Merger of Minor Chaos',
+      'The Monolith of Mild Despair',
+      'Compliance Gauntlet',
+      'Startup Hypergrowth',
+      'Microservice Sprawl',
+    ])
+  })
+
+  it('picks the easiest adventure when returning from tutorials', async () => {
+    const shuffled = [
+      makeQuest('microservice_sprawl', 'Microservice Sprawl'),
+      makeQuest('merger_of_minor_chaos', 'The Merger of Minor Chaos'),
+      makeQuest('monolith_of_mild_despair', 'The Monolith of Mild Despair'),
+    ]
+    const wrapper = mount(CouncilLobby, {
+      props: {
+        quests: shuffled,
+        tutorials,
+        classes: [makeClass('boundary_mage', 'Boundary Mage')],
+        modifiers: [],
+        selectedQuest: tutorials[0],
+        selectedClass: makeClass('boundary_mage', 'Boundary Mage'),
+        selectedModifier: null,
+        characterName: '',
+      },
+    })
+
+    await wrapper.findAll('.deck-tab')[1].trigger('click')
+
+    const picked = wrapper.emitted('selectQuest')
+    expect(picked?.[picked.length - 1]?.[0]).toMatchObject({ id: 'merger_of_minor_chaos' })
+  })
+
+  it('marks tutorials as tutorials rather than grading them', () => {
+    const wrapper = mountLobby(tutorials[0])
+
+    expect(wrapper.findAll('.tutorial-mark')).toHaveLength(2)
+    expect(wrapper.findAll('.quest-difficulty')).toHaveLength(0)
+    expect(wrapper.find('.row-blurb').text()).toContain('guided runs')
+  })
+
+  it('heads the seat row and marks the chosen class as chosen', () => {
+    const wrapper = mountLobby()
+
+    expect(wrapper.find('.rim-kicker').text()).toBe('Choose your class')
+
+    const seat = wrapper.find('.class-seat')
+    expect(seat.classes()).toContain('selected')
+    expect(seat.attributes('aria-pressed')).toBe('true')
+  })
+
   it('opens a briefing plaque from Read more', async () => {
     const wrapper = mountLobby(makeQuest('monolith_of_mild_despair', 'The Monolith of Mild Despair', {
       councilNames: ['CTO', 'Tech Lead'],

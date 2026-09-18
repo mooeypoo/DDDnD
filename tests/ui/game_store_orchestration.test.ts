@@ -238,9 +238,9 @@ describe('game_store orchestration', () => {
     expect(store.availableQuests).toHaveLength(4)
     expect(store.availableQuests.map((quest) => quest.id)).toEqual([
       'monolith_of_mild_despair',
-      'microservice_sprawl',
       'compliance_gauntlet',
       'startup_hypergrowth',
+      'microservice_sprawl',
     ])
     expect(store.availableQuests.every((quest) => quest.turnCount > 0)).toBe(true)
     expect(store.availableQuests.every((quest) => quest.stakeholderCount > 0)).toBe(true)

@@ -59,6 +59,10 @@ interface RunLifecycleDependencies {
   initializeEngine: (bundle: ScenarioBundle, seed: string) => void
   persistRunState: () => void
   tutorial: TutorialStateLike
+  /** False when the player asked not to see the opening briefing again. */
+  shouldOpenIntroBriefing?: () => boolean
+  /** Called once a tutorial run reaches its ending. */
+  onTutorialCompleted?: () => void
 }
 
 /**
@@ -149,7 +153,15 @@ export function createGameStoreRunLifecycleCoordinator(
 
       state.lastTurnResolution.value = null
       state.runOutcome.value = null
-      state.isIntroSplashOpen.value = true
+
+      // Tutorials always get the briefing; it is the only thing that explains
+      // the guided run before the first hint fires.
+      const wantsBriefing = options.is_tutorial || (deps.shouldOpenIntroBriefing?.() ?? true)
+      state.isIntroSplashOpen.value = wantsBriefing
+
+      if (!wantsBriefing) {
+        deps.tutorial.advanceToTrigger('run_start')
+      }
 
       refreshTurnBriefing()
     } finally {
@@ -205,6 +217,7 @@ export function createGameStoreRunLifecycleCoordinator(
       deps.tutorial.advanceToTrigger('run_end')
       if (deps.tutorial.isTutorialMode.value) {
         state.isTutorialCompleteSplashOpen.value = true
+        deps.onTutorialCompleted?.()
       }
     }
 

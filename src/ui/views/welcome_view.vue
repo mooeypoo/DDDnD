@@ -21,13 +21,34 @@
           <span>Shape the System.</span>
         </h1>
         <p class="door-line">
-          Welcome, architecture explorer. The system needs you.
-          Come join an adventure of software architecture: choose a quest,
-          join the council, and play cards to shape a living system
-          before time runs out.
+          Welcome, architecture explorer. The system needs you. Join the council for an
+          adventure of software architecture, where every fix costs something
+          and the clock never stops.
         </p>
+
+        <ul class="door-scroll">
+          <li>
+            <span class="scroll-label">Your quest</span>
+            <span class="scroll-copy">
+              Leave the system stronger than you found it, and keep the council
+              with you, before the turns run out.
+            </span>
+          </li>
+          <li>
+            <span class="scroll-label">Each turn</span>
+            <span class="scroll-copy">
+              Play one card — a real architectural decision — and the system answers.
+            </span>
+          </li>
+          <li>
+            <span class="scroll-label">The catch</span>
+            <span class="scroll-copy">
+              Every choice trades something away. Every action has consequences.
+            </span>
+          </li>
+        </ul>
+
         <p class="door-line door-hook">
-          Every choice has tradeoffs. Every action has consequences.
           Can you guide your system to a worthy ending?
         </p>
 
@@ -36,7 +57,15 @@
         </button>
 
         <div class="door-ropes">
-          <button type="button" class="rope-link" @click="goToSetup('basics')">Basics tutorial</button>
+          <button
+            v-if="gameStore.shouldRecommendTutorial"
+            type="button"
+            class="teach-btn"
+            @click="goToSetup('basics')"
+          >
+            New here? Learn in two minutes
+          </button>
+          <button v-else type="button" class="rope-link" @click="goToSetup('basics')">Basics tutorial</button>
           <button type="button" class="rope-link" @click="goToSetup('advanced')">Advanced tutorial</button>
         </div>
 
@@ -145,7 +174,7 @@ function goToSetup(tutorialType?: string) {
 
 .door-copy {
   position: relative;
-  width: min(38rem, 100%);
+  width: min(44rem, 100%);
   padding: 1.15rem 1.35rem 1.25rem;
   text-align: center;
   display: flex;
@@ -183,6 +212,42 @@ function goToSetup(tutorialType?: string) {
   max-width: 34rem;
   color: #f4d8b8;
   line-height: 1.45;
+}
+
+.door-scroll {
+  list-style: none;
+  width: 100%;
+  margin: 0.35rem 0 0.1rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  text-align: left;
+}
+
+.door-scroll li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.7rem 0.8rem 0.8rem;
+  background: rgba(20, 13, 5, 0.6);
+  border: 1px solid rgba(176, 132, 42, 0.3);
+  border-radius: 4px 14px 4px 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 220, 140, 0.06);
+}
+
+.scroll-label {
+  font-family: var(--font-heading);
+  font-size: var(--text-kicker);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f0c060;
+}
+
+.scroll-copy {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: #f4d8b8;
 }
 
 .door-hook {
@@ -226,6 +291,23 @@ function goToSetup(tutorialType?: string) {
   font-size: var(--text-base);
 }
 
+.teach-btn {
+  appearance: none;
+  padding: 0.42rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 196, 96, 0.45);
+  background: rgba(24, 16, 7, 0.75);
+  color: #f0d69a;
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  cursor: pointer;
+}
+
+.teach-btn:hover {
+  border-color: rgba(232, 196, 96, 0.8);
+  color: var(--dng-title-gold);
+}
+
 .plaque-link {
   font-size: var(--text-sm);
   letter-spacing: 0.14em;
@@ -241,6 +323,16 @@ function goToSetup(tutorialType?: string) {
 
   .door-title {
     font-size: clamp(1.45rem, 8vw, 2rem);
+  }
+
+  /* Below this the three plaques are too narrow to read across. */
+  .door-scroll {
+    grid-template-columns: 1fr;
+    gap: 0.45rem;
+  }
+
+  .door-scroll li {
+    padding: 0.55rem 0.75rem 0.62rem;
   }
 }
 

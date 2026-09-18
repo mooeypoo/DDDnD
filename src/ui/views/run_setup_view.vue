@@ -42,6 +42,7 @@ import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 import CouncilLobby from '@/ui/play/council_lobby.vue'
+import { sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
 
 const router = useRouter()
 const route = useRoute()
@@ -117,8 +118,8 @@ onMounted(async () => {
     }
   }
 
-  if (!selectedQuest.value && gameStore.availableQuests.length > 0) {
-    selectedQuest.value = gameStore.availableQuests[0]
+  if (!selectedQuest.value) {
+    selectedQuest.value = easiestAdventure(gameStore.availableQuests)
   }
 
   if (!selectedClass.value && gameStore.availableClasses.length > 0) {
@@ -138,11 +139,15 @@ watch(
 watch(
   () => gameStore.availableQuests,
   (quests) => {
-    if (!selectedQuest.value && quests.length > 0) {
-      selectedQuest.value = quests[0]
+    if (!selectedQuest.value) {
+      selectedQuest.value = easiestAdventure(quests)
     }
   },
 )
+
+function easiestAdventure(quests: QuestDisplayModel[]): QuestDisplayModel | null {
+  return sortQuestsByDifficulty(quests)[0] ?? null
+}
 
 function selectClass(playerClass: PlayerClass) {
   selectedClass.value = playerClass
