@@ -102,20 +102,7 @@
       </svg>
     </div>
 
-    <p v-if="scenarioName" class="table-nameplate">{{ scenarioName }}</p>
     </div>
-
-    <figure v-if="playerName || playerClassId" class="player-seat">
-      <ClassPortrait
-        :classId="playerClassId"
-        :className="playerClassName"
-        size="md"
-      />
-      <figcaption class="player-caption">
-        <span class="player-name">{{ playerName || 'You' }}</span>
-        <span class="player-class">{{ playerClassName || 'Architect' }}</span>
-      </figcaption>
-    </figure>
 
     <Teleport to="body">
       <div
@@ -171,7 +158,6 @@ import { computed } from 'vue'
 import type { GameplayStageActor } from '@/ui/composables/gameplay_stage_presentation'
 import { requestEventScene, requestSceneBackground } from '@/ui/composables/presentation_asset_lookup'
 import type { SceneBackgroundId } from '@/ui/config/presentation_asset_types'
-import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import TableSeat from '@/ui/play/table_seat.vue'
 import TurnBeatOverlay from '@/ui/play/turn_beat_overlay.vue'
 import { resolveEventSceneId, type TurnBeat, type TurnBeatKind } from '@/ui/play/turn_theater'
@@ -182,10 +168,6 @@ const props = defineProps<{
   sceneId: SceneBackgroundId
   currentBeat: TurnBeat | null
   highlight?: string | null
-  scenarioName?: string
-  playerName?: string
-  playerClassId?: string
-  playerClassName?: string
   isAdjourned?: boolean
   beatIndex?: number
   beatCount?: number
@@ -229,7 +211,7 @@ const eventSceneUrl = computed(() => {
   min-height: 24rem;
   display: grid;
   place-items: center;
-  padding: 0.25rem 0.5rem 6.8rem;
+  padding: 0.25rem 0.5rem 1.4rem;
   overflow: hidden;
 }
 
@@ -950,73 +932,6 @@ const eventSceneUrl = computed(() => {
   overflow-y: auto;
 }
 
-.table-nameplate {
-  position: absolute;
-  left: 50%;
-  bottom: 7.2rem;
-  z-index: 3;
-  margin: 0;
-  max-width: min(70%, 22rem);
-  padding: 0.22rem 0.9rem;
-  transform: translateX(-50%);
-  font-family: var(--font-heading);
-  font-size: var(--text-sm);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  text-align: center;
-  color: var(--dng-title-gold);
-  background: rgba(12, 8, 4, 0.78);
-  border: 1px solid rgba(176, 132, 42, 0.45);
-  box-shadow: inset 0 1px 0 rgba(232, 196, 96, 0.16);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  pointer-events: none;
-}
-
-.player-seat {
-  position: absolute;
-  left: 50%;
-  bottom: 0.2rem;
-  z-index: 5;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.2rem;
-  transform: translateX(-50%);
-  pointer-events: none;
-  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
-}
-
-.player-caption {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 0;
-  max-width: 12rem;
-  padding: 0.2rem 0.55rem 0.25rem;
-  border-radius: 999px;
-  background: rgba(10, 7, 3, 0.78);
-  border: 1px solid rgba(176, 132, 42, 0.45);
-}
-
-.player-name {
-  font-family: var(--font-heading);
-  font-size: var(--text-sm);
-  color: var(--text-bright);
-  letter-spacing: 0.03em;
-  line-height: 1.2;
-  text-align: center;
-}
-
-.player-class {
-  font-size: var(--text-sm);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--dng-title-gold);
-}
-
 .adjourn-plate {
   width: min(420px, 92%);
   padding: 1rem 1.1rem 0.95rem;
@@ -1075,7 +990,7 @@ const eventSceneUrl = computed(() => {
 @media (max-width: 720px) {
   .war-table {
     min-height: 18.5rem;
-    padding-bottom: 5.4rem;
+    padding-bottom: 1.1rem;
   }
 
   .table-board {
@@ -1090,23 +1005,6 @@ const eventSceneUrl = computed(() => {
     inset: 2% 8% 36%;
   }
 
-  .table-nameplate {
-    bottom: 5.8rem;
-    max-width: min(82%, 18rem);
-    font-size: var(--text-sm);
-    letter-spacing: 0.1em;
-  }
-
-  .player-seat :deep(.class-portrait) {
-    width: 52px;
-    height: 52px;
-  }
-
-  .player-name,
-  .player-class {
-    font-size: var(--text-sm);
-  }
-
   .table-quake-root.is-shaking {
     animation-name: table-quake-soft;
   }
@@ -1115,7 +1013,7 @@ const eventSceneUrl = computed(() => {
 @media (max-width: 720px) and (orientation: portrait) {
   .war-table {
     min-height: 16.5rem;
-    padding-bottom: 5rem;
+    padding-bottom: 0.9rem;
   }
 
   .table-board {

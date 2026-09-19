@@ -5,23 +5,37 @@
     aria-label="Your hand"
   >
     <div class="hand-stage">
-      <button
-        v-if="canConsult"
-        class="consult-action"
-        data-play-highlight="consult"
-        type="button"
-        :class="{ armed: consultMode, 'is-tutorial-lit': consultHighlighted }"
-        :disabled="isDisabled"
-        @click="$emit('toggleConsult')"
-      >
-        <span class="consult-kicker">{{ consultMode ? 'Searching the shelves' : 'Replace a card in hand' }}</span>
-        <span class="consult-title">{{ consultMode ? 'Cancel search' : 'Consult the Archives' }}</span>
-        <span class="consult-copy">
-          {{ consultMode
-            ? 'Mark a hand card and choose a Grimoire page, or take a random one.'
-            : 'Spend the turn. Search the Grimoire for a replacement.' }}
-        </span>
-      </button>
+      <div v-if="playerName || playerClassId || canConsult" class="player-rail">
+        <figure v-if="playerName || playerClassId" class="player-seat">
+          <ClassPortrait
+            :classId="playerClassId"
+            :className="playerClassName"
+            size="md"
+          />
+          <figcaption class="player-caption">
+            <span class="player-name">{{ playerName || 'You' }}</span>
+            <span class="player-class">{{ playerClassName || 'Architect' }}</span>
+          </figcaption>
+        </figure>
+
+        <button
+          v-if="canConsult"
+          class="consult-action"
+          data-play-highlight="consult"
+          type="button"
+          :class="{ armed: consultMode, 'is-tutorial-lit': consultHighlighted }"
+          :disabled="isDisabled"
+          @click="$emit('toggleConsult')"
+        >
+          <span class="consult-kicker">{{ consultMode ? 'Searching the shelves' : 'Replace a card in hand' }}</span>
+          <span class="consult-title">{{ consultMode ? 'Cancel search' : 'Consult the Archives' }}</span>
+          <span class="consult-copy">
+            {{ consultMode
+              ? 'Mark a hand card and choose a Grimoire page, or take a random one.'
+              : 'Spend the turn. Search the Grimoire for a replacement.' }}
+          </span>
+        </button>
+      </div>
 
       <div class="hand-main">
         <p class="hand-kicker">
@@ -58,6 +72,7 @@
 <script setup lang="ts">
 import type { Card } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
+import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import TableCard from '@/ui/play/table_card.vue'
 import { handFanTransform } from '@/ui/play/card_fan'
 import { computed } from 'vue'
@@ -70,6 +85,9 @@ const props = defineProps<{
   consultMode?: boolean
   canConsult?: boolean
   arrivingCardIds?: string[]
+  playerName?: string
+  playerClassId?: string
+  playerClassName?: string
 }>()
 
 defineEmits<{
@@ -129,6 +147,52 @@ function fanStyle(index: number) {
   gap: 0.7rem;
 }
 
+.player-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  flex: 0 0 auto;
+}
+
+.player-seat {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
+}
+
+.player-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  max-width: 12rem;
+  padding: 0.2rem 0.55rem 0.25rem;
+  border-radius: 999px;
+  background: rgba(10, 7, 3, 0.78);
+  border: 1px solid rgba(176, 132, 42, 0.45);
+}
+
+.player-name {
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  color: var(--text-bright);
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.player-class {
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dng-title-gold);
+}
+
 .hand-main {
   min-width: 0;
   flex: 1;
@@ -138,7 +202,6 @@ function fanStyle(index: number) {
   appearance: none;
   flex: 0 0 auto;
   width: min(13.5rem, 36vw);
-  margin-bottom: 1.4rem;
   padding: 0.85rem 0.85rem 0.9rem;
   text-align: left;
   border-radius: 14px;
@@ -253,9 +316,26 @@ function fanStyle(index: number) {
     align-items: stretch;
   }
 
+  .hand-main {
+    order: 1;
+  }
+
+  .player-rail {
+    order: 2;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.55rem;
+  }
+
+  .player-seat :deep(.class-portrait) {
+    width: 52px;
+    height: 52px;
+  }
+
   .consult-action {
-    width: 100%;
-    margin-bottom: 0;
+    width: auto;
+    flex: 1;
   }
 
   .hand-fan {
