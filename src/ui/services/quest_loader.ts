@@ -15,9 +15,9 @@
  * - Handle content loading errors gracefully
  */
 
-import type { VersionRef } from '@/domains/content/model'
-import type { Scenario } from '@/domains/content/model'
+import type { Scenario, VersionRef } from '@/domains/content/model'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
+import type { ScenarioBundle } from '@/domains/content/model/scenario_bundle'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 
 /**
@@ -105,6 +105,30 @@ function transformScenarioToQuestDisplay(scenario: Scenario): QuestDisplayModel 
     isTutorial: scenario.is_tutorial ?? false,
     tutorialOrder: scenario.tutorial_order,
     startingScores: { ...scenario.starting_scores },
+  }
+}
+
+/**
+ * Builds a quest display model from an already-loaded scenario bundle.
+ * Presentation only — does not load content or run the engine.
+ */
+export function questDisplayFromBundle(bundle: ScenarioBundle): QuestDisplayModel {
+  const councilNames: string[] = []
+  for (const stakeholder of bundle.stakeholders.values()) {
+    if (stakeholder.name) councilNames.push(stakeholder.name)
+  }
+
+  const startingScoreShortNames: Record<string, string> = {}
+  for (const score of bundle.scores.values()) {
+    if (score.id && score.short_name) {
+      startingScoreShortNames[score.id] = score.short_name
+    }
+  }
+
+  return {
+    ...transformScenarioToQuestDisplay(bundle.scenario),
+    councilNames,
+    startingScoreShortNames,
   }
 }
 

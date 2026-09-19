@@ -37,4 +37,15 @@ describe('quest_briefing_plaque', () => {
     expect(wrapper.text()).toContain('Delivery')
     expect(wrapper.text()).toContain('55 · Strained')
   })
+
+  it('leads with remaining turns in play without replacing the starting mood', () => {
+    const wrapper = mount(QuestBriefingPlaque, {
+      props: { isOpen: true, quest, turnsRemaining: 7 },
+    })
+
+    expect(wrapper.text()).toContain('7 turns left')
+    expect(wrapper.text()).not.toContain('12 turns remain on this quest.')
+    expect(wrapper.text()).toContain('How the system starts')
+    expect(wrapper.text()).toContain('32 · Troubled')
+  })
 })

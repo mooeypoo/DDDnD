@@ -56,6 +56,13 @@
       @close="isAnnalsOpen = false"
     />
 
+    <QuestBriefingPlaque
+      :isOpen="isQuestBriefingOpen"
+      :quest="playQuestBriefing"
+      :turnsRemaining="turnsRemaining"
+      @close="isQuestBriefingOpen = false"
+    />
+
     <CardDetailsModal
       v-if="modalCardId && modalCard"
       :isOpen="!!modalCardId"
@@ -96,6 +103,17 @@
       <div v-if="isCollapsing" class="chamber-smoke chamber-atmosphere" aria-hidden="true" />
       <div v-if="isCollapsing" class="chamber-ember chamber-atmosphere" aria-hidden="true" />
       <div class="chamber-grain chamber-atmosphere" aria-hidden="true" />
+
+      <button
+        v-if="scenario?.name"
+        class="quest-title"
+        type="button"
+        aria-haspopup="dialog"
+        :aria-expanded="isQuestBriefingOpen"
+        @click="isQuestBriefingOpen = true"
+      >
+        {{ scenario.name }}
+      </button>
 
       <WeatherStrip
         :scores="currentScores"
@@ -237,11 +255,14 @@ import HandDock from '@/ui/play/hand_dock.vue'
 import TableTools from '@/ui/play/table_tools.vue'
 import GrimoirePanel from '@/ui/play/grimoire_panel.vue'
 import AnnalsPanel from '@/ui/play/annals_panel.vue'
+import QuestBriefingPlaque from '@/ui/play/quest_briefing_plaque.vue'
 import CommitmentFlight from '@/ui/play/commitment_flight.vue'
 import ArchiveReplace from '@/ui/play/archive_replace.vue'
 import { tutorialPointerSelector } from '@/ui/play/tutorial_pointer'
 import { diffHandCards, peekConsultDrawId, type ArchiveReplaceOffer } from '@/ui/play/hand_swap'
 import { buildAnnalsTurns } from '@/ui/play/turn_theater'
+import { remainingTurns } from '@/ui/play/weather_band'
+import { questDisplayFromBundle } from '@/ui/services/quest_loader'
 import { useTurnTheater } from '@/ui/play/use_turn_theater'
 import { useCommitmentFlight } from '@/ui/play/use_commitment_flight'
 
@@ -284,6 +305,7 @@ const pendingRefillIds = ref<string[]>([])
 const refillPhase = ref<'idle' | 'hidden' | 'flying'>('idle')
 const isGrimoireOpen = ref(false)
 const isAnnalsOpen = ref(false)
+const isQuestBriefingOpen = ref(false)
 const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const pendingStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 const activeStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
@@ -338,6 +360,12 @@ const modifierScoreAdjustments = computed(() => {
     result[scoreId] = { base: baseValue, adjusted: adjustedValue, modifierName }
   }
   return result
+})
+
+const turnsRemaining = computed(() => remainingTurns(gameStore.currentTurn, gameStore.maxTurns))
+
+const playQuestBriefing = computed(() => {
+  return gameStore.scenarioBundle ? questDisplayFromBundle(gameStore.scenarioBundle) : null
 })
 
 const currentScores = computed(() => gameStore.turnBriefing?.current_scores ?? {})
@@ -949,6 +977,31 @@ function goToEndScreen() {
   z-index: 1;
 }
 
+.quest-title {
+  appearance: none;
+  align-self: center;
+  max-width: min(100%, 36rem);
+  margin: 0;
+  padding: 0.28rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(176, 132, 42, 0.45);
+  background: rgba(12, 8, 4, 0.78);
+  box-shadow: inset 0 1px 0 rgba(232, 196, 96, 0.16);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--dng-title-gold);
+  cursor: pointer;
+}
+
+.quest-title:hover,
+.quest-title:focus-visible {
+  border-color: rgba(232, 196, 96, 0.7);
+  color: var(--text-bright);
+}
+
 .chamber-glow {
   position: absolute;
   inset: 0;
@@ -1088,6 +1141,10 @@ function goToEndScreen() {
   .play-chamber {
     padding: 0.45rem 0.45rem 1.2rem;
     gap: 0.45rem;
+  }
+
+  .quest-title {
+    letter-spacing: 0.1em;
   }
 }
 

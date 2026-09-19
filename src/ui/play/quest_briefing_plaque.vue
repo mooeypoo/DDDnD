@@ -6,6 +6,7 @@
     @close="emit('close')"
   >
     <div v-if="quest" class="briefing-body">
+      <p v-if="turnsLeftCopy" class="briefing-remaining">{{ turnsLeftCopy }}</p>
       <p v-if="quest.flavorText" class="briefing-flavor">{{ quest.flavorText }}</p>
       <p class="briefing-description">{{ quest.description }}</p>
 
@@ -18,7 +19,7 @@
       </p>
 
       <h3>How the system starts</h3>
-      <p class="briefing-turns">{{ quest.turnCount }} turns remain on this quest.</p>
+      <p v-if="turnsRemaining == null" class="briefing-turns">{{ quest.turnCount }} turns remain on this quest.</p>
       <ul v-if="moodRows.length > 0" class="briefing-mood">
         <li v-for="row in moodRows" :key="row.scoreId">
           <span>{{ row.label }}</span>
@@ -51,11 +52,17 @@ import AppButton from '@/ui/components/common/AppButton.vue'
 const props = defineProps<{
   isOpen: boolean
   quest: QuestDisplayModel | null
+  turnsRemaining?: number | null
 }>()
 
 const emit = defineEmits<{
   close: []
 }>()
+
+const turnsLeftCopy = computed(() => {
+  if (props.turnsRemaining == null) return null
+  return props.turnsRemaining === 1 ? '1 turn left' : `${props.turnsRemaining} turns left`
+})
 
 const moodRows = computed(() => {
   const scores = props.quest?.startingScores
@@ -87,6 +94,15 @@ const moodRows = computed(() => {
   color: #ead58a;
   font-size: var(--text-base);
   line-height: 1.45;
+}
+
+.briefing-remaining {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dng-title-gold);
 }
 
 .briefing-description,

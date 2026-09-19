@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Scenario } from '@/domains/content/model'
-import { loadQuestDisplayModel, loadQuestDisplayModels } from '@/ui/services/quest_loader'
+import { loadQuestDisplayModel, loadQuestDisplayModels, questDisplayFromBundle } from '@/ui/services/quest_loader'
+import { createEmptyBundle } from '@/domains/content/model/scenario_bundle'
 
 // Mock data
 const mockScenario: Scenario = {
@@ -236,5 +237,31 @@ describe('quest loader', () => {
     expect(quest.turnCount).toBe(20)
     expect(quest.stakeholderCount).toBe(4)
     expect(quest.actionCardCount).toBe(15)
+  })
+
+  it('builds a display model from a loaded bundle without reloading content', () => {
+    const bundle = createEmptyBundle(mockScenario)
+    bundle.stakeholders.set('cto-v1', {
+      id: 'cto',
+      version: 1,
+      name: 'Chief Technology Officer',
+      description: '',
+      reaction_rule_refs: [],
+    })
+    bundle.scores.set('clarity-v1', {
+      id: 'clarity',
+      version: 1,
+      name: 'Domain Clarity',
+      short_name: 'Clarity',
+      description: '',
+      default_value: 50,
+    })
+
+    const quest = questDisplayFromBundle(bundle)
+
+    expect(quest.name).toBe('Test Quest')
+    expect(quest.councilNames).toEqual(['Chief Technology Officer'])
+    expect(quest.startingScores).toEqual({ clarity: 50 })
+    expect(quest.startingScoreShortNames).toEqual({ clarity: 'Clarity' })
   })
 })
