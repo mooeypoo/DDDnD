@@ -45,4 +45,22 @@ describe('table seat speech bubbles', () => {
     await wrapper.trigger('click')
     expect(wrapper.find('.seat-bubble').exists()).toBe(true)
   })
+
+  it('reveals the full council name on hover and tap without needing a reaction', async () => {
+    const wrapper = mountSeat({
+      displayName: 'Chief Technology Officer',
+      speechBubble: undefined,
+    })
+
+    expect(wrapper.find('.seat-fullname').exists()).toBe(false)
+
+    await wrapper.trigger('mouseenter')
+    expect(wrapper.find('.seat-fullname').text()).toBe('Chief Technology Officer')
+
+    await wrapper.trigger('mouseleave')
+    expect(wrapper.find('.seat-fullname').exists()).toBe(false)
+
+    await wrapper.trigger('click')
+    expect(wrapper.find('.seat-fullname').text()).toBe('Chief Technology Officer')
+  })
 })

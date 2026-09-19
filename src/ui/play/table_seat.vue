@@ -11,8 +11,9 @@
         'has-reaction': Boolean(speechBubble),
       },
     ]"
-    :tabindex="speechBubble ? 0 : undefined"
-    :aria-expanded="speechBubble ? isOpen : undefined"
+    :tabindex="0"
+    :aria-expanded="speechBubble ? isOpen : nameRevealed"
+    :aria-describedby="showFullName ? fullNameId : undefined"
     @mouseenter="onEnter"
     @mouseleave="onLeave"
     @focusin="onEnter"
@@ -36,6 +37,12 @@
       <span class="seat-name">{{ displayName }}</span>
       <span class="seat-mood">{{ moodLabel }}</span>
     </figcaption>
+    <span
+      v-if="showFullName"
+      :id="fullNameId"
+      class="seat-fullname"
+      role="tooltip"
+    >{{ displayName }}</span>
   </figure>
 </template>
 
@@ -61,6 +68,8 @@ const props = defineProps<{
 }>()
 
 const inspected = ref(false)
+const nameRevealed = ref(false)
+const fullNameId = computed(() => `seat-fullname-${props.displayName.toLowerCase().replace(/\s+/g, '-')}`)
 
 watch(
   () => props.voicing,
@@ -80,6 +89,7 @@ watch(
 
 const showBubble = computed(() => Boolean(props.voicing) || inspected.value)
 const isOpen = computed(() => showBubble.value && Boolean(props.speechBubble))
+const showFullName = computed(() => nameRevealed.value)
 
 const portraitUrl = computed(() => {
   return requestAvatarRoleImage({
@@ -104,16 +114,19 @@ const moodLabel = computed(() => {
 })
 
 function onEnter() {
+  nameRevealed.value = true
   if (props.voicing || !props.speechBubble) return
   inspected.value = true
 }
 
 function onLeave() {
+  nameRevealed.value = false
   if (props.voicing) return
   inspected.value = false
 }
 
 function onActivate() {
+  nameRevealed.value = !nameRevealed.value
   if (props.voicing || !props.speechBubble) return
   inspected.value = !inspected.value
 }
@@ -132,13 +145,10 @@ function onActivate() {
   transform-origin: 50% 100%;
   transition: transform 180ms ease;
   pointer-events: auto;
-}
-
-.table-seat.has-reaction {
   cursor: pointer;
 }
 
-.table-seat.has-reaction:focus-visible {
+.table-seat:focus-visible {
   outline: 2px solid rgba(232, 196, 96, 0.75);
   outline-offset: 4px;
 }
@@ -207,6 +217,27 @@ function onActivate() {
 .mood-happy .seat-mood { color: #b7e0c0; }
 .mood-concerned .seat-mood { color: #f0b07a; }
 .mood-angry .seat-mood { color: #f0a098; }
+
+.seat-fullname {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 0.2rem);
+  z-index: 6;
+  width: max-content;
+  max-width: min(14rem, 70vw);
+  padding: 0.28rem 0.5rem;
+  border-radius: 8px;
+  background: rgba(18, 14, 8, 0.96);
+  border: 1px solid rgba(232, 196, 96, 0.45);
+  color: var(--text-bright);
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  line-height: 1.3;
+  text-align: center;
+  transform: translateX(-50%);
+  pointer-events: none;
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.45);
+}
 
 /*
  * Float above the portrait. Never participate in the flex height, or a long
