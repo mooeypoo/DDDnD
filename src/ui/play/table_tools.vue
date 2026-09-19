@@ -9,7 +9,10 @@
       @click="$emit('openGrimoire')"
     >
       <span class="tool-kicker">Look, don't play</span>
-      <span class="tool-title">Grimoire · {{ deckCount }}</span>
+      <span class="tool-title">
+        <IconGrimoire :size="16" />
+        Grimoire · {{ deckCount }}
+      </span>
     </button>
 
     <button
@@ -25,6 +28,8 @@
 </template>
 
 <script setup lang="ts">
+import IconGrimoire from '@/ui/components/icons/IconGrimoire.vue'
+
 defineProps<{
   deckCount: number
   historyCount: number
@@ -81,7 +86,9 @@ defineEmits<{
 }
 
 .tool-title {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   font-family: var(--font-heading);
   font-size: var(--text-base);
   color: var(--dng-title-gold);
