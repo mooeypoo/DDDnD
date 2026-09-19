@@ -32,7 +32,6 @@
               'is-revealed': revealedId === meter.id,
             },
           ]"
-          :title="meter.title"
           role="button"
           tabindex="0"
           :aria-expanded="revealedId === meter.id"
@@ -42,10 +41,7 @@
           @keydown.space.prevent="toggleReveal(meter.id)"
         >
           <span class="weather-vial-icon" aria-hidden="true">{{ meter.icon }}</span>
-          <span class="weather-vial-label" aria-hidden="true">
-            <span class="weather-vial-short">{{ meter.shortLabel }}</span>
-            <span class="weather-vial-full">{{ meter.fullLabel }}</span>
-          </span>
+          <span class="weather-vial-label" aria-hidden="true">{{ meter.shortLabel }}</span>
           <span class="weather-vial-readout" aria-hidden="true">
             <span class="weather-vial-value">{{ meter.value }}</span>
             <span
@@ -54,11 +50,16 @@
               :class="meter.delta > 0 ? 'is-gain' : 'is-loss'"
             >{{ meter.deltaLabel }}</span>
           </span>
+          <span class="weather-vial-tip" aria-hidden="true">{{ meter.fullLabel }}</span>
         </li>
       </ol>
 
       <p v-if="aftershockCount > 0" class="weather-aftershock" data-play-highlight="aftershocks" role="status">
-        {{ aftershockCount }} aftershock{{ aftershockCount === 1 ? '' : 's' }} waiting
+        <span class="weather-aftershock-count">{{ aftershockCount }}</span>
+        <span class="weather-aftershock-copy">
+          {{ aftershockCount === 1 ? 'aftershock' : 'aftershocks' }}
+          waiting
+        </span>
       </p>
     </div>
 
@@ -192,7 +193,6 @@ const meters = computed(() => {
       fullLabel: labels.full,
       weather: weather.weather,
       weatherLabel: weather.label,
-      title: `${conversion}: ${Math.round(value)} — ${status}`,
       spoken: `${conversion}, ${Math.round(value)}, ${status}${
         delta === null
           ? ''
@@ -319,6 +319,7 @@ const meters = computed(() => {
 }
 
 .weather-vial {
+  position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   grid-template-areas:
@@ -355,38 +356,36 @@ const meters = computed(() => {
   font-size: var(--text-2xs);
   letter-spacing: 0.12em;
   color: var(--text-secondary);
-  position: relative;
   min-height: 1.1em;
 }
 
-.weather-vial-short,
-.weather-vial-full {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.weather-vial-full {
+.weather-vial-tip {
   display: none;
-  text-transform: none;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.32rem);
+  z-index: 4;
+  width: max-content;
+  max-width: 14rem;
+  padding: 0.28rem 0.5rem;
+  transform: translateX(-50%);
+  border-radius: 8px;
+  border: 1px solid rgba(232, 196, 96, 0.45);
+  background: rgba(12, 8, 4, 0.94);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.4);
+  font-size: var(--text-sm);
   letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--text-bright);
+  pointer-events: none;
 }
 
-.weather-vial.is-revealed .weather-vial-short {
-  display: none;
-}
-
-.weather-vial.is-revealed .weather-vial-full {
+.weather-vial.is-revealed .weather-vial-tip {
   display: block;
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .weather-vial:hover .weather-vial-short {
-    display: none;
-  }
-
-  .weather-vial:hover .weather-vial-full {
+  .weather-vial:hover .weather-vial-tip {
     display: block;
   }
 }
@@ -457,10 +456,34 @@ const meters = computed(() => {
 
 .weather-aftershock {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.6rem;
+  padding: 0.12rem 0.4rem 0.22rem;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 196, 96, 0.38);
+  background: rgba(28, 18, 6, 0.55);
   font-family: var(--font-heading);
-  font-size: var(--text-sm);
-  letter-spacing: 0.1em;
+  color: #f0c060;
+}
+
+.weather-aftershock-count {
+  font-size: 1.45rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: #ffe7b0;
+}
+
+.weather-aftershock-copy {
+  max-width: 5.6rem;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+  line-height: 1.2;
   text-transform: uppercase;
+  text-align: center;
   color: #f0c060;
 }
 

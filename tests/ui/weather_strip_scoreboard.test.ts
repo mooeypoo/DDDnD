@@ -11,7 +11,7 @@ const baseProps = {
 describe('weather_strip as a scoreboard', () => {
   it('names every score alongside its value', () => {
     const wrapper = mount(WeatherStrip, { props: baseProps })
-    const labels = wrapper.findAll('.weather-vial-short').map((node) => node.text())
+    const labels = wrapper.findAll('.weather-vial-label').map((node) => node.text())
 
     // Without a loaded pack, shorts fall back to title-cased ids.
     expect(labels).toEqual(['Domain Clarity', 'Team Morale'])
@@ -56,6 +56,16 @@ describe('weather_strip as a scoreboard', () => {
     expect(vial.classes()).not.toContain('is-revealed')
     await vial.trigger('click')
     expect(vial.classes()).toContain('is-revealed')
-    expect(wrapper.find('.weather-vial-full').text()).toBe('Domain Clarity')
+    expect(wrapper.find('.weather-vial-tip').text()).toBe('Domain Clarity')
+    expect(wrapper.find('.weather-vial-label').text()).toBe('Domain Clarity')
+  })
+
+  it('stacks waiting aftershocks as a compact chip', () => {
+    const wrapper = mount(WeatherStrip, {
+      props: { ...baseProps, aftershockCount: 2 },
+    })
+
+    expect(wrapper.find('.weather-aftershock-count').text()).toBe('2')
+    expect(wrapper.find('.weather-aftershock-copy').text().replace(/\s+/g, ' ')).toContain('aftershocks waiting')
   })
 })
