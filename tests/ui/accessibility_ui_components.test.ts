@@ -108,4 +108,21 @@ describe('SurfaceModalPanel keyboard focus management', () => {
     await wrapper.vm.$nextTick()
     expect(document.activeElement).toBe(opener)
   })
+
+  it('keeps the shell from scrolling so the action plate can stay on screen', () => {
+    const wrapper = mount(SurfaceModalPanel, {
+      props: {
+        isOpen: true,
+        title: 'Scroll Test',
+      },
+      slots: {
+        default: '<p>Long body</p>',
+        footer: '<button type="button">Return to the council</button>',
+      },
+    })
+
+    expect(wrapper.find('.dungeon-modal').classes()).toContain('dungeon-modal')
+    expect(wrapper.find('.dungeon-modal__body').exists()).toBe(true)
+    expect(wrapper.find('.dungeon-modal__actions').text()).toContain('Return to the council')
+  })
 })

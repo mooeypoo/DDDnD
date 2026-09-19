@@ -268,8 +268,9 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   width: min(100%, 720px);      /* default = md */
-  max-height: 92vh;
-  overflow: auto;
+  max-height: min(92dvh, 100%);
+  min-height: 0;
+  overflow: hidden;
   border: 1px solid var(--dng-shell-border);
   background: var(--dng-shell-bg);
 
@@ -308,6 +309,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-shrink: 0;
   gap: var(--space-md);
   padding: 20px 24px 18px;
 
@@ -412,6 +414,8 @@ onUnmounted(() => {
   position: relative;
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
   gap: var(--dng-ring-gap);
   margin: 0 var(--dng-shell-gap) var(--dng-shell-gap);
 
@@ -488,6 +492,10 @@ onUnmounted(() => {
    ───────────────────────────────────────────────────────────── */
 .dungeon-modal__inset {
   position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   background:
     radial-gradient(
       ellipse 85% 45% at 50% 0%,
@@ -534,6 +542,9 @@ onUnmounted(() => {
    BODY — primary content region
    ───────────────────────────────────────────────────────────── */
 .dungeon-modal__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   padding: var(--space-lg);
   color: var(--text-primary);
   font-family: var(--font-body);
@@ -552,6 +563,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  flex-shrink: 0;
   gap: var(--space-sm);
   padding: 11px var(--space-lg);
 
@@ -598,7 +610,7 @@ onUnmounted(() => {
   }
 
   .dungeon-modal {
-    max-height: 96vh;
+    max-height: min(96dvh, 100%);
     border-radius: 0;
   }
 
