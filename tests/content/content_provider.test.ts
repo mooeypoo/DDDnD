@@ -11,6 +11,7 @@ describe('Content Provider', () => {
       expect(score.id).toBe('technical_debt')
       expect(score.version).toBe(1)
       expect(score.name).toBe('Technical Debt')
+      expect(score.short_name).toBe('Debt')
       expect(score.default_value).toBe(50)
     })
     

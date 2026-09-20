@@ -48,6 +48,10 @@ Read these on top of the base set when applicable.
 - [CONTENT_VERSIONING.md](CONTENT_VERSIONING.md)
 - [ARCHITECTURE.md](ARCHITECTURE.md) (content validation boundary)
 
+### Gameplay v2 / play overhaul
+
+- [docs/GAMEPLAY_V2.md](docs/GAMEPLAY_V2.md) — canonical plan, play model, domain boundaries, test policy, and slice sequence for the war-table overhaul. Read this before changing hand, consult, deal, or the play shell.
+
 ---
 
 # Non-Negotiable Architecture Rules

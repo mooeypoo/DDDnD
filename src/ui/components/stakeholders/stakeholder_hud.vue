@@ -27,9 +27,9 @@
         <div class="hud-detail-header">
           <h3 class="hud-detail-title">
             <span class="title-icon"><IconGroup :size="16" /></span>
-            Stakeholder Pulse
+            The council
           </h3>
-          <button class="hud-close" @click="isExpanded = false" aria-label="Close stakeholder details">&times;</button>
+          <button class="hud-close" @click="isExpanded = false" aria-label="Close council details">&times;</button>
         </div>
         <div class="hud-detail-list">
           <div

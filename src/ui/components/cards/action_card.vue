@@ -86,7 +86,7 @@
               <span class="metric-icon" :class="metricPresentation(change.score_id).colorClass">
                 {{ metricPresentation(change.score_id).icon }}
               </span>
-              {{ metricPresentation(change.score_id).label }}
+              {{ scoreLabels.short(change.score_id) }}
               <template v-if="showAdjusted && adjustedPrimaryEffects[idx]?.is_modified">
                 <span class="chip-delta">{{ adjustedPrimaryEffects[idx].adjusted_delta > 0 ? '+' : '' }}{{ adjustedPrimaryEffects[idx].adjusted_delta }}</span>
                 <span class="chip-base-delta">{{ change.delta > 0 ? '+' : '' }}{{ change.delta }}</span>
@@ -125,7 +125,7 @@
                         <span class="metric-icon" :class="metricPresentation(change.score_id).colorClass">
                           {{ metricPresentation(change.score_id).icon }}
                         </span>
-                        <span class="tooltip-effect-label">{{ metricPresentation(change.score_id).label }}</span>
+                        <span class="tooltip-effect-label">{{ scoreLabels.short(change.score_id) }}</span>
                         <span class="tooltip-effect-delta" :class="change.delta > 0 ? 'positive' : 'negative'">
                           {{ change.delta > 0 ? '+' : '' }}{{ change.delta }}
                         </span>
@@ -179,6 +179,7 @@
             Inspect
           </button>
           <button
+            v-if="!isInspectOnly"
             class="ac-btn ac-btn--play"
             type="button"
             :disabled="isCardDisabled"
@@ -206,6 +207,7 @@ import type { Card } from '@/domains/content/model'
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import type { ArtworkMeta } from '@/ui/types/artwork'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import { getAdjustedScoreChanges, hasActiveCoupling } from '@/ui/composables/system_coupling'
 import { useCategoryPresentation } from '@/ui/composables/category_presentation'
 
@@ -221,12 +223,18 @@ const props = defineProps<{
   scores?: Record<string, number>
   /** Optional artwork metadata. Renders a thumbnail in the card header when illustration_url is present. */
   artwork?: ArtworkMeta
+  /** Grimoire cards can be inspected but not played. */
+  isInspectOnly?: boolean
+  /** Overrides the primary action label (for example consult discard). */
+  primaryActionLabel?: string
 }>()
 
 defineEmits<{
   play: [cardId: string]
   showDetails: []
 }>()
+
+const scoreLabels = useScoreLabels()
 
 /**
  * Category presentation — resolved from style_tags via shared composable.
@@ -297,6 +305,10 @@ const playButtonHint = computed(() => {
   return 'Unavailable: requirements are not currently met.'
 })
 const primaryButtonLabel = computed(() => {
+  if (props.primaryActionLabel) {
+    return props.primaryActionLabel
+  }
+
   if (props.isDisabled) {
     return 'Resolving…'
   }

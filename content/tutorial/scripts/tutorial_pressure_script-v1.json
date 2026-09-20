@@ -2,57 +2,61 @@
   "id": "tutorial_pressure_script",
   "version": 1,
   "name": "Systems Under Pressure Tutorial Script",
-  "description": "Step-by-step guidance for the advanced tutorial about system coupling and collapse.",
+  "description": "Step-by-step guidance for the advanced tutorial about system coupling, collapse, and Consult.",
   "steps": [
     {
       "id": "pressure_welcome",
       "trigger": { "type": "run_start" },
       "title": "A Realm in Peril",
-      "message": "This domain is wounded — its foundations crumble and the team is stretched thin. In DDDnD, when scores drop below critical thresholds, the system enters a collapse state that weakens everything you do. Study the score bars: your challenge begins here.",
+      "message": "This domain is wounded — its foundations crumble and the team is stretched thin. When the vials drop below their critical marks, the system enters collapse and weakens everything you do. Study the vials: your challenge begins here.",
       "highlight": "scores"
     },
     {
       "id": "tradeoffs_intro",
       "trigger": { "type": "turn_start", "turn": 1 },
       "title": "A Tempting Shortcut",
-      "message": "Sometimes you must deliver despite a crumbling system. Play Push Through the Crunch — it wins stakeholder favor but exhausts the team and damages system health. Watch what happens when scores cross critical thresholds.",
-      "highlight": "satchel",
+      "message": "Sometimes you must deliver despite a crumbling system. Play Push Through the Crunch from your hand — it wins the council's favor but exhausts the team and damages system health. Watch the vials when they cross their critical marks.",
+      "highlight": "hand",
       "required_card_id": "tutorial_push_through"
     },
     {
       "id": "coupling_warning",
       "trigger": { "type": "turn_end", "turn": 1 },
       "title": "The Curse of Coupling",
-      "message": "Team Capacity and System Health have both fallen below their critical thresholds — collapse warnings are now active! When a score collapses, positive gains to coupled scores are diminished. The system's rot drags everything down with it.",
+      "message": "Team Capacity and System Health have both fallen below their critical marks — the system is in collapse. When a vial collapses, positive gains to coupled vials are diminished. The system's rot drags the rest of the table down with it.",
       "highlight": "coupling"
     },
     {
-      "id": "collapse_effects",
+      "id": "consult_the_archives",
       "trigger": { "type": "turn_start", "turn": 2 },
-      "title": "Diminished Magic",
-      "message": "Look at your scrolls carefully — some positive effects now show reduced values. That's coupling at work: your incantations are weakened because the underlying system is unstable. You must stabilize the foundation before you can make real progress.",
-      "highlight": "satchel"
-    },
-    {
-      "id": "debt_accumulation",
-      "trigger": { "type": "turn_start", "turn": 3 },
-      "title": "Debts Come Due",
-      "message": "Quick patches cast in haste often conjure future debts. If Architectural Aftershocks are inbound, they represent delayed consequences of past choices. In the real quests, managing this tension — short-term survival versus long-term health — is where strategy lives.",
-      "highlight": "aftershocks"
+      "title": "Search the Grimoire",
+      "message": "Your hand already holds recovery pages — Rally the Guild and Stabilize the System can lift the storm. Deep Refactor would dig the pit deeper. Consult the Archives: set Deep Refactor aside and pull Rest the Team from the Grimoire. Searching costs the turn. The system keeps moving while you look.",
+      "highlight": "consult",
+      "required_verb": "consult",
+      "required_card_id": "tutorial_deep_refactor",
+      "required_draw_id": "tutorial_rest_the_team"
     },
     {
       "id": "recovery_strategy",
-      "trigger": { "type": "turn_start", "turn": 4 },
+      "trigger": { "type": "turn_start", "turn": 3 },
       "title": "Breaking the Curse",
-      "message": "To escape a collapse, you must raise the fallen score above its threshold. Play Rest the Team to invest in recovery — it won't dazzle the stakeholders, but it will lift Team Capacity out of collapse and restore your scrolls' full potency.",
-      "highlight": "satchel",
+      "message": "Rest the Team is now in your hand. Play it. It will not dazzle the council, but it lifts Team Capacity out of collapse so later pages recover at full strength.",
+      "highlight": "hand",
       "required_card_id": "tutorial_rest_the_team"
+    },
+    {
+      "id": "stabilize_health",
+      "trigger": { "type": "turn_start", "turn": 4 },
+      "title": "Mend the Foundation",
+      "message": "Capacity is breathing again. System Health is still in collapse. Play Rally the Guild — it lifts health and capacity together, now that coupling no longer steals the gain.",
+      "highlight": "hand",
+      "required_card_id": "tutorial_rally_the_guild"
     },
     {
       "id": "pressure_complete",
       "trigger": { "type": "run_end" },
       "title": "Trial by Fire Complete!",
-      "message": "You've survived the crucible of system coupling. In the real quests, these forces create deep strategic tension — you cannot simply optimize one dimension and neglect the rest. The realm demands balance, and balance demands wisdom. Onward, Architect!",
+      "message": "You have seen collapse, coupling, and Consult. The hand is never the whole library — searching the Grimoire costs a turn, and waiting is a decision the system will charge you for. Onward, Architect!",
       "highlight": null
     }
   ]

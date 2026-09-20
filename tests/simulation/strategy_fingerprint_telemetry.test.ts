@@ -74,7 +74,8 @@ describe('Strategy fingerprint telemetry', () => {
       for (const run of report.per_run) {
         expect(run).toHaveProperty('score_snapshots_by_turn')
         expect(Array.isArray(run.score_snapshots_by_turn)).toBe(true)
-        expect(run.score_snapshots_by_turn.length).toBe(run.cards_played.length)
+        expect(run.score_snapshots_by_turn.length).toBe(run.turns_completed)
+        expect(run.cards_played.length + run.consults_used).toBe(run.turns_completed)
       }
     })
   })
@@ -198,8 +199,8 @@ describe('Strategy fingerprint telemetry', () => {
       const report = await runSimulation('trajectory-test')
 
       for (const run of report.per_run) {
-        // One snapshot per turn actually played (matches cards_played)
-        expect(run.score_snapshots_by_turn.length).toBe(run.cards_played.length)
+        // One snapshot per completed turn (card plays and consults)
+        expect(run.score_snapshots_by_turn.length).toBe(run.turns_completed)
 
         // Each snapshot should contain the same score IDs
         for (const snapshot of run.score_snapshots_by_turn) {
@@ -218,7 +219,7 @@ describe('Strategy fingerprint telemetry', () => {
       expect(scoreIds.length).toBeGreaterThan(0)
 
       // Each score's turn array should have equal length (max turns actually played)
-      const maxTurnsPlayed = Math.max(...report.per_run.map((r) => r.cards_played.length))
+      const maxTurnsPlayed = Math.max(...report.per_run.map((r) => r.turns_completed))
       for (const scoreId of scoreIds) {
         expect(agg.average_score_by_turn[scoreId].length).toBe(maxTurnsPlayed)
 

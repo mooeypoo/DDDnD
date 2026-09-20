@@ -43,6 +43,7 @@ function createTestBundle() {
       id,
       version: 1,
       name: id,
+      short_name: 'Short',
       description: `Test score: ${id}`,
       default_value: 50
     })

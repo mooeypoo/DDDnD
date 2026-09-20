@@ -54,6 +54,7 @@ function makeEngine(input: {
     restore_run: vi.fn((gameState: GameState) => gameState),
     get_turn_briefing: vi.fn(() => briefing),
     play_turn: vi.fn(() => playResult),
+    consult_archives: vi.fn(() => playResult),
     get_run_outcome: vi.fn(() => outcome),
   }
 }
@@ -125,6 +126,85 @@ describe('game_store_run_lifecycle_coordinator', () => {
     expect(state.runOutcome.value).toBeNull()
     expect(state.isIntroSplashOpen.value).toBe(true)
     expect(state.isLoadingBundle.value).toBe(false)
+  })
+
+  it('skips the opening briefing when the player muted it, but never for a tutorial', async () => {
+    const bundle = { scenario: { id: 'scenario_a', version: 1 } } as unknown as ScenarioBundle
+
+    async function startWith(isTutorial: boolean) {
+      const engine = makeEngine()
+      const state = makeState({ isIntroSplashOpen: ref(false) })
+      const tutorial = {
+        isTutorialMode: ref(false),
+        initTutorial: vi.fn(async () => undefined),
+        resetTutorial: vi.fn(),
+        advanceToTrigger: vi.fn(),
+      }
+
+      const coordinator = createGameStoreRunLifecycleCoordinator(state, {
+        getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+        buildScenarioBundle: vi.fn(async () => bundle),
+        initializeEngine: vi.fn(() => {
+          state.engine.value = engine
+          state.scenarioBundle.value = bundle
+        }),
+        persistRunState: vi.fn(),
+        tutorial,
+        shouldOpenIntroBriefing: () => false,
+      })
+
+      await coordinator.startNewRun({
+        scenario_id: 'scenario_a',
+        scenario_version: 1,
+        is_tutorial: isTutorial,
+      })
+
+      return { state, tutorial }
+    }
+
+    const muted = await startWith(false)
+    expect(muted.state.isIntroSplashOpen.value).toBe(false)
+    // Nothing else would fire run_start once the splash is skipped.
+    expect(muted.tutorial.advanceToTrigger).toHaveBeenCalledWith('run_start')
+
+    const guided = await startWith(true)
+    expect(guided.state.isIntroSplashOpen.value).toBe(true)
+  })
+
+  it('records a finished tutorial so onboarding can stop recommending it', async () => {
+    const engine = makeEngine({
+      playResult: {
+        game_state: { progress: { current_turn: 4, run_status: 'completed' } },
+        turn_resolution_context: { selected_action: { id: 'card_a', version: 1 } },
+        turn_history_entry: { turn_number: 3 },
+      } as unknown as PlayTurnResult,
+    })
+
+    const state = makeState({
+      engine: ref(engine),
+      gameState: ref({ progress: { current_turn: 3 } } as unknown as GameState),
+      isRunComplete: ref(true),
+    })
+
+    const onTutorialCompleted = vi.fn()
+    const coordinator = createGameStoreRunLifecycleCoordinator(state, {
+      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
+      initializeEngine: vi.fn(),
+      persistRunState: vi.fn(),
+      tutorial: {
+        isTutorialMode: ref(true),
+        initTutorial: vi.fn(async () => undefined),
+        resetTutorial: vi.fn(),
+        advanceToTrigger: vi.fn(),
+      },
+      onTutorialCompleted,
+    })
+
+    await coordinator.playTurn('card_a')
+
+    expect(state.isTutorialCompleteSplashOpen.value).toBe(true)
+    expect(onTutorialCompleted).toHaveBeenCalledTimes(1)
   })
 
   it('refreshes turn briefing and only triggers turn_start when intro splash is closed', () => {
@@ -242,5 +322,82 @@ describe('game_store_run_lifecycle_coordinator', () => {
     expect(tutorial.advanceToTrigger).toHaveBeenCalledWith('run_end')
     expect(state.isTutorialCompleteSplashOpen.value).toBe(true)
     expect(state.isPlayingTurn.value).toBe(false)
+  })
+
+  it('consults the archives through the engine and refreshes the briefing', async () => {
+    const nextBriefing = { turn_number: 2, can_consult_archives: true } as unknown as TurnBriefing
+    const consultResult = {
+      game_state: {
+        progress: { current_turn: 2, run_status: 'in_progress' },
+        run_analytics: { turns_completed: 1 },
+      },
+      turn_resolution_context: { selected_action: { id: 'card_a', version: 1 } },
+      turn_history_entry: { turn_number: 1, player_intent: { type: 'consult_archives' } },
+    } as unknown as PlayTurnResult
+
+    const engine = makeEngine({ playResult: consultResult, briefing: nextBriefing })
+    const state = makeState({
+      engine: ref(engine),
+      isRunComplete: ref(false),
+      isIntroSplashOpen: ref(false),
+    })
+
+    const persistRunState = vi.fn()
+    const coordinator = createGameStoreRunLifecycleCoordinator(state, {
+      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
+      initializeEngine: vi.fn(),
+      persistRunState,
+      tutorial: {
+        isTutorialMode: ref(false),
+        initTutorial: vi.fn(async () => undefined),
+        resetTutorial: vi.fn(),
+        advanceToTrigger: vi.fn(),
+      },
+    })
+
+    const result = await coordinator.consultArchives(['card_a'])
+
+    expect(result).toEqual(consultResult)
+    expect(engine.consult_archives).toHaveBeenCalledWith(['card_a'])
+    expect(engine.play_turn).not.toHaveBeenCalled()
+    expect(state.turnBriefing.value).toEqual(nextBriefing)
+    expect(persistRunState).toHaveBeenCalledTimes(1)
+  })
+
+  it('passes a named draw id through to consult_archives', async () => {
+    const nextBriefing = { turn_number: 2, can_consult_archives: true } as unknown as TurnBriefing
+    const consultResult = {
+      game_state: {
+        progress: { current_turn: 2, run_status: 'in_progress' },
+        run_analytics: { turns_completed: 1 },
+      },
+      turn_resolution_context: { selected_action: { id: 'card_a', version: 1 } },
+      turn_history_entry: { turn_number: 1, player_intent: { type: 'consult_archives' } },
+    } as unknown as PlayTurnResult
+
+    const engine = makeEngine({ playResult: consultResult, briefing: nextBriefing })
+    const state = makeState({
+      engine: ref(engine),
+      isRunComplete: ref(false),
+      isIntroSplashOpen: ref(false),
+    })
+
+    const coordinator = createGameStoreRunLifecycleCoordinator(state, {
+      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
+      initializeEngine: vi.fn(),
+      persistRunState: vi.fn(),
+      tutorial: {
+        isTutorialMode: ref(false),
+        initTutorial: vi.fn(async () => undefined),
+        resetTutorial: vi.fn(),
+        advanceToTrigger: vi.fn(),
+      },
+    })
+
+    await coordinator.consultArchives(['card_a'], 'card_b')
+
+    expect(engine.consult_archives).toHaveBeenCalledWith(['card_a'], 'card_b')
   })
 })

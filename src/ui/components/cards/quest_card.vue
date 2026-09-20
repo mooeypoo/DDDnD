@@ -137,12 +137,12 @@
 
             <div v-if="quest.stakeholderCount" class="qc-stat">
               <!-- Three overlapping circles: stakeholder group -->
-              <svg class="qc-stat-icon" viewBox="0 0 18 12" aria-label="stakeholders">
+              <svg class="qc-stat-icon" viewBox="0 0 18 12" aria-label="council">
                 <circle cx="4"  cy="9" r="2.8" stroke="currentColor" fill="none" stroke-width="1.1"/>
                 <circle cx="9"  cy="6" r="2.8" stroke="currentColor" fill="none" stroke-width="1.1"/>
                 <circle cx="14" cy="9" r="2.8" stroke="currentColor" fill="none" stroke-width="1.1"/>
               </svg>
-              <span>{{ quest.stakeholderCount }} Stakeholders</span>
+              <span>{{ councilCountLabel(quest.stakeholderCount) }}</span>
             </div>
 
             <div v-if="quest.actionCardCount" class="qc-stat">
@@ -187,6 +187,7 @@
  */
 import { computed } from 'vue'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
+import { councilCountLabel } from '@/ui/play/council_copy'
 
 const props = withDefaults(
   defineProps<{
@@ -417,7 +418,7 @@ function handleClick() {
 .qc-eyebrow {
   display: block;
   font-family: var(--font-body);
-  font-size: var(--text-2xs, 0.625rem);
+  font-size: var(--text-2xs, 0.75rem);
   font-weight: var(--font-semibold, 600);
   letter-spacing: var(--tracking-widest, 0.12em);
   text-transform: uppercase;
@@ -426,7 +427,7 @@ function handleClick() {
 }
 
 .qc-turn-preview {
-  font-size: var(--text-2xs, 0.625rem);
+  font-size: var(--text-2xs, 0.75rem);
   color: var(--qc-header-label);
   opacity: 0.55;
   line-height: 1;

@@ -39,7 +39,10 @@ export interface StructuralAuditSection {
  * telemetry report rather than from a second execution path.
  */
 export interface DynamicAuditSection {
+  /** Player-true telemetry. This is the pass-gate report. */
   simulation_report: SimulationReport
+  /** Full-pool oracle telemetry. Diagnostic only; never the pass gate. */
+  oracle_simulation_report?: SimulationReport
 }
 
 export interface AuditFinding {

@@ -2,6 +2,7 @@ import { RunStatus } from '@/shared/contracts'
 import {
   ActionResolutionRecord,
   EventResolutionRecord,
+  PlayerTurnIntent,
   ResolvedAftershockRecord,
   StakeholderResolutionRecord
 } from './turn_resolution_context'
@@ -15,6 +16,7 @@ import { ScoreSnapshot, StakeholderSnapshot } from './game_state'
 export interface TurnHistoryEntry {
   turn_number: number
   resolved_aftershocks: ResolvedAftershockRecord[]
+  player_intent: PlayerTurnIntent
   action_resolution: ActionResolutionRecord
   event_resolution: EventResolutionRecord | null
   stakeholder_resolution: StakeholderResolutionRecord

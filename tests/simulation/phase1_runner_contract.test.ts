@@ -25,23 +25,26 @@ describe('Phase 1 runner contract', () => {
       expect(Array.isArray(run.event_telemetry_by_turn)).toBe(true)
       expect(Array.isArray(run.action_telemetry_by_turn)).toBe(true)
 
-      expect(run.stakeholder_telemetry_by_turn.length).toBe(run.cards_played.length)
-      expect(run.event_telemetry_by_turn.length).toBe(run.cards_played.length)
-      expect(run.action_telemetry_by_turn.length).toBe(run.cards_played.length)
+      expect(run.cards_played.length + run.consults_used).toBe(run.turns_completed)
+      expect(run.stakeholder_telemetry_by_turn.length).toBe(run.turns_completed)
+      expect(run.event_telemetry_by_turn.length).toBe(run.turns_completed)
+      expect(run.action_telemetry_by_turn.length).toBe(run.turns_completed)
     }
   })
 
   it('uses turn_number progression and selected_card_id aligned with cards_played', async () => {
     const report = await runSimulation('phase1-turn-alignment', 1)
     const run = report.per_run[0]
+    const playedTurns = run.action_telemetry_by_turn.filter((turn) => turn.player_intent === 'play_card')
 
-    for (let i = 0; i < run.cards_played.length; i++) {
+    expect(playedTurns.map((turn) => turn.selected_card_id)).toEqual(run.cards_played)
+
+    for (let i = 0; i < run.turns_completed; i++) {
       const expectedTurn = i + 1
 
       expect(run.stakeholder_telemetry_by_turn[i].turn_number).toBe(expectedTurn)
       expect(run.event_telemetry_by_turn[i].turn_number).toBe(expectedTurn)
       expect(run.action_telemetry_by_turn[i].turn_number).toBe(expectedTurn)
-      expect(run.action_telemetry_by_turn[i].selected_card_id).toBe(run.cards_played[i])
     }
   })
 

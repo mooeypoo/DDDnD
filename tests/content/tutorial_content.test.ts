@@ -99,7 +99,39 @@ describe('tutorial content isolation', () => {
         const trigger = step.trigger as Record<string, unknown>
         const validTypes = ['run_start', 'turn_start', 'turn_end', 'run_end']
         expect(validTypes, `Step ${step.id} has invalid trigger type: ${trigger.type}`).toContain(trigger.type)
+
+        if (step.required_verb === 'consult') {
+          expect(step.required_card_id, `Consult step ${step.id} needs a discard card`).toBeDefined()
+          expect(step.required_draw_id, `Consult step ${step.id} needs a draw card`).toBeDefined()
+        }
       }
     }
+  })
+
+  it('pressure tutorial keeps a Grimoire and authors the opening hand', () => {
+    const scenarios = loadJsonFiles(join(tutorialContentDir, 'scenarios'))
+    const pressure = scenarios.find((entry) => entry.data.id === 'tutorial_systems_under_pressure')
+    expect(pressure).toBeDefined()
+
+    const cardRefs = pressure?.data.card_refs as Array<{ id: string }>
+    const openingHand = pressure?.data.opening_hand_card_ids as string[]
+    expect(cardRefs.length).toBeGreaterThan(6)
+    expect(openingHand).toHaveLength(6)
+    expect(openingHand).toContain('tutorial_push_through')
+    expect(openingHand).toContain('tutorial_rally_the_guild')
+    expect(openingHand).not.toContain('tutorial_rest_the_team')
+    expect(cardRefs.map((ref) => ref.id)).toContain('tutorial_rest_the_team')
+  })
+
+  it('pressure script teaches Consult after collapse', () => {
+    const scripts = loadJsonFiles(join(tutorialContentDir, 'scripts'))
+    const pressure = scripts.find((entry) => entry.data.id === 'tutorial_pressure_script')
+    expect(pressure).toBeDefined()
+
+    const steps = pressure?.data.steps as Array<Record<string, unknown>>
+    const consultStep = steps.find((step) => step.required_verb === 'consult')
+    expect(consultStep).toBeDefined()
+    expect(consultStep?.required_card_id).toBe('tutorial_deep_refactor')
+    expect(consultStep?.required_draw_id).toBe('tutorial_rest_the_team')
   })
 })

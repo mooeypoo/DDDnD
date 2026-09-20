@@ -13,7 +13,7 @@ tutorial/
 ├── cards/              Tutorial action cards
 ├── events/             Tutorial events
 ├── delayed-effects/    Tutorial delayed effects
-├── scores/             Tutorial score definitions
+├── scores/             Tutorial score definitions (require `name` + `short_name`)
 ├── stakeholders/       Tutorial stakeholders
 ├── stakeholder-reaction-rules/  Tutorial stakeholder rules
 ├── scripts/            Tutorial hint/guidance scripts

@@ -5,11 +5,13 @@ import {
 } from '@/ui/config/presentation_avatar_registry'
 import {
   DEFAULT_SCENE_BACKGROUND_ID,
+  getEventSceneAssetUrl,
   getSceneBackgroundAssetUrl,
 } from '@/ui/config/presentation_scene_registry'
 import type {
   AvatarMood,
   AvatarRoleId,
+  EventSceneAssetId,
   SceneBackgroundId,
 } from '@/ui/config/presentation_asset_types'
 
@@ -41,6 +43,13 @@ export function requestSceneBackground(sceneId: SceneBackgroundId | string | und
  */
 export function requestAvatarRoleImage(request: AvatarImageRequest): string {
   return getAvatarRoleAssetUrl(request.avatarRole, request.mood)
+}
+
+/**
+ * UI helper for requesting event-scene artwork during turn theater.
+ */
+export function requestEventScene(sceneId: EventSceneAssetId | string | undefined): string {
+  return getEventSceneAssetUrl(sceneId)
 }
 
 export const PRESENTATION_ASSET_DEFAULTS = {

@@ -26,6 +26,7 @@ const meta: Meta<typeof RunIntroSplash> = {
     playerName: 'Moriel',
     playerClassName: 'Boundary Mage',
     scenarioName: 'The Monolith of Mild Despair',
+    flavorText: 'You inherit a codebase where every change touches everything',
     scores: metricStates.unstable,
     stakeholders: stakeholderStates.engHappyFinanceUpset,
     stakeholderNames,
@@ -64,25 +65,17 @@ export const Anonymous: Story = {
   }
 }
 
-export const HealthySystem: Story = {
-  name: 'Healthy Starting Scores',
+export const Tutorial: Story = {
   args: {
-    scores: metricStates.healthy,
-    stakeholders: stakeholderStates.leadershipPleasedTeamExhausted,
-    stakeholderNames,
-    maxTurns: 12
+    isTutorial: true,
+    maxTurns: 3,
+    scenarioName: "First Steps: The Apprentice's Trial"
   }
 }
 
-export const CriticalSystem: Story = {
-  name: 'Near-Collapse Scores',
+export const HarderTable: Story = {
   args: {
-    scores: metricStates.nearCollapse,
-    stakeholders: stakeholderStates.productImpatientUsersFrustrated,
-    stakeholderNames,
-    maxTurns: 6,
-    playerName: 'Gandalf',
-    playerClassName: 'Legacy Ranger',
-    scenarioName: 'Rocketship Runtime Panic'
+    challengeModifierName: 'Brittle Trust',
+    maxTurns: 10
   }
 }

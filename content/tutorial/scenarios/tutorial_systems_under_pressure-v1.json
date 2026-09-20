@@ -25,18 +25,25 @@
     { "id": "tutorial_mentor", "version": 1 },
     { "id": "tutorial_product_owner", "version": 1 }
   ],
+  "opening_hand_card_ids": [
+    "tutorial_push_through",
+    "tutorial_deep_refactor",
+    "tutorial_quick_patch",
+    "tutorial_clean_up_code",
+    "tutorial_stabilize_system",
+    "tutorial_rally_the_guild"
+  ],
   "card_refs": [
-    { "id": "tutorial_quick_patch", "version": 1 },
-    { "id": "tutorial_deep_refactor", "version": 1 },
-    { "id": "tutorial_stabilize_system", "version": 1 },
     { "id": "tutorial_push_through", "version": 1 },
+    { "id": "tutorial_deep_refactor", "version": 1 },
+    { "id": "tutorial_quick_patch", "version": 1 },
     { "id": "tutorial_clean_up_code", "version": 1 },
+    { "id": "tutorial_stabilize_system", "version": 1 },
+    { "id": "tutorial_rally_the_guild", "version": 1 },
+    { "id": "tutorial_call_in_help", "version": 1 },
     { "id": "tutorial_rest_the_team", "version": 1 }
   ],
-  "event_refs": [
-    { "id": "tutorial_outage", "version": 1 },
-    { "id": "tutorial_surprise_demo", "version": 1 }
-  ],
+  "event_refs": [],
   "outcome_tier_refs": [
     { "id": "tutorial_success", "version": 1 },
     { "id": "tutorial_done", "version": 1 }

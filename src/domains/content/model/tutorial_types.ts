@@ -13,7 +13,18 @@ import type { VersionRef } from './version_ref'
 /**
  * Trigger for a tutorial hint step.
  *
- * Determines when a hint is shown during gameplay lifecycle.
+ * These are game-lifecycle moments, not theater beats. The table already holds
+ * `turn_end` / `run_end` hints until turn theater finishes, so those steps run
+ * after the player has seen lightning, aftershocks, and the council.
+ *
+ * - `run_start` — after the run exists, before the first act
+ * - `turn_start` — before the player acts this turn (preview what playing will show)
+ * - `turn_end` — after the engine turn (explain what they just saw)
+ * - `run_end` — after the last turn (same hold-until-theater as turn_end)
+ *
+ * Author delayed effects as a preview on `turn_start` of the landing turn, and
+ * an explanation on `turn_end` of that turn. Do not claim an aftershock has
+ * arrived before the player has taken the turn.
  */
 export interface TutorialStepTrigger {
   type: 'run_start' | 'turn_start' | 'turn_end' | 'run_end'
@@ -38,8 +49,21 @@ export interface TutorialStep {
    * Other cards are visually locked in the UI.
    * The guidance persists even after the hint is dismissed,
    * until the next trigger advances the step.
+   *
+   * When `required_verb` is `consult`, this is the hand card to set aside.
    */
   required_card_id?: string
+  /**
+   * Which table verb this step teaches. Defaults to `play` when
+   * `required_card_id` is set. `consult` locks playing and requires
+   * Consult the Archives instead.
+   */
+  required_verb?: 'play' | 'consult'
+  /**
+   * When `required_verb` is `consult`, the remaining Grimoire page that
+   * must be drawn. The engine still spends the turn via `consult_archives`.
+   */
+  required_draw_id?: string
 }
 
 /**

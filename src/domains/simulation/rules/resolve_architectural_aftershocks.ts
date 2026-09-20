@@ -75,6 +75,7 @@ export function resolveArchitecturalAftershocks(
       source_type: effectInstance.source_type,
       source_id: effectInstance.source_id,
       source_version: effectInstance.source_version,
+      source_turn: effectInstance.source_turn,
       score_changes: effectScoreChanges,
       stakeholder_changes: effectStakeholderChanges,
       presentation: {

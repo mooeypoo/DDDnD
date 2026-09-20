@@ -2,6 +2,7 @@
   "id": "user_trust",
   "version": 1,
   "name": "User Trust",
+  "short_name": "Trust",
   "description": "User confidence in the stability and reliability of the system",
   "default_value": 55
 }

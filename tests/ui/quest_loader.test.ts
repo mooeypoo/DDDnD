@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Scenario } from '@/domains/content/model'
-import { loadQuestDisplayModel, loadQuestDisplayModels } from '@/ui/services/quest_loader'
+import { loadQuestDisplayModel, loadQuestDisplayModels, questDisplayFromBundle } from '@/ui/services/quest_loader'
+import { createEmptyBundle } from '@/domains/content/model/scenario_bundle'
 
 // Mock data
 const mockScenario: Scenario = {
@@ -45,8 +46,21 @@ describe('quest loader', () => {
     const mockProvider = {
       loadScenario: vi.fn().mockResolvedValue(mockScenario),
       // Mock other required methods
-      loadScore: vi.fn(),
-      loadStakeholder: vi.fn(),
+      loadScore: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id,
+        short_name: ref.id === 'clarity' ? 'Clarity' : 'Short',
+        description: '',
+        default_value: 50,
+      })),
+      loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id === 'cto' ? 'CTO' : 'Product Manager',
+        description: '',
+        reaction_rule_refs: []
+      })),
       loadStakeholderReactionRule: vi.fn(),
       loadCard: vi.fn(),
       loadEvent: vi.fn(),
@@ -70,7 +84,11 @@ describe('quest loader', () => {
     expect(quest.turnCount).toBe(10)
     expect(quest.stakeholderCount).toBe(2)
     expect(quest.actionCardCount).toBe(3)
+    expect(quest.startingScores).toEqual({ clarity: 50 })
+    expect(quest.startingScoreShortNames).toEqual({ clarity: 'Clarity' })
+    expect(quest.councilNames).toEqual(['CTO', 'Product Manager'])
     expect(mockProvider.loadScenario).toHaveBeenCalledWith({ id: 'test_scenario', version: 1 })
+    expect(mockProvider.loadStakeholder).toHaveBeenCalledTimes(2)
   })
 
   it('loads multiple quests and returns successful ones', async () => {
@@ -84,8 +102,21 @@ describe('quest loader', () => {
           name: 'Another Quest'
         }),
       // Mock other required methods
-      loadScore: vi.fn(),
-      loadStakeholder: vi.fn(),
+      loadScore: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id,
+        short_name: 'Short',
+        description: '',
+        default_value: 50,
+      })),
+      loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id === 'cto' ? 'CTO' : 'Product Manager',
+        description: '',
+        reaction_rule_refs: []
+      })),
       loadStakeholderReactionRule: vi.fn(),
       loadCard: vi.fn(),
       loadEvent: vi.fn(),
@@ -117,8 +148,21 @@ describe('quest loader', () => {
     const mockProvider = {
       loadScenario: vi.fn().mockRejectedValue(new Error('Content not found')),
       // Mock other required methods
-      loadScore: vi.fn(),
-      loadStakeholder: vi.fn(),
+      loadScore: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id,
+        short_name: 'Short',
+        description: '',
+        default_value: 50,
+      })),
+      loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id === 'cto' ? 'CTO' : 'Product Manager',
+        description: '',
+        reaction_rule_refs: []
+      })),
       loadStakeholderReactionRule: vi.fn(),
       loadCard: vi.fn(),
       loadEvent: vi.fn(),
@@ -161,8 +205,21 @@ describe('quest loader', () => {
     const mockProvider = {
       loadScenario: vi.fn().mockResolvedValue(scenarioWithDifferentStats),
       // Mock other required methods
-      loadScore: vi.fn(),
-      loadStakeholder: vi.fn(),
+      loadScore: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id,
+        short_name: 'Short',
+        description: '',
+        default_value: 50,
+      })),
+      loadStakeholder: vi.fn().mockImplementation(async (ref: { id: string }) => ({
+        id: ref.id,
+        version: 1,
+        name: ref.id === 'cto' ? 'CTO' : 'Product Manager',
+        description: '',
+        reaction_rule_refs: []
+      })),
       loadStakeholderReactionRule: vi.fn(),
       loadCard: vi.fn(),
       loadEvent: vi.fn(),
@@ -180,5 +237,31 @@ describe('quest loader', () => {
     expect(quest.turnCount).toBe(20)
     expect(quest.stakeholderCount).toBe(4)
     expect(quest.actionCardCount).toBe(15)
+  })
+
+  it('builds a display model from a loaded bundle without reloading content', () => {
+    const bundle = createEmptyBundle(mockScenario)
+    bundle.stakeholders.set('cto-v1', {
+      id: 'cto',
+      version: 1,
+      name: 'Chief Technology Officer',
+      description: '',
+      reaction_rule_refs: [],
+    })
+    bundle.scores.set('clarity-v1', {
+      id: 'clarity',
+      version: 1,
+      name: 'Domain Clarity',
+      short_name: 'Clarity',
+      description: '',
+      default_value: 50,
+    })
+
+    const quest = questDisplayFromBundle(bundle)
+
+    expect(quest.name).toBe('Test Quest')
+    expect(quest.councilNames).toEqual(['Chief Technology Officer'])
+    expect(quest.startingScores).toEqual({ clarity: 50 })
+    expect(quest.startingScoreShortNames).toEqual({ clarity: 'Clarity' })
   })
 })

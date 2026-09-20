@@ -6,6 +6,7 @@ import type {
   StructuralAuditCheck,
 } from '../content_audit_contract'
 import type { SimulationReport } from '../simulation_runner'
+import { auditCatalogOnlyRecovery } from './catalog_only_recovery_audit'
 import { auditStakeholderBalance } from './stakeholder_balance_audit'
 import { auditStructuralContent } from './structural_content_audit'
 import { auditScenarioBalanceTargets } from './scenario_balance_targets_audit'
@@ -16,7 +17,10 @@ import { auditScenarioBalanceTargets } from './scenario_balance_targets_audit'
 interface BuildContentAuditReportInput {
   content_pack_id?: string
   scenario_bundle: ScenarioBundle
+  /** Player-true simulation. Pass-gate metrics are derived from this report. */
   simulation_report: SimulationReport
+  /** Full-pool oracle. Optional diagnostic; omitted reports skip catalog-only recovery. */
+  oracle_simulation_report?: SimulationReport
 }
 
 const SEVERITY_WEIGHT = {
@@ -92,13 +96,20 @@ function toStructuralChecks(structuralFindings: AuditFinding[]): StructuralAudit
 export function buildContentAuditReport(input: BuildContentAuditReportInput): ContentAuditReport {
   const structuralFindings = auditStructuralContent(input.scenario_bundle)
   const dynamicFindings = auditStakeholderBalance(input.simulation_report)
+  const catalogRecoveryFindings = input.oracle_simulation_report
+    ? auditCatalogOnlyRecovery(input.simulation_report, input.oracle_simulation_report)
+    : []
   const preliminaryFindings = [...structuralFindings, ...dynamicFindings]
   const scenarioTargetFindings = auditScenarioBalanceTargets(
     input.simulation_report,
     preliminaryFindings,
   )
 
-  const findings = sortFindings([...preliminaryFindings, ...scenarioTargetFindings])
+  const findings = sortFindings([
+    ...preliminaryFindings,
+    ...scenarioTargetFindings,
+    ...catalogRecoveryFindings,
+  ])
 
   return {
     content_pack_id: input.content_pack_id ?? 'core',
@@ -109,6 +120,7 @@ export function buildContentAuditReport(input: BuildContentAuditReportInput): Co
     },
     dynamic_metrics: {
       simulation_report: input.simulation_report,
+      oracle_simulation_report: input.oracle_simulation_report,
     },
     findings,
     summary: computeSummary(findings),

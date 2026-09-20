@@ -26,6 +26,8 @@ export interface ContentMetadata {
  */
 export interface Score extends ContentMetadata {
   name: string
+  /** Compact player-facing label used in play UI (weather strip, deltas, cards). */
+  short_name: string
   description: string
   default_value: number
   min_value?: number
@@ -182,6 +184,13 @@ export interface Scenario extends ContentMetadata {
   outcome_tier_refs?: VersionRef[]
   outcome_archetype_refs?: VersionRef[]
   failure_conditions?: NumericCondition[]
+  /**
+   * When set and the playable pool is larger than the legal hand, these
+   * card ids are dealt into the opening hand in order. Remaining playable
+   * cards stay in the deck in `card_refs` order. Omitting this field keeps
+   * the seeded pressure deal.
+   */
+  opening_hand_card_ids?: string[]
   /** Max ± random variance applied to each starting score per run */
   score_variance?: number
   /** Tutorial-only: marks this scenario as a tutorial quest */

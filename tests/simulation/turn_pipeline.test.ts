@@ -63,6 +63,7 @@ function buildTestBundle(input?: {
       id: 'technical_debt',
       version: 1,
       name: 'Technical Debt',
+      short_name: 'Debt',
       description: 'Debt level',
       default_value: 50,
       min_value: 0,
@@ -72,6 +73,7 @@ function buildTestBundle(input?: {
       id: 'team_morale',
       version: 1,
       name: 'Team Morale',
+      short_name: 'Morale',
       description: 'Morale level',
       default_value: 60,
       min_value: 0,
@@ -81,6 +83,7 @@ function buildTestBundle(input?: {
       id: 'budget',
       version: 1,
       name: 'Budget',
+      short_name: 'Purse',
       description: 'Budget health',
       default_value: 40,
       min_value: 0,
@@ -90,6 +93,7 @@ function buildTestBundle(input?: {
       id: 'delivery_confidence',
       version: 1,
       name: 'Delivery confidence',
+      short_name: 'Delivery',
       description: 'Delivery confidence',
       default_value: 45,
       min_value: 0,
@@ -284,6 +288,8 @@ describe('Simulation deterministic turn pipeline', () => {
 
     expect(turnTwoResult.turn_resolution_context.resolved_aftershocks.length).toBeGreaterThan(0)
     expect(turnTwoResult.turn_resolution_context.resolved_aftershocks[0].effect_id).toBe('aftershock_a')
+    expect(turnTwoResult.turn_resolution_context.resolved_aftershocks[0].source_id).toBe('stabilize_module')
+    expect(turnTwoResult.turn_resolution_context.resolved_aftershocks[0].source_turn).toBe(1)
     expect(turnTwoResult.game_state.effect_state.resolved_effect_instance_ids.length).toBeGreaterThan(0)
   })
 

@@ -29,8 +29,8 @@
     {
       "id": "play_ship_feature",
       "trigger": { "type": "turn_start", "turn": 2 },
-      "title": "Win the Court's Favor",
-      "message": "Powerful stakeholders watch over your realm. When scores cross certain thresholds, stakeholders react — granting boons or imposing penalties. Now play Ship a Feature to raise Stakeholder Trust and earn the Product Owner's blessing!",
+      "title": "Win the Council's Favor",
+      "message": "The council watches over your realm. When scores cross certain thresholds, they react — granting boons or imposing penalties. Now play Ship a Feature to raise Stakeholder Trust and earn the Product Owner's blessing!",
       "highlight": "satchel",
       "required_card_id": "tutorial_ship_a_feature"
     },
@@ -38,22 +38,29 @@
       "id": "stakeholder_reacted",
       "trigger": { "type": "turn_end", "turn": 2 },
       "title": "A Patron Smiles Upon You!",
-      "message": "The Product Owner has granted you a boon! Stakeholders each have hidden rules — cross their thresholds and they'll reward or punish you. Keeping the court satisfied (or at least not hostile) is a pillar of your strategy.",
+      "message": "The Product Owner has granted you a boon! Each member of the council has hidden rules — cross their thresholds and they'll reward or punish you. Keeping the council satisfied (or at least not hostile) is a pillar of your strategy.",
       "highlight": "stakeholders"
     },
     {
       "id": "play_clean_up",
       "trigger": { "type": "turn_start", "turn": 3 },
-      "title": "Aftershock Arrives!",
-      "message": "Remember the delayed boon from Turn 1? It has materialized as an Architectural Aftershock — check the alert below. Past decisions echo forward in time, for good or ill. Now play Clean Up the Code to finish your quest strong!",
+      "title": "An Aftershock Is Coming",
+      "message": "The Plan Ahead you played on turn 1 planted a delayed effect. It lands this turn as an Architectural Aftershock — lightning on the table, then a plaque. Play Clean Up the Code to take your turn and watch it arrive. You will see your card first, then the storm from the past.",
       "highlight": "aftershocks",
       "required_card_id": "tutorial_clean_up_code"
+    },
+    {
+      "id": "aftershock_seen",
+      "trigger": { "type": "turn_end", "turn": 3 },
+      "title": "That Was the Aftershock",
+      "message": "The lightning and the plaque were the delayed boon from Plan Ahead. Past decisions echo forward, for good or ill. That is an Architectural Aftershock: not a new card, last turn catching up.",
+      "highlight": "aftershocks"
     },
     {
       "id": "tutorial_complete",
       "trigger": { "type": "run_end" },
       "title": "Quest Complete, Apprentice!",
-      "message": "Well fought! You've mastered the core loop: cast scrolls to shape scores, earn stakeholder favor, and plan for aftershocks that echo through time. Every decision carries tradeoffs — that is the heart of Domain Architecture. The real quests await!",
+      "message": "Well fought! You've seen the core loop: play from the hand, the system answers, the council speaks, and aftershocks catch up later. Every decision carries tradeoffs — that is the heart of Domain Architecture. The real quests await!",
       "highlight": null
     }
   ]

@@ -1,45 +1,48 @@
 <template>
   <SurfaceModalPanel
     :is-open="isOpen"
-    title="About DDDnD"
+    title="What is this?"
     size="lg"
     @close="close"
   >
     <div class="modal-body">
-        <h3>What is DDDnD?</h3>
+        <h3>DDDnD</h3>
         <p>
-          <strong>DDDnD</strong> (Domain-Driven Design & Dragons) is a turn-based strategy game 
-          where the dungeon is a software system — and the monsters are technical debt, 
+          <strong>Domain-Driven Design n' Dragons</strong> is a tabletop adventure of software
+          architecture. The dungeon is a living system. The monsters are technical debt,
           organizational chaos, and impossible deadlines.
         </p>
-        
+
         <p>
-          You are a systems architect — part wizard, part diplomat, part battle-hardened 
-          adventurer — thrust into a codebase on the brink. Each turn, you'll play action cards to refactor modules, 
-          define bounded contexts, appease stakeholders, or ship desperate quick fixes. 
-          Every decision has consequences. Some arrive immediately. Others lurk for turns, 
-          waiting to strike.
+          You join the council as the systems architect. The council gathers around
+          the scene. You hold a <strong>legal hand of cards</strong> — usually six — and play
+          one onto the table each turn, or spend the turn searching the Grimoire.
+          Every decision has consequences. Some land immediately. Others wait as
+          aftershocks, then strike.
         </p>
 
-        <h3>The Quest</h3>
+        <h3>The quest</h3>
         <p>
-          Choose a scenario—a cursed monolith, a sprawling microservice dungeon, a compliance 
-          labyrinth, or a hypergrowth gauntlet—and try to stabilize the system before time 
-          runs out. Your final outcome depends on the scores you maintain, the stakeholders 
-          you manage, and the architectural path you carve.
+          Choose a scenario — a cursed monolith, a sprawling microservice dungeon, a
+          compliance labyrinth, a hypergrowth gauntlet — and try to keep the system
+          worthy before the last turn. Vials along the table show the system's mood —
+          the scores you inherit. The council watches from their seats. Your ending
+          depends on the path you carve,
+          not on a catalog of every spell at once.
         </p>
-        
-        <h3>Core Game Concepts</h3>
+
+        <h3>In the chamber</h3>
         <ul>
-          <li><strong>Action Cards</strong> — Spells of architecture. Each one reshapes the system.</li>
-          <li><strong>Scores</strong> — Six dimensions of system health. Neglect any at your peril.</li>
-          <li><strong>Stakeholders</strong> — Powerful NPCs with their own agendas. Keep them satisfied—or face their wrath.</li>
-          <li><strong>Architectural Aftershocks</strong> — Delayed consequences. Today's shortcut is tomorrow's crisis.</li>
-          <li><strong>System Coupling</strong> — Let a dimension collapse, and the rot spreads. Progress elsewhere is weakened.</li>
-          <li><strong>Events</strong> — Random encounters: production fires, customer escalations, and surprise departures.</li>
+          <li><strong>Action cards</strong> — Architectural moves. Play from the hand in front of you.</li>
+          <li><strong>Vials</strong> — The system's mood along the table, not a spreadsheet.</li>
+          <li><strong>The council</strong> — The people around the table, each with their own agenda. Keep them, or face them.</li>
+          <li><strong>The Grimoire</strong> — The rest of the pack. Look. Do not play from the shelves.</li>
+          <li><strong>Consult the Archives</strong> — Spend a turn to replace a card. Searching is delay.</li>
+          <li><strong>Aftershocks</strong> — Yesterday's shortcut arriving as today's crisis.</li>
+          <li><strong>Coupling</strong> — Let a score collapse, and the rot spreads. Progress elsewhere withers.</li>
         </ul>
 
-        <h3>Quick Architecture Concepts</h3>
+        <h3>Architecture, outside the chamber</h3>
         <ul class="quick-concepts">
           <li>
             <strong>
@@ -47,7 +50,7 @@
                 Domain-Driven Design
                 <span class="external-link-indicator" aria-label="Opens in new tab">↗</span>
               </a>
-            </strong> — A way of designing software by focusing on the core business domain and its logic.
+            </strong> — Design software by focusing on the core business domain and its language.
           </li>
           <li>
             <strong>
@@ -55,7 +58,7 @@
                 Systems Architecture
                 <span class="external-link-indicator" aria-label="Opens in new tab">↗</span>
               </a>
-            </strong> — The structure and organization of complex software or hardware systems.
+            </strong> — The structure and organization of a complex system.
           </li>
           <li>
             <strong>
@@ -63,10 +66,9 @@
                 Systems Thinking
                 <span class="external-link-indicator" aria-label="Opens in new tab">↗</span>
               </a>
-            </strong> — Understanding how parts of a system interact and influence each other as a whole.
+            </strong> — How the parts of a system move each other.
           </li>
         </ul>
-
 
         <h3>Dungeon Master</h3>
         <SocialLinksPanel />
@@ -76,7 +78,7 @@
     </div>
 
     <template #footer>
-      <AppButton label="Got it!" variant="primary" @click="close" />
+      <AppButton label="Return to the council" variant="primary" @click="close" />
     </template>
   </SurfaceModalPanel>
 </template>
@@ -131,6 +133,7 @@ function close() {
 
 .modal-body p {
   margin: var(--space-md) 0;
+  font-size: var(--text-base);
   line-height: 1.7;
   color: var(--dng-subtitle-warm);
 }
@@ -149,21 +152,6 @@ function close() {
 .modal-body li strong {
   color: var(--dng-title-gold);
   font-weight: var(--font-semibold);
-}
-
-.creator-credit {
-  margin-top: var(--space-sm);
-}
-
-.creator-credit a {
-  color: var(--dng-subtitle-warm);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.creator-credit a:hover,
-.creator-credit a:focus-visible {
-  color: var(--dng-bronze-hi);
 }
 
 .credits {

@@ -27,6 +27,10 @@ export interface QueuedDelayedEffectReference {
 
 /**
  * Runtime record of a delayed effect resolved in aftershocks phase.
+ *
+ * source_id / source_turn come from the queued DelayedEffectInstance.
+ * The UI may name the source and say how many turns ago; it must not
+ * invent either value from history.
  */
 export interface ResolvedAftershockRecord {
   effect_instance_id: string
@@ -35,6 +39,7 @@ export interface ResolvedAftershockRecord {
   source_type: 'card' | 'event'
   source_id: string
   source_version: number
+  source_turn: number
   score_changes: ScoreChangeRecord[]
   stakeholder_changes: StakeholderChangeRecord[]
   presentation: PresentationRecord
@@ -82,6 +87,20 @@ export interface StakeholderResolutionRecord {
 }
 
 /**
+ * Player commitment for one turn. Consult is an engine verb, not a content card.
+ */
+export type PlayerTurnIntent =
+  | {
+      type: 'play_card'
+      action_ref: VersionedContentRef
+    }
+  | {
+      type: 'consult_archives'
+      discarded_refs: VersionedContentRef[]
+      drawn_refs: VersionedContentRef[]
+    }
+
+/**
  * Transient per-turn resolution context for internal engine flow.
  *
  * This context is not the persisted turn archive format.
@@ -89,7 +108,8 @@ export interface StakeholderResolutionRecord {
 export interface TurnResolutionContext {
   turn_number: number
   resolved_aftershocks: ResolvedAftershockRecord[]
-  selected_action: VersionedContentRef
+  player_intent: PlayerTurnIntent
+  selected_action: VersionedContentRef | null
   action_resolution: ActionResolutionRecord
   event_resolution: EventResolutionRecord | null
   stakeholder_resolution: StakeholderResolutionRecord

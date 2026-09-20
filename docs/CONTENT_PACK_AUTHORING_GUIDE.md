@@ -108,6 +108,7 @@ Use these as working references:
 - scenario example: `content/scenarios/monolith_of_mild_despair-v1.json`
 - card example: `content/cards/define_bounded_context-v1.json`
 - stakeholder example: `content/stakeholders/cto-v1.json`
+- score example: `content/scores/maintainability-v1.json`
 - reaction rule example: `content/stakeholder-reaction-rules/cto_wants_clarity-v1.json`
 
 Key pattern to follow:
@@ -115,6 +116,35 @@ Key pattern to follow:
 - all files are versioned: `<id>-v<version>.json`
 - each file's internal `id` and `version` must match filename
 - scenario refs (`score_refs`, `card_refs`, etc.) must resolve to actual files in registered packs
+
+## Score files
+
+Score JSON under `scores/` defines a tracked metric for scenarios.
+
+Required fields:
+
+- `id`, `version` (must match the filename `<id>-v<version>.json`)
+- `name`: full player-facing name (shown on weather-strip hover/tap and inspect surfaces)
+- `short_name`: compact label used throughout play UI (weather strip, card deltas, aftershocks, theater)
+- `description`: non-empty string
+- `default_value`: number
+
+Optional: `min_value`, `max_value`.
+
+`short_name` is mandatory. The UI does not invent compact titles from score ids — packs that omit it fail to load.
+
+Example:
+
+```json
+{
+  "id": "maintainability",
+  "version": 1,
+  "name": "Maintainability",
+  "short_name": "Craft",
+  "description": "How easy it is to modify and extend the codebase",
+  "default_value": 40
+}
+```
 
 ## Content directory layout
 
@@ -240,6 +270,7 @@ npm run build
 
 - create all referenced entities before wiring scenario refs
 - keep gameplay changes versioned by file (`-v2`, `-v3`, ...)
+- ensure every score file includes both `name` and `short_name`
 - keep entry points intentional:
   - `scenarios`: playable non-tutorial scenarios
   - `tutorials`: tutorial scenarios
@@ -253,6 +284,7 @@ npm run build
 - filename/version mismatch (`foo-v1.json` contains `"version": 2`)
 - adding a new file but forgetting to list it in manifest inventory
 - scenario references content not present in any registered pack
+- score file missing mandatory `short_name` (pack fails to load)
 - invalid SPDX license expression
 - using plain ids where `{ id, version }` refs are required
 

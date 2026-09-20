@@ -51,6 +51,9 @@ export interface TurnBriefing {
   stakeholder_satisfaction: Record<string, number>
   available_action_card_ids: string[]
   available_action_summaries: TurnBriefingActionSummary[]
+  hand_action_summaries: TurnBriefingActionSummary[]
+  deck_action_summaries: TurnBriefingActionSummary[]
+  can_consult_archives: boolean
   pending_delayed_effects_resolving_this_turn: PendingDelayedEffectBriefing[]
 }
 
@@ -122,6 +125,20 @@ export function getTurnBriefing(
     }
   })
 
+  const handKeys = new Set(gameState.hand_state.hand_refs.map((ref) => versionRefKey(ref)))
+  const deckKeys = new Set(gameState.hand_state.deck_refs.map((ref) => versionRefKey(ref)))
+  const summariesByKey = new Map(
+    availableActionSummaries.map((summary) => [`${summary.card_id}-v${summary.card_version}`, summary])
+  )
+
+  const handActionSummaries = gameState.hand_state.hand_refs
+    .map((ref) => summariesByKey.get(versionRefKey(ref)))
+    .filter((summary): summary is TurnBriefingActionSummary => Boolean(summary))
+
+  const deckActionSummaries = gameState.hand_state.deck_refs
+    .map((ref) => summariesByKey.get(versionRefKey(ref)))
+    .filter((summary): summary is TurnBriefingActionSummary => Boolean(summary))
+
   const pendingDelayedEffectsResolvingThisTurn = gameState.effect_state.pending_delayed_effects
     .filter((effect) => !effect.is_resolved && effect.trigger_turn === gameState.progress.current_turn)
     .map((effect) => ({
@@ -136,10 +153,13 @@ export function getTurnBriefing(
     turn_number: gameState.progress.current_turn,
     current_scores: { ...gameState.scores },
     stakeholder_satisfaction: buildStakeholderSatisfactionSnapshot(gameState),
-    available_action_card_ids: availableActionSummaries
+    available_action_card_ids: handActionSummaries
       .filter((summary) => summary.is_playable)
       .map((summary) => summary.card_id),
     available_action_summaries: availableActionSummaries,
+    hand_action_summaries: handActionSummaries,
+    deck_action_summaries: deckActionSummaries,
+    can_consult_archives: deckKeys.size > 0 && handKeys.size > 0,
     pending_delayed_effects_resolving_this_turn: pendingDelayedEffectsResolvingThisTurn
   }
 }

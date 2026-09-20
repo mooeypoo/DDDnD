@@ -15,9 +15,9 @@
  * - Handle content loading errors gracefully
  */
 
-import type { VersionRef } from '@/domains/content/model'
-import type { Scenario } from '@/domains/content/model'
+import type { Scenario, VersionRef } from '@/domains/content/model'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
+import type { ScenarioBundle } from '@/domains/content/model/scenario_bundle'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 
 /**
@@ -32,11 +32,17 @@ export async function loadQuestDisplayModel(
   scenarioRef: VersionRef,
   contentProvider: ContentProvider
 ): Promise<QuestDisplayModel> {
-  // Load the scenario content
   const scenario = await contentProvider.loadScenario(scenarioRef)
-  
-  // Transform into display model
-  return transformScenarioToQuestDisplay(scenario)
+  const [councilNames, startingScoreShortNames] = await Promise.all([
+    loadCouncilNames(scenario.stakeholder_refs, contentProvider),
+    loadScoreShortNames(scenario.score_refs, contentProvider),
+  ])
+
+  return {
+    ...transformScenarioToQuestDisplay(scenario),
+    councilNames,
+    startingScoreShortNames,
+  }
 }
 
 /**
@@ -98,5 +104,65 @@ function transformScenarioToQuestDisplay(scenario: Scenario): QuestDisplayModel 
     actionCardCount: scenario.card_refs.length,
     isTutorial: scenario.is_tutorial ?? false,
     tutorialOrder: scenario.tutorial_order,
+    startingScores: { ...scenario.starting_scores },
   }
+}
+
+/**
+ * Builds a quest display model from an already-loaded scenario bundle.
+ * Presentation only — does not load content or run the engine.
+ */
+export function questDisplayFromBundle(bundle: ScenarioBundle): QuestDisplayModel {
+  const councilNames: string[] = []
+  for (const stakeholder of bundle.stakeholders.values()) {
+    if (stakeholder.name) councilNames.push(stakeholder.name)
+  }
+
+  const startingScoreShortNames: Record<string, string> = {}
+  for (const score of bundle.scores.values()) {
+    if (score.id && score.short_name) {
+      startingScoreShortNames[score.id] = score.short_name
+    }
+  }
+
+  return {
+    ...transformScenarioToQuestDisplay(bundle.scenario),
+    councilNames,
+    startingScoreShortNames,
+  }
+}
+
+async function loadCouncilNames(
+  refs: VersionRef[],
+  contentProvider: ContentProvider
+): Promise<string[]> {
+  const results = await Promise.allSettled(
+    refs.map((ref) => contentProvider.loadStakeholder(ref))
+  )
+
+  const names: string[] = []
+  for (const result of results) {
+    if (result.status === 'fulfilled' && result.value.name) {
+      names.push(result.value.name)
+    }
+  }
+  return names
+}
+
+async function loadScoreShortNames(
+  refs: VersionRef[],
+  contentProvider: ContentProvider
+): Promise<Record<string, string>> {
+  const results = await Promise.allSettled(
+    refs.map((ref) => contentProvider.loadScore(ref))
+  )
+
+  const shortNames: Record<string, string> = {}
+  for (const result of results) {
+    if (result.status !== 'fulfilled' || !result.value) continue
+    if (result.value.id && result.value.short_name) {
+      shortNames[result.value.id] = result.value.short_name
+    }
+  }
+  return shortNames
 }

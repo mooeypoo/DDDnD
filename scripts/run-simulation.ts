@@ -58,7 +58,7 @@ async function loadJson<T extends { id: string; version: number }>(
 // When that doesn't work, we fall back to relative imports.
 const contentModel = await import('../src/domains/content/model/index.js')
 const { buildScenarioBundle } = await import('../src/domains/content/services/bundle_builder.js')
-const { simulate_runs } = await import('../src/domains/simulation/services/simulation_runner.js')
+const { simulate_runs, simulate_player_true_and_oracle } = await import('../src/domains/simulation/services/simulation_runner.js')
 
 type ContentProvider = {
   loadScenario: (ref: VersionRef) => Promise<any>
@@ -403,19 +403,27 @@ async function main() {
   // Run simulation
   console.log(`Running ${runs} simulations for "${scenarioId}" with seed "${seed}"...`)
   const startTime = performance.now()
-  const report = simulate_runs({ scenario_bundle: bundle, runs, seed })
-  const elapsed = ((performance.now() - startTime) / 1000).toFixed(2)
-  console.log(`Completed in ${elapsed}s`)
-
+  let report
   let auditReport: any | null = null
   if (opts.audit) {
+    const { player_true, oracle } = simulate_player_true_and_oracle({
+      scenario_bundle: bundle,
+      runs,
+      seed,
+    })
+    report = player_true
     const { buildContentAuditReport } = await import('../src/domains/simulation/services/audit/content_audit_report_builder.js')
     auditReport = buildContentAuditReport({
       content_pack_id: 'core',
       scenario_bundle: bundle,
-      simulation_report: report,
+      simulation_report: player_true,
+      oracle_simulation_report: oracle,
     })
+  } else {
+    report = simulate_runs({ scenario_bundle: bundle, runs, seed })
   }
+  const elapsed = ((performance.now() - startTime) / 1000).toFixed(2)
+  console.log(`Completed in ${elapsed}s`)
 
   // Output
   if (opts.json) {
@@ -431,6 +439,12 @@ async function main() {
                 ...auditReport.dynamic_metrics.simulation_report,
                 per_run: `[${report.per_run.length} runs omitted — use --per-run to include]`,
               },
+              oracle_simulation_report: auditReport.dynamic_metrics.oracle_simulation_report
+                ? {
+                    ...auditReport.dynamic_metrics.oracle_simulation_report,
+                    per_run: `[${auditReport.dynamic_metrics.oracle_simulation_report.per_run.length} runs omitted — use --per-run to include]`,
+                  }
+                : undefined,
             },
           }
       console.log(JSON.stringify({ simulation: output, audit: auditOutput }, null, 2))

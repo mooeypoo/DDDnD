@@ -119,7 +119,7 @@
         v-if="card.stakeholder_changes && card.stakeholder_changes.length > 0"
         class="cdm-section"
       >
-        <h3 class="cdm-section__title">Stakeholder Reactions</h3>
+        <h3 class="cdm-section__title">Council reactions</h3>
         <ul class="cdm-delta-list">
           <li
             v-for="(change, index) in card.stakeholder_changes"
@@ -161,6 +161,7 @@
           Close
         </button>
         <button
+          v-if="!isInspectOnly"
           class="cdm-btn cdm-btn--play"
           type="button"
           :disabled="isPlayDisabled"
@@ -184,6 +185,7 @@ import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import type { Card } from '@/domains/content/model/content_types';
 import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation';
+import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation';
 import { getAdjustedScoreChanges, getCollapseWarnings } from '@/ui/composables/system_coupling'
 import { useCategoryPresentation } from '@/ui/composables/category_presentation'
@@ -202,6 +204,10 @@ interface Props {
   scoreAdjustments?: Record<string, { base: number; adjusted: number; modifierName: string }>;
   /** Optional artwork for the modal illustration frame. Renders an image when illustration_url is present. */
   artwork?: ArtworkMeta
+  /** Grimoire inspection: hide the play action. */
+  isInspectOnly?: boolean
+  /** Overrides the primary action label (for example consult discard). */
+  primaryActionLabel?: string
 }
 
 interface Emits {
@@ -216,6 +222,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
+const scoreLabels = useScoreLabels()
+
 // ── Category accent system ────────────────────────────────────────────────────
 
 const { categoryLabel, categoryAccentColor } = useCategoryPresentation(
@@ -224,6 +232,10 @@ const { categoryLabel, categoryAccentColor } = useCategoryPresentation(
 
 const isPlayDisabled = computed(() => props.isDisabled || props.isTutorialLocked || (props.availability ? !props.availability.is_playable : false))
 const primaryButtonText = computed(() => {
+  if (props.primaryActionLabel) {
+    return props.primaryActionLabel
+  }
+
   if (props.isDisabled) {
     return 'Resolving…'
   }
@@ -292,7 +304,7 @@ function getMetricIcon(scoreId: string): string {
 }
 
 function getMetricLabel(scoreId: string): string {
-  return getMetricPresentation(scoreId).label;
+  return scoreLabels.short(scoreId);
 }
 
 function formatStakeholderName(stakeholderId: string): string {
@@ -441,7 +453,7 @@ const couplingReasonText = computed(() =>
 .cdm-description {
   margin: 0;
   color: var(--text-primary);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   line-height: var(--leading-relaxed);
 }
 
@@ -473,7 +485,7 @@ const couplingReasonText = computed(() =>
 .cdm-section__title {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: var(--text-xs);
+  font-size: var(--text-kicker);
   font-weight: var(--font-semibold);
   color: var(--text-secondary);
   letter-spacing: var(--tracking-wider);

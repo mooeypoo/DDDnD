@@ -80,7 +80,7 @@ const isExpanded = ref(true)
 .hint-inline-title {
   flex: 1;
   color: var(--dng-title-gold, #c8981e);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   text-transform: uppercase;
   letter-spacing: var(--tracking-wide);
@@ -88,7 +88,7 @@ const isExpanded = ref(true)
 
 .hint-inline-counter {
   color: var(--text-muted);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   font-family: var(--font-mono);
   flex-shrink: 0;
 }
@@ -107,7 +107,7 @@ const isExpanded = ref(true)
 .hint-inline-message {
   margin: 0;
   color: var(--text-primary);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   line-height: var(--leading-relaxed);
   font-style: italic;
 }

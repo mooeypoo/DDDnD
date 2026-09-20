@@ -7,16 +7,23 @@
   >
     <div class="modal-body">
         <p>
-            This game was developed by 
-            <strong><a href="https://moriel.tech" target="_blank" rel="noopener">
-              Moriel Schottlender <span class="external-link-indicator" aria-label="Opens in new tab">↗</span>
-            </a></strong>. Source code is available on <a href="https://github.com/mooeypoo/dddnd" target="_blank" rel="noopener">Github <span class="external-link-indicator" aria-label="Opens in new tab">↗</span></a>.
+          The chamber, the packs, and the engine were built by
+          <strong><a href="https://moriel.tech" target="_blank" rel="noopener">
+            Moriel Schottlender <span class="external-link-indicator" aria-label="Opens in new tab">↗</span>
+          </a></strong>.
+          The source lives on
+          <a href="https://github.com/mooeypoo/dddnd" target="_blank" rel="noopener">GitHub <span class="external-link-indicator" aria-label="Opens in new tab">↗</span></a>.
+        </p>
+        <p>
+          This is the Dungeon Master's mark upon the adventure — the keeper of the
+          chamber and its quests. Seek them beyond the gates below, or open
+          <strong>How to play</strong> when you are ready for the table.
         </p>
         <SocialLinksPanel />
       </div>
 
       <template #footer>
-        <AppButton label="Got it!" variant="primary" @click="close" />
+        <AppButton label="Return to the council" variant="primary" @click="close" />
       </template>
   </SurfaceModalPanel>
 </template>
@@ -36,6 +43,16 @@ function close() { emit('close') }
 
 <style scoped>
 .modal-body {
-  color: var(--color-text-primary);
+  color: var(--dng-subtitle-warm);
+}
+
+.modal-body p {
+  margin: 0 0 var(--space-md);
+  font-size: var(--text-base);
+  line-height: 1.7;
+}
+
+.modal-body a {
+  color: var(--dng-title-gold);
 }
 </style>

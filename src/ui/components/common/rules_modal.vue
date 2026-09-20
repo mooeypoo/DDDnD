@@ -1,117 +1,85 @@
 <template>
   <SurfaceModalPanel
     :is-open="isOpen"
-    title="Game Rules"
+    title="How to play"
     size="lg"
     @close="close"
   >
     <div class="modal-body">
-        <h3>⚔️ How to Play</h3>
+        <h3>Your move</h3>
         <p>
-          Each turn, you play one <strong>action card</strong>—an architectural spell that 
-          reshapes the system. Then the world reacts: aftershocks resolve, events strike, 
-          and stakeholders pass judgment.
+          You hold a <strong>legal hand</strong> — usually six cards. Each turn you either
+          play one card onto the table, or <strong>Consult the Archives</strong> and spend
+          the turn replacing a card you do not want. The rest of the pack lives in the
+          <strong>Grimoire</strong>: look, inspect, do not play from the shelves.
         </p>
-        
-        <h3>🔄 Turn Phases</h3>
-        <ol>
-          <li>
-            <strong>Architectural Aftershocks</strong> — Delayed effects from past decisions 
-            resolve. The consequences of your earlier choices arrive.
-          </li>
-          <li>
-            <strong>Player Action</strong> — Your chosen action takes effect, shifting scores 
-            and stakeholder moods.
-          </li>
-          <li>
-            <strong>System Event</strong> — The dungeon fights back. A random event may 
-            trigger: a critical bug, a customer escalation, or worse.
-          </li>
-          <li>
-            <strong>Stakeholder Resolution</strong> — The powers that be react to the current 
-            state of the system. Keeping them satisfied is half the battle.
-          </li>
-          <li>
-            <strong>Turn Wrap-Up</strong> — Scores settle. History is recorded. The next 
-            turn awaits.
-          </li>
-        </ol>
-        
-        <h3>📊 The System Ledger</h3>
+
+        <h3>What you will see</h3>
         <p>
-          Six scores track the health of your system. Neglect any dimension and the 
-          consequences compound:
+          Playing a card (or finishing a consult) lands on the table first. Then last turn
+          may catch up as aftershocks. Then a random event may land, and the council may speak.
+          The engine still resolves delayed effects before your card; the table shows
+          <em>your</em> move first so you can see what you just did. Press
+          <strong>Continue</strong> through each beat. Skip remaining if you want speed.
+        </p>
+
+        <h3>The system and the council</h3>
+        <p>
+          Vials along the table show the system's scores — domain clarity, delivery,
+          morale, trust, and the rest of the pack. Neglect a dimension and it can collapse:
+          the chamber storms, the triggering vial burns, and gains elsewhere wither.
+          Those vials are the system's mood, not a second goal.
+          The council gathers around the scene. Their satisfaction (0–100) decides whether
+          they bless you or work against you.
+        </p>
+
+        <h3>Aftershocks</h3>
+        <p>
+          Some cards echo forward. A refactor may slow delivery now and raise clarity later.
+          A quick fix may buy today and spawn tomorrow's crisis. Aftershock marks on a card
+          warn you that delayed effects are coming. When one lands, the table pauses, shakes,
+          and names what arrived.
+        </p>
+
+        <h3>Consult the Archives</h3>
+        <p>
+          Searching for a better option is delay, so it costs the turn. Open Consult, mark
+          a hand card, choose a remaining page (or take a random legal one), and approve
+          both names — “X replaced by Y.” Aftershocks, events, and the council still resolve.
+          If the deck is empty, Consult stays hidden: there is nothing left to draw.
+        </p>
+
+        <h3>Collapse</h3>
+        <p>
+          When a core score falls too far, coupling binds the table:
         </p>
         <ul>
-          <li><strong>Domain Clarity</strong> — How well your bounded contexts are defined</li>
-          <li><strong>Maintainability</strong> — Code quality and ease of change</li>
-          <li><strong>Delivery Confidence</strong> — Your team's ability to ship reliably</li>
-          <li><strong>Team Morale</strong> — Developer satisfaction and energy</li>
-          <li><strong>User Trust</strong> — End-user confidence in the system</li>
-          <li><strong>Budget</strong> — Financial runway remaining</li>
-        </ul>
-        
-        <h3>👥 Stakeholders</h3>
-        <p>
-          Powerful figures with their own priorities. Each has a satisfaction level (0–100) 
-          that determines their reaction. Let a stakeholder grow unhappy and they'll 
-          actively work against you—draining morale, cutting budgets, or undermining trust.
-        </p>
-        
-        <h3>💥 Architectural Aftershocks</h3>
-        <p>
-          Some spells echo through time. A refactoring may slow delivery now but improve 
-          clarity two turns later. A quick fix may buy time today and spawn bugs tomorrow. 
-          Aftershock icons on action cards warn you that delayed effects are in play.
-        </p>
-
-        <h3>🔗 System Coupling</h3>
-        <p>
-          Beware the cascade. When a core dimension collapses below a critical threshold, 
-          the rot spreads—positive gains in related areas are reduced:
-        </p>
-        <ul>
-          <li>
-            <strong>Delivery Collapse</strong> — When delivery confidence is critically low, 
-            gains to domain clarity and maintainability are weakened.
-          </li>
-          <li>
-            <strong>Morale Collapse</strong> — When team morale is critically low, 
-            maintainability gains are reduced.
-          </li>
-          <li>
-            <strong>Trust Collapse</strong> — When user trust is critically low, 
-            delivery confidence gains are reduced.
-          </li>
+          <li><strong>Delivery collapse</strong> — Gains to domain clarity and maintainability weaken.</li>
+          <li><strong>Morale collapse</strong> — Maintainability gains shrink.</li>
+          <li><strong>Trust collapse</strong> — Delivery gains shrink.</li>
         </ul>
         <p>
-          Watch for ⚠️ collapse warnings in the System Ledger. When active, 
-          action card previews will show the adjusted values. Stabilize the collapsing 
-          dimension first—or your other efforts will be in vain.
+          Card glances show the reduced values. Stabilize the collapsed score first, or the
+          rest of your work is fighting a system that will not hold.
         </p>
 
-        <h3>🏆 Actions & Resources</h3>
+        <h3>A worthy ending</h3>
         <p>
-          Some actions can only be played a limited number of times per run. Others require 
-          a cooldown between uses. Choose wisely—powerful actions are scarce, and the dungeon 
-          is long.
+          Keep the system in balance before turns run out. That is the quest: a living
+          software system under pressure, not the vials themselves. Your outcome is a
+          <strong>tier</strong> (how well you did) and an <strong>ending</strong>
+          (what kind of architect the table remembers). There is no single path.
+          The architect who tries to fix everything may fix nothing.
         </p>
 
-        <h3>🎯 Winning</h3>
-        <p>
-          Balance all six dimensions before your turns run out. Your final outcome is 
-          classified by <strong>tier</strong> (how well you did) and <strong>archetype</strong> 
-          (what kind of architect you became).
-        </p>
-        
         <p class="tip">
-          <strong>Tip:</strong> There is no single path to victory. Every choice is a tradeoff. 
-          The architect who tries to fix everything may end up fixing nothing.
+          <strong>Tip:</strong> History is a look, not a HUD. Annals reads what already
+          happened. The Grimoire shows what remains. Neither lets you play around the hand.
         </p>
     </div>
 
     <template #footer>
-      <AppButton label="Got it!" variant="primary" @click="close" />
+      <AppButton label="Return to the council" variant="primary" @click="close" />
     </template>
   </SurfaceModalPanel>
 </template>
@@ -164,6 +132,7 @@ function close() {
 
 .modal-body p {
   margin: var(--space-md) 0;
+  font-size: var(--text-base);
   line-height: 1.7;
   color: var(--dng-subtitle-warm);
 }
@@ -199,21 +168,9 @@ function close() {
 }
 
 @media (max-width: 768px) {
-  .modal-overlay {
-    padding: var(--space-md);
-  }
-  
-  .modal-content {
-    max-height: 95vh;
-  }
-  
   .modal-header,
   .modal-body {
     padding: var(--space-lg);
-  }
-  
-  .modal-header h2 {
-    font-size: var(--text-xl);
   }
 }
 </style>

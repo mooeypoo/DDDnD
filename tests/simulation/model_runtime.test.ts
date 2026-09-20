@@ -138,6 +138,7 @@ describe('Simulation model runtime structures', () => {
           source_type: 'card',
           source_id: 'extract_shared_kernel',
           source_version: 1,
+          source_turn: 1,
           score_changes: [{ score_id: 'maintainability', delta: 8 }],
           stakeholder_changes: [],
           presentation: {
@@ -146,6 +147,10 @@ describe('Simulation model runtime structures', () => {
           }
         }
       ],
+      player_intent: {
+        type: 'play_card',
+        action_ref: { id: 'define_bounded_context', version: 1 }
+      },
       action_resolution,
       event_resolution,
       stakeholder_resolution,

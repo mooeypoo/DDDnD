@@ -118,6 +118,7 @@ describe('Content Domain Integration', () => {
     expect(techDebtScore?.id).toBe('technical_debt')
     expect(techDebtScore?.version).toBe(1)
     expect(techDebtScore?.name).toBe('Technical Debt')
+    expect(techDebtScore?.short_name).toBe('Debt')
     expect(techDebtScore?.description).toBeDefined()
     expect(techDebtScore?.default_value).toBe(50)
     
