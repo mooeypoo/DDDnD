@@ -895,7 +895,7 @@ const eventSceneUrl = computed(() => {
   pointer-events: auto;
 }
 
-.seats-highlighted .seat-ring {
+.seats-highlighted :deep(.seat-portrait) {
   filter: drop-shadow(0 0 12px rgba(240, 208, 96, 0.55));
 }
 

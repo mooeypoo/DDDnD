@@ -141,7 +141,6 @@ function onActivate() {
   flex-direction: column;
   align-items: center;
   gap: 0.2rem;
-  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
   transform-origin: 50% 100%;
   transition: transform 180ms ease;
   pointer-events: auto;
@@ -154,16 +153,28 @@ function onActivate() {
 }
 
 .table-seat.voicing {
+  /*
+   * Glow with a halo, not filter: drop-shadow on this figure.
+   * A seat filter snapshots the bubble and caption too, and Chrome composites
+   * that copy as a drifting ghost while the seat also scales.
+   */
   transform: translateY(-10px) scale(1.16);
   z-index: 4;
-  filter:
-    drop-shadow(0 0 18px rgba(255, 214, 110, 0.72))
-    drop-shadow(0 12px 18px rgba(0, 0, 0, 0.55));
-  animation: seat-voice-glow 1.8s ease-in-out infinite;
 }
 
-.table-seat.voicing .seat-portrait {
-  filter: drop-shadow(0 0 10px rgba(255, 232, 160, 0.45));
+.table-seat.voicing::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  z-index: 0;
+  width: 78%;
+  height: 58%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 110, 0.55), rgba(255, 210, 96, 0) 72%);
+  pointer-events: none;
+  animation: seat-voice-halo 1.8s ease-in-out infinite;
 }
 
 .table-seat.voicing .seat-caption {
@@ -176,13 +187,23 @@ function onActivate() {
 }
 
 .seat-portrait {
+  position: relative;
+  z-index: 1;
   width: 100%;
   height: auto;
   object-fit: contain;
   pointer-events: none;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
+}
+
+.table-seat.voicing .seat-portrait {
+  filter: drop-shadow(0 0 10px rgba(255, 232, 160, 0.45))
+    drop-shadow(0 10px 16px rgba(0, 0, 0, 0.55));
 }
 
 .seat-caption {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -279,25 +300,21 @@ function onActivate() {
   transform: translateX(-50%) translateY(6px);
 }
 
-@keyframes seat-voice-glow {
-  0%, 100% {
-    filter:
-      drop-shadow(0 0 14px rgba(255, 214, 110, 0.55))
-      drop-shadow(0 12px 18px rgba(0, 0, 0, 0.55));
-  }
-  50% {
-    filter:
-      drop-shadow(0 0 26px rgba(255, 210, 96, 0.9))
-      drop-shadow(0 12px 18px rgba(0, 0, 0, 0.55));
-  }
+@keyframes seat-voice-halo {
+  0%, 100% { opacity: 0.62; transform: translateX(-50%) scale(0.92); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.08); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .table-seat.voicing {
     transform: none;
-    animation: none;
     outline: 2px solid rgba(232, 196, 96, 0.7);
     outline-offset: 4px;
+  }
+
+  .table-seat.voicing::before {
+    animation: none;
+    opacity: 0.85;
   }
 
   .seat-bubble-enter-active,
