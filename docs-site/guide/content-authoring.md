@@ -182,6 +182,7 @@ npm run build
 - Create all referenced entities before wiring scenario refs
 - Keep gameplay changes versioned by file (`-v2`, `-v3`, ...)
 - Ensure every score file includes both `name` and `short_name`
+- Ensure every `score_id` reachable from a scenario (cards, events, delayed effects, reaction rules, requirements, failure conditions) is in that scenario’s `score_refs`
 - Ensure `scenarios`, `classes`, `tutorials` entry points are intentional
 - Include every owned file in `manifest.content.*`
 - Use a valid SPDX license expression
@@ -193,6 +194,7 @@ npm run build
 - **Missing inventory entry** — new file not listed in manifest `content.*`
 - **Unresolved reference** — scenario references content not present in any registered pack
 - **Score missing `short_name`** — load fails; the UI will not invent a compact label
+- **Untracked score** — a card, event, aftershock, or rule changes a score the scenario does not list in `score_refs`. Bundle validation fails. Ghost keys also hijack consult pressure.
 - **Invalid SPDX license** — pack fails validation on load
 - **Plain ids vs. refs** — use `{ id, version }` objects where required, not bare id strings
 
@@ -201,7 +203,7 @@ npm run build
 Use these as working examples:
 
 - Base manifest: `content/manifest.json`
-- Scenario: `content/scenarios/monolith_of_mild_despair-v1.json`
+- Playable scenario: `content/scenarios/monolith_of_mild_despair-v2.json`
 - Card: `content/cards/define_bounded_context-v1.json`
 - Score: `content/scores/maintainability-v1.json`
 - Stakeholder: `content/stakeholders/cto-v1.json`

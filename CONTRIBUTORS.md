@@ -60,7 +60,7 @@ npm run docs:build:full
 Or separately:
 
 ```bash
-npm run docs:generate-data   # generates JSON data + markdown pages
+npm run docs:generate-data   # audit at 400 player-true runs + catalog + markdown pages
 npm run docs:build           # VitePress build (requires generated files)
 npm run docs:preview         # serve the built site locally
 ```
