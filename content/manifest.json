@@ -87,7 +87,8 @@
       "monolith_of_mild_despair-v1.json",
       "monolith_of_mild_despair-v2.json",
       "startup_hypergrowth-v1.json",
-      "test_scenario-v1.json"
+      "test_scenario-v1.json",
+      "test_scenario-v2.json"
     ],
     "cards": [
       "absorb_emergency_production_fix-v1.json",
@@ -210,6 +211,7 @@
       "new_cto_mandate-v1.json",
       "open_source_contribution_viral-v1.json",
       "production_incident-v1.json",
+      "production_incident-v2.json",
       "regulatory_compliance_deadline-v1.json",
       "service_discovery_failure-v1.json",
       "service_outage_cascade-v1.json",
