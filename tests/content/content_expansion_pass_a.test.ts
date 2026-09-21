@@ -467,9 +467,9 @@ describe('Pass A content expansion', () => {
 
   describe('all expanded scenario bundles validate', () => {
     const scenarios: VersionRef[] = [
-      { id: 'monolith_of_mild_despair', version: 1 },
-      { id: 'microservice_sprawl', version: 1 },
-      { id: 'compliance_gauntlet', version: 1 },
+      { id: 'monolith_of_mild_despair', version: 2 },
+      { id: 'microservice_sprawl', version: 2 },
+      { id: 'compliance_gauntlet', version: 2 },
       { id: 'startup_hypergrowth', version: 1 }
     ]
 

@@ -271,6 +271,7 @@ npm run build
 - create all referenced entities before wiring scenario refs
 - keep gameplay changes versioned by file (`-v2`, `-v3`, ...)
 - ensure every score file includes both `name` and `short_name`
+- ensure every `score_id` reachable from a scenario (cards, events, delayed effects, reaction rules, requirements, failure conditions) is in that scenario’s `score_refs`
 - keep entry points intentional:
   - `scenarios`: playable non-tutorial scenarios
   - `tutorials`: tutorial scenarios
@@ -285,6 +286,7 @@ npm run build
 - adding a new file but forgetting to list it in manifest inventory
 - scenario references content not present in any registered pack
 - score file missing mandatory `short_name` (pack fails to load)
+- a card, event, delayed effect, or reaction rule that changes a score the scenario does not list in `score_refs` (pack fails bundle validation)
 - invalid SPDX license expression
 - using plain ids where `{ id, version }` refs are required
 

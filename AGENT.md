@@ -123,7 +123,7 @@ Content JSON must stay human-readable, snake_case, and versioned per [CONTENT_SC
 
 When a change affects gameplay behavior, create a new content version instead of mutating prior released behavior.
 
-Raw JSON is untrusted until validated; simulation must operate on validated typed objects only.
+Raw JSON is untrusted until validated; simulation must operate on validated typed objects only. Every `score_id` reachable from a scenario (cards, events, delayed effects, reaction rules, requirements, failure conditions) must appear in that scenario’s `score_refs`.
 
 ---
 

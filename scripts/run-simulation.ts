@@ -118,12 +118,32 @@ function parseArgs(argv: string[]) {
 
 // ── List available scenarios ────────────────────────────────────
 
-async function listScenarios(): Promise<string[]> {
+async function listScenarioRefs(): Promise<VersionRef[]> {
   const files = await readdir(path.join(contentRoot, 'scenarios'))
-  return files
-    .filter((f) => f.endsWith('.json') && !f.startsWith('test_'))
-    .map((f) => f.replace(/-v\d+\.json$/, ''))
-    .sort()
+  const latest = new Map<string, number>()
+
+  for (const file of files) {
+    if (!file.endsWith('.json') || file.startsWith('test_')) {
+      continue
+    }
+
+    const match = file.match(/^(.+)-v(\d+)\.json$/)
+    if (!match) {
+      continue
+    }
+
+    const id = match[1]
+    const version = Number.parseInt(match[2], 10)
+    latest.set(id, Math.max(latest.get(id) ?? 0, version))
+  }
+
+  return [...latest.entries()]
+    .map(([id, version]) => ({ id, version }))
+    .sort((a, b) => a.id.localeCompare(b.id))
+}
+
+async function listScenarios(): Promise<string[]> {
+  return (await listScenarioRefs()).map((ref) => ref.id)
 }
 
 // ── Formatted output ────────────────────────────────────────────
@@ -390,13 +410,20 @@ async function main() {
     process.exit(1)
   }
 
+  const scenarioRefs = await listScenarioRefs()
+  const scenarioRef = scenarioRefs.find((ref) => ref.id === scenarioId)
+  if (!scenarioRef) {
+    console.error(`Error: unknown scenario "${scenarioId}"`)
+    process.exit(1)
+  }
+
   // Build scenario bundle
   const provider = createFileContentProvider()
   let bundle: any
   try {
-    bundle = await buildScenarioBundle(scenarioId, 1, provider)
+    bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
   } catch (err: any) {
-    console.error(`Error loading scenario "${scenarioId}":`, err.message)
+    console.error(`Error loading scenario "${scenarioId}" v${scenarioRef.version}:`, err.message)
     process.exit(1)
   }
 

@@ -60,12 +60,28 @@ function createFileContentProvider() {
 
 // ── List production scenarios ────────────────────────────────────
 
-async function listProductionScenarios(): Promise<string[]> {
+async function listProductionScenarioRefs(): Promise<VersionRef[]> {
   const files = await readdir(path.join(contentRoot, 'scenarios'))
-  return files
-    .filter((f) => f.endsWith('.json') && !f.startsWith('test_'))
-    .map((f) => f.replace(/-v\d+\.json$/, ''))
-    .sort()
+  const latest = new Map<string, number>()
+
+  for (const file of files) {
+    if (!file.endsWith('.json') || file.startsWith('test_')) {
+      continue
+    }
+
+    const match = file.match(/^(.+)-v(\d+)\.json$/)
+    if (!match) {
+      continue
+    }
+
+    const id = match[1]
+    const version = Number.parseInt(match[2], 10)
+    latest.set(id, Math.max(latest.get(id) ?? 0, version))
+  }
+
+  return [...latest.entries()]
+    .map(([id, version]) => ({ id, version }))
+    .sort((a, b) => a.id.localeCompare(b.id) || a.version - b.version)
 }
 
 // ── Severity indicator ───────────────────────────────────────────
@@ -92,26 +108,26 @@ async function main() {
   const { simulate_player_true_and_oracle } = await import('../src/domains/simulation/services/simulation_runner.js')
   const { buildContentAuditReport } = await import('../src/domains/simulation/services/audit/content_audit_report_builder.js')
 
-  const scenarios = await listProductionScenarios()
+  const scenarios = await listProductionScenarioRefs()
   const provider = createFileContentProvider()
 
   console.log('')
   console.log('╔══════════════════════════════════════════════════════╗')
   console.log('║              DDDnD Content Audit Gate               ║')
   console.log('╚══════════════════════════════════════════════════════╝')
-  console.log(`  Scenarios: ${scenarios.join(', ')}`)
+  console.log(`  Scenarios: ${scenarios.map((ref) => `${ref.id}-v${ref.version}`).join(', ')}`)
   console.log(`  Runs/scenario: ${runs}`)
   console.log('')
 
   let totalCritical = 0
   let totalWarnings = 0
 
-  for (const scenarioId of scenarios) {
-    process.stdout.write(`  Auditing ${scenarioId}...`)
+  for (const scenarioRef of scenarios) {
+    process.stdout.write(`  Auditing ${scenarioRef.id}-v${scenarioRef.version}...`)
 
     let bundle: any
     try {
-      bundle = await buildScenarioBundle(scenarioId, 1, provider)
+      bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
     } catch (err: any) {
       console.log(` FAILED`)
       console.error(`    Error loading bundle: ${err.message}`)

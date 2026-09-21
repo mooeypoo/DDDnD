@@ -90,3 +90,5 @@ When editing content files:
 3. If no, edit safely without version change.
 
 Agents should explain version changes when creating new versions.
+
+Moving a playable scenario forward means bumping the manifest entry point to the new version. Leave the old file on disk. Exact-run replay of a retired playable version is not a support target unless a later note says otherwise.
