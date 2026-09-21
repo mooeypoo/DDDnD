@@ -1,110 +1,81 @@
-# DDDnD - Domain-Driven Design & Dragons
+# DDDnD — Domain-Driven Design n' Dragons
 
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/mooeypoo)
 [![CI](https://github.com/mooeypoo/DDDnD/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mooeypoo/DDDnD/actions/workflows/ci.yml)
 [![Documentation Site](https://github.com/mooeypoo/DDDnD/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/mooeypoo/DDDnD/actions/workflows/pages.yml)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/a40f2bc1-e69f-4833-b140-10ce0858b6fd/deploy-status)](https://app.netlify.com/sites/dddnd/deploys)
-![Copilot Assisted](https://img.shields.io/badge/copilot-assisted-blue?logo=github)
 
-**Play now:** [dddnd.app](https://dddnd.app)
+**Play free:** [dddnd.app](https://dddnd.app) · **How to play & designer desk:** [docs site](https://mooeypoo.github.io/DDDnD/)
 
-DDDnD is a satirical strategy simulation about software architecture under pressure. You play as an architect trying to keep a troubled system alive while balancing domain clarity, maintainability, delivery confidence, team morale, user trust, budget, and the patience of the people funding and running the organization.
+[![DDDnD — sit at the war table](./public/og-image.png)](https://dddnd.app)
 
-Each run is built around tradeoffs. You choose one architecture card per turn, absorb delayed consequences, react to system events, and navigate stakeholder responses that can either stabilize the program or push it toward collapse.
+The dungeon is a living software system. The monsters are technical debt, organizational chaos, and a clock that does not care about your roadmap. You join the council as the systems architect and try to leave the system stronger than you found it — before the last turn.
 
-## How It Plays
+DDDnD is a satirical strategy game about Domain-Driven Design under pressure. It is a full game, not a slide deck with hit points.
 
-- Start a run from a main scenario or guided tutorial.
-- Pick a player class and, if you want, an optional challenge modifier.
-- Resolve each turn in the same deterministic order: architectural aftershocks, player action, system event, stakeholder resolution, and turn wrap-up.
-- Finish with an outcome tier and a player-facing ending type based on how the run evolved.
+## The table
 
-The simulation is deterministic for a given seed, scenario bundle, and action sequence. That makes balancing, debugging, and simulation telemetry reproducible.
+You sit at a war table. The system is the scene in the center. Stakeholders sit around it. You hold a **legal hand of six** architecture cards.
 
-## Current Game Surface
+Each turn you either:
 
-DDDnD ships with two built-in content packs that load automatically at runtime:
+- **play one card** onto the table — a real architectural decision, or
+- **Consult the Archives** and spend the turn replacing a card you do not want
 
-- `content/manifest.json` - the base pack with main scenarios, classes, challenge modifiers, and core gameplay content
-- `content/tutorial/manifest.json` - the tutorial pack with guided onboarding scenarios and tutorial-only content
+The rest of the pack lives in the **Grimoire**. Look. Inspect. Do not play from the shelves. Searching is delay: aftershocks still land, a random event may still hit, and the council still speaks.
 
-### Main Scenarios
+Yesterday's shortcut can arrive as today's crisis. Those are **aftershocks**. When a core score collapses, coupling binds the table and gains elsewhere wither. The people in the seats have their own agendas. Keep them, or face them.
 
-| Scenario | Focus |
+Six vials track the system — not a seventh "satisfaction" meter. The council is the seats.
+
+| Score | Short | What it is watching |
+|---|---|---|
+| Domain Clarity | Clarity | Whether the model still means something |
+| Maintainability | Craft | Whether anyone can change the code on purpose |
+| Delivery Confidence | Delivery | Whether you can still ship |
+| Team Morale | Morale | Whether the humans are still here |
+| User Trust | Trust | Whether anyone still believes the product |
+| Budget | Purse | How much runway the architecture has left |
+
+A run ends with a **tier** (how well you did) and an **ending** (what kind of architect the table remembers). Collapse through Triumph. There is no single correct path.
+
+Five adventures, from a gentle merger mess to microservice sprawl. Two tutorials teach the table first. Pick a class if you like a lens — Boundary Mage, Stakeholder Bard, Reliability Cleric, Legacy Ranger, Delivery Rogue.
+
+**[Play at dddnd.app](https://dddnd.app)** · **[Read How to Play](https://mooeypoo.github.io/DDDnD/guide/gameplay)**
+
+## Built like the thing it teases
+
+The joke is DDD. The implementation is also DDD.
+
+Rules live in a deterministic **simulation** domain that does not import Vue, the DOM, or browser storage. The **UI** sits at the table and calls engine verbs (`create_run`, `get_turn_briefing`, `play_turn`, `consult_archives`). It does not resolve cards, pick events, or apply stakeholder rules. **Content** is versioned human-readable JSON packs. Same seed + same pack + same actions always produce the same run. That is how we audit fairness without guessing.
+
+| Domain | Owns |
 |---|---|
-| `monolith_of_mild_despair` | Stabilize a tangled legacy monolith before delivery confidence collapses. |
-| `microservice_sprawl` | Restore clarity to a fragmented service landscape before coordination failure becomes the norm. |
-| `compliance_gauntlet` | Survive a regulatory gauntlet without losing delivery capability or stakeholder confidence. |
-| `startup_hypergrowth` | Scale a fast-growing product before delivery chaos and user pain spiral out of control. |
-| `merger_of_minor_chaos` | Reconcile duplicate systems, competing domain models, and culture clashes after an acquisition. |
+| content | Packs, manifests, `{ id, version }` refs, scenario bundles |
+| simulation | Turn pipeline, seeded randomness, outcomes |
+| persistence | Save / load / export |
+| reporting | Summaries and share cards |
+| ui | Chamber, hand, Grimoire, theater, `endingType` |
 
-### Tutorials
+If you want to extend the game, you author a pack. You do not fork the Vue tree to change what a card does.
 
-| Tutorial | Focus |
-|---|---|
-| `tutorial_basics` | Learn the core loop: actions, scores, stakeholders, events, and delayed effects. |
-| `tutorial_systems_under_pressure` | Learn how tradeoffs, coupling, and collapse pressure reshape your options. |
+## Documentation map
 
-### Run Setup Options
+The public site is two rooms: [How to Play](https://mooeypoo.github.io/DDDnD/guide/gameplay) for people who will sit, and the [Designer Desk](https://mooeypoo.github.io/DDDnD/dashboard/) for packs and audit numbers.
 
-- 5 player classes are available from the base content pack.
-- 4 challenge modifiers can adjust starting pressure and difficulty.
-- Runs support player naming, save/load/export, and shareable end-of-run presentation.
+In this repo:
 
-## System Overview
+- [GAME_DESIGN.md](./GAME_DESIGN.md) — the live game, in design language
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — domain boundaries and the runtime bet
+- [CONTENT_SCHEMA.md](./CONTENT_SCHEMA.md) and [CONTENT_VERSIONING.md](./CONTENT_VERSIONING.md) — how pack JSON is shaped and when a file must become `-v2`
+- [docs/CONTENT_PACK_AUTHORING_GUIDE.md](./docs/CONTENT_PACK_AUTHORING_GUIDE.md) — writing and hosting packs
+- [docs/CONTENT_FAIRNESS_AND_BALANCE_AUDIT_SPEC.md](./docs/CONTENT_FAIRNESS_AND_BALANCE_AUDIT_SPEC.md) — how we decide if a scenario is fair
+- [docs/GAMEPLAY_V2.md](./docs/GAMEPLAY_V2.md) — journal of the war-table overhaul
+- [AGENT.md](./AGENT.md) — where agents (and tired humans) start
 
-The project is split into clear domains:
+## Contributing
 
-- **content** - versioned JSON content, pack manifests, validation, and scenario bundle construction
-- **simulation** - deterministic, UI-agnostic game engine and telemetry
-- **persistence** - save/load/export behavior
-- **reporting** - summaries and shareable results
-- **ui** - Vue application, presentation, onboarding, and game flow
-
-Important boundary rules:
-
-- Simulation owns gameplay rules.
-- UI presents state and triggers engine actions, but does not implement gameplay logic.
-- Authored content remains versioned and human-readable.
-- Storybook is a development tool, not part of runtime gameplay.
-
-The content system is pack-based. The runtime already supports ordered pack registration and merged content providers, which allows later packs to extend or override matching `{ id, version }` refs. The built-in base and tutorial packs are loaded by default; external pack registration is supported by the content registry layer and documented for authors.
-
-## Repository Layout
-
-```text
-content/        Versioned gameplay content and pack manifests
-docs/           Design, authoring, visual direction, and architecture references
-public/         Static assets served as-is
-scripts/        CLI utilities for simulation, validation, audit, and asset generation
-src/            Application source
-stories/        Storybook stories and mock states
-tests/          Automated tests
-```
-
-Inside `src/` the most important boundaries are:
-
-```text
-src/domains/    Content, simulation, persistence, and reporting logic
-src/ui/         Vue views, components, composables, stores, and presentation config
-src/app/        Application bootstrap and shell wiring
-src/shared/     Shared contracts and utilities
-```
-
-## Documentation Map
-
-- [ARCHITECTURE.md](./ARCHITECTURE.md) - technical boundaries and runtime model
-- [GAME_DESIGN.md](./GAME_DESIGN.md) - gameplay concepts and high-level design intent
-- [CONTENT_SCHEMA.md](./CONTENT_SCHEMA.md) - content file structure
-- [CONTENT_VERSIONING.md](./CONTENT_VERSIONING.md) - content versioning rules
-- [docs/CONTENT_PACK_AUTHORING_GUIDE.md](./docs/CONTENT_PACK_AUTHORING_GUIDE.md) - how to build and host content packs
-- [docs/CONTENT_FAIRNESS_AND_BALANCE_AUDIT_SPEC.md](./docs/CONTENT_FAIRNESS_AND_BALANCE_AUDIT_SPEC.md) - audit model and balance philosophy
-- [docs/STORYBOOK.md](./docs/STORYBOOK.md) - Storybook usage and boundaries
-- [CONTRIBUTORS.md](./CONTRIBUTORS.md) - local setup, commands, validation workflow, and contributor guidance
-
-## Contributors
-
-Development setup, testing commands, content validation workflow, and contributor-facing project conventions live in [CONTRIBUTORS.md](./CONTRIBUTORS.md).
+Local setup, commands, content validation, and the audit gate live in [CONTRIBUTORS.md](./CONTRIBUTORS.md). Read [AGENT.md](./AGENT.md) and [ARCHITECTURE.md](./ARCHITECTURE.md) before changing rules or packs. Simulation stays UI-agnostic. New gameplay numbers get a new content version.
 
 ## Author
 
