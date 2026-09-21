@@ -1,4 +1,8 @@
-# What Is The Audit?
+# What is the audit?
+
+::: warning Designer Desk
+This page is for authors and balance work. If you want to sit at the table, read [How to Play](/guide/gameplay) or go to [dddnd.app](https://dddnd.app).
+:::
 
 The audit is DDDnD's game-design quality inspector. It runs a bunch of simulated playthroughs, watches what happens, and then reports where the game feels fair, spicy, swingy, or straight-up chaotic.
 
@@ -26,7 +30,7 @@ In short: the audit keeps challenge high without turning gameplay into frustrati
 At a high level, the process is:
 
 1. Load all authored content (scenarios, cards, events, stakeholders, rules).
-2. Run deterministic simulations for each scenario over many seeded runs.
+2. Run deterministic **player-true** simulations for each playable scenario: the bot holds a legal hand of six and may consult. The Pages build and CI gate both use 400 runs.
 3. Aggregate outcomes (win rate, turns survived, trend metrics, severity counts).
 4. Evaluate findings against fairness and balance rules.
 5. Produce a structured report consumed by this dashboard.

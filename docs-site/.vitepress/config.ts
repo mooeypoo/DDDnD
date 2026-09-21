@@ -5,9 +5,10 @@ const projectRoot = path.resolve(__dirname, '../..')
 
 export default defineConfig({
   lang: 'en-US',
-  title: 'DDDnD — Technical Dashboard',
-  description: 'Audit reports, scenario catalog, and balance metrics for Domain-Driven Design Card Game',
+  title: 'DDDnD',
+  description: 'How to play Domain-Driven Design n’ Dragons, plus the designer desk for packs and audits.',
   base: '/DDDnD/',
+  appearance: 'dark',
 
   root: path.join(projectRoot, 'docs-site'),
   outDir: path.join(projectRoot, 'docs-site/.vitepress/dist'),
@@ -42,37 +43,38 @@ export default defineConfig({
     },
 
     nav: [
-      { text: 'Dashboard', link: '/dashboard/' },
-      { text: 'Guide', link: '/guide/gameplay' },
-      { text: 'Play the Game', link: 'https://dddnd.games' },
+      { text: 'How to Play', link: '/guide/gameplay' },
+      { text: 'Designer Desk', link: '/dashboard/' },
+      { text: 'Play', link: 'https://dddnd.app' },
       { text: 'GitHub', link: 'https://github.com/mooeypoo/DDDnD' },
     ],
 
     sidebar: {
       '/guide/': [
-        { text: 'Playing the Game', items: [
-          { text: 'Gameplay', link: '/guide/gameplay' },
-          { text: 'Strategy', link: '/guide/strategy' },
+        { text: 'How to Play', items: [
+          { text: 'The table', link: '/guide/gameplay' },
+          { text: 'How to think', link: '/guide/strategy' },
         ] },
-        { text: 'Development', items: [
-          { text: 'Content Authoring', link: '/guide/content-authoring' },
-          { text: 'Reading the Audit', link: '/guide/reading-the-audit' },
+        { text: 'For authors', items: [
+          { text: 'Content authoring', link: '/guide/content-authoring' },
+          { text: 'Reading the audit', link: '/guide/reading-the-audit' },
         ] },
       ],
       '/dashboard/': [
         {
-          text: 'Audit',
+          text: 'Designer Desk',
           items: [
-            { text: 'What Is The Audit?', link: '/dashboard/audit-intro' },
-            { text: 'Audit Overview', link: '/dashboard/' },
+            { text: 'What is the audit?', link: '/dashboard/audit-intro' },
+            { text: 'Audit overview', link: '/dashboard/' },
           ],
         },
         {
-          text: 'Content Catalog',
+          text: 'Content in play',
           items: [
-            { text: 'Overview', link: '/dashboard/content-catalog-intro' },
-            { text: 'Scenarios', link: '/dashboard/scenarios' },
+            { text: 'What is the catalog?', link: '/dashboard/content-catalog-intro' },
+            { text: 'Adventures', link: '/dashboard/scenarios' },
             { text: 'Cards', link: '/dashboard/cards' },
+            { text: 'Aftershocks', link: '/dashboard/delayed-effects' },
             { text: 'Stakeholders', link: '/dashboard/stakeholders' },
             { text: 'Events', link: '/dashboard/events' },
           ],

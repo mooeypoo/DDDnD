@@ -1,11 +1,13 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-
-interface VersionRef {
-  id: string
-  version: number
-}
+import { SCENARIO_BALANCE_TARGETS } from '../src/domains/simulation/services/audit/scenario_balance_targets_audit.ts'
+import {
+  recordPlayableRef,
+  selectHistoryEntities,
+  selectPlayableEntities,
+  type VersionRef,
+} from './lib/docs_catalog.ts'
 
 interface ContentPackManifest {
   id: string
@@ -13,6 +15,7 @@ interface ContentPackManifest {
   name: string
   description: string
   scenarios: VersionRef[]
+  tutorials?: VersionRef[]
   classes: VersionRef[]
   challenge_modifiers: VersionRef[]
   content: {
@@ -33,11 +36,13 @@ interface ContentPackManifest {
 interface VersionedEntity {
   id: string
   version: number
+  delayed_effect_refs?: VersionRef[]
 }
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(scriptDir, '..')
-const contentRoot = path.resolve(projectRoot, 'content')
+const baseRoot = path.resolve(projectRoot, 'content')
+const tutorialRoot = path.resolve(projectRoot, 'content/tutorial')
 const outputDir = path.resolve(projectRoot, 'docs-site/public/data')
 
 function parseVersionedFilename(filename: string): VersionRef {
@@ -52,42 +57,174 @@ function parseVersionedFilename(filename: string): VersionRef {
   }
 }
 
-async function readJsonFile<T>(directory: string, filename: string): Promise<T> {
-  const filePath = path.join(contentRoot, directory, filename)
+async function readJsonFile<T>(root: string, directory: string, filename: string): Promise<T> {
+  const filePath = path.join(root, directory, filename)
   const raw = await readFile(filePath, 'utf8')
   return JSON.parse(raw) as T
 }
 
-async function loadInventory<T extends VersionedEntity>(directory: string, filenames: string[]): Promise<T[]> {
-  const entries = await Promise.all(filenames.map((filename) => readJsonFile<T>(directory, filename)))
-  return entries.sort((a, b) => a.id.localeCompare(b.id) || a.version - b.version)
+async function loadInventory<T extends VersionedEntity>(
+  root: string,
+  directory: string,
+  filenames: string[]
+): Promise<T[]> {
+  const entries = await Promise.all(filenames.map((filename) => readJsonFile<T>(root, directory, filename)))
+  return entries
 }
 
-async function loadScenarioByRef(ref: VersionRef) {
-  const filename = `${ref.id}-v${ref.version}.json`
-  return readJsonFile<any>('scenarios', filename)
+function difficultyFor(scenarioId: string): { id: string; label: string } | null {
+  const target = SCENARIO_BALANCE_TARGETS[scenarioId]
+  if (!target) {
+    return null
+  }
+
+  const expected = (target.win_rate_min + target.win_rate_max) / 2
+  if (expected >= 0.6) {
+    return { id: 'easy', label: 'Easy' }
+  }
+  if (expected >= 0.45) {
+    return { id: 'normal', label: 'Normal' }
+  }
+  return { id: 'hard', label: 'Hard' }
+}
+
+function mapToObject(map: Map<string, number>): Record<string, number> {
+  return Object.fromEntries([...map.entries()].sort((left, right) => left[0].localeCompare(right[0])))
 }
 
 async function main() {
-  const manifestRaw = await readFile(path.join(contentRoot, 'manifest.json'), 'utf8')
-  const manifest = JSON.parse(manifestRaw) as ContentPackManifest
+  const baseManifest = JSON.parse(await readFile(path.join(baseRoot, 'manifest.json'), 'utf8')) as ContentPackManifest
+  const tutorialManifest = JSON.parse(
+    await readFile(path.join(tutorialRoot, 'manifest.json'), 'utf8')
+  ) as ContentPackManifest
 
-  const scenarios = await Promise.all(manifest.scenarios.map((ref) => loadScenarioByRef(ref)))
-  const cards = await loadInventory<any>('cards', manifest.content.cards)
-  const stakeholders = await loadInventory<any>('stakeholders', manifest.content.stakeholders)
-  const stakeholderReactionRules = await loadInventory<any>(
-    'stakeholder-reaction-rules',
-    manifest.content.stakeholder_reaction_rules
+  const playableScenarios = await Promise.all(
+    baseManifest.scenarios.map(async (ref) => ({
+      ...(await readJsonFile<any>(baseRoot, 'scenarios', `${ref.id}-v${ref.version}.json`)),
+      is_tutorial: false,
+      pack_id: baseManifest.id,
+      difficulty: difficultyFor(ref.id),
+    }))
   )
-  const scores = await loadInventory<any>('scores', manifest.content.scores)
-  const events = await loadInventory<any>('events', manifest.content.events)
-  const delayedEffects = await loadInventory<any>('delayed-effects', manifest.content.delayed_effects)
-  const outcomeTiers = await loadInventory<any>('outcome-tiers', manifest.content.outcome_tiers)
-  const outcomeArchetypes = await loadInventory<any>('outcome-archetypes', manifest.content.outcome_archetypes)
-  const classes = await loadInventory<any>('classes', manifest.content.classes)
+
+  const tutorialScenarios = await Promise.all(
+    (tutorialManifest.tutorials ?? []).map(async (ref) => ({
+      ...(await readJsonFile<any>(tutorialRoot, 'scenarios', `${ref.id}-v${ref.version}.json`)),
+      is_tutorial: true,
+      pack_id: tutorialManifest.id,
+      difficulty: null,
+    }))
+  )
+
+  const scenarios = [...playableScenarios, ...tutorialScenarios].sort(
+    (left, right) => Number(left.is_tutorial) - Number(right.is_tutorial) || left.id.localeCompare(right.id)
+  )
+
+  const cards = [
+    ...(await loadInventory<any>(baseRoot, 'cards', baseManifest.content.cards)),
+    ...(await loadInventory<any>(tutorialRoot, 'cards', tutorialManifest.content.cards)),
+  ]
+  const stakeholders = [
+    ...(await loadInventory<any>(baseRoot, 'stakeholders', baseManifest.content.stakeholders)),
+    ...(await loadInventory<any>(tutorialRoot, 'stakeholders', tutorialManifest.content.stakeholders)),
+  ]
+  const stakeholderReactionRules = [
+    ...(await loadInventory<any>(
+      baseRoot,
+      'stakeholder-reaction-rules',
+      baseManifest.content.stakeholder_reaction_rules
+    )),
+    ...(await loadInventory<any>(
+      tutorialRoot,
+      'stakeholder-reaction-rules',
+      tutorialManifest.content.stakeholder_reaction_rules
+    )),
+  ]
+  const scores = [
+    ...(await loadInventory<any>(baseRoot, 'scores', baseManifest.content.scores)),
+    ...(await loadInventory<any>(tutorialRoot, 'scores', tutorialManifest.content.scores)),
+  ]
+  const events = [
+    ...(await loadInventory<any>(baseRoot, 'events', baseManifest.content.events)),
+    ...(await loadInventory<any>(tutorialRoot, 'events', tutorialManifest.content.events)),
+  ]
+  const delayedEffects = [
+    ...(await loadInventory<any>(baseRoot, 'delayed-effects', baseManifest.content.delayed_effects)),
+    ...(await loadInventory<any>(tutorialRoot, 'delayed-effects', tutorialManifest.content.delayed_effects)),
+  ]
+  const outcomeTiers = [
+    ...(await loadInventory<any>(baseRoot, 'outcome-tiers', baseManifest.content.outcome_tiers)),
+    ...(await loadInventory<any>(tutorialRoot, 'outcome-tiers', tutorialManifest.content.outcome_tiers)),
+  ]
+  const outcomeArchetypes = [
+    ...(await loadInventory<any>(baseRoot, 'outcome-archetypes', baseManifest.content.outcome_archetypes)),
+    ...(await loadInventory<any>(
+      tutorialRoot,
+      'outcome-archetypes',
+      tutorialManifest.content.outcome_archetypes
+    )),
+  ]
+  const classes = await loadInventory<any>(baseRoot, 'classes', baseManifest.content.classes)
   const challengeModifiers = await loadInventory<any>(
+    baseRoot,
     'challenge-modifiers',
-    manifest.content.challenge_modifiers
+    baseManifest.content.challenge_modifiers
+  )
+
+  const playable = {
+    cards: new Map<string, number>(),
+    stakeholders: new Map<string, number>(),
+    events: new Map<string, number>(),
+    scores: new Map<string, number>(),
+    delayed_effects: new Map<string, number>(),
+    scenarios: new Map<string, number>(),
+  }
+
+  for (const scenario of scenarios) {
+    recordPlayableRef(playable.scenarios, { id: scenario.id, version: scenario.version })
+    for (const ref of scenario.card_refs ?? []) {
+      recordPlayableRef(playable.cards, ref)
+    }
+    for (const ref of scenario.stakeholder_refs ?? []) {
+      recordPlayableRef(playable.stakeholders, ref)
+    }
+    for (const ref of scenario.event_refs ?? []) {
+      recordPlayableRef(playable.events, ref)
+    }
+    for (const ref of scenario.score_refs ?? []) {
+      recordPlayableRef(playable.scores, ref)
+    }
+  }
+
+  const cardByKey = new Map(cards.map((card) => [`${card.id}-v${card.version}`, card]))
+  const eventByKey = new Map(events.map((event) => [`${event.id}-v${event.version}`, event]))
+
+  for (const [id, version] of playable.cards) {
+    const card = cardByKey.get(`${id}-v${version}`)
+    for (const ref of card?.delayed_effect_refs ?? []) {
+      recordPlayableRef(playable.delayed_effects, ref)
+    }
+  }
+
+  for (const [id, version] of playable.events) {
+    const event = eventByKey.get(`${id}-v${version}`)
+    for (const ref of event?.delayed_effect_refs ?? []) {
+      recordPlayableRef(playable.delayed_effects, ref)
+    }
+  }
+
+  const playableCards = selectPlayableEntities(cards, playable.cards)
+  const playableEvents = selectPlayableEntities(events, playable.events)
+  const playableStakeholders = selectPlayableEntities(stakeholders, playable.stakeholders)
+  const playableScores = selectPlayableEntities(scores, playable.scores)
+  const playableDelayedEffects = selectPlayableEntities(delayedEffects, playable.delayed_effects)
+
+  const retiredScenarioRefs = baseManifest.content.scenarios
+    .map(parseVersionedFilename)
+    .filter((ref) => !ref.id.startsWith('test_') && playable.scenarios.get(ref.id) !== ref.version)
+
+  const scenarioHistory = await Promise.all(
+    retiredScenarioRefs.map((ref) => readJsonFile<any>(baseRoot, 'scenarios', `${ref.id}-v${ref.version}.json`))
   )
 
   const scenarioCardMap: Record<string, VersionRef[]> = {}
@@ -106,49 +243,46 @@ async function main() {
     meta: {
       generated_at: new Date().toISOString(),
       generator: 'scripts/generate-content-catalog.ts',
+      playable_policy: 'entry_point_refs',
       content_pack: {
-        id: manifest.id,
-        version: manifest.version,
-        name: manifest.name,
+        id: baseManifest.id,
+        version: baseManifest.version,
+        name: baseManifest.name,
+      },
+      tutorial_pack: {
+        id: tutorialManifest.id,
+        version: tutorialManifest.version,
+        name: tutorialManifest.name,
       },
       counts: {
         scenarios: scenarios.length,
-        cards: cards.length,
-        stakeholders: stakeholders.length,
-        stakeholder_reaction_rules: stakeholderReactionRules.length,
-        scores: scores.length,
-        events: events.length,
-        delayed_effects: delayedEffects.length,
-        outcome_tiers: outcomeTiers.length,
-        outcome_archetypes: outcomeArchetypes.length,
-        classes: classes.length,
-        challenge_modifiers: challengeModifiers.length,
+        cards: playableCards.length,
+        stakeholders: playableStakeholders.length,
+        events: playableEvents.length,
+        delayed_effects: playableDelayedEffects.length,
+        scores: playableScores.length,
       },
       commit_sha: process.env.COMMIT_SHA ?? null,
     },
-    manifest: {
-      ...manifest,
-      content_refs: {
-        scenarios: manifest.content.scenarios.map(parseVersionedFilename),
-        cards: manifest.content.cards.map(parseVersionedFilename),
-        stakeholders: manifest.content.stakeholders.map(parseVersionedFilename),
-        stakeholder_reaction_rules: manifest.content.stakeholder_reaction_rules.map(parseVersionedFilename),
-        scores: manifest.content.scores.map(parseVersionedFilename),
-        events: manifest.content.events.map(parseVersionedFilename),
-        delayed_effects: manifest.content.delayed_effects.map(parseVersionedFilename),
-        outcome_tiers: manifest.content.outcome_tiers.map(parseVersionedFilename),
-        outcome_archetypes: manifest.content.outcome_archetypes.map(parseVersionedFilename),
-        classes: manifest.content.classes.map(parseVersionedFilename),
-        challenge_modifiers: manifest.content.challenge_modifiers.map(parseVersionedFilename),
-      },
+    playable_versions: {
+      scenarios: mapToObject(playable.scenarios),
+      cards: mapToObject(playable.cards),
+      stakeholders: mapToObject(playable.stakeholders),
+      events: mapToObject(playable.events),
+      scores: mapToObject(playable.scores),
+      delayed_effects: mapToObject(playable.delayed_effects),
     },
     scenarios,
-    cards,
-    stakeholders,
+    scenario_history: scenarioHistory,
+    cards: playableCards,
+    card_history: selectHistoryEntities(cards, playableCards),
+    stakeholders: playableStakeholders,
+    events: playableEvents,
+    event_history: selectHistoryEntities(events, playableEvents),
+    delayed_effects: playableDelayedEffects,
+    delayed_effect_history: selectHistoryEntities(delayedEffects, playableDelayedEffects),
+    scores: playableScores,
     stakeholder_reaction_rules: stakeholderReactionRules,
-    scores,
-    events,
-    delayed_effects: delayedEffects,
     outcome_tiers: outcomeTiers,
     outcome_archetypes: outcomeArchetypes,
     classes,

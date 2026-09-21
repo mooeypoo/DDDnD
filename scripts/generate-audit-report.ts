@@ -91,7 +91,7 @@ function maybeOmitPerRun(auditReport: any) {
 
 async function main() {
   const opts = parseArgs(process.argv)
-  const runCount = Number(opts.runs ?? process.env.AUDIT_RUNS ?? 100)
+  const runCount = Number(opts.runs ?? process.env.AUDIT_RUNS ?? 400)
   const seed = String(opts.seed ?? process.env.AUDIT_SEED ?? 'pages-build')
   const includePerRun = Boolean(opts.perRun)
 
@@ -152,6 +152,7 @@ async function main() {
       per_run_included: includePerRun,
       scenario_count: manifest.scenarios.length,
       commit_sha: process.env.COMMIT_SHA ?? null,
+      player_true: true,
       generator: 'scripts/generate-audit-report.ts',
     },
     scenarios: scenarioReports,

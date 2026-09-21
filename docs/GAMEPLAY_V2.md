@@ -1,6 +1,6 @@
 # Gameplay v2
 
-Status: Active plan on branch `gameplay-v2`  
+Status: Landed in production. This file remains the journal for play-surface decisions.  
 Audience: future-us, other agents, and later writing (blog posts, talks)  
 Related: [AGENT.md](../AGENT.md), [ARCHITECTURE.md](../ARCHITECTURE.md), [GAME_DESIGN.md](../GAME_DESIGN.md), [CONTENT_VERSIONING.md](../CONTENT_VERSIONING.md), [docs/CONTENT_FAIRNESS_AND_BALANCE_AUDIT_SPEC.md](CONTENT_FAIRNESS_AND_BALANCE_AUDIT_SPEC.md)
 
@@ -570,6 +570,21 @@ Sprawl was already at the ceiling. The ghost consult key is gone and four scenar
 
 **The check belongs in the validator.** Untracked scores are bundle errors, not audit findings. The engine still writes unknown ids; the pack is not allowed to ask it to.
 
+### Decisions from the docs site (2026-09-21)
+
+`GAME_DESIGN.md` now describes the live table, not the satchel. Six campaign scores. Council satisfaction is seats, not a vial. Outcomes are tier + ending. The public play URL is `dddnd.app`.
+
+The GitHub Pages site is a **dual site**, labeled as such:
+
+- **How to Play** — player guide. Copy follows the in-game door, About, and How to play plaques, then goes deeper.
+- **Designer Desk** — audit and content x-ray. Not a second how-to-play.
+
+Catalog policy is **playable-latest**: one page per id, the version current entry-point scenarios (and tutorials) actually ref. Retired files can sit in a small history fold. Delayed effects are first-class catalog. Tutorials appear next to adventures, marked as tutorials.
+
+Pages audit runs **400**, same as the CI gate. The dashboard must say player-true, n, and scenario version, or it will disagree with CI and look like a docs bug when sprawl warns.
+
+Chamber chrome is welcome if the text stays large and in open measure. Flavor is the table; the site is still a reading surface.
+
 ### Challenges worth a slide
 
 - A deterministic PRNG is not an independent one. Adjacent seed strings plus a hash without avalanche gave a 200-run audit batch roughly 15 runs of information, and every test passed.
@@ -657,3 +672,10 @@ Sprawl was already at the ceiling. The ghost consult key is gone and four scenar
 - **2026-09-18** — Score shorts are pack data (`short_name` on every Score). Play UI uses the short everywhere; the weather strip teaches the long name on hover (desktop) or tap (mobile). No more UI id→Craft maps.
 - **2026-09-21** — Playable entry points for monolith, sprawl, compliance, and merger move to v2. `improved_clarity-v2` pays `domain_clarity +7` / `team_morale +5` instead of writing ghost `technical_debt`. v1 files stay on disk; exact-run of those scenario versions is not a support target. See [Decisions from leftover scores](#decisions-from-leftover-scores-2026-09-21).
 - **2026-09-21** — Bundle validation now errors on reachable `score_id`s the scenario does not track. The 400-run gate on this tip (no retune): merger and hypergrowth inside band; monolith 70.5% vs 70%; compliance 68.3% vs 68%; sprawl 55.3% vs 50% (slice-13 baseline 52.0%). Follow-up is content vs band. Do not lower the gate.
+- **2026-09-21** — `GAME_DESIGN.md` matches the live war table: six scores, legal hand, Consult, Grimoire, coupling, tier + ending. Public URL is `dddnd.app`. See [Decisions from the docs site](#decisions-from-the-docs-site-2026-09-21).
+- **2026-09-21** — Docs site is dual: How to Play for players, Designer Desk for audit and catalog. Catalog is playable-latest. Pages audit n=400. Chamber chrome must stay readable.
+- **2026-09-21** — How to Play now teaches the live table (hand, Consult, Grimoire, six vials, tier + ending). Nav labels the two rooms. Play links go to `dddnd.app`.
+- **2026-09-21** — Designer Desk catalog is playable-latest, includes tutorials and aftershocks, and hides retired files in a small history fold.
+- **2026-09-21** — Pages audit default is 400 player-true runs, same as the CI gate. The desk shows n, seed, and scenario version.
+- **2026-09-21** — Docs authoring guide now points at playable monolith v2 and treats untracked scores as a pack error.
+- **2026-09-21** — Docs site defaults to chamber dark (Cinzel, ember field, door plaques) with a wider measure so the flavor does not shrink the text.

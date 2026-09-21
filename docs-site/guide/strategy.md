@@ -1,80 +1,51 @@
-# Strategy
+# How to think at the table
 
-Winning at DDDnD requires balancing short-term score recovery with long-term system health — and knowing which stakeholders you can afford to disappoint along the way.
+::: tip This is How to Play
+Strategy notes for players. Pack internals and audit findings live on the [Designer Desk](/dashboard/).
+:::
 
-## Choose Your Class
+Winning is balancing short-term recovery with long-term system health — and knowing which seats you can afford to disappoint.
 
-Before starting a run, you select a **player class**. Your class represents an architectural archetype and influences your identity throughout the run. Some classes include a `score_affinity` that shapes how you think about your strategy.
+## Read the vials, then the seats
 
-| Class | Archetype |
-|---|---|
-| **Boundary Mage** | Domain clarity and structural coherence |
-| **Stakeholder Bard** | Organizational influence and political navigation |
-| **Reliability Cleric** | System stability and operational confidence |
-| **Legacy Ranger** | Legacy system survival and incremental improvement |
-| **Delivery Rogue** | Shipping fast under constraints and chaos |
+The six vials are the system. If one is Troubled or Critical, that is the weather you are in. The council watches and reacts. A seat that goes Critical can punish you every turn.
 
-Choose the class that matches how you like to play — or the one that best fits the scenario you're facing.
+Do not treat stakeholder satisfaction as another vial you can average away. It is a person at the table.
 
-## Card Families
+## Consult is a turn
 
-Cards are grouped by the type of decision they represent:
+If the hand is all wrong, searching costs the same as playing. Aftershocks still land. Reality may still hit. The council still speaks. Consult when the hand cannot touch the pressure you are under — not as a free mulligan.
 
-| Family | What It Does |
-|---|---|
-| **Refactoring** | Improve code clarity and reduce technical debt |
-| **Infrastructure** | Build or stabilize supporting systems |
-| **Team Dynamics** | Manage developer morale and communication |
-| **Process** | Establish workflows, governance, and predictability |
-| **Fixes** | Address immediate bugs and reliability issues |
+## Aftershocks are part of the play
 
-Knowing which family a card belongs to helps you anticipate its tradeoffs. A refactoring card might boost domain clarity but temporarily dip developer morale. A process card might help delivery confidence but frustrate your Lead Developer.
+Before you commit a card with a delayed mark, ask whether the table survives what is coming. A clarity payoff two turns out does not help if delivery collapses tonight.
 
-## Core Tradeoffs
+Beneficial aftershocks are why a painful refactor is still a play. Punishing ones are why a quick patch is not free.
 
-No card is purely positive. Effective strategy means understanding the cost:
+## Collapse first
 
-- **Technical vs. Organizational** — Structural improvements often create short-term friction with stakeholders who want visible delivery progress.
-- **Short-term vs. Long-term** — Some cards deliver immediate relief at the cost of a future Aftershock. Read card effects carefully before playing.
-- **Breadth vs. Depth** — Spreading effort across many scores keeps you stable but may not reach the threshold needed for any single win condition.
+If coupling has bound the table, stabilize the collapsed score. Gains elsewhere shrink until you do. Fighting the storm with a clarity card is how a run dies looking busy.
 
-## Managing Stakeholders
+## Class is a lens, not a win condition
 
-Stakeholders watch what you do and react. A stakeholder who becomes _Critical_ can actively hurt your scores each turn through their reaction rules.
+Pick the class that matches how you like to sit, or the adventure’s pressure. The ending is what the table remembers of the path, not the portrait you chose.
 
-Tips:
+## Adventure pressure
 
-- **Know the reaction rules** — Each stakeholder reacts to specific conditions. A CTO who values domain clarity will punish architectural shortcuts. A VP Product who cares about delivery will punish stagnation.
-- **Don't ignore a dissatisfied stakeholder** — Satisfaction below the _Critical_ threshold can trigger punishing reactions repeatedly. One unhappy stakeholder can cascade into a failed run.
-- **Some scenarios let you trade one stakeholder for another** — Decide early whose support is essential and whose can be managed down.
-
-## Reading Aftershocks
-
-When you play a card that schedules a delayed effect, you will see it queued for a future turn. Aftershocks can be:
-
-- **Beneficial** — A refactoring investment pays off in domain clarity later
-- **Punishing** — A rushed shortcut creates a debt spike after the next delivery milestone
-
-Before playing a card with a significant Aftershock, ask: will my scores survive what's coming?
-
-## Scenario-Specific Tactics
-
-Each scenario has its own pressure profile. General heuristics:
-
-| Scenario | Primary Pressure | Key Focus |
+| Adventure | What usually hurts | What to protect |
 |---|---|---|
-| **Monolith of Mild Despair** | Delivery confidence decay | Stabilize incrementally; avoid big-bang rewrites |
-| **Microservice Sprawl** | Domain clarity collapse | Prioritize bounded context cards early |
-| **Compliance Gauntlet** | Regulatory event pressure | Keep process scores high; events are punishing |
-| **Startup Hypergrowth** | Budget and morale drain | Keep morale up; budget loss is fast and irreversible |
-| **Merger of Minor Chaos** | Stakeholder conflict | Pick your political side early; don't try to please everyone |
+| Merger of Minor Chaos | Competing models and politics | Pick a side early; do not please every seat |
+| Monolith of Mild Despair | Delivery decay | Incremental craft; avoid the big-bang rewrite |
+| Compliance Gauntlet | Regulatory events | Process and trust; events are sharp |
+| Startup Hypergrowth | Purse and morale | Morale first; budget does not come back |
+| Microservice Sprawl | Clarity collapse | Bounded-context work before the map dissolves |
 
-## Challenge Modifiers
+Easy / Normal / Hard on the lobby is the audit’s expected win rate, not flavor text. Hard means the pack expects most attempts to fail.
 
-Some runs apply an optional **challenge modifier** that adjusts the starting conditions:
+## Challenge modifiers
 
-- Modified starting scores (higher or lower)
-- Overridden stakeholder starting satisfaction
-- Changed turn count
+An optional modifier can lower starting vials, sour seats, or shorten the clock. It is selected at setup. It is for a second run, not a first sit.
 
-Modifiers are selected at run setup. They are designed to increase difficulty or create a specific pressure scenario for experienced players.
+## What not to optimize
+
+There is no hidden “correct” sequence in the full catalog. You hold six cards. The Grimoire is for looking. A strategy that assumes you can play any card in the pack is a strategy for a game this table is not.

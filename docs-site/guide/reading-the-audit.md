@@ -1,6 +1,10 @@
-# Reading the Audit Report
+# Reading the audit
 
-The DDDnD audit report is a data-driven health check that runs hundreds of simulated playthroughs and synthesizes the results into structured findings. The [Audit Dashboard](/dashboard/) surfaces this data visually. This page explains what each section means and how to act on it.
+::: info For authors
+This explains the Designer Desk numbers. Player rules are in [The table](/guide/gameplay).
+:::
+
+The DDDnD audit report is a data-driven health check that runs hundreds of simulated playthroughs and synthesizes the results into structured findings. The [Designer Desk](/dashboard/) surfaces this data visually. This page explains what each section means and how to act on it.
 
 ## What the Audit Measures
 
@@ -57,7 +61,7 @@ Whether delayed effects are legible and proportionate. Flags aftershocks that ar
 
 ## The Audit Dashboard
 
-The [Audit Dashboard](/dashboard/) shows:
+The [Designer Desk](/dashboard/) shows:
 
 - **Scenario Overview** — Pass/Warning/Critical status per scenario with win rate
 - **Balance Metrics** — Win rate and average turns per scenario as bar charts
@@ -87,20 +91,17 @@ Most balance issues are addressed through **content tuning** — adjusting thres
 ## Running the Audit Locally
 
 ```bash
-# Quick check (10 runs per scenario)
+# Quick check
 AUDIT_RUNS=10 npm run docs:generate-data
 
-# Full audit (100 runs, the default)
+# Same n as CI and GitHub Pages (400 player-true runs per scenario)
 npm run docs:generate-data
-
-# High-fidelity audit (300 runs, used for nightly CI)
-AUDIT_RUNS=300 npm run docs:generate-data
 ```
 
 The audit gate used in CI:
 
 ```bash
-npm run audit:gate
+npm run audit:gate -- --runs 400
 ```
 
-This fails if any scenario has a Critical finding, enforcing a minimum content health bar before publishing.
+This fails if any scenario has a Critical finding. Warnings (including a win rate just outside band) do not fail the gate. Do not lower n to make a warning disappear.

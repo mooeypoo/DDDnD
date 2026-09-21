@@ -113,10 +113,10 @@
   --docs-inline-code-bg: var(--surface-card);
   --docs-inline-code-text: var(--text-accent);
   --docs-footer-logo-filter: invert(1);
-  --docs-bg-top: rgba(20, 27, 50, 0.60);
-  --docs-bg-bottom: rgba(14, 20, 40, 0.35);
-  --docs-bg-side: rgba(13, 17, 32, 0.28);
-  --docs-bg-grid: rgba(255, 255, 255, 0.03);
+  --docs-bg-top: rgba(176, 132, 42, 0.16);
+  --docs-bg-bottom: rgba(80, 28, 8, 0.28);
+  --docs-bg-side: rgba(40, 18, 6, 0.35);
+  --docs-bg-grid: rgba(255, 220, 140, 0.03);
 }
 
 /* Cinzel for all headings */
@@ -132,6 +132,7 @@
 
 /* Tabletop background on page shell */
 #app {
+  position: relative;
   background-color: var(--vp-c-bg);
   background-image: radial-gradient(
       ellipse 140% 55% at 50% -5%,
@@ -146,13 +147,85 @@
   background-size: auto, auto, auto, 28px 28px, 28px 28px;
 }
 
-/* Content readability adjustments */
+/* Content-first measure: chamber flavor, open reading */
 .vp-doc {
-  max-width: 768px;
+  max-width: 46rem;
+  font-size: 1.05rem;
 }
 
-.vp-doc p {
-  line-height: var(--leading-relaxed);
+.vp-doc p,
+.vp-doc li {
+  line-height: 1.7;
+}
+
+.vp-doc table {
+  font-size: 1rem;
+}
+
+.vp-doc table th,
+.vp-doc table td {
+  padding: 0.65rem 0.75rem;
+}
+
+.VPHome {
+  padding-bottom: 3rem;
+}
+
+.VPHero .name,
+.VPHero .text {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.02em;
+}
+
+.VPHero .tagline {
+  max-width: 36rem;
+  font-size: 1.15rem;
+  line-height: 1.55;
+}
+
+.door-plaques {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2.5rem;
+}
+
+.door-plaques article {
+  padding: 1.1rem 1.15rem 1.2rem;
+  background: var(--surface-card);
+  border: 1px solid var(--border-card);
+  border-radius: 4px 14px 4px 14px;
+  box-shadow: inset 0 1px 0 rgba(255, 220, 140, 0.06);
+}
+
+.door-plaques h3 {
+  margin: 0 0 0.45rem;
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  color: var(--docs-heading-color);
+}
+
+.door-plaques p {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+@media (max-width: 720px) {
+  .door-plaques {
+    grid-template-columns: 1fr;
+  }
+}
+
+#app::before {
+  content: '';
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index: -1;
 }
 
 .vp-doc code {

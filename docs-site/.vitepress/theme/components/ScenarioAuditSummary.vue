@@ -9,6 +9,7 @@
             <h4>
               <a :href="withBase(`/dashboard/scenarios/${scenario.scenario_id}`)">{{ scenarioName(scenario.scenario_id) }}</a>
             </h4>
+            <p v-if="scenario.scenario_version" class="version">v{{ scenario.scenario_version }}</p>
             <AuditStatusBadge :status="scenario.audit.summary.overall_status" />
           </header>
           <div class="summary-card__metrics">
@@ -31,6 +32,7 @@ import { withBase } from 'vitepress'
 
 type ScenarioReport = {
   scenario_id: string
+  scenario_version?: number
   simulation: {
     aggregate: {
       win_rate: number
@@ -109,7 +111,13 @@ onMounted(async () => {
 
 .summary-card__header h4 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
+}
+
+.version {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
 }
 
 .summary-card__metrics {

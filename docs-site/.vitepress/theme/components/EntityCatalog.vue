@@ -9,13 +9,17 @@
             <h4>
               <a :href="entityLink(entity.id)">{{ entity.name || entity.id }}</a>
             </h4>
+            <div class="marks">
+              <span v-if="isTutorialEntity(entity.id)" class="mark mark--tutorial">Tutorial</span>
+              <span class="mark">v{{ entity.version }}</span>
+            </div>
           </header>
 
           <p v-if="entity.description" class="desc">{{ entity.description }}</p>
           <p v-else-if="entity.flavor_text" class="desc">{{ entity.flavor_text }}</p>
 
           <div class="catalog-card__actions">
-            <a :href="entityLink(entity.id)">View full {{ entityLabel }} details</a>
+            <a :href="entityLink(entity.id)">View {{ entityLabel }} details</a>
           </div>
         </article>
       </div>
@@ -27,10 +31,11 @@
 import { computed, onMounted, ref } from 'vue'
 import { withBase } from 'vitepress'
 
-type EntityType = 'card' | 'stakeholder' | 'event'
+type EntityType = 'card' | 'stakeholder' | 'event' | 'delayed_effect'
 
 type Entity = {
   id: string
+  version?: number
   name?: string
   description?: string
   flavor_text?: string
@@ -46,14 +51,8 @@ const entities = ref<Entity[]>([])
 
 const typeConfig = computed(() => {
   if (props.entityType === 'card') {
-    return {
-      title: 'Cards',
-      key: 'cards',
-      basePath: '/dashboard/cards',
-      entityLabel: 'card',
-    }
+    return { title: 'Cards', key: 'cards', basePath: '/dashboard/cards', entityLabel: 'card' }
   }
-
   if (props.entityType === 'stakeholder') {
     return {
       title: 'Stakeholders',
@@ -62,13 +61,15 @@ const typeConfig = computed(() => {
       entityLabel: 'stakeholder',
     }
   }
-
-  return {
-    title: 'Events',
-    key: 'events',
-    basePath: '/dashboard/events',
-    entityLabel: 'event',
+  if (props.entityType === 'delayed_effect') {
+    return {
+      title: 'Aftershocks',
+      key: 'delayed_effects',
+      basePath: '/dashboard/delayed-effects',
+      entityLabel: 'aftershock',
+    }
   }
+  return { title: 'Events', key: 'events', basePath: '/dashboard/events', entityLabel: 'event' }
 })
 
 const title = computed(() => typeConfig.value.title)
@@ -76,6 +77,10 @@ const entityLabel = computed(() => typeConfig.value.entityLabel)
 
 function entityLink(id: string): string {
   return withBase(`${typeConfig.value.basePath}/${id}`)
+}
+
+function isTutorialEntity(id: string): boolean {
+  return id.startsWith('tutorial_')
 }
 
 onMounted(async () => {
@@ -106,20 +111,22 @@ onMounted(async () => {
   border: 1px solid var(--border-card);
   border-radius: var(--radius-lg);
   background: var(--surface-card);
-  padding: var(--space-4);
+  padding: var(--space-5);
   display: grid;
   gap: var(--space-3);
 }
 
 .catalog-card__header {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.8rem;
 }
 
 .catalog-card__header h4 {
   margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.35;
 }
 
 .catalog-card__header h4 a {
@@ -131,9 +138,32 @@ onMounted(async () => {
   text-decoration: underline;
 }
 
+.marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  justify-content: flex-end;
+}
+
+.mark {
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.mark--tutorial {
+  color: var(--docs-heading-color);
+  border-color: rgba(199, 173, 113, 0.45);
+}
+
 .desc {
   margin: 0;
   color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1.6;
 }
 
 .catalog-card__actions a {

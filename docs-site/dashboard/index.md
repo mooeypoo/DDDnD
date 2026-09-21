@@ -1,8 +1,12 @@
-# Audit Overview
+# Audit overview
 
-Welcome to the command center. This page is the live pulse of DDDnD scenario health: pass/fail status, balance telemetry, and the actual findings raised by the audit.
+::: warning Designer Desk
+This is the designer desk, not How to Play. Player rules live in [The table](/guide/gameplay).
+:::
 
-Looking for a friendly explanation of what the audit is and how to read it? Start with [What Is The Audit?](/dashboard/audit-intro).
+Live pulse of playable scenario health: pass/fail, balance telemetry, and the findings the audit raised. For what the numbers mean, start with [What is the audit?](/dashboard/audit-intro).
+
+<AuditRunMeta />
 
 ## Scenario Health Snapshot
 
