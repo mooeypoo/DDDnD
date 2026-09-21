@@ -2,35 +2,52 @@
 
 This document describes the design of the DDDnD game.
 
-DDDnD is a humorous simulation of software architecture decision making using concepts from Domain-Driven Design.
+DDDnD is a humorous simulation of software architecture decision-making using concepts from Domain-Driven Design.
 
-Players act as a systems architect trying to improve a struggling system under time pressure.
+The player joins the council as a systems architect and tries to leave a struggling system stronger before the turns run out.
 
 For architecture boundaries and routing, see [AGENT.md](AGENT.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
+
+The live play surface is the **war table** (legal hand, Grimoire, Consult, theater). The slice history and domain bets for that overhaul live in [docs/GAMEPLAY_V2.md](docs/GAMEPLAY_V2.md). This file is the design of the game as it is played now, not the satchel-era catalog.
 
 ---
 
 # Player Goal
 
-The player must improve the system before time runs out.
+Leave the system stronger than you found it, and keep the council with you, before the last turn.
 
-They must balance:
+The system is six tracked scores (the vials on the weather strip). The council is a separate track: each stakeholder has satisfaction from 0–100. Satisfaction is not a seventh vial.
 
-- domain clarity
-- maintainability
-- developer morale
-- stakeholder satisfaction
-- delivery confidence
-- user trust
-- budget
+Campaign scores:
 
-Every decision involves tradeoffs.
+| Score | Short | What it measures |
+|---|---|---|
+| Domain Clarity | Clarity | How well-bounded and coherent the system is |
+| Maintainability | Craft | How easily the codebase can be changed |
+| Delivery Confidence | Delivery | Ability to ship reliably |
+| Team Morale | Morale | Team confidence and energy |
+| User Trust | Trust | End-user confidence in the system |
+| Budget | Purse | Runway for architectural investment |
+
+`short_name` is pack data. Play UI uses the short in the moment; the long name teaches on hover or tap.
+
+Every decision is a tradeoff.
+
+---
+
+# The table
+
+The player sits at the scenario’s table. The software system is the scene in the center. Stakeholders sit around it.
+
+- The player holds a **legal hand of six** cards.
+- The rest of the pack lives in the **Grimoire**: look and inspect, do not play from the shelves.
+- Each turn the player either **plays one card** onto the table or **Consults the Archives** and spends the turn replacing a card.
+- Playing a card (or finishing a consult) lands on the table first. Then last turn may catch up as aftershocks. Then a random event may land, and the council may speak.
+- The engine still resolves delayed effects before the player action. Theater shows the player’s move first so the table is readable.
 
 ---
 
 # Core Mechanics
-
-Players take actions using **architecture cards**.
 
 Cards represent architectural decisions such as:
 
@@ -41,29 +58,31 @@ Cards represent architectural decisions such as:
 Cards may:
 
 - change scores immediately
-- affect stakeholders
-- schedule delayed consequences
+- affect stakeholder satisfaction
+- schedule delayed consequences (aftershocks)
+
+Some cards have usage limits or cooldowns. Some have score requirements before they are legal.
 
 ---
 
 # Architectural Aftershocks
 
-Some decisions have delayed consequences.
-
-These are represented by **Architectural Aftershocks**.
+Some decisions echo forward. These are **Architectural Aftershocks**.
 
 Examples:
 
-- improved domain clarity after refactoring
-- technical debt from temporary shortcuts
+- a refactor pays off as better domain clarity two turns later
+- a rushed shortcut leaves maintainability and morale worse after the deadline
 
-Aftershocks resolve at the start of later turns.
+Aftershocks resolve at the start of the turn they are scheduled for, before the player acts. The table pauses and names what arrived.
+
+Every `score_id` on an aftershock must be a score the consuming scenario tracks. A leftover id still writes engine state and can hijack consult pressure; pack validation rejects that.
 
 ---
 
 # Stakeholders
 
-Stakeholders represent organizational forces.
+Stakeholders represent organizational forces around the table.
 
 Examples:
 
@@ -72,15 +91,9 @@ Examples:
 - Lead Developer
 - Operations Manager
 
-Each stakeholder has reaction rules that respond to system conditions.
+Each has reaction rules that respond to system conditions. They may change scores, project direction, or stability.
 
-Stakeholders may influence:
-
-- score changes
-- project direction
-- system stability
-
-Stakeholder support is tracked on a 0–100 scale, with scenario-defined starting values and stakeholder-specific thresholds for labels such as critical, neutral, and supportive.
+Stakeholder support is tracked on a 0–100 scale, with scenario-defined starting values and labels such as critical, neutral, and supportive.
 
 ---
 
@@ -92,52 +105,59 @@ Random events represent unexpected pressures such as:
 - customer demands
 - leadership changes
 
-Events occur after player actions.
+At most one event occurs per turn, after the player action. Plaques say **Reality hits**.
 
-Only one event may occur per turn.
+---
+
+# Coupling and collapse
+
+If a core score falls too far, coupling binds the table:
+
+- **Delivery collapse** — gains to domain clarity and maintainability weaken
+- **Morale collapse** — maintainability gains shrink
+- **Trust collapse** — delivery gains shrink
+
+The chamber storms. Stabilize the collapsed score, or the rest of the work fights a system that will not hold.
+
+Player-facing score bands are system mood: Steady / Strained / Troubled / Critical.
 
 ---
 
 # Ending Outcomes
 
-Runs may end with different outcomes depending on:
+A run ends with a **tier** (how well you did) and an **ending** (what kind of architect the table remembers).
 
-- final score levels
-- stakeholder states
-- system health
-- project stability
+In UI and player-facing surfaces, use `endingType` for the ending. Do not teach a single “archetype unlock.”
 
-Outcomes include tier evaluation and legacy archetype criteria in the simulation/content layer.
+Authored tiers in the base pack:
 
-In UI/player-facing surfaces, use `endingType` as the presentation term.
+- Collapse
+- Struggle
+- Survival
+- Success
+- Triumph
 
-Examples:
-
-- The Boundary Builder
-- The Firefighter
-- The System Stabilizer
+Example endings: The Boundary Builder, The Firefighter, The System Stabilizer.
 
 ---
 
 # Scenario Catalog
 
-The base game currently ships with five main scenarios:
+The base game ships five main adventures. Lobby marks are Easy / Normal / Hard, derived from the same win-rate bands the audit gates on. The fan opens on the gentlest plate.
 
-- **The Monolith of Mild Despair** - stabilize a tangled legacy monolith before delivery confidence collapses
-- **Microservice Sprawl** - restore clarity to an over-fragmented service landscape
-- **Compliance Gauntlet** - survive regulatory pressure without sacrificing delivery capability
-- **Startup Hypergrowth** - scale a product under explosive growth and operational strain
-- **The Merger of Minor Chaos** - reconcile duplicate systems, competing domain models, and culture clashes after acquisition
+- **The Monolith of Mild Despair** — stabilize a tangled legacy monolith before delivery confidence collapses
+- **Microservice Sprawl** — restore clarity to an over-fragmented service landscape
+- **Compliance Gauntlet** — survive regulatory pressure without sacrificing delivery capability
+- **Startup Hypergrowth** — scale a product under explosive growth and operational strain
+- **The Merger of Minor Chaos** — reconcile duplicate systems, competing domain models, and culture clashes after acquisition
 
-Each scenario defines its own starting scores, stakeholders, card pool, event pool, turn horizon, and outcome pressure.
+Each adventure defines its own starting scores, stakeholders, card pool, event pool, turn horizon, and outcome pressure.
 
 ---
 
 # Player Classes
 
 Players select a `playerClass` before starting a run.
-
-In UI/presentation work, use the term `playerClass` for this selection.
 
 Examples:
 
@@ -147,17 +167,13 @@ Examples:
 - Legacy Ranger
 - Delivery Rogue
 
-Classes can include an optional `score_affinity`, which is recorded on the player profile and can support gameplay-facing bonuses.
-
-They are part of run identity even when a specific class has no additional authored bonus.
+Classes can include an optional `score_affinity`. They are part of run identity even when a class has no extra authored bonus.
 
 ---
 
 # Challenge Modifiers
 
-Runs may also include an optional challenge modifier.
-
-Challenge modifiers are difficulty-shaping content that can:
+Runs may include an optional challenge modifier that can:
 
 - adjust starting scores
 - override starting stakeholder satisfaction
@@ -171,73 +187,57 @@ They are selected at run setup and applied before play begins.
 
 The game must include:
 
-- a welcome page explaining the concept
+- a welcome door that names the quest
 - rules accessible at any time
-- an "about" explanation
+- an about explanation
 - a shareable end-of-run result
-- responsive mobile-friendly UI
+- a responsive, mobile-friendly table
 
-Players should be able to open rules or explanations during gameplay without losing progress.
+Players should be able to open rules during a run without losing progress.
+
+The public play URL is `https://dddnd.app`.
 
 ---
 
 # Tone
 
-The tone should be playful and slightly satirical.
+Playful and slightly satirical.
 
-The game should feel educational without feeling like a tutorial.
-
-Humor is encouraged.
+Educational without feeling like a lecture. Humor is encouraged.
 
 ---
 
 # Tutorial System
 
-The game includes an optional tutorial system that teaches new players the core mechanics.
+Optional tutorials teach the table.
 
 ## Tutorial Quests
 
-Two tutorial quests are provided:
-
-1. **Basics Tutorial** — Introduces scores, action cards, stakeholders, events, and aftershocks over 3 turns.
-2. **Systems Under Pressure** — Demonstrates system coupling, trade-offs, and collapse mechanics over 5 turns.
+1. **Basics Tutorial** — Hand, scores, stakeholders, events, and aftershocks over 3 turns.
+2. **Systems Under Pressure** — Coupling, tradeoffs, and collapse over 5 turns.
 
 ## Tutorial Content Isolation
 
-All tutorial content lives under `content/tutorial/`. Tutorial content never mixes with main gameplay content. The tutorial content provider loads from this separate namespace.
+All tutorial content lives under `content/tutorial/`. It never mixes into the base pack inventory. The tutorial provider loads from that namespace.
 
 ## Guided Hints
 
-Each tutorial scenario references a **tutorial script** — a JSON file defining step-by-step hints. Each step has:
-
-- a **trigger** (`run_start`, `turn_start`, `turn_end`, `run_end`) that determines when it appears
-- a **highlight** indicating which UI area to draw attention to
-- a **title** and **message** explaining the concept
-
-Hints are driven entirely by content — they are not hard-coded in the UI.
+Each tutorial scenario references a **tutorial script**. Each step has a trigger, a highlight (hand, weather, seats, coupling), a title, and a message. Hints are authored content, not hard-coded UI.
 
 ## Adding a New Tutorial
 
-1. Create scenario, cards, scores, events, stakeholders, and other content JSON files under `content/tutorial/`.
-2. Create a tutorial script JSON under `content/tutorial/scripts/`.
-3. Set `is_tutorial: true`, `tutorial_order`, and `tutorial_script_ref` on the scenario.
-4. Add the scenario to the tutorial content manifest so the content registry exposes it as a tutorial entry point.
-
----
-
-# Gameplay v2
-
-The live play surface is being rebuilt on branch `gameplay-v2` so a run feels like a game (war table, legal hand, inspect-only deck, turn theater) without replacing the engine or content packs.
-
-The canonical plan, including what stays in simulation vs UI and how fairness tests must change, is [docs/GAMEPLAY_V2.md](docs/GAMEPLAY_V2.md). Until that work lands in production, the player-facing loop described above is still the catalog-and-satchel surface.
+1. Create content JSON under `content/tutorial/`.
+2. Create a tutorial script under `content/tutorial/scripts/`.
+3. Set `is_tutorial`, `tutorial_order`, and `tutorial_script_ref` on the scenario.
+4. Add the scenario to the tutorial manifest entry points.
 
 ---
 
 # Implementation Notes
 
-The underlying simulation engine is implemented in TypeScript.
+The simulation engine is TypeScript and UI-agnostic.
 
-Strong typing helps ensure the deterministic behavior of the simulation, especially for:
+Strong typing protects:
 
 - game state structures
 - turn resolution records
@@ -245,4 +245,4 @@ Strong typing helps ensure the deterministic behavior of the simulation, especia
 - scenario bundle contracts
 - run export/import formats
 
-The UI layer may use TypeScript but should remain simple and readable.
+The UI layer may use TypeScript but should stay readable. It presents the table and calls engine verbs. It does not resolve actions, pick events, or apply stakeholder rules.
