@@ -1,8 +1,0 @@
-{
-  "id": "wrong_id",
-  "version": 1,
-  "name": "Mismatched Score",
-  "short_name": "Mismatch",
-  "description": "This score has an ID that doesn't match its filename",
-  "default_value": 0
-}

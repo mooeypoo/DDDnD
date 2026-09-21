@@ -185,11 +185,9 @@
       "delivery_confidence-v1.json",
       "domain_clarity-v1.json",
       "maintainability-v1.json",
-      "mismatched_score-v1.json",
       "team_morale-v1.json",
       "technical_debt-v1.json",
-      "user_trust-v1.json",
-      "version_mismatch-v1.json"
+      "user_trust-v1.json"
     ],
     "events": [
       "acquisition_rumor-v1.json",
