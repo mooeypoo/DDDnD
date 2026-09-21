@@ -14,6 +14,7 @@ import BlogPostCard from './components/BlogPostCard.vue'
 import LatestBlogPosts from './components/LatestBlogPosts.vue'
 import AuthorBlock from './components/AuthorBlock.vue'
 import MetricsOverview from './components/MetricsOverview.vue'
+import AuditRunMeta from './components/AuditRunMeta.vue'
 
 export default {
   ...Theme,
@@ -31,5 +32,6 @@ export default {
     app.component('LatestBlogPosts', LatestBlogPosts)
     app.component('AuthorBlock', AuthorBlock)
     app.component('MetricsOverview', MetricsOverview)
+    app.component('AuditRunMeta', AuditRunMeta)
   },
 }

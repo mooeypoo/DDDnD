@@ -6,6 +6,8 @@ This is the designer desk, not How to Play. Player rules live in [The table](/gu
 
 Live pulse of playable scenario health: pass/fail, balance telemetry, and the findings the audit raised. For what the numbers mean, start with [What is the audit?](/dashboard/audit-intro).
 
+<AuditRunMeta />
+
 ## Scenario Health Snapshot
 
 Quick status per scenario, including severity and win rate.

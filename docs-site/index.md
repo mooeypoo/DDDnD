@@ -49,6 +49,8 @@ The game itself lives at [dddnd.app](https://dddnd.app).
 
 The snapshot below is live audit data from player-true bots on the current playable scenarios. It is the desk, not the teach.
 
+<AuditRunMeta />
+
 <ScenarioAuditSummary />
 
 ## Latest From The Blog

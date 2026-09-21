@@ -676,3 +676,4 @@ Chamber chrome is welcome if the text stays large and in open measure. Flavor is
 - **2026-09-21** — Docs site is dual: How to Play for players, Designer Desk for audit and catalog. Catalog is playable-latest. Pages audit n=400. Chamber chrome must stay readable.
 - **2026-09-21** — How to Play now teaches the live table (hand, Consult, Grimoire, six vials, tier + ending). Nav labels the two rooms. Play links go to `dddnd.app`.
 - **2026-09-21** — Designer Desk catalog is playable-latest, includes tutorials and aftershocks, and hides retired files in a small history fold.
+- **2026-09-21** — Pages audit default is 400 player-true runs, same as the CI gate. The desk shows n, seed, and scenario version.

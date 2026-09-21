@@ -91,20 +91,17 @@ Most balance issues are addressed through **content tuning** — adjusting thres
 ## Running the Audit Locally
 
 ```bash
-# Quick check (10 runs per scenario)
+# Quick check
 AUDIT_RUNS=10 npm run docs:generate-data
 
-# Full audit (100 runs, the default)
+# Same n as CI and GitHub Pages (400 player-true runs per scenario)
 npm run docs:generate-data
-
-# High-fidelity audit (300 runs, used for nightly CI)
-AUDIT_RUNS=300 npm run docs:generate-data
 ```
 
 The audit gate used in CI:
 
 ```bash
-npm run audit:gate
+npm run audit:gate -- --runs 400
 ```
 
-This fails if any scenario has a Critical finding, enforcing a minimum content health bar before publishing.
+This fails if any scenario has a Critical finding. Warnings (including a win rate just outside band) do not fail the gate. Do not lower n to make a warning disappear.

@@ -11,7 +11,7 @@ on:
       run_count:
         description: 'Number of simulation runs per scenario'
         required: false
-        default: '100'
+        default: '400'
 
 concurrency:
   group: pages
@@ -39,7 +39,7 @@ jobs:
 
       - name: Generate audit data and content catalog
         env:
-          AUDIT_RUNS: ${{ github.event.inputs.run_count || '100' }}
+          AUDIT_RUNS: ${{ github.event.inputs.run_count || '400' }}
           COMMIT_SHA: ${{ github.sha }}
         run: npm run docs:generate-data
 
