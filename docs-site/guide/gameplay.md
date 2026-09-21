@@ -1,91 +1,100 @@
-# Gameplay
+# How to play
 
-DDDnD is a humorous simulation of software architecture decision-making using concepts from Domain-Driven Design. You play as a systems architect trying to improve a struggling system before time — and stakeholder patience — runs out.
+::: tip This is How to Play
+Player rules for the live table. If you are inspecting packs, audits, or JSON wiring, use the [Designer Desk](/dashboard/).
+:::
 
-## Your Goal
+**Domain-Driven Design n' Dragons** is a tabletop adventure of software architecture. The dungeon is a living system. You join the council as the systems architect. Play free at [dddnd.app](https://dddnd.app).
 
-Improve the system before the turn limit expires. Every decision is a tradeoff between competing concerns:
+## Your quest
 
-| Score | What It Measures |
+Leave the system stronger than you found it, and keep the council with you, before the turns run out.
+
+Each turn you play **one card** — a real architectural decision — or you spend the turn searching. Then the world may interrupt, and the council answers. Every choice trades something away.
+
+## The table
+
+You sit at the scenario’s table. The software system is the scene in the center. Stakeholders sit around it.
+
+- **Legal hand** — usually six cards. Play from the hand in front of you.
+- **Grimoire** — the rest of the pack. Look. Inspect. Do not play from the shelves.
+- **Consult the Archives** — spend the turn to replace a card you do not want. Searching is delay.
+- **Vials** — the system’s mood along the table, not a spreadsheet.
+- **The council** — people in seats, each with their own agenda.
+
+## Your move
+
+Each turn you either play one card onto the table, or Consult and replace a card. If the deck is empty, Consult stays hidden: there is nothing left to draw.
+
+Playing a card (or finishing a consult) lands on the table first. Then last turn may catch up as aftershocks. Then a random event may land — **Reality hits** — and the council may speak.
+
+The engine still resolves delayed effects before your action. The table shows *your* move first so you can see what you just did. Press **Continue** through each beat. Skip remaining if you want speed.
+
+Annals is a look at what already happened. The Grimoire shows what remains. Neither lets you play around the hand.
+
+## The system (six vials)
+
+These are the campaign scores. Up is good. The short name is what you read in the moment; the long name teaches on hover or tap.
+
+| Score | Short | What it measures |
+|---|---|---|
+| Domain Clarity | Clarity | How well-bounded and coherent the system is |
+| Maintainability | Craft | How easily the codebase can be changed |
+| Delivery Confidence | Delivery | Ability to ship reliably |
+| Team Morale | Morale | Team confidence and energy |
+| User Trust | Trust | End-user confidence in the system |
+| Budget | Purse | Runway for architectural investment |
+
+Council **satisfaction** (0–100) lives on the seats, not as a seventh vial.
+
+Mood bands on a vial: Steady / Strained / Troubled / Critical.
+
+## Aftershocks
+
+Some cards echo forward. A refactor may slow delivery now and raise clarity later. A quick fix may buy today and spawn tomorrow’s crisis. Aftershock marks on a card warn you. When one lands, the table pauses, shakes, and names what arrived.
+
+## Consult the Archives
+
+Open Consult, mark a hand card, choose a remaining page (or take a random legal one), and approve both names — “X replaced by Y.” Aftershocks, events, and the council still resolve. The turn was spent searching.
+
+## Collapse
+
+When a core score falls too far, coupling binds the table:
+
+- **Delivery collapse** — gains to domain clarity and maintainability weaken
+- **Morale collapse** — maintainability gains shrink
+- **Trust collapse** — delivery gains shrink
+
+Card glances show the reduced values. Stabilize the collapsed score first.
+
+## A worthy ending
+
+Your outcome is a **tier** (how well you did) and an **ending** (what kind of architect the table remembers). There is no single path.
+
+Tiers in the base pack: Collapse, Struggle, Survival, Success, Triumph.
+
+## Adventures
+
+The lobby marks each plate Easy / Normal / Hard from the same win-rate bands the audit gates on. The fan opens on the gentlest plate.
+
+| Adventure | Premise |
 |---|---|
-| Domain Clarity | How well-bounded and coherent the system is |
-| Maintainability | How easily the codebase can be changed |
-| Developer Morale | Team confidence and energy |
-| Stakeholder Satisfaction | Organizational support for your work |
-| Delivery Confidence | Ability to ship reliably |
-| User Trust | End-user perception of system quality |
-| Budget | Remaining runway for architectural investment |
+| **The Merger of Minor Chaos** | Reconcile duplicate systems after an acquisition |
+| **The Monolith of Mild Despair** | Stabilize a tangled legacy monolith |
+| **Compliance Gauntlet** | Survive regulatory pressure without losing delivery |
+| **Startup Hypergrowth** | Scale under explosive growth |
+| **Microservice Sprawl** | Restore clarity to an over-fragmented landscape |
 
-## Core Loop
+Two tutorials teach the table first: **First Steps** and **Systems Under Pressure**. They use their own scores and never mix into the main pack.
 
-Each turn follows this sequence:
+## Classes
 
-1. **Resolve Aftershocks** — Any delayed effects from previous decisions trigger first.
-2. **Play a Card** — Choose an architecture card from your hand. Each card represents a real architectural decision (defining bounded contexts, introducing a shared model, clarifying team ownership, etc.).
-3. **Resolve Card Effects** — Scores shift immediately. Some cards schedule delayed consequences.
-4. **Stakeholder Reactions** — Each stakeholder checks their reaction rules against current system conditions and may change their satisfaction level.
-5. **Random Event** — One event may fire. Events represent unexpected pressures like production incidents or leadership changes.
+Before you sit, you pick a class. It is run identity. Some classes carry a score affinity.
 
-## Architecture Cards
-
-Cards are the main player action. A card may:
-
-- Adjust scores immediately (positive or negative)
-- Change one or more stakeholders' satisfaction
-- Schedule an **Architectural Aftershock** — a delayed effect that resolves in a future turn
-
-Cards are drawn from the scenario's card pool. Not all cards are available every turn — some have prerequisite conditions.
-
-## Architectural Aftershocks
-
-Some decisions have delayed consequences, good or bad. Examples:
-
-- A refactoring pass improves domain clarity two turns later
-- A rushed shortcut accumulates technical debt that surfaces after a deadline
-
-Aftershocks resolve at the **start** of the turn they are scheduled for, before you play your next card. Plan accordingly.
-
-## Stakeholders
-
-Stakeholders represent organizational forces that react to how the system is evolving. Each has:
-
-- A **satisfaction level** tracked on a 0–100 scale
-- Scenario-defined starting satisfaction
-- **Reaction rules** that trigger on specific score thresholds or game conditions
-- Labels like _Critical_, _Neutral_, and _Supportive_ at defined thresholds
-
-Examples of stakeholders you might face: CTO, VP Product, Lead Developer, Operations Manager.
-
-Stakeholders can help or hinder your progress. Keeping them satisfied — or knowing whose support you can afford to lose — is a key strategic consideration.
-
-## Random Events
-
-Each turn, one event may occur after your card play. Events are drawn from the scenario's event pool and represent external pressures:
-
-- Production incidents
-- Customer demands
-- Leadership changes
-
-Only one event fires per turn. Events can shift scores, alter stakeholder satisfaction, or create new constraints.
-
-## Win Conditions
-
-Runs end with a scored outcome depending on your final state:
-
-- **Success** — Core objectives met, system health above threshold
-- **Partial Success** — Some objectives met, moderate system health
-- **Failure** — Core objectives not met or system health collapsed
-
-Your ending unlocks an **outcome archetype** — a flavor title for your run, such as _The Boundary Builder_, _The Firefighter_, or _The System Stabilizer_ — which can be shared as a result card.
-
-## Scenarios
-
-DDDnD ships with five main scenarios, each with its own starting scores, stakeholder roster, card pool, event pool, and turn horizon:
-
-| Scenario | Premise |
+| Class | Inclination |
 |---|---|
-| **The Monolith of Mild Despair** | Stabilize a tangled legacy monolith before delivery confidence collapses |
-| **Microservice Sprawl** | Restore clarity to an over-fragmented service landscape |
-| **Compliance Gauntlet** | Survive regulatory pressure without sacrificing delivery capability |
-| **Startup Hypergrowth** | Scale a product under explosive growth and operational strain |
-| **The Merger of Minor Chaos** | Reconcile duplicate systems and competing domain models after an acquisition |
+| Boundary Mage | Domain clarity and structure |
+| Stakeholder Bard | The council and the politics |
+| Reliability Cleric | Stability and operations |
+| Legacy Ranger | Incremental survival |
+| Delivery Rogue | Shipping under chaos |

@@ -1,6 +1,10 @@
-# Reading the Audit Report
+# Reading the audit
 
-The DDDnD audit report is a data-driven health check that runs hundreds of simulated playthroughs and synthesizes the results into structured findings. The [Audit Dashboard](/dashboard/) surfaces this data visually. This page explains what each section means and how to act on it.
+::: info For authors
+This explains the Designer Desk numbers. Player rules are in [The table](/guide/gameplay).
+:::
+
+The DDDnD audit report is a data-driven health check that runs hundreds of simulated playthroughs and synthesizes the results into structured findings. The [Designer Desk](/dashboard/) surfaces this data visually. This page explains what each section means and how to act on it.
 
 ## What the Audit Measures
 
@@ -57,7 +61,7 @@ Whether delayed effects are legible and proportionate. Flags aftershocks that ar
 
 ## The Audit Dashboard
 
-The [Audit Dashboard](/dashboard/) shows:
+The [Designer Desk](/dashboard/) shows:
 
 - **Scenario Overview** — Pass/Warning/Critical status per scenario with win rate
 - **Balance Metrics** — Win rate and average turns per scenario as bar charts
