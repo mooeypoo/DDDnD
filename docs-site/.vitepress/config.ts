@@ -73,6 +73,7 @@ export default defineConfig({
             { text: 'What is the catalog?', link: '/dashboard/content-catalog-intro' },
             { text: 'Adventures', link: '/dashboard/scenarios' },
             { text: 'Cards', link: '/dashboard/cards' },
+            { text: 'Aftershocks', link: '/dashboard/delayed-effects' },
             { text: 'Stakeholders', link: '/dashboard/stakeholders' },
             { text: 'Events', link: '/dashboard/events' },
           ],

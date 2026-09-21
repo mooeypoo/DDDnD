@@ -12,6 +12,7 @@ type ContentCatalog = {
   cards?: NamedEntity[]
   stakeholders?: NamedEntity[]
   events?: NamedEntity[]
+  delayed_effects?: NamedEntity[]
 }
 
 type AuditReport = {
@@ -29,7 +30,7 @@ const dataDir = path.resolve(projectRoot, 'docs-site/public/data')
 
 const GENERATED_MARKER = '<!-- GENERATED_ENTITY_PAGE: DO NOT EDIT -->'
 
-type EntityKind = 'scenario' | 'card' | 'stakeholder' | 'event'
+type EntityKind = 'scenario' | 'card' | 'stakeholder' | 'event' | 'delayed_effect'
 
 type EntityPageDefinition = {
   kind: EntityKind
@@ -69,9 +70,17 @@ const entityDefinitions: EntityPageDefinition[] = [
     kind: 'event',
     collectionKey: 'events',
     outputSubdir: 'events',
-    backLabel: 'Back to Event Catalog',
+    backLabel: 'Back to Events',
     backHref: '/dashboard/events',
     titleFallbackPrefix: 'Event',
+  },
+  {
+    kind: 'delayed_effect',
+    collectionKey: 'delayed_effects',
+    outputSubdir: 'delayed-effects',
+    backLabel: 'Back to Aftershocks',
+    backHref: '/dashboard/delayed-effects',
+    titleFallbackPrefix: 'Aftershock',
   },
 ]
 

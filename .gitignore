@@ -21,6 +21,7 @@ docs-site/dashboard/scenarios/*.md
 docs-site/dashboard/cards/*.md
 docs-site/dashboard/stakeholders/*.md
 docs-site/dashboard/events/*.md
+docs-site/dashboard/delayed-effects/*.md
 
 # Editor directories and files
 .vscode/*
