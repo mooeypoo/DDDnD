@@ -678,3 +678,4 @@ Chamber chrome is welcome if the text stays large and in open measure. Flavor is
 - **2026-09-21** — Designer Desk catalog is playable-latest, includes tutorials and aftershocks, and hides retired files in a small history fold.
 - **2026-09-21** — Pages audit default is 400 player-true runs, same as the CI gate. The desk shows n, seed, and scenario version.
 - **2026-09-21** — Docs authoring guide now points at playable monolith v2 and treats untracked scores as a pack error.
+- **2026-09-21** — Docs site defaults to chamber dark (Cinzel, ember field, door plaques) with a wider measure so the flavor does not shrink the text.

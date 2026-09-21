@@ -8,6 +8,7 @@ export default defineConfig({
   title: 'DDDnD',
   description: 'How to play Domain-Driven Design n’ Dragons, plus the designer desk for packs and audits.',
   base: '/DDDnD/',
+  appearance: 'dark',
 
   root: path.join(projectRoot, 'docs-site'),
   outDir: path.join(projectRoot, 'docs-site/.vitepress/dist'),
