@@ -16,15 +16,15 @@
   "scenarios": [
     {
       "id": "monolith_of_mild_despair",
-      "version": 1
+      "version": 2
     },
     {
       "id": "microservice_sprawl",
-      "version": 1
+      "version": 2
     },
     {
       "id": "compliance_gauntlet",
-      "version": 1
+      "version": 2
     },
     {
       "id": "startup_hypergrowth",
@@ -32,7 +32,7 @@
     },
     {
       "id": "merger_of_minor_chaos",
-      "version": 1
+      "version": 2
     }
   ],
   "classes": [
@@ -79,11 +79,16 @@
   "content": {
     "scenarios": [
       "compliance_gauntlet-v1.json",
+      "compliance_gauntlet-v2.json",
       "merger_of_minor_chaos-v1.json",
+      "merger_of_minor_chaos-v2.json",
       "microservice_sprawl-v1.json",
+      "microservice_sprawl-v2.json",
       "monolith_of_mild_despair-v1.json",
+      "monolith_of_mild_despair-v2.json",
       "startup_hypergrowth-v1.json",
-      "test_scenario-v1.json"
+      "test_scenario-v1.json",
+      "test_scenario-v2.json"
     ],
     "cards": [
       "absorb_emergency_production_fix-v1.json",
@@ -98,6 +103,7 @@
       "deprecate_legacy_api-v1.json",
       "document_ubiquitous_language-v1.json",
       "emergency_architecture_review-v1.json",
+      "emergency_architecture_review-v2.json",
       "establish_team_ownership-v1.json",
       "extract_shared_kernel-v1.json",
       "fortify_observability_stack-v1.json",
@@ -118,12 +124,14 @@
       "publish_engineering_blog-v1.json",
       "refactor_core_aggregate-v1.json",
       "refactor_module-v1.json",
+      "refactor_module-v2.json",
       "run_integration_workshop-v1.json",
       "run_security_audit-v1.json",
       "scale_incident_command-v1.json",
       "shadow_it_consolidation-v1.json",
       "ship_quick_fix-v1.json",
       "spike_on_migration_strategy-v1.json",
+      "spike_on_migration_strategy-v2.json",
       "sunset_duplicate_system-v1.json",
       "sunset_legacy_feature-v1.json"
     ],
@@ -177,11 +185,9 @@
       "delivery_confidence-v1.json",
       "domain_clarity-v1.json",
       "maintainability-v1.json",
-      "mismatched_score-v1.json",
       "team_morale-v1.json",
       "technical_debt-v1.json",
-      "user_trust-v1.json",
-      "version_mismatch-v1.json"
+      "user_trust-v1.json"
     ],
     "events": [
       "acquisition_rumor-v1.json",
@@ -203,6 +209,7 @@
       "new_cto_mandate-v1.json",
       "open_source_contribution_viral-v1.json",
       "production_incident-v1.json",
+      "production_incident-v2.json",
       "regulatory_compliance_deadline-v1.json",
       "service_discovery_failure-v1.json",
       "service_outage_cascade-v1.json",
@@ -227,6 +234,7 @@
       "documentation_helps_onboarding-v1.json",
       "duplicate_system_costs-v1.json",
       "improved_clarity-v1.json",
+      "improved_clarity-v2.json",
       "integration_complexity_emerges-v1.json",
       "investor_confidence_boost-v1.json",
       "knowledge_gap_widens-v1.json",

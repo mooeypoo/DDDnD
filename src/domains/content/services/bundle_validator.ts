@@ -13,6 +13,7 @@
  */
 
 import { ScenarioBundle, versionRefKey } from '../model'
+import type { NumericCondition, ScoreChange } from '../model/content_types'
 
 /**
  * Validation error details.
@@ -56,6 +57,46 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
 
   function isNonNegativeInteger(value: number): boolean {
     return Number.isInteger(value) && value >= 0
+  }
+
+  const trackedScoreIds = new Set(bundle.scenario.score_refs.map((ref) => ref.id))
+
+  function recordUntrackedScore(
+    scoreId: string,
+    sourceType: 'card' | 'event' | 'delayed_effect' | 'reaction_rule' | 'requirement' | 'failure_condition',
+    sourceId: string
+  ): void {
+    if (trackedScoreIds.has(scoreId)) {
+      return
+    }
+
+    errors.push({
+      type: 'untracked_score',
+      message: `${sourceType} ${sourceId} references score "${scoreId}" which is not in the scenario score_refs`,
+      details: { scoreId, sourceType, sourceId }
+    })
+  }
+
+  function recordUntrackedScoreChanges(
+    scoreChanges: ScoreChange[] | undefined,
+    sourceType: 'card' | 'event' | 'delayed_effect' | 'reaction_rule',
+    sourceId: string
+  ): void {
+    for (const change of scoreChanges ?? []) {
+      recordUntrackedScore(change.score_id, sourceType, sourceId)
+    }
+  }
+
+  function recordUntrackedScoreConditions(
+    conditions: NumericCondition[] | undefined,
+    sourceType: 'requirement' | 'failure_condition',
+    sourceId: string
+  ): void {
+    for (const condition of conditions ?? []) {
+      if (condition.target_type === 'score') {
+        recordUntrackedScore(condition.target_id, sourceType, sourceId)
+      }
+    }
   }
   
   // Validate scenario references scores that exist
@@ -138,6 +179,9 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
       })
     }
 
+    recordUntrackedScoreChanges(card.score_changes, 'card', cardKey)
+    recordUntrackedScoreConditions(card.requirements, 'requirement', cardKey)
+
     for (const effectRef of card.delayed_effect_refs) {
       const key = versionRefKey(effectRef)
       if (!bundle.delayed_effects.has(key)) {
@@ -164,6 +208,8 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
   
   // Validate events reference delayed effects that exist
   for (const [eventKey, event] of bundle.events) {
+    recordUntrackedScoreChanges(event.score_changes, 'event', eventKey)
+
     for (const effectRef of event.delayed_effect_refs) {
       const key = versionRefKey(effectRef)
       if (!bundle.delayed_effects.has(key)) {
@@ -175,6 +221,20 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
       }
     }
   }
+
+  for (const [effectKey, effect] of bundle.delayed_effects) {
+    recordUntrackedScoreChanges(effect.score_changes, 'delayed_effect', effectKey)
+  }
+
+  for (const [ruleKey, rule] of bundle.stakeholder_reaction_rules) {
+    recordUntrackedScoreChanges(rule.score_changes, 'reaction_rule', ruleKey)
+  }
+
+  recordUntrackedScoreConditions(
+    bundle.scenario.failure_conditions,
+    'failure_condition',
+    `${bundle.scenario.id}-v${bundle.scenario.version}`
+  )
   
   // Validate outcome tier refs if present
   if (bundle.scenario.outcome_tier_refs) {

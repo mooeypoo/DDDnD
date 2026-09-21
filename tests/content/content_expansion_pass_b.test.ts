@@ -381,9 +381,9 @@ describe('Pass B content expansion', () => {
 
   describe('all expanded scenario bundles validate', () => {
     const scenarios: VersionRef[] = [
-      { id: 'monolith_of_mild_despair', version: 1 },
-      { id: 'microservice_sprawl', version: 1 },
-      { id: 'compliance_gauntlet', version: 1 },
+      { id: 'monolith_of_mild_despair', version: 2 },
+      { id: 'microservice_sprawl', version: 2 },
+      { id: 'compliance_gauntlet', version: 2 },
       { id: 'startup_hypergrowth', version: 1 }
     ]
 
@@ -554,15 +554,15 @@ describe('Pass B content expansion', () => {
     it('runs all four scenarios without errors', async () => {
       const provider = createFileContentProvider(contentRoot)
 
-      const scenarioIds = [
-        'monolith_of_mild_despair',
-        'microservice_sprawl',
-        'compliance_gauntlet',
-        'startup_hypergrowth'
+      const scenarios: VersionRef[] = [
+        { id: 'monolith_of_mild_despair', version: 2 },
+        { id: 'microservice_sprawl', version: 2 },
+        { id: 'compliance_gauntlet', version: 2 },
+        { id: 'startup_hypergrowth', version: 1 }
       ]
 
-      for (const scenarioId of scenarioIds) {
-        const bundle = await buildScenarioBundle(scenarioId, 1, provider)
+      for (const scenarioRef of scenarios) {
+        const bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
         const report = simulate_runs({ scenario_bundle: bundle, runs: 3, seed: 'smoke-test' })
 
         expect(report.total_runs).toBe(3)

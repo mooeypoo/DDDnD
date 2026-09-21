@@ -1,0 +1,61 @@
+{
+  "id": "test_scenario",
+  "version": 2,
+  "name": "Test Scenario",
+  "description": "A minimal test scenario for validating the content system",
+  "short_description": "A compact validation scenario for content loading and bundling.",
+  "flavor_text": "Testing the content loading pipeline",
+  "max_turns": 10,
+  "starting_scores": {
+    "domain_clarity": 50,
+    "maintainability": 50,
+    "delivery_confidence": 50,
+    "team_morale": 60,
+    "user_trust": 50,
+    "budget": 50
+  },
+  "score_refs": [
+    {
+      "id": "domain_clarity",
+      "version": 1
+    },
+    {
+      "id": "maintainability",
+      "version": 1
+    },
+    {
+      "id": "delivery_confidence",
+      "version": 1
+    },
+    {
+      "id": "team_morale",
+      "version": 1
+    },
+    {
+      "id": "user_trust",
+      "version": 1
+    },
+    {
+      "id": "budget",
+      "version": 1
+    }
+  ],
+  "stakeholder_refs": [
+    {
+      "id": "tech_lead",
+      "version": 1
+    }
+  ],
+  "card_refs": [
+    {
+      "id": "refactor_module",
+      "version": 2
+    }
+  ],
+  "event_refs": [
+    {
+      "id": "production_incident",
+      "version": 2
+    }
+  ]
+}

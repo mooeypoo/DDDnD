@@ -548,11 +548,35 @@ The last two sections came from watching people play. This one came from doubtin
 
 **What it cost to have been wrong.** Slice 5 was *deferred* on the strength of a 25-run measurement that said sprawl and hypergrowth were above their bands. That reading was noise. A balance decision had already been made on a broken instrument, and the honest version of this talk says so.
 
+### Decisions from leftover scores (2026-09-21)
+
+The six-score model shipped, but one aftershock still wrote `technical_debt`. The validator only checked that `score_refs` exist as files, so the leftover passed every pack test.
+
+**Playable content is v2.** Manifest entry points for monolith, sprawl, compliance, and merger now load version 2. `startup_hypergrowth` stays on v1; it never queued `improved_clarity`. The v1 scenario files remain for history. We are not supporting exact-run replay of those retired versions.
+
+**The ghost was not cosmetic.** `applyScoreChanges` writes unknown ids into `game_state.scores`. `listPressureScoreIds` ranks every key in that map, so `technical_debt: -10` displaced a real vial on player-true consult. Removing the leftover changes bot pressure even if no other number moved.
+
+**Option B, no retune in this change.** `improved_clarity-v2` is `domain_clarity +7` and `team_morale +5`. Four scenarios gain a delayed clarity payoff they did not have. The 400-run gate on this tip, compared to the slice-13 baseline:
+
+| Scenario | Band | Slice 13 (n=400) | This tip (n=400) |
+|---|---|---|---|
+| merger_of_minor_chaos | 50–80% | inside | inside |
+| startup_hypergrowth | 35–60% | inside | inside |
+| monolith_of_mild_despair | 45–70% | inside | 70.5% (warning) |
+| compliance_gauntlet | 40–68% | inside | 68.3% (warning) |
+| microservice_sprawl | 25–50% | 52.0% | 55.3% (warning) |
+
+Sprawl was already at the ceiling. The ghost consult key is gone and four scenarios gained a delayed clarity payoff; both push win rate up. Follow-up is content vs band. Do not lower the gate.
+
+**The check belongs in the validator.** Untracked scores are bundle errors, not audit findings. The engine still writes unknown ids; the pack is not allowed to ask it to.
+
 ### Challenges worth a slide
 
 - A deterministic PRNG is not an independent one. Adjacent seed strings plus a hash without avalanche gave a 200-run audit batch roughly 15 runs of information, and every test passed.
 - Measure a harness before trusting it: batch variance against binomial expectation localises a sampling fault without knowing anything about the domain.
 - Size a statistical gate to the thing it checks. 50 runs carries a ±14 point margin on a win rate, which cannot police a 25-point band.
+- A score the scenario does not track still writes engine state. Ghost keys hijack consult pressure. `score_refs` is the tracked set; reachable `score_changes` must stay inside it.
+- Retiring a playable version is a manifest entry-point bump, not a file delete. Exact-run of the old version is not a support target unless we say so.
 - Properties that live *between* inputs need tests written over families of inputs. No single-seed assertion can see seed correlation.
 - Derive player-facing difficulty from the balance bands CI already enforces, and pin the resulting labels, or the badge and the design intent drift apart.
 - Once the marks exist, sort the fan on the same number and open on the gentlest plate. A badge in the corner of the last card is not a recommendation. Do not add a `sort_order` field to do this.
@@ -631,3 +655,5 @@ The last two sections came from watching people play. This one came from doubtin
 - **2026-09-18** — `/play` holds a chamber veil until lobby scene art and class portraits are preloaded. Content loading already disabled the sit button; the images were still popping in behind it.
 - **2026-09-18** — Council speech bubbles float above the seat and only auto-open while that stakeholder is voicing. After the beat, hover or tap recalls the line. In-flow bubbles were shoving seats under the hand.
 - **2026-09-18** — Score shorts are pack data (`short_name` on every Score). Play UI uses the short everywhere; the weather strip teaches the long name on hover (desktop) or tap (mobile). No more UI id→Craft maps.
+- **2026-09-21** — Playable entry points for monolith, sprawl, compliance, and merger move to v2. `improved_clarity-v2` pays `domain_clarity +7` / `team_morale +5` instead of writing ghost `technical_debt`. v1 files stay on disk; exact-run of those scenario versions is not a support target. See [Decisions from leftover scores](#decisions-from-leftover-scores-2026-09-21).
+- **2026-09-21** — Bundle validation now errors on reachable `score_id`s the scenario does not track. The 400-run gate on this tip (no retune): merger and hypergrowth inside band; monolith 70.5% vs 70%; compliance 68.3% vs 68%; sprawl 55.3% vs 50% (slice-13 baseline 52.0%). Follow-up is content vs band. Do not lower the gate.

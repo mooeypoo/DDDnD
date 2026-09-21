@@ -352,10 +352,11 @@ describe('Balance pass A — telemetry-informed tuning', () => {
 
   describe('all scenario bundles remain valid after tuning', () => {
     const scenarios: VersionRef[] = [
-      { id: 'monolith_of_mild_despair', version: 1 },
-      { id: 'microservice_sprawl', version: 1 },
-      { id: 'compliance_gauntlet', version: 1 },
-      { id: 'startup_hypergrowth', version: 1 }
+      { id: 'monolith_of_mild_despair', version: 2 },
+      { id: 'microservice_sprawl', version: 2 },
+      { id: 'compliance_gauntlet', version: 2 },
+      { id: 'startup_hypergrowth', version: 1 },
+      { id: 'merger_of_minor_chaos', version: 2 }
     ]
 
     for (const scenarioRef of scenarios) {
@@ -371,17 +372,17 @@ describe('Balance pass A — telemetry-informed tuning', () => {
   // ── Determinism preserved ──────────────────────────────────────
 
   describe('determinism is preserved after tuning', () => {
-    const scenarios = [
-      'monolith_of_mild_despair',
-      'compliance_gauntlet',
-      'startup_hypergrowth',
-      'microservice_sprawl'
+    const scenarios: VersionRef[] = [
+      { id: 'monolith_of_mild_despair', version: 2 },
+      { id: 'compliance_gauntlet', version: 2 },
+      { id: 'startup_hypergrowth', version: 1 },
+      { id: 'microservice_sprawl', version: 2 }
     ]
 
-    for (const scenarioId of scenarios) {
-      it(`${scenarioId} produces identical results with same seed`, async () => {
+    for (const scenarioRef of scenarios) {
+      it(`${scenarioRef.id} produces identical results with same seed`, async () => {
         const provider = createFileContentProvider(contentRoot)
-        const bundle = await buildScenarioBundle(scenarioId, 1, provider)
+        const bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
 
         const reportA = simulate_runs({
           scenario_bundle: bundle,

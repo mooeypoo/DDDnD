@@ -75,11 +75,12 @@ Purpose: detect missing or malformed authored support.
 Examples:
 
 1. scenario references missing content
-2. stakeholders with no recovery path
-3. scenarios lacking enough playable card variety
-4. event pools that are too small or one-dimensional
-5. cards that can never become playable
-6. outcome tiers that are unreachable
+2. reachable cards, events, delayed effects, or reaction rules change a score the scenario does not track
+3. stakeholders with no recovery path
+4. scenarios lacking enough playable card variety
+5. event pools that are too small or one-dimensional
+6. cards that can never become playable
+7. outcome tiers that are unreachable
 
 ### 6.2 Behavioral audit
 
@@ -450,6 +451,8 @@ Examples:
 2. scenario contains too few event refs
 3. card requirements reference impossible thresholds
 4. scenario lacks a plausible mitigation card for a key failure vector
+
+Untracked `score_id`s on reachable content are **bundle validation errors**, not audit findings. `validateScenarioBundle` owns that check so invalid packs never reach simulation.
 
 ### 10A.6 Phase 1 CLI shape
 

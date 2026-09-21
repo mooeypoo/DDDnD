@@ -108,6 +108,8 @@ Cards may include:
 - cooldown windows (`cooldown_turns`)
 - descriptive flavor text
 
+Every `score_id` on a card, event, delayed effect, reaction rule, card requirement, or scenario failure condition must be listed in the consuming scenario’s `score_refs`. Packs that touch a score the scenario does not track fail bundle validation.
+
 Cards must remain understandable to readers.
 
 ---
@@ -188,6 +190,8 @@ Each delayed effect specifies:
 - number of turns until resolution
 - score or stakeholder changes
 - flavor text explaining the effect
+
+Score changes on delayed effects are subject to the same `score_refs` rule as cards and events.
 
 ---
 

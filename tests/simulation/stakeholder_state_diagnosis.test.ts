@@ -65,7 +65,7 @@ function createFileContentProvider(contentRoot: string): ContentProvider {
 async function createMonolithScenarioBundle() {
   const contentRoot = path.resolve(__dirname, '../../content')
   const provider = createFileContentProvider(contentRoot)
-  return buildScenarioBundle('monolith_of_mild_despair', 1, provider)
+  return buildScenarioBundle('monolith_of_mild_despair', 2, provider)
 }
 
 describe('Stakeholder State Diagnosis', () => {

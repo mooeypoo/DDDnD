@@ -96,7 +96,7 @@ describe('core content pack', () => {
     const contentRoot = path.resolve(__dirname, '../../content')
     const provider = createFileContentProvider(contentRoot)
 
-    const bundle = await buildScenarioBundle('monolith_of_mild_despair', 1, provider)
+    const bundle = await buildScenarioBundle('monolith_of_mild_despair', 2, provider)
 
     expect(() => assertValidBundle(bundle)).not.toThrow()
 
@@ -169,10 +169,11 @@ describe('core content pack', () => {
     const provider = createFileContentProvider(contentRoot)
 
     const integratedScenarios: VersionRef[] = [
-      { id: 'monolith_of_mild_despair', version: 1 },
-      { id: 'microservice_sprawl', version: 1 },
-      { id: 'compliance_gauntlet', version: 1 },
-      { id: 'startup_hypergrowth', version: 1 }
+      { id: 'monolith_of_mild_despair', version: 2 },
+      { id: 'microservice_sprawl', version: 2 },
+      { id: 'compliance_gauntlet', version: 2 },
+      { id: 'startup_hypergrowth', version: 1 },
+      { id: 'merger_of_minor_chaos', version: 2 }
     ]
 
     for (const scenarioRef of integratedScenarios) {
@@ -206,18 +207,24 @@ describe('core content pack', () => {
     const provider = createFileContentProvider(contentRoot)
 
     const integratedScenarios: VersionRef[] = [
-      { id: 'monolith_of_mild_despair', version: 1 },
-      { id: 'microservice_sprawl', version: 1 },
-      { id: 'compliance_gauntlet', version: 1 },
-      { id: 'startup_hypergrowth', version: 1 }
+      { id: 'monolith_of_mild_despair', version: 2 },
+      { id: 'microservice_sprawl', version: 2 },
+      { id: 'compliance_gauntlet', version: 2 },
+      { id: 'startup_hypergrowth', version: 1 },
+      { id: 'merger_of_minor_chaos', version: 2 }
     ]
 
     for (const scenarioRef of integratedScenarios) {
       const bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
       const scoreIds = collectScoreIds(bundle)
 
+      const tracked = new Set(bundle.scenario.score_refs.map((ref) => ref.id))
+      const untracked = [...scoreIds].filter((scoreId) => !tracked.has(scoreId))
+
       expect(scoreIds.has('team_morale')).toBe(true)
       expect(scoreIds.has('developer_morale')).toBe(false)
+      expect(scoreIds.has('technical_debt')).toBe(false)
+      expect(untracked).toEqual([])
     }
   })
 
@@ -228,7 +235,7 @@ describe('core content pack', () => {
     const monolithBundle = await buildScenarioBundle('monolith_of_mild_despair', 1, provider)
     const startupBundle = await buildScenarioBundle('startup_hypergrowth', 1, provider)
     const complianceBundle = await buildScenarioBundle('compliance_gauntlet', 1, provider)
-    const sprawlBundle = await buildScenarioBundle('microservice_sprawl', 1, provider)
+    const sprawlBundle = await buildScenarioBundle('microservice_sprawl', 2, provider)
 
     expect(monolithBundle.cards.has('pay_down_incident_backlog-v1')).toBe(true)
     expect(monolithBundle.cards.has('launch_compliance_audit_trail-v1')).toBe(false)
@@ -240,6 +247,6 @@ describe('core content pack', () => {
     expect(complianceBundle.cards.has('align_budget_with_architecture-v1')).toBe(true)
 
     expect(sprawlBundle.cards.has('coordinate_service_contracts-v1')).toBe(true)
-    expect(sprawlBundle.cards.has('refactor_module-v1')).toBe(true)
+    expect(sprawlBundle.cards.has('refactor_module-v2')).toBe(true)
   })
 })
