@@ -8,14 +8,24 @@ hero:
   image:
     src: /logo.svg
     alt: DDDnD
-  actions:
-    - theme: brand
-      text: Player help
-      link: /guide/gameplay
-    - theme: alt
-      text: Game design
-      link: /dashboard/
 ---
+
+<script setup>
+import { withBase } from 'vitepress'
+</script>
+
+<div class="path-intros">
+  <div>
+    <h3>Player help</h3>
+    <p>For anyone who wants to play. It covers the war table: your hand of six, scores, aftershocks, and how a run ends.</p>
+    <a class="path-button" :href="withBase('/guide/gameplay')">Player help</a>
+  </div>
+  <div>
+    <h3>Game design</h3>
+    <p>For authors, testers, and anyone looking under the hood. It covers the content pack, audit numbers, and how to write or change adventures.</p>
+    <a class="path-button" :href="withBase('/dashboard/')">Game design</a>
+  </div>
+</div>
 
 ## The game
 
