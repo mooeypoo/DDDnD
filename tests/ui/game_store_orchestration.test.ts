@@ -152,6 +152,20 @@ describe('game_store orchestration', () => {
     )
   })
 
+  it('reuses a scenario bundle the lobby already started loading', async () => {
+    const store = useGameStore()
+
+    store.warm_scenario_bundle('monolith_of_mild_despair', 1)
+    await store.start_new_run({
+      scenario_id: 'monolith_of_mild_despair',
+      scenario_version: 1,
+      seed: 'warm-seed',
+    })
+
+    expect(buildScenarioBundle).toHaveBeenCalledTimes(1)
+    expect(store.hasActiveRun).toBe(true)
+  })
+
   it('playing a turn updates game_state, turn_resolution, and turn_briefing', async () => {
     const store = useGameStore()
 

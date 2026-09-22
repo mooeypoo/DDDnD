@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { createContentProvider } from '@/domains/content/services/content_provider'
 import { createMockContentProvider } from './test_helpers'
 
 describe('Content Provider', () => {
@@ -104,5 +105,63 @@ describe('Content Provider', () => {
         }
       }
     })
+  })
+})
+
+describe('createContentProvider cache', () => {
+  const score = {
+    id: 'technical_debt',
+    version: 1,
+    name: 'Technical Debt',
+    short_name: 'Debt',
+    description: 'Accumulated shortcuts and compromises in the codebase',
+    default_value: 50,
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('fetches a file once for concurrent and later loads', async () => {
+    let calls = 0
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      calls += 1
+      await new Promise((resolve) => setTimeout(resolve, 15))
+      return {
+        ok: true,
+        json: async () => score,
+      }
+    }))
+
+    const provider = createContentProvider()
+    const ref = { id: 'technical_debt', version: 1 }
+    const [first, second] = await Promise.all([
+      provider.loadScore(ref),
+      provider.loadScore(ref),
+    ])
+    const third = await provider.loadScore(ref)
+
+    expect(first).toEqual(score)
+    expect(second).toEqual(score)
+    expect(third).toEqual(score)
+    expect(calls).toBe(1)
+  })
+
+  it('retries a load that failed', async () => {
+    let calls = 0
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      calls += 1
+      if (calls === 1) {
+        return { ok: false, json: async () => ({}) }
+      }
+      return { ok: true, json: async () => score }
+    }))
+
+    const provider = createContentProvider()
+    const ref = { id: 'technical_debt', version: 1 }
+
+    await expect(provider.loadScore(ref)).rejects.toThrow()
+    await expect(provider.loadScore(ref)).resolves.toEqual(score)
+    expect(calls).toBe(2)
   })
 })

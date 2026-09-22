@@ -6,8 +6,6 @@ import type {
   TurnBriefing,
 } from '@/domains/simulation'
 import type {
-  ChallengeModifier,
-  PlayerClass,
   Scenario,
   ScenarioBundle,
   VersionRef,
@@ -93,11 +91,24 @@ export function createGameStoreRunLifecycleCoordinator(
 
     try {
       const provider = await deps.getMergedContentProvider()
-      const bundle = await deps.buildScenarioBundle(
-        options.scenario_id,
-        options.scenario_version,
-        provider,
-      )
+
+      // Class and modifier files are tiny next to the scenario bundle, and
+      // they do not depend on it. Load them in the same wait.
+      const modifierRef = options.selected_challenge_modifier_ref
+      const classRef = options.selected_class_ref
+      const [bundle, challengeModifier, playerClass] = await Promise.all([
+        deps.buildScenarioBundle(
+          options.scenario_id,
+          options.scenario_version,
+          provider,
+        ),
+        modifierRef
+          ? provider.loadChallengeModifier(modifierRef).catch(() => undefined)
+          : Promise.resolve(undefined),
+        classRef
+          ? provider.loadPlayerClass(classRef).catch(() => undefined)
+          : Promise.resolve(undefined),
+      ])
 
       const seed = options.seed || `seed-${Date.now()}`
       deps.initializeEngine(bundle, seed)
@@ -106,28 +117,14 @@ export function createGameStoreRunLifecycleCoordinator(
         throw new Error('Engine not initialized')
       }
 
-      let challengeModifier: ChallengeModifier | undefined
-      if (options.selected_challenge_modifier_ref) {
-        try {
-          challengeModifier = await provider.loadChallengeModifier(options.selected_challenge_modifier_ref)
-        } catch {
-          // Challenge modifier is optional — continue without it.
-        }
-      }
-
       const initialState = state.engine.value.create_run(
         challengeModifier ? { challenge_modifier: challengeModifier } : undefined,
       )
 
-      if (options.selected_class_ref) {
-        initialState.player_profile.selected_class_ref = options.selected_class_ref
-        try {
-          const playerClass: PlayerClass = await provider.loadPlayerClass(options.selected_class_ref)
-          if (playerClass?.score_affinity) {
-            initialState.player_profile.class_score_affinity = playerClass.score_affinity
-          }
-        } catch {
-          // Class affinity is optional — continue without it.
+      if (classRef) {
+        initialState.player_profile.selected_class_ref = classRef
+        if (playerClass?.score_affinity) {
+          initialState.player_profile.class_score_affinity = playerClass.score_affinity
         }
       }
 

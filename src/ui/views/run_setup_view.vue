@@ -107,15 +107,18 @@ onMounted(async () => {
   }
 
   const tutorialParam = route.query.tutorial as string | undefined
-  if (tutorialParam && gameStore.availableTutorials.length > 0) {
-    const targetOrder = tutorialParam === 'basics' ? 1 : tutorialParam === 'advanced' ? 2 : null
-    if (targetOrder !== null) {
-      const match = gameStore.availableTutorials.find((tutorial) => tutorial.tutorialOrder === targetOrder)
-      if (match) {
-        await launchTutorial(match)
-        return
-      }
-    }
+  const tutorialMatch = tutorialParam
+    ? gameStore.availableTutorials.find((tutorial) => {
+        const targetOrder = tutorialParam === 'basics' ? 1 : tutorialParam === 'advanced' ? 2 : null
+        return targetOrder !== null && tutorial.tutorialOrder === targetOrder
+      })
+    : undefined
+
+  warmKnownScenarios(tutorialMatch)
+
+  if (tutorialMatch) {
+    await launchTutorial(tutorialMatch)
+    return
   }
 
   if (!selectedQuest.value) {
@@ -155,9 +158,26 @@ function selectClass(playerClass: PlayerClass) {
 
 function selectQuest(quest: QuestDisplayModel) {
   selectedQuest.value = quest
+  warmKnownScenarios(quest)
   if (quest.isTutorial) {
     selectedModifier.value = null
   }
+}
+
+function warmKnownScenarios(priority?: QuestDisplayModel | null) {
+  const quests = [...gameStore.availableQuests, ...gameStore.availableTutorials]
+  const first = priority ?? quests[0]
+  if (!first) {
+    return
+  }
+
+  // The chosen scenario goes first. Other adventures wait until it has
+  // finished, so their files do not crowd out the one the player is about to sit.
+  void gameStore.warm_scenario_bundle(first.id, first.version).then(() => {
+    for (const quest of quests) {
+      void gameStore.warm_scenario_bundle(quest.id, quest.version)
+    }
+  })
 }
 
 function selectModifier(modifier: ChallengeModifier | null) {
