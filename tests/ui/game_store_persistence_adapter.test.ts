@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { LocalStorageSaveAdapter } from '@/domains/persistence/adapters/local_storage_save_adapter'
+import { ok } from '@/domains/persistence/services/persistence_result'
 import { createInitialGameState } from '@/domains/simulation/model'
 import { createGameStorePersistenceAdapter } from '@/ui/stores/game_store_persistence_adapter'
 
@@ -24,9 +25,9 @@ function createMockSaveAdapter(
   overrides: Partial<LocalStorageSaveAdapter> = {},
 ): LocalStorageSaveAdapter {
   return {
-    save_serialized_save_file: vi.fn(() => ({ ok: true, value: undefined })),
-    load_serialized_save_file: vi.fn(() => ({ ok: true, value: null })),
-    clear_saved_run: vi.fn(() => ({ ok: true, value: undefined })),
+    save_serialized_save_file: vi.fn(() => ok(undefined)),
+    load_serialized_save_file: vi.fn(() => ok<string | null>(null)),
+    clear_saved_run: vi.fn(() => ok(undefined)),
     ...overrides,
   }
 }
@@ -57,7 +58,7 @@ describe('game_store_persistence_adapter', () => {
 
   it('returns null when no saved payload exists', () => {
     const saveAdapter = createMockSaveAdapter({
-      load_serialized_save_file: vi.fn(() => ({ ok: true, value: null })),
+      load_serialized_save_file: vi.fn(() => ok<string | null>(null)),
     })
     const adapter = createGameStorePersistenceAdapter(saveAdapter)
 
@@ -66,7 +67,7 @@ describe('game_store_persistence_adapter', () => {
 
   it('clears invalid JSON payloads and returns null', () => {
     const saveAdapter = createMockSaveAdapter({
-      load_serialized_save_file: vi.fn(() => ({ ok: true, value: '{not-json' })),
+      load_serialized_save_file: vi.fn(() => ok('{not-json')),
     })
     const adapter = createGameStorePersistenceAdapter(saveAdapter)
 
@@ -84,7 +85,7 @@ describe('game_store_persistence_adapter', () => {
     })
 
     const saveAdapter = createMockSaveAdapter({
-      load_serialized_save_file: vi.fn(() => ({ ok: true, value: payload })),
+      load_serialized_save_file: vi.fn(() => ok(payload)),
     })
 
     const adapter = createGameStorePersistenceAdapter(saveAdapter)
