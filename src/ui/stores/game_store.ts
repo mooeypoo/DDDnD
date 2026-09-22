@@ -105,6 +105,8 @@ export const useGameStore = defineStore('game', () => {
   const availableChallengeModifiers = ref<ChallengeModifier[]>([])
   const contentPackRegistry = ref<ContentPackRegistry | null>(null)
   const externalManifestUrls = ref<string[]>([])
+  /** In-flight or finished bundle loads, keyed by scenario id+version. */
+  const scenarioBundleLoads = new Map<string, Promise<ScenarioBundle>>()
   const contentAdapter = createGameStoreContentAdapter({
     contentPackRegistry,
     externalManifestUrls,
@@ -134,7 +136,7 @@ export const useGameStore = defineStore('game', () => {
     },
     {
       getMergedContentProvider: get_merged_content_provider,
-      buildScenarioBundle,
+      buildScenarioBundle: resolveScenarioBundle,
       initializeEngine: initialize_engine,
       persistRunState: persist_run_state,
       tutorial,
@@ -161,7 +163,59 @@ export const useGameStore = defineStore('game', () => {
     persistenceAdapter.persistGameState(gameState.value)
   }
 
+  function scenarioBundleKey(scenarioId: string, scenarioVersion: number): string {
+    return `${scenarioId}-v${scenarioVersion}`
+  }
+
+  /**
+   * Returns a shared bundle load for this scenario.
+   *
+   * The lobby starts this while the player is still choosing, so sitting down
+   * waits on work already in flight instead of starting it from scratch.
+   */
+  function resolveScenarioBundle(
+    scenarioId: string,
+    scenarioVersion: number,
+    provider: ContentProvider,
+  ): Promise<ScenarioBundle> {
+    const key = scenarioBundleKey(scenarioId, scenarioVersion)
+    const existing = scenarioBundleLoads.get(key)
+    if (existing) {
+      return existing
+    }
+
+    const pending = buildScenarioBundle(scenarioId, scenarioVersion, provider).catch((error: unknown) => {
+      scenarioBundleLoads.delete(key)
+      throw error
+    })
+    scenarioBundleLoads.set(key, pending)
+    return pending
+  }
+
+  function warm_scenario_bundle(scenarioId: string, scenarioVersion: number): Promise<void> {
+    const key = scenarioBundleKey(scenarioId, scenarioVersion)
+    const existing = scenarioBundleLoads.get(key)
+    if (existing) {
+      return existing.then(() => undefined, () => undefined)
+    }
+
+    const pending = (async () => {
+      const provider = await get_merged_content_provider()
+      return buildScenarioBundle(scenarioId, scenarioVersion, provider)
+    })()
+    scenarioBundleLoads.set(key, pending)
+    // The lobby does not await this. Drop a failed warm so the next sit can retry,
+    // and attach a handler so a miss does not surface as an unhandled rejection.
+    void pending.catch(() => {
+      if (scenarioBundleLoads.get(key) === pending) {
+        scenarioBundleLoads.delete(key)
+      }
+    })
+    return pending.then(() => undefined, () => undefined)
+  }
+
   function set_external_manifest_urls(urls: string[]) {
+    scenarioBundleLoads.clear()
     contentAdapter.setExternalManifestUrls(urls)
   }
 
@@ -300,7 +354,7 @@ export const useGameStore = defineStore('game', () => {
 
     try {
       const provider = await get_merged_content_provider()
-      const bundle = await buildScenarioBundle(
+      const bundle = await resolveScenarioBundle(
         restoredGameState.scenario_ref.id,
         restoredGameState.scenario_ref.version,
         provider
@@ -415,6 +469,7 @@ export const useGameStore = defineStore('game', () => {
     load_available_challenge_modifiers,
     get_available_outcome_archetype_ids,
     start_new_run,
+    warm_scenario_bundle,
     refresh_turn_briefing,
     play_turn,
     consult_archives,
