@@ -117,6 +117,18 @@
   --docs-bg-bottom: rgba(80, 28, 8, 0.28);
   --docs-bg-side: rgba(40, 18, 6, 0.35);
   --docs-bg-grid: rgba(255, 220, 140, 0.03);
+
+  /* Brand buttons sit on light gold in dark mode; white label has no contrast. */
+  --vp-button-brand-text: #1a140b;
+  --vp-button-brand-hover-text: #1a140b;
+  --vp-button-brand-active-text: #1a140b;
+}
+
+.dark .VPButton.brand,
+.dark .VPButton.brand:hover,
+.dark .VPButton.brand:focus,
+.dark .VPButton.brand:active {
+  color: #1a140b;
 }
 
 /* Cinzel for all headings */
@@ -181,50 +193,6 @@
   max-width: 36rem;
   font-size: 1.15rem;
   line-height: 1.55;
-}
-
-.site-paths {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-  margin: 1.5rem 0 2.5rem;
-}
-
-.site-paths .path-card {
-  display: block;
-  padding: 1.2rem 1.2rem 1.3rem;
-  background: var(--surface-card);
-  border: 1px solid var(--border-card);
-  border-radius: 4px 14px 4px 14px;
-  box-shadow: inset 0 1px 0 rgba(255, 220, 140, 0.06);
-  text-decoration: none !important;
-  color: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.site-paths .path-card:hover {
-  border-color: var(--vp-c-brand-1);
-  box-shadow: inset 0 1px 0 rgba(255, 220, 140, 0.08), 0 0 0 1px var(--vp-c-brand-1);
-}
-
-.site-paths .path-card h3 {
-  margin: 0 0 0.45rem;
-  font-family: 'Cinzel', serif;
-  font-size: 1.15rem;
-  color: var(--docs-heading-color);
-}
-
-.site-paths .path-card p {
-  margin: 0;
-  font-size: 1.02rem;
-  line-height: 1.6;
-  color: var(--text-primary);
-}
-
-@media (max-width: 720px) {
-  .site-paths {
-    grid-template-columns: 1fr;
-  }
 }
 
 #app::before {
