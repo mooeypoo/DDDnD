@@ -1,35 +1,49 @@
 /**
- * Generate OG image (PNG) from SVG source.
+ * Generate OG images (PNG) from SVG sources.
  *
- * Converts public/og-image.svg → public/og-image.png at 1200×630
- * for social media / chat embed previews.
+ *   public/og-image.svg            → public/og-image.png
+ *   docs-site/public/og-image.svg  → docs-site/public/og-image.png
+ *   docs-site/public/favicon.svg   → docs-site/public/apple-touch-icon.png
  *
  * Usage: node scripts/generate-og-image.mjs
  */
 
 import { readFileSync, writeFileSync } from 'node:fs'
-import { resolve, dirname } from 'node:path'
+import { resolve, dirname, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { Resvg } from '@resvg/resvg-js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = resolve(__dirname, '..')
 
-const svgPath = resolve(root, 'public/og-image.svg')
-const pngPath = resolve(root, 'public/og-image.png')
+function renderSvgToPng(svgPath, pngPath, width) {
+  const svg = readFileSync(svgPath, 'utf-8')
+  const resvg = new Resvg(svg, {
+    fitTo: { mode: 'width', value: width },
+    font: {
+      loadSystemFonts: true,
+    },
+  })
+  const pngBuffer = resvg.render().asPng()
+  writeFileSync(pngPath, pngBuffer)
+  const label = relative(root, pngPath)
+  console.log(`✓ OG image generated: ${label} (${pngBuffer.length} bytes)`)
+}
 
-const svg = readFileSync(svgPath, 'utf-8')
+renderSvgToPng(
+  resolve(root, 'public/og-image.svg'),
+  resolve(root, 'public/og-image.png'),
+  1200,
+)
 
-const resvg = new Resvg(svg, {
-  fitTo: { mode: 'width', value: 1200 },
-  font: {
-    loadSystemFonts: true,
-  },
-})
+renderSvgToPng(
+  resolve(root, 'docs-site/public/og-image.svg'),
+  resolve(root, 'docs-site/public/og-image.png'),
+  1200,
+)
 
-const pngData = resvg.render()
-const pngBuffer = pngData.asPng()
-
-writeFileSync(pngPath, pngBuffer)
-
-console.log(`✓ OG image generated: public/og-image.png (${pngBuffer.length} bytes)`)
+renderSvgToPng(
+  resolve(root, 'docs-site/public/favicon.svg'),
+  resolve(root, 'docs-site/public/apple-touch-icon.png'),
+  180,
+)
