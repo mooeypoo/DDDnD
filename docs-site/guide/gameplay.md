@@ -1,7 +1,7 @@
 # How to play
 
-::: tip This is How to Play
-Player rules for the live table. If you are inspecting packs, audits, or JSON wiring, use the [Designer Desk](/dashboard/).
+::: tip Player help
+Player rules for the live table. For packs, audits, or JSON wiring, see [Game design](/dashboard/).
 :::
 
 **Domain-Driven Design n' Dragons** is a tabletop adventure of software architecture. The dungeon is a living system. You join the council as the systems architect. Play free at [dddnd.app](https://dddnd.app).

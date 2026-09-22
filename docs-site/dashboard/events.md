@@ -1,7 +1,7 @@
 # Events
 
-::: warning Designer Desk
-Events currently in play. Player-facing rules: [How to Play](/guide/gameplay).
+::: warning Game design
+Events currently in play. Player-facing rules: [How to play](/guide/gameplay).
 :::
 
 Complete inventory of events in the current playable packs.

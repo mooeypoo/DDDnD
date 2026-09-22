@@ -1,11 +1,13 @@
 # DDDnD — Domain-Driven Design n' Dragons
 
+An online card adventure about the woes of systems architecture.
+
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/mooeypoo)
 [![CI](https://github.com/mooeypoo/DDDnD/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mooeypoo/DDDnD/actions/workflows/ci.yml)
 [![Documentation Site](https://github.com/mooeypoo/DDDnD/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/mooeypoo/DDDnD/actions/workflows/pages.yml)
 [![Netlify Status](https://api.netlify.com/api/v1/badges/a40f2bc1-e69f-4833-b140-10ce0858b6fd/deploy-status)](https://app.netlify.com/sites/dddnd/deploys)
 
-**Play free:** [dddnd.app](https://dddnd.app) · **How to play & designer desk:** [docs site](https://mooeypoo.github.io/DDDnD/)
+**Play free:** [dddnd.app](https://dddnd.app) · **Player help & game design:** [docs site](https://mooeypoo.github.io/DDDnD/)
 
 [![DDDnD — sit at the war table](./public/og-image.png)](https://dddnd.app)
 
@@ -41,7 +43,7 @@ A run ends with a **tier** (how well you did) and an **ending** (what kind of ar
 
 Five adventures, from a gentle merger mess to microservice sprawl. Two tutorials teach the table first. Pick a class if you like a lens — Boundary Mage, Stakeholder Bard, Reliability Cleric, Legacy Ranger, Delivery Rogue.
 
-**[Play at dddnd.app](https://dddnd.app)** · **[Read How to Play](https://mooeypoo.github.io/DDDnD/guide/gameplay)**
+**[Play at dddnd.app](https://dddnd.app)** · **[Player help](https://mooeypoo.github.io/DDDnD/guide/gameplay)**
 
 ## Built like the thing it teases
 
@@ -61,7 +63,7 @@ If you want to extend the game, you author a pack. You do not fork the Vue tree 
 
 ## Documentation map
 
-The public site is two rooms: [How to Play](https://mooeypoo.github.io/DDDnD/guide/gameplay) for people who will sit, and the [Designer Desk](https://mooeypoo.github.io/DDDnD/dashboard/) for packs and audit numbers.
+The public site is companion documentation: [player help](https://mooeypoo.github.io/DDDnD/guide/gameplay) and [game design](https://mooeypoo.github.io/DDDnD/dashboard/).
 
 In this repo:
 

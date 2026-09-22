@@ -1,7 +1,7 @@
 # How to think at the table
 
-::: tip This is How to Play
-Strategy notes for players. Pack internals and audit findings live on the [Designer Desk](/dashboard/).
+::: tip Player help
+Strategy notes for players. Pack internals and audit findings live under [Game design](/dashboard/).
 :::
 
 Winning is balancing short-term recovery with long-term system health — and knowing which seats you can afford to disappoint.

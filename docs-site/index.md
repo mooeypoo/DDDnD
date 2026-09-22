@@ -3,55 +3,44 @@ layout: home
 
 hero:
   name: DDDnD
-  text: The table and the desk
-  tagline: How to play the war-table game, and a designer desk for the packs that power it.
+  text: Companion documentation
+  tagline: Help, rules, and game-design notes for Domain-Driven Design n' Dragons.
   image:
     src: /logo.svg
     alt: DDDnD
   actions:
     - theme: brand
-      text: How to Play
-      link: /guide/gameplay
-    - theme: alt
-      text: Designer Desk
-      link: /dashboard/
-    - theme: alt
-      text: Play at dddnd.app
+      text: Play the game
       link: https://dddnd.app
+    - theme: alt
+      text: View the code
+      link: https://github.com/mooeypoo/DDDnD
 ---
 
-## Two doors
+<script setup>
+import { withBase } from 'vitepress'
+</script>
 
-This site is two rooms with a shared cellar.
+## The game
 
-**How to Play** is for people who will sit at the table. Legal hand, Grimoire, Consult, vials, council, aftershocks. It matches the plaques in the game.
+**DDDnD** is a free online card adventure about systems architecture under pressure. You join the council as the architect. Each turn you play one architecture card — or spend the turn searching for a better one — and try to leave the living system stronger than you found it before the clock runs out.
 
-**Designer Desk** is for people who author packs or read the audit. It is an x-ray of what is in play, not a second rulebook.
+Play at [dddnd.app](https://dddnd.app). The source is on [GitHub](https://github.com/mooeypoo/DDDnD).
 
-The game itself lives at [dddnd.app](https://dddnd.app).
+## Start here
 
-<div class="door-plaques">
-  <article>
-    <h3>Your quest</h3>
-    <p>Leave the system stronger than you found it, and keep the council with you, before the turns run out.</p>
-  </article>
-  <article>
-    <h3>Each turn</h3>
-    <p>Play one card — a real architectural decision — or spend the turn searching. Then the world may interrupt, and the council answers.</p>
-  </article>
-  <article>
-    <h3>The catch</h3>
-    <p>Every choice trades something away. Every action has consequences.</p>
-  </article>
+This site is the companion documentation for that game. Pick the path that matches why you are here.
+
+<div class="site-paths">
+  <a class="path-card" :href="withBase('/guide/gameplay')">
+    <h3>Player help</h3>
+    <p>How to play: the war table, your hand of six, scores, aftershocks, and how a run ends.</p>
+  </a>
+  <a class="path-card" :href="withBase('/dashboard/')">
+    <h3>Game design</h3>
+    <p>What's in the pack, audit numbers, and how to write or change content.</p>
+  </a>
 </div>
-
-## Designer pulse
-
-The snapshot below is live audit data from player-true bots on the current playable scenarios. It is the desk, not the teach.
-
-<AuditRunMeta />
-
-<ScenarioAuditSummary />
 
 ## Latest From The Blog
 

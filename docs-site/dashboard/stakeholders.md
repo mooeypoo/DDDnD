@@ -1,7 +1,7 @@
 # Stakeholders
 
-::: warning Designer Desk
-Council seats currently in play. Player-facing rules: [How to Play](/guide/gameplay).
+::: warning Game design
+Council seats currently in play. Player-facing rules: [How to play](/guide/gameplay).
 :::
 
 Complete inventory of stakeholders in the current playable packs.

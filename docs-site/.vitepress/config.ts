@@ -6,7 +6,7 @@ const projectRoot = path.resolve(__dirname, '../..')
 export default defineConfig({
   lang: 'en-US',
   title: 'DDDnD',
-  description: 'How to play Domain-Driven Design n’ Dragons, plus the designer desk for packs and audits.',
+  description: 'Companion documentation for DDDnD: player help and game-design notes for the online card adventure.',
   base: '/DDDnD/',
   appearance: 'dark',
 
@@ -43,15 +43,15 @@ export default defineConfig({
     },
 
     nav: [
-      { text: 'How to Play', link: '/guide/gameplay' },
-      { text: 'Designer Desk', link: '/dashboard/' },
+      { text: 'Player help', link: '/guide/gameplay' },
+      { text: 'Game design', link: '/dashboard/' },
       { text: 'Play', link: 'https://dddnd.app' },
       { text: 'GitHub', link: 'https://github.com/mooeypoo/DDDnD' },
     ],
 
     sidebar: {
       '/guide/': [
-        { text: 'How to Play', items: [
+        { text: 'Player help', items: [
           { text: 'The table', link: '/guide/gameplay' },
           { text: 'How to think', link: '/guide/strategy' },
         ] },
@@ -62,7 +62,7 @@ export default defineConfig({
       ],
       '/dashboard/': [
         {
-          text: 'Designer Desk',
+          text: 'Game design',
           items: [
             { text: 'What is the audit?', link: '/dashboard/audit-intro' },
             { text: 'Audit overview', link: '/dashboard/' },

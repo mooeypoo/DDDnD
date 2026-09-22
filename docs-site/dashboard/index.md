@@ -1,7 +1,7 @@
 # Audit overview
 
-::: warning Designer Desk
-This is the designer desk, not How to Play. Player rules live in [The table](/guide/gameplay).
+::: warning Game design
+This is game-design documentation, not player help. Player rules: [How to play](/guide/gameplay).
 :::
 
 Live pulse of playable scenario health: pass/fail, balance telemetry, and the findings the audit raised. For what the numbers mean, start with [What is the audit?](/dashboard/audit-intro).

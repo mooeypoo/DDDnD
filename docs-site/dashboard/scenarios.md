@@ -1,7 +1,7 @@
 # Adventures
 
-::: warning Designer Desk
-Playable adventures and tutorials as the pack currently offers them. Player-facing rules: [How to Play](/guide/gameplay).
+::: warning Game design
+Playable adventures and tutorials as the pack currently offers them. Player-facing rules: [How to play](/guide/gameplay).
 :::
 
 Quick overview of scenarios in play.

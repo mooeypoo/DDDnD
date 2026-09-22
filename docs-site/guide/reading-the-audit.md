@@ -1,10 +1,10 @@
 # Reading the audit
 
 ::: info For authors
-This explains the Designer Desk numbers. Player rules are in [The table](/guide/gameplay).
+This explains the Game design audit numbers. Player rules are in [How to play](/guide/gameplay).
 :::
 
-The DDDnD audit report is a data-driven health check that runs hundreds of simulated playthroughs and synthesizes the results into structured findings. The [Designer Desk](/dashboard/) surfaces this data visually. This page explains what each section means and how to act on it.
+The DDDnD audit report is a data-driven health check that runs hundreds of simulated playthroughs and synthesizes the results into structured findings. [Game design](/dashboard/) surfaces this data visually. This page explains what each section means and how to act on it.
 
 ## What the Audit Measures
 
@@ -61,7 +61,7 @@ Whether delayed effects are legible and proportionate. Flags aftershocks that ar
 
 ## The Audit Dashboard
 
-The [Designer Desk](/dashboard/) shows:
+The [Game design](/dashboard/) overview shows:
 
 - **Scenario Overview** — Pass/Warning/Critical status per scenario with win rate
 - **Balance Metrics** — Win rate and average turns per scenario as bar charts

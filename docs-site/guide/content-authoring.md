@@ -1,7 +1,7 @@
 # Content authoring
 
 ::: info For authors
-This is the authoring half of How to Play’s sidebar. The [Designer Desk](/dashboard/) is where generated catalogs and audit numbers live.
+This is the authoring half of Player help’s sidebar. Generated catalogs and audit numbers live under [Game design](/dashboard/).
 :::
 
 Want to create new scenarios, cards, or stakeholders for DDDnD? This guide covers the content pack format, manifest structure, validation workflow, and common pitfalls.

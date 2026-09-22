@@ -1,7 +1,7 @@
 # What is the audit?
 
-::: warning Designer Desk
-This page is for authors and balance work. If you want to sit at the table, read [How to Play](/guide/gameplay) or go to [dddnd.app](https://dddnd.app).
+::: warning Game design
+This page is for authors and balance work. For player rules, read [How to play](/guide/gameplay) or go to [dddnd.app](https://dddnd.app).
 :::
 
 The audit is DDDnD's game-design quality inspector. It runs a bunch of simulated playthroughs, watches what happens, and then reports where the game feels fair, spicy, swingy, or straight-up chaotic.

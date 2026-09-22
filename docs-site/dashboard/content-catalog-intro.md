@@ -1,7 +1,7 @@
 # What is the catalog?
 
-::: warning Designer Desk
-This is the x-ray of content **currently in play**, not How to Play. Player rules: [The table](/guide/gameplay).
+::: warning Game design
+This is the x-ray of content **currently in play**, not player help. Player rules: [How to play](/guide/gameplay).
 :::
 
 The catalog is generated from the base pack and the tutorial pack. It is a reflection of authored JSON, not a hand-written wiki.
