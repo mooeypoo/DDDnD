@@ -54,92 +54,83 @@ export class MissingContentReferenceError extends Error {
  * @param provider - Content provider for loading content
  * @returns A complete scenario bundle with all dependencies resolved
  */
+/**
+ * Keeps the first version ref for each id+version so shared rules and
+ * aftershocks are fetched once, in first-seen order.
+ */
+function dedupeRefs(refs: VersionRef[]): VersionRef[] {
+  const seen = new Set<string>()
+  const deduped: VersionRef[] = []
+
+  for (const ref of refs) {
+    const key = versionRefKey(ref)
+    if (seen.has(key)) {
+      continue
+    }
+    seen.add(key)
+    deduped.push(ref)
+  }
+
+  return deduped
+}
+
 export async function buildScenarioBundle(
   scenarioId: string,
   version: number,
   provider: ContentProvider
 ): Promise<ScenarioBundle> {
   const scenarioRef = { id: scenarioId, version }
-  
-  // Load the scenario
   const scenario = await provider.loadScenario(scenarioRef)
-  
-  // Create empty bundle
   const bundle = createEmptyBundle(scenario)
-  
-  // Track what delayed effects we need to load
-  const delayedEffectRefs = new Set<string>()
-  
-  // Load all scores
-  for (const scoreRef of scenario.score_refs) {
-    const score = await provider.loadScore(scoreRef)
+
+  // Direct scenario references do not depend on each other. Fetch them
+  // together so a run start is one round of requests instead of one file
+  // after another.
+  const [scores, stakeholders, cards, events, outcomeTiers, outcomeArchetypes] = await Promise.all([
+    Promise.all(scenario.score_refs.map((ref) => provider.loadScore(ref))),
+    Promise.all(scenario.stakeholder_refs.map((ref) => provider.loadStakeholder(ref))),
+    Promise.all(scenario.card_refs.map((ref) => provider.loadCard(ref))),
+    Promise.all(scenario.event_refs.map((ref) => provider.loadEvent(ref))),
+    Promise.all((scenario.outcome_tier_refs ?? []).map((ref) => provider.loadOutcomeTier(ref))),
+    Promise.all((scenario.outcome_archetype_refs ?? []).map((ref) => provider.loadOutcomeArchetype(ref))),
+  ])
+
+  for (const score of scores) {
     addToBundle(bundle, 'score', score)
   }
-  
-  // Load all stakeholders and collect their reaction rules
-  const stakeholderRuleRefs: VersionRef[] = []
-  for (const stakeholderRef of scenario.stakeholder_refs) {
-    const stakeholder = await provider.loadStakeholder(stakeholderRef)
+  for (const stakeholder of stakeholders) {
     addToBundle(bundle, 'stakeholder', stakeholder)
-    
-    // Collect reaction rule references
-    stakeholderRuleRefs.push(...stakeholder.reaction_rule_refs)
   }
-  
-  // Load all stakeholder reaction rules
-  for (const ruleRef of stakeholderRuleRefs) {
-    const rule = await provider.loadStakeholderReactionRule(ruleRef)
+  for (const card of cards) {
+    addToBundle(bundle, 'card', card)
+  }
+  for (const event of events) {
+    addToBundle(bundle, 'event', event)
+  }
+  for (const tier of outcomeTiers) {
+    addToBundle(bundle, 'outcome_tier', tier)
+  }
+  for (const archetype of outcomeArchetypes) {
+    addToBundle(bundle, 'outcome_archetype', archetype)
+  }
+
+  const ruleRefs = dedupeRefs(stakeholders.flatMap((stakeholder) => stakeholder.reaction_rule_refs))
+  const effectRefs = dedupeRefs([
+    ...cards.flatMap((card) => card.delayed_effect_refs),
+    ...events.flatMap((event) => event.delayed_effect_refs),
+  ])
+
+  const [rules, effects] = await Promise.all([
+    Promise.all(ruleRefs.map((ref) => provider.loadStakeholderReactionRule(ref))),
+    Promise.all(effectRefs.map((ref) => provider.loadDelayedEffect(ref))),
+  ])
+
+  for (const rule of rules) {
     addToBundle(bundle, 'stakeholder_reaction_rule', rule)
   }
-  
-  // Load all cards and collect delayed effects
-  for (const cardRef of scenario.card_refs) {
-    const card = await provider.loadCard(cardRef)
-    addToBundle(bundle, 'card', card)
-    
-    // Collect delayed effect references
-    for (const effectRef of card.delayed_effect_refs) {
-      delayedEffectRefs.add(versionRefKey(effectRef))
-    }
+  for (const effect of effects) {
+    addToBundle(bundle, 'delayed_effect', effect)
   }
-  
-  // Load all events and collect delayed effects
-  for (const eventRef of scenario.event_refs) {
-    const event = await provider.loadEvent(eventRef)
-    addToBundle(bundle, 'event', event)
-    
-    // Collect delayed effect references
-    for (const effectRef of event.delayed_effect_refs) {
-      delayedEffectRefs.add(versionRefKey(effectRef))
-    }
-  }
-  
-  // Load all delayed effects
-  for (const effectKey of delayedEffectRefs) {
-    // Parse the key back to a ref
-    const match = effectKey.match(/^(.+)-v(\d+)$/)
-    if (match) {
-      const effectRef = { id: match[1], version: parseInt(match[2], 10) }
-      const effect = await provider.loadDelayedEffect(effectRef)
-      addToBundle(bundle, 'delayed_effect', effect)
-    }
-  }
-  
-  // Load outcome tiers if specified
-  if (scenario.outcome_tier_refs) {
-    for (const tierRef of scenario.outcome_tier_refs) {
-      const tier = await provider.loadOutcomeTier(tierRef)
-      addToBundle(bundle, 'outcome_tier', tier)
-    }
-  }
-  
-  // Load outcome archetypes if specified
-  if (scenario.outcome_archetype_refs) {
-    for (const archetypeRef of scenario.outcome_archetype_refs) {
-      const archetype = await provider.loadOutcomeArchetype(archetypeRef)
-      addToBundle(bundle, 'outcome_archetype', archetype)
-    }
-  }
-  
+
   return bundle
 }

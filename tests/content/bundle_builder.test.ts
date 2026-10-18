@@ -111,6 +111,37 @@ describe('Bundle Builder', () => {
   })
   
   describe('error handling', () => {
+    it('loads independent scenario references together', async () => {
+      const provider = createMockContentProvider()
+      let inFlight = 0
+      let maxInFlight = 0
+
+      function delay<T extends (...args: never[]) => Promise<unknown>>(load: T): T {
+        return (async (...args: Parameters<T>) => {
+          inFlight += 1
+          maxInFlight = Math.max(maxInFlight, inFlight)
+          await new Promise((resolve) => setTimeout(resolve, 20))
+          try {
+            return await load(...args)
+          } finally {
+            inFlight -= 1
+          }
+        }) as T
+      }
+
+      provider.loadScore = delay(provider.loadScore.bind(provider))
+      provider.loadStakeholder = delay(provider.loadStakeholder.bind(provider))
+      provider.loadCard = delay(provider.loadCard.bind(provider))
+      provider.loadEvent = delay(provider.loadEvent.bind(provider))
+
+      const bundle = await buildScenarioBundle('test_scenario', 1, provider)
+
+      expect(bundle.scores.size).toBe(2)
+      expect(bundle.cards.size).toBe(1)
+      // Scores, the stakeholder, the card, and the event share one wave.
+      expect(maxInFlight).toBeGreaterThan(1)
+    })
+
     it('should throw when scenario does not exist', async () => {
       const provider = createMockContentProvider()
       

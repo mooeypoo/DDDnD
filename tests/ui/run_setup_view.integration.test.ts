@@ -79,6 +79,7 @@ describe('run_setup_view quest integration', () => {
       availableTutorials: [],
       isLoadingTutorials: false,
       start_new_run: vi.fn().mockResolvedValue(undefined),
+      warm_scenario_bundle: vi.fn().mockResolvedValue(undefined),
       load_available_challenge_modifiers: vi.fn().mockResolvedValue(undefined),
       availableChallengeModifiers: [],
       isDungeonMasterModalOpen: false,

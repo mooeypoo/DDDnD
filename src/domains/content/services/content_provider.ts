@@ -104,41 +104,77 @@ export interface ContentProvider {
  * @param basePath - Base path to content directory (default: '/content')
  */
 export function createContentProvider(basePath = '/content'): ContentProvider {
+  const loadedContent = new Map<string, ContentMetadata>()
+  const inflightLoads = new Map<string, Promise<ContentMetadata>>()
+
   /**
-  * Loads a versioned content file and validates filename-metadata identity.
+   * Loads a versioned content file and validates filename-metadata identity.
+   *
+   * Successful loads stay in memory for the life of this provider. The lobby
+   * already fetches a scenario's scores and stakeholders, and a run start
+   * asks for the same files again — plus dozens of cards fetched together.
+   * Failed loads are not cached, so a transient miss can be retried.
    */
-  async function loadContent<T extends ContentMetadata>(
+  function loadContent<T extends ContentMetadata>(
+    contentType: ContentType,
+    ref: VersionRef
+  ): Promise<T> {
+    const cacheKey = `${contentType}/${versionRefKey(ref)}`
+    const cached = loadedContent.get(cacheKey)
+    if (cached) {
+      return Promise.resolve(cached as T)
+    }
+
+    const pending = inflightLoads.get(cacheKey)
+    if (pending) {
+      return pending as Promise<T>
+    }
+
+    const request = fetchContent<T>(contentType, ref)
+    inflightLoads.set(cacheKey, request)
+
+    return request.then(
+      (content) => {
+        loadedContent.set(cacheKey, content)
+        inflightLoads.delete(cacheKey)
+        return content
+      },
+      (error: unknown) => {
+        inflightLoads.delete(cacheKey)
+        throw error
+      },
+    )
+  }
+
+  async function fetchContent<T extends ContentMetadata>(
     contentType: ContentType,
     ref: VersionRef
   ): Promise<T> {
     const filename = `${versionRefKey(ref)}.json`
     const filePath = `${basePath}/${contentType}/${filename}`
-    
-    // Load the file
+
     let response: Response
     try {
       response = await fetch(filePath)
-    } catch (error) {
+    } catch {
       throw new ContentNotFoundError(contentType, ref)
     }
-    
+
     if (!response.ok) {
       throw new ContentNotFoundError(contentType, ref)
     }
-    
-    // Parse JSON
+
     const content = await response.json() as T
-    
-    // Validate filename matches internal metadata
+
     const parsedRef = parseFilename(filename)
     if (!parsedRef) {
       throw new Error(`Invalid filename format: ${filename}`)
     }
-    
+
     if (content.id !== ref.id || content.version !== ref.version) {
       throw new ContentVersionMismatchError(filename, ref, content)
     }
-    
+
     return content
   }
 
