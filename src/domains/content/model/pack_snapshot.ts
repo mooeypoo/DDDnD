@@ -28,8 +28,9 @@ export interface PackSnapshot {
   /** `<content-type>/<id>-v<version>.json` → validated entity. */
   entities: Record<string, ContentMetadata>
   /**
-   * `sha256:<hex>` over the manifest and every content file exactly as
-   * published. Identifies this exact content in saves and exports.
+   * `sha256:<hex>` over the manifest and every content file in canonical JSON
+   * form (whitespace and `$schema` links don't count). Identifies this exact
+   * content in saves and exports, whether it was loaded from a URL or a file.
    */
   content_hash: string
   origin: PackOrigin

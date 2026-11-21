@@ -80,15 +80,15 @@ describe('loading the demo pack from a GitHub URL', () => {
     expect(validateScenarioBundle(bundle).errors).toEqual([])
   })
 
-  it('gives the same content the same hash, and any change a different one', async () => {
+  it('identifies content, not formatting: whitespace keeps the hash, a changed value does not', async () => {
     const raw = demoRaw()
     const origin = { kind: 'file' as const, file_name: 'demo.dddnd-pack.json' }
+    const card = 'cards/ledger_freeze_payment_changes-v1.json'
     const first = await buildPackSnapshot(raw, origin)
-    const again = await buildPackSnapshot(demoRaw(), origin)
-    const changedFile = Object.keys(raw.files)[0]
-    const changed = await buildPackSnapshot({ ...raw, files: { ...raw.files, [changedFile]: raw.files[changedFile].replace('\n}', ' \n}') } }, origin)
+    const reformatted = await buildPackSnapshot({ ...raw, files: { ...raw.files, [card]: JSON.stringify(JSON.parse(raw.files[card])) } }, origin)
+    const changed = await buildPackSnapshot({ ...raw, files: { ...raw.files, [card]: raw.files[card].replace('"usage_limit": 2', '"usage_limit": 3') } }, origin)
 
-    expect(again.content_hash).toBe(first.content_hash)
+    expect(reformatted.content_hash).toBe(first.content_hash)
     expect(changed.content_hash).not.toBe(first.content_hash)
   })
 })
@@ -142,5 +142,32 @@ describe('remote loading refuses what it should', () => {
       'content',
       /cards\/smuggled-v1\.json: is not listed in the manifest inventory/,
     )
+  })
+})
+
+describe('pack bundle files (.dddnd-pack.json)', () => {
+  it('round-trips: a bundle written from a URL-loaded pack reads back with the same content hash', async () => {
+    const { readPackBundle, writePackBundle } = await import('@/domains/content/services/pack_bundle_file')
+    const fromUrl = await loadRemotePackSnapshot(MANIFEST_URL, { fetchImpl: fakeGitHub(readTree(DEMO_ROOT)) })
+    const fromFile = await readPackBundle(writePackBundle(fromUrl), 'gilded_ledger.dddnd-pack.json')
+
+    expect(fromFile.content_hash).toBe(fromUrl.content_hash)
+    expect(fromFile.origin).toEqual({ kind: 'file', file_name: 'gilded_ledger.dddnd-pack.json' })
+    expect(Object.keys(fromFile.entities).sort()).toEqual(Object.keys(fromUrl.entities).sort())
+  })
+
+  it('explains what is wrong with a file that is not a pack', async () => {
+    const { readPackBundle } = await import('@/domains/content/services/pack_bundle_file')
+    await expectPackError(readPackBundle('{"hello": "world"}', 'notes.json'), 'manifest', /not a DDDnD pack file/)
+    await expectPackError(readPackBundle('not json', 'x.json'), 'manifest', /not valid JSON/)
+    await expectPackError(readPackBundle('{"format":"dddnd-pack","format_version":9,"manifest":{},"files":{}}', 'future.json'), 'manifest', /format 9.*reads up to 1/)
+  })
+
+  it('validates bundle contents exactly like a remote pack', async () => {
+    const { readPackBundle, writePackBundle } = await import('@/domains/content/services/pack_bundle_file')
+    const snapshot = await loadRemotePackSnapshot(MANIFEST_URL, { fetchImpl: fakeGitHub(readTree(DEMO_ROOT)) })
+    const bundle = JSON.parse(writePackBundle(snapshot)) as { files: Record<string, Record<string, unknown>> }
+    bundle.files['scenarios/ledger_payments_monolith-v1.json'].max_turns = 500
+    await expectPackError(readPackBundle(JSON.stringify(bundle), 'tampered.dddnd-pack.json'), 'content', /max_turns: must be at most 50/)
   })
 })

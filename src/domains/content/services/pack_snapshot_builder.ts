@@ -99,14 +99,49 @@ export function parseManifestText(manifestText: string): ContentPackManifest {
   return raw as ContentPackManifest
 }
 
+/** JSON with object keys sorted at every level, so key order never matters. */
+function stableStringify(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map(stableStringify).join(',')}]`
+  }
+  if (value && typeof value === 'object') {
+    const entries = Object.keys(value as Record<string, unknown>)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableStringify((value as Record<string, unknown>)[key])}`)
+    return `{${entries.join(',')}}`
+  }
+  return JSON.stringify(value)
+}
+
 /**
- * SHA-256 over the manifest and every content file exactly as published,
- * in a canonical order (path-sorted, length-prefixed).
+ * Canonical text for hashing: the parsed JSON with keys sorted and no
+ * whitespace, and a top-level `$schema` editor link removed. Formatting, key
+ * order, and editor metadata never change a pack's identity; content does.
+ */
+function canonicalJson(text: string): string {
+  const value = JSON.parse(text) as unknown
+  if (value && typeof value === 'object' && !Array.isArray(value) && '$schema' in value) {
+    const { $schema: _schemaLink, ...rest } = value as Record<string, unknown>
+    return stableStringify(rest)
+  }
+  return stableStringify(value)
+}
+
+/**
+ * SHA-256 identifying a pack's content: the manifest and every file in
+ * canonical form, path-sorted and length-prefixed. The same pack loaded from
+ * GitHub or from a bundle file gets the same hash.
+ *
+ * Call only on files that already parsed as JSON.
  */
 export async function computePackContentHash(raw: RawPackFiles): Promise<string> {
-  const parts: string[] = [`manifest.json\n${raw.manifest_text.length}\n${raw.manifest_text}`]
+  const entry = (path: string, text: string) => {
+    const canonical = canonicalJson(text)
+    return `${path}\n${canonical.length}\n${canonical}`
+  }
+  const parts = [entry('manifest.json', raw.manifest_text)]
   for (const path of Object.keys(raw.files).sort()) {
-    parts.push(`${path}\n${raw.files[path].length}\n${raw.files[path]}`)
+    parts.push(entry(path, raw.files[path]))
   }
   const digest = await globalThis.crypto.subtle.digest('SHA-256', new TextEncoder().encode(parts.join('\n')))
   const hex = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('')

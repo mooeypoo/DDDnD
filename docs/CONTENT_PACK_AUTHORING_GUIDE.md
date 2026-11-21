@@ -246,6 +246,17 @@ Typical use case:
 
 Best practice: include only files your pack truly owns in `content.*` inventory.
 
+## Single-file packs (`.dddnd-pack.json`)
+
+A pack can also travel as one file, for workshops where hosting isn't practical: a player loads it into the game from their computer. Create one from a pack folder:
+
+```bash
+npm run content:bundle -- --content-root ../DDDnD-packs/packs/gilded_ledger
+# writes gilded_ledger-v1.0.0.dddnd-pack.json
+```
+
+The file holds the manifest and every content file. The game validates it exactly like a hosted pack, and the same content gets the same content hash either way. The game never unzips archives; this is its only file format for packs.
+
 ## Continuous validation (GitHub Actions)
 
 Pack repositories on GitHub can run DDDnD's validator and balance audit on every push with DDDnD's reusable workflow. Add `.github/workflows/validate-packs.yml`:

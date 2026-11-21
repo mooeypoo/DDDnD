@@ -684,3 +684,22 @@ The game's first-party loader fetches files lazily as a scenario needs them. For
 - A live check loaded the demo pack from real GitHub (the copy committed in this branch, pinned to the pushed commit SHA): 16 files in about 0.6 s, pinning detected as `commit`. The same path on `main` produced a clear `HTTP 404` message.
 
 Browser behavior (CORS and the real `redirect: 'error'`) gets its own check in the end-to-end step, with the CSP widened only on that branch's preview, per ADR 0009.
+
+### M2.4: Single-file packs, and what a pack's identity is (2026-11-22)
+
+**What changed**
+
+- `pack_bundle_file.ts`: the `.dddnd-pack.json` format (`format`, `format_version`, `manifest`, `files`).
+  - `readPackBundle` turns a file into a snapshot through the *same* builder as remote loading.
+  - `writePackBundle` turns a snapshot back into a file.
+  - A newer `format_version` gets a "needs a newer DDDnD" message.
+- `npm run content:bundle -- --content-root <pack folder>` writes a validated bundle for authors and releases.
+- **The content hash became canonical.** Each file is hashed as its parsed JSON with keys sorted at every level, no whitespace, and no top-level `$schema` link.
+
+**Why the hash changed after M2.3**
+
+M2.3 hashed files exactly as published. That is "exact" in the wrong way. The same pack loaded from GitHub and from a bundle would get *different* hashes, because a bundle re-serializes the JSON, and the schema parser even reorders keys. A save made with the file version would then look like it belonged to a different pack.
+
+The question was what identity should mean. The answer: **a pack's identity is its content, not its bytes.** Reformatting, reordering keys, or adding an editor `$schema` link doesn't change what a player plays, so it shouldn't change identity. Any change to a value does. The tests pin both halves, and a round-trip test proves a URL-loaded pack written to a bundle and read back keeps its hash.
+
+**Verified against reality:** the demo bundle built from the DDDnD-packs folder and the copy loaded live from GitHub produced the identical hash, `sha256:90fae984…ea078`.
