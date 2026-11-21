@@ -74,6 +74,10 @@ UI code may call the engine and present results.
 
 UI code must not implement action resolution, event selection, stakeholder rule logic, or outcome classification logic.
 
+## Content is rendered as text, never as markup
+
+Content can come from community packs (see [docs/CONTENT_PACKS.md](docs/CONTENT_PACKS.md)). Render it with Vue interpolation only. Do not use `v-html`, `innerHTML`, or other markup sinks for anything derived from content. `tests/ui/no_markup_injection.test.ts` enforces this; its allow-list is for first-party constants only. The production Content Security Policy in `netlify.toml` blocks inline and evaluated scripts, so do not add any.
+
 ## Presentation model boundaries are UI-only
 
 Scene selection, avatar role assignment, and presentation concepts are UI-layer concerns only.

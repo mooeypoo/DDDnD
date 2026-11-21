@@ -440,3 +440,46 @@ Test fixtures that build rules by hand gained a `condition` matching their prose
 4. **The export stays out of the player bundle.** It is not re-exported from the validation barrel, so only the script and the test import it.
 
 **DDD angle:** this is the *Published Language* from the context map (§4.3), made concrete. Until now the "pack schema" was a TypeScript type plus prose docs. Now it is a versioned, machine-readable contract at a stable URL, generated from the one model the engine trusts.
+
+### M1.6: Content Security Policy and the rendering guard (2026-11-21)
+
+**What changed**
+
+- `netlify.toml` now sends a Content Security Policy on every page:
+
+  ```
+  default-src 'self'; script-src 'self';
+  style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: blob:; connect-src 'self';
+  object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  ```
+
+  It also sends `X-Content-Type-Options: nosniff` and a `Referrer-Policy`. Published schemas under `/schema/*` get `Access-Control-Allow-Origin: *`, so browser-based editors (vscode.dev, github.dev) can fetch them.
+- `tests/ui/no_markup_injection.test.ts` fails if any file uses `v-html`, `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, or `createContextualFragment`. There is one allow-listed exception, with its reason: the social links panel renders hard-coded SVG icons. The test also checks that the allow-list doesn't go stale.
+- AGENT.md gains a non-negotiable rule: content is rendered as text, never as markup.
+
+**How the policy was chosen**
+
+We inventoried what the game actually loads instead of guessing:
+- `index.html` has no inline scripts, and nothing in `src` uses `eval` or `new Function`.
+- Fonts come from Google Fonts (a CSS `@import`).
+- CSS backgrounds use `data:` SVG images.
+- The result-card export draws an SVG `foreignObject` into a canvas through a `data:` image.
+
+The policy allows exactly those and nothing else. There is no `'unsafe-inline'` and no `'unsafe-eval'`. `connect-src` is `'self'` for now. M2 adds the GitHub pack hosts from ADR 0003, and that will be the only change pack loading needs.
+
+**How we verified it (a CSP is easy to get subtly wrong)**
+
+Unit tests can't see a CSP, so we checked it in a real browser:
+1. We served the production build (`npm run build`) from a small local server that sends the *exact* header string read from `netlify.toml`.
+2. Headless Chrome (playwright-core, run from a scratch directory, not added to the project) recorded every `securitypolicyviolation` event and console error.
+3. A scripted player then:
+   - loaded the welcome page,
+   - entered the lobby (all five quests, class selection, fonts and art rendered),
+   - joined an adventure and played a complete run to the results screen,
+   - exported the result card as a PNG (the riskiest path: canvas plus `data:` SVG),
+   - and separately started the advanced tutorial.
+
+**Result: zero CSP violations and zero console errors across all of it.** As a side effect, this was also the first end-to-end check of M1.1–M1.4 in a real browser: every quest and the tutorial loaded through the validated, pack-scoped pipeline.
+
+**Follow-ups noted:** Trusted Types (`require-trusted-types-for 'script'`) would turn the rendering guard into a browser-enforced rule. It needs the one `v-html` replaced with components first. Making the browser check a permanent CI job would need Playwright as a dev dependency, which is worth considering when M2 adds a real network path.
