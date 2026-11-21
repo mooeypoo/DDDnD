@@ -639,6 +639,8 @@ The workflow installs only DDDnD's *runtime* dependencies (about 50 MB) plus the
 
 GitHub Actions can't run locally, so we reproduced the job's checkout layout in a scratch folder (a fresh clone of this branch with the lean install, plus a copy of DDDnD-packs) and ran the step's actual script. The demo pack passed. Then a copy of the pack with `max_turns: 999` was added: the job exited 1 with `max_turns: must be at most 50`, and still checked the valid pack after it.
 
+**Confirmed on GitHub (2026-11-22):** the first push of DDDnD-packs ran the reusable workflow for real. All steps passed, and the demo pack was validated and audited with 0 critical findings and 0 warnings.
+
 **Versioning decisions (agreed with the project owner)**
 
 - **Pack releases are tagged per pack:** `<pack_id>-v<version>`, for example `gilded_ledger-v1.0.0`, matching the manifest's `version`. A repo-wide `v1.0.0` becomes ambiguous once a second pack releases on its own schedule. The load URL is `…/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json`.
