@@ -262,7 +262,7 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | ~~Schema library~~ | **Resolved (M1.1):** `zod/mini` in jitless mode with our own messages. See [ADR 0007](adr/0007-zod-mini-jitless-for-content-validation.md). | Done |
 | ~~Exact limits~~ | **Resolved.** Per-file limits in M1.1 (table in [CONTENT_SCHEMA.md](../CONTENT_SCHEMA.md#validation-and-limits)). 2000 files per pack in M1.2. | Done |
 | Demo pack topic | `extension` kind is fixed. A likely shape is "the Monolith, retold for a fictional company", to show the facilitator use case. | M2 |
-| Demo pack repository name and owner | Public GitHub repo, separate from this one | M2 |
+| Demo pack repository name | **Owner creates it.** One repo for several packs (ADR 0008). Name candidates: `dddnd-packs`, `dddnd-demos`, `dddnd-external`, `dddnd-content`. | M2 |
 | SRE pack design | Scores, stakeholders, failure modes, and what "winning" means need a brainstorm | M3 |
 | Studio subdomain and repo folder names | Working names: `studio.dddnd.app`, `studio/` | M4 |
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
@@ -541,3 +541,23 @@ What we learned that the plan did not predict:
 5. The docs had an example that broke the new rules. They are now tested.
 
 **Next: M2**, where the game actually loads a pack: source allowlist, consent screen, pack manager, bundle-file import, pack identity in saves, the seeded cast (ADR 0002), and the demo pack.
+
+---
+
+### M2.0: Decisions before building the player path, and the feature gate (2026-11-21)
+
+Two decisions from the project owner shaped M2 before any UI was written:
+
+1. **One repository for several packs** ([ADR 0008](adr/0008-multi-pack-repository.md)). The owner asked whether demos and, later, "sanctioned" packs could share one public repo. M1's design already allows it: a pack is addressed by its manifest URL, and ADR 0003 only requires a pack to stay within its own repo prefix. So the layout is `packs/<pack_id>/manifest.json`, plus an `index.json` that seeds the future curated directory. One principle came out of the discussion: **"sanctioned" is a label, not a security boundary.** Trust affects discovery, never validation.
+2. **Ship behind a build-time flag** ([ADR 0009](adr/0009-community-packs-behind-a-flag.md)). `VITE_ENABLE_COMMUNITY_PACKS=true` in a local `.env` turns the feature on; production leaves it unset. That lets M2 merge to `main` slice by slice without exposing anything on dddnd.app. A runtime flag (query string, like the existing play-stage switch) was rejected, because anyone could flip it in production, and this feature fetches third-party content.
+
+The entry point is a small "Community packs" control in the lobby. Its final design is deliberately left for later.
+
+**What this changed in the code:** `src/ui/config/feature_flags.ts` (`isCommunityPacksEnabled()`, true only for the exact string `"true"`), typed `import.meta.env`, `.env.example` documentation, and a test.
+
+**Launch checklist** (kept here so turning the feature on is one reviewable change):
+- [ ] Set `VITE_ENABLE_COMMUNITY_PACKS=true` in Netlify production
+- [ ] Add `https://raw.githubusercontent.com` and `https://*.github.io` to `connect-src` in `netlify.toml`
+- [ ] Re-run the headless CSP check (M1.6) with a remote pack loaded
+- [ ] Public docs-site pages for players and authors are live
+- [ ] Demo pack published and pinned to a tag
