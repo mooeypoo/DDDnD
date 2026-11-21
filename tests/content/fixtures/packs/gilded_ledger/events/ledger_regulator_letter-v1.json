@@ -1,0 +1,26 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/event.schema.json",
+  "id": "ledger_regulator_letter",
+  "version": 1,
+  "name": "A Letter from the Regulator",
+  "description": "The audit date moves up, and the regulator would like to see your data lineage.",
+  "flavor_text": "Dear Gilded Ledger Co., we have some questions.",
+  "occurrence_weight": 2,
+  "score_changes": [
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -3
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "security_officer",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": []
+}

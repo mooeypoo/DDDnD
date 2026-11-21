@@ -1,0 +1,33 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/event.schema.json",
+  "id": "ledger_audit_dry_run_passes",
+  "version": 1,
+  "name": "The Audit Dry Run Goes Well",
+  "description": "An internal rehearsal of the regulator's audit finds clear ownership and traceable payments.",
+  "flavor_text": "For once, the answer to 'where does this number come from?' fit on one slide.",
+  "occurrence_weight": 3,
+  "trigger_condition_description": "Domain clarity > 50",
+  "trigger_condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": ">",
+    "value": 50
+  },
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 4
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "security_officer",
+      "delta": 4
+    }
+  ],
+  "delayed_effect_refs": []
+}

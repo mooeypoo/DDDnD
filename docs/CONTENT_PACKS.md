@@ -261,11 +261,12 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 |---|---|---|
 | ~~Schema library~~ | **Resolved (M1.1):** `zod/mini` in jitless mode with our own messages. See [ADR 0007](adr/0007-zod-mini-jitless-for-content-validation.md). | Done |
 | ~~Exact limits~~ | **Resolved.** Per-file limits in M1.1 (table in [CONTENT_SCHEMA.md](../CONTENT_SCHEMA.md#validation-and-limits)). 2000 files per pack in M1.2. | Done |
-| Demo pack topic | `extension` kind is fixed. A likely shape is "the Monolith, retold for a fictional company", to show the facilitator use case. | M2 |
-| Demo pack repository name | **Owner creates it.** One repo for several packs (ADR 0008). Name candidates: `dddnd-packs`, `dddnd-demos`, `dddnd-external`, `dddnd-content`. | M2 |
+| ~~Demo pack topic~~ | **Resolved (M2.1):** "The Gilded Ledger", the monolith story retold for a fictional payments company. | Done |
+| ~~Demo pack repository name~~ | **Resolved (M2.1):** [mooeypoo/DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs), one folder per pack (ADR 0008). | Done |
 | SRE pack design | Scores, stakeholders, failure modes, and what "winning" means need a brainstorm | M3 |
 | Studio subdomain and repo folder names | Working names: `studio.dddnd.app`, `studio/` | M4 |
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
+| Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
 | Exact-run replay of retired remote packs | Snapshots make it possible. Do we promise it? (CONTENT_VERSIONING.md does not promise it for retired base scenarios.) | M2 |
 
 ---
@@ -561,3 +562,50 @@ The entry point is a small "Community packs" control in the lobby. Its final des
 - [ ] Re-run the headless CSP check (M1.6) with a remote pack loaded
 - [ ] Public docs-site pages for players and authors are live
 - [ ] Demo pack published and pinned to a tag
+
+### M2.1: The packs repository, the demo pack, and where trust lives (2026-11-21)
+
+**Where "sanctioned" lives ([ADR 0010](adr/0010-sanctioned-list-lives-in-official-repo.md))**
+
+ADR 0008 (written the same day) put an `index.json` with a `demo`/`sanctioned` status in the packs repository. The project owner caught the flaw right away: a trust label stored next to what it vouches for can be written by whoever writes that thing. ADR 0010 supersedes that one decision. The packs repository makes no trust claims. If DDDnD ever endorses packs, the list lives in the official repository, pinned to exact manifest URLs and reviewed like code. In DDD terms, endorsement belongs to the DDDnD context, not to the supplier context. It is a small example of ADRs working as intended: the decision changed within hours, and the record shows both the mistake and the correction.
+
+**The packs repository ([mooeypoo/DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs))**
+
+Created by the project owner and set up for many packs, not one:
+- `packs/<pack_id>/`, each pack self-contained with its own README
+- a README explaining what the repo is, how to load and add packs, the license, and credits
+- GPL-3.0 `LICENSE`
+- `.vscode/settings.json` mapping the published JSON Schemas onto pack folders
+- a CI workflow that checks out DDDnD and runs its validator *with the balance audit* on every pack
+
+The CI checks out a DDDnD ref set in one variable. It currently points at this feature branch and must move to `main` after merge.
+
+**Two gaps the demo pack exposed in M1, fixed here**
+
+1. **`base_url` had to be absolute for hosted packs.** That meant editing the manifest for every release tag, which defeats pinning. ADR 0003 always said `base_url` resolves relative to the manifest. The schema now accepts `"."` and `"./folder"` (never `..`). The one hostile-pack test that matched the old error wording was updated; the attack is still rejected at the same stage.
+2. **The CLI validator couldn't check an extension pack.** It read one folder, so the base content an extension references was "missing". It now builds the same registry the game uses (one owner per file, pack-scoped resolution). `base` and `tutorial` come from the DDDnD checkout, and other dependencies come from `--dependency-root`. This one change is what lets the packs repo's CI work.
+
+**The demo pack: The Gilded Ledger**
+
+An `extension` pack about a fictional payments company with one monolith and an audit coming. It is deliberately mostly reuse:
+- **From base, by reference:** all six scores, the CTO and Security Officer, 16 base cards, 6 base events, all outcome tiers and endings.
+- **New:** 2 stakeholders with 4 reaction rules, 4 cards, 4 events, and 1 aftershock.
+
+All new ids are prefixed `ledger_`, because content ids are global and the registry refuses collisions. That convention is now in the authoring guides.
+
+**Balancing it was the best demo of the tooling so far.** The first draft *validated* fine and was still a bad game. The audit said why:
+
+| Draft | What the audit / simulation showed | Change |
+|---|---|---|
+| 1 | 2 critical: the CTO declined on 87% of turns and ended at 6/100. All event weight negative. | The base CTO loses satisfaction every turn while clarity is below 35, and the draft started at 28. Start clarity at 36; drop a CTO penalty; add two positive events and a CTO-friendly card. |
+| 2 | Criticals gone, but the stakeholder list included **`vp_product`**, who isn't in the scenario. The win rate was 12.5% (base scenarios: 67–72%), budget averaged −5.6. | Swapped out a reused base event that targets `vp_product`; added budget and morale relief cards from base; softened the new cards' costs. |
+| 3 | 0 findings, win rate 47% | Starting budget 66 → 72 |
+| 4 | **0 critical, 0 warnings**, success 48.5% / partial 37.5% / failure 14% | Done. Deliberately a little harder than base: an audit deadline should feel tight. |
+
+The base comparison came from running base scenarios through the same harness. That turned "is 12.5% too hard?" from a gut call into a comparison.
+
+**A finding: phantom stakeholders**
+
+`apply_stakeholder_changes` creates a stakeholder entry for *any* id a card, event, aftershock, or rule names, even one who isn't at the table. That phantom then counts toward the end-of-run archetype metrics, and could even be picked as a stage actor. The demo hit it by reusing base content, which is exactly what extension packs are for. A scan of first-party content found one existing case: `automate_deployment_pipeline` targets `vp_product` in `microservice_sprawl-v2`. Fixing it changes that scenario's behavior, so it needs a new content version and then a validator error. It is logged for M3, and the guides tell authors how to avoid it meanwhile. The demo pack's fixture test asserts it has no phantom targets.
+
+**Tests:** the demo pack is copied to `tests/content/fixtures/packs/gilded_ledger`, so CI never needs the network. A test builds it next to the real base pack and asserts zero bundle errors and no phantom stakeholder targets.

@@ -22,6 +22,8 @@ import { simulate_player_true_and_oracle } from '../src/domains/simulation/servi
 import { buildContentAuditReport } from '../src/domains/simulation/services/audit/content_audit_report_builder.js'
 import { buildScenarioBundle } from '../src/domains/content/services/bundle_builder.js'
 import { createFileContentProvider } from './lib/file_content_provider.js'
+import { ContentPackRegistry } from '../src/domains/content/services/content_pack_registry.js'
+import type { ContentProvider } from '../src/domains/content/services/content_provider.js'
 
 interface VersionedEntity {
   id: string
@@ -31,6 +33,16 @@ interface VersionedEntity {
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const defaultProjectRoot = path.resolve(scriptDir, '..')
 const defaultContentRoot = path.resolve(defaultProjectRoot, 'content')
+
+/**
+ * First-party packs a community pack may depend on, by pack id. When a
+ * validated pack declares one of these in depends_on, it is loaded from this
+ * repository so the pack is checked exactly as the game will see it.
+ */
+const FIRST_PARTY_PACK_ROOTS: Record<string, string> = {
+  base: defaultContentRoot,
+  tutorial: path.resolve(defaultContentRoot, 'tutorial'),
+}
 
 function parseArgs(args: string[]) {
   const getValue = (flag: string): string | undefined => {
@@ -46,6 +58,10 @@ function parseArgs(args: string[]) {
   const packId = getValue('--pack-id')
   const runsRaw = getValue('--runs')
   const runs = runsRaw ? Number.parseInt(runsRaw, 10) : 50
+  const dependencyRoots = args
+    .map((value, index) => (value === '--dependency-root' ? args[index + 1] : undefined))
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => path.resolve(value))
   const withAudit = hasFlag('--audit')
   const failOnAuditCritical = hasFlag('--fail-on-audit-critical')
   const includeTestScenarios = hasFlag('--include-test-scenarios')
@@ -59,6 +75,7 @@ function parseArgs(args: string[]) {
     manifestPath,
     packId,
     runs,
+    dependencyRoots,
     withAudit,
     failOnAuditCritical,
     includeTestScenarios,
@@ -102,10 +119,51 @@ function listEntryPointScenarioRefs(manifest: ContentPackManifest, includeTestSc
   return scenarioRefs
 }
 
+/**
+ * Builds the provider the game would use for this pack's scenarios: the pack
+ * plus its declared dependencies, with one owner per file and pack-scoped
+ * resolution (M1.3). First-party dependencies come from this repository;
+ * other dependencies come from --dependency-root folders.
+ */
+async function createPackScopedProvider(
+  manifest: ContentPackManifest,
+  contentRoot: string,
+  dependencyRoots: string[],
+): Promise<ContentProvider> {
+  const registry = new ContentPackRegistry()
+  const registered = new Set<string>()
+
+  const candidates = new Map<string, string>(Object.entries(FIRST_PARTY_PACK_ROOTS))
+  for (const root of dependencyRoots) {
+    const dependencyManifest = await loadManifestFromDisk(path.join(root, 'manifest.json'))
+    candidates.set(dependencyManifest.id, root)
+  }
+
+  async function registerWithDependencies(packManifest: ContentPackManifest, root: string): Promise<void> {
+    for (const dependency of packManifest.depends_on) {
+      if (registered.has(dependency.pack_id)) continue
+      const dependencyRoot = candidates.get(dependency.pack_id)
+      if (!dependencyRoot) {
+        throw new Error(
+          `Pack "${packManifest.id}" depends on "${dependency.pack_id}". Pass its folder with --dependency-root <dir>.`,
+        )
+      }
+      await registerWithDependencies(await loadManifestFromDisk(path.join(dependencyRoot, 'manifest.json')), dependencyRoot)
+    }
+    if (!registered.has(packManifest.id)) {
+      registry.registerPack(packManifest, createFileContentProvider(root))
+      registered.add(packManifest.id)
+    }
+  }
+
+  await registerWithDependencies(manifest, contentRoot)
+  return registry.createScopedProvider(manifest.id)
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2))
   const manifest = await loadManifestFromDisk(options.manifestPath)
-  const provider = createFileContentProvider(options.contentRoot)
+  const provider = await createPackScopedProvider(manifest, options.contentRoot, options.dependencyRoots)
   const scenarioRefs = listEntryPointScenarioRefs(manifest, options.includeTestScenarios)
 
   const resolvedPackId = options.packId ?? manifest.id

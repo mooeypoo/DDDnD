@@ -1,0 +1,37 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/event.schema.json",
+  "id": "ledger_double_charge_incident",
+  "version": 1,
+  "name": "Double-Charge Incident",
+  "description": "A retry bug charges hundreds of customers twice.",
+  "flavor_text": "'At least it's consistent,' said nobody.",
+  "occurrence_weight": 4,
+  "trigger_condition_description": "User trust < 45",
+  "trigger_condition": {
+    "target_type": "score",
+    "target_id": "user_trust",
+    "operator": "<",
+    "value": 45
+  },
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": -6
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "ledger_head_of_payments",
+      "delta": -5
+    },
+    {
+      "stakeholder_id": "ledger_support_lead",
+      "delta": -3
+    }
+  ],
+  "delayed_effect_refs": []
+}

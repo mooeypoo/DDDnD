@@ -215,7 +215,7 @@ const HOSTILE_CASES: HostileCase[] = [
     attack: 'a base_url that climbs out of a folder',
     pack: () => variant((pack) => { pack.manifest.base_url = '/content/../../admin' }),
     stage: 'manifest',
-    message: /base_url: must be a root-relative path/,
+    message: /base_url: must be "\." \(the manifest.s folder\)/,
   },
   {
     threat: 'T3',

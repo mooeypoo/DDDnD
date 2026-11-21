@@ -1,0 +1,39 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/card.schema.json",
+  "id": "ledger_nightly_reconciliation",
+  "version": 1,
+  "name": "Automate Nightly Reconciliation",
+  "description": "Match every ledger entry against the bank's records, every night, without anyone doing it by hand.",
+  "flavor_text": "Finally, someone other than Priya can explain the numbers.",
+  "style_tags": [
+    "workflow",
+    "stability"
+  ],
+  "usage_limit": 2,
+  "cooldown_turns": 1,
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 3
+    },
+    {
+      "score_id": "team_morale",
+      "delta": 3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": 2
+    },
+    {
+      "score_id": "budget",
+      "delta": -4
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "ledger_support_lead",
+      "delta": 3
+    }
+  ],
+  "delayed_effect_refs": []
+}

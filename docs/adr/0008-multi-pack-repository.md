@@ -1,6 +1,6 @@
 # ADR 0008: One public repository holds several packs (demos now, sanctioned packs later)
 
-Status: Accepted  
+Status: Accepted (decision 4 superseded by [ADR 0010](0010-sanctioned-list-lives-in-official-repo.md): no trust labels in the packs repository)  
 Date: 2026-11-21  
 Refines: [ADR 0006](0006-delivery-order-loading-before-studio.md), decision 2 ("hosted in its own public GitHub repository")  
 Feature journal: [docs/CONTENT_PACKS.md](../CONTENT_PACKS.md)

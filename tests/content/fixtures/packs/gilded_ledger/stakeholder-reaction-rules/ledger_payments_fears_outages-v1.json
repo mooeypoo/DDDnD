@@ -1,0 +1,27 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/stakeholder-reaction-rule.schema.json",
+  "id": "ledger_payments_fears_outages",
+  "version": 1,
+  "name": "Payments Fears Outages",
+  "description": "The Head of Payments escalates when customers stop trusting their payments.",
+  "condition_description": "User trust < 40",
+  "condition": {
+    "target_type": "score",
+    "target_id": "user_trust",
+    "operator": "<",
+    "value": 40
+  },
+  "score_changes": [
+    {
+      "score_id": "budget",
+      "delta": -2
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "ledger_head_of_payments",
+      "delta": -6
+    }
+  ],
+  "priority": 10
+}

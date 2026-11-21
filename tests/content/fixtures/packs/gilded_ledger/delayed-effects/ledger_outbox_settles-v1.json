@@ -1,0 +1,18 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/delayed-effect.schema.json",
+  "id": "ledger_outbox_settles",
+  "version": 1,
+  "name": "Payment Events Become Trustworthy",
+  "description": "Downstream teams stop double-checking every payment event.",
+  "turns_until_resolution": 2,
+  "score_changes": [
+    {
+      "score_id": "maintainability",
+      "delta": 4
+    },
+    {
+      "score_id": "user_trust",
+      "delta": 3
+    }
+  ]
+}

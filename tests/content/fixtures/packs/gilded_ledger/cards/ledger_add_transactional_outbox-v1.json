@@ -1,0 +1,37 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/card.schema.json",
+  "id": "ledger_add_transactional_outbox",
+  "version": 1,
+  "name": "Add a Transactional Outbox",
+  "description": "Publish payment events from the same transaction that records the payment, so nothing is charged without being announced.",
+  "flavor_text": "No more 'we charged them but never told anyone'.",
+  "style_tags": [
+    "integration",
+    "stability"
+  ],
+  "usage_limit": 1,
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 4
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 4
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -2
+    },
+    {
+      "score_id": "budget",
+      "delta": -4
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "ledger_outbox_settles",
+      "version": 1
+    }
+  ]
+}

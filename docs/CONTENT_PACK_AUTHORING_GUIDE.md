@@ -210,16 +210,22 @@ dddnd-my-pack/
 
 ### Hosting guidance
 
-For remote hosting, `base_url` should point to the directory containing your content subfolders.
+For hosted packs, set `"base_url": "."`. Content is then read from the folder that holds `manifest.json`, so the same manifest works for every release tag without edits:
 
-Examples:
+- manifest: `https://raw.githubusercontent.com/<owner>/<repo>/<tag>/packs/<pack_id>/manifest.json`
+- a scenario: `https://raw.githubusercontent.com/<owner>/<repo>/<tag>/packs/<pack_id>/scenarios/<id>-v<version>.json`
 
-- GitHub raw: `https://raw.githubusercontent.com/<owner>/<repo>/<branch>/content`
-- CDN mirror: `https://cdn.example.com/dddnd/my-pack/content`
+`"./some/folder"` also works when content sits in a subfolder. `..` is never allowed.
 
-Then a scenario fetch resolves like:
+The game loads remote packs only from GitHub: `raw.githubusercontent.com` and GitHub Pages sites (`<owner>.github.io`). Share a URL pinned to a tag or commit, not a branch, so a saved game always finds the content it was played with. See [ADR 0003](adr/0003-remote-pack-source-allowlist.md). One repository can hold several packs, one folder each ([mooeypoo/DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs) is the reference layout).
 
-- `${base_url}/scenarios/<id>-v<version>.json`
+### Naming your content ids
+
+Content ids are shared by every loaded pack, and a pack whose files collide with another pack's is refused. Prefix your ids with a short word unique to your pack. The demo pack uses `ledger_` (`ledger_split_refunds_context`).
+
+### Reusing base content
+
+An `extension` pack can reference base cards, events, aftershocks, stakeholders, outcome tiers, and endings by `{ id, version }`, without copying them. Check which stakeholders a reused card or event affects (its `stakeholder_changes`): if your scenario doesn't include that stakeholder, the game currently creates an invisible "phantom" stakeholder that still counts toward end-of-run classification. Either include the stakeholder or pick other content. The validator will reject this in a later version.
 
 ## Dependency model
 
@@ -301,6 +307,14 @@ npx tsx scripts/validate-content-pack.ts \
   --content-root ./content \
   --manifest ./content/manifest.json \
   --runs 50
+```
+
+For a pack outside this repository, point `--content-root` at the pack folder. Packs it depends on are loaded too, so it is checked exactly as the game will see it. `base` and `tutorial` come from this repository automatically. Any other dependency is passed with `--dependency-root <folder>` (repeatable):
+
+```bash
+npx tsx scripts/validate-content-pack.ts \
+  --content-root ../DDDnD-packs/packs/gilded_ledger \
+  --audit --runs 50 --fail-on-audit-critical
 ```
 
 Useful flags:

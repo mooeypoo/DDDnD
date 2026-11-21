@@ -41,13 +41,20 @@ const inventoryFilenameSchema = z.string().check(
 )
 
 /**
- * Where a pack's content lives: a root-relative path on this site
- * (first-party packs) or an absolute https URL (community packs).
- * Whether a given https host is allowed is the source policy's job (M2).
+ * Where a pack's content lives:
+ * - `.` or `./sub/folder`: relative to the manifest's own location. The
+ *   recommended form for hosted packs: a tagged release needs no edits.
+ * - `/content`: a root-relative path on this site (first-party packs).
+ * - an absolute https URL.
+ * `..` is never allowed. Whether a given https host is allowed is the source
+ * policy's job (M2).
  */
 const contentLocationSchema = z.string().check(
   z.maxLength(2048),
   z.refine((value: string) => {
+    if (value === '.' || value.startsWith('./')) {
+      return /^\.(\/[A-Za-z0-9_\-.]+)*\/?$/.test(value) && !value.split('/').includes('..')
+    }
     if (value.startsWith('/')) {
       return /^\/[A-Za-z0-9_\-./]*$/.test(value) && !value.split('/').includes('..') && !value.startsWith('//')
     }
@@ -57,7 +64,7 @@ const contentLocationSchema = z.string().check(
     } catch {
       return false
     }
-  }, 'must be a root-relative path such as /content or an https:// URL'),
+  }, 'must be "." (the manifest\'s folder), a path such as ./content or /content, or an https:// URL'),
 )
 
 const inventorySectionSchema = boundedArray(inventoryFilenameSchema, counts.inventory_section)

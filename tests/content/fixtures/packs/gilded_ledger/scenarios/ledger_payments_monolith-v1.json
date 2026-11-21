@@ -1,0 +1,251 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/scenario.schema.json",
+  "id": "ledger_payments_monolith",
+  "version": 1,
+  "name": "The Gilded Ledger",
+  "description": "Gilded Ledger Co. runs every charge, refund, and chargeback through one payments monolith and one shared database. The regulator's audit is coming, and nobody can say where a refund's data actually lives.",
+  "short_description": "Untangle a payments monolith before the regulator's audit.",
+  "flavor_text": "Every refund is a negative payment. Every payment is a special case.",
+  "max_turns": 10,
+  "score_variance": 5,
+  "starting_scores": {
+    "domain_clarity": 36,
+    "maintainability": 36,
+    "delivery_confidence": 56,
+    "team_morale": 50,
+    "user_trust": 56,
+    "budget": 72
+  },
+  "score_refs": [
+    {
+      "id": "domain_clarity",
+      "version": 1
+    },
+    {
+      "id": "maintainability",
+      "version": 1
+    },
+    {
+      "id": "delivery_confidence",
+      "version": 1
+    },
+    {
+      "id": "team_morale",
+      "version": 1
+    },
+    {
+      "id": "user_trust",
+      "version": 1
+    },
+    {
+      "id": "budget",
+      "version": 1
+    }
+  ],
+  "stakeholder_refs": [
+    {
+      "id": "cto",
+      "version": 1
+    },
+    {
+      "id": "security_officer",
+      "version": 1
+    },
+    {
+      "id": "ledger_head_of_payments",
+      "version": 1
+    },
+    {
+      "id": "ledger_support_lead",
+      "version": 1
+    }
+  ],
+  "card_refs": [
+    {
+      "id": "define_bounded_context",
+      "version": 1
+    },
+    {
+      "id": "extract_shared_kernel",
+      "version": 1
+    },
+    {
+      "id": "document_ubiquitous_language",
+      "version": 1
+    },
+    {
+      "id": "introduce_anti_corruption_layer",
+      "version": 1
+    },
+    {
+      "id": "ship_quick_fix",
+      "version": 1
+    },
+    {
+      "id": "add_integration_tests",
+      "version": 1
+    },
+    {
+      "id": "establish_team_ownership",
+      "version": 1
+    },
+    {
+      "id": "harden_operational_runbooks",
+      "version": 1
+    },
+    {
+      "id": "negotiate_technical_runway",
+      "version": 1
+    },
+    {
+      "id": "absorb_emergency_production_fix",
+      "version": 1
+    },
+    {
+      "id": "launch_compliance_audit_trail",
+      "version": 1
+    },
+    {
+      "id": "pay_down_incident_backlog",
+      "version": 1
+    },
+    {
+      "id": "hold_architecture_workshop",
+      "version": 1
+    },
+    {
+      "id": "align_budget_with_architecture",
+      "version": 1
+    },
+    {
+      "id": "clarify_cross_team_handoffs",
+      "version": 1
+    },
+    {
+      "id": "host_cross_team_retrospective",
+      "version": 1
+    },
+    {
+      "id": "ledger_split_refunds_context",
+      "version": 1
+    },
+    {
+      "id": "ledger_add_transactional_outbox",
+      "version": 1
+    },
+    {
+      "id": "ledger_freeze_payment_changes",
+      "version": 1
+    },
+    {
+      "id": "ledger_nightly_reconciliation",
+      "version": 1
+    }
+  ],
+  "event_refs": [
+    {
+      "id": "critical_bug_discovered",
+      "version": 1
+    },
+    {
+      "id": "customer_escalation",
+      "version": 1
+    },
+    {
+      "id": "team_burnout_spike",
+      "version": 1
+    },
+    {
+      "id": "key_engineer_leaves",
+      "version": 1
+    },
+    {
+      "id": "team_member_discovers_pattern",
+      "version": 1
+    },
+    {
+      "id": "legacy_system_wins_award",
+      "version": 1
+    },
+    {
+      "id": "ledger_chargeback_storm",
+      "version": 1
+    },
+    {
+      "id": "ledger_regulator_letter",
+      "version": 1
+    },
+    {
+      "id": "ledger_double_charge_incident",
+      "version": 1
+    },
+    {
+      "id": "ledger_audit_dry_run_passes",
+      "version": 1
+    }
+  ],
+  "outcome_tier_refs": [
+    {
+      "id": "triumph",
+      "version": 1
+    },
+    {
+      "id": "success",
+      "version": 1
+    },
+    {
+      "id": "survival",
+      "version": 1
+    },
+    {
+      "id": "struggle",
+      "version": 1
+    },
+    {
+      "id": "collapse",
+      "version": 1
+    }
+  ],
+  "outcome_archetype_refs": [
+    {
+      "id": "boundary_builder",
+      "version": 1
+    },
+    {
+      "id": "stakeholder_whisperer",
+      "version": 1
+    },
+    {
+      "id": "runaway_refactorer",
+      "version": 1
+    },
+    {
+      "id": "firefighter",
+      "version": 1
+    },
+    {
+      "id": "system_stabilizer",
+      "version": 1
+    },
+    {
+      "id": "the_diplomat",
+      "version": 1
+    },
+    {
+      "id": "budget_hawk",
+      "version": 1
+    },
+    {
+      "id": "the_pragmatist",
+      "version": 1
+    },
+    {
+      "id": "the_visionary",
+      "version": 1
+    },
+    {
+      "id": "burnout_machine",
+      "version": 1
+    }
+  ]
+}

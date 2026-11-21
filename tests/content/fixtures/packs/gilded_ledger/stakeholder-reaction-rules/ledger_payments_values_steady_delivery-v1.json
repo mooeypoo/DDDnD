@@ -1,0 +1,22 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/stakeholder-reaction-rule.schema.json",
+  "id": "ledger_payments_values_steady_delivery",
+  "version": 1,
+  "name": "Payments Values Steady Delivery",
+  "description": "Predictable releases reassure the Head of Payments.",
+  "condition_description": "Delivery confidence > 60",
+  "condition": {
+    "target_type": "score",
+    "target_id": "delivery_confidence",
+    "operator": ">",
+    "value": 60
+  },
+  "score_changes": [],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "ledger_head_of_payments",
+      "delta": 4
+    }
+  ],
+  "priority": 50
+}

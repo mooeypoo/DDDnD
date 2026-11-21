@@ -1,0 +1,30 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/event.schema.json",
+  "id": "ledger_chargeback_storm",
+  "version": 1,
+  "name": "Chargeback Storm",
+  "description": "One merchant's fraud problem turns into a wave of disputed payments.",
+  "flavor_text": "Support's queue just grew a second queue.",
+  "occurrence_weight": 3,
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": -4
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -3
+    },
+    {
+      "score_id": "budget",
+      "delta": -4
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "ledger_support_lead",
+      "delta": -4
+    }
+  ],
+  "delayed_effect_refs": []
+}

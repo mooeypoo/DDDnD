@@ -169,6 +169,12 @@ describe('manifest pack rules (M1.2)', () => {
       expect(errorsFor(createValidManifest({ base_url }))[0]?.field).toBe('base_url')
     }
     expect(validateContentPackManifest(createValidManifest({ base_url: 'https://raw.githubusercontent.com/owner/repo/v1/content' })).valid).toBe(true)
+    for (const base_url of ['.', './', './content', './packs/demo']) {
+      expect(validateContentPackManifest(createValidManifest({ base_url })).valid, base_url).toBe(true)
+    }
+    for (const base_url of ['./..', './../secrets', './a/../../b']) {
+      expect(errorsFor(createValidManifest({ base_url }))[0]?.field, base_url).toBe('base_url')
+    }
   })
 
   it('rejects unknown manifest fields', () => {
