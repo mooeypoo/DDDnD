@@ -1,6 +1,6 @@
 # Community Content Packs
 
-Status: Planning. No implementation yet. This file is the journal and plan for the feature.  
+Status: In progress. M1 has started (see section 11). This file is the journal and plan for the feature.  
 Audience: future-us, other agents, and later writing (talk, blog posts, the public docs site)  
 Decisions: [docs/adr/](adr/README.md) (ADRs 0001–0006)  
 Threat model: [docs/CONTENT_PACKS_SECURITY.md](CONTENT_PACKS_SECURITY.md)  
@@ -259,8 +259,8 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 
 | Question | Notes | Decide by |
 |---|---|---|
-| Schema library | Zod v4 is the working proposal (CSP-safe, emits JSON Schema). Valibot is the alternative. Ajv is out for the runtime. | Start of M1 |
-| Exact limits (bytes per file, files per pack, stakeholders per scenario, `max_turns` range, string lengths) | Set them from the base pack's real maximums with generous headroom. Record them in CONTENT_SCHEMA.md. | M1 |
+| ~~Schema library~~ | **Resolved (M1.1):** `zod/mini` in jitless mode with our own messages. See [ADR 0007](adr/0007-zod-mini-jitless-for-content-validation.md). | Done |
+| ~~Exact limits~~ | **Resolved (M1.1)** for per-file limits: see the table in [CONTENT_SCHEMA.md](../CONTENT_SCHEMA.md#validation-and-limits). Files per pack is still open (lands with the manifest work). | Done / M1 |
 | Demo pack topic | `extension` kind is fixed. A likely shape is "the Monolith, retold for a fictional company", to show the facilitator use case. | M2 |
 | Demo pack repository name and owner | Public GitHub repo, separate from this one | M2 |
 | SRE pack design | Scores, stakeholders, failure modes, and what "winning" means need a brainstorm | M3 |
@@ -283,3 +283,49 @@ Threads worth telling, with where they are recorded:
 - **"A second domain is the only real test of generality."** The SRE pack as an acceptance test. (ADR 0006, M3)
 - **"Writing a pack is domain modeling."** Pack creation as a workshop exercise. (§2)
 - **The context map** in §4.3 works as a slide.
+
+---
+
+## 11. Implementation log
+
+One entry per slice of work: what changed, what we learned, and why we chose what we chose. Newest last. Each entry is written for someone reading it months later, such as the talk, a blog post, or a reviewer.
+
+### M1.1: Field-level schemas and limits (2026-11-21)
+
+Branch: `feat/content-packs-mvp1` (PR #34).
+
+**What changed**
+
+- New `src/domains/content/validation/` module (the folder already existed, empty, from the original architecture):
+  - `content_limits.ts`: every bound in one place, each annotated with the base pack's measured maximum.
+  - `schema_primitives.ts`: id grammar, bounded integers, safe text, refs, records, https URLs.
+  - `content_entity_schemas.ts`: one strict schema per content type, typed against `model/content_types.ts`.
+  - `content_entity_parser.ts`: `parseContentEntity()`, the single entry point, plus author-facing error messages.
+- `bounded_json_reader.ts`: reads a response body with a byte cap. It checks `Content-Length` early, then counts the actual stream, because the header can lie or be missing.
+- The browser loader (`createContentProvider`) now goes: bounded read → JSON parse → schema → filename identity check. The old `score_shape.ts` check is subsumed by the score schema. Its tests moved to `content_schema.test.ts` with the same rules.
+- The four CLI scripts each had their own copy of a disk loader that checked only `id`/`version`. They now share `scripts/lib/file_content_provider.ts`, which applies the same schema as the game.
+- `Stakeholder.short_description` was documented in CONTENT_SCHEMA.md but missing from the TypeScript type. It's now in the type, so the strict schema accepts a documented field.
+- CONTENT_SCHEMA.md gains a "Validation and Limits" section. Its accidentally duplicated opening section (noted during planning) is fixed.
+
+**How the limits were chosen**
+
+We measured all 209 first-party content files first (longest strings, numeric ranges, array sizes, largest file at about 5 KB). Each limit is that maximum with generous headroom: descriptions 174 → 600 characters, cards per scenario 26 → 100, `max_turns` 12 → 50. Two limits are set by something other than content:
+
+- **Stakeholders per scenario is 8.** That keeps it below the UI's 9 avatar roles, so ADR 0002's distinct cast is always possible.
+- **Deltas are bounded at ±100**, because scores and satisfaction live on roughly a 0–100 scale.
+
+**What we learned**
+
+1. **Every first-party file passed on the first run.** The base content was already disciplined; the boundary was the only thing missing. That made it safe to make objects strict (unknown keys are errors).
+2. **Zod v4 quietly calls `new Function`.** We had picked Zod partly because Ajv uses `new Function`. Reading Zod's source showed it does too: it probes for `eval` to JIT-compile object parsers. The probe fails safely under CSP but still triggers a violation report. Fix: `jitless: true`. We wrote a test that spies on the `Function` constructor and confirmed it failed with jitless off, so the test is real.
+3. **We measured the bundle before committing to the API.** Classic Zod added 28 kB gzipped (about 20%). `zod/mini` adds 9.5 kB. We switched while the schemas were fresh.
+4. **`zod/mini` has no English messages, and that turned out to be useful.** Its default is "Invalid input", which helps no author. We wrote about 40 lines mapping Zod's structured issues to plain messages, such as `unknown field "stakehoder_changes" (check the spelling)`. These are the messages Pack Studio will show. One subtlety: mini doesn't keep the input value on issues, so "missing" and "wrong type" looked the same. We tell them apart by looking up the path in the raw JSON.
+5. **Zod silently drops a `"__proto__"` key from records.** That's safe (no prototype pollution), but an author would never learn their key vanished. Our rule is "reject, don't silently fix", so we check the raw input first and report it. Same reasoning for text: bidi-override characters are rejected with a message, not stripped (this refines the threat model's original "stripped").
+6. **One boundary, many doors.** The game validated nothing, and neither did the CLI, but they skipped validation in four separate places. Consolidating the loaders matters for authors: before this, a pack could pass `npm run content:validate` and still be rejected by the game.
+
+**How we know the game didn't change**
+
+- The full test suite passes (894 tests, up from 664).
+- A fixed-seed audit report (5 scenarios × 20 runs × both bot policies, about 300 KB of JSON) is byte-identical between `main` and this branch. This matters because schema parsing rebuilds objects (key order can change). The engine's behavior did not.
+
+**Still to do in M1:** manifest schema (`schema_version`, `kind`, URL rules, files per pack), pack-scoped resolution, structured reaction conditions, JSON Schema export, CSP header, and the hostile-pack fixture suite.

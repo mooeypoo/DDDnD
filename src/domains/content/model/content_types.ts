@@ -138,6 +138,8 @@ export interface StakeholderReactionRule extends ContentMetadata {
 export interface Stakeholder extends ContentMetadata {
   name: string
   description: string
+  /** Compact summary for banners and selection surfaces (CONTENT_SCHEMA.md). */
+  short_description?: string
   reaction_rule_refs: VersionRef[]
 }
 

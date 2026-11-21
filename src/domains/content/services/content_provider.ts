@@ -28,9 +28,10 @@ import {
   ContentMetadata,
   VersionRef,
   versionRefKey,
-  parseFilename
 } from '../model'
-import { assertScoreShape } from './score_shape'
+import { CONTENT_LIMITS } from '../validation/content_limits'
+import { parseContentEntity, type ContentEntityByType } from '../validation/content_entity_parser'
+import { readJsonWithLimit } from './bounded_json_reader'
 
 /**
  * Content type names matching directory structure.
@@ -115,22 +116,22 @@ export function createContentProvider(basePath = '/content'): ContentProvider {
    * asks for the same files again — plus dozens of cards fetched together.
    * Failed loads are not cached, so a transient miss can be retried.
    */
-  function loadContent<T extends ContentMetadata>(
-    contentType: ContentType,
+  function loadContent<K extends ContentType>(
+    contentType: K,
     ref: VersionRef
-  ): Promise<T> {
+  ): Promise<ContentEntityByType[K]> {
     const cacheKey = `${contentType}/${versionRefKey(ref)}`
     const cached = loadedContent.get(cacheKey)
     if (cached) {
-      return Promise.resolve(cached as T)
+      return Promise.resolve(cached as ContentEntityByType[K])
     }
 
     const pending = inflightLoads.get(cacheKey)
     if (pending) {
-      return pending as Promise<T>
+      return pending as Promise<ContentEntityByType[K]>
     }
 
-    const request = fetchContent<T>(contentType, ref)
+    const request = fetchContent(contentType, ref)
     inflightLoads.set(cacheKey, request)
 
     return request.then(
@@ -146,10 +147,17 @@ export function createContentProvider(basePath = '/content'): ContentProvider {
     )
   }
 
-  async function fetchContent<T extends ContentMetadata>(
-    contentType: ContentType,
+  /**
+   * Fetches one content file and turns it into a typed entity.
+   *
+   * Order matters: bounded read, then JSON parse, then the field-level schema
+   * (ADR 0001), and only then the filename identity check. Nothing reaches
+   * callers until it has passed all four.
+   */
+  async function fetchContent<K extends ContentType>(
+    contentType: K,
     ref: VersionRef
-  ): Promise<T> {
+  ): Promise<ContentEntityByType[K]> {
     const filename = `${versionRefKey(ref)}.json`
     const filePath = `${basePath}/${contentType}/${filename}`
 
@@ -164,12 +172,8 @@ export function createContentProvider(basePath = '/content'): ContentProvider {
       throw new ContentNotFoundError(contentType, ref)
     }
 
-    const content = await response.json() as T
-
-    const parsedRef = parseFilename(filename)
-    if (!parsedRef) {
-      throw new Error(`Invalid filename format: ${filename}`)
-    }
+    const raw = await readJsonWithLimit(response, CONTENT_LIMITS.max_file_bytes, filePath)
+    const content = parseContentEntity(contentType, ref, raw)
 
     if (content.id !== ref.id || content.version !== ref.version) {
       throw new ContentVersionMismatchError(filename, ref, content)
@@ -178,23 +182,17 @@ export function createContentProvider(basePath = '/content'): ContentProvider {
     return content
   }
 
-  async function loadScore(ref: VersionRef): Promise<Score> {
-    const score = await loadContent<Score>('scores', ref)
-    assertScoreShape(score)
-    return score
-  }
-  
   return {
-    loadScenario: (ref) => loadContent<Scenario>('scenarios', ref),
-    loadScore,
-    loadStakeholder: (ref) => loadContent<Stakeholder>('stakeholders', ref),
-    loadStakeholderReactionRule: (ref) => loadContent<StakeholderReactionRule>('stakeholder-reaction-rules', ref),
-    loadCard: (ref) => loadContent<Card>('cards', ref),
-    loadEvent: (ref) => loadContent<Event>('events', ref),
-    loadDelayedEffect: (ref) => loadContent<DelayedEffect>('delayed-effects', ref),
-    loadOutcomeTier: (ref) => loadContent<OutcomeTier>('outcome-tiers', ref),
-    loadOutcomeArchetype: (ref) => loadContent<OutcomeArchetype>('outcome-archetypes', ref),
-    loadPlayerClass: (ref) => loadContent<PlayerClass>('classes', ref),
-    loadChallengeModifier: (ref) => loadContent<ChallengeModifier>('challenge-modifiers', ref)
+    loadScenario: (ref) => loadContent('scenarios', ref),
+    loadScore: (ref) => loadContent('scores', ref),
+    loadStakeholder: (ref) => loadContent('stakeholders', ref),
+    loadStakeholderReactionRule: (ref) => loadContent('stakeholder-reaction-rules', ref),
+    loadCard: (ref) => loadContent('cards', ref),
+    loadEvent: (ref) => loadContent('events', ref),
+    loadDelayedEffect: (ref) => loadContent('delayed-effects', ref),
+    loadOutcomeTier: (ref) => loadContent('outcome-tiers', ref),
+    loadOutcomeArchetype: (ref) => loadContent('outcome-archetypes', ref),
+    loadPlayerClass: (ref) => loadContent('classes', ref),
+    loadChallengeModifier: (ref) => loadContent('challenge-modifiers', ref)
   }
 }

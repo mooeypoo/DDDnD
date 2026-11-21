@@ -21,3 +21,4 @@ An ADR captures one decision: the context that forced it, what we chose, what we
 | [0004](0004-pack-license-compatibility.md) | Packs that build on the base pack must use a GPL-3.0-compatible license | Accepted | 2026-11-21 |
 | [0005](0005-pack-studio-as-separate-app.md) | Pack Studio is a separate local-first app that shares the domain code, not the game UI | Accepted | 2026-11-21 |
 | [0006](0006-delivery-order-loading-before-studio.md) | Ship pack loading (with a demo pack) before the Studio | Accepted | 2026-11-21 |
+| [0007](0007-zod-mini-jitless-for-content-validation.md) | Validate content with `zod/mini` in jitless mode, with our own error messages | Accepted | 2026-11-21 |

@@ -21,6 +21,7 @@ import { assertValidContentPackManifest } from '../src/domains/content/services/
 import { simulate_player_true_and_oracle } from '../src/domains/simulation/services/simulation_runner.js'
 import { buildContentAuditReport } from '../src/domains/simulation/services/audit/content_audit_report_builder.js'
 import { buildScenarioBundle } from '../src/domains/content/services/bundle_builder.js'
+import { createFileContentProvider } from './lib/file_content_provider.js'
 
 interface VersionedEntity {
   id: string
@@ -61,41 +62,6 @@ function parseArgs(args: string[]) {
     withAudit,
     failOnAuditCritical,
     includeTestScenarios,
-  }
-}
-
-async function loadJson<T extends VersionedEntity>(
-  contentRoot: string,
-  directory: string,
-  ref: VersionRef,
-): Promise<T> {
-  const filename = `${ref.id}-v${ref.version}.json`
-  const filePath = path.join(contentRoot, directory, filename)
-  const raw = await readFile(filePath, 'utf8')
-  const parsed = JSON.parse(raw) as T
-
-  if (parsed.id !== ref.id || parsed.version !== ref.version) {
-    throw new Error(
-      `Version mismatch in ${filename}: expected ${ref.id} v${ref.version}, got ${parsed.id} v${parsed.version}`,
-    )
-  }
-
-  return parsed
-}
-
-function createFileContentProvider(contentRoot: string): ContentProvider {
-  return {
-    loadScenario: (ref: VersionRef) => loadJson<Scenario>(contentRoot, 'scenarios', ref),
-    loadScore: (ref: VersionRef) => loadJson<Score>(contentRoot, 'scores', ref),
-    loadStakeholder: (ref: VersionRef) => loadJson<Stakeholder>(contentRoot, 'stakeholders', ref),
-    loadStakeholderReactionRule: (ref: VersionRef) =>
-      loadJson<StakeholderReactionRule>(contentRoot, 'stakeholder-reaction-rules', ref),
-    loadCard: (ref: VersionRef) => loadJson<Card>(contentRoot, 'cards', ref),
-    loadEvent: (ref: VersionRef) => loadJson<Event>(contentRoot, 'events', ref),
-    loadDelayedEffect: (ref: VersionRef) => loadJson<DelayedEffect>(contentRoot, 'delayed-effects', ref),
-    loadOutcomeTier: (ref: VersionRef) => loadJson<OutcomeTier>(contentRoot, 'outcome-tiers', ref),
-    loadOutcomeArchetype: (ref: VersionRef) => loadJson<OutcomeArchetype>(contentRoot, 'outcome-archetypes', ref),
-    loadPlayerClass: (ref: VersionRef) => loadJson<PlayerClass>(contentRoot, 'classes', ref),
   }
 }
 
