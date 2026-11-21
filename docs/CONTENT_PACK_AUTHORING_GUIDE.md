@@ -200,6 +200,8 @@ dddnd-my-pack/
   - externally configured manifests are loaded after defaults
   - for duplicate refs, later packs win, which enables controlled overrides
 
+> **Planned change:** community pack loading is designed in [docs/CONTENT_PACKS.md](CONTENT_PACKS.md). Under that design, external packs may **not** override another pack's content: refs resolve only within a pack and its declared `depends_on`. Remote packs will load only from GitHub raw and GitHub Pages at first, every field will be schema-validated with limits, and manifests gain `schema_version` and `kind`. See [docs/adr/](adr/README.md).
+
 ### Hosting guidance
 
 For remote hosting, `base_url` should point to the directory containing your content subfolders.

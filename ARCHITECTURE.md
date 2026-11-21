@@ -351,6 +351,20 @@ Exact-run exports are not yet required to be a full archival dump of all possibl
 
 ---
 
+## Community Content Packs (planned)
+
+Status: accepted design, not yet implemented. See [docs/CONTENT_PACKS.md](docs/CONTENT_PACKS.md) and [docs/adr/](docs/adr/README.md).
+
+Planned boundary changes, recorded here so new work does not contradict them:
+
+- Packs are declarative data interpreted by the fixed engine. They never contain code, expressions, markup, or asset paths ([ADR 0001](docs/adr/0001-community-content-packs.md)).
+- The content domain validates every field against a schema with resource limits, not only references. It resolves refs within a pack and its declared dependencies. External packs cannot override another pack's content.
+- Stakeholder cast (`avatarRole`) and scene assignment are derived by the UI from the run seed, using a UI-local generator separate from the simulation's random stream. Content carries no presentation fields ([ADR 0002](docs/adr/0002-presentation-cast-decoupled-from-content.md)).
+- Remote sources are limited by an allowlist kept in the content domain ([ADR 0003](docs/adr/0003-remote-pack-source-allowlist.md)).
+- Pack Studio is a separate app. It may import `src/domains/*`, never `src/ui`. A new pure `authoring` domain owns the editing model ([ADR 0005](docs/adr/0005-pack-studio-as-separate-app.md)).
+
+---
+
 ## Tutorial Architecture
 
 Tutorial content is architecturally isolated from main game content.

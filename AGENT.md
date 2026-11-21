@@ -48,6 +48,12 @@ Read these on top of the base set when applicable.
 - [CONTENT_VERSIONING.md](CONTENT_VERSIONING.md)
 - [ARCHITECTURE.md](ARCHITECTURE.md) (content validation boundary)
 
+### Community content packs / Pack Studio
+
+- [docs/CONTENT_PACKS.md](docs/CONTENT_PACKS.md) — canonical journal, plan, and milestones for loading community packs and for Pack Studio
+- [docs/CONTENT_PACKS_SECURITY.md](docs/CONTENT_PACKS_SECURITY.md) — threat model and required controls for untrusted packs
+- [docs/adr/](docs/adr/README.md) — architecture decision records (ADRs 0001–0006 cover packs)
+
 ### Gameplay v2 / play overhaul
 
 - [docs/GAMEPLAY_V2.md](docs/GAMEPLAY_V2.md) — canonical plan, play model, domain boundaries, test policy, and slice sequence for the war-table overhaul. Read this before changing hand, consult, deal, or the play shell.

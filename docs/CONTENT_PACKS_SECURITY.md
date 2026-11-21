@@ -1,0 +1,65 @@
+# Content Packs: Threat Model
+
+Status: Planning. These are the controls that milestones M1 and M2 must implement.  
+Audience: implementers, reviewers, and later writing  
+Feature journal: [docs/CONTENT_PACKS.md](CONTENT_PACKS.md)  
+Decisions: [ADR 0001](adr/0001-community-content-packs.md), [ADR 0002](adr/0002-presentation-cast-decoupled-from-content.md), [ADR 0003](adr/0003-remote-pack-source-allowlist.md), [ADR 0005](adr/0005-pack-studio-as-separate-app.md)
+
+---
+
+## 1. What we are protecting
+
+| Asset | Why it matters |
+|---|---|
+| The player's browser session on dddnd.app | Script injection would run with dddnd.app's origin and storage |
+| The player's saves and preferences | They are stored per origin, so a hostile pack must not be able to corrupt or read them |
+| The player's attention and trust in the dddnd.app brand | Community text appears under our domain |
+| The player's privacy | Fetching a pack reveals their IP address to the host |
+| Gameplay integrity of the base pack and other packs | One pack must not change another pack's behavior |
+| Determinism and replay | Saves and exports must replay against the same content |
+| Tab availability | A pack must not be able to freeze or crash the game |
+
+## 2. Trust boundaries
+
+```
+ untrusted                          │ boundary (content domain)                       │ trusted
+────────────────────────────────────┼─────────────────────────────────────────────────┼───────────────────────
+ remote manifest + files (GitHub)   │ source policy → fetch (no redirects, size cap)  │ validated, typed
+ local .dddnd-pack.json file        │ → JSON parse → schema + limits → kind rules     │ ScenarioBundle
+ Studio postMessage (preview only)  │ → pack-scoped ref resolution → bundle validator │ → simulation
+                                    │ → content hash → snapshot                       │
+```
+
+The simulation never sees anything that did not cross this boundary. The UI renders only data that came out of it.
+
+## 3. Threats and controls
+
+| # | Threat | Example | Controls | Milestone |
+|---|---|---|---|---|
+| T1 | Script injection through text | A card description containing `<img src=x onerror=...>` | All content is rendered as text through Vue interpolation. A lint rule or test bans `v-html` and `innerHTML` on content-derived data (today the only `v-html` is the static social icons). CSP: `script-src 'self'`, no `unsafe-inline` or `unsafe-eval` for scripts. Packs have no Markdown or HTML fields. | M1 |
+| T2 | Script through URLs | `"url": "javascript:alert(1)"` in `authors`, or `pack_homepage_url` | Every URL field must parse with `URL` and use `https:`. Render with `rel="noopener noreferrer"` and `target="_blank"`. | M1 |
+| T3 | Fetches outside the pack | `base_url` pointing to another host; an id like `../../x` | Source allowlist ([ADR 0003](adr/0003-remote-pack-source-allowlist.md)). `base_url` resolved against the manifest URL and kept on the same origin and repo prefix. Ids must match `^[a-z0-9_]{1,64}$`, so filenames are built only from safe ids. Redirects are refused. CSP `connect-src` matches the allowlist. | M1, M2 |
+| T4 | Prototype pollution and key confusion | A score id `__proto__` or `constructor` reaching `Record<string, number>` lookups | The id grammar plus an explicit ban on `__proto__`, `prototype`, and `constructor`. Id-keyed runtime records use `Map` or `Object.create(null)` where they are built from pack data. | M1 |
+| T5 | Resource exhaustion | `max_turns: 1e9`; 100k cards; 50 MB strings; `NaN` or `Infinity` deltas; deeply nested JSON | Limits on bytes per file (checked while streaming, not only via `Content-Length`), files per pack, entities per scenario, string lengths, and numeric ranges. Finite numbers only. Integer fields must be integers. Bounded `max_turns` and stakeholder count. Studio balance runs execute in a Worker with a time budget. | M1, M5 |
+| T6 | Cross-pack tampering | A remote pack ships `define_bounded_context-v1.json` with different numbers | Pack-scoped resolution: a scenario resolves only from its own pack and declared dependencies. External packs cannot override content owned by another pack. | M1 |
+| T7 | Silent misbehavior | A rule whose prose condition never parses | Structured `condition` required for external packs. Validation errors include field paths. | M1 |
+| T8 | Phishing or offensive content under our brand | A shared link `dddnd.app/?pack=...` that shows a fake login message | No silent auto-load: a pack link always opens the consent screen (source, authors, license, kind, pinned or unpinned, "not reviewed by DDDnD"). A persistent "community pack" label during play. Packs cannot add links except author and homepage URLs, which are shown with their full hostname. Bidi-override and zero-width characters are stripped. | M2 |
+| T9 | Privacy leak to the pack host | Each player's IP is visible to whoever hosts the pack | Stated on the consent screen. No pack-supplied images or other third-party asset URLs (also an architecture rule). Snapshots mean the host sees one fetch per pack version, not one per run. | M2 |
+| T10 | Content changes under a saved run | The author force-pushes a branch and the saved run no longer replays | Saves and exports record pack id, pack version, source URL, and content hash. Snapshots are keyed by hash. The consent screen flags branch URLs as unpinned. Optional per-file `content_hashes` in the manifest are checked on load. | M2 |
+| T11 | Malicious archives | Zip bombs, path traversal in zip entries | The game never unzips. Zip import exists only in the Studio, using a library with entry-count, size, and path checks. Extracted files are validated like any other pack. | M4 |
+| T12 | Hostile preview messages | Another site posting a fake pack to the game's preview route | The preview route accepts `postMessage` only from the Studio's exact origin. Preview packs go through the same validation and never write to normal saves. | M6 |
+| T13 | Dependency supply chain | A compromised schema or zip library | Pin versions, keep the dependency list small (no new runtime dependencies in the game beyond the schema library), and continue the existing `npm audit` hygiene. | Ongoing |
+| T14 | Stale engine reading a newer pack | A pack written for schema 3, loaded by an engine that knows schema 2 | `schema_version` in the manifest. The game rejects unknown future versions with a clear message. | M1 |
+
+## 4. Explicit non-goals
+
+- **Moderating community content.** We do not host packs, so we do not moderate them. Consent, labeling, and the curated directory (M7) are the trust tools.
+- **Hiding packs from the host's logs.** Fetching from a host is visible to that host. We disclose it; we do not proxy.
+- **Protecting authors from their own players.** Packs are public files. There is no DRM.
+
+## 5. Test strategy
+
+- **A hostile-pack fixture suite** (M1): one fixture per threat T1–T7 and T14, each asserting rejection with the expected error path. These fixtures live under `tests/content/` and never touch the network.
+- **A source-policy table test** (M2): allowed and rejected URLs, including custom-domain Pages redirects, ports, userinfo, `http:`, and lookalike hosts (for example `github.io.evil.example`).
+- **A rendering guard** (M1): a test or lint check that fails on `v-html` or `innerHTML` bound to content-derived values.
+- **Determinism guard** (M1–M3): existing determinism tests and new golden replay tests stay green with no expectation changes.
