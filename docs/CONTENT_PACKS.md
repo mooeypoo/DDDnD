@@ -360,3 +360,32 @@ We measured all 209 first-party content files first (longest strings, numeric ra
 4. **The authoring guide's own example was invalid under ADR 0004.** It depended on `base` and used MIT. Both copies of the guide (repo and public docs site) are fixed. A new test extracts the example manifest from each guide and validates it, so the docs can't drift again.
 
 **How we know nothing broke:** all existing manifest tests pass unchanged against the new implementation, both first-party manifests validate, and the CLI validator passes for base and tutorial.
+
+### M1.3: One owner per file, and scenarios see only their own pack (2026-11-21)
+
+**What changed**
+
+- `ContentPackRegistry` now records an owner for every inventory file:
+  - **Registering a pack that claims a file another pack owns fails** (`ContentPackConflictError`). So does registering a second pack with the same id. Nothing is registered in that case.
+  - **No fallback search.** Before, content that no pack listed was looked for in every pack, newest first. Now it is simply not found. Every file must be listed in its pack's inventory.
+- New `createScopedProvider(packId)` and `createScenarioProvider(scenarioRef)`. A scenario's bundle resolves only from the pack that owns the scenario plus its transitive `depends_on`:
+  - Content in a loaded but undeclared pack fails with `ContentOutOfScopeError`, which names the owning pack.
+  - A missing or incompatible dependency fails with `ContentPackDependencyError`.
+- Dependency versions use caret semantics: same major, at least the declared version.
+- The game store builds every scenario bundle (lobby warm-up, run start, restoring a save) with the scenario's scoped provider. The game-wide merged provider is still used for things a player chooses across packs: the quest list, player classes, challenge modifiers.
+- The run-lifecycle coordinator's `buildScenarioBundle` dependency no longer takes a provider, because choosing the provider is now the store's job.
+
+**The design discussion**
+
+The plan said "external packs may not override another pack's content", which suggests tracking which packs are first-party and which are community. Before building that, we checked the data: **the base and tutorial inventories share no files at all.** So the simpler rule holds for everyone, first-party included: *one file, one owner*. No origin flag, no special cases, and nothing a future code path could forget to set. A stricter invariant turned out to be cheaper than a conditional one.
+
+Scope is a separate question from ownership. Ownership stops one pack *replacing* another's content. Scope stops a pack *depending on* content it never declared. Without scope, a community pack could quietly use another community pack's cards. It would work on the author's machine (where both are loaded) and break for players who only loaded one. Scope makes `depends_on` mean something.
+
+Player classes and challenge modifiers are deliberately *not* scoped. They are run-setup choices that sit outside a scenario bundle. A base-pack class works with any scenario, because classes only affect presentation and a score affinity, which is ignored if the scenario doesn't track that score. Whether standalone packs should bring their own classes is a question for M3.
+
+**Tests that changed, and why**
+
+- "prefers later packs when multiple packs own the same challenge modifier ref" asserted the old override behavior. ADR 0001 removes that behavior on purpose, so the test now asserts the opposite: a second claim is refused and the registry is unchanged.
+- "derives available outcome archetypes" had two fixture packs both owning `system_stabilizer-v1.json`. The second pack now owns only its own file. The expected result is identical.
+
+**How we know nothing broke:** with the fallback removed, every first-party scenario and tutorial builds and validates under its own pack scope (new integration test). That proves the first-party inventories were already complete. The game store orchestration tests (start, restore, tutorials) pass unchanged.

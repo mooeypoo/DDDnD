@@ -95,3 +95,40 @@ describe('content package integration', () => {
     expect(tutorialBundle.scenario.is_tutorial ?? false).toBe(true)
   })
 })
+
+describe('first-party packs under pack-scoped resolution (M1.3)', () => {
+  it('builds every first-party entry-point scenario with its own pack scope', async () => {
+    const projectRoot = path.resolve(__dirname, '../..')
+    const baseManifest = await readManifestFromDisk(path.join(projectRoot, 'content/manifest.json'))
+    const tutorialManifest = await readManifestFromDisk(path.join(projectRoot, 'content/tutorial/manifest.json'))
+
+    const registry = new ContentPackRegistry()
+    registry.registerPack(baseManifest, createFileContentProvider(path.join(projectRoot, 'content')))
+    registry.registerPack(tutorialManifest, createFileContentProvider(path.join(projectRoot, 'content/tutorial')))
+
+    const entryPoints = [
+      ...baseManifest.scenarios,
+      ...tutorialManifest.tutorials,
+    ]
+    expect(entryPoints.length).toBeGreaterThanOrEqual(7)
+
+    for (const ref of entryPoints) {
+      const bundle = await buildScenarioBundle(ref.id, ref.version, registry.createScenarioProvider(ref))
+      expect(() => assertValidBundle(bundle), `${ref.id}-v${ref.version}`).not.toThrow()
+    }
+  })
+
+  it('keeps the base pack independent of the tutorial pack', () => {
+    const registry = new ContentPackRegistry()
+    const projectRoot = path.resolve(__dirname, '../..')
+    return Promise.all([
+      readManifestFromDisk(path.join(projectRoot, 'content/manifest.json')),
+      readManifestFromDisk(path.join(projectRoot, 'content/tutorial/manifest.json')),
+    ]).then(([base, tutorial]) => {
+      registry.registerPack(base, createFileContentProvider(path.join(projectRoot, 'content')))
+      registry.registerPack(tutorial, createFileContentProvider(path.join(projectRoot, 'content/tutorial')))
+      expect(base.depends_on).toEqual([])
+      expect(() => registry.createScopedProvider('tutorial')).not.toThrow()
+    })
+  })
+})

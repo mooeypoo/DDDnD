@@ -28,15 +28,15 @@ Current runtime behavior:
 
 - default base pack is loaded from `/content/manifest.json`
 - tutorial pack is loaded from `/content/tutorial/manifest.json`
-- external manifests are planned to be configured via UI
-- packs are registered in order; later packs can override earlier packs for the same `{ id, version }` content ref
+- external manifests are planned to be configured via UI (milestone M2 in [CONTENT_PACKS.md](CONTENT_PACKS.md))
+- **every content file is owned by exactly one pack.** A pack that lists a file another loaded pack already lists is refused. Packs cannot replace each other's content; give your version a new id instead.
+- **a scenario only sees its own pack and the packs in its `depends_on`** (transitively). Referencing content from a pack you did not declare fails with an error that names the owning pack.
+- a dependency is satisfied by the same major version, at least as new as declared (`"1.2.0"` accepts `1.2.0` to `1.x.x`)
 
-Hybrid error behavior (current):
+Error behavior:
 
 - manifest load/validation errors fail fast (no store-level fallback)
-- content ownership lookup can still fall back across registered packs if inventory mapping is incomplete
-
-This means local default content should always work, and external packs should be strict about manifest validity.
+- content that no loaded pack lists in its inventory is not found. There is no fallback search across packs, so your inventory must list every file your pack owns.
 
 ## Pack manifest schema
 
@@ -204,9 +204,9 @@ dddnd-my-pack/
 
   - default manifests are always loaded first (`/content/manifest.json`, `/content/tutorial/manifest.json`)
   - externally configured manifests are loaded after defaults
-  - for duplicate refs, later packs win, which enables controlled overrides
+  - packs cannot override each other's content (see "Current loading model" above)
 
-> **Planned change:** community pack loading is designed in [docs/CONTENT_PACKS.md](CONTENT_PACKS.md). Under that design, external packs may **not** override another pack's content: refs resolve only within a pack and its declared `depends_on`. Remote packs will load only from GitHub raw and GitHub Pages at first, every field will be schema-validated with limits, and manifests gain `schema_version` and `kind`. See [docs/adr/](adr/README.md).
+> **In progress:** community pack loading is designed in [docs/CONTENT_PACKS.md](CONTENT_PACKS.md). Schema validation, `schema_version`/`kind`, and pack-scoped resolution are in place. Loading packs from a URL in the game is next: remote packs will load only from GitHub raw and GitHub Pages at first. See [docs/adr/](adr/README.md).
 
 ### Hosting guidance
 

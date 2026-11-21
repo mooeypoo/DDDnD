@@ -168,6 +168,15 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
+   * Builds a scenario bundle with the provider scoped to the scenario's own
+   * pack and its dependencies (ADR 0001), never the game-wide merged provider.
+   */
+  async function buildScopedScenarioBundle(scenarioId: string, scenarioVersion: number): Promise<ScenarioBundle> {
+    const provider = await contentAdapter.getScenarioContentProvider({ id: scenarioId, version: scenarioVersion })
+    return buildScenarioBundle(scenarioId, scenarioVersion, provider)
+  }
+
+  /**
    * Returns a shared bundle load for this scenario.
    *
    * The lobby starts this while the player is still choosing, so sitting down
@@ -176,7 +185,6 @@ export const useGameStore = defineStore('game', () => {
   function resolveScenarioBundle(
     scenarioId: string,
     scenarioVersion: number,
-    provider: ContentProvider,
   ): Promise<ScenarioBundle> {
     const key = scenarioBundleKey(scenarioId, scenarioVersion)
     const existing = scenarioBundleLoads.get(key)
@@ -184,7 +192,7 @@ export const useGameStore = defineStore('game', () => {
       return existing
     }
 
-    const pending = buildScenarioBundle(scenarioId, scenarioVersion, provider).catch((error: unknown) => {
+    const pending = buildScopedScenarioBundle(scenarioId, scenarioVersion).catch((error: unknown) => {
       scenarioBundleLoads.delete(key)
       throw error
     })
@@ -199,10 +207,7 @@ export const useGameStore = defineStore('game', () => {
       return existing.then(() => undefined, () => undefined)
     }
 
-    const pending = (async () => {
-      const provider = await get_merged_content_provider()
-      return buildScenarioBundle(scenarioId, scenarioVersion, provider)
-    })()
+    const pending = buildScopedScenarioBundle(scenarioId, scenarioVersion)
     scenarioBundleLoads.set(key, pending)
     // The lobby does not await this. Drop a failed warm so the next sit can retry,
     // and attach a handler so a miss does not surface as an unhandled rejection.
@@ -353,11 +358,9 @@ export const useGameStore = defineStore('game', () => {
     }
 
     try {
-      const provider = await get_merged_content_provider()
       const bundle = await resolveScenarioBundle(
         restoredGameState.scenario_ref.id,
         restoredGameState.scenario_ref.version,
-        provider
       )
 
       initialize_engine(bundle, restoredGameState.meta.seed)

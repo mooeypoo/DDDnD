@@ -1,4 +1,4 @@
-import type { ContentPackManifest } from '@/domains/content/model'
+import type { ContentPackManifest, VersionRef } from '@/domains/content/model'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
 import { resolveContentPackManifestUrls } from '@/domains/content/services/content_pack_manifest_urls'
@@ -7,6 +7,7 @@ import { loadManifest } from '@/domains/content/services/manifest_loader'
 interface ContentPackRegistryLike {
   registerPack(manifest: ContentPackManifest): void
   createMergedProvider(): ContentProvider
+  createScenarioProvider(scenarioRef: VersionRef): ContentProvider
 }
 
 interface ValueRef<T> {
@@ -71,9 +72,24 @@ export function createGameStoreContentAdapter(
     return state.contentPackRegistry.value.createMergedProvider()
   }
 
+  /**
+   * Provider for building one scenario's bundle: limited to the pack that owns
+   * the scenario and the packs it depends on (ADR 0001).
+   */
+  async function getScenarioContentProvider(scenarioRef: VersionRef): Promise<ContentProvider> {
+    await loadContentPacks()
+
+    if (!state.contentPackRegistry.value) {
+      throw new Error('Content pack registry is unavailable after manifest loading')
+    }
+
+    return state.contentPackRegistry.value.createScenarioProvider(scenarioRef)
+  }
+
   return {
     setExternalManifestUrls,
     loadContentPacks,
     getMergedContentProvider,
+    getScenarioContentProvider,
   }
 }
