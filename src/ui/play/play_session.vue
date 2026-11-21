@@ -114,6 +114,13 @@
       >
         {{ scenario.name }}
       </button>
+      <p
+        v-if="gameStore.activeCommunityPack"
+        class="community-run-label"
+        :title="`This scenario comes from a community pack, not from DDDnD`"
+      >
+        Community pack · {{ gameStore.activeCommunityPack.manifest.name }}
+      </p>
 
       <WeatherStrip
         :scores="currentScores"
@@ -994,6 +1001,19 @@ function goToEndScreen() {
   text-align: center;
   color: var(--dng-title-gold);
   cursor: pointer;
+}
+
+.community-run-label {
+  align-self: center;
+  margin: 0.2rem 0 0;
+  padding: 0.05rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--effect-warning-border);
+  background: rgba(12, 8, 4, 0.78);
+  color: var(--effect-warning);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .quest-title:hover,

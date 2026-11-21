@@ -703,3 +703,53 @@ M2.3 hashed files exactly as published. That is "exact" in the wrong way. The sa
 The question was what identity should mean. The answer: **a pack's identity is its content, not its bytes.** Reformatting, reordering keys, or adding an editor `$schema` link doesn't change what a player plays, so it shouldn't change identity. Any change to a value does. The tests pin both halves, and a round-trip test proves a URL-loaded pack written to a bundle and read back keeps its hash.
 
 **Verified against reality:** the demo bundle built from the DDDnD-packs folder and the copy loaded live from GitHub produced the identical hash, `sha256:90fae984…ea078`.
+
+### M2.5: Adding a community pack in the game (2026-11-22)
+
+Behind the `VITE_ENABLE_COMMUNITY_PACKS` flag (ADR 0009).
+
+**What a player sees**
+
+1. **The lobby header gains a small "Community packs" link.** It opens a dialog where the player pastes a GitHub link to a pack's `manifest.json` or picks a `.dddnd-pack.json` file.
+2. **The game downloads and checks the pack *before* showing anything to accept.** If it is broken, the player sees the problems grouped by stage, up to 12 of them (the author can see all of them with the validator).
+3. **The confirmation screen** shows:
+   - a standing note: "Not made or checked by DDDnD. Packs can't run code: they only change the game's text and numbers."
+   - name, version, and description
+   - authors, with each link's hostname next to it
+   - what kind of pack it is ("Builds on DDDnD's base pack")
+   - the license
+   - **where it comes from**, in plain words: pinned to a commit ("This exact content can't change"), to a release, or *not pinned* ("The author can change this content at any time"), the last shown in warning color
+   - a short content fingerprint
+   - the scenarios it adds
+   - a privacy note for downloads ("GitHub can see your IP address, as any website can. Once added, nothing more is downloaded")
+4. **On "Add this pack"**, its scenarios appear in the lobby with a **Community** badge, the briefing names the pack, and during play a "Community pack · <name>" label sits under the scenario title.
+5. **Packs last for this visit only**; the dialog says so. Keeping them across reloads is the next step.
+
+**`?pack=<url>` links** open the dialog with the link filled in, but never download by themselves. Fetching tells GitHub the player's IP address, so the player decides. With the flag off, the link does nothing at all.
+
+**How it's built (and where the boundaries are)**
+
+- **Domain:** `checkPackPlayable` registers the candidate next to the packs it will be played with, then builds and validates every one of its scenarios. File-level validation can't see cross-pack problems (ownership conflicts, missing dependencies, untracked scores), so this runs *before* the consent screen. A player is never offered a pack that would fail when they sit down.
+- **Store adapter:**
+  - It caches first-party manifests separately from the registry, so adding a pack rebuilds the registry without refetching.
+  - `checkCommunityPack` is a dry run that changes nothing.
+  - `addCommunityPack` re-checks, then adds.
+  - `removeCommunityPack` cascades to packs that depend on the removed one.
+  - Quests from community packs get a `communityPack` label.
+- **UI:**
+  - `community_pack_review.ts` is a pure view model. All the wording lives there and is unit-tested.
+  - `use_community_packs.ts` is the load → check → review → confirm flow.
+  - `community_packs_dialog.vue` renders it with the existing modal and button components.
+
+  All pack text is rendered as text (the M1.6 guard still passes).
+
+**Verification**
+
+- **Unit tests** cover the adapter with the real registry, base pack, and demo fixture: accept, refuse an impostor without side effects, refuse a scenario that would fail, cascade removal. They also cover the review wording for each origin, and the flow: nothing is added before confirm, declining adds nothing, error stages, issue capping, file import.
+- **Headless Chrome against the dev server with the flag on and real GitHub:** opened the dialog, pasted a commit-pinned link to the demo pack, read the confirmation screen (same fingerprint as the CLI, `90fae984cfca`), added it, found "The Gilded Ledger" in the lobby marked Community, joined, and played with a hand mixing base cards (Introduce Anti-Corruption Layer) and pack cards (Add a Transactional Outbox). Zero console errors.
+- **Production build with the flag off,** served with the production CSP: no lobby link, a `?pack=` link opens nothing, **zero requests to GitHub**, zero CSP violations.
+
+**Two small things the browser test taught us**
+
+- `File.text()` is missing in some older browsers (and in jsdom). File reading falls back to `FileReader`.
+- A community quest has no difficulty plate, because the difficulty table only knows first-party scenarios. The Community badge takes its place. Fine for now; worth revisiting with the lobby design.

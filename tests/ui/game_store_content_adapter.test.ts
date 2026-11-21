@@ -115,3 +115,78 @@ describe('game_store_content_adapter', () => {
     })
   })
 })
+
+describe('community packs in the content adapter (M2.5)', () => {
+  async function createAdapter() {
+    const { createDiskBackedRegistry, readFirstPartyManifest } = await import('../content/support/demo_pack')
+    const contentPackRegistry = ref<ContentPackRegistry | null>(null)
+    const communityPacks = ref<import('@/domains/content/model').PackSnapshot[]>([])
+    const adapter = createGameStoreContentAdapter(
+      { contentPackRegistry, externalManifestUrls: ref<string[]>([]), communityPacks },
+      {
+        resolveManifestUrls: () => ['base', 'tutorial'],
+        loadManifestByUrl: async (id: string) => readFirstPartyManifest(id as 'base' | 'tutorial'),
+        createRegistry: createDiskBackedRegistry,
+      },
+    )
+    return { adapter, contentPackRegistry, communityPacks }
+  }
+
+  it('checks, adds, and plays the demo pack next to the first-party packs', async () => {
+    const { demoPackSnapshot } = await import('../content/support/demo_pack')
+    const { adapter, communityPacks } = await createAdapter()
+    const snapshot = await demoPackSnapshot()
+
+    expect(await adapter.checkCommunityPack(snapshot)).toEqual({ ok: true, issues: [] })
+    await adapter.addCommunityPack(snapshot)
+    expect(communityPacks.value.map((pack) => pack.manifest.id)).toEqual(['gilded_ledger'])
+
+    const scenarioRef = { id: 'ledger_payments_monolith', version: 1 }
+    const provider = await adapter.getScenarioContentProvider(scenarioRef)
+    await expect(provider.loadScenario(scenarioRef)).resolves.toMatchObject({ name: 'The Gilded Ledger' })
+    expect(adapter.findCommunityPackForScenario(scenarioRef)?.manifest.id).toBe('gilded_ledger')
+    expect(adapter.findCommunityPackForScenario({ id: 'monolith_of_mild_despair', version: 2 })).toBeNull()
+  })
+
+  it('refuses a pack that would replace first-party content, and changes nothing', async () => {
+    const { demoPackSnapshot } = await import('../content/support/demo_pack')
+    const { adapter, communityPacks } = await createAdapter()
+    const impostor = await demoPackSnapshot((files) => {
+      files['manifest.json'] = files['manifest.json'].replace('"ledger_add_transactional_outbox-v1.json"', '"ledger_add_transactional_outbox-v1.json",\n      "define_bounded_context-v1.json"')
+      files['cards/define_bounded_context-v1.json'] = files['cards/ledger_add_transactional_outbox-v1.json']
+        .replace(/ledger_add_transactional_outbox/g, 'define_bounded_context')
+    })
+
+    const check = await adapter.checkCommunityPack(impostor)
+    expect(check.ok).toBe(false)
+    expect(check.issues[0].message).toMatch(/which pack "base" already provides/)
+    await expect(adapter.addCommunityPack(impostor)).rejects.toThrow(/already provides/)
+    expect(communityPacks.value).toEqual([])
+  })
+
+  it('refuses a pack whose scenario would fail when the player sits down', async () => {
+    const { demoPackSnapshot } = await import('../content/support/demo_pack')
+    const { adapter } = await createAdapter()
+    const broken = await demoPackSnapshot((files) => {
+      const path = 'stakeholder-reaction-rules/ledger_support_relieved-v1.json'
+      files[path] = files[path].replace('"target_id": "maintainability"', '"target_id": "technical_debt"')
+    })
+
+    const check = await adapter.checkCommunityPack(broken)
+    expect(check.ok).toBe(false)
+    expect(check.issues).toEqual([expect.objectContaining({
+      file: 'scenarios/ledger_payments_monolith-v1.json',
+      message: expect.stringMatching(/technical_debt/),
+    })])
+  })
+
+  it('removing a pack also removes community packs that depend on it', async () => {
+    const { demoPackSnapshot } = await import('../content/support/demo_pack')
+    const { adapter, communityPacks } = await createAdapter()
+    const demo = await demoPackSnapshot()
+    communityPacks.value = [demo, { ...demo, manifest: { ...demo.manifest, id: 'sequel', depends_on: [{ pack_id: 'gilded_ledger', version: '1.0.0' }] } }]
+
+    expect(adapter.removeCommunityPack('gilded_ledger').sort()).toEqual(['gilded_ledger', 'sequel'])
+    expect(communityPacks.value).toEqual([])
+  })
+})

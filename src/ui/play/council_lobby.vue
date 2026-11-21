@@ -14,6 +14,12 @@
         <button type="button" class="plaque-link" @click="$emit('showAbout')">What is this?</button>
         <button type="button" class="plaque-link" @click="$emit('showRules')">How to play</button>
         <button type="button" class="plaque-link" @click="$emit('showDungeonMaster')">Dungeon Master</button>
+        <button
+          v-if="communityPacksEnabled"
+          type="button"
+          class="plaque-link"
+          @click="$emit('showCommunityPacks')"
+        >Community packs</button>
       </nav>
     </header>
 
@@ -67,6 +73,7 @@
             @click="$emit('selectQuest', quest)"
           >
             <span class="quest-scene" :style="{ backgroundImage: `url(${sceneFor(quest.id)})` }" />
+            <span v-if="quest.communityPack" class="community-mark" :title="`From the community pack “${quest.communityPack.name}”`">Community</span>
             <span v-if="quest.isTutorial" class="tutorial-mark">Tutorial</span>
             <span
               v-else-if="difficultyFor(quest)"
@@ -91,6 +98,9 @@
             <div class="table-veil" />
             <div v-if="selectedQuest" class="table-brief">
               <p class="table-nameplate">{{ selectedQuest.name }}</p>
+              <p v-if="selectedQuest.communityPack" class="table-community">
+                Community pack: {{ selectedQuest.communityPack.name }}
+              </p>
               <p class="table-hook">{{ questHook(selectedQuest) }}</p>
               <p v-if="questFlavorLine(selectedQuest)" class="table-flavor">
                 {{ questFlavorLine(selectedQuest) }}
@@ -241,6 +251,8 @@ const props = defineProps<{
   selectedModifier: ChallengeModifier | null
   characterName: string
   isLoading?: boolean
+  /** Shows the community packs entry (ADR 0009 flag, decided by the parent view). */
+  communityPacksEnabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -253,6 +265,7 @@ const emit = defineEmits<{
   showAbout: []
   showRules: []
   showDungeonMaster: []
+  showCommunityPacks: []
 }>()
 
 const nameDraft = ref(props.characterName)
@@ -1179,5 +1192,25 @@ function affinityLine(scoreId: string | undefined): string {
     transform: none !important;
     animation: none;
   }
+}
+.community-mark {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 2;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--effect-warning-border);
+  background: rgba(12, 10, 5, 0.82);
+  color: var(--effect-warning);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.table-community {
+  margin: 0;
+  color: var(--effect-warning);
+  font-size: var(--text-sm);
 }
 </style>
