@@ -4,6 +4,12 @@
   "name": "VP Product Worried About Users",
   "description": "VP Product reacts to declining user trust",
   "condition_description": "User trust < 40",
+  "condition": {
+    "target_type": "score",
+    "target_id": "user_trust",
+    "operator": "<",
+    "value": 40
+  },
   "score_changes": [
     {
       "score_id": "delivery_confidence",

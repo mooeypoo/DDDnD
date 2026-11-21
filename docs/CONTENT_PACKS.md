@@ -389,3 +389,36 @@ Player classes and challenge modifiers are deliberately *not* scoped. They are r
 - "derives available outcome archetypes" had two fixture packs both owning `system_stabilizer-v1.json`. The second pack now owns only its own file. The expected result is identical.
 
 **How we know nothing broke:** with the fallback removed, every first-party scenario and tutorial builds and validates under its own pack scope (new integration test). That proves the first-party inventories were already complete. The game store orchestration tests (start, restore, tutorials) pass unchanged.
+
+### M1.4: Conditions become data, and the prose parser leaves the engine (2026-11-21)
+
+**What changed**
+
+- `StakeholderReactionRule.condition` (required) and `Event.trigger_condition` (optional) use the existing structured `NumericCondition` shape: `{ target_type, target_id, operator, value }`.
+- `condition_description` and `trigger_condition_description` stay, but **only as text for people**. The schema requires `trigger_condition` whenever an event has the description.
+- The engine evaluates only the structured fields. `parseConditionDescription` (a regex plus a fuzzy match of the left side against score/stakeholder ids *and display names*) is gone from the simulation.
+- The bundle validator checks every rule and event condition: scores must be in `score_refs`, stakeholders must be in the scenario. Card requirements and failure conditions now get the stakeholder check too.
+- All 42 first-party rule and conditional-event files gained a structured condition. This was a pure text insertion; the diff has no removed lines.
+- The old parser lives on, unchanged, as `tests/content/support/legacy_condition_parser.ts`. A permanent test uses it to prove that every structured condition in every playable first-party scenario equals what its prose meant (over 100 rule/event checks).
+
+**What we found before changing anything**
+
+We ran the old parser over every rule in every scenario first. 33 of 36 rules resolved the same way everywhere. **Three rules resolved to a condition in some scenarios and to nothing in one.** In that scenario they silently never fired. That scenario was `test_scenario-v1`, which tracks neither `maintainability` nor `domain_clarity`. It turned out to be unplayable anyway: it already fails bundle validation for other untracked scores. So no player ever met the bug. But it is exactly the bug a community author *would* hit: rename "Domain clarity" to "Model clarity" in a workshop pack, and every rule that mentions it goes quiet with no error.
+
+There was also a trap in the obvious fix. With structured conditions, a condition on a score the scenario does not track reads that score as 0. So "Maintainability < 45" would go from "never fires" to "always fires". The new bundle-validator check closes that: an untracked condition target is now an error, the same rule that already applied to card requirements.
+
+**Why no content version bump**
+
+CONTENT_VERSIONING.md says to bump when behavior changes. Here, behavior is provably identical: the equivalence test covers every playable scenario, and the fixed-seed audit report is still byte-identical to `main`. Adding the structured field makes an implicit rule explicit without changing it. That interpretation is now written into CONTENT_VERSIONING.md, so the next person doesn't have to re-derive it.
+
+**Why require it instead of keeping a prose fallback**
+
+A fallback ("use `condition` if present, otherwise parse the text") would have kept old-style files working. But no community packs exist yet, so this is the cheapest moment the format will ever have to become strict. And a fallback keeps the silent-failure mode alive for exactly the authors least able to debug it.
+
+**The DDD angle (talk material)**
+
+This is "make the implicit explicit" in its most literal form. The domain concept, *when a stakeholder reacts*, lived inside an English sentence, and the engine recovered it by guessing. The human description and the machine rule had been one string, so changing the wording changed the behavior. Now there are two fields, each with one job: the ubiquitous-language sentence for people and the model for the engine. The equivalence test keeps them in agreement for first-party content.
+
+**Tests that changed, and why**
+
+Test fixtures that build rules by hand gained a `condition` matching their prose (type change, no expectation changes). One fixture needed care: a turn-pipeline event with prose `"Team morale > 40"`. Without a matching `trigger_condition` it would have quietly become unconditional and changed what the test exercises. Two content tests that called the parser on rules now read `rule.condition`, with the same assertions.

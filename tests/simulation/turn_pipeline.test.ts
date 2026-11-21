@@ -111,6 +111,7 @@ function buildTestBundle(input?: {
     name: 'Lead pushes quality',
     description: 'When debt is high, morale dips while pushing quality',
     condition_description: 'Technical debt > 40',
+    condition: { target_type: 'score', target_id: 'technical_debt', operator: '>', value: 40 },
     score_changes: [
       { score_id: 'team_morale', delta: -2 },
       { score_id: 'technical_debt', delta: -30 }
@@ -124,6 +125,7 @@ function buildTestBundle(input?: {
     name: 'Secondary trigger',
     description: 'Should not activate recursively in same phase',
     condition_description: 'Technical debt < 40',
+    condition: { target_type: 'score', target_id: 'technical_debt', operator: '<', value: 40 },
     score_changes: [{ score_id: 'delivery_confidence', delta: -4 }],
     priority: 20
   }
@@ -225,7 +227,8 @@ function buildTestBundle(input?: {
       occurrence_weight: 2,
       score_changes: [{ score_id: 'delivery_confidence', delta: 4 }],
       delayed_effect_refs: [],
-      trigger_condition_description: 'Team morale > 40'
+      trigger_condition_description: 'Team morale > 40',
+      trigger_condition: { target_type: 'score', target_id: 'team_morale', operator: '>', value: 40 }
     }
   ]
 

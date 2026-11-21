@@ -4,6 +4,12 @@
   "name": "Security Officer Flags Risky System",
   "description": "The security officer escalates concerns when user trust falls too low",
   "condition_description": "User trust < 45",
+  "condition": {
+    "target_type": "score",
+    "target_id": "user_trust",
+    "operator": "<",
+    "value": 45
+  },
   "score_changes": [
     {
       "score_id": "budget",

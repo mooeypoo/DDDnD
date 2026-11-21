@@ -4,6 +4,12 @@
   "name": "Security Officer Supports Clear Boundaries",
   "description": "The security officer backs boundary work when clarity improves",
   "condition_description": "Domain clarity >= 65",
+  "condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": ">=",
+    "value": 65
+  },
   "score_changes": [
     {
       "score_id": "user_trust",

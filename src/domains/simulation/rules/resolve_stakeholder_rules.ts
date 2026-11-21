@@ -1,11 +1,7 @@
 import { ScenarioBundle, versionRefKey } from '@/domains/content/model'
 import { ScoreChangeRecord, StakeholderChangeRecord } from '@/shared/contracts'
 import { StakeholderReactionRecord, StakeholderResolutionRecord } from '../model'
-import {
-  ConditionEvaluationState,
-  evaluateNumericCondition,
-  parseConditionDescription
-} from './condition_evaluator'
+import { ConditionEvaluationState, evaluateNumericCondition } from './condition_evaluator'
 import { toScoreChanges, toStakeholderChanges } from './change_record_converters'
 
 /**
@@ -52,8 +48,7 @@ export function resolveStakeholderRules(
         continue
       }
 
-      const parsedCondition = parseConditionDescription(rule.condition_description, scenarioBundle)
-      if (!parsedCondition || !evaluateNumericCondition(parsedCondition, conditionState)) {
+      if (!evaluateNumericCondition(rule.condition, conditionState)) {
         continue
       }
 

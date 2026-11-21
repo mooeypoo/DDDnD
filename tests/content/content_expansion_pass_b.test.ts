@@ -16,9 +16,6 @@ import {
 import { ContentProvider } from '@/domains/content/services/content_provider'
 import { buildScenarioBundle } from '@/domains/content/services/bundle_builder'
 import { assertValidBundle } from '@/domains/content/services/bundle_validator'
-import {
-  parseConditionDescription
-} from '@/domains/simulation/rules/condition_evaluator'
 import { simulate_runs } from '@/domains/simulation/services/simulation_runner'
 import { PlayerClass, ChallengeModifier } from '@/domains/content/model/content_types'
 
@@ -283,7 +280,7 @@ describe('Pass B content expansion', () => {
         const ruleKey = `${ruleId}-v1`
         if (bundle.stakeholder_reaction_rules.has(ruleKey)) {
           const rule = bundle.stakeholder_reaction_rules.get(ruleKey)!
-          const condition = parseConditionDescription(rule.condition_description, bundle)
+          const condition = rule.condition
           expect(condition).not.toBeNull()
         }
       }
@@ -442,7 +439,7 @@ describe('Pass B content expansion', () => {
         const bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
 
         for (const rule of bundle.stakeholder_reaction_rules.values()) {
-          const condition = parseConditionDescription(rule.condition_description, bundle)
+          const condition = rule.condition
           expect(condition).not.toBeNull()
         }
       }

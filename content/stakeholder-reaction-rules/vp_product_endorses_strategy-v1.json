@@ -4,6 +4,12 @@
   "name": "VP Product Endorses Strategy",
   "description": "The VP Product supports the current direction when both delivery and user trust are healthy",
   "condition_description": "Delivery confidence > 70",
+  "condition": {
+    "target_type": "score",
+    "target_id": "delivery_confidence",
+    "operator": ">",
+    "value": 70
+  },
   "score_changes": [
     {
       "score_id": "budget",

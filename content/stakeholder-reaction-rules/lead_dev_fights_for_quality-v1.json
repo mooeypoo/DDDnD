@@ -4,6 +4,12 @@
   "name": "Lead Developer Fights For Quality",
   "description": "Lead developer advocates for maintainability when it's suffering",
   "condition_description": "Maintainability < 35",
+  "condition": {
+    "target_type": "score",
+    "target_id": "maintainability",
+    "operator": "<",
+    "value": 35
+  },
   "score_changes": [
     {
       "score_id": "team_morale",

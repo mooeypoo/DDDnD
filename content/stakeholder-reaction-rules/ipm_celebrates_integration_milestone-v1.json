@@ -4,6 +4,12 @@
   "name": "IPM Celebrates Integration Milestone",
   "description": "The integration program manager is pleased when domain clarity shows real integration progress",
   "condition_description": "Domain clarity > 55",
+  "condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": ">",
+    "value": 55
+  },
   "score_changes": [
     {
       "score_id": "budget",

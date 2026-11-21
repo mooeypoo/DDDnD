@@ -4,6 +4,12 @@
   "name": "Ops Manager Demands Incident Review",
   "description": "The operations manager demands a full incident review when user trust craters, halting feature work",
   "condition_description": "User trust < 20",
+  "condition": {
+    "target_type": "score",
+    "target_id": "user_trust",
+    "operator": "<",
+    "value": 20
+  },
   "priority": 50,
   "score_changes": [
     {

@@ -4,6 +4,12 @@
   "name": "Lead Developer Trusts the Process",
   "description": "The lead developer rallies the team when morale is strong and the direction feels right",
   "condition_description": "Team morale > 80",
+  "condition": {
+    "target_type": "score",
+    "target_id": "team_morale",
+    "operator": ">",
+    "value": 80
+  },
   "score_changes": [
     {
       "score_id": "maintainability",

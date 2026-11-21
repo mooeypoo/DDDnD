@@ -280,6 +280,7 @@ npm run build
 - keep gameplay changes versioned by file (`-v2`, `-v3`, ...)
 - ensure every score file includes both `name` and `short_name`
 - ensure every `score_id` reachable from a scenario (cards, events, delayed effects, reaction rules, requirements, failure conditions) is in that scenario’s `score_refs`
+- give every reaction rule a structured `condition`, and every event with `trigger_condition_description` a structured `trigger_condition` (the text is for people; the engine only reads the structured field). Conditions may only check scores the scenario tracks and stakeholders in the scenario.
 - keep entry points intentional:
   - `scenarios`: playable non-tutorial scenarios
   - `tutorials`: tutorial scenarios

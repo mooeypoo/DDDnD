@@ -16,7 +16,7 @@ import {
 import { ContentProvider } from '@/domains/content/services/content_provider'
 import { buildScenarioBundle } from '@/domains/content/services/bundle_builder'
 import { assertValidBundle } from '@/domains/content/services/bundle_validator'
-import { parseConditionDescription, evaluateNumericCondition } from '@/domains/simulation/rules/condition_evaluator'
+import { evaluateNumericCondition } from '@/domains/simulation/rules/condition_evaluator'
 
 function createFileContentProvider(contentRoot: string): ContentProvider {
   async function loadJson<T extends { id: string; version: number }>(
@@ -152,8 +152,8 @@ describe('Pass A content expansion', () => {
       const negativeRule = bundle.stakeholder_reaction_rules.get('concerned_about_debt-v1')!
       const positiveRule = bundle.stakeholder_reaction_rules.get('tech_lead_appreciates_clean_code-v1')!
 
-      const negCond = parseConditionDescription(negativeRule.condition_description, bundle)
-      const posCond = parseConditionDescription(positiveRule.condition_description, bundle)
+      const negCond = negativeRule.condition
+      const posCond = positiveRule.condition
 
       expect(negCond).not.toBeNull()
       expect(posCond).not.toBeNull()
@@ -524,7 +524,7 @@ describe('Pass A content expansion', () => {
         const bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)
 
         for (const rule of bundle.stakeholder_reaction_rules.values()) {
-          const condition = parseConditionDescription(rule.condition_description, bundle)
+          const condition = rule.condition
           expect(condition).not.toBeNull()
         }
       }

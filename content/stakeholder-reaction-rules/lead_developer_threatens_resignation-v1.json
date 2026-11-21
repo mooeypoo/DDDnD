@@ -4,6 +4,12 @@
   "name": "Lead Developer Threatens Resignation",
   "description": "The lead developer threatens to quit when code quality reaches an all-time low",
   "condition_description": "Maintainability < 20",
+  "condition": {
+    "target_type": "score",
+    "target_id": "maintainability",
+    "operator": "<",
+    "value": 20
+  },
   "priority": 50,
   "score_changes": [
     {

@@ -4,6 +4,12 @@
   "name": "Operations Manager Confident in Stability",
   "description": "Operations manager supports the team when user trust is high",
   "condition_description": "User trust > 60",
+  "condition": {
+    "target_type": "score",
+    "target_id": "user_trust",
+    "operator": ">",
+    "value": 60
+  },
   "score_changes": [
     {
       "score_id": "delivery_confidence",

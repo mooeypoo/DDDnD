@@ -4,6 +4,12 @@
   "name": "Ops Manager Trusts the Pipeline",
   "description": "The operations manager gains confidence when delivery processes are predictable",
   "condition_description": "Delivery confidence > 75",
+  "condition": {
+    "target_type": "score",
+    "target_id": "delivery_confidence",
+    "operator": ">",
+    "value": 75
+  },
   "score_changes": [
     {
       "score_id": "user_trust",

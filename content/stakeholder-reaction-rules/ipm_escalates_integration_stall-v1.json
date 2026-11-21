@@ -4,6 +4,12 @@
   "name": "IPM Escalates Integration Stall",
   "description": "The integration program manager escalates when the merger integration fundamentally stalls",
   "condition_description": "Domain clarity < 20",
+  "condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": "<",
+    "value": 20
+  },
   "priority": 50,
   "score_changes": [
     {

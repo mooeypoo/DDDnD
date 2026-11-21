@@ -63,7 +63,7 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
 
   function recordUntrackedScore(
     scoreId: string,
-    sourceType: 'card' | 'event' | 'delayed_effect' | 'reaction_rule' | 'requirement' | 'failure_condition',
+    sourceType: 'card' | 'event' | 'delayed_effect' | 'reaction_rule' | 'requirement' | 'failure_condition' | 'reaction_condition' | 'event_condition',
     sourceId: string
   ): void {
     if (trackedScoreIds.has(scoreId)) {
@@ -87,14 +87,27 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
     }
   }
 
+  const stakeholderIds = new Set(Array.from(bundle.stakeholders.values()).map((stakeholder) => stakeholder.id))
+
+  /**
+   * Checks condition targets. A condition on a score the scenario does not
+   * track would silently read 0 (and a missing stakeholder 50), so it could
+   * fire or never fire for reasons no author intended.
+   */
   function recordUntrackedScoreConditions(
     conditions: NumericCondition[] | undefined,
-    sourceType: 'requirement' | 'failure_condition',
+    sourceType: 'requirement' | 'failure_condition' | 'reaction_condition' | 'event_condition',
     sourceId: string
   ): void {
     for (const condition of conditions ?? []) {
       if (condition.target_type === 'score') {
         recordUntrackedScore(condition.target_id, sourceType, sourceId)
+      } else if (!stakeholderIds.has(condition.target_id)) {
+        errors.push({
+          type: 'unknown_condition_stakeholder',
+          message: `${sourceType} ${sourceId} checks stakeholder "${condition.target_id}" which is not in the scenario`,
+          details: { stakeholderId: condition.target_id, sourceType, sourceId }
+        })
       }
     }
   }
@@ -209,6 +222,9 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
   // Validate events reference delayed effects that exist
   for (const [eventKey, event] of bundle.events) {
     recordUntrackedScoreChanges(event.score_changes, 'event', eventKey)
+    if (event.trigger_condition) {
+      recordUntrackedScoreConditions([event.trigger_condition], 'event_condition', eventKey)
+    }
 
     for (const effectRef of event.delayed_effect_refs) {
       const key = versionRefKey(effectRef)
@@ -228,6 +244,7 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
 
   for (const [ruleKey, rule] of bundle.stakeholder_reaction_rules) {
     recordUntrackedScoreChanges(rule.score_changes, 'reaction_rule', ruleKey)
+    recordUntrackedScoreConditions([rule.condition], 'reaction_condition', ruleKey)
   }
 
   recordUntrackedScoreConditions(

@@ -188,6 +188,46 @@ When omitted, UI may fall back to other descriptive fields.
 
 ---
 
+# Conditions
+
+Anything that depends on the current state uses one structured condition shape:
+
+```json
+{ "target_type": "score", "target_id": "domain_clarity", "operator": "<", "value": 35 }
+```
+
+- `target_type`: `"score"` or `"stakeholder"` (stakeholder satisfaction, 0–100)
+- `target_id`: a score id in the scenario's `score_refs`, or a stakeholder id in the scenario. Bundle validation rejects anything else, because a missing score would silently read as 0.
+- `operator`: `<`, `<=`, `>`, `>=`, `=` or `==`
+- `value`: whole number
+
+Used by card `requirements`, scenario `failure_conditions`, reaction rule `condition`, and event `trigger_condition`.
+
+---
+
+# Reaction Rule Structure
+
+A reaction rule is how a stakeholder responds to the state of the system. Each turn, every rule whose `condition` holds applies its changes, in `priority` order.
+
+Required: `id`, `version`, `name`, `description`, `condition_description`, `condition`, `score_changes`. Optional: `stakeholder_changes`, `priority`.
+
+```json
+{
+  "id": "cto_wants_clarity",
+  "version": 1,
+  "name": "CTO Wants Clarity",
+  "description": "CTO pushes for better domain understanding when clarity is low",
+  "condition_description": "Domain clarity < 35",
+  "condition": { "target_type": "score", "target_id": "domain_clarity", "operator": "<", "value": 35 },
+  "score_changes": [{ "score_id": "budget", "delta": -3 }],
+  "stakeholder_changes": [{ "stakeholder_id": "cto", "delta": -5 }]
+}
+```
+
+`condition` is what the engine evaluates. `condition_description` is the same rule written for people (shown in explainers and, later, Pack Studio). The engine never parses it. Before M1.4 (see [docs/CONTENT_PACKS.md](docs/CONTENT_PACKS.md)) the engine parsed this text at runtime, and a description it could not parse made the rule silently never fire.
+
+---
+
 # Event Structure
 
 Events represent unexpected system pressures.
@@ -199,6 +239,8 @@ Events may:
 - schedule delayed effects
 
 Only one event may occur per turn.
+
+An event can be limited to certain states with `trigger_condition` (a structured condition, see Conditions above). The event is only eligible while the condition holds. `trigger_condition_description` is the human-readable version, and an event that has the description must also have `trigger_condition`.
 
 ---
 

@@ -93,6 +93,7 @@ function createMockProvider(label: string): ContentProvider {
     name: `${label}-rule`,
     description: label,
     condition_description: 'always',
+    condition: { target_type: 'score', target_id: 'budget', operator: '>=', value: 0 },
     score_changes: [],
   })
 

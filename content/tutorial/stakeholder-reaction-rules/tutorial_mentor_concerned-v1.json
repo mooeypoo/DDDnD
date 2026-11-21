@@ -4,6 +4,12 @@
   "name": "Mentor Concerned",
   "description": "The Mentor grows worried when system health drops too low.",
   "condition_description": "system_health < 35",
+  "condition": {
+    "target_type": "score",
+    "target_id": "system_health",
+    "operator": "<",
+    "value": 35
+  },
   "score_changes": [],
   "stakeholder_changes": [
     { "stakeholder_id": "tutorial_mentor", "delta": -5 }

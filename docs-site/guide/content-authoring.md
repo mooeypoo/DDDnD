@@ -189,6 +189,7 @@ npm run build
 - Keep gameplay changes versioned by file (`-v2`, `-v3`, ...)
 - Ensure every score file includes both `name` and `short_name`
 - Ensure every `score_id` reachable from a scenario (cards, events, delayed effects, reaction rules, requirements, failure conditions) is in that scenario’s `score_refs`
+- give every reaction rule a structured `condition`, and every event with `trigger_condition_description` a structured `trigger_condition` (the text is for people; the engine only reads the structured field). Conditions may only check scores the scenario tracks and stakeholders in the scenario.
 - Ensure `scenarios`, `classes`, `tutorials` entry points are intentional
 - Include every owned file in `manifest.content.*`
 - Use a valid SPDX license expression

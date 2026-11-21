@@ -4,6 +4,12 @@
   "name": "VP Product Demands Features",
   "description": "VP Product pressures the team when delivery confidence drops to critical levels",
   "condition_description": "Delivery confidence < 30",
+  "condition": {
+    "target_type": "score",
+    "target_id": "delivery_confidence",
+    "operator": "<",
+    "value": 30
+  },
   "score_changes": [
     {
       "score_id": "team_morale",

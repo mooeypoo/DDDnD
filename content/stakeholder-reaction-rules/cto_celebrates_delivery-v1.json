@@ -4,6 +4,12 @@
   "name": "CTO Celebrates Delivery",
   "description": "CTO provides support when delivery confidence is high",
   "condition_description": "Delivery confidence > 60",
+  "condition": {
+    "target_type": "score",
+    "target_id": "delivery_confidence",
+    "operator": ">",
+    "value": 60
+  },
   "score_changes": [
     {
       "score_id": "budget",

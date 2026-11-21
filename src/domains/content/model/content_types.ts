@@ -112,7 +112,13 @@ export interface Event extends ContentMetadata {
   stakeholder_changes?: StakeholderChange[]
   delayed_effect_refs: VersionRef[]
   occurrence_weight: number
+  /** Human-readable explanation of when the event can occur. Never parsed. */
   trigger_condition_description?: string
+  /**
+   * When present, the event is only eligible while this condition holds.
+   * Required whenever `trigger_condition_description` is given.
+   */
+  trigger_condition?: NumericCondition
 }
 
 /**
@@ -124,7 +130,10 @@ export interface Event extends ContentMetadata {
 export interface StakeholderReactionRule extends ContentMetadata {
   name: string
   description: string
+  /** Human-readable explanation of `condition`. Never parsed by the engine. */
   condition_description: string
+  /** When this rule applies. Evaluated once per turn during stakeholder resolution. */
+  condition: NumericCondition
   score_changes: ScoreChange[]
   stakeholder_changes?: StakeholderChange[]
   priority?: number

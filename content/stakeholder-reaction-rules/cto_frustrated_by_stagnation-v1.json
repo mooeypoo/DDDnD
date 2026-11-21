@@ -4,6 +4,12 @@
   "name": "CTO Frustrated by Stagnation",
   "description": "The CTO loses confidence in the team's ability to deliver when domain clarity stays critically low",
   "condition_description": "Domain clarity < 20",
+  "condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": "<",
+    "value": 20
+  },
   "priority": 50,
   "score_changes": [
     {

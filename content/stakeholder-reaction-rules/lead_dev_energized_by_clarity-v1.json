@@ -4,6 +4,12 @@
   "name": "Lead Developer Energized by Clarity",
   "description": "Lead developer is motivated when domain clarity improves",
   "condition_description": "Domain clarity > 60",
+  "condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": ">",
+    "value": 60
+  },
   "score_changes": [
     {
       "score_id": "team_morale",

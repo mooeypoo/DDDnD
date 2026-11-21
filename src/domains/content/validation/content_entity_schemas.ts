@@ -116,23 +116,36 @@ export const cardSchema: z.ZodMiniType<Card> = z.strictObject({
   style_tags: z.optional(boundedArray(textSchema(text.style_tag), counts.style_tags)),
 })
 
-export const eventSchema: z.ZodMiniType<Event> = z.strictObject({
-  ...metadataShape,
-  name: nameSchema,
-  description: descriptionSchema,
-  flavor_text: z.optional(flavorTextSchema),
-  score_changes: scoreChangesSchema,
-  stakeholder_changes: z.optional(stakeholderChangesSchema),
-  delayed_effect_refs: delayedEffectRefsSchema,
-  occurrence_weight: boundedInt(numbers.occurrence_weight),
-  trigger_condition_description: z.optional(textSchema(text.condition_description)),
-})
+export const eventSchema: z.ZodMiniType<Event> = z
+  .strictObject({
+    ...metadataShape,
+    name: nameSchema,
+    description: descriptionSchema,
+    flavor_text: z.optional(flavorTextSchema),
+    score_changes: scoreChangesSchema,
+    stakeholder_changes: z.optional(stakeholderChangesSchema),
+    delayed_effect_refs: delayedEffectRefsSchema,
+    occurrence_weight: boundedInt(numbers.occurrence_weight),
+    trigger_condition_description: z.optional(textSchema(text.condition_description)),
+    trigger_condition: z.optional(numericConditionSchema),
+  })
+  .check(
+    z.refine(
+      (event: { trigger_condition_description?: string; trigger_condition?: unknown }) =>
+        event.trigger_condition_description === undefined || event.trigger_condition !== undefined,
+      {
+        error: 'is required when trigger_condition_description is set (the description is for people; the engine reads trigger_condition)',
+        path: ['trigger_condition'],
+      },
+    ),
+  )
 
 export const stakeholderReactionRuleSchema: z.ZodMiniType<StakeholderReactionRule> = z.strictObject({
   ...metadataShape,
   name: nameSchema,
   description: descriptionSchema,
   condition_description: textSchema(text.condition_description),
+  condition: numericConditionSchema,
   score_changes: scoreChangesSchema,
   stakeholder_changes: z.optional(stakeholderChangesSchema),
   priority: z.optional(boundedInt(numbers.priority)),

@@ -6,6 +6,12 @@
   "flavor_text": "The CISO's pager just went off. So did the lawyers'.",
   "occurrence_weight": 3,
   "trigger_condition_description": "User trust < 40",
+  "trigger_condition": {
+    "target_type": "score",
+    "target_id": "user_trust",
+    "operator": "<",
+    "value": 40
+  },
   "score_changes": [
     {
       "score_id": "user_trust",

@@ -51,6 +51,7 @@ Do not increase version for cosmetic changes such as:
 - flavor text improvements
 - clearer descriptions
 - adding or renaming presentation-only fields that do not change gameplay numbers (for example score `short_name`)
+- making existing behavior explicit in a new structured field when the result is provably identical (for example the M1.4 `condition` / `trigger_condition` migration, where a test proves every structured condition equals what the old prose resolved to in every playable scenario)
 
 As long as gameplay behavior remains identical, version may remain unchanged.
 

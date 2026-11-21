@@ -4,6 +4,12 @@
   "name": "IPM Demands Visible Progress",
   "description": "The integration program manager needs visible architectural progress for steering committee reports",
   "condition_description": "Domain clarity < 35",
+  "condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": "<",
+    "value": 35
+  },
   "score_changes": [
     {
       "score_id": "team_morale",

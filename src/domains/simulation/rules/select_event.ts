@@ -2,11 +2,7 @@ import { Event, ScenarioBundle, versionRefKey } from '@/domains/content/model'
 import { VersionedContentRef } from '@/shared/contracts'
 import { SeededRandom } from '@/shared/random/seeded_random'
 import { GameState } from '../model'
-import {
-  ConditionEvaluationState,
-  evaluateNumericCondition,
-  parseConditionDescription
-} from './condition_evaluator'
+import { ConditionEvaluationState, evaluateNumericCondition } from './condition_evaluator'
 
 /**
  * Event candidate eligible for weighted selection this turn.
@@ -37,11 +33,8 @@ export function collectEligibleEvents(
         return null
       }
 
-      if (event.trigger_condition_description) {
-        const condition = parseConditionDescription(event.trigger_condition_description, scenarioBundle)
-        if (!condition || !evaluateNumericCondition(condition, conditionState)) {
-          return null
-        }
+      if (event.trigger_condition && !evaluateNumericCondition(event.trigger_condition, conditionState)) {
+        return null
       }
 
       return {
