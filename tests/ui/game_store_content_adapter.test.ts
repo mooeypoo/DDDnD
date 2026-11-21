@@ -6,6 +6,8 @@ import { createGameStoreContentAdapter } from '@/ui/stores/game_store_content_ad
 
 function buildManifest(id: string): ContentPackManifest {
   return {
+    schema_version: 1,
+    kind: 'standalone',
     id,
     version: '1.0.0',
     name: id,

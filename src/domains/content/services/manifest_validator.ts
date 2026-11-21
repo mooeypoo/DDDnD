@@ -1,6 +1,7 @@
-import validateSpdx from 'spdx-expression-validate'
-import type { ContentPackInventory, ContentPackManifest } from '../model/content_pack_manifest'
-import type { VersionRef } from '../model/version_ref'
+import type { ContentPackManifest } from '../model/content_pack_manifest'
+import { toSchemaIssues } from '../validation/content_entity_parser'
+import { manifestRuleIssues, manifestShapeSchema } from '../validation/manifest_schema'
+import { CURRENT_PACK_SCHEMA_VERSION } from '../validation/pack_policy'
 
 /**
  * Validation error entry for one manifest field.
@@ -18,172 +19,56 @@ export interface ManifestValidationResult {
   errors: ManifestValidationError[]
 }
 
-const INVENTORY_KEYS: Array<keyof ContentPackInventory> = [
-  'scenarios',
-  'cards',
-  'stakeholders',
-  'stakeholder_reaction_rules',
-  'scores',
-  'events',
-  'delayed_effects',
-  'outcome_tiers',
-  'outcome_archetypes',
-  'classes',
-  'challenge_modifiers',
-]
-
-function isObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null
-}
-
-function hasNonEmptyString(value: unknown): value is string {
-  return typeof value === 'string' && value.trim().length > 0
-}
-
-function isVersionRef(value: unknown): value is VersionRef {
-  if (!isObject(value)) {
-    return false
+/**
+ * Checks `schema_version` before anything else.
+ *
+ * A pack written for a newer format may use fields this game has never heard
+ * of. Reporting "unknown field" for each of them would be confusing; one clear
+ * "needs a newer DDDnD" message is what the player and author need.
+ */
+function schemaVersionError(input: unknown): ManifestValidationError | null {
+  if (typeof input !== 'object' || input === null) {
+    return null
   }
-
-  const id = value.id
-  const version = value.version
-
-  return hasNonEmptyString(id) && typeof version === 'number' && Number.isInteger(version) && version > 0
+  const declared = (input as Record<string, unknown>).schema_version
+  if (typeof declared === 'number' && Number.isInteger(declared) && declared > CURRENT_PACK_SCHEMA_VERSION) {
+    return {
+      field: 'schema_version',
+      message: `this pack uses pack format ${declared}, but this version of DDDnD supports up to ${CURRENT_PACK_SCHEMA_VERSION}. Update DDDnD to load it.`,
+    }
+  }
+  return null
 }
 
 /**
- * Validates manifest shape and field-level constraints.
+ * Validates manifest shape and pack-level rules (ADR 0001, ADR 0004).
  *
- * This function performs structural checks only and does not load referenced files.
+ * This does not load referenced files. Field paths use the same dotted format
+ * as content errors (for example `authors[0].url`).
  */
 export function validateContentPackManifest(input: unknown): ManifestValidationResult {
-  const errors: ManifestValidationError[] = []
+  const versionError = schemaVersionError(input)
+  if (versionError) {
+    return { valid: false, errors: [versionError] }
+  }
 
-  if (!isObject(input)) {
+  if (typeof input !== 'object' || input === null || Array.isArray(input)) {
+    return { valid: false, errors: [{ field: 'manifest', message: 'manifest must be an object' }] }
+  }
+
+  const result = manifestShapeSchema.safeParse(input)
+  if (!result.success) {
     return {
       valid: false,
-      errors: [{ field: 'manifest', message: 'Manifest must be an object' }],
+      errors: toSchemaIssues(result.error, input).map((issue) => ({
+        field: issue.path || 'manifest',
+        message: issue.message,
+      })),
     }
   }
 
-  if (!hasNonEmptyString(input.id)) {
-    errors.push({ field: 'id', message: 'id is required and must be a non-empty string' })
-  }
-
-  if (!hasNonEmptyString(input.version)) {
-    errors.push({ field: 'version', message: 'version is required and must be a non-empty string' })
-  }
-
-  if (!hasNonEmptyString(input.name)) {
-    errors.push({ field: 'name', message: 'name is required and must be a non-empty string' })
-  }
-
-  if (!hasNonEmptyString(input.description)) {
-    errors.push({ field: 'description', message: 'description is required and must be a non-empty string' })
-  }
-
-  if (!hasNonEmptyString(input.base_url)) {
-    errors.push({ field: 'base_url', message: 'base_url is required and must be a non-empty string' })
-  }
-
-  if (!hasNonEmptyString(input.license)) {
-    errors.push({ field: 'license', message: 'license is required and must be a non-empty string' })
-  } else if (!validateSpdx(input.license)) {
-    errors.push({ field: 'license', message: 'license must be a valid SPDX expression' })
-  }
-
-  if (!Array.isArray(input.depends_on)) {
-    errors.push({ field: 'depends_on', message: 'depends_on is required and must be an array' })
-  } else {
-    input.depends_on.forEach((dependency, index) => {
-      if (!isObject(dependency) || !hasNonEmptyString(dependency.pack_id) || !hasNonEmptyString(dependency.version)) {
-        errors.push({
-          field: `depends_on[${index}]`,
-          message: 'dependency must contain non-empty pack_id and version strings',
-        })
-      }
-    })
-  }
-
-  if (!Array.isArray(input.authors) || input.authors.length === 0) {
-    errors.push({ field: 'authors', message: 'authors is required and must be a non-empty array' })
-  } else {
-    input.authors.forEach((author, index) => {
-      if (!isObject(author) || !hasNonEmptyString(author.name)) {
-        errors.push({
-          field: `authors[${index}].name`,
-          message: 'author name is required and must be a non-empty string',
-        })
-      }
-
-      if (isObject(author) && author.url !== undefined && typeof author.url !== 'string') {
-        errors.push({
-          field: `authors[${index}].url`,
-          message: 'author url must be a string when present',
-        })
-      }
-    })
-  }
-
-  const entryPointFields: Array<keyof Pick<ContentPackManifest, 'scenarios' | 'classes' | 'challenge_modifiers' | 'tutorials'>> = [
-    'scenarios',
-    'classes',
-    'challenge_modifiers',
-    'tutorials',
-  ]
-
-  entryPointFields.forEach((field) => {
-    const refs = input[field]
-    if (!Array.isArray(refs)) {
-      errors.push({ field, message: `${field} is required and must be an array` })
-      return
-    }
-
-    refs.forEach((ref, index) => {
-      if (!isVersionRef(ref)) {
-        errors.push({
-          field: `${field}[${index}]`,
-          message: `${field} entries must contain valid id/version references`,
-        })
-      }
-    })
-  })
-
-  if (input.pack_homepage_url !== undefined && typeof input.pack_homepage_url !== 'string') {
-    errors.push({ field: 'pack_homepage_url', message: 'pack_homepage_url must be a string when present' })
-  }
-
-  if (input.tutorial_base_url !== undefined && typeof input.tutorial_base_url !== 'string') {
-    errors.push({ field: 'tutorial_base_url', message: 'tutorial_base_url must be a string when present' })
-  }
-
-  if (!isObject(input.content)) {
-    errors.push({ field: 'content', message: 'content is required and must be an object' })
-  } else {
-    const content = input.content as Record<string, unknown>
-
-    INVENTORY_KEYS.forEach((key) => {
-      const value = content[key]
-      if (!Array.isArray(value)) {
-        errors.push({ field: `content.${key}`, message: `${key} must be an array of filenames` })
-        return
-      }
-
-      value.forEach((filename, index) => {
-        if (!hasNonEmptyString(filename) || !filename.endsWith('.json')) {
-          errors.push({
-            field: `content.${key}[${index}]`,
-            message: 'inventory entries must be non-empty .json filenames',
-          })
-        }
-      })
-    })
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-  }
+  const ruleErrors = manifestRuleIssues(result.data).map((issue) => ({ field: issue.path, message: issue.message }))
+  return { valid: ruleErrors.length === 0, errors: ruleErrors }
 }
 
 /**

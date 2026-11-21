@@ -26,6 +26,8 @@ vi.mock('@/ui/services/quest_loader', async () => {
 
 vi.mock('@/domains/content/services/manifest_loader', () => {
   const baseManifest: ContentPackManifest = {
+    schema_version: 1,
+    kind: 'standalone',
     id: 'base',
     version: '1.0.0',
     name: 'Base',
@@ -67,6 +69,8 @@ vi.mock('@/domains/content/services/manifest_loader', () => {
   }
 
   const tutorialManifest: ContentPackManifest = {
+    schema_version: 1,
+    kind: 'extension',
     id: 'tutorial',
     version: '1.0.0',
     name: 'Tutorial',

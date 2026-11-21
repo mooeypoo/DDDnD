@@ -78,6 +78,8 @@ The `manifest.json` is the entry point for your pack.
 
 ```json
 {
+  "schema_version": 1,
+  "kind": "extension",
   "id": "my_pack",
   "version": "1.0.0",
   "name": "My Pack",
@@ -86,7 +88,7 @@ The `manifest.json` is the entry point for your pack.
     { "pack_id": "base", "version": "1.0.0" }
   ],
   "base_url": "/content/my-pack",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "authors": [
     { "name": "Example Author", "url": "https://example.com" }
   ],
@@ -116,14 +118,18 @@ The `manifest.json` is the entry point for your pack.
 
 | Field | Description |
 |---|---|
-| `id` | Non-empty string, unique pack identifier |
+| `schema_version` | Pack format version. Use `1`. |
+| `kind` | `standalone` (complete world, no dependencies) or `extension` (builds on a pack in `depends_on`) |
+| `id` | Lowercase snake_case, 1–64 characters, unique pack identifier |
 | `version` | Semver string, e.g. `1.0.0` |
-| `name`, `description` | Non-empty strings |
+| `name`, `description` | Non-blank text |
 | `depends_on` | Array of `{ pack_id, version }` |
-| `base_url` | Directory path prefix for content fetches |
-| `license` | Valid SPDX expression |
-| `authors` | Non-empty array; each entry requires a non-empty `name` |
-| `content` | Object with all inventory arrays present (may be empty) |
+| `base_url` | Root-relative path (`/content`) or `https://` URL for content fetches |
+| `license` | Valid SPDX expression. Packs that depend on `base` must use `GPL-3.0-only` or `GPL-3.0-or-later`. |
+| `authors` | 1–20 entries; each requires a non-blank `name`. Optional `url` must be `https://`. |
+| `content` | Object with all inventory arrays present (may be empty). Every entry point must be listed here. |
+
+Unknown fields are rejected, so typos are reported instead of silently ignored.
 
 ## Extending the Base Pack
 

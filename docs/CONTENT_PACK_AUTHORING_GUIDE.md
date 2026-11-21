@@ -44,6 +44,8 @@ Manifest type lives in `src/domains/content/model/content_pack_manifest.ts`.
 
 ```json
 {
+  "schema_version": 1,
+  "kind": "extension",
   "id": "my_pack",
   "version": "1.0.0",
   "name": "My Pack",
@@ -52,7 +54,7 @@ Manifest type lives in `src/domains/content/model/content_pack_manifest.ts`.
     { "pack_id": "base", "version": "1.0.0" }
   ],
   "base_url": "/content/my-pack",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "authors": [
     { "name": "Example Author", "url": "https://example.com" }
   ],
@@ -83,21 +85,25 @@ Manifest type lives in `src/domains/content/model/content_pack_manifest.ts`.
 
 ### Required fields
 
-- `id`: non-empty string
-- `version`: non-empty string (pack semver, ex: `1.0.0`)
-- `name`, `description`: non-empty strings
-- `depends_on`: array
-- `base_url`: non-empty string
-- `license`: valid SPDX expression (validated)
-- `authors`: non-empty array, each author has non-empty `name`
-- `scenarios`, `classes`, `challenge_modifiers`, `tutorials`: arrays of `{ id, version }`
-- `content`: object with all inventory arrays present
+- `schema_version`: pack format version. Use `1`. A game that only understands older formats refuses the pack with a "needs a newer DDDnD" message instead of misreading it.
+- `kind`: `"standalone"` (a complete world, no `depends_on`) or `"extension"` (builds on at least one pack listed in `depends_on`). `"overlay"` (text-only packs) is planned for a later format.
+- `id`: lowercase snake_case (`a-z`, `0-9`, `_`), 1–64 characters
+- `version`: pack semver, for example `1.0.0`
+- `name`, `description`: non-blank text
+- `depends_on`: array of `{ pack_id, version }`
+- `base_url`: a root-relative path such as `/content` (first-party) or an `https://` URL (hosted packs). `..` segments are rejected.
+- `license`: valid SPDX expression. **Packs that depend on `base` must use `GPL-3.0-only` or `GPL-3.0-or-later`**, because the base pack is GPL-3.0-only (see [ADR 0004](adr/0004-pack-license-compatibility.md)). Standalone packs may use any SPDX license.
+- `authors`: 1–20 entries, each with a non-blank `name`
+- `scenarios`, `classes`, `challenge_modifiers`, `tutorials`: arrays of `{ id, version }`. Every entry point must also be listed in the matching `content` inventory section (tutorials in `content.scenarios`).
+- `content`: object with all inventory arrays present. Entries must be versioned filenames (`<id>-v<version>.json`). A pack may list at most 2000 files.
+
+Unknown fields are rejected, so a typo is reported instead of ignored. Content files have their own limits; see "Validation and Limits" in [CONTENT_SCHEMA.md](../CONTENT_SCHEMA.md#validation-and-limits).
 
 ### Optional fields
 
-- `pack_homepage_url`
-- `tutorial_base_url`
-- `authors[].url`
+- `pack_homepage_url`: `https://` only
+- `tutorial_base_url`: same rules as `base_url`
+- `authors[].url`: `https://` only
 
 ## Base pack examples in this repo
 

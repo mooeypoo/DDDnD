@@ -1,4 +1,6 @@
 {
+  "schema_version": 1,
+  "kind": "standalone",
   "id": "base",
   "version": "1.0.0",
   "name": "DDDnD Base Content Pack",

@@ -1,4 +1,6 @@
 {
+  "schema_version": 1,
+  "kind": "extension",
   "id": "tutorial",
   "version": "1.0.0",
   "name": "DDDnD Tutorial Content Pack",

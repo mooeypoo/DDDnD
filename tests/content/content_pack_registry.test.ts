@@ -19,6 +19,8 @@ import { ContentPackRegistry } from '@/domains/content/services/content_pack_reg
 
 function createManifest(overrides: Partial<ContentPackManifest>): ContentPackManifest {
   return {
+    schema_version: 1,
+    kind: 'standalone',
     id: 'pack',
     version: '1.0.0',
     name: 'Pack',

@@ -260,7 +260,7 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | Question | Notes | Decide by |
 |---|---|---|
 | ~~Schema library~~ | **Resolved (M1.1):** `zod/mini` in jitless mode with our own messages. See [ADR 0007](adr/0007-zod-mini-jitless-for-content-validation.md). | Done |
-| ~~Exact limits~~ | **Resolved (M1.1)** for per-file limits: see the table in [CONTENT_SCHEMA.md](../CONTENT_SCHEMA.md#validation-and-limits). Files per pack is still open (lands with the manifest work). | Done / M1 |
+| ~~Exact limits~~ | **Resolved.** Per-file limits in M1.1 (table in [CONTENT_SCHEMA.md](../CONTENT_SCHEMA.md#validation-and-limits)). 2000 files per pack in M1.2. | Done |
 | Demo pack topic | `extension` kind is fixed. A likely shape is "the Monolith, retold for a fictional company", to show the facilitator use case. | M2 |
 | Demo pack repository name and owner | Public GitHub repo, separate from this one | M2 |
 | SRE pack design | Scores, stakeholders, failure modes, and what "winning" means need a brainstorm | M3 |
@@ -329,3 +329,34 @@ We measured all 209 first-party content files first (longest strings, numeric ra
 - A fixed-seed audit report (5 scenarios × 20 runs × both bot policies, about 300 KB of JSON) is byte-identical between `main` and this branch. This matters because schema parsing rebuilds objects (key order can change). The engine's behavior did not.
 
 **Still to do in M1:** manifest schema (`schema_version`, `kind`, URL rules, files per pack), pack-scoped resolution, structured reaction conditions, JSON Schema export, CSP header, and the hostile-pack fixture suite.
+
+### M1.2: Manifest schema, pack kinds, and the license rule (2026-11-21)
+
+**What changed**
+
+- Manifests gain two required fields:
+  - `schema_version` (integer, currently `1`)
+  - `kind` (`standalone` or `extension`)
+
+  The base manifest is `standalone`. The tutorial manifest is `extension` (it depends on base).
+- `manifest_validator.ts` keeps its public API (`{ valid, errors: [{ field, message }] }`), so the loader, CLI, and tests did not change their calls. The hand-written checks were replaced by `validation/manifest_schema.ts`, which has the same strictness, limits, and messages as content files.
+- New rules that span several fields (`manifestRuleIssues`):
+  - A `standalone` pack has no dependencies. An `extension` has at least one.
+  - **ADR 0004 is enforced:** a pack that depends on `base` must be `GPL-3.0-only` or `GPL-3.0-or-later`.
+  - Every entry point (scenario, class, modifier, tutorial) must be listed in the pack's own inventory.
+  - At most 2000 files per pack.
+- New field rules:
+  - Inventory entries must be versioned filenames built from safe ids, so `../../secrets-v1.json` is rejected.
+  - `base_url` is a root-relative path without `..` or an `https://` URL.
+  - Author and homepage URLs must be `https://`.
+- Manifest reads are byte-capped (256 KB) like content reads.
+- New policy constants live in `validation/pack_policy.ts`, each naming its ADR.
+
+**Decisions made along the way**
+
+1. **`schema_version` is checked before anything else.** A pack written for a newer format will contain fields this game has never seen. Strict validation would report each one as "unknown field", which is accurate but useless. A single message ("this pack uses pack format 2, but this version of DDDnD supports up to 1") tells the player what to do. Forward compatibility comes from the explicit version, not from tolerating unknown keys.
+2. **`overlay` is not accepted yet.** The three kinds are designed, but only two have engine support. Accepting `overlay` before the overlay merge exists would mean loading a pack that does nothing. It will arrive with a schema bump.
+3. **`kind` is required, not defaulted.** A default would be convenient, but the content philosophy is "explicit", and kind is part of what a player is told on the consent screen. The cost was adding two fields to five test fixtures. Expectations were unchanged.
+4. **The authoring guide's own example was invalid under ADR 0004.** It depended on `base` and used MIT. Both copies of the guide (repo and public docs site) are fixed. A new test extracts the example manifest from each guide and validates it, so the docs can't drift again.
+
+**How we know nothing broke:** all existing manifest tests pass unchanged against the new implementation, both first-party manifests validate, and the CLI validator passes for base and tutorial.
