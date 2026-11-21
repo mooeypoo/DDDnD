@@ -483,6 +483,8 @@ Unit tests can't see a CSP, so we checked it in a real browser:
 
 **Result: zero CSP violations and zero console errors across all of it.** As a side effect, this was also the first end-to-end check of M1.1–M1.4 in a real browser: every quest and the tutorial loaded through the validated, pack-scoped pipeline.
 
+**Checked again on real Netlify hosting (2026-11-22).** Before merging, the same browser checks ran against the PR's Netlify deploy preview: a full run with result-card export, the tutorial, and the flag-off `?pack=` check. Everything worked, and the real headers were confirmed: CSP, `nosniff`, `Referrer-Policy`, and CORS on `/schema/v1/`. The browser did report two violations the local check never showed: a blocked inline `style` attribute and a blocked frame from `app.netlify.com`. Comparing the served HTML with our build found the cause. On Deploy Preview URLs only, Netlify inserts a `<div style="position:fixed">` with a script that loads its collaboration toolbar in a frame. Production pages don't get that injection, so production is unaffected. The cost is that Netlify's preview toolbar doesn't load on previews. We chose not to widen the production policy for a preview-only tool. A local check would never have found this; testing on the real host did.
+
 **Follow-ups noted:** Trusted Types (`require-trusted-types-for 'script'`) would turn the rendering guard into a browser-enforced rule. It needs the one `v-html` replaced with components first. Making the browser check a permanent CI job would need Playwright as a dev dependency, which is worth considering when M2 adds a real network path.
 
 ### M1.7: The hostile-pack suite (2026-11-21)
