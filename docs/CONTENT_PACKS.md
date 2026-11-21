@@ -650,3 +650,37 @@ GitHub Actions can't run locally, so we reproduced the job's checkout layout in 
 **Release checklist additions:**
 - [ ] After merge: tag DDDnD `pack-validator-v1`, and switch the DDDnD-packs workflow refs to it
 - [ ] Tag DDDnD-packs `gilded_ledger-v1.0.0` once its CI is green against the released validator
+
+### M2.3: Where packs may come from, and loading one into memory (2026-11-22)
+
+**What changed**
+
+- `pack_source_policy.ts` (ADR 0003 as code):
+  - `checkPackSourceUrl` allows only `https://raw.githubusercontent.com/<owner>/<repo>/<ref>/…/manifest.json` and `https://<owner>.github.io/…/manifest.json`. It refuses ports, credentials, query strings, `.`/`..` segments, and lookalike hosts (`github.io.evil.example`, `raw.githubusercontent.com.evil.example`).
+  - It also classifies how the URL is pinned: a full commit SHA, a release-tag-looking ref, or `unpinned` (branches, and every GitHub Pages URL). The consent screen will show this.
+  - `resolvePackContentBase` resolves `base_url` against the manifest and keeps it inside the same origin, and on GitHub raw inside the same owner/repo/ref.
+- `PackSnapshot` (model) and `pack_snapshot_builder.ts`. A snapshot is a whole pack held in memory:
+  - the manifest,
+  - every validated entity,
+  - the origin,
+  - a `sha256:` content hash over the manifest and files exactly as published.
+
+  The builder collects *every* problem (missing files, unlisted extra files, size limits, schema errors with field paths, filename/id mismatches) before failing, so an author sees the full list at once. `createSnapshotContentProvider` serves a snapshot to the registry like any other pack.
+- `remote_pack_loader.ts`: policy check → manifest (no redirects, no credentials, byte-capped) → content base → every inventory file, six at a time, byte-capped → snapshot.
+- A new limit: 4 MB per whole pack.
+
+**The design decision: fetch everything up front**
+
+The game's first-party loader fetches files lazily as a scenario needs them. For community packs we fetch the whole inventory at load time instead, into one in-memory snapshot. The extra up-front cost buys a lot:
+
+1. **One shape for every way a pack arrives.** A GitHub URL, an imported file, and a cached copy all become a snapshot through the same validation. The next steps (file import, local cache) reuse the builder unchanged.
+2. **Every file is validated before the consent screen**, not only the files one scenario happens to reach. A broken card in an unplayed scenario is still reported.
+3. **The content hash is exact and free**, because we already hold every byte.
+4. **After loading, nothing is fetched**, so a pack can't change mid-run and the host sees one visit per load, not one per turn (threat T9, privacy).
+
+**Verification**
+
+- Unit tests run the real demo-pack fixture through a fake GitHub: load, hash stability, registering next to the real base pack and building a valid bundle. Each refusal is tested too (disallowed URL with zero fetches, a redirect, a missing file, invalid files reported with paths, a `base_url` escaping its tag, smuggled unlisted files).
+- A live check loaded the demo pack from real GitHub (the copy committed in this branch, pinned to the pushed commit SHA): 16 files in about 0.6 s, pinning detected as `commit`. The same path on `main` produced a clear `HTTP 404` message.
+
+Browser behavior (CORS and the real `redirect: 'error'`) gets its own check in the end-to-end step, with the CSP widened only on that branch's preview, per ADR 0009.

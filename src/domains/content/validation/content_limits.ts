@@ -26,6 +26,8 @@ export const CONTENT_LIMITS = {
   max_file_bytes: 64 * 1024,
   /** Bytes per manifest. Base manifest: ~6 KB. */
   max_manifest_bytes: 256 * 1024,
+  /** Bytes for a whole pack (all files together). Base pack today: ~400 KB. */
+  max_pack_bytes: 4 * 1024 * 1024,
 
   text: {
     /** Names and titles. */
