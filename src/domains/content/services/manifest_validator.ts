@@ -1,5 +1,5 @@
 import type { ContentPackManifest } from '../model/content_pack_manifest'
-import { toSchemaIssues } from '../validation/content_entity_parser'
+import { toSchemaIssues, withoutSchemaLink } from '../validation/content_entity_parser'
 import { manifestRuleIssues, manifestShapeSchema } from '../validation/manifest_schema'
 import { CURRENT_PACK_SCHEMA_VERSION } from '../validation/pack_policy'
 
@@ -46,7 +46,8 @@ function schemaVersionError(input: unknown): ManifestValidationError | null {
  * This does not load referenced files. Field paths use the same dotted format
  * as content errors (for example `authors[0].url`).
  */
-export function validateContentPackManifest(input: unknown): ManifestValidationResult {
+export function validateContentPackManifest(rawInput: unknown): ManifestValidationResult {
+  const input = withoutSchemaLink(rawInput)
   const versionError = schemaVersionError(input)
   if (versionError) {
     return { valid: false, errors: [versionError] }

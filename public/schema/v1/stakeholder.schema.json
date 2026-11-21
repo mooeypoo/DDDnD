@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dddnd.app/schema/v1/stakeholder.schema.json",
+  "title": "DDDnD stakeholder",
+  "description": "Generated from the DDDnD content validator (pack format 1). Some rules (non-blank text, forbidden characters, cross-field rules) are only checked by the game and CLI validator.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional link to this schema, for editor support. Ignored by the game."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]{1,64}$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 999
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 600
+    },
+    "short_description": {
+      "type": "string",
+      "maxLength": 240
+    },
+    "reaction_rule_refs": {
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "name",
+    "description",
+    "reaction_rule_refs"
+  ],
+  "additionalProperties": false
+}

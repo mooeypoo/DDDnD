@@ -270,3 +270,22 @@ describe('validation never evaluates generated code (ADR 0007)', () => {
     expect(functionSpy).not.toHaveBeenCalled()
   })
 })
+
+describe('published JSON Schemas (M1.5)', () => {
+  it('match the validator (run `npm run content:schemas` after changing validation)', async () => {
+    const { generateJsonSchemas } = await import('@/domains/content/validation/json_schema_export')
+    const generated = generateJsonSchemas()
+    const directory = path.resolve('public/schema/v1')
+    const committed = readdirSync(directory).filter((name) => name.endsWith('.schema.json')).sort()
+
+    expect(committed).toEqual(Object.keys(generated).sort())
+    for (const [filename, schema] of Object.entries(generated)) {
+      expect(JSON.parse(readFileSync(path.join(directory, filename), 'utf8')), filename).toEqual(schema)
+    }
+  })
+
+  it('lets authors link a schema with "$schema" without failing strict validation', () => {
+    expect(() => parseContentEntity('cards', ref, validCard({ $schema: 'https://dddnd.app/schema/v1/card.schema.json' }))).not.toThrow()
+    expect(parseContentEntity('cards', ref, validCard({ $schema: 'https://dddnd.app/schema/v1/card.schema.json' }))).not.toHaveProperty('$schema')
+  })
+})

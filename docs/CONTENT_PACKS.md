@@ -422,3 +422,21 @@ This is "make the implicit explicit" in its most literal form. The domain concep
 **Tests that changed, and why**
 
 Test fixtures that build rules by hand gained a `condition` matching their prose (type change, no expectation changes). One fixture needed care: a turn-pipeline event with prose `"Team morale > 40"`. Without a matching `trigger_condition` it would have quietly become unconditional and changed what the test exercises. Two content tests that called the parser on rules now read `rule.condition`, with the same assertions.
+
+### M1.5: Published JSON Schemas for authors (2026-11-21)
+
+**What changed**
+
+- `validation/json_schema_export.ts` generates JSON Schemas from the same Zod schemas the game validates with. `npm run content:schemas` writes them to `public/schema/v1/`, so they are served at `https://dddnd.app/schema/v1/<type>.schema.json`.
+- The generated files are committed. A test regenerates them and fails on any difference, so the published contract can't drift from the validator.
+- Authors may put `"$schema": "<url>"` at the top of any manifest or content file. The parser accepts and drops it before strict validation, because it is tooling metadata, not content.
+- Both authoring guides gained an "Editor support" section (per-file `$schema`, or a `.vscode/settings.json` folder mapping).
+
+**Decisions**
+
+1. **Serve from the game's domain, not the docs site.** The docs site is on GitHub Pages under a project path. `dddnd.app` is the stable, owned domain, and `$id` URLs should outlive hosting changes. The path carries the pack format version (`/v1/`), so a future format can publish `/v2/` without breaking v1 authors.
+2. **Commit the output, test for drift.** Generating at build time would hide changes to the published contract inside unrelated diffs. A committed file makes every contract change visible in review, which is what a published language needs.
+3. **Be honest about what JSON Schema can't say.** Refinements such as "not blank", forbidden characters, license-by-dependency, and cross-file references don't translate. Each schema's `description` says so, and the guides tell authors to run the validator before publishing. The editor helps; the validator is the authority.
+4. **The export stays out of the player bundle.** It is not re-exported from the validation barrel, so only the script and the test import it.
+
+**DDD angle:** this is the *Published Language* from the context map (§4.3), made concrete. Until now the "pack schema" was a TypeScript type plus prose docs. Now it is a versioned, machine-readable contract at a stable URL, generated from the one model the engine trusts.

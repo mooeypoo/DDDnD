@@ -184,6 +184,21 @@ export function toSchemaIssues(error: z.core.$ZodError, raw?: unknown): ContentS
 }
 
 /**
+ * Removes an optional top-level `"$schema"` link.
+ *
+ * Authors may add `"$schema": "https://dddnd.app/schema/v1/card.schema.json"`
+ * to get editor autocomplete. It is tooling metadata, not content, so it is
+ * accepted and dropped before strict validation.
+ */
+export function withoutSchemaLink(raw: unknown): unknown {
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw) || !('$schema' in raw)) {
+    return raw
+  }
+  const { $schema, ...rest } = raw as Record<string, unknown>
+  return typeof $schema === 'string' ? rest : raw
+}
+
+/**
  * Validates one raw content value against its type's schema.
  *
  * Returns the parsed entity, which contains only known fields.
@@ -194,9 +209,10 @@ export function parseContentEntity<K extends ContentType>(
   ref: VersionRef,
   raw: unknown,
 ): ContentEntityByType[K] {
-  const result = SCHEMA_BY_TYPE[contentType].safeParse(raw)
+  const input = withoutSchemaLink(raw)
+  const result = SCHEMA_BY_TYPE[contentType].safeParse(input)
   if (!result.success) {
-    throw new ContentSchemaError(contentType, ref, toSchemaIssues(result.error, raw))
+    throw new ContentSchemaError(contentType, ref, toSchemaIssues(result.error, input))
   }
   return result.data
 }

@@ -240,6 +240,48 @@ Typical use case:
 
 Best practice: include only files your pack truly owns in `content.*` inventory.
 
+## Editor support (JSON Schema)
+
+Every content type has a published JSON Schema generated from the game's own validator:
+
+```text
+https://dddnd.app/schema/v1/manifest.schema.json
+https://dddnd.app/schema/v1/scenario.schema.json
+https://dddnd.app/schema/v1/card.schema.json
+https://dddnd.app/schema/v1/event.schema.json
+https://dddnd.app/schema/v1/delayed-effect.schema.json
+https://dddnd.app/schema/v1/score.schema.json
+https://dddnd.app/schema/v1/stakeholder.schema.json
+https://dddnd.app/schema/v1/stakeholder-reaction-rule.schema.json
+https://dddnd.app/schema/v1/outcome-tier.schema.json
+https://dddnd.app/schema/v1/outcome-archetype.schema.json
+https://dddnd.app/schema/v1/class.schema.json
+https://dddnd.app/schema/v1/challenge-modifier.schema.json
+```
+
+Add a `"$schema"` line to any file for autocomplete and inline errors in VS Code and most editors. The game ignores it:
+
+```json
+{
+  "$schema": "https://dddnd.app/schema/v1/card.schema.json",
+  "id": "escalate_incident_command",
+  "version": 1
+}
+```
+
+Or map whole folders once in `.vscode/settings.json`:
+
+```json
+{
+  "json.schemas": [
+    { "fileMatch": ["content/cards/*.json"], "url": "https://dddnd.app/schema/v1/card.schema.json" },
+    { "fileMatch": ["content/manifest.json"], "url": "https://dddnd.app/schema/v1/manifest.schema.json" }
+  ]
+}
+```
+
+The schemas catch shapes, types, id formats, and ranges while you type. A few rules can only be checked by the validator (blank text, control characters, license compatibility, entry points listed in the inventory, cross-file references), so always run the validator before publishing.
+
 ## Validation workflow
 
 ### 1) Schema/version sanity
