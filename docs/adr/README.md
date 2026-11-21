@@ -25,3 +25,4 @@ An ADR captures one decision: the context that forced it, what we chose, what we
 | [0008](0008-multi-pack-repository.md) | One public repository holds several packs (demos now, sanctioned packs later) | Accepted | 2026-11-21 |
 | [0009](0009-community-packs-behind-a-flag.md) | Community packs ship behind a build-time flag until we choose to launch | Accepted | 2026-11-21 |
 | [0010](0010-sanctioned-list-lives-in-official-repo.md) | Which packs are "sanctioned" is decided only in the official DDDnD repository | Accepted | 2026-11-21 |
+| [0011](0011-reusable-pack-validation-workflow.md) | Pack authors validate with a reusable workflow published from DDDnD | Accepted | 2026-11-22 |

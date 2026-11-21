@@ -162,6 +162,25 @@ Content ids are shared by every loaded pack, and a pack whose files collide with
 
 An `extension` pack can reference base cards, events, aftershocks, stakeholders, outcome tiers, and endings by `{ id, version }`, without copying them. Check which stakeholders a reused card or event affects (its `stakeholder_changes`): if your scenario doesn't include that stakeholder, the game currently creates an invisible "phantom" stakeholder that still counts toward end-of-run classification. Either include the stakeholder or pick other content. The validator will reject this in a later version.
 
+## Continuous validation (GitHub Actions)
+
+Pack repositories on GitHub can run DDDnD's validator and balance audit on every push with DDDnD's reusable workflow. Add `.github/workflows/validate-packs.yml`:
+
+```yaml
+name: Validate packs
+on: [push, pull_request]
+jobs:
+  validate:
+    uses: mooeypoo/DDDnD/.github/workflows/validate-pack.yml@pack-validator-v1
+    with:
+      dddnd-ref: pack-validator-v1
+      packs: packs/*/
+```
+
+Inputs: `packs` (folders with a `manifest.json`; globs allowed), `dependency-roots` (folders of other packs yours depends on, besides `base` and `tutorial`), `audit-runs` (default 50; `0` skips the balance audit), `fail-on-audit-critical` (default `true`). Pin both refs to the same tag. `pack-validator-v1` only moves forward for compatible changes. See [ADR 0011](https://github.com/mooeypoo/DDDnD/blob/main/docs/adr/0011-reusable-pack-validation-workflow.md).
+
+> The `pack-validator-v1` tag is published when community pack support is released. Until then, use the ref given in the [DDDnD-packs workflow](https://github.com/mooeypoo/DDDnD-packs/blob/main/.github/workflows/validate-packs.yml).
+
 ## Editor support (JSON Schema)
 
 Every content type has a published JSON Schema generated from the game's own validator:

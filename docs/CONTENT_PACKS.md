@@ -609,3 +609,44 @@ The base comparison came from running base scenarios through the same harness. T
 `apply_stakeholder_changes` creates a stakeholder entry for *any* id a card, event, aftershock, or rule names, even one who isn't at the table. That phantom then counts toward the end-of-run archetype metrics, and could even be picked as a stage actor. The demo hit it by reusing base content, which is exactly what extension packs are for. A scan of first-party content found one existing case: `automate_deployment_pipeline` targets `vp_product` in `microservice_sprawl-v2`. Fixing it changes that scenario's behavior, so it needs a new content version and then a validator error. It is logged for M3, and the guides tell authors how to avoid it meanwhile. The demo pack's fixture test asserts it has no phantom targets.
 
 **Tests:** the demo pack is copied to `tests/content/fixtures/packs/gilded_ledger`, so CI never needs the network. A test builds it next to the real base pack and asserts zero bundle errors and no phantom stakeholder targets.
+
+### M2.2: How pack authors validate, and how packs are versioned (2026-11-22)
+
+**"Do authors need our tests?"**
+
+The project owner asked whether pack authors would need a pack of DDDnD's tests, or instructions for including them. Answering it separated two things that are easy to blur:
+- DDDnD's test suite and hostile-pack fixtures test **the engine**.
+- Authors need **the validator applied to their pack**.
+
+So the question became how to give authors the validator. There were three options:
+- each author copies a workflow,
+- a reusable GitHub workflow published from DDDnD,
+- an npm CLI.
+
+The reusable workflow won ([ADR 0011](adr/0011-reusable-pack-validation-workflow.md)). The npm CLI is not planned unless authoring sees real use.
+
+**What changed**
+
+- `.github/workflows/validate-pack.yml` in DDDnD (`workflow_call`). Inputs: `dddnd-ref`, `packs` (globs), `dependency-roots`, `audit-runs`, `fail-on-audit-critical`. A pack repo needs about 5 lines to use it.
+- DDDnD-packs now uses it, replacing its copied 40-line workflow.
+- Both authoring guides have a "Continuous validation" section.
+
+**A payoff of the architecture**
+
+The workflow installs only DDDnD's *runtime* dependencies (about 50 MB) plus the exact `tsx` version from DDDnD's lockfile, instead of the whole game toolchain. That works only because the validator imports the content and simulation domains and never the UI, which is the AGENT.md boundary rule doing practical work years after it was written.
+
+**How it was verified**
+
+GitHub Actions can't run locally, so we reproduced the job's checkout layout in a scratch folder (a fresh clone of this branch with the lean install, plus a copy of DDDnD-packs) and ran the step's actual script. The demo pack passed. Then a copy of the pack with `max_turns: 999` was added: the job exited 1 with `max_turns: must be at most 50`, and still checked the valid pack after it.
+
+**Versioning decisions (agreed with the project owner)**
+
+- **Pack releases are tagged per pack:** `<pack_id>-v<version>`, for example `gilded_ledger-v1.0.0`, matching the manifest's `version`. A repo-wide `v1.0.0` becomes ambiguous once a second pack releases on its own schedule. The load URL is `…/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json`.
+- **Timing:** the first tag waits until this PR is merged and the packs CI points at released DDDnD rules, so the first tagged release is validated against what players will run.
+- **The validator gets a moving major tag, `pack-validator-v1`,** published at release and moved forward only for compatible changes.
+
+**Also done:** the GPL-3.0 `LICENSE` file was added to DDDnD's root on `main` (it had been declared in `package.json` and manifests, but the file was missing). DDDnD-packs has its own.
+
+**Release checklist additions:**
+- [ ] After merge: tag DDDnD `pack-validator-v1`, and switch the DDDnD-packs workflow refs to it
+- [ ] Tag DDDnD-packs `gilded_ledger-v1.0.0` once its CI is green against the released validator
