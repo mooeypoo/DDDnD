@@ -59,7 +59,7 @@ The simulation never sees anything that did not cross this boundary. The UI rend
 
 ## 5. Test strategy
 
-- **A hostile-pack fixture suite** (M1): one fixture per threat T1–T7 and T14, each asserting rejection with the expected error path. These fixtures live under `tests/content/` and never touch the network.
+- **A hostile-pack fixture suite** (M1): one fixture per threat T1–T7 and T14, each asserting rejection with the expected error path. These fixtures live under `tests/content/` and never touch the network. **Done in M1.7:** `tests/content/hostile_packs.test.ts`, 17 attacks plus a passing baseline.
 - **A source-policy table test** (M2): allowed and rejected URLs, including custom-domain Pages redirects, ports, userinfo, `http:`, and lookalike hosts (for example `github.io.evil.example`).
-- **A rendering guard** (M1): a test or lint check that fails on `v-html` or `innerHTML` bound to content-derived values.
-- **Determinism guard** (M1–M3): existing determinism tests and new golden replay tests stay green with no expectation changes.
+- **A rendering guard** (M1): a test or lint check that fails on `v-html` or `innerHTML` bound to content-derived values. **Done in M1.6:** `tests/ui/no_markup_injection.test.ts`.
+- **Determinism guard** (M1–M3): existing determinism tests and new golden replay tests stay green with no expectation changes. During M1 this was checked by comparing a fixed-seed audit report against `main` after every engine-touching slice (always byte-identical).

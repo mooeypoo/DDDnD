@@ -1,6 +1,6 @@
 # Community Content Packs
 
-Status: In progress. M1 has started (see section 11). This file is the journal and plan for the feature.  
+Status: In progress. M1 (harden the content boundary) is complete; M2 is next. See section 11. This file is the journal and plan for the feature.  
 Audience: future-us, other agents, and later writing (talk, blog posts, the public docs site)  
 Decisions: [docs/adr/](adr/README.md) (ADRs 0001–0006)  
 Threat model: [docs/CONTENT_PACKS_SECURITY.md](CONTENT_PACKS_SECURITY.md)  
@@ -483,3 +483,61 @@ Unit tests can't see a CSP, so we checked it in a real browser:
 **Result: zero CSP violations and zero console errors across all of it.** As a side effect, this was also the first end-to-end check of M1.1–M1.4 in a real browser: every quest and the tutorial loaded through the validated, pack-scoped pipeline.
 
 **Follow-ups noted:** Trusted Types (`require-trusted-types-for 'script'`) would turn the rendering guard into a browser-enforced rule. It needs the one `v-html` replaced with components first. Making the browser check a permanent CI job would need Playwright as a dev dependency, which is worth considering when M2 adds a real network path.
+
+### M1.7: The hostile-pack suite (2026-11-21)
+
+`tests/content/hostile_packs.test.ts` is the acceptance test for M1. It starts from a small, valid community `extension` pack (a facilitator's "Payments Monolith" built on base scores) and writes it to disk. It then runs it through the whole pipeline next to the real base pack: manifest validation → registry ownership → scoped provider → bundle build (bounded read and schema per file) → bundle validation.
+
+The baseline passes. Then 17 variants each apply one attack or mistake, and each is stopped at the stage and with the message an author would need:
+
+| Threat | Attack | Stopped at |
+|---|---|---|
+| T2 | `javascript:` author URL | manifest |
+| T3 | inventory filename `../../../etc/passwd-v1.json` | manifest |
+| T3 | `base_url` with `..` | manifest |
+| T3 | content ref id `../../secrets` | bundle build (schema) |
+| T4 | `"__proto__"` key in starting scores | bundle build (schema) |
+| T4 | `constructor` as a score id | bundle build (schema) |
+| T5 | `max_turns: 1000000000` | bundle build (schema) |
+| T5 | `delta: 1e999` (parses to Infinity) | bundle build (schema) |
+| T5 | 100 KB card file | bundle build (byte cap) |
+| T6 | shipping its own `define_bounded_context-v1.json` | registry (ownership) |
+| T6 | naming itself `base` | registry (pack id) |
+| T7 | rule with only a prose condition | bundle build (schema) |
+| T7 | condition on an untracked score | bundle validation |
+| T7 | typo `stakehoder_changes` | bundle build (schema) |
+| T14 | `schema_version: 2` | manifest |
+| ADR 0004 | depends on base, licensed MIT | manifest |
+| scope | uses base content without declaring `depends_on` | bundle build (scope) |
+
+One case is deliberately different. **T1: a card named `<img src=x onerror=alert(1)>` passes validation.** Validation doesn't sanitize text, because there is nothing to sanitize: the text is never interpreted. The defense is that content is only ever rendered as text (the M1.6 rendering guard), with the CSP as a second wall. Rejecting angle brackets would be security theater, and it would also break legitimate content (`"Latency < 200ms"`).
+
+---
+
+### M1 summary: what "harden the content boundary" turned out to mean
+
+Seven slices, each shipped with tests and a journal entry:
+
+| Slice | Result |
+|---|---|
+| M1.1 | Every content file is validated by a strict, bounded schema; byte-capped reads; one loader shared by the game and every CLI script |
+| M1.2 | Manifests: `schema_version`, `kind`, safe filenames and URLs, entry points in the inventory, the ADR 0004 license rule |
+| M1.3 | One owner per content file; scenarios resolve only within their own pack and its dependencies |
+| M1.4 | Conditions are structured data; the engine no longer parses English |
+| M1.5 | Published JSON Schemas for editors, with a drift test |
+| M1.6 | Content Security Policy and a rendering guard, verified in a real browser |
+| M1.7 | Hostile-pack suite: 17 attacks stopped, 1 baseline passing |
+
+What held throughout:
+- **The base game did not change.** A fixed-seed audit report (5 scenarios × 20 runs × both bot policies) is byte-identical to `main` after every engine-touching slice.
+- **Tests went from 664 to 946.** No test was changed just to make it pass. Every changed test was either a fixture gaining a new required field, or an assertion of the old override behavior that ADR 0001 removes on purpose. Each is listed in its slice's entry.
+- **Bundle cost was +9.5 kB gzipped**, measured before choosing the API (ADR 0007).
+
+What we learned that the plan did not predict:
+1. "Use Zod, not Ajv, because of CSP" was half right: Zod needs `jitless` too.
+2. Validation libraries make choices for you: Zod silently drops `__proto__` keys and ships no English messages in `zod/mini`. Both pushed us toward explicit, author-facing errors, which is what Pack Studio will need anyway.
+3. Three reaction rules were silently dead in one scenario. Real data found it before any author did.
+4. The first-party inventories didn't overlap at all, which made "one owner per file, for everyone" possible. That is a stricter and simpler rule than the planned "community packs can't override".
+5. The docs had an example that broke the new rules. They are now tested.
+
+**Next: M2**, where the game actually loads a pack: source allowlist, consent screen, pack manager, bundle-file import, pack identity in saves, the seeded cast (ADR 0002), and the demo pack.
