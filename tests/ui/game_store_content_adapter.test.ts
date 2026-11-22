@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 import type { ContentPackManifest } from '@/domains/content/model'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
+import { packKeyOf } from '@/domains/content/services/pack_identity'
 import { createGameStoreContentAdapter } from '@/ui/stores/game_store_content_adapter'
 
 function buildManifest(id: string): ContentPackManifest {
@@ -86,7 +87,7 @@ describe('game_store_content_adapter', () => {
     expect(contentPackRegistry.value).not.toBeNull()
   })
 
-  it('creates a merged provider after loading manifests', async () => {
+  it('creates the game-wide provider after loading manifests', async () => {
     const contentPackRegistry = ref<ContentPackRegistry | null>(null)
     const externalManifestUrls = ref<string[]>([])
 
@@ -98,7 +99,7 @@ describe('game_store_content_adapter', () => {
       },
     )
 
-    const provider = await adapter.getMergedContentProvider()
+    const provider = await adapter.getGameWideContentProvider()
 
     expect(provider).toMatchObject({
       loadScenario: expect.any(Function),
@@ -142,10 +143,11 @@ describe('community packs in the content adapter (M2.5)', () => {
     expect(communityPacks.value.map((pack) => pack.manifest.id)).toEqual(['gilded_ledger'])
 
     const scenarioRef = { id: 'ledger_payments_monolith', version: 1 }
-    const provider = await adapter.getScenarioContentProvider(scenarioRef)
+    const key = packKeyOf(snapshot)
+    const provider = await adapter.getPackContentProvider(key)
     await expect(provider.loadScenario(scenarioRef)).resolves.toMatchObject({ name: 'The Gilded Ledger' })
-    expect(adapter.findCommunityPackForScenario(scenarioRef)?.manifest.id).toBe('gilded_ledger')
-    expect(adapter.findCommunityPackForScenario({ id: 'monolith_of_mild_despair', version: 2 })).toBeNull()
+    expect(adapter.findCommunityPack(key)?.manifest.id).toBe('gilded_ledger')
+    expect(adapter.findCommunityPack('dddnd:base')).toBeNull()
   })
 
   it('refuses a pack that would replace first-party content, and changes nothing', async () => {
@@ -184,10 +186,10 @@ describe('community packs in the content adapter (M2.5)', () => {
     const { demoPackSnapshot } = await import('../content/support/demo_pack')
     const { adapter, communityPacks } = await createAdapter()
     const demo = await demoPackSnapshot()
-    const other = { ...demo, manifest: { ...demo.manifest, id: 'other_pack' } }
+    const other = { ...demo, origin: { kind: 'remote' as const, manifest_url: 'https://raw.githubusercontent.com/someone/packs/v1.0.0/x/manifest.json', pinning: 'release_tag' as const } }
     communityPacks.value = [demo, other]
 
-    await adapter.removeCommunityPack('gilded_ledger')
+    await adapter.removeCommunityPack(packKeyOf(demo))
     expect(communityPacks.value).toEqual([other])
   })
 })
@@ -226,7 +228,7 @@ describe('keeping community packs between visits (M2.6)', () => {
     expect(nextVisit.communityPacks.value[0].origin).toEqual(remote.origin)
 
     await nextVisit.adapter.loadContentPacks()
-    expect(nextVisit.adapter.describeScenarioPack({ id: 'ledger_payments_monolith', version: 1 })).toEqual({
+    expect(nextVisit.adapter.describePack('github:mooeypoo/dddnd-packs/packs/gilded_ledger')).toEqual({
       key: 'github:mooeypoo/dddnd-packs/packs/gilded_ledger',
       id: 'gilded_ledger',
       version: '1.0.0',
@@ -234,7 +236,7 @@ describe('keeping community packs between visits (M2.6)', () => {
       content_hash: remote.content_hash,
       source_url: remote.origin.manifest_url,
     })
-    expect(nextVisit.adapter.describeScenarioPack({ id: 'monolith_of_mild_despair', version: 2 })).toEqual({ key: 'dddnd:base', id: 'base', version: '1.0.0', origin: 'first_party' })
+    expect(nextVisit.adapter.describePack('dddnd:base')).toEqual({ key: 'dddnd:base', id: 'base', version: '1.0.0', origin: 'first_party' })
   })
 
   it('re-validates stored packs: one that no longer passes is left out and reported', async () => {
@@ -262,13 +264,14 @@ describe('keeping community packs between visits (M2.6)', () => {
     const { demoPackSnapshot } = await import('../content/support/demo_pack')
     const store = createMemoryCommunityPackStore(true)
     const visit = await adapterWithStore(store)
-    await visit.adapter.addCommunityPack(await demoPackSnapshot())
-    await visit.adapter.removeCommunityPack('gilded_ledger')
+    const snapshot = await demoPackSnapshot()
+    await visit.adapter.addCommunityPack(snapshot)
+    await visit.adapter.removeCommunityPack(packKeyOf(snapshot))
     expect(await store.list()).toEqual([])
   })
 })
 
-describe('same-named packs from different places (ADR 0012)', () => {
+describe('same-named packs from different places (ADR 0012, ADR 0014)', () => {
   const MINE = 'https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json'
   const THEIRS = 'https://raw.githubusercontent.com/someone-else/their-packs/v1.0.0/gilded_ledger/manifest.json'
 
@@ -292,27 +295,59 @@ describe('same-named packs from different places (ADR 0012)', () => {
     return { adapter, communityPacks, store, demo, from, demoPackSnapshot }
   }
 
-  it('reports a different pack with the same name as a replacement the player must see', async () => {
-    const { adapter, from } = await setup()
-    await adapter.addCommunityPack(from(MINE))
+  /** Someone else's pack, also called gilded_ledger, with its own text. */
+  async function theirs(from: (url: string, snapshot?: import('@/domains/content/model').PackSnapshot) => import('@/domains/content/model').PackSnapshot) {
+    const { demoPackSnapshot } = await import('../content/support/demo_pack')
+    const snapshot = await demoPackSnapshot((files) => {
+      const path = 'scenarios/ledger_payments_monolith-v1.json'
+      files[path] = files[path].replace('"name": "The Gilded Ledger"', '"name": "Their Ledger"')
+    })
+    return from(THEIRS, snapshot)
+  }
 
-    const replaced = adapter.findReplacedPacks(from(THEIRS))
-    expect(replaced).toHaveLength(1)
-    expect(replaced[0].same_pack).toBe(false)
-    expect(replaced[0].snapshot.origin).toMatchObject({ manifest_url: MINE })
-  })
-
-  it('adding the other pack replaces the first everywhere, including storage', async () => {
+  it('loads two packs with the same name side by side, each under its own key', async () => {
     const { adapter, communityPacks, store, from } = await setup()
     await adapter.addCommunityPack(from(MINE))
-    await adapter.addCommunityPack(from(THEIRS))
+    const other = await theirs(from)
 
-    expect(communityPacks.value.map((pack) => pack.origin)).toEqual([expect.objectContaining({ manifest_url: THEIRS })])
-    // Otherwise the first pack would come back on the next visit next to the second.
+    expect(adapter.findPackRelations(other)).toEqual({ replaces: null, same_name: [expect.objectContaining({ origin: expect.objectContaining({ manifest_url: MINE }) })] })
+    expect(await adapter.checkCommunityPack(other)).toEqual({ ok: true, issues: [] })
+    await adapter.addCommunityPack(other)
+
+    expect(communityPacks.value.map(packKeyOf)).toEqual([
+      'github:mooeypoo/dddnd-packs/packs/gilded_ledger',
+      'github:someone-else/their-packs/gilded_ledger',
+    ])
+    expect((await store.list()).map((stored) => stored.pack_key).sort()).toEqual([
+      'github:mooeypoo/dddnd-packs/packs/gilded_ledger',
+      'github:someone-else/their-packs/gilded_ledger',
+    ])
+  })
+
+  it('never mixes them up: each key resolves its own content, even with identical content ids', async () => {
+    const { adapter, from } = await setup()
+    await adapter.addCommunityPack(from(MINE))
+    await adapter.addCommunityPack(await theirs(from))
+    const ref = { id: 'ledger_payments_monolith', version: 1 }
+
+    const mine = await (await adapter.getPackContentProvider('github:mooeypoo/dddnd-packs/packs/gilded_ledger')).loadScenario(ref)
+    const other = await (await adapter.getPackContentProvider('github:someone-else/their-packs/gilded_ledger')).loadScenario(ref)
+    expect(mine.name).toBe('The Gilded Ledger')
+    expect(other.name).toBe('Their Ledger')
+    expect(adapter.describePack('github:someone-else/their-packs/gilded_ledger')).toMatchObject({ key: 'github:someone-else/their-packs/gilded_ledger', id: 'gilded_ledger' })
+  })
+
+  it('removing one keeps the other, here and in storage', async () => {
+    const { adapter, communityPacks, store, from } = await setup()
+    await adapter.addCommunityPack(from(MINE))
+    await adapter.addCommunityPack(await theirs(from))
+
+    await adapter.removeCommunityPack('github:mooeypoo/dddnd-packs/packs/gilded_ledger')
+    expect(communityPacks.value.map(packKeyOf)).toEqual(['github:someone-else/their-packs/gilded_ledger'])
     expect((await store.list()).map((stored) => stored.pack_key)).toEqual(['github:someone-else/their-packs/gilded_ledger'])
   })
 
-  it('stores two versions of the same pack as one entry', async () => {
+  it('a newer version of the same pack replaces it, and is stored as one entry', async () => {
     const { adapter, store, from, demoPackSnapshot } = await setup()
     await adapter.addCommunityPack(from(MINE))
     const newer = await demoPackSnapshot((files) => {
@@ -320,7 +355,7 @@ describe('same-named packs from different places (ADR 0012)', () => {
     })
     const next = from(MINE.replace('gilded_ledger-v1.0.0', 'gilded_ledger-v1.1.0'), newer)
 
-    expect(adapter.findReplacedPacks(next)).toEqual([expect.objectContaining({ same_pack: true })])
+    expect(adapter.findPackRelations(next)).toEqual({ replaces: expect.objectContaining({ content_hash: expect.any(String) }), same_name: [] })
     await adapter.addCommunityPack(next)
     expect(await store.list()).toEqual([expect.objectContaining({ pack_key: 'github:mooeypoo/dddnd-packs/packs/gilded_ledger', version: '1.1.0' })])
   })

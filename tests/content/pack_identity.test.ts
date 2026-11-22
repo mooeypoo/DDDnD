@@ -89,7 +89,7 @@ describe('pack keys (ADR 0012)', () => {
 })
 
 describe('community packs can only build on packs whose identity we control (ADR 0013)', () => {
-  const manifest = (id: string, ...deps: string[]) => ({ id, depends_on: deps.map((pack_id) => ({ pack_id, version: '1.0.0' })) })
+  const manifest = (id: string, ...deps: string[]) => ({ id, depends_on: deps.map((pack_id) => ({ pack_id, version: '1.0.0' })), classes: [], challenge_modifiers: [] })
 
   it('allows depending on the packs that ship with DDDnD', () => {
     expect(communityManifestIssues(manifest('gilded_ledger', 'base'))).toEqual([])
@@ -107,6 +107,13 @@ describe('community packs can only build on packs whose identity we control (ADR
     for (const id of ['base', 'tutorial']) {
       expect(communityManifestIssues(manifest(id))).toEqual([{ file: 'manifest.json', message: expect.stringMatching(/belongs to a pack that ships with DDDnD/) }])
     }
+  })
+
+  it('refuses game-wide choices: player classes and challenge modifiers (ADR 0014)', () => {
+    expect(communityManifestIssues({ ...manifest('gilded_ledger', 'base'), classes: [{ id: 'sneaky', version: 1 }] }))
+      .toEqual([{ file: 'manifest.json', message: expect.stringMatching(/^classes: community packs can't add player classes/) }])
+    expect(communityManifestIssues({ ...manifest('gilded_ledger', 'base'), challenge_modifiers: [{ id: 'sneaky', version: 1 }] }))
+      .toEqual([{ file: 'manifest.json', message: expect.stringMatching(/^challenge_modifiers: community packs can't add challenge modifiers/) }])
   })
 
   it('is enforced when any community pack is read, before its content is used', async () => {

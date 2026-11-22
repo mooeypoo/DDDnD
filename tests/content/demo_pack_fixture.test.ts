@@ -34,10 +34,10 @@ describe('demo pack: The Gilded Ledger', () => {
 
     const registry = new ContentPackRegistry()
     registry.registerPack(readManifest(BASE_ROOT), createFileContentProvider(BASE_ROOT))
-    registry.registerPack(manifest, createFileContentProvider(DEMO_ROOT))
+    const demoKey = registry.registerPack(manifest, createFileContentProvider(DEMO_ROOT))
 
     for (const ref of manifest.scenarios) {
-      const bundle = await buildScenarioBundle(ref.id, ref.version, registry.createScenarioProvider(ref))
+      const bundle = await buildScenarioBundle(ref.id, ref.version, registry.createScopedProvider(demoKey))
       expect(validateScenarioBundle(bundle).errors).toEqual([])
       expect([...bundle.cards.keys()]).toContain('define_bounded_context-v1')
       expect([...bundle.cards.keys()]).toContain('ledger_split_refunds_context-v1')
@@ -48,10 +48,10 @@ describe('demo pack: The Gilded Ledger', () => {
     const manifest = readManifest(DEMO_ROOT)
     const registry = new ContentPackRegistry()
     registry.registerPack(readManifest(BASE_ROOT), createFileContentProvider(BASE_ROOT))
-    registry.registerPack(manifest, createFileContentProvider(DEMO_ROOT))
+    const demoKey = registry.registerPack(manifest, createFileContentProvider(DEMO_ROOT))
 
     const ref = manifest.scenarios[0]
-    const bundle = await buildScenarioBundle(ref.id, ref.version, registry.createScenarioProvider(ref))
+    const bundle = await buildScenarioBundle(ref.id, ref.version, registry.createScopedProvider(demoKey))
     const present = new Set([...bundle.stakeholders.values()].map((stakeholder) => stakeholder.id))
     const targets = [
       ...[...bundle.cards.values()].flatMap((entity) => entity.stakeholder_changes ?? []),

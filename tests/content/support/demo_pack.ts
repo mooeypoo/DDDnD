@@ -48,7 +48,7 @@ export function readFirstPartyManifest(packId: 'base' | 'tutorial'): ContentPack
 export function createDiskBackedRegistry(): ContentPackRegistry {
   const registry = new ContentPackRegistry()
   const register = registry.registerPack.bind(registry)
-  registry.registerPack = (manifest: ContentPackManifest, provider?: ContentProvider) =>
-    register(manifest, provider ?? createFileContentProvider(FIRST_PARTY_ROOTS[manifest.id]))
+  registry.registerPack = (manifest: ContentPackManifest, provider?: ContentProvider, key?: string) =>
+    register(manifest, provider ?? createFileContentProvider(FIRST_PARTY_ROOTS[manifest.id]), key)
   return registry
 }

@@ -16,7 +16,10 @@ import type { VersionRef } from '@/domains/content/model'
  * Derived from the Scenario content type but selected/shaped for UI display.
  */
 export interface QuestDisplayModel {
-  // Identity
+  // Identity: a scenario is identified by its pack key AND its id+version
+  // (ADR 0014). Two packs may ship a scenario with the same id.
+  /** Key of the pack the scenario comes from (`dddnd:base`, `github:…`). */
+  packKey: string
   id: string
   version: number
   
@@ -42,7 +45,12 @@ export interface QuestDisplayModel {
    * Present when the scenario comes from a community pack (ADR 0001). The UI
    * labels such quests so players always know they are not first-party.
    */
-  communityPack?: { id: string; name: string }
+  communityPack?: {
+    /** The pack's name, as the pack states it. */
+    name: string
+    /** Who published it, from where it was loaded (ADR 0013). */
+    publisher: string
+  }
 
   // Tutorial metadata (only present for tutorial quests)
   isTutorial?: boolean
@@ -58,4 +66,17 @@ export function getQuestVersionRef(quest: QuestDisplayModel): VersionRef {
     id: quest.id,
     version: quest.version
   }
+}
+
+/** Stable identity of a quest: pack key plus scenario id and version. */
+export function questKey(quest: Pick<QuestDisplayModel, 'packKey' | 'id' | 'version'>): string {
+  return `${quest.packKey}|${quest.id}-v${quest.version}`
+}
+
+/** Whether two quests are the same scenario from the same pack. */
+export function isSameQuest(
+  a: Pick<QuestDisplayModel, 'packKey' | 'id' | 'version'> | null | undefined,
+  b: Pick<QuestDisplayModel, 'packKey' | 'id' | 'version'> | null | undefined,
+): boolean {
+  return Boolean(a && b && questKey(a) === questKey(b))
 }

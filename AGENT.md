@@ -74,6 +74,10 @@ UI code may call the engine and present results.
 
 UI code must not implement action resolution, event selection, stakeholder rule logic, or outcome classification logic.
 
+## A pack's worst case is unwanted text (primary rule)
+
+Community pack data must never reach code execution, markup, navigation, network requests, or asset loading, whoever published it: a hijacked repository or a pack pretending to be another included ([ADR 0014](docs/adr/0014-pack-keys-everywhere.md)). Any change that lets pack data do more than show text is a security bug. Inside the game, packs are identified only by their pack key (`dddnd:base`, `github:<owner>/<repo>/<folder>`, `file:sha256:…`), never by manifest id; scenarios are addressed as (pack key, id, version).
+
 ## Content is rendered as text, never as markup
 
 Content can come from community packs (see [docs/CONTENT_PACKS.md](docs/CONTENT_PACKS.md)). Render it with Vue interpolation only. Do not use `v-html`, `innerHTML`, or other markup sinks for anything derived from content. `tests/ui/no_markup_injection.test.ts` enforces this; its allow-list is for first-party constants only. The production Content Security Policy in `netlify.toml` blocks inline and evaluated scripts, so do not add any.

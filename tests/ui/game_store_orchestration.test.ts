@@ -8,8 +8,9 @@ vi.mock('@/ui/services/quest_loader', async () => {
   )
   return {
     ...actual,
-    loadQuestDisplayModels: vi.fn(async (scenarioRefs: Array<{ id: string; version: number }>) =>
+    loadQuestDisplayModels: vi.fn(async (scenarioRefs: Array<{ id: string; version: number }>, _provider: unknown, packKey: string) =>
       scenarioRefs.map((ref) => ({
+        packKey,
         id: ref.id,
         version: ref.version,
         name: `${ref.id} name`,
@@ -136,6 +137,7 @@ describe('game_store orchestration', () => {
     const store = useGameStore()
 
     await store.start_new_run({
+      pack_key: 'dddnd:base',
       scenario_id: 'monolith_of_mild_despair',
       scenario_version: 1,
       seed: 'store-seed-start'
@@ -159,8 +161,9 @@ describe('game_store orchestration', () => {
   it('reuses a scenario bundle the lobby already started loading', async () => {
     const store = useGameStore()
 
-    store.warm_scenario_bundle('monolith_of_mild_despair', 1)
+    store.warm_scenario_bundle('dddnd:base', 'monolith_of_mild_despair', 1)
     await store.start_new_run({
+      pack_key: 'dddnd:base',
       scenario_id: 'monolith_of_mild_despair',
       scenario_version: 1,
       seed: 'warm-seed',
@@ -174,6 +177,7 @@ describe('game_store orchestration', () => {
     const store = useGameStore()
 
     await store.start_new_run({
+      pack_key: 'dddnd:base',
       scenario_id: 'monolith_of_mild_despair',
       scenario_version: 1,
       seed: 'store-seed-play'
@@ -198,6 +202,7 @@ describe('game_store orchestration', () => {
     const store = useGameStore()
 
     await store.start_new_run({
+      pack_key: 'dddnd:base',
       scenario_id: 'monolith_of_mild_despair',
       scenario_version: 1,
       seed: 'store-seed-availability'
@@ -217,6 +222,7 @@ describe('game_store orchestration', () => {
     const store = useGameStore()
 
     await store.start_new_run({
+      pack_key: 'dddnd:base',
       scenario_id: 'monolith_of_mild_despair',
       scenario_version: 1,
       seed: 'store-seed-ui-state'

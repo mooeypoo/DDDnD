@@ -362,6 +362,8 @@ Planned boundary changes, recorded here so new work does not contradict them:
 - Stakeholder cast (`avatarRole`) and scene assignment are derived by the UI from the run seed, using a UI-local generator separate from the simulation's random stream. Content carries no presentation fields ([ADR 0002](docs/adr/0002-presentation-cast-decoupled-from-content.md)).
 - Remote sources are limited by an allowlist kept in the content domain ([ADR 0003](docs/adr/0003-remote-pack-source-allowlist.md)).
 - Pack Studio is a separate app. It may import `src/domains/*`, never `src/ui`. A new pure `authoring` domain owns the editing model ([ADR 0005](docs/adr/0005-pack-studio-as-separate-app.md)).
+- **Primary rule: a pack's worst case is unwanted text.** Pack data never reaches code execution, markup, navigation, network requests, or asset loading ([ADR 0014](docs/adr/0014-pack-keys-everywhere.md)).
+- **Identity is the pack key, derived from where a pack is published** ([ADR 0012](docs/adr/0012-pack-identity-from-source.md)). The registry, saves, storage, the lobby and run start all address packs by key and scenarios by (pack key, id, version). Content belongs to its pack: two packs may list the same file unless one depends on the other. Community packs depend only on first-party packs ([ADR 0013](docs/adr/0013-community-packs-depend-only-on-first-party.md)) and can't add game-wide choices (classes, challenge modifiers).
 
 ---
 

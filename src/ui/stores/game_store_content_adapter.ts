@@ -10,14 +10,17 @@ import { readPackBundle, writePackBundle } from '@/domains/content/services/pack
 import { firstPartyPackKey, packKeyOf } from '@/domains/content/services/pack_identity'
 import type { CommunityPackStore } from '@/domains/persistence/adapters/community_pack_store'
 
-interface ContentPackRegistryLike {
-  registerPack(manifest: ContentPackManifest, provider?: ContentProvider): void
-  getManifests(): ContentPackManifest[]
-  createMergedProvider(): ContentProvider
-  createScopedProvider(packId: string): ContentProvider
-  createScenarioProvider(scenarioRef: VersionRef): ContentProvider
-  findOwnerPackId(contentType: 'scenarios', ref: VersionRef): string | null
-}
+type ContentPackRegistryLike = Pick<
+  ContentPackRegistry,
+  | 'registerPack'
+  | 'getManifests'
+  | 'getPacks'
+  | 'getPack'
+  | 'getAvailableScenarios'
+  | 'getAvailableTutorials'
+  | 'createGameWideProvider'
+  | 'createScopedProvider'
+>
 
 interface ValueRef<T> {
   value: T
@@ -56,14 +59,14 @@ export interface CommunityPackCheck {
 }
 
 /**
- * A loaded pack that adding another one would replace (ADR 0012).
- * `same_pack`: the same pack key, so another version of the same pack.
- * Otherwise a different pack that happens to use the same manifest id: only
- * one of them can be loaded at a time, and the player must be told.
+ * How a pack being reviewed relates to packs already added (ADR 0014).
+ * - `replaces`: the same pack (same key), usually another version. Adding replaces it.
+ * - `same_name`: other packs with the same name from elsewhere. They stay;
+ *   the player is told so they can tell them apart.
  */
-export interface ReplacedPack {
-  snapshot: PackSnapshot
-  same_pack: boolean
+export interface PackRelations {
+  replaces: PackSnapshot | null
+  same_name: PackSnapshot[]
 }
 
 /**
@@ -114,8 +117,8 @@ export function createGameStoreContentAdapter(
           issue(check.issues.map((found) => `${found.file}: ${found.message}`).join('; '))
           continue
         }
-        const replaced = new Set(findReplacedPacks(snapshot).map((found) => found.snapshot))
-        communityPacks.value = [...communityPacks.value.filter((pack) => !replaced.has(pack)), snapshot]
+        const key = packKeyOf(snapshot)
+        communityPacks.value = [...communityPacks.value.filter((pack) => packKeyOf(pack) !== key), snapshot]
       } catch (error) {
         issue(error instanceof Error ? error.message : String(error))
       }
@@ -152,7 +155,8 @@ export function createGameStoreContentAdapter(
 
   /**
    * Builds a registry: first-party packs, then community packs in the order
-   * they were added. Throws on ownership conflicts (ADR 0001).
+   * they were added, each under its pack key (ADR 0014). Throws on ownership
+   * conflicts (ADR 0001).
    */
   async function buildRegistry(packs: PackSnapshot[]): Promise<ContentPackRegistryLike> {
     const registry = createRegistry()
@@ -160,7 +164,7 @@ export function createGameStoreContentAdapter(
       registry.registerPack(manifest)
     }
     for (const snapshot of packs) {
-      registry.registerPack(snapshot.manifest, createSnapshotContentProvider(snapshot))
+      registry.registerPack(snapshot.manifest, createSnapshotContentProvider(snapshot), packKeyOf(snapshot))
     }
     return registry
   }
@@ -180,40 +184,50 @@ export function createGameStoreContentAdapter(
     state.contentPackRegistry.value = await buildRegistry(communityPacks.value)
   }
 
-  async function getMergedContentProvider(): Promise<ContentProvider> {
+  async function loadedRegistry(): Promise<ContentPackRegistryLike> {
     await loadContentPacks()
-
     if (!state.contentPackRegistry.value) {
       throw new Error('Content pack registry is unavailable after manifest loading')
     }
+    return state.contentPackRegistry.value
+  }
 
-    return state.contentPackRegistry.value.createMergedProvider()
+  /** Provider for game-wide choices (classes, challenge modifiers): first-party only. */
+  async function getGameWideContentProvider(): Promise<ContentProvider> {
+    return (await loadedRegistry()).createGameWideProvider()
   }
 
   /**
-   * Provider for building one scenario's bundle: limited to the pack that owns
-   * the scenario and the packs it depends on (ADR 0001).
+   * Provider for one pack's content: the pack and the packs it depends on
+   * (ADR 0001). Scenario bundles and quest cards are built with it.
    */
-  async function getScenarioContentProvider(scenarioRef: VersionRef): Promise<ContentProvider> {
-    await loadContentPacks()
-
-    if (!state.contentPackRegistry.value) {
-      throw new Error('Content pack registry is unavailable after manifest loading')
-    }
-
-    return state.contentPackRegistry.value.createScenarioProvider(scenarioRef)
+  async function getPackContentProvider(packKey: string): Promise<ContentProvider> {
+    return (await loadedRegistry()).createScopedProvider(packKey)
   }
 
   /**
-   * Loaded packs that adding this one would replace: the same pack (same key,
-   * any version), or a different pack with the same manifest id, since the
-   * registry holds only one pack per id (ADR 0012).
+   * The pack a run belongs to: the key recorded on the run, or, for runs saved
+   * before pack identity existed (always first-party), the first-party pack
+   * whose inventory lists the scenario.
    */
-  function findReplacedPacks(snapshot: PackSnapshot): ReplacedPack[] {
+  async function resolveRunPackKey(scenarioRef: VersionRef, recordedKey: string | undefined): Promise<string | null> {
+    if (recordedKey) return recordedKey
+    const registry = await loadedRegistry()
+    const filename = `${scenarioRef.id}-v${scenarioRef.version}.json`
+    const owner = registry.getPacks().find((pack) => pack.key.startsWith(firstPartyPackKey('')) && pack.manifest.content.scenarios.includes(filename))
+    return owner?.key ?? null
+  }
+
+  /**
+   * How a pack relates to the packs already added: the same pack it would
+   * replace (same key), and same-named packs from elsewhere, which stay.
+   */
+  function findPackRelations(snapshot: PackSnapshot): PackRelations {
     const key = packKeyOf(snapshot)
-    return communityPacks.value
-      .map((pack) => ({ snapshot: pack, same_pack: packKeyOf(pack) === key }))
-      .filter((found) => found.same_pack || found.snapshot.manifest.id === snapshot.manifest.id)
+    return {
+      replaces: communityPacks.value.find((pack) => packKeyOf(pack) === key) ?? null,
+      same_name: communityPacks.value.filter((pack) => packKeyOf(pack) !== key && pack.manifest.id === snapshot.manifest.id),
+    }
   }
 
   /**
@@ -222,22 +236,22 @@ export function createGameStoreContentAdapter(
    * screen is shown.
    */
   async function checkCommunityPack(snapshot: PackSnapshot): Promise<CommunityPackCheck> {
-    const replaced = new Set(findReplacedPacks(snapshot).map((found) => found.snapshot))
-    const others = communityPacks.value.filter((pack) => !replaced.has(pack))
+    const key = packKeyOf(snapshot)
+    const others = communityPacks.value.filter((pack) => packKeyOf(pack) !== key)
     let registry: ContentPackRegistryLike
     try {
       registry = await buildRegistry([...others, snapshot])
     } catch (error) {
       return { ok: false, issues: [{ file: 'manifest.json', message: (error as Error).message }] }
     }
-    const issues = await checkPackPlayable(registry, snapshot.manifest.id)
+    const issues = await checkPackPlayable(registry, key)
     return { ok: issues.length === 0, issues }
   }
 
   /**
-   * Adds a community pack after the player confirmed it, replacing what
-   * `findReplacedPacks` reported (the review showed it). Re-checks first;
-   * throws if the pack no longer fits.
+   * Adds a community pack after the player confirmed it, replacing the same
+   * pack (same key) if it was added before. Same-named packs from elsewhere
+   * stay. Re-checks first; throws if the pack no longer fits.
    *
    * Returns whether it was also kept on this device. Failing to store it never
    * blocks playing it this visit.
@@ -247,20 +261,17 @@ export function createGameStoreContentAdapter(
     if (!check.ok) {
       throw new Error(check.issues.map((issue) => `${issue.file}: ${issue.message}`).join('; '))
     }
-    const replaced = findReplacedPacks(snapshot).map((found) => found.snapshot)
+    const key = packKeyOf(snapshot)
     communityPacks.value = [
-      ...communityPacks.value.filter((pack) => !replaced.includes(pack)),
+      ...communityPacks.value.filter((pack) => packKeyOf(pack) !== key),
       snapshot,
     ]
     state.contentPackRegistry.value = null
 
     const store = getPackStore()
     if (!store) return { kept: false }
-    const key = packKeyOf(snapshot)
     try {
       const opened = await store
-      // A replaced pack with a different key would otherwise come back on the next visit.
-      await Promise.all(replaced.map(packKeyOf).filter((replacedKey) => replacedKey !== key).map((replacedKey) => opened.remove(replacedKey)))
       // Plain copies only: IndexedDB can't store Vue reactive proxies.
       await opened.put({
         pack_key: key,
@@ -280,39 +291,31 @@ export function createGameStoreContentAdapter(
   }
 
   /**
-   * Removes a community pack, here and from storage. Nothing else can depend
-   * on it: community packs may depend only on first-party packs (ADR 0013).
+   * Removes a community pack by key, here and from storage. Nothing else can
+   * depend on it: community packs may depend only on first-party packs (ADR 0013).
    */
-  async function removeCommunityPack(packId: string): Promise<void> {
-    const removed = communityPacks.value.filter((pack) => pack.manifest.id === packId)
-    communityPacks.value = communityPacks.value.filter((pack) => !removed.includes(pack))
+  async function removeCommunityPack(packKey: string): Promise<void> {
+    communityPacks.value = communityPacks.value.filter((pack) => packKeyOf(pack) !== packKey)
     state.contentPackRegistry.value = null
 
     const store = getPackStore()
     if (store) {
-      const opened = await store
-      await Promise.all(removed.map((pack) => opened.remove(packKeyOf(pack))))
+      await (await store).remove(packKey)
     }
   }
 
-  /**
-   * The community pack that owns a scenario, or null for first-party content.
-   */
-  function findCommunityPackForScenario(scenarioRef: VersionRef): PackSnapshot | null {
-    const ownerId = state.contentPackRegistry.value?.findOwnerPackId('scenarios', scenarioRef)
-    return communityPacks.value.find((pack) => pack.manifest.id === ownerId) ?? null
+  /** The added community pack with this key, or null (first-party or not added). */
+  function findCommunityPack(packKey: string | undefined): PackSnapshot | null {
+    if (!packKey) return null
+    return communityPacks.value.find((pack) => packKeyOf(pack) === packKey) ?? null
   }
 
   /**
-   * Identity of the pack that owns a scenario, recorded on a new run (M2.6).
-   * Requires the registry to be loaded (it is, once a bundle was built).
+   * Identity of a pack, recorded on a new run (M2.6). Requires the registry
+   * to be loaded (it is, once a bundle was built).
    */
-  function describeScenarioPack(scenarioRef: VersionRef): RunContentPack | undefined {
-    const registry = state.contentPackRegistry.value
-    const ownerId = registry?.findOwnerPackId('scenarios', scenarioRef)
-    if (!registry || !ownerId) return undefined
-
-    const community = communityPacks.value.find((pack) => pack.manifest.id === ownerId)
+  function describePack(packKey: string): RunContentPack | undefined {
+    const community = findCommunityPack(packKey)
     if (community) {
       return {
         key: packKeyOf(community),
@@ -323,8 +326,8 @@ export function createGameStoreContentAdapter(
         ...(community.origin.kind === 'remote' ? { source_url: community.origin.manifest_url } : {}),
       }
     }
-    const manifest = registry.getManifests().find((candidate) => candidate.id === ownerId)
-    return manifest ? { key: firstPartyPackKey(manifest.id), id: manifest.id, version: manifest.version, origin: 'first_party' } : undefined
+    const manifest = state.contentPackRegistry.value?.getPack(packKey)?.manifest
+    return manifest ? { key: packKey, id: manifest.id, version: manifest.version, origin: 'first_party' } : undefined
   }
 
   /**
@@ -347,15 +350,16 @@ export function createGameStoreContentAdapter(
     ensurePacksRestored,
     whyRunPackUnavailable,
     isPackStorePersistent,
-    describeScenarioPack,
+    describePack,
     setExternalManifestUrls,
     loadContentPacks,
-    getMergedContentProvider,
-    getScenarioContentProvider,
+    getGameWideContentProvider,
+    getPackContentProvider,
+    resolveRunPackKey,
     checkCommunityPack,
-    findReplacedPacks,
+    findPackRelations,
     addCommunityPack,
     removeCommunityPack,
-    findCommunityPackForScenario,
+    findCommunityPack,
   }
 }

@@ -90,9 +90,12 @@ export interface CommunityManifestIssue {
  * Identity rules for community packs (ADR 0013), checked when a community
  * pack's manifest is read, before any content is fetched:
  * - it may not use the id of a pack that ships with DDDnD;
- * - it may depend only on packs that ship with DDDnD.
+ * - it may depend only on packs that ship with DDDnD;
+ * - it may not offer game-wide choices (player classes, challenge modifiers).
  */
-export function communityManifestIssues(manifest: Pick<ContentPackManifest, 'id' | 'depends_on'>): CommunityManifestIssue[] {
+export function communityManifestIssues(
+  manifest: Pick<ContentPackManifest, 'id' | 'depends_on' | 'classes' | 'challenge_modifiers'>,
+): CommunityManifestIssue[] {
   const firstParty = FIRST_PARTY_PACK_IDS.join(', ')
   const issues: CommunityManifestIssue[] = []
   if (FIRST_PARTY_PACK_IDS.includes(manifest.id)) {
@@ -106,6 +109,14 @@ export function communityManifestIssues(manifest: Pick<ContentPackManifest, 'id'
           `Community packs can build only on DDDnD's own packs (${firstParty}) for now, because a pack id doesn't prove which pack it is.`,
       })
     }
+  }
+  // Player classes and challenge modifiers are game-wide choices offered for
+  // every scenario, so they come only from packs that ship with DDDnD (ADR 0014).
+  if (manifest.classes.length > 0) {
+    issues.push({ file: 'manifest.json', message: 'classes: community packs can\'t add player classes yet; leave "classes" empty.' })
+  }
+  if ((manifest.challenge_modifiers ?? []).length > 0) {
+    issues.push({ file: 'manifest.json', message: 'challenge_modifiers: community packs can\'t add challenge modifiers yet; leave "challenge_modifiers" empty.' })
   }
   return issues
 }

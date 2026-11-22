@@ -90,9 +90,10 @@ function describeOrigin(snapshot: PackSnapshot): PackReview['origin'] {
   }
 }
 
-function describePublisher(snapshot: PackSnapshot): PackReview['publisher'] {
+/** Who published a pack, from where it was loaded (ADR 0013). Also used for lobby and play labels. */
+export function describePackPublisher(snapshot: PackSnapshot): PackReview['publisher'] {
   if (snapshot.origin.kind === 'file') {
-    return { label: 'Unknown: it was loaded from a file', verified: false }
+    return { label: 'unknown (loaded from a file)', verified: false }
   }
   const check = checkPackSourceUrl(snapshot.origin.manifest_url)
   if (!check.ok) {
@@ -124,7 +125,7 @@ export function buildPackReview(snapshot: PackSnapshot): PackReview {
     kindLabel: manifest.kind === 'extension' ? `Builds on ${dependencies.join(' and ')}` : 'A standalone world with its own rules',
     license: manifest.license,
     authors: manifest.authors.map((author) => ({ name: author.name, link: toLink(author.url) })),
-    publisher: describePublisher(snapshot),
+    publisher: describePackPublisher(snapshot),
     homepage: toLink(manifest.pack_homepage_url),
     origin: describeOrigin(snapshot),
     privacyNote: snapshot.origin.kind === 'remote'

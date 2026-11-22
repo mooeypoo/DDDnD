@@ -18,6 +18,7 @@ interface ValueRef<T> {
 }
 
 export interface RunSetupOptionsLike {
+  pack_key: string
   scenario_id: string
   scenario_version: number
   selected_class_ref?: VersionRef
@@ -49,9 +50,11 @@ interface RunLifecycleState {
 }
 
 interface RunLifecycleDependencies {
-  getMergedContentProvider: () => Promise<ContentProvider>
+  /** Provider for game-wide choices (classes, challenge modifiers). */
+  getGameWideContentProvider: () => Promise<ContentProvider>
   /** Builds the scenario bundle with a provider scoped to the scenario's pack. */
   buildScenarioBundle: (
+    packKey: string,
     scenarioId: string,
     scenarioVersion: number,
   ) => Promise<ScenarioBundle>
@@ -62,8 +65,8 @@ interface RunLifecycleDependencies {
   shouldOpenIntroBriefing?: () => boolean
   /** Called once a tutorial run reaches its ending. */
   onTutorialCompleted?: () => void
-  /** Identity of the pack that owns the scenario, stored on the run (M2.6). */
-  describeScenarioPack?: (scenarioRef: { id: string; version: number }) => RunContentPack | undefined
+  /** Identity of the pack the scenario comes from, stored on the run (M2.6). */
+  describePack?: (packKey: string) => RunContentPack | undefined
 }
 
 /**
@@ -93,7 +96,7 @@ export function createGameStoreRunLifecycleCoordinator(
     state.isLoadingBundle.value = true
 
     try {
-      const provider = await deps.getMergedContentProvider()
+      const provider = await deps.getGameWideContentProvider()
 
       // Class and modifier files are tiny next to the scenario bundle, and
       // they do not depend on it. Load them in the same wait.
@@ -101,6 +104,7 @@ export function createGameStoreRunLifecycleCoordinator(
       const classRef = options.selected_class_ref
       const [bundle, challengeModifier, playerClass] = await Promise.all([
         deps.buildScenarioBundle(
+          options.pack_key,
           options.scenario_id,
           options.scenario_version,
         ),
@@ -123,7 +127,7 @@ export function createGameStoreRunLifecycleCoordinator(
         challengeModifier ? { challenge_modifier: challengeModifier } : undefined,
       )
 
-      const contentPack = deps.describeScenarioPack?.({ id: options.scenario_id, version: options.scenario_version })
+      const contentPack = deps.describePack?.(options.pack_key)
       if (contentPack) {
         initialState.meta.content_pack = contentPack
       }

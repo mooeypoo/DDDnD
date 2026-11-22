@@ -23,7 +23,7 @@ import { buildContentAuditReport } from '../src/domains/simulation/services/audi
 import { buildScenarioBundle } from '../src/domains/content/services/bundle_builder.js'
 import { createFileContentProvider } from './lib/file_content_provider.js'
 import { ContentPackRegistry } from '../src/domains/content/services/content_pack_registry.js'
-import { communityManifestIssues } from '../src/domains/content/services/pack_identity.js'
+import { communityManifestIssues, firstPartyPackKey } from '../src/domains/content/services/pack_identity.js'
 import type { ContentProvider } from '../src/domains/content/services/content_provider.js'
 
 interface VersionedEntity {
@@ -160,7 +160,7 @@ async function createPackScopedProvider(
   }
 
   await registerWithDependencies(manifest, contentRoot)
-  return registry.createScopedProvider(manifest.id)
+  return registry.createScopedProvider(firstPartyPackKey(manifest.id))
 }
 
 async function main() {

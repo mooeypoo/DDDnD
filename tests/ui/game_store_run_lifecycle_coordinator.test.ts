@@ -93,7 +93,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
     })
 
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getMergedContentProvider: vi.fn(async () => provider),
+      getGameWideContentProvider: vi.fn(async () => provider),
       buildScenarioBundle: vi.fn(async () => bundle),
       initializeEngine,
       persistRunState,
@@ -101,6 +101,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
     })
 
     await coordinator.startNewRun({
+      pack_key: 'dddnd:base',
       scenario_id: 'scenario_a',
       scenario_version: 1,
       selected_class_ref: { id: 'boundary_mage', version: 1 },
@@ -142,7 +143,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
       }
 
       const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-        getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+        getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
         buildScenarioBundle: vi.fn(async () => bundle),
         initializeEngine: vi.fn(() => {
           state.engine.value = engine
@@ -154,6 +155,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
       })
 
       await coordinator.startNewRun({
+        pack_key: 'dddnd:base',
         scenario_id: 'scenario_a',
         scenario_version: 1,
         is_tutorial: isTutorial,
@@ -188,7 +190,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
 
     const onTutorialCompleted = vi.fn()
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState: vi.fn(),
@@ -225,7 +227,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
     }
 
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState: vi.fn(),
@@ -267,7 +269,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
     const persistRunState = vi.fn()
 
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState,
@@ -309,7 +311,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
     }
 
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState: vi.fn(),
@@ -344,7 +346,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
 
     const persistRunState = vi.fn()
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState,
@@ -384,7 +386,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
     })
 
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getMergedContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState: vi.fn(),

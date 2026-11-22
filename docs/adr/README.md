@@ -28,3 +28,4 @@ An ADR captures one decision: the context that forced it, what we chose, what we
 | [0011](0011-reusable-pack-validation-workflow.md) | Pack authors validate with a reusable workflow published from DDDnD | Accepted | 2026-11-22 |
 | [0012](0012-pack-identity-from-source.md) | A pack's identity comes from where it is published, not from its manifest id | Accepted | 2026-11-22 |
 | [0013](0013-community-packs-depend-only-on-first-party.md) | Community packs may depend only on first-party packs | Accepted | 2026-11-22 |
+| [0014](0014-pack-keys-everywhere.md) | The game identifies packs and their content only by pack key, and a pack's worst case is unwanted text | Accepted | 2026-11-22 |

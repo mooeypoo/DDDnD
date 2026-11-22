@@ -287,7 +287,8 @@ Threads worth telling, with where they are recorded:
 - **"Make the implicit explicit."** DDD knowledge hidden in engine constants and in English sentences. (§4.4)
 - **"A second domain is the only real test of generality."** The SRE pack as an acceptance test. (ADR 0006, M3)
 - **"Writing a pack is domain modeling."** Pack creation as a workshop exercise. (§2)
-- **"A name is not an identity."** Pack ids were quietly used as identities until review asked what happens when two authors pick the same name. Identity moved to where a pack is published, owned by the trust context. The textbook attribute-vs-entity distinction, found in the wild. (M2.7, ADR 0012)
+- **"The worst case is text."** One rule that every feature must keep, and that makes repo-jacking and pretenders survivable. (M2.9, ADR 0014)
+- **"A name is not an identity."** Pack ids were quietly used as identities until review asked what happens when two authors pick the same name. Identity moved to where a pack is published, owned by the trust context: first for what persists, then for dependencies, then for everything that runs (and content ids, via squatting). The textbook attribute-vs-entity distinction, found in the wild three times. (M2.7–M2.9, ADR 0012–0014)
 - **The context map** in §4.3 works as a slide.
 
 ---
@@ -920,7 +921,7 @@ They also asked whether always-unique ids would mitigate T15. The honest answer 
 - **The author CLI applies the same function** to any pack that isn't one of ours, validated from our own folder. So the reusable workflow catches it in the author's CI, with the same message the game would give. `--dependency-root` / `dependency-roots` stay (the workflow input is published in `pack-validator-v1`), and now only stand in for a first-party pack.
 - **The removal cascade is deleted.** It removed community packs that depended on the removed one. Nothing can depend on a community pack now, so that was dead code. It is deleted rather than left looking meaningful.
 - **The review shows the publisher.**
-  - A new "Published by" row comes first: "mooeypoo on GitHub (mooeypoo/DDDnD-packs)", taken from the URL. For a file it shows "Unknown: it was loaded from a file".
+  - A new "Published by" row comes first: "mooeypoo on GitHub (mooeypoo/DDDnD-packs)", taken from the URL. For a file it shows "unknown (loaded from a file)".
   - It carries the note "The account it was loaded from. Names below are written by the pack itself."
   - "Made by" became "Credits".
   - The added-packs list shows the publisher instead of the pinning label.
@@ -948,3 +949,73 @@ This is about where trust may come from inside a model. An attribute (the id) is
   - the demo pack, `base`, and `tutorial` still pass;
   - a copy of the demo depending on `alice_core` is refused with exit code 1 and the same message the game gives.
 - **Headless Chrome:** the review shows "Published by" for a GitHub pack and "Unknown" for a file; the added list shows the publisher.
+
+### M2.9: Packs are known only by their key, and their worst case is text (2026-11-22)
+
+Behind the flag (ADR 0009). Decision recorded in [ADR 0014](adr/0014-pack-keys-everywhere.md).
+
+**How it came up**
+
+After M2.8, the project owner restated the goal more sharply than the code met it. Names may repeat; the identity the *system* uses must be unique and come from details that can't be duplicated. Players can see two packs called `gilded_ledger`, with where each comes from, but the game must never mix them up.
+
+An audit showed where we stood:
+
+- **Saves, storage and dependencies** already used keys.
+- **The running session did not.** The registry was keyed by manifest id, content files belonged to "the pack with that id", and the lobby picked scenarios by `(id, version)`. It was safe only because of the M2.7 rule that kept one pack per name loaded, so correctness rested on an invariant rather than on identity.
+
+The owner also set the primary rule: even repo-jacking or a pretender pack must never be able to *do* anything to the player. Seeing unwanted text is the worst acceptable case.
+
+And they asked about "content-id squatting", which I had listed as a minor risk. Today a content file belongs to whichever pack listed it first, so a pack that copies your card ids blocks yours from loading. The answer was the same move one level down: content belongs to its pack's key, not to a global space.
+
+**What changed**
+
+- **Registry (content domain).**
+  - Packs are registered and found by key; `registerPack(manifest, provider, key)` returns the key, and unkeyed packs are first-party (`dddnd:<id>`).
+  - Each pack keeps its own file set. Two packs may list the same file unless one depends on the other, or both are first-party.
+  - Scope resolution walks dependencies to `dddnd:<id>`, so a community pack named `base` can't satisfy a dependency even if it gets past the boundary checks.
+  - `getAvailableScenarios` and `getAvailableTutorials` return `{ pack_key, ref }`.
+  - The merged provider is gone. `createGameWideProvider` (first-party only) serves player classes and challenge modifiers, and `createScopedProvider(key)` serves everything else.
+  - `findOwnerPackId` and `createScenarioProvider` are gone: nothing asks "who owns this scenario id?" any more.
+- **Boundary.** `communityManifestIssues` also refuses community `classes` and `challenge_modifiers`. They are game-wide choices, and the demo has none.
+- **UI.**
+  - `QuestDisplayModel.packKey`, with `questKey` and `isSameQuest` for comparing quests.
+  - `RunSetupOptions.pack_key`, and a bundle cache keyed by `packKey|id-vN`.
+  - Restoring a save uses `meta.content_pack.key`. Saves from before pack identity are always first-party, so they fall back to the first-party pack that lists the scenario.
+  - Quest cards are loaded per pack with that pack's scoped provider.
+  - Adding a pack replaces only the same key. The review names same-named packs from elsewhere: "You also have another pack called …, published by …. Both stay added."
+  - Removal is by key.
+- **The publisher everywhere.** It is shown on the lobby badge tooltip, the table line ("Community pack: … · published by …"), and the in-game label, in addition to the review and the list. For a file it reads "unknown (loaded from a file)".
+- **Warnings.**
+  - The review banner now reads "From a source DDDnD hasn't reviewed: `<publisher>`. Packs can't run code or reach your device … The worst a pack can do is show you text you didn't expect."
+  - Pack-supplied links (author, homepage) have a tooltip and a visible note: "The links above come from the pack and lead to sites DDDnD doesn't know. Use caution."
+- **Rules written down.** AGENT.md has a new primary rule section, ARCHITECTURE.md lists the identity and worst-case rules, and the threat model updates T1, T8 and T15, adds T16 (squatting, closed), and adds the non-goal "a compromised official repository".
+
+**Decisions and trade-offs**
+
+1. **No filtering of URLs or HTML in text.** The owner's call: once nothing is rendered as markup and nothing is clickable, a URL or `mailto:` in text is visible and inert. Filtering would mostly block ordinary sentences ("the site example.com just died").
+2. **Plain text only, no formatting.** If emphasis is ever added, it has to come from our own tiny parser that builds elements, never HTML and never links.
+3. **Author and homepage links stay,** with a visible caution, so authors can be credited.
+4. **Repo-jacking is accepted as text-only damage.** The key names a location, and a location can change hands. The primary rule bounds the harm, saves still pin the content hash, and the banner always says the source isn't reviewed. Closing it fully would need GitHub's numeric repository ids, which only the API provides.
+5. **Same content from two places is two packs.** For example, the demo added from GitHub and from its file both appear, with different publishers. That's the principle applied consistently.
+
+**DDD note (talk material)**
+
+M2.7 to M2.9 is one lesson at three depths: what persists, what depends, and what runs. In each place, a name the outside world chose had been quietly doing an identity's job. The fix was the same each time: the identity comes from the context that owns the trust (where a pack is published), and names go back to being labels for people. Squatting was the tell that content ids had the same problem as pack ids.
+
+**Verification**
+
+- **Unit tests** (+7 net, 1035 total):
+  - registry: two same-named packs with identical content ids registered side by side, each resolving only its own content; a duplicate key refused; shadowing a dependency's file still refused; a community pack calling itself `base` can't satisfy a dependency; game-wide classes from first-party only;
+  - adapter: two `gilded_ledger`s added side by side and stored under both keys; each key resolves its own scenario text; removing one keeps the other; a newer version of the same key replaces it;
+  - boundary: community classes and challenge modifiers refused;
+  - review: the "replaces" and "both stay" notes.
+  - Tests that encoded the old one-pack-per-name behavior were rewritten rather than kept: replacement by name no longer exists. Everything else moved to the key-based APIs.
+- **Determinism:** a fixed-seed audit report is identical to `main`, so first-party bundles resolve exactly as before.
+- **Headless Chrome, real GitHub, real IndexedDB:**
+  1. Add the demo from its tag, then from its file. The review says "You also have another pack called … published by mooeypoo on GitHub … Both stay added". Storage holds both keys.
+  2. The lobby shows two Gilded Ledger quests, badged "published by mooeypoo on GitHub (mooeypoo/DDDnD-packs)" and "published by unknown (loaded from a file)".
+  3. Play the file copy. The save carries `file:sha256:90fae984…`, and the play label names the publisher.
+  4. Reload mid-run: the run resumes with the same pack.
+  5. Remove the GitHub copy: storage keeps only the file key, and `/game` still resumes the run.
+
+  No console errors.

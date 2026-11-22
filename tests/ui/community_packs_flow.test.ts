@@ -60,7 +60,7 @@ describe('community pack review (the consent screen)', () => {
   it('says the publisher of a file is unknown, whatever its credits claim', async () => {
     const review = buildPackReview(await demoPackSnapshot())
     expect(review.authors[0].name).toBe('Moriel Schottlender')
-    expect(review.publisher).toEqual({ label: 'Unknown: it was loaded from a file', verified: false })
+    expect(review.publisher).toEqual({ label: 'unknown (loaded from a file)', verified: false })
   })
 
   it('reassures for pinned links', async () => {
@@ -138,45 +138,37 @@ describe('community packs flow', () => {
   })
 })
 
-describe('replacing an added pack (ADR 0012)', () => {
+describe('what the review says about packs already added (ADR 0014)', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
   })
 
-  async function reviewWith(replaced: Array<{ snapshot: PackSnapshot; same_pack: boolean }>) {
+  async function reviewWith(relations: { replaces: PackSnapshot | null; same_name: PackSnapshot[] }) {
     const store = useGameStore()
     vi.spyOn(store, 'check_community_pack').mockResolvedValue({ ok: true, issues: [] })
-    vi.spyOn(store, 'find_replaced_community_packs').mockReturnValue(replaced)
+    vi.spyOn(store, 'find_community_pack_relations').mockReturnValue(relations)
     const flow = useCommunityPacks({ loadRemote: vi.fn().mockResolvedValue(await demoPackSnapshot()) })
     await flow.loadFromUrl(`${RAW}/gilded_ledger-v1.1.0/packs/gilded_ledger/manifest.json`)
     return flow
   }
 
-  it('says nothing when nothing is replaced', async () => {
-    expect((await reviewWith([])).replacing.value).toEqual([])
+  it('says nothing when the pack is new', async () => {
+    expect((await reviewWith({ replaces: null, same_name: [] })).relations.value).toEqual([])
   })
 
-  it('mentions calmly that an earlier version of the same pack is replaced', async () => {
-    const flow = await reviewWith([{ snapshot: await demoPackSnapshot(), same_pack: true }])
-    expect(flow.replacing.value).toEqual([expect.objectContaining({ tone: 'calm', message: 'Replaces the version you added before (v1.0.0).' })])
+  it('says it replaces the version added before (same pack)', async () => {
+    const flow = await reviewWith({ replaces: await demoPackSnapshot(), same_name: [] })
+    expect(flow.relations.value).toEqual([{ tone: 'calm', message: 'Replaces the version you added before (v1.0.0).' }])
   })
 
-  it('says when the same content is already added from somewhere else', async () => {
-    const other = withOrigin(await demoPackSnapshot(), { kind: 'remote', manifest_url: `${RAW}/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json`, pinning: 'release_tag' })
-    const flow = await reviewWith([{ snapshot: other, same_pack: false }])
-    expect(flow.replacing.value).toEqual([expect.objectContaining({ tone: 'caution', message: expect.stringMatching(/^The same content is already added from raw\.githubusercontent\.com/) })])
-  })
-
-  it('warns, before confirming, that a different pack with the same name will be removed, and where it came from', async () => {
+  it('tells same-named packs apart by publisher, and keeps both', async () => {
     const other = withOrigin(await demoPackSnapshot((files) => {
       files['manifest.json'] = files['manifest.json'].replace('"name": "Demo: The Gilded Ledger"', '"name": "Someone Else\'s Ledger"')
     }), { kind: 'remote', manifest_url: 'https://raw.githubusercontent.com/someone-else/their-packs/v1.0.0/gilded_ledger/manifest.json', pinning: 'release_tag' })
-    const flow = await reviewWith([{ snapshot: other, same_pack: false }])
+    const flow = await reviewWith({ replaces: null, same_name: [other] })
     expect(flow.phase.value).toBe('review')
-    expect(flow.replacing.value).toHaveLength(1)
-    expect(flow.replacing.value[0].tone).toBe('caution')
-    expect(flow.replacing.value[0].message).toMatch(/different pack also named “gilded_ledger”/)
-    expect(flow.replacing.value[0].message).toMatch(/raw\.githubusercontent\.com\/someone-else\/their-packs/)
-    expect(flow.replacing.value[0].message).toMatch(/adding this one removes it/)
+    expect(flow.relations.value).toHaveLength(1)
+    expect(flow.relations.value[0].message).toMatch(/published by someone-else on GitHub \(someone-else\/their-packs\)/)
+    expect(flow.relations.value[0].message).toMatch(/Both stay added/)
   })
 })

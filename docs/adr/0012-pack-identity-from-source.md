@@ -2,6 +2,7 @@
 
 Status: Accepted  
 Date: 2026-11-22  
+Decision 6 superseded by: [ADR 0014](0014-pack-keys-everywhere.md) (same-named packs now load side by side)  
 Refined by: [ADR 0013](0013-community-packs-depend-only-on-first-party.md) (the `depends_on` consequence below)  
 Refines: [ADR 0001](0001-community-content-packs.md) (pack ids) and M2.6's "one version per pack id" (journal §11)  
 Feature journal: [docs/CONTENT_PACKS.md](../CONTENT_PACKS.md)

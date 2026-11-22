@@ -119,7 +119,7 @@
         class="community-run-label"
         :title="`This scenario comes from a community pack, not from DDDnD`"
       >
-        Community pack · {{ gameStore.activeCommunityPack.manifest.name }}
+        Community pack · {{ gameStore.activeCommunityPack.manifest.name }} · {{ activeCommunityPublisher }}
       </p>
 
       <WeatherStrip
@@ -270,6 +270,7 @@ import { diffHandCards, peekConsultDrawId, type ArchiveReplaceOffer } from '@/ui
 import { buildAnnalsTurns } from '@/ui/play/turn_theater'
 import { remainingTurns } from '@/ui/play/weather_band'
 import { questDisplayFromBundle } from '@/ui/services/quest_loader'
+import { describePackPublisher } from '@/ui/play/community_pack_review'
 import { useTurnTheater } from '@/ui/play/use_turn_theater'
 import { useCommitmentFlight } from '@/ui/play/use_commitment_flight'
 
@@ -371,8 +372,16 @@ const modifierScoreAdjustments = computed(() => {
 
 const turnsRemaining = computed(() => remainingTurns(gameStore.currentTurn, gameStore.maxTurns))
 
+/** Who published the community pack this run uses (ADR 0013), shown on the play label. */
+const activeCommunityPublisher = computed(() => {
+  const pack = gameStore.activeCommunityPack
+  return pack ? describePackPublisher(pack).label : ''
+})
+
 const playQuestBriefing = computed(() => {
-  return gameStore.scenarioBundle ? questDisplayFromBundle(gameStore.scenarioBundle) : null
+  return gameStore.scenarioBundle
+    ? questDisplayFromBundle(gameStore.scenarioBundle, gameStore.gameState?.meta.content_pack?.key ?? '')
+    : null
 })
 
 const currentScores = computed(() => gameStore.turnBriefing?.current_scores ?? {})
@@ -653,6 +662,7 @@ async function handleLaunchAnotherTutorial(tutorial: QuestDisplayModel) {
   }
 
   await gameStore.start_new_run({
+    pack_key: tutorial.packKey,
     scenario_id: tutorial.id,
     scenario_version: tutorial.version,
     selected_class_ref: {

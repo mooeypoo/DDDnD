@@ -1089,6 +1089,7 @@ async function handleLaunchAnotherTutorial(tutorial: QuestDisplayModel) {
   }
 
   await gameStore.start_new_run({
+    pack_key: tutorial.packKey,
     scenario_id: tutorial.id,
     scenario_version: tutorial.version,
     selected_class_ref: {

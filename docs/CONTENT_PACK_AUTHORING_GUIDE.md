@@ -221,13 +221,15 @@ The game loads remote packs only from GitHub: `raw.githubusercontent.com` and Gi
 
 ### A pack's identity is where it lives
 
-Your pack's `id` is its name, and other authors can use the same name. The game tells packs apart by **where they are published**: the GitHub owner, repository, and folder (`github:<owner>/<repo>/packs/<pack_id>`). The tag or commit is not part of it, so each new release is recognized as the same pack and replaces the older one for players.
+Your pack's `id` is its name, and other authors can use the same name. The game tells packs apart by **where they are published**: the GitHub owner, repository, and folder (`github:<owner>/<repo>/packs/<pack_id>`). The tag or commit is not part of it, so each new release is recognized as the same pack and replaces the older one for players. Another author's pack with the same `id` is a different pack: players can add both, and the game shows who published each.
 
 This means **moving a pack makes it a new pack** to the game. Renaming the repository, moving the pack's folder, or transferring the repository to another account all do this, and players' saved runs will ask for the old link. Pick a home for your pack and keep it there. A pack loaded from a `.dddnd-pack.json` file is identified by its exact content. See [ADR 0012](adr/0012-pack-identity-from-source.md).
 
 ### Naming your content ids
 
-Content ids are shared by every loaded pack, and a pack whose files collide with another pack's is refused. Prefix your ids with a short word unique to your pack. The demo pack uses `ledger_` (`ledger_split_refunds_context`).
+Your content ids (cards, scenarios, events…) belong to your pack: another pack using the same ids doesn't affect yours. They must not reuse an id the packs you build on (`base`, `tutorial`) already use, because your scenarios couldn't tell which one they meant. A short prefix keeps that easy and makes your files easy to recognize. The demo pack uses `ledger_` (`ledger_split_refunds_context`).
+
+Community packs can't add player classes or challenge modifiers yet (they are offered for every scenario in the game), so leave `classes` and `challenge_modifiers` empty.
 
 ### Reusing base content
 

@@ -30,6 +30,7 @@ type Story = StoryObj<typeof meta>
 // ── Mock data ──────────────────────────────────────────────────────────────
 
 const mockQuest: QuestDisplayModel = {
+  packKey: 'dddnd:base',
   id: 'monolith_of_mild_despair',
   version: 1,
   name: 'The Monolith of Mild Despair',
@@ -45,6 +46,7 @@ const mockQuest: QuestDisplayModel = {
 }
 
 const mockTutorial: QuestDisplayModel = {
+  packKey: 'dddnd:base',
   id: 'tutorial_basics',
   version: 1,
   name: 'The First Domain',
@@ -59,6 +61,7 @@ const mockTutorial: QuestDisplayModel = {
 }
 
 const mockTutorial2: QuestDisplayModel = {
+  packKey: 'dddnd:base',
   id: 'tutorial_advanced',
   version: 1,
   name: 'The Tangled Dependency',
@@ -132,6 +135,7 @@ export const QuestMinimal: Story = {
   name: 'Quest — Minimal (no optional fields)',
   args: {
     quest: {
+      packKey: 'dddnd:base',
       id: 'bare_quest',
       version: 1,
       name: 'The Lean Domain',

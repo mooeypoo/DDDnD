@@ -14,6 +14,7 @@ import { computed, ref } from 'vue'
 
 import type { PackSnapshot } from '@/domains/content/model'
 import { readPackBundle } from '@/domains/content/services/pack_bundle_file'
+import { packKeyOf } from '@/domains/content/services/pack_identity'
 import { PackLoadError, type PackIssue } from '@/domains/content/services/pack_snapshot_builder'
 import { loadRemotePackSnapshot } from '@/domains/content/services/remote_pack_loader'
 import { buildPackReview, type PackReview } from '@/ui/play/community_pack_review'
@@ -92,36 +93,28 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
   const review = computed<PackReview | null>(() => (candidate.value ? buildPackReview(candidate.value) : null))
 
   /**
-   * What adding the reviewed pack would replace (ADR 0012). Replacing another
-   * version of the same pack is routine; replacing a different pack that uses
-   * the same name is a caution the player must see before confirming.
+   * How the reviewed pack relates to packs already added (ADR 0014): the same
+   * pack it replaces (another version), and same-named packs from elsewhere,
+   * which stay added. Shown before confirming, so the player can tell them apart.
    */
-  const replacing = computed(() => {
+  const relations = computed(() => {
     if (!candidate.value) return []
-    const candidateHash = candidate.value.content_hash
-    return store.find_replaced_community_packs(candidate.value).map(({ snapshot, same_pack }) => {
-      const replaced = buildPackReview(snapshot)
-      if (same_pack) {
-        return { samePack: true, tone: 'calm' as const, message: `Replaces the version you added before (v${replaced.version}).` }
-      }
-      // Same content from another place (a GitHub pack and its downloaded file):
-      // nothing changes in play, but saved runs remember where a pack came from.
-      if (snapshot.content_hash === candidateHash) {
-        return {
-          samePack: false,
-          tone: 'caution' as const,
-          message: `The same content is already added from ${replaced.origin.detail}. Adding it from here replaces that copy, and runs saved with that copy will ask for it again.`,
-        }
-      }
-      return {
-        samePack: false,
-        tone: 'caution' as const,
-        message: `A different pack also named “${snapshot.manifest.id}” is added: ${replaced.title} v${replaced.version}, ${replaced.origin.detail}. Only one pack with that name can be added at a time, so adding this one removes it.`,
-      }
-    })
+    const { replaces, same_name } = store.find_community_pack_relations(candidate.value)
+    const notes: Array<{ tone: 'calm'; message: string }> = []
+    if (replaces) {
+      notes.push({ tone: 'calm', message: `Replaces the version you added before (v${replaces.manifest.version}).` })
+    }
+    for (const other of same_name) {
+      const otherReview = buildPackReview(other)
+      notes.push({
+        tone: 'calm',
+        message: `You also have another pack called “${otherReview.title}”, published by ${otherReview.publisher.label}. Both stay added; the lobby shows who published each.`,
+      })
+    }
+    return notes
   })
   const loadedPacks = computed(() => store.communityPacks.map((snapshot) => ({
-    id: snapshot.manifest.id,
+    key: packKeyOf(snapshot),
     review: buildPackReview(snapshot),
   })))
 
@@ -183,15 +176,15 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
     phase.value = 'idle'
   }
 
-  async function remove(packId: string) {
+  async function remove(packKey: string) {
     lastAdded.value = null
-    await store.remove_community_pack(packId)
+    await store.remove_community_pack(packKey)
   }
 
   return {
     phase,
     review,
-    replacing,
+    relations,
     errorTitle,
     issues,
     hiddenIssueCount,

@@ -78,16 +78,14 @@ describe('content package integration', () => {
     const tutorialManifest = await readManifestFromDisk(path.join(projectRoot, 'content/tutorial/manifest.json'))
 
     const registry = new ContentPackRegistry()
-    registry.registerPack(baseManifest, createFileContentProvider(path.join(projectRoot, 'content')))
-    registry.registerPack(tutorialManifest, createFileContentProvider(path.join(projectRoot, 'content/tutorial')))
-
-    const mergedProvider = registry.createMergedProvider()
+    const baseKey = registry.registerPack(baseManifest, createFileContentProvider(path.join(projectRoot, 'content')))
+    const tutorialKey = registry.registerPack(tutorialManifest, createFileContentProvider(path.join(projectRoot, 'content/tutorial')))
 
     const baseScenario = baseManifest.scenarios[0]
     const tutorialScenario = tutorialManifest.tutorials[0]
 
-    const baseBundle = await buildScenarioBundle(baseScenario.id, baseScenario.version, mergedProvider)
-    const tutorialBundle = await buildScenarioBundle(tutorialScenario.id, tutorialScenario.version, mergedProvider)
+    const baseBundle = await buildScenarioBundle(baseScenario.id, baseScenario.version, registry.createScopedProvider(baseKey))
+    const tutorialBundle = await buildScenarioBundle(tutorialScenario.id, tutorialScenario.version, registry.createScopedProvider(tutorialKey))
 
     expect(() => assertValidBundle(baseBundle)).not.toThrow()
     expect(() => assertValidBundle(tutorialBundle)).not.toThrow()
@@ -103,17 +101,17 @@ describe('first-party packs under pack-scoped resolution (M1.3)', () => {
     const tutorialManifest = await readManifestFromDisk(path.join(projectRoot, 'content/tutorial/manifest.json'))
 
     const registry = new ContentPackRegistry()
-    registry.registerPack(baseManifest, createFileContentProvider(path.join(projectRoot, 'content')))
-    registry.registerPack(tutorialManifest, createFileContentProvider(path.join(projectRoot, 'content/tutorial')))
+    const baseKey = registry.registerPack(baseManifest, createFileContentProvider(path.join(projectRoot, 'content')))
+    const tutorialKey = registry.registerPack(tutorialManifest, createFileContentProvider(path.join(projectRoot, 'content/tutorial')))
 
     const entryPoints = [
-      ...baseManifest.scenarios,
-      ...tutorialManifest.tutorials,
+      ...baseManifest.scenarios.map((ref) => ({ ref, key: baseKey })),
+      ...tutorialManifest.tutorials.map((ref) => ({ ref, key: tutorialKey })),
     ]
     expect(entryPoints.length).toBeGreaterThanOrEqual(7)
 
-    for (const ref of entryPoints) {
-      const bundle = await buildScenarioBundle(ref.id, ref.version, registry.createScenarioProvider(ref))
+    for (const { ref, key } of entryPoints) {
+      const bundle = await buildScenarioBundle(ref.id, ref.version, registry.createScopedProvider(key))
       expect(() => assertValidBundle(bundle), `${ref.id}-v${ref.version}`).not.toThrow()
     }
   })
@@ -128,7 +126,7 @@ describe('first-party packs under pack-scoped resolution (M1.3)', () => {
       registry.registerPack(base, createFileContentProvider(path.join(projectRoot, 'content')))
       registry.registerPack(tutorial, createFileContentProvider(path.join(projectRoot, 'content/tutorial')))
       expect(base.depends_on).toEqual([])
-      expect(() => registry.createScopedProvider('tutorial')).not.toThrow()
+      expect(() => registry.createScopedProvider('dddnd:tutorial')).not.toThrow()
     })
   })
 })

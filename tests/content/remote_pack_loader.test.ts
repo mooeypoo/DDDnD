@@ -3,6 +3,7 @@
  * fixture. No network.
  */
 
+import { packKeyOf } from '@/domains/content/services/pack_identity'
 import { readdirSync, readFileSync, statSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
@@ -74,9 +75,10 @@ describe('loading the demo pack from a GitHub URL', () => {
     const registry = new ContentPackRegistry()
     const baseRoot = path.resolve('content')
     registry.registerPack(JSON.parse(readFileSync(path.join(baseRoot, 'manifest.json'), 'utf8')) as ContentPackManifest, createFileContentProvider(baseRoot))
-    registry.registerPack(snapshot.manifest, createSnapshotContentProvider(snapshot))
+    const key = registry.registerPack(snapshot.manifest, createSnapshotContentProvider(snapshot), packKeyOf(snapshot))
+    expect(key).toBe('github:mooeypoo/dddnd-packs/packs/gilded_ledger')
     const ref = snapshot.manifest.scenarios[0]
-    const bundle = await buildScenarioBundle(ref.id, ref.version, registry.createScenarioProvider(ref))
+    const bundle = await buildScenarioBundle(ref.id, ref.version, registry.createScopedProvider(key))
     expect(validateScenarioBundle(bundle).errors).toEqual([])
   })
 
