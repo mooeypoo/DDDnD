@@ -89,6 +89,7 @@ export default defineConfig({
         { text: 'Player help', items: [
           { text: 'The table', link: '/guide/gameplay' },
           { text: 'How to think', link: '/guide/strategy' },
+          { text: 'Community packs', link: '/guide/community-packs' },
         ] },
         { text: 'For authors', items: [
           { text: 'Content authoring', link: '/guide/content-authoring' },

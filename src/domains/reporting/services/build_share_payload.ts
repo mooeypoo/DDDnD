@@ -16,6 +16,8 @@ import { SHARE_PAYLOAD_VERSION, type SharePayload } from './share_payload'
 export interface BuildSharePayloadInput {
   run_outcome: RunOutcome
   game_state: GameState
+  /** Set for runs played with a community pack: its name and publisher, as the UI shows them. */
+  community_pack?: { name: string; publisher: string } | null
 }
 
 /**
@@ -24,7 +26,7 @@ export interface BuildSharePayloadInput {
  * Scores are rounded to integers for compactness.
  */
 export function buildSharePayload(input: BuildSharePayloadInput): SharePayload {
-  const { run_outcome, game_state } = input
+  const { run_outcome, game_state, community_pack } = input
 
   const roundedScores: Record<string, number> = {}
   for (const [scoreId, value] of Object.entries(game_state.scores)) {
@@ -51,6 +53,7 @@ export function buildSharePayload(input: BuildSharePayloadInput): SharePayload {
     scores: roundedScores,
     stakeholders: roundedStakeholders,
     cr: run_outcome.completion_reason,
-    sd: game_state.meta.seed || undefined
+    sd: game_state.meta.seed || undefined,
+    ...(community_pack ? { cp: { n: community_pack.name, p: community_pack.publisher } } : {})
   }
 }

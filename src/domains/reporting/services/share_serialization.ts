@@ -84,6 +84,8 @@ export function decodeSharePayload(encoded: string): SharePayloadParseResult {
 // ─── Validation ──────────────────────────────────────────────
 
 const MAX_SEED_LENGTH = 200
+/** Community pack name and publisher on a share card: plain text, kept short. */
+const MAX_PACK_LABEL_LENGTH = 160
 
 function validateSharePayload(raw: unknown): SharePayloadParseResult {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
@@ -152,6 +154,15 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     return { ok: false, error: 'Invalid seed' }
   }
 
+  // Optional community pack: two short strings, shown as plain text
+  if (obj.cp !== undefined) {
+    const cp = obj.cp as Record<string, unknown> | null
+    const isLabel = (value: unknown) => typeof value === 'string' && value.length > 0 && value.length <= MAX_PACK_LABEL_LENGTH
+    if (typeof cp !== 'object' || cp === null || Array.isArray(cp) || !isLabel(cp.n) || !isLabel(cp.p)) {
+      return { ok: false, error: 'Invalid community pack' }
+    }
+  }
+
   const payload: SharePayload = {
     v: obj.v as number,
     sid: obj.sid as string,
@@ -167,7 +178,10 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     scores: obj.scores as Record<string, number>,
     stakeholders: obj.stakeholders as Record<string, number> | undefined,
     cr: obj.cr as string,
-    sd: (obj.sd as string | undefined) || undefined
+    sd: (obj.sd as string | undefined) || undefined,
+    ...(obj.cp !== undefined
+      ? { cp: { n: (obj.cp as { n: string }).n, p: (obj.cp as { p: string }).p } }
+      : {})
   }
 
   return { ok: true, payload }

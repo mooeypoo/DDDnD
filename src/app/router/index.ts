@@ -4,6 +4,8 @@ import RunSetupView from '@/ui/views/run_setup_view.vue'
 import GameView from '@/ui/views/game_view.vue'
 import EndOfRunView from '@/ui/views/end_of_run_view.vue'
 import ShareView from '@/ui/views/share_view.vue'
+import CommunityBazaarView from '@/ui/views/community_bazaar_view.vue'
+import { isCommunityPacksEnabled } from '@/ui/config/feature_flags'
 import { useGameStore } from '@/ui/stores/game_store'
 
 /**
@@ -32,6 +34,20 @@ const router = createRouter({
       path: '/play',
       name: 'play',
       component: RunSetupView
+    },
+    {
+      // Community packs (ADR 0009 flag; journal M2.11): the bazaar, then one table per pack.
+      path: '/community',
+      name: 'community',
+      component: CommunityBazaarView,
+      beforeEnter: () => (isCommunityPacksEnabled() ? true : { path: '/play' }),
+    },
+    {
+      path: '/community/:packKey+',
+      name: 'community-pack',
+      component: RunSetupView,
+      props: true,
+      beforeEnter: () => (isCommunityPacksEnabled() ? true : { path: '/play' }),
     },
     {
       path: '/game',

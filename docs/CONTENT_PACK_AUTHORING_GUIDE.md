@@ -219,9 +219,20 @@ For hosted packs, set `"base_url": "."`. Content is then read from the folder th
 
 The game loads remote packs only from GitHub: `raw.githubusercontent.com` and GitHub Pages sites (`<owner>.github.io`). Share a URL pinned to a tag or commit, not a branch, so a saved game always finds the content it was played with. See [ADR 0003](adr/0003-remote-pack-source-allowlist.md). One repository can hold several packs, one folder each ([mooeypoo/DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs) is the reference layout).
 
-### A pack's identity is where it lives
+### How players find your pack
 
-Your pack's `id` is its name, and other authors can use the same name. The game tells packs apart by **where they are published**: the GitHub owner, repository, and folder (`github:<owner>/<repo>/packs/<pack_id>`). The tag or commit is not part of it, so each new release is recognized as the same pack and replaces the older one for players. Another author's pack with the same `id` is a different pack: players can add both, and the game shows who published each.
+Players import packs in the game's **Community Bazaar**, where every pack gets a stall and its own table. Your pack is never mixed in with DDDnD's own adventures. Your stall shows your pack's name, version, description, how many adventures and tutorials it has, and **who published it**: the GitHub account and repository it was loaded from, or "unknown" for a file.
+
+- **Share a link to your `manifest.json`,** pinned to a release tag. You can also share `https://dddnd.app/community?pack=<that link>`, which opens the import screen with the link filled in. Players still review the pack and confirm before anything is imported.
+- **One pack, many scenarios.** Everything in `scenarios` and `tutorials` appears together on your pack's table, with tutorials in their own tab. A pack with one scenario still has its own table.
+- **Players keep packs in their browser only.** There are no accounts, so encourage players to keep your link.
+- **Runs are marked as yours.** The results screen and the share card say "Community pack · your pack's name · publisher · not a DDDnD scenario".
+
+See [ADR 0015](https://github.com/mooeypoo/DDDnD/blob/main/docs/adr/0015-community-packs-in-their-own-place.md).
+
+## A pack's identity is where it lives
+
+Your pack's `id` is its name, and other authors can use the same name. The game tells packs apart by **where they are published**: the GitHub owner, repository, and folder (`github:<owner>/<repo>/packs/<pack_id>`). The tag or commit is not part of it, so each new release is recognized as the same pack and replaces the older one for players. Another author's pack with the same `id` is a different pack: players can import both, and the game shows who published each.
 
 This means **moving a pack makes it a new pack** to the game. Renaming the repository, moving the pack's folder, or transferring the repository to another account all do this, and players' saved runs will ask for the old link. Pick a home for your pack and keep it there. A pack loaded from a `.dddnd-pack.json` file is identified by its exact content. See [ADR 0012](adr/0012-pack-identity-from-source.md).
 
@@ -229,7 +240,7 @@ This means **moving a pack makes it a new pack** to the game. Renaming the repos
 
 Your content ids (cards, scenarios, events…) belong to your pack: another pack using the same ids doesn't affect yours. They must not reuse an id the packs you build on (`base`, `tutorial`) already use, because your scenarios couldn't tell which one they meant. A short prefix keeps that easy and makes your files easy to recognize. The demo pack uses `ledger_` (`ledger_split_refunds_context`).
 
-Community packs can't add player classes or challenge modifiers yet (they are offered for every scenario in the game), so leave `classes` and `challenge_modifiers` empty.
+Community packs can't add player classes or challenge modifiers yet, so leave `classes` and `challenge_modifiers` empty. Your pack's table offers DDDnD's classes. Classes and modifiers of your own, offered only on your pack's table, are planned ([ADR 0015](https://github.com/mooeypoo/DDDnD/blob/main/docs/adr/0015-community-packs-in-their-own-place.md)).
 
 ### Reusing base content
 

@@ -11,6 +11,25 @@
 @import '../prototypes/dungeon/dungeon-design-tokens.css';
 
 
+/* ─── Community bazaar (journal M2.11, M2.12) ───────────────────
+   Tokens for the community area, so it never looks like the council
+   lobby: warm canvas, a thin awning valance, and a stitched (dashed)
+   border, which base content never uses, as the "external" mark. */
+
+.bazaar-theme {
+  --bazaar-bg: #150c09;
+  --bazaar-glow: rgba(176, 90, 52, 0.2);
+  --bazaar-glow-low: rgba(36, 14, 8, 0.8);
+  --bazaar-stripe-a: rgba(158, 76, 48, 0.7);
+  --bazaar-stripe-b: rgba(214, 190, 146, 0.55);
+  --bazaar-accent: #6cc7bb;
+  --bazaar-accent-soft: rgba(108, 199, 187, 0.14);
+  --bazaar-ink: #f1e2c6;
+  --bazaar-muted: #c3aa86;
+  --bazaar-panel: rgba(32, 18, 12, 0.82);
+  --bazaar-stitch: rgba(108, 199, 187, 0.45);
+}
+
 /* ─── Fallback score colors (ADR 0002) ──────────────────────────
    Scores the UI has no hand-picked color for (from content packs).
    Global, so every score component can use them; see

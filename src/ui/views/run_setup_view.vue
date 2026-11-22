@@ -3,16 +3,9 @@
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
     <DungeonMasterModal :isOpen="gameStore.isDungeonMasterModalOpen" @close="gameStore.closeDungeonMasterModal" />
-    <CommunityPacksDialog
-      v-if="communityPacksEnabled"
-      :isOpen="isCommunityPacksOpen"
-      :initialUrl="packLinkFromQuery"
-      @close="closeCommunityPacks"
-    />
-
     <CouncilLobby
-      :quests="gameStore.availableQuests"
-      :tutorials="gameStore.availableTutorials"
+      :quests="tableQuests"
+      :tutorials="tableTutorials"
       :classes="gameStore.availableClasses"
       :modifiers="availableModifiers"
       :selectedQuest="selectedQuest"
@@ -21,6 +14,7 @@
       :characterName="characterName"
       :isLoading="isPreparing"
       :communityPacksEnabled="communityPacksEnabled"
+      :bazaarPack="bazaarPack"
       @selectQuest="selectQuest"
       @selectClass="selectClass"
       @selectModifier="selectModifier"
@@ -30,7 +24,7 @@
       @showAbout="gameStore.openAboutModal"
       @showRules="gameStore.openRulesModal"
       @showDungeonMaster="gameStore.openDungeonMasterModal"
-      @showCommunityPacks="isCommunityPacksOpen = true"
+      @showCommunityPacks="router.push(BAZAAR_PATH)"
     />
   </div>
 </template>
@@ -45,14 +39,23 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { PlayerClass, ChallengeModifier } from '@/domains/content/model'
-import { isSameQuest, type QuestDisplayModel } from '@/ui/types/quest_display_model'
+import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 import CouncilLobby from '@/ui/play/council_lobby.vue'
-import CommunityPacksDialog from '@/ui/components/community/community_packs_dialog.vue'
 import { isCommunityPacksEnabled } from '@/ui/config/feature_flags'
+import { isFirstPartyPackKey } from '@/domains/content/services/pack_identity'
+import { describePackPublisher } from '@/ui/play/community_pack_review'
+import { BAZAAR_PATH, packKeyFromParam } from '@/ui/community/community_routes'
 import { sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
+
+/**
+ * Without `packKey` this is the council lobby: first-party content only.
+ * With it (`/community/<pack key>`), it is that community pack's table: only
+ * that pack's scenarios, in the bazaar's look (journal M2.11).
+ */
+const props = defineProps<{ packKey?: string | string[] }>()
 
 const router = useRouter()
 const route = useRoute()
@@ -66,25 +69,35 @@ const characterName = ref('')
 
 /** Community packs (ADR 0009): nothing here renders or runs unless the build flag is on. */
 const communityPacksEnabled = isCommunityPacksEnabled()
-/**
- * A `?pack=<manifest URL>` link opens the dialog with the link filled in. It
- * never loads by itself: fetching tells the host the player's IP address, so
- * the player decides.
- */
-const packLinkFromQuery = communityPacksEnabled && typeof route.query.pack === 'string' ? route.query.pack : undefined
-const isCommunityPacksOpen = ref(Boolean(packLinkFromQuery) || (communityPacksEnabled && gameStore.savedRunPackNotice !== null))
+const tablePackKey = computed(() => (communityPacksEnabled ? packKeyFromParam(props.packKey) : undefined))
+
+/** Quests at this table: the pack's own at a pack table, first-party ones in the lobby. */
+function belongsHere(quest: QuestDisplayModel): boolean {
+  return tablePackKey.value ? quest.packKey === tablePackKey.value : isFirstPartyPackKey(quest.packKey)
+}
+const tableQuests = computed(() => gameStore.availableQuests.filter(belongsHere))
+const tableTutorials = computed(() => gameStore.availableTutorials.filter(belongsHere))
+
+const tablePack = computed(() => (tablePackKey.value ? gameStore.find_community_pack(tablePackKey.value) : null))
+const bazaarPack = computed(() => {
+  const pack = tablePack.value
+  if (!pack) return null
+  return {
+    name: pack.manifest.name,
+    version: pack.manifest.version,
+    description: pack.manifest.description,
+    publisher: describePackPublisher(pack).label,
+  }
+})
 
 if (communityPacksEnabled) {
-  // A saved run that needs a community pack that isn't loaded: explain it.
-  void gameStore.refresh_saved_run_pack_notice().then(() => {
-    if (gameStore.savedRunPackNotice) isCommunityPacksOpen.value = true
-  })
-}
-
-function closeCommunityPacks() {
-  isCommunityPacksOpen.value = false
-  if (selectedQuest.value && ![...gameStore.availableQuests, ...gameStore.availableTutorials].some((quest) => isSameQuest(quest, selectedQuest.value))) {
-    selectedQuest.value = easiestAdventure(gameStore.availableQuests)
+  // Pack links and saved-run notices belong to the bazaar now (journal M2.11).
+  if (typeof route.query.pack === 'string') {
+    void router.replace({ path: BAZAAR_PATH, query: { pack: route.query.pack } })
+  } else if (!tablePackKey.value) {
+    void gameStore.refresh_saved_run_pack_notice().then(() => {
+      if (gameStore.savedRunPackNotice) void router.replace(BAZAAR_PATH)
+    })
   }
 }
 const isLoadingClasses = ref(false)
@@ -142,7 +155,7 @@ onMounted(async () => {
 
   const tutorialParam = route.query.tutorial as string | undefined
   const tutorialMatch = tutorialParam
-    ? gameStore.availableTutorials.find((tutorial) => {
+    ? tableTutorials.value.find((tutorial) => {
         const targetOrder = tutorialParam === 'basics' ? 1 : tutorialParam === 'advanced' ? 2 : null
         return targetOrder !== null && tutorial.tutorialOrder === targetOrder
       })
@@ -155,8 +168,14 @@ onMounted(async () => {
     return
   }
 
+  if (tablePackKey.value && !tablePack.value) {
+    // A link to a pack that isn't added here: the bazaar explains and offers to add packs.
+    await router.replace({ path: BAZAAR_PATH, query: { missing: '1' } })
+    return
+  }
+
   if (!selectedQuest.value) {
-    selectedQuest.value = easiestAdventure(gameStore.availableQuests)
+    selectedQuest.value = easiestAdventure(tableQuests.value) ?? tableTutorials.value[0] ?? null
   }
 
   if (!selectedClass.value && gameStore.availableClasses.length > 0) {
@@ -173,14 +192,17 @@ watch(
   },
 )
 
-watch(
-  () => gameStore.availableQuests,
-  (quests) => {
-    if (!selectedQuest.value) {
-      selectedQuest.value = easiestAdventure(quests)
-    }
-  },
-)
+// Moving from one pack's table to another reuses this view: start fresh.
+watch(tablePackKey, () => {
+  selectedQuest.value = easiestAdventure(tableQuests.value) ?? tableTutorials.value[0] ?? null
+  selectedModifier.value = null
+})
+
+watch(tableQuests, (quests) => {
+  if (!selectedQuest.value) {
+    selectedQuest.value = easiestAdventure(quests)
+  }
+})
 
 function easiestAdventure(quests: QuestDisplayModel[]): QuestDisplayModel | null {
   return sortQuestsByDifficulty(quests)[0] ?? null
@@ -199,7 +221,7 @@ function selectQuest(quest: QuestDisplayModel) {
 }
 
 function warmKnownScenarios(priority?: QuestDisplayModel | null) {
-  const quests = [...gameStore.availableQuests, ...gameStore.availableTutorials]
+  const quests = [...tableQuests.value, ...tableTutorials.value]
   const first = priority ?? quests[0]
   if (!first) {
     return
@@ -219,7 +241,7 @@ function selectModifier(modifier: ChallengeModifier | null) {
 }
 
 function goBack() {
-  router.push('/')
+  router.push(tablePackKey.value ? BAZAAR_PATH : '/')
 }
 
 async function startRun() {

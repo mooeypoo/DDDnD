@@ -349,6 +349,11 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /** The added pack this one would replace (same key), and same-named packs from elsewhere (shown in the review). */
+  /** An added community pack by its pack key, or null. */
+  function find_community_pack(packKey: string): PackSnapshot | null {
+    return contentAdapter.findCommunityPack(packKey) ?? null
+  }
+
   function find_community_pack_relations(snapshot: PackSnapshot) {
     return contentAdapter.findPackRelations(snapshot)
   }
@@ -622,6 +627,7 @@ export const useGameStore = defineStore('game', () => {
     load_available_classes,
     load_available_challenge_modifiers,
     check_community_pack,
+    find_community_pack,
     find_community_pack_relations,
     add_community_pack,
     remove_community_pack,

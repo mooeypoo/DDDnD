@@ -79,6 +79,13 @@ export interface SharePayload {
    * (ADR 0002). Optional: older links don't have it.
    */
   sd?: string
+
+  /**
+   * Community pack the run was played with: name (`n`) and publisher (`p`),
+   * so the card says it isn't a DDDnD scenario (journal M2.12). Absent for
+   * first-party runs. Shown as plain text only.
+   */
+  cp?: { n: string; p: string }
 }
 
 /**

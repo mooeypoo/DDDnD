@@ -337,7 +337,7 @@ It is not required to duplicate every internal detail of the simulation engineâ€
 
 ## Exact Run Export Scope
 
-Exact-run exports currently use a minimal deterministic schema.
+Exact-run exports currently use a minimal deterministic schema. The game doesn't create or read them yet: they are ready in code (and record the pack's identity) for a future "download this run" feature.
 
 They must include enough information to:
 
@@ -363,6 +363,7 @@ Planned boundary changes, recorded here so new work does not contradict them:
 - Remote sources are limited by an allowlist kept in the content domain ([ADR 0003](docs/adr/0003-remote-pack-source-allowlist.md)).
 - Pack Studio is a separate app. It may import `src/domains/*`, never `src/ui`. A new pure `authoring` domain owns the editing model ([ADR 0005](docs/adr/0005-pack-studio-as-separate-app.md)).
 - **Primary rule: a pack's worst case is unwanted text.** Pack data never reaches code execution, markup, navigation, network requests, or asset loading ([ADR 0014](docs/adr/0014-pack-keys-everywhere.md)).
+- **Community packs live in their own place** ([ADR 0015](docs/adr/0015-community-packs-in-their-own-place.md)): the council lobby (`/play`) is first-party only. The bazaar (`/community`) lists imported packs, and each pack has its own table (`/community/<pack key>`). A community run is marked on the play screen, the results screen and the share card.
 - **Identity is the pack key, derived from where a pack is published** ([ADR 0012](docs/adr/0012-pack-identity-from-source.md)). The registry, saves, storage, the lobby and run start all address packs by key and scenarios by (pack key, id, version). Content belongs to its pack: two packs may list the same file unless one depends on the other. Community packs depend only on first-party packs ([ADR 0013](docs/adr/0013-community-packs-depend-only-on-first-party.md)) and can't add game-wide choices (classes, challenge modifiers).
 
 ---

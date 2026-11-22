@@ -190,6 +190,18 @@ describe('buildSharePayload', () => {
     expect(payload.sd).toBe('test-seed')
   })
 
+  it('marks a community run with its pack and publisher, and first-party runs with nothing (journal M2.12)', () => {
+    const community = buildSharePayload({
+      run_outcome: createMockRunOutcome(),
+      game_state: createMockGameState(),
+      community_pack: { name: 'Demo: The Gilded Ledger', publisher: 'mooeypoo on GitHub (mooeypoo/DDDnD-packs)' },
+    })
+    expect(community.cp).toEqual({ n: 'Demo: The Gilded Ledger', p: 'mooeypoo on GitHub (mooeypoo/DDDnD-packs)' })
+
+    const base = buildSharePayload({ run_outcome: createMockRunOutcome(), game_state: createMockGameState(), community_pack: null })
+    expect(base).not.toHaveProperty('cp')
+  })
+
   it('omits name when display_name is not set', () => {
     const gameState = createMockGameState({
       player_profile: {
@@ -400,6 +412,20 @@ describe('decodeSharePayload — error handling', () => {
     const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
     const result = decodeSharePayload(encoded)
     expect(result.ok).toBe(false)
+  })
+
+  it('round-trips the community pack marker', () => {
+    const cp = { n: 'Demo: The Gilded Ledger', p: 'unknown (loaded from a file)' }
+    const result = decodeSharePayload(encodeSharePayload(createSamplePayload({ cp })))
+    expect(result.ok && result.payload.cp).toEqual(cp)
+  })
+
+  it('rejects a community pack marker that is not two short strings', () => {
+    for (const cp of [{ n: 'x' }, { n: '', p: 'y' }, { n: 'x'.repeat(161), p: 'y' }, ['x', 'y'], 'x']) {
+      const payload = { ...createSamplePayload(), cp } as unknown as SharePayload
+      const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+      expect(decodeSharePayload(encoded).ok).toBe(false)
+    }
   })
 
   it('rejects a seed that is not a short string', () => {

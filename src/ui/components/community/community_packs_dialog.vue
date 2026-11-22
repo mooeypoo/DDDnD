@@ -1,10 +1,10 @@
 <template>
   <SurfaceModalPanel
     :is-open="isOpen"
-    title="Community packs"
+    title="Import a pack"
     subtitle="Scenarios made by people outside DDDnD"
     size="lg"
-    close-label="Close community packs"
+    close-label="Close import a pack"
     @close="close"
   >
     <div class="community-packs">
@@ -82,7 +82,7 @@
         <p v-if="flow.review.value.privacyNote" class="privacy-note">{{ flow.review.value.privacyNote }}</p>
         <p class="session-note">
           {{ flow.persistent.value
-            ? 'Kept on this device until you remove it.'
+            ? 'Kept in this browser until you remove it.'
             : 'This browser can\'t keep packs, so it lasts until you close the page.' }}
         </p>
       </section>
@@ -102,7 +102,7 @@
 
       <!-- Load a pack, and the list of added packs -->
       <section v-else class="pack-load">
-        <p v-if="flow.savedRunNotice.value" class="saved-run-note" role="status">
+        <p v-if="flow.savedRunNotice.value && !inBazaar" class="saved-run-note" role="status">
           {{ flow.savedRunNotice.value.message }}
         </p>
         <ul v-if="flow.restoreIssues.value.length > 0" class="issue-list restore-issues">
@@ -111,7 +111,7 @@
           </li>
         </ul>
         <p v-if="flow.lastAdded.value" class="added-note" role="status">
-          Added “{{ flow.lastAdded.value }}”. Its scenarios are now in the lobby, marked Community.
+          Imported “{{ flow.lastAdded.value }}”. It's in the bazaar now.
           <template v-if="!flow.lastAddedKept.value"> It couldn't be saved on this device, so it lasts until you close the page.</template>
         </p>
 
@@ -134,7 +134,7 @@
               {{ flow.phase.value === 'loading' ? 'Checking…' : 'Load from GitHub' }}
             </AppButton>
           </div>
-          <p class="field-help">Loading downloads the pack from GitHub and checks it. Nothing is added until you confirm.</p>
+          <p class="field-help">Loading downloads the pack from GitHub and checks it. Nothing is imported until you confirm.</p>
         </form>
 
         <div class="file-row">
@@ -151,8 +151,8 @@
           </label>
         </div>
 
-        <div v-if="flow.loadedPacks.value.length > 0" class="loaded">
-          <h4 class="section-kicker">{{ flow.persistent.value ? 'Added packs' : 'Added this visit' }}</h4>
+        <div v-if="flow.loadedPacks.value.length > 0 && !inBazaar" class="loaded">
+          <h4 class="section-kicker">{{ flow.persistent.value ? 'Imported packs' : 'Imported this visit' }}</h4>
           <ul class="loaded-list">
             <li v-for="pack in flow.loadedPacks.value" :key="pack.key">
               <span>
@@ -168,11 +168,11 @@
 
     <template #footer>
       <template v-if="flow.phase.value === 'review'">
-        <AppButton variant="secondary" @click="flow.cancel">Don't add</AppButton>
-        <AppButton variant="primary" @click="flow.confirm">Add this pack</AppButton>
+        <AppButton variant="secondary" @click="flow.cancel">Don't import</AppButton>
+        <AppButton variant="primary" @click="importAndClose">Import this pack</AppButton>
       </template>
       <template v-else-if="flow.phase.value === 'adding'">
-        <AppButton variant="primary" disabled>Adding…</AppButton>
+        <AppButton variant="primary" disabled>Importing…</AppButton>
       </template>
       <template v-else-if="flow.phase.value === 'error'">
         <AppButton variant="secondary" @click="flow.cancel">Back</AppButton>
@@ -195,15 +195,17 @@ import { computed, ref, watch } from 'vue'
 
 import AppButton from '@/ui/components/common/AppButton.vue'
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
-import { useCommunityPacks } from '@/ui/composables/use_community_packs'
+import { useCommunityPacks, type ImportedPack } from '@/ui/composables/use_community_packs'
 
 const props = defineProps<{
   isOpen: boolean
   /** Prefills the link field (from a `?pack=` link). Never loads by itself. */
   initialUrl?: string
+  /** Opened from the bazaar, which lists added packs and saved-run notices itself. */
+  inBazaar?: boolean
 }>()
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<{ close: []; imported: [pack: ImportedPack] }>()
 
 const flow = useCommunityPacks()
 const urlDraft = ref(props.initialUrl ?? '')
@@ -230,6 +232,18 @@ function loadFile(event: Event) {
   input.value = ''
   if (file && !busy.value) {
     void flow.loadFromFile(file)
+  }
+}
+
+/**
+ * Most players import one pack and then play it, so importing closes the
+ * dialog; the bazaar shows what was imported (journal M2.12).
+ */
+async function importAndClose() {
+  const imported = await flow.confirm()
+  if (imported) {
+    emit('imported', imported)
+    close()
   }
 }
 

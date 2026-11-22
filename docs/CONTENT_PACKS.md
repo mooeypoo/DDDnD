@@ -245,7 +245,7 @@ Visual "drag-and-drop canvas" editing is deliberately not on the list for now. F
 |---|---|---|---|---|
 | **M0** | Decisions and docs | Required | This file, ADRs 0001–0006, threat model, pointers in AGENT.md and ARCHITECTURE.md | Merged |
 | **M1** | Harden the content boundary | Required | Field-level schemas and limits for every content type and the manifest; id grammar; URL rules; pack-scoped resolution with no cross-pack overrides; `schema_version` and `kind` in the manifest; structured reaction `condition` (with legacy prose parse kept for base); generated JSON Schema; CSP header; hostile-pack test fixtures | Every hostile fixture is rejected with a precise error; base pack still validates; determinism tests unchanged |
-| **M2** | Game loads packs (**MVP 1**) | Required | Source allowlist and fetch policy; consent screen; pack manager (add, remove, list, see source and license); local bundle-file import; "community pack" label during play; pack identity and hash in saves and exports; IndexedDB snapshots; seeded per-run cast and scene assignment ([ADR 0002](adr/0002-presentation-cast-decoupled-from-content.md)), fixing the three cast defects; fallback score presentation; **demo `extension` pack** in its own public GitHub repo plus an in-repo fixture; public docs-site pages for players and authors | A player can load the demo pack from its GitHub URL and from a file, play it, save, reload, and export, and base play is unaffected |
+| **M2** | Game loads packs (**MVP 1**) | Required | Source allowlist and fetch policy; consent screen; pack manager (add, remove, list, see source and license); local bundle-file import; "community pack" label during play; pack identity and hash in saves and exact-run records; IndexedDB snapshots; seeded per-run cast and scene assignment ([ADR 0002](adr/0002-presentation-cast-decoupled-from-content.md)), fixing the three cast defects; fallback score presentation; **demo `extension` pack** in its own public GitHub repo plus an in-repo fixture; public docs-site pages for players and authors | A player can load the demo pack from its GitHub URL and from a file, play it, save, and reload, and base play is unaffected. Saves and exact-run records carry the pack's identity (there is no player-facing export; see M2.13) |
 | **M3** | Engine generalization | Required for `standalone` | Coupling rules, tier thresholds, archetype criteria, and audit targets become content; `OutcomeArchetypeId` becomes a validated string; base pack gets new content versions that encode today's behavior; golden replay tests; **SRE and incident-response `standalone` pack** as the acceptance test | Base-pack golden runs are identical before and after; the SRE pack plays, ends in its own archetypes, and passes its own audits with no TypeScript changes |
 | **M4** | Pack Studio MVP (**MVP 2**) | Required | `authoring` domain; Studio app and Netlify site; IndexedDB drafts; templates; form editors and ref pickers; live validation; version-bump assistant; bundle and zip import/export; licensing guidance (after a legal sanity check) | An author can build the demo pack from scratch in the Studio and load the export in the game |
 | **M5** | Balance lab | Strongly recommended | Worker-based runs, audit report, draft-vs-draft comparison | Studio audit numbers match `npm run content:validate:audit` for the same pack |
@@ -271,8 +271,9 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
 | ~~Whose pack does `depends_on` mean?~~ | **Resolved (M2.8):** community packs may depend only on first-party packs, whose ids we control ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)). Community-on-community dependencies would need key-based references in a new schema version. | Done |
-| Community hall look | The bazaar's colors, border, and "external" marking; chosen from screenshots of two or three versions (M2.11) | Follow-up to PR #35 |
-| Exact-run replay of retired remote packs | Snapshots make it possible. Do we promise it? (CONTENT_VERSIONING.md does not promise it for retired base scenarios.) | M2 |
+| ~~Community hall look~~ | **Resolved (M2.12):** warm canvas, a thin awning stripe, and a stitched border as the external mark ([ADR 0015](adr/0015-community-packs-in-their-own-place.md)). | Done |
+| Player-facing run download | **Ready in code, not used.** The exact-run export (seed, scenario, pack identity and content hash, every turn's choice, history, outcome) can replay a run exactly, but nothing in the game creates or reads one; only tests do. Possible uses: a player sends a pack author a run that felt broken, or a facilitator collects a workshop's runs. Add a button when one of those is wanted (M2.13). | When needed |
+| ~~Exact-run replay of retired remote packs~~ | **Resolved (M2.13): no promise.** If a pack is taken down, it's gone. Saved runs continue only while their exact pack is imported in that browser; players aren't led to expect more. Same stance as retired base scenarios in CONTENT_VERSIONING.md. | Done |
 
 ---
 
@@ -1106,3 +1107,128 @@ The pack table is where pack-specific choices can live later: a standalone pack'
 **DDD note (talk material)**
 
 The model had moved and the screen hadn't. A pack had been an aggregate in the code since M2.9: it owns its content, has one identity, and is added and removed as a whole. But the UI treated packs as a delivery mechanism for loose scenarios. A hands-on test plus one naive-sounding question ("do packs only add one scenario?") showed the gap. The fix is the same as in M2.7–M2.9: make the boundary that exists in the model visible where people meet it. Here that means a room of its own, with its own look, so the context boundary is something a player can *see*.
+
+### M2.12 (design): The bazaar and the pack table, brainstormed (2026-11-22)
+
+The UX brainstorm for the community area decided in M2.11, and the owner's answers. It's recorded before the build so the reasoning survives whichever look wins.
+
+**The shape**
+
+- **The council lobby (`/play`) is first-party only.** Its "Community packs" dialog link becomes "Community bazaar ›", a link to a page.
+- **The bazaar (`/community`)** has one stall per added pack. Each stall shows:
+  - the pack's name and version;
+  - its publisher, prominently, so same-named packs are told apart;
+  - how many adventures and tutorials it has;
+  - its description;
+  - an "External · not reviewed" ribbon.
+
+  Each stall has Open, and Remove with an inline confirmation that names the cost: a saved run from that pack can't continue until the pack is added back. "Add a pack" is a stall of its own that opens the existing dialog. `?pack=` links and saved-run notices land here.
+- **The pack table (`/community/<pack key>`)** is the lobby's own layout, reused, with:
+  - the pack's banner: "Community pack · not reviewed by DDDnD", name, publisher, description;
+  - only that pack's scenarios;
+  - "‹ Bazaar" in place of the bazaar link.
+
+  The pack key goes in the path as is (`/community/github:mooeypoo/dddnd-packs/packs/gilded_ledger`). It is readable and shareable. A link to a pack that isn't added here lands in the bazaar with an explanation.
+
+**The owner's answers**
+
+1. **Pack-owned classes and modifiers: later.** The owner had assumed packs could already add them. They can't: ADR 0014 refuses them, because the lobby offered every class with every scenario. Now that each pack has its own table, that reason goes away. The preferred design for later is **option A**: a pack's table offers its own classes and modifiers plus those of the packs it depends on, filtered to the scenario's scores. This is recorded as a planned improvement, not built now. Until then a pack table offers the game's classes, as before. The other options considered were:
+   - B: the pack's own only, which leaves the Gilded Ledger with no classes until its author copies them;
+   - C: own plus base everywhere, which breaks standalone packs whose scores differ.
+2. **A visible external marker during a run, including in what people share.** If a player screenshots a community run, it must be clear that it isn't a DDDnD pack. The play screen already has the "Community pack · name · publisher" label. The results screen and the share card get one too.
+3. **Entry points: the lobby only, for now.** The welcome page can link to the bazaar later.
+4. **The look:** compare a warm canvas-and-awning market with an indigo night market.
+
+**A new requirement from the owner: say where packs are kept**
+
+Added packs live in this browser's storage (IndexedDB). There are no accounts and DDDnD stores nothing about the player. A player who sees their pack in the bazaar today could reasonably assume it will always be there, on any device. So the bazaar says it plainly: "Kept in this browser only … they won't follow you to another browser or device, and clearing this site's data removes them. Keep the links to packs you like somewhere of your own." When the browser refuses persistent storage, it says packs last only until the page closes.
+
+**The external mark**
+
+Both looks share one rule: community content has a **stitched (dashed) border**, which base content never uses, plus an awning stripe across the top. The colors come from `.bazaar-look-<look>` tokens in `design-system.css`, so the look is a palette swap. `?look=night` switches while the comparison is open.
+
+**The owner's review of the two looks**
+
+- **Warm canvas won.** The indigo night market and the `?look=` switch were removed, leaving one `.bazaar-theme` token set.
+- **"Too much" became "quieter":**
+  - the awning is now a thin valance (10 px instead of 26 px, with softer stripes);
+  - the stalls lost their own awnings for a 3 px striped top edge;
+  - the stitching is 1 px and fainter;
+  - the title is a size smaller.
+
+  The external mark is still unmistakable, just not loud.
+- **"Add a pack" became "Import a pack".** "Add" read as if the player would be *creating* a pack, which is the Pack Studio's job (M4+). "Import" says the pack exists elsewhere and is being brought in. The whole flow now uses the one verb: the dialog title, "Import this pack", "Don't import", "Importing…", the saved-run notices ("Import it again from its original link"), and the bazaar.
+
+  Words in the UI are part of the ubiquitous language too: *import* (bring an existing pack in) and *create* (make one, in the Studio) are different actions and get different words.
+- **Importing is an action, not a pack.** In the first version "Import a pack" was a stall of its own and looked too much like the packs. It is now a plain button with a line of help *below* the stalls: no card, no stripes, nothing that could be mistaken for a pack.
+- **Stalls are centered:** fixed-width columns, centered as a group, so a single pack sits in the middle. The striped top edge is a little taller (6 px), so the rounded corners don't cut it off.
+- **Importing closes the dialog.** Most players import one pack and then play it, not a series of packs. After importing, the dialog closes, and the bazaar says "Imported “…”. Open it to play", linking to the pack's table. The new stall is highlighted (solid border instead of stitched). `confirm()` now returns what was imported (key, name, whether the browser keeps it), so the bazaar can point at it.
+
+**DDD note (talk material)**
+
+Where data lives is part of the model the player needs to know. "Your packs" sounds like an account. Saying "kept in this browser" is the user-facing side of a decision made for privacy: no backend, no accounts, nothing about the player stored. Hiding that would have made the privacy choice look like a bug the first time someone switched devices.
+
+### M2.13: The community area, built (2026-11-22)
+
+Builds M2.11 and M2.12, behind the flag (ADR 0009). Decision recorded in [ADR 0015](adr/0015-community-packs-in-their-own-place.md).
+
+**What changed**
+
+- **Routes.** `/community` is the bazaar. `/community/<pack key>` is the pack's table, the same `RunSetupView` given a `packKey` prop. The route takes the key with its slashes (`:packKey+`), so a table's address is readable: `/community/github:mooeypoo/dddnd-packs/packs/gilded_ledger`. Both routes redirect to `/play` with the flag off.
+- **The lobby view filters by table.** Without a pack key it shows first-party quests only (`isFirstPartyPackKey`). With one, it shows only that pack's quests and passes the pack's banner to the lobby component, which switches to the bazaar theme. Moving from one pack's table to another resets the selection.
+- **Leaving a run goes back to the run's table.** `lobbyRouteFor(key)` is used by "Play again", reset, leaving a tutorial, and "start the real game". Tutorials suggested after a tutorial come from the same table, so a base tutorial never suggests a community one.
+- **The external marker.** `describeRunCommunityPack` works from what the save recorded (key, origin, source URL), so it still marks a run whose pack has since been removed, falling back to the pack id for the name. It feeds:
+  - the play label;
+  - a new label on the results screen ("… · not a DDDnD scenario");
+  - the share payload's optional `cp` field, which the share card renders as plain text.
+
+  The decoder accepts `cp` only as two non-empty strings of at most 160 characters.
+- **Docs.**
+  - A new player page on the docs site, [Community packs](../docs-site/guide/community-packs.md), opens with a "not switched on yet" notice, because the site is public and the flag is still off in production. It covers safety, the bazaar, importing, publishers, where packs are kept, saved games, and removing a pack.
+  - Both authoring guides gained "How players find your pack": the share-link format, one table per pack, browser-only storage, and runs marked as the author's. The class note now points at the planned pack-owned classes.
+  - The threat model's T8 and T15 rows mention the separate area and the run marker, including that share links were always forgeable.
+
+**Decisions and trade-offs**
+
+1. **One view, two roles.** The pack table is the lobby view with a prop, not a copy. Everything the lobby does (difficulty order, warming bundles, tutorials, modifiers) works the same at a pack's table.
+2. **The marker uses the save, not the loaded pack.** It is about the run, so it must survive the pack being removed.
+3. **The docs page is published before launch, with a notice,** so authors can prepare packs and the page can be reviewed alongside the code.
+
+**DDD note (talk material)**
+
+The routes say the model out loud. `/play` is the game's own context. `/community/<pack key>` names a pack by its identity (ADR 0012), right in the address bar. The same view serves both because a table is a table; what changes is which context's content it shows and how it frames it.
+
+**Verification**
+
+- **Unit and component tests** (+26, 1080 total):
+  - routes: the pack key round-trips through the path; runs return to the right table;
+  - run labels: remote, file, removed pack, first-party;
+  - share payload: the `cp` marker is built, round-trips, and malformed values are refused;
+  - share card: the marker is shown as text, never markup, and is absent for base runs;
+  - lobby and tables (flag on): the lobby is first-party only; the bazaar link; `?pack=` is forwarded; a pack table shows only its quests under its banner, starts runs with the pack key, goes back to the bazaar, and sends unknown keys to the bazaar;
+  - bazaar: stalls with publisher and external mark, both storage notices, remove only after confirming, import as an action and not a stall, the demo offered when empty;
+  - flow: `confirm()` returns what was imported.
+
+  One flow-test expectation changed with the wording ("Both stay; the bazaar shows…"), and another with "import" replacing "add".
+- **End to end in headless Chrome, with real GitHub and real storage:**
+  1. The lobby has 5 base adventures.
+  2. Lobby → bazaar → import the demo from its tag. The dialog closes and "Imported … Open it to play" appears.
+  3. Open it. The table's address is the pack key.
+  4. Play: the label names the pack and publisher. The save carries the key, version and content hash.
+  5. Reload mid-run: it resumes with the label.
+  6. Finish: the results screen and the share card both say "Community pack · Demo: The Gilded Ledger · mooeypoo on GitHub (mooeypoo/DDDnD-packs) · not a DDDnD scenario".
+  7. "Play again" returns to the pack's table.
+  8. Import the same pack from a file: two stalls, with different publishers.
+  9. Play a base adventure: no marker anywhere, and "Play again" returns to `/play`.
+  10. A share link carrying `cp`, opened in `/share`, shows the marker.
+
+  No console errors.
+- `vue-tsc` and the docs-site build pass.
+
+**Follow-up decisions while reviewing PR #36**
+
+- **No player-facing export in MVP 1.** M2's "done when" said "save, reload, and export". That meant both run formats (the in-browser save and the exact-run export) record which pack a run used, and they do (M2.6). There is no export button, and the owner chose not to add one: it is a technical format with no player purpose yet. The milestone text now says so, and the open-questions table records "player-facing run download" as ready in code but not used.
+- **No replay promise for packs that are taken down.** A saved run continues only while its exact pack is imported in that browser.
+- **Launch waits.** The CSP change and the production flag come after MVP 1 and more local testing by the owner.
+- **Checked by the owner:** removing a pack while its run is saved, and leaving to `/play` or `/game` afterwards, behave as described.
+
