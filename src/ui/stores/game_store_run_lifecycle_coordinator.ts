@@ -1,3 +1,4 @@
+import type { RunContentPack } from '@/domains/simulation/model'
 import type {
   GameState,
   PlayTurnResult,
@@ -61,6 +62,8 @@ interface RunLifecycleDependencies {
   shouldOpenIntroBriefing?: () => boolean
   /** Called once a tutorial run reaches its ending. */
   onTutorialCompleted?: () => void
+  /** Identity of the pack that owns the scenario, stored on the run (M2.6). */
+  describeScenarioPack?: (scenarioRef: { id: string; version: number }) => RunContentPack | undefined
 }
 
 /**
@@ -119,6 +122,11 @@ export function createGameStoreRunLifecycleCoordinator(
       const initialState = state.engine.value.create_run(
         challengeModifier ? { challenge_modifier: challengeModifier } : undefined,
       )
+
+      const contentPack = deps.describeScenarioPack?.({ id: options.scenario_id, version: options.scenario_version })
+      if (contentPack) {
+        initialState.meta.content_pack = contentPack
+      }
 
       if (classRef) {
         initialState.player_profile.selected_class_ref = classRef

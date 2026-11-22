@@ -1,4 +1,4 @@
-import { GameState, PlayerTurnIntent } from '@/domains/simulation/model'
+import { GameState, PlayerTurnIntent, RunContentPack } from '@/domains/simulation/model'
 import { classifyOutcomeArchetype } from '@/domains/simulation/rules'
 import { OutcomeArchetypeId, RunStatus, VersionedContentRef } from '@/shared/contracts'
 
@@ -22,6 +22,8 @@ export interface ExactRunSeedInfo {
   created_at_utc: string
   last_updated_at: string
   content_pack_version?: string
+  /** Which pack the scenario came from, including the content hash for community packs (M2.6). */
+  content_pack?: RunContentPack
 }
 
 /**
@@ -147,7 +149,8 @@ export function serialize_exact_run(
       run_id: game_state.meta.run_id,
       created_at_utc: game_state.meta.created_at_utc,
       last_updated_at: game_state.meta.last_updated_at,
-      content_pack_version: game_state.meta.content_pack_version
+      content_pack_version: game_state.meta.content_pack_version,
+      ...(game_state.meta.content_pack ? { content_pack: cloneSerializable(game_state.meta.content_pack) } : {})
     },
     player_profile: cloneSerializable(game_state.player_profile),
     action_sequence: cloneSerializable(actionSequence),

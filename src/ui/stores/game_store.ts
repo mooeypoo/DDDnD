@@ -28,7 +28,15 @@ import { buildScenarioBundle } from '@/domains/content'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
 import { create_engine } from '@/domains/simulation'
-import { createLocalStorageSaveAdapter } from '@/domains/persistence/adapters'
+import { createLocalStorageSaveAdapter, openCommunityPackStore } from '@/domains/persistence/adapters'
+import type { RunContentPack } from '@/domains/simulation/model'
+import { isCommunityPacksEnabled } from '@/ui/config/feature_flags'
+
+/** Why a saved community-pack run can't be continued right now (M2.6). */
+export interface SavedRunPackNotice {
+  reason: 'missing' | 'different_version'
+  pack: RunContentPack
+}
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { loadQuestDisplayModels } from '@/ui/services/quest_loader'
 import { sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
@@ -109,11 +117,21 @@ export const useGameStore = defineStore('game', () => {
   const communityPacks = ref<PackSnapshot[]>([])
   /** In-flight or finished bundle loads, keyed by scenario id+version. */
   const scenarioBundleLoads = new Map<string, Promise<ScenarioBundle>>()
-  const contentAdapter = createGameStoreContentAdapter({
-    contentPackRegistry,
-    externalManifestUrls,
-    communityPacks,
-  })
+  const contentAdapter = createGameStoreContentAdapter(
+    {
+      contentPackRegistry,
+      externalManifestUrls,
+      communityPacks,
+    },
+    // ADR 0009: with community packs off, nothing is read from or written to the pack store.
+    isCommunityPacksEnabled() ? { openPackStore: () => openCommunityPackStore() } : {},
+  )
+  /**
+   * Set when a saved run can't be continued because the community pack it
+   * was played with isn't loaded (or a different version is). The save is
+   * kept, not deleted, so the player can add the pack back.
+   */
+  const savedRunPackNotice = ref<SavedRunPackNotice | null>(null)
   
   // Computed
   const hasActiveRun = computed(() => gameState.value !== null)
@@ -150,6 +168,7 @@ export const useGameStore = defineStore('game', () => {
       persistRunState: persist_run_state,
       tutorial,
       shouldOpenIntroBriefing: () => !isBriefingDismissed(),
+      describeScenarioPack: (scenarioRef) => contentAdapter.describeScenarioPack(scenarioRef),
       onTutorialCompleted: () => {
         markTutorialCompleted()
         shouldRecommendTutorial.value = false
@@ -294,14 +313,25 @@ export const useGameStore = defineStore('game', () => {
     return contentAdapter.checkCommunityPack(snapshot)
   }
 
+  /** Stored packs that no longer pass today's checks (restored once per visit). */
+  function community_pack_restore_issues() {
+    return contentAdapter.ensurePacksRestored()
+  }
+
+  /** Whether added packs are kept after a reload in this browser. */
+  function is_pack_store_persistent() {
+    return contentAdapter.isPackStorePersistent()
+  }
+
   async function add_community_pack(snapshot: PackSnapshot) {
-    await contentAdapter.addCommunityPack(snapshot)
+    const result = await contentAdapter.addCommunityPack(snapshot)
     scenarioBundleLoads.clear()
     await Promise.all([load_available_quests(), load_available_tutorials()])
+    return result
   }
 
   async function remove_community_pack(packId: string) {
-    const removed = contentAdapter.removeCommunityPack(packId)
+    const removed = await contentAdapter.removeCommunityPack(packId)
     scenarioBundleLoads.clear()
     await Promise.all([load_available_quests(), load_available_tutorials()])
     return removed
@@ -343,6 +373,8 @@ export const useGameStore = defineStore('game', () => {
    */
   async function start_new_run(options: RunSetupOptions) {
     await runLifecycleCoordinator.startNewRun(options as RunSetupOptionsLike)
+    // A new run replaces the saved one, so a notice about the old save no longer applies.
+    savedRunPackNotice.value = null
   }
   
   /**
@@ -392,11 +424,45 @@ export const useGameStore = defineStore('game', () => {
     saveAdapter.clear_saved_run()
   }
 
+  /**
+   * For a saved run from a community pack: is that exact pack loaded?
+   * Returns a notice when it isn't (the save is then kept, not deleted).
+   */
+  async function checkSavedRunPack(pack: RunContentPack | undefined): Promise<SavedRunPackNotice | null> {
+    if (!pack || pack.origin === 'first_party') return null
+    await contentAdapter.loadContentPacks()
+    const loaded = communityPacks.value.find((snapshot) => snapshot.manifest.id === pack.id)
+    if (!loaded) return { reason: 'missing', pack }
+    if (pack.content_hash && loaded.content_hash !== pack.content_hash) return { reason: 'different_version', pack }
+    return null
+  }
+
+  /**
+   * Looks at the saved run (without restoring it) and sets the notice when
+   * the community pack it needs isn't loaded. Used by the lobby, so a player
+   * learns why their run can't continue even on a fresh page load.
+   */
+  async function refresh_saved_run_pack_notice(): Promise<void> {
+    if (hasActiveRun.value) {
+      savedRunPackNotice.value = null
+      return
+    }
+    const saved = persistenceAdapter.loadRestorableGameState()
+    savedRunPackNotice.value = saved ? await checkSavedRunPack(saved.meta.content_pack).catch(() => null) : null
+  }
+
   async function restore_saved_run(): Promise<boolean> {
     const restoredGameState = persistenceAdapter.loadRestorableGameState()
     if (!restoredGameState) {
       return false
     }
+
+    const packNotice = await checkSavedRunPack(restoredGameState.meta.content_pack).catch(() => null)
+    if (packNotice) {
+      savedRunPackNotice.value = packNotice
+      return false
+    }
+    savedRunPackNotice.value = null
 
     try {
       const bundle = await resolveScenarioBundle(
@@ -494,6 +560,7 @@ export const useGameStore = defineStore('game', () => {
     isLoadingQuests,
     isLoadingTutorials,
     communityPacks,
+    savedRunPackNotice,
     
     // Computed
     hasActiveRun,
@@ -516,6 +583,9 @@ export const useGameStore = defineStore('game', () => {
     check_community_pack,
     add_community_pack,
     remove_community_pack,
+    is_pack_store_persistent,
+    refresh_saved_run_pack_notice,
+    community_pack_restore_issues,
     get_available_outcome_archetype_ids,
     start_new_run,
     warm_scenario_bundle,

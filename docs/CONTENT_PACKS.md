@@ -772,3 +772,56 @@ PR #34 (M1 plus M2.0–M2.5) was merged to `main`. In production, the community-
 3. DDDnD-packs was tagged `gilded_ledger-v1.0.0`, the first per-pack release tag. A live load from `https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json` succeeded: 16 files, pinning recognized as a release, and the same content hash as every earlier load (`sha256:90fae984…`).
 
 The rest of M2 continues in a follow-up PR: pack identity in saves, local snapshots, the seeded cast, docs-site pages, and the end-to-end check.
+
+### M2.6: Packs and saved runs survive a reload (2026-11-22)
+
+Behind the flag (ADR 0009). With the flag off, the pack store is never opened.
+
+**What changed**
+
+- **Runs know their pack.** `RunMeta.content_pack` records `{ id, version, origin, content_hash?, source_url? }` when a run starts. First-party runs get `origin: "first_party"`; community runs also get the content hash and, for GitHub packs, the manifest URL. The simulation never reads it: it is identity, not behavior.
+  - Save files carry it automatically, because they store the whole game state and normalization spreads `meta`.
+  - Exact-run exports also summarize it in `seed_info.content_pack`.
+  - Persistence validation rejects malformed identities (for example, a hash that isn't `sha256:` plus 64 hex characters).
+  - Fun fact: `meta.content_pack_version` already existed in saves and exports but was never set. The schema had anticipated pack identity long before anything needed it.
+- **Added packs are kept on the device** (`community_pack_store.ts`, a persistence adapter next to the existing localStorage save adapter).
+  - It uses IndexedDB, keyed by pack id (one version per pack).
+  - What's stored is the pack's `.dddnd-pack.json` text, **re-validated on every load** with that day's rules and that day's loaded packs. A pack that no longer passes is left out, and the dialog says why.
+  - Without IndexedDB (some private modes, blocked storage), a memory store is used, and the dialog says packs last only until the page closes.
+- **Stored packs are restored inside content loading,** before anything else. A saved run is restored by the router before any lobby code runs, so the restore has to happen as part of the content load, not in a view.
+- **Saved runs are never deleted because their pack is missing.** Before, any restore failure called `reset()`, which deletes the save. Now, if a community run's pack isn't loaded, or a different version (different hash) is, the save is kept and `savedRunPackNotice` explains it. The lobby checks the save when it opens (without restoring it), opens the Community packs dialog with the explanation, and fills in the pack's original link so it can be re-added in one click.
+
+**Decisions**
+
+1. **One version per pack id.** Adding a new version replaces the old one. A saved run resumes only with the *exact* content it was played with (same hash). Otherwise it is kept and explained. Supporting two versions of a pack side by side would need two packs with the same id in the registry, which ADR 0001 forbids for good reasons. Known limitation, accepted for MVP.
+2. **Store text, not objects, and re-validate on load.** Storing parsed objects would trust whatever was written under an older validator. Storing the bundle text and running it back through `readPackBundle` means stricter future rules apply to old packs too.
+3. **Storage failures never block play.** If a pack can't be kept, it is still added for the visit, and the "Added" message says it won't survive closing the page.
+
+**Two bugs the real browser found (and the unit tests didn't)**
+
+1. **IndexedDB can't store Vue reactive proxies.** The candidate snapshot passes through a `ref`, so `origin` was a Proxy, and IndexedDB threw `DataCloneError`. Worse, the pack had already been added to the session, so the dialog said "couldn't be added" while it was in play.
+   - **Fix:** write plain copies, and add to the session regardless of storage.
+   - **Prevention:** the in-memory store used by tests now uses `structuredClone` like IndexedDB does, and a regression test adds a `reactive()` snapshot. We confirmed it fails with the same `DataCloneError` when the fix is removed.
+2. **A write isn't durable when the request succeeds, only when the transaction commits.** The first store resolved writes on request success. In the scripted scenario, adding a pack and immediately navigating away left IndexedDB empty. The store now resolves writes on `transaction.oncomplete`.
+
+   This one was found *because of* a mistake in the test script. The dialog has two `role="status"` regions; the script waited for the wrong one and navigated away mid-add. That accidental "player leaves immediately" turned out to be a real scenario.
+
+**Verification**
+
+- **Unit tests:**
+  - identity validation;
+  - save and exact-run round trips with a community identity;
+  - a malformed identity rejected;
+  - a pack restored on the "next visit" (a fresh adapter on the same store) with origin and hash intact;
+  - `describeScenarioPack` for community and first-party scenarios;
+  - a tampered stored pack left out and reported;
+  - removal deleting the stored copy;
+  - the reactive-proxy regression.
+- **Headless Chrome against the dev server, real GitHub, real IndexedDB:**
+  1. Add the demo from its release tag. The dialog says "Kept on this device".
+  2. Reload: the pack is still in the lobby.
+  3. Start the community scenario and play two turns. The save carries the full identity (`sha256:90fae984…`, the tag URL). Reload mid-run: the run resumes with its Community label.
+  4. Remove the pack and go to `/game`: redirected home, **save kept**. Open the lobby: the dialog opens by itself with the explanation and the original link filled in.
+  5. Re-add the pack and go to `/game`: the run resumes.
+
+  Run three times in a row with zero console errors.

@@ -64,7 +64,11 @@
         </ul>
 
         <p v-if="flow.review.value.privacyNote" class="privacy-note">{{ flow.review.value.privacyNote }}</p>
-        <p class="session-note">Added for this visit. Reloading the page removes it.</p>
+        <p class="session-note">
+          {{ flow.persistent.value
+            ? 'Kept on this device until you remove it.'
+            : 'This browser can\'t keep packs, so it lasts until you close the page.' }}
+        </p>
       </section>
 
       <!-- Problems -->
@@ -82,8 +86,17 @@
 
       <!-- Load a pack, and the list of added packs -->
       <section v-else class="pack-load">
+        <p v-if="flow.savedRunNotice.value" class="saved-run-note" role="status">
+          {{ flow.savedRunNotice.value.message }}
+        </p>
+        <ul v-if="flow.restoreIssues.value.length > 0" class="issue-list restore-issues">
+          <li v-for="issue in flow.restoreIssues.value" :key="issue.name">
+            “{{ issue.name }}” couldn't be restored and was left out: {{ issue.reason }}
+          </li>
+        </ul>
         <p v-if="flow.lastAdded.value" class="added-note" role="status">
           Added “{{ flow.lastAdded.value }}”. Its scenarios are now in the lobby, marked Community.
+          <template v-if="!flow.lastAddedKept.value"> It couldn't be saved on this device, so it lasts until you close the page.</template>
         </p>
 
         <form class="load-form" @submit.prevent="loadUrl">
@@ -123,7 +136,7 @@
         </div>
 
         <div v-if="flow.loadedPacks.value.length > 0" class="loaded">
-          <h4 class="section-kicker">Added this visit</h4>
+          <h4 class="section-kicker">{{ flow.persistent.value ? 'Added packs' : 'Added this visit' }}</h4>
           <ul class="loaded-list">
             <li v-for="pack in flow.loadedPacks.value" :key="pack.id">
               <span>
@@ -183,6 +196,11 @@ const busy = computed(() => flow.phase.value === 'loading' || flow.phase.value =
 watch(() => props.initialUrl, (url) => {
   if (url) urlDraft.value = url
 })
+
+// A saved run that needs a pack from GitHub: offer its original link.
+watch(() => flow.savedRunNotice.value?.sourceUrl, (url) => {
+  if (url && !urlDraft.value) urlDraft.value = url
+}, { immediate: true })
 
 function loadUrl() {
   if (!busy.value && urlDraft.value.trim()) {
@@ -324,6 +342,14 @@ function close() {
   font-size: var(--text-xs);
   color: var(--text-secondary);
   margin-right: var(--space-1);
+}
+
+.saved-run-note {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--effect-warning-border);
+  background: var(--effect-warning-bg);
+  border-radius: 6px;
 }
 
 .added-note {

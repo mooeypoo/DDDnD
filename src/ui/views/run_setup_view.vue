@@ -72,7 +72,14 @@ const communityPacksEnabled = isCommunityPacksEnabled()
  * the player decides.
  */
 const packLinkFromQuery = communityPacksEnabled && typeof route.query.pack === 'string' ? route.query.pack : undefined
-const isCommunityPacksOpen = ref(Boolean(packLinkFromQuery))
+const isCommunityPacksOpen = ref(Boolean(packLinkFromQuery) || (communityPacksEnabled && gameStore.savedRunPackNotice !== null))
+
+if (communityPacksEnabled) {
+  // A saved run that needs a community pack that isn't loaded: explain it.
+  void gameStore.refresh_saved_run_pack_notice().then(() => {
+    if (gameStore.savedRunPackNotice) isCommunityPacksOpen.value = true
+  })
+}
 
 function closeCommunityPacks() {
   isCommunityPacksOpen.value = false

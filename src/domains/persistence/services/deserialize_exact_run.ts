@@ -7,6 +7,7 @@ import {
   isPlayerTurnIntentArray,
   isPositiveInteger,
   isRecord,
+  isRunContentPack,
   isTurnHistoryArray,
   isVersionedRef,
   isVersionedRefArray,
@@ -39,6 +40,10 @@ function isSeedInfo(value: unknown): value is ExactRunSeedInfo {
   }
 
   if (value.content_pack_version !== undefined && !isNonEmptyString(value.content_pack_version)) {
+    return false
+  }
+
+  if (value.content_pack !== undefined && !isRunContentPack(value.content_pack)) {
     return false
   }
 

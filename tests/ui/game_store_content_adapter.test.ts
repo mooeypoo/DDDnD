@@ -186,7 +186,103 @@ describe('community packs in the content adapter (M2.5)', () => {
     const demo = await demoPackSnapshot()
     communityPacks.value = [demo, { ...demo, manifest: { ...demo.manifest, id: 'sequel', depends_on: [{ pack_id: 'gilded_ledger', version: '1.0.0' }] } }]
 
-    expect(adapter.removeCommunityPack('gilded_ledger').sort()).toEqual(['gilded_ledger', 'sequel'])
+    expect((await adapter.removeCommunityPack('gilded_ledger')).sort()).toEqual(['gilded_ledger', 'sequel'])
     expect(communityPacks.value).toEqual([])
+  })
+})
+
+describe('keeping community packs between visits (M2.6)', () => {
+  async function adapterWithStore(store: import('@/domains/persistence/adapters/community_pack_store').CommunityPackStore) {
+    const { createDiskBackedRegistry, readFirstPartyManifest } = await import('../content/support/demo_pack')
+    const contentPackRegistry = ref<ContentPackRegistry | null>(null)
+    const communityPacks = ref<import('@/domains/content/model').PackSnapshot[]>([])
+    const adapter = createGameStoreContentAdapter(
+      { contentPackRegistry, externalManifestUrls: ref<string[]>([]), communityPacks },
+      {
+        resolveManifestUrls: () => ['base', 'tutorial'],
+        loadManifestByUrl: async (id: string) => readFirstPartyManifest(id as 'base' | 'tutorial'),
+        createRegistry: createDiskBackedRegistry,
+        openPackStore: async () => store,
+      },
+    )
+    return { adapter, communityPacks }
+  }
+
+  it('restores an added pack on the next visit, with its origin and identity', async () => {
+    const { createMemoryCommunityPackStore } = await import('@/domains/persistence/adapters/community_pack_store')
+    const { demoPackSnapshot } = await import('../content/support/demo_pack')
+    const store = createMemoryCommunityPackStore(true)
+    const remote = { ...(await demoPackSnapshot()), origin: { kind: 'remote' as const, manifest_url: 'https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json', pinning: 'release_tag' as const } }
+
+    const firstVisit = await adapterWithStore(store)
+    await firstVisit.adapter.addCommunityPack(remote)
+    expect(await store.list()).toEqual([expect.objectContaining({ pack_id: 'gilded_ledger', content_hash: remote.content_hash })])
+
+    const nextVisit = await adapterWithStore(store)
+    expect(await nextVisit.adapter.ensurePacksRestored()).toEqual([])
+    expect(nextVisit.communityPacks.value).toHaveLength(1)
+    expect(nextVisit.communityPacks.value[0].content_hash).toBe(remote.content_hash)
+    expect(nextVisit.communityPacks.value[0].origin).toEqual(remote.origin)
+
+    await nextVisit.adapter.loadContentPacks()
+    expect(nextVisit.adapter.describeScenarioPack({ id: 'ledger_payments_monolith', version: 1 })).toEqual({
+      id: 'gilded_ledger',
+      version: '1.0.0',
+      origin: 'remote',
+      content_hash: remote.content_hash,
+      source_url: remote.origin.manifest_url,
+    })
+    expect(nextVisit.adapter.describeScenarioPack({ id: 'monolith_of_mild_despair', version: 2 })).toEqual({ id: 'base', version: '1.0.0', origin: 'first_party' })
+  })
+
+  it('re-validates stored packs: one that no longer passes is left out and reported', async () => {
+    const { createMemoryCommunityPackStore } = await import('@/domains/persistence/adapters/community_pack_store')
+    const store = createMemoryCommunityPackStore(true)
+    await store.put({
+      pack_id: 'tampered',
+      name: 'Tampered Pack',
+      version: '1.0.0',
+      content_hash: `sha256:${'0'.repeat(64)}`,
+      origin: { kind: 'file', file_name: 'tampered.dddnd-pack.json' },
+      bundle_text: '{"format":"dddnd-pack","format_version":1,"manifest":{"id":"tampered"},"files":{}}',
+      added_at: '2026-11-22T00:00:00.000Z',
+    })
+
+    const visit = await adapterWithStore(store)
+    const issues = await visit.adapter.ensurePacksRestored()
+    expect(issues).toEqual([expect.objectContaining({ pack_id: 'tampered', name: 'Tampered Pack' })])
+    expect(visit.communityPacks.value).toEqual([])
+  })
+
+  it('removing a pack deletes its stored copy', async () => {
+    const { createMemoryCommunityPackStore } = await import('@/domains/persistence/adapters/community_pack_store')
+    const { demoPackSnapshot } = await import('../content/support/demo_pack')
+    const store = createMemoryCommunityPackStore(true)
+    const visit = await adapterWithStore(store)
+    await visit.adapter.addCommunityPack(await demoPackSnapshot())
+    await visit.adapter.removeCommunityPack('gilded_ledger')
+    expect(await store.list()).toEqual([])
+  })
+})
+
+describe('storing packs that passed through Vue reactivity (M2.6 regression)', () => {
+  it('keeps a pack whose snapshot is a reactive proxy (IndexedDB rejects proxies)', async () => {
+    const { reactive } = await import('vue')
+    const { createMemoryCommunityPackStore } = await import('@/domains/persistence/adapters/community_pack_store')
+    const { createDiskBackedRegistry, demoPackSnapshot, readFirstPartyManifest } = await import('../content/support/demo_pack')
+    const store = createMemoryCommunityPackStore(true)
+    const adapter = createGameStoreContentAdapter(
+      { contentPackRegistry: ref<ContentPackRegistry | null>(null), externalManifestUrls: ref<string[]>([]), communityPacks: ref([]) },
+      {
+        resolveManifestUrls: () => ['base'],
+        loadManifestByUrl: async () => readFirstPartyManifest('base'),
+        createRegistry: createDiskBackedRegistry,
+        openPackStore: async () => store,
+      },
+    )
+
+    const proxied = reactive(await demoPackSnapshot())
+    expect(await adapter.addCommunityPack(proxied)).toEqual({ kept: true })
+    expect(await store.list()).toHaveLength(1)
   })
 })

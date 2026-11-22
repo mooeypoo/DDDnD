@@ -65,7 +65,7 @@ describe('community packs flow', () => {
     const snapshot = await demoPackSnapshot()
     const store = useGameStore()
     const check = vi.spyOn(store, 'check_community_pack').mockResolvedValue({ ok: true, issues: [] })
-    const add = vi.spyOn(store, 'add_community_pack').mockResolvedValue()
+    const add = vi.spyOn(store, 'add_community_pack').mockResolvedValue({ kept: true })
     const flow = useCommunityPacks({ loadRemote: vi.fn().mockResolvedValue(snapshot) })
 
     await flow.loadFromUrl(`  ${RAW}/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json  `)

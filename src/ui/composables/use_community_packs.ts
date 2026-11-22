@@ -63,6 +63,30 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
   const issues = ref<PackIssue[]>([])
   const hiddenIssueCount = ref(0)
   const lastAdded = ref<string | null>(null)
+  /** False when the last added pack couldn't be kept on this device. */
+  const lastAddedKept = ref(true)
+  /** Whether added packs survive a reload in this browser. */
+  const persistent = ref(false)
+  /** Stored packs that couldn't be restored this visit. */
+  const restoreIssues = ref<Array<{ name: string; reason: string }>>([])
+
+  /** Why the saved run can't continue, in plain words, plus a link to re-add from. */
+  const savedRunNotice = computed(() => {
+    const notice = store.savedRunPackNotice
+    if (!notice) return null
+    const label = `${notice.pack.id} v${notice.pack.version}`
+    return {
+      message: notice.reason === 'missing'
+        ? `Your saved run was played with the community pack “${label}”, which isn't added right now. Add it again to continue that run, or start a new one.`
+        : `Your saved run was played with a different version of “${label}” than the one added now. Add that exact version again to continue it, or start a new run.`,
+      sourceUrl: notice.pack.source_url,
+    }
+  })
+
+  void (async () => {
+    persistent.value = await store.is_pack_store_persistent()
+    restoreIssues.value = (await store.community_pack_restore_issues()).map((issue) => ({ name: issue.name, reason: issue.reason }))
+  })()
 
   const review = computed<PackReview | null>(() => (candidate.value ? buildPackReview(candidate.value) : null))
   const loadedPacks = computed(() => store.communityPacks.map((snapshot) => ({
@@ -112,7 +136,8 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
     const snapshot = candidate.value
     phase.value = 'adding'
     try {
-      await store.add_community_pack(snapshot)
+      const { kept } = await store.add_community_pack(snapshot)
+      lastAddedKept.value = kept || !persistent.value
       lastAdded.value = snapshot.manifest.name
       candidate.value = null
       phase.value = 'idle'
@@ -139,6 +164,10 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
     issues,
     hiddenIssueCount,
     lastAdded,
+    lastAddedKept,
+    persistent,
+    restoreIssues,
+    savedRunNotice,
     loadedPacks,
     loadFromUrl,
     loadFromFile,
