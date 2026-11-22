@@ -1361,6 +1361,6 @@ If any content wording reads worse than the old UI strings, the fix belongs in t
 
 **Verification**
 
-- **Tests** (+9, 1090 total): naming from content, the coarse-tier fallback, title-case fallbacks, share-link names round-tripping and refused when too long or empty, and the share card using the carried names and falling back for old links.
+- **Tests** (+8, 1089 total): naming from content, the coarse-tier fallback, title-case fallbacks, share-link names round-tripping and refused when too long or empty, and the share card using the carried names and falling back for old links.
 - **Golden replays and the fixed-seed audit are unchanged:** presentation only.
 - **Headless Chrome:** a full base run ended in "Triumph", "The Visionary", with the content's description and flavor line, the same names on the share card, and the same after a reload. No console errors.
