@@ -563,7 +563,7 @@ The entry point is a small "Community packs" control in the lobby. Its final des
 - [ ] Add `https://raw.githubusercontent.com` and `https://*.github.io` to `connect-src` in `netlify.toml`
 - [ ] Re-run the headless CSP check (M1.6) with a remote pack loaded
 - [ ] Public docs-site pages for players and authors are live
-- [ ] Demo pack published and pinned to a tag
+- [x] Demo pack published and pinned to a tag (`gilded_ledger-v1.0.0`)
 
 ### M2.1: The packs repository, the demo pack, and where trust lives (2026-11-21)
 
@@ -652,8 +652,8 @@ GitHub Actions can't run locally, so we reproduced the job's checkout layout in 
 **Also done:** the GPL-3.0 `LICENSE` file was added to DDDnD's root on `main` (it had been declared in `package.json` and manifests, but the file was missing). DDDnD-packs has its own.
 
 **Release checklist additions:**
-- [ ] After merge: tag DDDnD `pack-validator-v1`, and switch the DDDnD-packs workflow refs to it
-- [ ] Tag DDDnD-packs `gilded_ledger-v1.0.0` once its CI is green against the released validator
+- [x] After merge: tag DDDnD `pack-validator-v1`, and switch the DDDnD-packs workflow refs to it (done 2026-11-22)
+- [x] Tag DDDnD-packs `gilded_ledger-v1.0.0` once its CI is green against the released validator (done 2026-11-22)
 
 ### M2.3: Where packs may come from, and loading one into memory (2026-11-22)
 
@@ -757,3 +757,18 @@ Behind the `VITE_ENABLE_COMMUNITY_PACKS` flag (ADR 0009).
 
 - `File.text()` is missing in some older browsers (and in jsdom). File reading falls back to `FileReader`.
 - A community quest has no difficulty plate, because the difficulty table only knows first-party scenarios. The Community badge takes its place. Fine for now; worth revisiting with the lobby design.
+
+---
+
+### Release point: PR #34 merged (2026-11-22)
+
+PR #34 (M1 plus M2.0–M2.5) was merged to `main`. In production, the community-pack UI stays off (ADR 0009). The hardened content boundary, the CSP, and the published schemas are live.
+
+**Before merging**, the browser checks were run once more against the PR's Netlify deploy preview, which is how the preview-only toolbar injection was found (recorded under M1.6).
+
+**After merging:**
+1. DDDnD was tagged `pack-validator-v1` at the merge commit. This is the moving major tag from ADR 0011.
+2. DDDnD-packs' CI was switched from the feature branch to that tag. Its run passed, so the published contract works for a real consumer.
+3. DDDnD-packs was tagged `gilded_ledger-v1.0.0`, the first per-pack release tag. A live load from `https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json` succeeded: 16 files, pinning recognized as a release, and the same content hash as every earlier load (`sha256:90fae984…`).
+
+The rest of M2 continues in a follow-up PR: pack identity in saves, local snapshots, the seeded cast, docs-site pages, and the end-to-end check.

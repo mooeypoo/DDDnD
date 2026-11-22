@@ -274,7 +274,7 @@ jobs:
 
 Inputs: `packs` (folders with a `manifest.json`; globs allowed), `dependency-roots` (folders of other packs yours depends on, besides `base` and `tutorial`), `audit-runs` (default 50; `0` skips the balance audit), `fail-on-audit-critical` (default `true`). Pin both refs to the same tag. `pack-validator-v1` only moves forward for compatible changes. See [ADR 0011](adr/0011-reusable-pack-validation-workflow.md).
 
-> The `pack-validator-v1` tag is published when community pack support is released. Until then, use the ref given in the [DDDnD-packs workflow](https://github.com/mooeypoo/DDDnD-packs/blob/main/.github/workflows/validate-packs.yml).
+[DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs/blob/main/.github/workflows/validate-packs.yml) uses exactly this setup.
 
 ## Editor support (JSON Schema)
 
