@@ -1166,3 +1166,60 @@ Both looks share one rule: community content has a **stitched (dashed) border**,
 **DDD note (talk material)**
 
 Where data lives is part of the model the player needs to know. "Your packs" sounds like an account. Saying "kept in this browser" is the user-facing side of a decision made for privacy: no backend, no accounts, nothing about the player stored. Hiding that would have made the privacy choice look like a bug the first time someone switched devices.
+
+### M2.13: The community area, built (2026-11-22)
+
+Builds M2.11 and M2.12, behind the flag (ADR 0009). Decision recorded in [ADR 0015](adr/0015-community-packs-in-their-own-place.md).
+
+**What changed**
+
+- **Routes.** `/community` is the bazaar. `/community/<pack key>` is the pack's table, the same `RunSetupView` given a `packKey` prop. The route takes the key with its slashes (`:packKey+`), so a table's address is readable: `/community/github:mooeypoo/dddnd-packs/packs/gilded_ledger`. Both routes redirect to `/play` with the flag off.
+- **The lobby view filters by table.** Without a pack key it shows first-party quests only (`isFirstPartyPackKey`). With one, it shows only that pack's quests and passes the pack's banner to the lobby component, which switches to the bazaar theme. Moving from one pack's table to another resets the selection.
+- **Leaving a run goes back to the run's table.** `lobbyRouteFor(key)` is used by "Play again", reset, leaving a tutorial, and "start the real game". Tutorials suggested after a tutorial come from the same table, so a base tutorial never suggests a community one.
+- **The external marker.** `describeRunCommunityPack` works from what the save recorded (key, origin, source URL), so it still marks a run whose pack has since been removed, falling back to the pack id for the name. It feeds:
+  - the play label;
+  - a new label on the results screen ("… · not a DDDnD scenario");
+  - the share payload's optional `cp` field, which the share card renders as plain text.
+
+  The decoder accepts `cp` only as two non-empty strings of at most 160 characters.
+- **Docs.**
+  - A new player page on the docs site, [Community packs](../docs-site/guide/community-packs.md), opens with a "not switched on yet" notice, because the site is public and the flag is still off in production. It covers safety, the bazaar, importing, publishers, where packs are kept, saved games, and removing a pack.
+  - Both authoring guides gained "How players find your pack": the share-link format, one table per pack, browser-only storage, and runs marked as the author's. The class note now points at the planned pack-owned classes.
+  - The threat model's T8 and T15 rows mention the separate area and the run marker, including that share links were always forgeable.
+
+**Decisions and trade-offs**
+
+1. **One view, two roles.** The pack table is the lobby view with a prop, not a copy. Everything the lobby does (difficulty order, warming bundles, tutorials, modifiers) works the same at a pack's table.
+2. **The marker uses the save, not the loaded pack.** It is about the run, so it must survive the pack being removed.
+3. **The docs page is published before launch, with a notice,** so authors can prepare packs and the page can be reviewed alongside the code.
+
+**DDD note (talk material)**
+
+The routes say the model out loud. `/play` is the game's own context. `/community/<pack key>` names a pack by its identity (ADR 0012), right in the address bar. The same view serves both because a table is a table; what changes is which context's content it shows and how it frames it.
+
+**Verification**
+
+- **Unit and component tests** (+26, 1080 total):
+  - routes: the pack key round-trips through the path; runs return to the right table;
+  - run labels: remote, file, removed pack, first-party;
+  - share payload: the `cp` marker is built, round-trips, and malformed values are refused;
+  - share card: the marker is shown as text, never markup, and is absent for base runs;
+  - lobby and tables (flag on): the lobby is first-party only; the bazaar link; `?pack=` is forwarded; a pack table shows only its quests under its banner, starts runs with the pack key, goes back to the bazaar, and sends unknown keys to the bazaar;
+  - bazaar: stalls with publisher and external mark, both storage notices, remove only after confirming, import as an action and not a stall, the demo offered when empty;
+  - flow: `confirm()` returns what was imported.
+
+  One flow-test expectation changed with the wording ("Both stay; the bazaar shows…"), and another with "import" replacing "add".
+- **End to end in headless Chrome, with real GitHub and real storage:**
+  1. The lobby has 5 base adventures.
+  2. Lobby → bazaar → import the demo from its tag. The dialog closes and "Imported … Open it to play" appears.
+  3. Open it. The table's address is the pack key.
+  4. Play: the label names the pack and publisher. The save carries the key, version and content hash.
+  5. Reload mid-run: it resumes with the label.
+  6. Finish: the results screen and the share card both say "Community pack · Demo: The Gilded Ledger · mooeypoo on GitHub (mooeypoo/DDDnD-packs) · not a DDDnD scenario".
+  7. "Play again" returns to the pack's table.
+  8. Import the same pack from a file: two stalls, with different publishers.
+  9. Play a base adventure: no marker anywhere, and "Play again" returns to `/play`.
+  10. A share link carrying `cp`, opened in `/share`, shows the marker.
+
+  No console errors.
+- `vue-tsc` and the docs-site build pass.
