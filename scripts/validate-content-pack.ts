@@ -23,6 +23,7 @@ import { buildContentAuditReport } from '../src/domains/simulation/services/audi
 import { buildScenarioBundle } from '../src/domains/content/services/bundle_builder.js'
 import { createFileContentProvider } from './lib/file_content_provider.js'
 import { ContentPackRegistry } from '../src/domains/content/services/content_pack_registry.js'
+import { communityManifestIssues, firstPartyPackKey } from '../src/domains/content/services/pack_identity.js'
 import type { ContentProvider } from '../src/domains/content/services/content_provider.js'
 
 interface VersionedEntity {
@@ -122,8 +123,10 @@ function listEntryPointScenarioRefs(manifest: ContentPackManifest, includeTestSc
 /**
  * Builds the provider the game would use for this pack's scenarios: the pack
  * plus its declared dependencies, with one owner per file and pack-scoped
- * resolution (M1.3). First-party dependencies come from this repository;
- * other dependencies come from --dependency-root folders.
+ * resolution (M1.3). First-party dependencies come from this repository.
+ * --dependency-root folders can stand in for them (for example, to check a
+ * pack against a work-in-progress base pack); community packs may not depend
+ * on other community packs (ADR 0013).
  */
 async function createPackScopedProvider(
   manifest: ContentPackManifest,
@@ -157,12 +160,27 @@ async function createPackScopedProvider(
   }
 
   await registerWithDependencies(manifest, contentRoot)
-  return registry.createScopedProvider(manifest.id)
+  return registry.createScopedProvider(firstPartyPackKey(manifest.id))
 }
 
 async function main() {
   const options = parseArgs(process.argv.slice(2))
   const manifest = await loadManifestFromDisk(options.manifestPath)
+
+  // Community packs follow the game's identity rules (ADR 0013): no first-party
+  // ids, and dependencies only on first-party packs. A pack counts as
+  // first-party only when it is one of ours, validated from our own folder.
+  const isFirstParty = FIRST_PARTY_PACK_ROOTS[manifest.id] !== undefined
+    && path.resolve(FIRST_PARTY_PACK_ROOTS[manifest.id]) === path.resolve(options.contentRoot)
+  if (!isFirstParty) {
+    const identityIssues = communityManifestIssues(manifest)
+    if (identityIssues.length > 0) {
+      console.error(`Pack ${options.manifestPath} can't be loaded by the game:`)
+      for (const issue of identityIssues) console.error(`  ${issue.file}: ${issue.message}`)
+      process.exit(1)
+    }
+  }
+
   const provider = await createPackScopedProvider(manifest, options.contentRoot, options.dependencyRoots)
   const scenarioRefs = listEntryPointScenarioRefs(manifest, options.includeTestScenarios)
 

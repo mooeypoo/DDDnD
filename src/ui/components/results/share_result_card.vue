@@ -126,7 +126,8 @@ import type { OutcomeArchetypeId } from '@/shared/contracts'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import { requestAvatarRoleImage } from '@/ui/composables/presentation_asset_lookup'
 import {
-  resolveStakeholderAvatarRole,
+  buildRunCast,
+  castRoleFor,
   resolveStakeholderMood,
 } from '@/ui/composables/gameplay_stage_presentation'
 import { formatStakeholderName } from '@/ui/composables/stakeholder_presentation'
@@ -303,9 +304,16 @@ function stakeholderStateClass(value: number): StakeholderEntry['stateClass'] {
   return 'critical'
 }
 
+/**
+ * The same cast the run was played with (ADR 0002). Links made before the
+ * payload carried the seed get a distinct, stable cast that may differ from
+ * the one played.
+ */
+const runCast = computed(() => buildRunCast(props.payload.sd ?? '', Object.keys(props.payload.stakeholders ?? {})))
+
 function getStakeholderAvatarUrl(stakeholder: StakeholderEntry): string {
   return requestAvatarRoleImage({
-    avatarRole: resolveStakeholderAvatarRole(stakeholder.id),
+    avatarRole: castRoleFor(runCast.value, stakeholder.id),
     mood: resolveStakeholderMood(stakeholder.satisfaction),
   })
 }

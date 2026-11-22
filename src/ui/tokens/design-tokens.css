@@ -111,6 +111,14 @@
   --metric-budget:                 #94a3b8;   /* cool slate       */
   --metric-domain-clarity:         #2dd4bf;   /* fresh teal       */
 
+  /* Scores from packs the UI has no color for (ADR 0002): by position */
+  --metric-fallback-1:             #f472b6;   /* rose             */
+  --metric-fallback-2:             #fb923c;   /* ember orange     */
+  --metric-fallback-3:             #a3e635;   /* lime             */
+  --metric-fallback-4:             #38bdf8;   /* sky              */
+  --metric-fallback-5:             #e879f9;   /* orchid           */
+  --metric-fallback-6:             #facc15;   /* gold             */
+
   /* Effect state colors */
   --effect-positive:        #34d399;
   --effect-positive-bg:     rgba(52,  211, 153, 0.11);

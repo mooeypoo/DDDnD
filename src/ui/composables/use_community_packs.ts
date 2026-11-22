@@ -14,6 +14,7 @@ import { computed, ref } from 'vue'
 
 import type { PackSnapshot } from '@/domains/content/model'
 import { readPackBundle } from '@/domains/content/services/pack_bundle_file'
+import { packKeyOf } from '@/domains/content/services/pack_identity'
 import { PackLoadError, type PackIssue } from '@/domains/content/services/pack_snapshot_builder'
 import { loadRemotePackSnapshot } from '@/domains/content/services/remote_pack_loader'
 import { buildPackReview, type PackReview } from '@/ui/play/community_pack_review'
@@ -63,10 +64,57 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
   const issues = ref<PackIssue[]>([])
   const hiddenIssueCount = ref(0)
   const lastAdded = ref<string | null>(null)
+  /** False when the last added pack couldn't be kept on this device. */
+  const lastAddedKept = ref(true)
+  /** Whether added packs survive a reload in this browser. */
+  const persistent = ref(false)
+  /** Stored packs that couldn't be restored this visit. */
+  const restoreIssues = ref<Array<{ name: string; reason: string }>>([])
+
+  /** Why the saved run can't continue, in plain words, plus a link to re-add from. */
+  const savedRunNotice = computed(() => {
+    const notice = store.savedRunPackNotice
+    if (!notice) return null
+    const label = `${notice.pack.id} v${notice.pack.version}`
+    const addAgain = notice.pack.source_url ? 'Add it again from its original link' : 'Add that pack file again'
+    const messages: Record<typeof notice.reason, string> = {
+      missing: `Your saved run was played with the community pack “${label}”, which isn't added right now. ${addAgain} to continue that run, or start a new one.`,
+      different_version: `Your saved run was played with a different version of “${label}” than the one added now. ${addAgain} to continue it, or start a new run.`,
+      different_source: `Your saved run was played with “${label}”, but the pack added now with that name was loaded from somewhere else, and saved runs only continue with the pack they were played with. ${addAgain} to continue that run, or start a new one.`,
+    }
+    return { message: messages[notice.reason], sourceUrl: notice.pack.source_url }
+  })
+
+  void (async () => {
+    persistent.value = await store.is_pack_store_persistent()
+    restoreIssues.value = (await store.community_pack_restore_issues()).map((issue) => ({ name: issue.name, reason: issue.reason }))
+  })()
 
   const review = computed<PackReview | null>(() => (candidate.value ? buildPackReview(candidate.value) : null))
+
+  /**
+   * How the reviewed pack relates to packs already added (ADR 0014): the same
+   * pack it replaces (another version), and same-named packs from elsewhere,
+   * which stay added. Shown before confirming, so the player can tell them apart.
+   */
+  const relations = computed(() => {
+    if (!candidate.value) return []
+    const { replaces, same_name } = store.find_community_pack_relations(candidate.value)
+    const notes: Array<{ tone: 'calm'; message: string }> = []
+    if (replaces) {
+      notes.push({ tone: 'calm', message: `Replaces the version you added before (v${replaces.manifest.version}).` })
+    }
+    for (const other of same_name) {
+      const otherReview = buildPackReview(other)
+      notes.push({
+        tone: 'calm',
+        message: `You also have another pack called “${otherReview.title}”, published by ${otherReview.publisher.label}. Both stay added; the lobby shows who published each.`,
+      })
+    }
+    return notes
+  })
   const loadedPacks = computed(() => store.communityPacks.map((snapshot) => ({
-    id: snapshot.manifest.id,
+    key: packKeyOf(snapshot),
     review: buildPackReview(snapshot),
   })))
 
@@ -112,7 +160,8 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
     const snapshot = candidate.value
     phase.value = 'adding'
     try {
-      await store.add_community_pack(snapshot)
+      const { kept } = await store.add_community_pack(snapshot)
+      lastAddedKept.value = kept || !persistent.value
       lastAdded.value = snapshot.manifest.name
       candidate.value = null
       phase.value = 'idle'
@@ -127,18 +176,23 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
     phase.value = 'idle'
   }
 
-  async function remove(packId: string) {
+  async function remove(packKey: string) {
     lastAdded.value = null
-    await store.remove_community_pack(packId)
+    await store.remove_community_pack(packKey)
   }
 
   return {
     phase,
     review,
+    relations,
     errorTitle,
     issues,
     hiddenIssueCount,
     lastAdded,
+    lastAddedKept,
+    persistent,
+    restoreIssues,
+    savedRunNotice,
     loadedPacks,
     loadFromUrl,
     loadFromFile,

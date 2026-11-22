@@ -6,6 +6,7 @@ import CouncilLobby from '@/ui/play/council_lobby.vue'
 
 function makeQuest(id: string, name: string, extras: Partial<QuestDisplayModel> = {}): QuestDisplayModel {
   return {
+    packKey: 'dddnd:base',
     id,
     version: 1,
     name,

@@ -3,6 +3,31 @@ import { DelayedEffectInstance } from './delayed_effect_instance'
 import { TurnHistoryEntry } from './turn_history_entry'
 
 /**
+ * Which content pack a run's scenario came from (M2.6).
+ *
+ * Recorded at run start so a save or export can say exactly what content it
+ * needs. Never read by the simulation: it is identity, not behavior.
+ */
+export interface RunContentPack {
+  /**
+   * Unique pack identity, from where the pack is published (ADR 0012):
+   * `dddnd:base`, `github:<owner>/<repo>/<folder>`, `file:sha256:…`.
+   * Two packs can share a manifest id; they never share a key.
+   */
+  key: string
+  /** Pack id from the manifest (`base`, `gilded_ledger`). A name, not unique. */
+  id: string
+  /** Pack version from the manifest (`1.0.0`). */
+  version: string
+  /** `first_party` (ships with the game) or how a community pack was loaded. */
+  origin: 'first_party' | 'remote' | 'file'
+  /** Community packs: `sha256:` content hash of the exact content played. */
+  content_hash?: string
+  /** Community packs loaded from GitHub: the manifest URL. */
+  source_url?: string
+}
+
+/**
  * Immutable run identity and timestamps.
  */
 export interface RunMeta {
@@ -10,7 +35,9 @@ export interface RunMeta {
   seed: string
   created_at_utc: string
   last_updated_at: string
+  /** Legacy, never set. Superseded by `content_pack`. */
   content_pack_version?: string
+  content_pack?: RunContentPack
 }
 
 /**

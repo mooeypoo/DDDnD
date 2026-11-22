@@ -45,7 +45,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import type { PlayerClass, ChallengeModifier } from '@/domains/content/model'
-import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
+import { isSameQuest, type QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
@@ -72,12 +72,18 @@ const communityPacksEnabled = isCommunityPacksEnabled()
  * the player decides.
  */
 const packLinkFromQuery = communityPacksEnabled && typeof route.query.pack === 'string' ? route.query.pack : undefined
-const isCommunityPacksOpen = ref(Boolean(packLinkFromQuery))
+const isCommunityPacksOpen = ref(Boolean(packLinkFromQuery) || (communityPacksEnabled && gameStore.savedRunPackNotice !== null))
+
+if (communityPacksEnabled) {
+  // A saved run that needs a community pack that isn't loaded: explain it.
+  void gameStore.refresh_saved_run_pack_notice().then(() => {
+    if (gameStore.savedRunPackNotice) isCommunityPacksOpen.value = true
+  })
+}
 
 function closeCommunityPacks() {
   isCommunityPacksOpen.value = false
-  if (selectedQuest.value && !gameStore.availableQuests.some((quest) => quest.id === selectedQuest.value?.id && quest.version === selectedQuest.value?.version)
-    && !gameStore.availableTutorials.some((quest) => quest.id === selectedQuest.value?.id)) {
+  if (selectedQuest.value && ![...gameStore.availableQuests, ...gameStore.availableTutorials].some((quest) => isSameQuest(quest, selectedQuest.value))) {
     selectedQuest.value = easiestAdventure(gameStore.availableQuests)
   }
 }
@@ -201,9 +207,9 @@ function warmKnownScenarios(priority?: QuestDisplayModel | null) {
 
   // The chosen scenario goes first. Other adventures wait until it has
   // finished, so their files do not crowd out the one the player is about to sit.
-  void gameStore.warm_scenario_bundle(first.id, first.version).then(() => {
+  void gameStore.warm_scenario_bundle(first.packKey, first.id, first.version).then(() => {
     for (const quest of quests) {
-      void gameStore.warm_scenario_bundle(quest.id, quest.version)
+      void gameStore.warm_scenario_bundle(quest.packKey, quest.id, quest.version)
     }
   })
 }
@@ -228,6 +234,7 @@ async function startRun() {
         }
 
   await gameStore.start_new_run({
+    pack_key: selectedQuest.value.packKey,
     scenario_id: selectedQuest.value.id,
     scenario_version: selectedQuest.value.version,
     selected_class_ref: {
@@ -247,6 +254,7 @@ async function launchTutorial(quest: QuestDisplayModel) {
   if (!fallbackClass) return
 
   await gameStore.start_new_run({
+    pack_key: quest.packKey,
     scenario_id: quest.id,
     scenario_version: quest.version,
     selected_class_ref: {

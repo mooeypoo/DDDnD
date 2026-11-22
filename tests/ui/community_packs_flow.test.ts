@@ -50,6 +50,19 @@ describe('community pack review (the consent screen)', () => {
     expect(review.privacyNote).toMatch(/IP address/)
   })
 
+  it('shows who published a GitHub pack: the claim a pack cannot fake (ADR 0013)', async () => {
+    const snapshot = withOrigin(await demoPackSnapshot(), { kind: 'remote', manifest_url: `${RAW}/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json`, pinning: 'release_tag' })
+    expect(buildPackReview(snapshot).publisher).toEqual({ label: 'mooeypoo on GitHub (mooeypoo/DDDnD-packs)', verified: true })
+    const pages = withOrigin(await demoPackSnapshot(), { kind: 'remote', manifest_url: 'https://mooeypoo.github.io/DDDnD-packs/packs/gilded_ledger/manifest.json', pinning: 'unpinned' })
+    expect(buildPackReview(pages).publisher).toEqual({ label: 'mooeypoo on GitHub Pages', verified: true })
+  })
+
+  it('says the publisher of a file is unknown, whatever its credits claim', async () => {
+    const review = buildPackReview(await demoPackSnapshot())
+    expect(review.authors[0].name).toBe('Moriel Schottlender')
+    expect(review.publisher).toEqual({ label: 'unknown (loaded from a file)', verified: false })
+  })
+
   it('reassures for pinned links', async () => {
     const pinned = buildPackReview(withOrigin(await demoPackSnapshot(), { kind: 'remote', manifest_url: `${RAW}/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json`, pinning: 'release_tag' }))
     expect(pinned.origin).toMatchObject({ label: 'From GitHub, pinned to a release', tone: 'calm' })
@@ -65,7 +78,7 @@ describe('community packs flow', () => {
     const snapshot = await demoPackSnapshot()
     const store = useGameStore()
     const check = vi.spyOn(store, 'check_community_pack').mockResolvedValue({ ok: true, issues: [] })
-    const add = vi.spyOn(store, 'add_community_pack').mockResolvedValue()
+    const add = vi.spyOn(store, 'add_community_pack').mockResolvedValue({ kept: true })
     const flow = useCommunityPacks({ loadRemote: vi.fn().mockResolvedValue(snapshot) })
 
     await flow.loadFromUrl(`  ${RAW}/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json  `)
@@ -122,5 +135,40 @@ describe('community packs flow', () => {
     await flow.loadFromFile(new File(['{"format":"dddnd-pack"}'], 'demo.dddnd-pack.json'))
     expect(readBundle).toHaveBeenCalledWith('{"format":"dddnd-pack"}', 'demo.dddnd-pack.json')
     expect(flow.phase.value).toBe('review')
+  })
+})
+
+describe('what the review says about packs already added (ADR 0014)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  async function reviewWith(relations: { replaces: PackSnapshot | null; same_name: PackSnapshot[] }) {
+    const store = useGameStore()
+    vi.spyOn(store, 'check_community_pack').mockResolvedValue({ ok: true, issues: [] })
+    vi.spyOn(store, 'find_community_pack_relations').mockReturnValue(relations)
+    const flow = useCommunityPacks({ loadRemote: vi.fn().mockResolvedValue(await demoPackSnapshot()) })
+    await flow.loadFromUrl(`${RAW}/gilded_ledger-v1.1.0/packs/gilded_ledger/manifest.json`)
+    return flow
+  }
+
+  it('says nothing when the pack is new', async () => {
+    expect((await reviewWith({ replaces: null, same_name: [] })).relations.value).toEqual([])
+  })
+
+  it('says it replaces the version added before (same pack)', async () => {
+    const flow = await reviewWith({ replaces: await demoPackSnapshot(), same_name: [] })
+    expect(flow.relations.value).toEqual([{ tone: 'calm', message: 'Replaces the version you added before (v1.0.0).' }])
+  })
+
+  it('tells same-named packs apart by publisher, and keeps both', async () => {
+    const other = withOrigin(await demoPackSnapshot((files) => {
+      files['manifest.json'] = files['manifest.json'].replace('"name": "Demo: The Gilded Ledger"', '"name": "Someone Else\'s Ledger"')
+    }), { kind: 'remote', manifest_url: 'https://raw.githubusercontent.com/someone-else/their-packs/v1.0.0/gilded_ledger/manifest.json', pinning: 'release_tag' })
+    const flow = await reviewWith({ replaces: null, same_name: [other] })
+    expect(flow.phase.value).toBe('review')
+    expect(flow.relations.value).toHaveLength(1)
+    expect(flow.relations.value[0].message).toMatch(/published by someone-else on GitHub \(someone-else\/their-packs\)/)
+    expect(flow.relations.value[0].message).toMatch(/Both stay added/)
   })
 })

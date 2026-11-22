@@ -1,7 +1,7 @@
 /**
  * Pack Playability Check
  *
- * After a pack is registered next to the packs it will be played with, checks
+ * After a pack is registered (by its pack key) next to the packs it will be played with, checks
  * that each of its scenarios actually builds and validates: dependencies
  * present, references resolve within scope, every score in score_refs,
  * condition targets present.
@@ -21,12 +21,12 @@ import type { PackIssue } from './pack_snapshot_builder'
  * Returns every reason the pack can't be played, or an empty list.
  */
 export async function checkPackPlayable(
-  registry: Pick<ContentPackRegistry, 'getManifests' | 'createScopedProvider'>,
-  packId: string,
+  registry: Pick<ContentPackRegistry, 'getPack' | 'createScopedProvider'>,
+  packKey: string,
 ): Promise<PackIssue[]> {
-  const manifest = registry.getManifests().find((candidate) => candidate.id === packId)
+  const manifest = registry.getPack(packKey)?.manifest
   if (!manifest) {
-    return [{ file: 'pack', message: `pack "${packId}" is not loaded` }]
+    return [{ file: 'pack', message: `pack ${packKey} is not loaded` }]
   }
 
   const scenarioRefs = [...manifest.scenarios, ...manifest.tutorials]
@@ -36,7 +36,7 @@ export async function checkPackPlayable(
 
   let provider
   try {
-    provider = registry.createScopedProvider(packId)
+    provider = registry.createScopedProvider(packKey)
   } catch (error) {
     return [{ file: 'manifest.json', message: (error as Error).message }]
   }

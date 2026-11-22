@@ -20,6 +20,7 @@ import { ContentSchemaError, parseContentEntity } from '../validation/content_en
 import type { ContentProvider, ContentType } from './content_provider'
 import { ContentNotFoundError } from './content_provider'
 import { validateContentPackManifest } from './manifest_validator'
+import { communityManifestIssues } from './pack_identity'
 
 /** Inventory section → content folder. */
 export const CONTENT_TYPE_BY_SECTION: Record<ContentInventoryKey, ContentType> = {
@@ -96,7 +97,13 @@ export function parseManifestText(manifestText: string): ContentPackManifest {
   if (!result.valid) {
     throw new PackLoadError('manifest', result.errors.map((error) => ({ file: 'manifest.json', message: `${error.field}: ${error.message}` })))
   }
-  return raw as ContentPackManifest
+  const manifest = raw as ContentPackManifest
+  // Every community pack passes here (URL, file, bundle script); first-party packs don't.
+  const identityIssues = communityManifestIssues(manifest)
+  if (identityIssues.length > 0) {
+    throw new PackLoadError('manifest', identityIssues)
+  }
+  return manifest
 }
 
 /** JSON with object keys sorted at every level, so key order never matters. */

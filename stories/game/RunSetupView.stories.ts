@@ -25,6 +25,7 @@ type Story = StoryObj<typeof meta>
 // Mock quest data for stories
 const mockQuests: QuestDisplayModel[] = [
   {
+    packKey: 'dddnd:base',
     id: 'monolith_of_mild_despair',
     version: 1,
     name: 'The Monolith of Mild Despair',
@@ -36,6 +37,7 @@ const mockQuests: QuestDisplayModel[] = [
     actionCardCount: 10
   },
   {
+    packKey: 'dddnd:base',
     id: 'microservice_chaos',
     version: 1,
     name: 'The Microservice Maelstrom',
@@ -151,6 +153,7 @@ export const TutorialsTab: Story = {
     ]
     store.availableTutorials = [
       {
+        packKey: 'dddnd:base',
         id: 'tutorial_basics',
         version: 1,
         name: 'The First Domain',
@@ -163,6 +166,7 @@ export const TutorialsTab: Story = {
         tutorialOrder: 1
       } satisfies QuestDisplayModel,
       {
+        packKey: 'dddnd:base',
         id: 'tutorial_advanced',
         version: 1,
         name: 'The Tangled Dependency',

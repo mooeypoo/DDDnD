@@ -32,6 +32,11 @@ export interface PackSource {
   /** GitHub raw only: the branch, tag, or commit in the URL. */
   ref?: string
   pinning: PackPinning
+  /**
+   * The folder holding manifest.json: relative to the ref on GitHub raw, to
+   * the site root on GitHub Pages. No leading or trailing "/"; "" at the root.
+   */
+  pack_dir: string
   /** URL prefix the pack's content must stay under. Always ends with "/". */
   content_scope: string
 }
@@ -112,6 +117,7 @@ export function checkPackSourceUrl(input: string): PackSourceCheck {
         repo,
         ref,
         pinning,
+        pack_dir: rest.slice(refSegments, -1).join('/'),
         content_scope: `https://${RAW_HOST}/${owner}/${repo}/${ref}/`,
       },
     }
@@ -129,6 +135,7 @@ export function checkPackSourceUrl(input: string): PackSourceCheck {
         host_kind: 'github_pages',
         owner,
         pinning: 'unpinned',
+        pack_dir: segments.slice(0, -1).join('/'),
         content_scope: `https://${host}/`,
       },
     }

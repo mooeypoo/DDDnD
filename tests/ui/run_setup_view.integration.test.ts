@@ -20,6 +20,7 @@ vi.mock('@/ui/stores/game_store', () => ({
 
 function makeQuest(id: string, name: string, extras: Partial<QuestDisplayModel> = {}): QuestDisplayModel {
   return {
+    packKey: 'dddnd:base',
     id,
     version: 1,
     name,
@@ -131,6 +132,7 @@ describe('run_setup_view quest integration', () => {
     await wrapper.find('.sit-btn').trigger('click')
 
     expect(storeMock.start_new_run).toHaveBeenCalledWith(expect.objectContaining({
+      pack_key: 'dddnd:base',
       scenario_id: 'merger_of_minor_chaos',
     }))
   })
@@ -144,6 +146,7 @@ describe('run_setup_view quest integration', () => {
     await wrapper.find('.sit-btn').trigger('click')
 
     expect(storeMock.start_new_run).toHaveBeenCalledWith({
+      pack_key: 'dddnd:base',
       scenario_id: 'microservice_sprawl',
       scenario_version: 1,
       selected_class_ref: {
@@ -187,6 +190,7 @@ describe('run_setup_view quest integration', () => {
     await flushPromises()
 
     expect(storeMock.start_new_run).toHaveBeenCalledWith({
+      pack_key: 'dddnd:base',
       scenario_id: 'tutorial_pressure',
       scenario_version: 1,
       selected_class_ref: {
@@ -214,6 +218,7 @@ describe('run_setup_view quest integration', () => {
     await flushPromises()
 
     expect(storeMock.start_new_run).toHaveBeenCalledWith({
+      pack_key: 'dddnd:base',
       scenario_id: 'tutorial_basics',
       scenario_version: 1,
       selected_class_ref: {

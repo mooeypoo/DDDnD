@@ -590,12 +590,12 @@ import { resolveScenarioShortDescription } from '@/ui/composables/scenario_prese
 import { formatStakeholderName as resolveStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import {
   buildGameplayStageActors,
-  pickRandomSceneId,
-  shuffleAvatarRoles,
+  buildRunCast,
+  resolveScenarioSceneId,
   type StakeholderSpeechBubblePresentation,
 } from '@/ui/composables/gameplay_stage_presentation'
 import { buildStakeholderSpeechBubbles } from '@/ui/composables/stakeholder_reaction_bubbles'
-import type { AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
+import type { SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import ActionCard from '@/ui/components/cards/action_card.vue'
 import CardSatchelDrawer from '@/ui/components/cards/card_satchel_drawer.vue'
 import SatchelToolbar from '@/ui/components/cards/satchel_toolbar.vue'
@@ -638,8 +638,6 @@ const isScenarioInfoOpen = ref(false)
 const isScenarioInfoExpanded = ref(false)
 const activeEffectsPopupOpen = ref(false)
 const runCompletePopupOpen = ref(false)
-const randomSceneId = ref<SceneBackgroundId>(pickRandomSceneId())
-const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const satchelCategory = ref<CategoryFilter>('all')
 const satchelSort = ref<SortOption>('default')
 const isConsultMode = ref(false)
@@ -834,7 +832,9 @@ const isLowTurns = computed(() => {
   return turnsRemaining.value > 0 && turnsRemaining.value <= 3
 })
 
-const gameplaySceneId = computed(() => randomSceneId.value)
+const gameplaySceneId = computed<SceneBackgroundId>(() => {
+  return resolveScenarioSceneId(gameStore.gameState?.scenario_ref.id, gameStore.gameState?.meta.content_pack?.key)
+})
 
 const currentAvailableActions = computed(() => {
   return gameStore.turnBriefing?.available_action_card_ids.length ?? 0
@@ -975,21 +975,20 @@ const stakeholderNames = computed((): Record<string, string> => {
   return buildStakeholderNamesMap(gameStore.scenarioBundle)
 })
 
+/** The run's cast (ADR 0002): the same on every screen and after a reload. */
+const runCast = computed(() => {
+  const state = gameStore.gameState
+  return buildRunCast(state?.meta.seed ?? '', Object.keys(state?.stakeholders ?? {}))
+})
+
 const stageActors = computed(() => {
   return buildGameplayStageActors(
     gameStore.gameState?.stakeholders,
     stakeholderNames.value,
-    randomAvatarRoles.value,
+    runCast.value,
     activeStakeholderBubbles.value,
   )
 })
-
-watch(scenario, (newScenario, oldScenario) => {
-  if (newScenario?.id !== oldScenario?.id) {
-    randomSceneId.value = pickRandomSceneId()
-    randomAvatarRoles.value = shuffleAvatarRoles()
-  }
-}, { immediate: false })
 
 watch(isHeaderCollapsed, (collapsed) => {
   try {
@@ -1089,6 +1088,7 @@ async function handleLaunchAnotherTutorial(tutorial: QuestDisplayModel) {
   }
 
   await gameStore.start_new_run({
+    pack_key: tutorial.packKey,
     scenario_id: tutorial.id,
     scenario_version: tutorial.version,
     selected_class_ref: {

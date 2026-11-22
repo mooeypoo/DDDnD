@@ -83,6 +83,8 @@ export function decodeSharePayload(encoded: string): SharePayloadParseResult {
 
 // ─── Validation ──────────────────────────────────────────────
 
+const MAX_SEED_LENGTH = 200
+
 function validateSharePayload(raw: unknown): SharePayloadParseResult {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
     return { ok: false, error: 'Share payload must be an object' }
@@ -145,6 +147,11 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     }
   }
 
+  // Optional seed: only feeds the UI's presentation generator, so any short string is fine
+  if (obj.sd !== undefined && (typeof obj.sd !== 'string' || obj.sd.length > MAX_SEED_LENGTH)) {
+    return { ok: false, error: 'Invalid seed' }
+  }
+
   const payload: SharePayload = {
     v: obj.v as number,
     sid: obj.sid as string,
@@ -159,7 +166,8 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     avg: obj.avg as number,
     scores: obj.scores as Record<string, number>,
     stakeholders: obj.stakeholders as Record<string, number> | undefined,
-    cr: obj.cr as string
+    cr: obj.cr as string,
+    sd: (obj.sd as string | undefined) || undefined
   }
 
   return { ok: true, payload }

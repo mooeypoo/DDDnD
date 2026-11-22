@@ -119,7 +119,7 @@
         class="community-run-label"
         :title="`This scenario comes from a community pack, not from DDDnD`"
       >
-        Community pack · {{ gameStore.activeCommunityPack.manifest.name }}
+        Community pack · {{ gameStore.activeCommunityPack.manifest.name }} · {{ activeCommunityPublisher }}
       </p>
 
       <WeatherStrip
@@ -237,13 +237,13 @@ import { useGameStore } from '@/ui/stores/game_store'
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
 import {
   buildGameplayStageActors,
-  resolveGameplaySceneId,
-  shuffleAvatarRoles,
+  buildRunCast,
+  resolveScenarioSceneId,
   type StakeholderSpeechBubblePresentation,
 } from '@/ui/composables/gameplay_stage_presentation'
 import { buildStakeholderSpeechBubbles } from '@/ui/composables/stakeholder_reaction_bubbles'
 import { getCollapseWarnings, hasActiveCoupling } from '@/ui/composables/system_coupling'
-import type { AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
+import type { SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
@@ -270,6 +270,7 @@ import { diffHandCards, peekConsultDrawId, type ArchiveReplaceOffer } from '@/ui
 import { buildAnnalsTurns } from '@/ui/play/turn_theater'
 import { remainingTurns } from '@/ui/play/weather_band'
 import { questDisplayFromBundle } from '@/ui/services/quest_loader'
+import { describePackPublisher } from '@/ui/play/community_pack_review'
 import { useTurnTheater } from '@/ui/play/use_turn_theater'
 import { useCommitmentFlight } from '@/ui/play/use_commitment_flight'
 
@@ -313,7 +314,6 @@ const refillPhase = ref<'idle' | 'hidden' | 'flying'>('idle')
 const isGrimoireOpen = ref(false)
 const isAnnalsOpen = ref(false)
 const isQuestBriefingOpen = ref(false)
-const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const pendingStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 const activeStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 
@@ -371,8 +371,16 @@ const modifierScoreAdjustments = computed(() => {
 
 const turnsRemaining = computed(() => remainingTurns(gameStore.currentTurn, gameStore.maxTurns))
 
+/** Who published the community pack this run uses (ADR 0013), shown on the play label. */
+const activeCommunityPublisher = computed(() => {
+  const pack = gameStore.activeCommunityPack
+  return pack ? describePackPublisher(pack).label : ''
+})
+
 const playQuestBriefing = computed(() => {
-  return gameStore.scenarioBundle ? questDisplayFromBundle(gameStore.scenarioBundle) : null
+  return gameStore.scenarioBundle
+    ? questDisplayFromBundle(gameStore.scenarioBundle, gameStore.gameState?.meta.content_pack?.key ?? '')
+    : null
 })
 
 const currentScores = computed(() => gameStore.turnBriefing?.current_scores ?? {})
@@ -397,7 +405,7 @@ const pendingAftershockCount = computed(() => {
 })
 
 const gameplaySceneId = computed<SceneBackgroundId>(() => {
-  return resolveGameplaySceneId(scenario.value?.id)
+  return resolveScenarioSceneId(scenario.value?.id, gameStore.gameState?.meta.content_pack?.key)
 })
 
 const availabilitySummaryByKey = computed(() => {
@@ -512,11 +520,17 @@ const stakeholderNames = computed((): Record<string, string> => {
   return buildStakeholderNamesMap(gameStore.scenarioBundle)
 })
 
+/** The run's cast (ADR 0002): the same on every screen and after a reload. */
+const runCast = computed(() => {
+  const state = gameStore.gameState
+  return buildRunCast(state?.meta.seed ?? '', Object.keys(state?.stakeholders ?? {}))
+})
+
 const stageActors = computed(() => {
   return buildGameplayStageActors(
     gameStore.gameState?.stakeholders,
     stakeholderNames.value,
-    randomAvatarRoles.value,
+    runCast.value,
     activeStakeholderBubbles.value,
   )
 })
@@ -585,12 +599,6 @@ const showTutorialArrow = computed(() => {
   return Boolean(tutorialArrowSelector.value)
 })
 
-watch(scenario, (newScenario, oldScenario) => {
-  if (newScenario?.id !== oldScenario?.id) {
-    randomAvatarRoles.value = shuffleAvatarRoles()
-  }
-})
-
 watch([fxKind, currentBeat], ([kind, beat]) => {
   const momentKind = kind ?? beat?.kind
   if (momentKind === 'action' || momentKind === 'consult') {
@@ -653,6 +661,7 @@ async function handleLaunchAnotherTutorial(tutorial: QuestDisplayModel) {
   }
 
   await gameStore.start_new_run({
+    pack_key: tutorial.packKey,
     scenario_id: tutorial.id,
     scenario_version: tutorial.version,
     selected_class_ref: {

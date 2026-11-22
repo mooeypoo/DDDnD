@@ -11,8 +11,9 @@
       <!-- Review: the consent screen -->
       <section v-if="flow.phase.value === 'review' && flow.review.value" class="pack-review" aria-labelledby="pack-review-title">
         <p class="unreviewed-note">
-          Not made or checked by DDDnD. Packs can't run code: they only change the game's text and numbers.
-          The game has checked that this one is valid.
+          <strong>From a source DDDnD hasn't reviewed: {{ flow.review.value.publisher.label }}.</strong>
+          Packs can't run code or reach your device: they only change the game's text and numbers, and the game
+          has checked that this one is valid. The worst a pack can do is show you text you didn't expect.
         </p>
 
         <h3 id="pack-review-title" class="pack-title">
@@ -21,11 +22,17 @@
         <p class="pack-description">{{ flow.review.value.description }}</p>
 
         <dl class="pack-facts">
-          <dt>Made by</dt>
+          <dt>Published by</dt>
+          <dd>
+            <span class="publisher" :class="{ unverified: !flow.review.value.publisher.verified }">{{ flow.review.value.publisher.label }}</span>
+            <span class="origin-note">{{ flow.review.value.publisher.verified ? 'The account it was loaded from. ' : '' }}Names below are written by the pack itself.</span>
+          </dd>
+
+          <dt>Credits</dt>
           <dd>
             <template v-for="(author, index) in flow.review.value.authors" :key="author.name + index">
               <span v-if="index > 0">, </span>
-              <a v-if="author.link" :href="author.link.url" target="_blank" rel="noopener noreferrer">{{ author.name }}</a>
+              <a v-if="author.link" :href="author.link.url" target="_blank" rel="noopener noreferrer" :title="externalLinkTitle(author.link.host)">{{ author.name }}</a>
               <span v-else>{{ author.name }}</span>
               <span v-if="author.link" class="link-host">({{ author.link.host }})</span>
             </template>
@@ -47,13 +54,16 @@
           <template v-if="flow.review.value.homepage">
             <dt>Homepage</dt>
             <dd>
-              <a :href="flow.review.value.homepage.url" target="_blank" rel="noopener noreferrer">{{ flow.review.value.homepage.host }}</a>
+              <a :href="flow.review.value.homepage.url" target="_blank" rel="noopener noreferrer" :title="externalLinkTitle(flow.review.value.homepage.host)">{{ flow.review.value.homepage.host }}</a>
             </dd>
           </template>
 
           <dt>Fingerprint</dt>
           <dd><code>{{ flow.review.value.fingerprint }}</code></dd>
         </dl>
+        <p v-if="flow.review.value.homepage || flow.review.value.authors.some((author) => author.link)" class="external-links-note">
+          The links above come from the pack and lead to sites DDDnD doesn't know. Use caution.
+        </p>
 
         <h4 class="section-kicker">Adds {{ flow.review.value.counts.scenarios === 1 ? 'one scenario' : `${flow.review.value.counts.scenarios} scenarios` }}</h4>
         <ul class="pack-scenarios">
@@ -63,8 +73,18 @@
           </li>
         </ul>
 
+        <p
+          v-for="(note, index) in flow.relations.value"
+          :key="index"
+          class="replace-note"
+          :class="`tone-${note.tone}`"
+        >{{ note.message }}</p>
         <p v-if="flow.review.value.privacyNote" class="privacy-note">{{ flow.review.value.privacyNote }}</p>
-        <p class="session-note">Added for this visit. Reloading the page removes it.</p>
+        <p class="session-note">
+          {{ flow.persistent.value
+            ? 'Kept on this device until you remove it.'
+            : 'This browser can\'t keep packs, so it lasts until you close the page.' }}
+        </p>
       </section>
 
       <!-- Problems -->
@@ -82,8 +102,17 @@
 
       <!-- Load a pack, and the list of added packs -->
       <section v-else class="pack-load">
+        <p v-if="flow.savedRunNotice.value" class="saved-run-note" role="status">
+          {{ flow.savedRunNotice.value.message }}
+        </p>
+        <ul v-if="flow.restoreIssues.value.length > 0" class="issue-list restore-issues">
+          <li v-for="issue in flow.restoreIssues.value" :key="issue.name">
+            “{{ issue.name }}” couldn't be restored and was left out: {{ issue.reason }}
+          </li>
+        </ul>
         <p v-if="flow.lastAdded.value" class="added-note" role="status">
           Added “{{ flow.lastAdded.value }}”. Its scenarios are now in the lobby, marked Community.
+          <template v-if="!flow.lastAddedKept.value"> It couldn't be saved on this device, so it lasts until you close the page.</template>
         </p>
 
         <form class="load-form" @submit.prevent="loadUrl">
@@ -123,14 +152,14 @@
         </div>
 
         <div v-if="flow.loadedPacks.value.length > 0" class="loaded">
-          <h4 class="section-kicker">Added this visit</h4>
+          <h4 class="section-kicker">{{ flow.persistent.value ? 'Added packs' : 'Added this visit' }}</h4>
           <ul class="loaded-list">
-            <li v-for="pack in flow.loadedPacks.value" :key="pack.id">
+            <li v-for="pack in flow.loadedPacks.value" :key="pack.key">
               <span>
                 <strong>{{ pack.review.title }}</strong> v{{ pack.review.version }}
-                <span class="link-host">{{ pack.review.origin.label }}</span>
+                <span class="link-host">{{ pack.review.publisher.label }}</span>
               </span>
-              <AppButton variant="subtle" :disabled="busy" @click="flow.remove(pack.id)">Remove</AppButton>
+              <AppButton variant="subtle" :disabled="busy" @click="flow.remove(pack.key)">Remove</AppButton>
             </li>
           </ul>
         </div>
@@ -184,6 +213,11 @@ watch(() => props.initialUrl, (url) => {
   if (url) urlDraft.value = url
 })
 
+// A saved run that needs a pack from GitHub: offer its original link.
+watch(() => flow.savedRunNotice.value?.sourceUrl, (url) => {
+  if (url && !urlDraft.value) urlDraft.value = url
+}, { immediate: true })
+
 function loadUrl() {
   if (!busy.value && urlDraft.value.trim()) {
     void flow.loadFromUrl(urlDraft.value)
@@ -203,6 +237,11 @@ function close() {
   if (flow.phase.value === 'adding') return
   flow.cancel()
   emit('close')
+}
+
+/** Every pack-supplied link says where it leads before it is followed. */
+function externalLinkTitle(host: string): string {
+  return `External link from the pack, to ${host}. DDDnD doesn't know this site.`
 }
 </script>
 
@@ -280,6 +319,26 @@ function close() {
   display: block;
 }
 
+.publisher {
+  display: block;
+  font-weight: 600;
+}
+
+.external-links-note {
+  margin: var(--space-xs) 0 0;
+  font-size: var(--text-xs);
+  color: var(--effect-warning);
+}
+
+.publisher.unverified {
+  color: var(--text-secondary);
+}
+
+.replace-note.tone-caution {
+  color: var(--effect-warning);
+  font-weight: 600;
+}
+
 .link-host {
   color: var(--text-secondary);
   font-size: var(--text-xs);
@@ -324,6 +383,14 @@ function close() {
   font-size: var(--text-xs);
   color: var(--text-secondary);
   margin-right: var(--space-1);
+}
+
+.saved-run-note {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--effect-warning-border);
+  background: var(--effect-warning-bg);
+  border-radius: 6px;
 }
 
 .added-note {

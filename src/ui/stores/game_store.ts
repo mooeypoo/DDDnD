@@ -25,12 +25,28 @@ import type {
 } from '@/domains/simulation'
 import type { ScenarioBundle, VersionRef, PlayerClass, ChallengeModifier, PackSnapshot } from '@/domains/content/model'
 import { buildScenarioBundle } from '@/domains/content'
+import { setActiveScoreOrder } from '@/ui/composables/metric_presentation'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
 import { create_engine } from '@/domains/simulation'
-import { createLocalStorageSaveAdapter } from '@/domains/persistence/adapters'
+import { createLocalStorageSaveAdapter, openCommunityPackStore } from '@/domains/persistence/adapters'
+import type { RunContentPack } from '@/domains/simulation/model'
+import { isCommunityPacksEnabled } from '@/ui/config/feature_flags'
+
+/** Why a saved community-pack run can't be continued right now (M2.6). */
+export interface SavedRunPackNotice {
+  /**
+   * - `missing`: no pack with that key is added.
+   * - `different_version`: the same pack is added, but not the exact content played.
+   * - `different_source`: a different pack with the same name is added (ADR 0012).
+   */
+  reason: 'missing' | 'different_version' | 'different_source'
+  pack: RunContentPack
+}
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { loadQuestDisplayModels } from '@/ui/services/quest_loader'
+import { describePackPublisher } from '@/ui/play/community_pack_review'
+import type { PackScenarioRef } from '@/domains/content/services/content_pack_registry'
 import { sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
 import {
   hasCompletedTutorial,
@@ -47,6 +63,8 @@ import {
 } from './game_store_run_lifecycle_coordinator'
 
 export interface RunSetupOptions {
+  /** Pack the scenario comes from (ADR 0014): `dddnd:base`, `github:…`. */
+  pack_key: string
   scenario_id: string
   scenario_version: number
   selected_class_ref?: VersionRef
@@ -107,13 +125,23 @@ export const useGameStore = defineStore('game', () => {
   const externalManifestUrls = ref<string[]>([])
   /** Community packs the player added this session (ADR 0001, gated by ADR 0009 in the UI). */
   const communityPacks = ref<PackSnapshot[]>([])
-  /** In-flight or finished bundle loads, keyed by scenario id+version. */
+  /** In-flight or finished bundle loads, keyed by pack key and scenario id+version. */
   const scenarioBundleLoads = new Map<string, Promise<ScenarioBundle>>()
-  const contentAdapter = createGameStoreContentAdapter({
-    contentPackRegistry,
-    externalManifestUrls,
-    communityPacks,
-  })
+  const contentAdapter = createGameStoreContentAdapter(
+    {
+      contentPackRegistry,
+      externalManifestUrls,
+      communityPacks,
+    },
+    // ADR 0009: with community packs off, nothing is read from or written to the pack store.
+    isCommunityPacksEnabled() ? { openPackStore: () => openCommunityPackStore() } : {},
+  )
+  /**
+   * Set when a saved run can't be continued because the community pack it
+   * was played with isn't loaded (or a different version is). The save is
+   * kept, not deleted, so the player can add the pack back.
+   */
+  const savedRunPackNotice = ref<SavedRunPackNotice | null>(null)
   
   // Computed
   const hasActiveRun = computed(() => gameState.value !== null)
@@ -123,11 +151,10 @@ export const useGameStore = defineStore('game', () => {
   })
   const currentTurn = computed(() => gameState.value?.progress.current_turn ?? 0)
   const maxTurns = computed(() => gameState.value?.progress.max_turns ?? 0)
-  /** The community pack the current run's scenario comes from, if any. */
+  /** The community pack the current run was played with, if any (by its recorded pack key). */
   const activeCommunityPack = computed(() => {
-    const scenarioRef = gameState.value?.scenario_ref
-    if (!scenarioRef || communityPacks.value.length === 0) return null
-    return contentAdapter.findCommunityPackForScenario(scenarioRef)
+    if (communityPacks.value.length === 0) return null
+    return contentAdapter.findCommunityPack(gameState.value?.meta.content_pack?.key)
   })
   const runLifecycleCoordinator = createGameStoreRunLifecycleCoordinator(
     {
@@ -144,12 +171,13 @@ export const useGameStore = defineStore('game', () => {
       isRunComplete,
     },
     {
-      getMergedContentProvider: get_merged_content_provider,
+      getGameWideContentProvider: get_game_wide_content_provider,
       buildScenarioBundle: resolveScenarioBundle,
       initializeEngine: initialize_engine,
       persistRunState: persist_run_state,
       tutorial,
       shouldOpenIntroBriefing: () => !isBriefingDismissed(),
+      describePack: (packKey) => contentAdapter.describePack(packKey),
       onTutorialCompleted: () => {
         markTutorialCompleted()
         shouldRecommendTutorial.value = false
@@ -162,6 +190,7 @@ export const useGameStore = defineStore('game', () => {
    */
   function initialize_engine(bundle: ScenarioBundle, seed: string) {
     scenarioBundle.value = bundle
+    setActiveScoreOrder(bundle.scenario.score_refs.map((ref) => ref.id))
     engine.value = create_engine({
       scenario_bundle: bundle,
       seed
@@ -172,16 +201,16 @@ export const useGameStore = defineStore('game', () => {
     persistenceAdapter.persistGameState(gameState.value)
   }
 
-  function scenarioBundleKey(scenarioId: string, scenarioVersion: number): string {
-    return `${scenarioId}-v${scenarioVersion}`
+  function scenarioBundleKey(packKey: string, scenarioId: string, scenarioVersion: number): string {
+    return `${packKey}|${scenarioId}-v${scenarioVersion}`
   }
 
   /**
    * Builds a scenario bundle with the provider scoped to the scenario's own
-   * pack and its dependencies (ADR 0001), never the game-wide merged provider.
+   * pack and its dependencies (ADR 0001, ADR 0014).
    */
-  async function buildScopedScenarioBundle(scenarioId: string, scenarioVersion: number): Promise<ScenarioBundle> {
-    const provider = await contentAdapter.getScenarioContentProvider({ id: scenarioId, version: scenarioVersion })
+  async function buildScopedScenarioBundle(packKey: string, scenarioId: string, scenarioVersion: number): Promise<ScenarioBundle> {
+    const provider = await contentAdapter.getPackContentProvider(packKey)
     return buildScenarioBundle(scenarioId, scenarioVersion, provider)
   }
 
@@ -192,16 +221,17 @@ export const useGameStore = defineStore('game', () => {
    * waits on work already in flight instead of starting it from scratch.
    */
   function resolveScenarioBundle(
+    packKey: string,
     scenarioId: string,
     scenarioVersion: number,
   ): Promise<ScenarioBundle> {
-    const key = scenarioBundleKey(scenarioId, scenarioVersion)
+    const key = scenarioBundleKey(packKey, scenarioId, scenarioVersion)
     const existing = scenarioBundleLoads.get(key)
     if (existing) {
       return existing
     }
 
-    const pending = buildScopedScenarioBundle(scenarioId, scenarioVersion).catch((error: unknown) => {
+    const pending = buildScopedScenarioBundle(packKey, scenarioId, scenarioVersion).catch((error: unknown) => {
       scenarioBundleLoads.delete(key)
       throw error
     })
@@ -209,14 +239,14 @@ export const useGameStore = defineStore('game', () => {
     return pending
   }
 
-  function warm_scenario_bundle(scenarioId: string, scenarioVersion: number): Promise<void> {
-    const key = scenarioBundleKey(scenarioId, scenarioVersion)
+  function warm_scenario_bundle(packKey: string, scenarioId: string, scenarioVersion: number): Promise<void> {
+    const key = scenarioBundleKey(packKey, scenarioId, scenarioVersion)
     const existing = scenarioBundleLoads.get(key)
     if (existing) {
       return existing.then(() => undefined, () => undefined)
     }
 
-    const pending = buildScopedScenarioBundle(scenarioId, scenarioVersion)
+    const pending = buildScopedScenarioBundle(packKey, scenarioId, scenarioVersion)
     scenarioBundleLoads.set(key, pending)
     // The lobby does not await this. Drop a failed warm so the next sit can retry,
     // and attach a handler so a miss does not surface as an unhandled rejection.
@@ -237,15 +267,16 @@ export const useGameStore = defineStore('game', () => {
     await contentAdapter.loadContentPacks()
   }
 
-  async function get_merged_content_provider(): Promise<ContentProvider> {
-    return contentAdapter.getMergedContentProvider()
+  /** Provider for game-wide choices (classes, challenge modifiers). First-party only. */
+  async function get_game_wide_content_provider(): Promise<ContentProvider> {
+    return contentAdapter.getGameWideContentProvider()
   }
   
   /**
    * Load available player classes
    */
   async function load_available_classes() {
-    const provider = await get_merged_content_provider()
+    const provider = await get_game_wide_content_provider()
     const classRefs: VersionRef[] = contentPackRegistry.value?.getAvailableClasses() ?? []
     
     const classes = await Promise.all(
@@ -259,7 +290,7 @@ export const useGameStore = defineStore('game', () => {
    * Load available challenge modifiers
    */
   async function load_available_challenge_modifiers() {
-    const provider = await get_merged_content_provider()
+    const provider = await get_game_wide_content_provider()
     const modRefs: VersionRef[] = contentPackRegistry.value?.getAvailableChallengeModifiers() ?? []
     
     const mods = await Promise.all(
@@ -276,14 +307,37 @@ export const useGameStore = defineStore('game', () => {
   }
   
   /**
-   * Marks quests that come from a community pack, so the lobby can label them.
+   * Marks quests that come from a community pack, with the pack's name and
+   * its publisher, so the lobby can label them and tell same-named packs apart.
    */
   function labelCommunityQuests(quests: QuestDisplayModel[]): QuestDisplayModel[] {
     if (communityPacks.value.length === 0) return quests
     return quests.map((quest) => {
-      const pack = contentAdapter.findCommunityPackForScenario({ id: quest.id, version: quest.version })
-      return pack ? { ...quest, communityPack: { id: pack.manifest.id, name: pack.manifest.name } } : quest
+      const pack = contentAdapter.findCommunityPack(quest.packKey)
+      return pack
+        ? { ...quest, communityPack: { name: pack.manifest.name, publisher: describePackPublisher(pack).label } }
+        : quest
     })
+  }
+
+  /**
+   * Loads quest cards for scenario entry points, each through its own pack's
+   * scoped provider. A pack that fails to load is skipped, like a failed quest.
+   */
+  async function loadPackQuests(entries: PackScenarioRef[]): Promise<QuestDisplayModel[]> {
+    const byPack = new Map<string, VersionRef[]>()
+    for (const entry of entries) {
+      byPack.set(entry.pack_key, [...(byPack.get(entry.pack_key) ?? []), entry.ref])
+    }
+    const loaded = await Promise.all([...byPack].map(async ([packKey, refs]) => {
+      try {
+        return await loadQuestDisplayModels(refs, await contentAdapter.getPackContentProvider(packKey), packKey)
+      } catch (error) {
+        console.error(`Failed to load quests from pack ${packKey}:`, error)
+        return []
+      }
+    }))
+    return labelCommunityQuests(loaded.flat())
   }
 
   /**
@@ -294,17 +348,32 @@ export const useGameStore = defineStore('game', () => {
     return contentAdapter.checkCommunityPack(snapshot)
   }
 
-  async function add_community_pack(snapshot: PackSnapshot) {
-    await contentAdapter.addCommunityPack(snapshot)
-    scenarioBundleLoads.clear()
-    await Promise.all([load_available_quests(), load_available_tutorials()])
+  /** The added pack this one would replace (same key), and same-named packs from elsewhere (shown in the review). */
+  function find_community_pack_relations(snapshot: PackSnapshot) {
+    return contentAdapter.findPackRelations(snapshot)
   }
 
-  async function remove_community_pack(packId: string) {
-    const removed = contentAdapter.removeCommunityPack(packId)
+  /** Stored packs that no longer pass today's checks (restored once per visit). */
+  function community_pack_restore_issues() {
+    return contentAdapter.ensurePacksRestored()
+  }
+
+  /** Whether added packs are kept after a reload in this browser. */
+  function is_pack_store_persistent() {
+    return contentAdapter.isPackStorePersistent()
+  }
+
+  async function add_community_pack(snapshot: PackSnapshot) {
+    const result = await contentAdapter.addCommunityPack(snapshot)
     scenarioBundleLoads.clear()
     await Promise.all([load_available_quests(), load_available_tutorials()])
-    return removed
+    return result
+  }
+
+  async function remove_community_pack(packKey: string) {
+    await contentAdapter.removeCommunityPack(packKey)
+    scenarioBundleLoads.clear()
+    await Promise.all([load_available_quests(), load_available_tutorials()])
   }
 
   /**
@@ -313,9 +382,8 @@ export const useGameStore = defineStore('game', () => {
   async function load_available_quests() {
     isLoadingQuests.value = true
     try {
-      const provider = await get_merged_content_provider()
-      const questRefs = contentPackRegistry.value?.getAvailableScenarios() ?? []
-      const quests = labelCommunityQuests(await loadQuestDisplayModels(questRefs, provider))
+      await load_content_packs()
+      const quests = await loadPackQuests(contentPackRegistry.value?.getAvailableScenarios() ?? [])
       // Gentlest first: the lobby fans these in order and opens the first one.
       availableQuests.value = sortQuestsByDifficulty(quests)
     } finally {
@@ -329,9 +397,8 @@ export const useGameStore = defineStore('game', () => {
   async function load_available_tutorials() {
     isLoadingTutorials.value = true
     try {
-      const provider = await get_merged_content_provider()
-      const tutorialRefs = contentPackRegistry.value?.getAvailableTutorials() ?? []
-      const tutorials = labelCommunityQuests(await loadQuestDisplayModels(tutorialRefs, provider))
+      await load_content_packs()
+      const tutorials = await loadPackQuests(contentPackRegistry.value?.getAvailableTutorials() ?? [])
       availableTutorials.value = tutorials
     } finally {
       isLoadingTutorials.value = false
@@ -343,6 +410,8 @@ export const useGameStore = defineStore('game', () => {
    */
   async function start_new_run(options: RunSetupOptions) {
     await runLifecycleCoordinator.startNewRun(options as RunSetupOptionsLike)
+    // A new run replaces the saved one, so a notice about the old save no longer applies.
+    savedRunPackNotice.value = null
   }
   
   /**
@@ -383,6 +452,7 @@ export const useGameStore = defineStore('game', () => {
     engine.value = null
     gameState.value = null
     scenarioBundle.value = null
+    setActiveScoreOrder([])
     turnBriefing.value = null
     lastTurnResolution.value = null
     runOutcome.value = null
@@ -392,14 +462,51 @@ export const useGameStore = defineStore('game', () => {
     saveAdapter.clear_saved_run()
   }
 
+  /**
+   * For a saved run from a community pack: is that exact pack loaded?
+   * Returns a notice when it isn't (the save is then kept, not deleted).
+   */
+  async function checkSavedRunPack(pack: RunContentPack | undefined): Promise<SavedRunPackNotice | null> {
+    if (!pack || pack.origin === 'first_party') return null
+    await contentAdapter.loadContentPacks()
+    const reason = contentAdapter.whyRunPackUnavailable(pack)
+    return reason ? { reason, pack } : null
+  }
+
+  /**
+   * Looks at the saved run (without restoring it) and sets the notice when
+   * the community pack it needs isn't loaded. Used by the lobby, so a player
+   * learns why their run can't continue even on a fresh page load.
+   */
+  async function refresh_saved_run_pack_notice(): Promise<void> {
+    if (hasActiveRun.value) {
+      savedRunPackNotice.value = null
+      return
+    }
+    const saved = persistenceAdapter.loadRestorableGameState()
+    savedRunPackNotice.value = saved ? await checkSavedRunPack(saved.meta.content_pack).catch(() => null) : null
+  }
+
   async function restore_saved_run(): Promise<boolean> {
     const restoredGameState = persistenceAdapter.loadRestorableGameState()
     if (!restoredGameState) {
       return false
     }
 
+    const packNotice = await checkSavedRunPack(restoredGameState.meta.content_pack).catch(() => null)
+    if (packNotice) {
+      savedRunPackNotice.value = packNotice
+      return false
+    }
+    savedRunPackNotice.value = null
+
     try {
+      const packKey = await contentAdapter.resolveRunPackKey(restoredGameState.scenario_ref, restoredGameState.meta.content_pack?.key)
+      if (!packKey) {
+        throw new Error(`No loaded pack has scenario ${restoredGameState.scenario_ref.id}-v${restoredGameState.scenario_ref.version}`)
+      }
       const bundle = await resolveScenarioBundle(
+        packKey,
         restoredGameState.scenario_ref.id,
         restoredGameState.scenario_ref.version,
       )
@@ -494,6 +601,7 @@ export const useGameStore = defineStore('game', () => {
     isLoadingQuests,
     isLoadingTutorials,
     communityPacks,
+    savedRunPackNotice,
     
     // Computed
     hasActiveRun,
@@ -514,8 +622,12 @@ export const useGameStore = defineStore('game', () => {
     load_available_classes,
     load_available_challenge_modifiers,
     check_community_pack,
+    find_community_pack_relations,
     add_community_pack,
     remove_community_pack,
+    is_pack_store_persistent,
+    refresh_saved_run_pack_notice,
+    community_pack_restore_issues,
     get_available_outcome_archetype_ids,
     start_new_run,
     warm_scenario_bundle,

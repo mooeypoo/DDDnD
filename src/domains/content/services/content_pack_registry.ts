@@ -3,13 +3,17 @@ import type { VersionRef } from '../model/version_ref'
 import { parseFilename, versionRefKey } from '../model/version_ref'
 import type { ContentProvider, ContentType } from './content_provider'
 import { ContentNotFoundError, createContentProvider } from './content_provider'
+import { firstPartyPackKey } from './pack_identity'
 
 /**
  * Registered pack plus its provider instance.
  */
 interface RegistryPack {
+  key: string
   manifest: ContentPackManifest
   provider: ContentProvider
+  /** `<section>/<filename>` for every file the pack lists. */
+  files: Set<string>
 }
 
 /**
@@ -31,7 +35,8 @@ const contentKeyByType: Record<ContentType, ContentInventoryKey> = {
 
 /**
  * Thrown when a pack cannot be registered because it collides with a pack
- * that is already registered (same pack id, or a content file another pack owns).
+ * that is already registered (same pack key, or a content file a pack it can
+ * see already lists).
  */
 export class ContentPackConflictError extends Error {
   constructor(message: string) {
@@ -93,6 +98,12 @@ function ownershipKey(section: ContentInventoryKey, filename: string): string {
   return `${section}/${filename}`
 }
 
+function fileKey(contentType: ContentType, ref: VersionRef): string {
+  return ownershipKey(contentKeyByType[contentType], `${versionRefKey(ref)}.json`)
+}
+
+const FIRST_PARTY_KEY_PREFIX = firstPartyPackKey('')
+
 function parseSemver(version: string): [number, number, number] | null {
   const match = version.match(/^(\d+)\.(\d+)\.(\d+)/)
   return match ? [Number(match[1]), Number(match[2]), Number(match[3])] : null
@@ -120,92 +131,118 @@ function satisfiesDependency(registeredVersion: string, declaredVersion: string)
   return true
 }
 
+/** A scenario entry point together with the pack it belongs to. */
+export interface PackScenarioRef {
+  pack_key: string
+  ref: VersionRef
+}
+
+/** A registered pack, as callers see it. */
+export interface RegisteredPack {
+  key: string
+  manifest: ContentPackManifest
+}
+
 /**
  * Registry of content packs.
  *
- * Ownership rule (ADR 0001): every content file is owned by exactly one
- * registered pack. Registering a pack that claims a file another pack already
- * owns fails, so no pack can redefine another pack's content.
+ * Identity (ADR 0012, ADR 0014): packs are registered and looked up by their
+ * pack key, never by manifest id. Two community packs that both call
+ * themselves `gilded_ledger` are two different packs here. Packs registered
+ * without a key are first-party (`dddnd:<id>`).
  *
- * Scope rule: a scenario's content resolves only from the pack that owns the
- * scenario and the packs it declares (transitively) in `depends_on`.
+ * Ownership: content belongs to the pack that lists it. Two packs may list
+ * the same file only if they can never see each other: a pack may not list a
+ * file that a pack in its dependency closure lists (its scenarios couldn't
+ * tell which one they meant), and first-party packs never overlap each other.
+ *
+ * Scope: a pack's content resolves only from the pack itself and the packs it
+ * declares (transitively) in `depends_on`. Dependencies always name
+ * first-party packs (ADR 0013), so they resolve to `dddnd:<id>`.
  */
 export class ContentPackRegistry {
   private readonly packs: RegistryPack[] = []
-  private readonly ownerByFile = new Map<string, RegistryPack>()
 
   /**
-   * Registers a manifest and optional custom provider for that pack.
+   * Registers a pack under its key and returns the key.
    *
-   * Throws ContentPackConflictError when the pack id is already registered or
-   * when the pack claims a content file that another pack owns. Nothing is
-   * registered in that case.
+   * Throws ContentPackConflictError when the key is already registered, or
+   * when the pack lists a file that a pack it can see (or that can see it)
+   * already lists. Nothing is registered in that case.
    */
-  registerPack(manifest: ContentPackManifest, provider = createContentProvider(manifest.base_url)): void {
-    if (this.packs.some((pack) => pack.manifest.id === manifest.id)) {
-      throw new ContentPackConflictError(`A pack with id "${manifest.id}" is already loaded`)
+  registerPack(
+    manifest: ContentPackManifest,
+    provider: ContentProvider = createContentProvider(manifest.base_url),
+    key: string = firstPartyPackKey(manifest.id),
+  ): string {
+    if (this.packs.some((pack) => pack.key === key)) {
+      throw new ContentPackConflictError(`A pack with id "${manifest.id}" (${key}) is already loaded`)
     }
 
-    const pack: RegistryPack = { manifest, provider }
-    const claims: string[] = []
-
+    const files = new Set<string>()
     for (const section of Object.keys(manifest.content) as ContentInventoryKey[]) {
       for (const filename of manifest.content[section]) {
-        const key = ownershipKey(section, filename)
-        const owner = this.ownerByFile.get(key)
-        if (owner) {
+        files.add(ownershipKey(section, filename))
+      }
+    }
+    const pack: RegistryPack = { key, manifest, provider, files }
+
+    for (const other of this.packs) {
+      if (!this.canSeeEachOther(pack, other)) continue
+      for (const file of files) {
+        if (other.files.has(file)) {
+          const [section, filename] = file.split('/')
           throw new ContentPackConflictError(
-            `Pack "${manifest.id}" lists content.${section} "${filename}", which pack "${owner.manifest.id}" already provides. ` +
+            `Pack "${manifest.id}" lists content.${section} "${filename}", which pack "${other.manifest.id}" already provides. ` +
             'Packs cannot replace each other\'s content; give the file a new id instead.',
           )
         }
-        claims.push(key)
       }
     }
 
     this.packs.push(pack)
-    for (const key of claims) {
-      this.ownerByFile.set(key, pack)
-    }
+    return key
   }
 
-  /**
-   * Returns manifests in registration order.
-   */
+  /** Returns manifests in registration order. */
   getManifests(): ContentPackManifest[] {
     return this.packs.map((pack) => pack.manifest)
   }
 
-  /**
-   * Returns deduplicated scenario refs exposed by all packs.
-   */
-  getAvailableScenarios(): VersionRef[] {
-    return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.scenarios))
+  /** Returns registered packs (key and manifest) in registration order. */
+  getPacks(): RegisteredPack[] {
+    return this.packs.map(({ key, manifest }) => ({ key, manifest }))
   }
 
-  /**
-   * Returns deduplicated class refs exposed by all packs.
-   */
+  /** Returns one registered pack by key. */
+  getPack(key: string): RegisteredPack | undefined {
+    const pack = this.findPack(key)
+    return pack ? { key: pack.key, manifest: pack.manifest } : undefined
+  }
+
+  /** Scenario entry points of every pack, each with its pack key. */
+  getAvailableScenarios(): PackScenarioRef[] {
+    return this.packs.flatMap((pack) => dedupeVersionRefs(pack.manifest.scenarios).map((ref) => ({ pack_key: pack.key, ref })))
+  }
+
+  /** Tutorial entry points of every pack, each with its pack key. */
+  getAvailableTutorials(): PackScenarioRef[] {
+    return this.packs.flatMap((pack) => dedupeVersionRefs(pack.manifest.tutorials).map((ref) => ({ pack_key: pack.key, ref })))
+  }
+
+  /** Player classes: a game-wide choice, from first-party packs only. */
   getAvailableClasses(): VersionRef[] {
-    return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.classes))
+    return dedupeVersionRefs(this.firstPartyPacks().flatMap((pack) => pack.manifest.classes))
   }
 
-  /**
-   * Returns deduplicated challenge modifier refs exposed by all packs.
-   */
+  /** Challenge modifiers: a game-wide choice, from first-party packs only. */
   getAvailableChallengeModifiers(): VersionRef[] {
-    return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.challenge_modifiers ?? []))
+    return dedupeVersionRefs(this.firstPartyPacks().flatMap((pack) => pack.manifest.challenge_modifiers ?? []))
   }
 
   /**
-   * Returns deduplicated tutorial refs exposed by all packs.
-   */
-  getAvailableTutorials(): VersionRef[] {
-    return dedupeVersionRefs(this.packs.flatMap((pack) => pack.manifest.tutorials))
-  }
-
-  /**
-   * Returns deduplicated outcome archetype refs discovered from manifest inventory filenames.
+   * Returns deduplicated outcome archetype refs discovered from every pack's
+   * inventory. Used only to recognize archetype ids (share links).
    */
   getAvailableOutcomeArchetypes(): VersionRef[] {
     const refs = this.packs.flatMap((pack) =>
@@ -218,22 +255,14 @@ export class ContentPackRegistry {
   }
 
   /**
-   * Returns the id of the pack that owns a content ref, or null.
+   * Provider for game-wide choices that are not part of a scenario bundle
+   * (player classes, challenge modifiers). Resolves from first-party packs
+   * only, which never overlap, so every ref has exactly one owner.
    */
-  findOwnerPackId(contentType: ContentType, ref: VersionRef): string | null {
-    return this.ownerOf(contentType, ref)?.manifest.id ?? null
-  }
-
-  /**
-   * Creates a provider that resolves any content by its owning pack.
-   *
-   * Used for game-wide choices that are not part of a scenario bundle
-   * (player classes, challenge modifiers, the quest list). Content that no
-   * registered pack lists in its inventory is not found.
-   */
-  createMergedProvider(): ContentProvider {
+  createGameWideProvider(): ContentProvider {
+    const firstParty = this.firstPartyPacks()
     return this.createProvider((contentType, ref) => {
-      const owner = this.ownerOf(contentType, ref)
+      const owner = firstParty.find((pack) => pack.files.has(fileKey(contentType, ref)))
       if (!owner) {
         throw new ContentNotFoundError(contentType, ref)
       }
@@ -244,73 +273,86 @@ export class ContentPackRegistry {
   /**
    * Creates a provider limited to one pack and its declared dependencies.
    *
-   * Throws ContentPackDependencyError when a declared dependency is not
-   * registered or has an incompatible version.
+   * Throws ContentPackDependencyError when the pack or a declared dependency
+   * is not registered, or a dependency has an incompatible version.
    */
-  createScopedProvider(packId: string): ContentProvider {
-    const scope = this.resolveScope(packId)
+  createScopedProvider(packKey: string): ContentProvider {
+    const scope = this.resolveScope(packKey)
+    const scopePack = scope[0]
 
     return this.createProvider((contentType, ref) => {
-      const owner = this.ownerOf(contentType, ref)
-      if (!owner) {
-        throw new ContentNotFoundError(contentType, ref)
+      const file = fileKey(contentType, ref)
+      const owner = scope.find((pack) => pack.files.has(file))
+      if (owner) {
+        return owner
       }
-      if (!scope.has(owner.manifest.id)) {
-        throw new ContentOutOfScopeError(contentType, ref, owner.manifest.id, packId)
+      const elsewhere = this.packs.find((pack) => pack.files.has(file))
+      if (elsewhere) {
+        throw new ContentOutOfScopeError(contentType, ref, elsewhere.manifest.id, scopePack.manifest.id)
       }
-      return owner
+      throw new ContentNotFoundError(contentType, ref)
     })
   }
 
-  /**
-   * Creates the provider a scenario bundle must be built with: scoped to the
-   * pack that owns the scenario.
-   */
-  createScenarioProvider(scenarioRef: VersionRef): ContentProvider {
-    const ownerPackId = this.findOwnerPackId('scenarios', scenarioRef)
-    if (!ownerPackId) {
-      throw new ContentNotFoundError('scenarios', scenarioRef)
-    }
-    return this.createScopedProvider(ownerPackId)
+  private findPack(key: string): RegistryPack | undefined {
+    return this.packs.find((pack) => pack.key === key)
   }
 
-  private ownerOf(contentType: ContentType, ref: VersionRef): RegistryPack | undefined {
-    return this.ownerByFile.get(ownershipKey(contentKeyByType[contentType], `${versionRefKey(ref)}.json`))
+  private firstPartyPacks(): RegistryPack[] {
+    return this.packs.filter((pack) => pack.key.startsWith(FIRST_PARTY_KEY_PREFIX))
   }
 
-  /**
-   * Collects a pack and its transitive dependencies, checking each one.
-   */
-  private resolveScope(packId: string): Set<string> {
-    const byId = new Map(this.packs.map((pack) => [pack.manifest.id, pack]))
-    if (!byId.has(packId)) {
-      throw new ContentPackDependencyError(`Pack "${packId}" is not loaded`)
-    }
-
-    const scope = new Set<string>()
-    const pending = [packId]
+  /** Keys of the registered packs a pack depends on, transitively (missing ones skipped). */
+  private dependencyClosure(pack: RegistryPack): Set<string> {
+    const closure = new Set<string>()
+    const pending = [...pack.manifest.depends_on]
     while (pending.length > 0) {
-      const currentId = pending.pop() as string
-      if (scope.has(currentId)) {
+      const key = firstPartyPackKey((pending.pop() as { pack_id: string }).pack_id)
+      if (closure.has(key)) continue
+      closure.add(key)
+      const target = this.findPack(key)
+      if (target) pending.push(...target.manifest.depends_on)
+    }
+    return closure
+  }
+
+  private canSeeEachOther(a: RegistryPack, b: RegistryPack): boolean {
+    const bothFirstParty = a.key.startsWith(FIRST_PARTY_KEY_PREFIX) && b.key.startsWith(FIRST_PARTY_KEY_PREFIX)
+    return bothFirstParty || this.dependencyClosure(a).has(b.key) || this.dependencyClosure(b).has(a.key)
+  }
+
+  /**
+   * Collects a pack and its transitive dependencies (the pack first), checking each one.
+   */
+  private resolveScope(packKey: string): RegistryPack[] {
+    const root = this.findPack(packKey)
+    if (!root) {
+      throw new ContentPackDependencyError(`Pack ${packKey} is not loaded`)
+    }
+
+    const scope: RegistryPack[] = []
+    const pending = [root]
+    while (pending.length > 0) {
+      const current = pending.shift() as RegistryPack
+      if (scope.includes(current)) {
         continue
       }
-      scope.add(currentId)
-      const current = byId.get(currentId) as RegistryPack
+      scope.push(current)
 
       for (const dependency of current.manifest.depends_on) {
-        const target = byId.get(dependency.pack_id)
+        const target = this.findPack(firstPartyPackKey(dependency.pack_id))
         if (!target) {
           throw new ContentPackDependencyError(
-            `Pack "${currentId}" depends on pack "${dependency.pack_id}", which is not loaded`,
+            `Pack "${current.manifest.id}" depends on pack "${dependency.pack_id}", which is not loaded`,
           )
         }
         if (!satisfiesDependency(target.manifest.version, dependency.version)) {
           throw new ContentPackDependencyError(
-            `Pack "${currentId}" needs pack "${dependency.pack_id}" ${dependency.version} (same major version or newer), ` +
+            `Pack "${current.manifest.id}" needs pack "${dependency.pack_id}" ${dependency.version} (same major version or newer), ` +
             `but ${target.manifest.version} is loaded`,
           )
         }
-        pending.push(dependency.pack_id)
+        pending.push(target)
       }
     }
     return scope

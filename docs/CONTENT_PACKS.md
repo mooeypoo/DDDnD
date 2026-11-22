@@ -185,7 +185,10 @@ The engine never re-checks these, because the boundary guarantees them. That is 
 | **Community pack** | Any pack not shipped in the game build |
 | **Source** | Where a pack was loaded from (allowlisted URL or local file) |
 | **Consent screen** | The screen where a player approves loading a community pack |
-| **Snapshot** | The locally stored copy of a loaded pack, keyed by content hash |
+| **Pack id** | The name a pack gives itself in its manifest (`gilded_ledger`). Not unique |
+| **Pack key** | A pack's identity, from where it is published (`github:<owner>/<repo>/<folder>`). See [ADR 0012](adr/0012-pack-identity-from-source.md) |
+| **Publisher** | The GitHub account a pack was loaded from: the one thing about a pack it can't claim falsely. Shown next to its credits ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)) |
+| **Snapshot** | The validated, in-memory copy of a loaded pack; stored on the device under its pack key, with a content hash for the exact content |
 | **Bundle file** | Single-file pack format, `.dddnd-pack.json` |
 | **Cast** | The UI's per-run assignment of `avatarRole`s to stakeholders |
 | **Studio** | The authoring site |
@@ -267,6 +270,8 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | Studio subdomain and repo folder names | Working names: `studio.dddnd.app`, `studio/` | M4 |
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
+| ~~Whose pack does `depends_on` mean?~~ | **Resolved (M2.8):** community packs may depend only on first-party packs, whose ids we control ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)). Community-on-community dependencies would need key-based references in a new schema version. | Done |
+| Community hall look | The bazaar's colors, border, and "external" marking; chosen from screenshots of two or three versions (M2.11) | Follow-up to PR #35 |
 | Exact-run replay of retired remote packs | Snapshots make it possible. Do we promise it? (CONTENT_VERSIONING.md does not promise it for retired base scenarios.) | M2 |
 
 ---
@@ -283,6 +288,9 @@ Threads worth telling, with where they are recorded:
 - **"Make the implicit explicit."** DDD knowledge hidden in engine constants and in English sentences. (§4.4)
 - **"A second domain is the only real test of generality."** The SRE pack as an acceptance test. (ADR 0006, M3)
 - **"Writing a pack is domain modeling."** Pack creation as a workshop exercise. (§2)
+- **"The worst case is text."** One rule that every feature must keep, and that makes repo-jacking and pretenders survivable. (M2.9, ADR 0014)
+- **"A name is not an identity."** Pack ids were quietly used as identities until review asked what happens when two authors pick the same name. Identity moved to where a pack is published, owned by the trust context: first for what persists, then for dependencies, then for everything that runs (and content ids, via squatting). The textbook attribute-vs-entity distinction, found in the wild three times. (M2.7–M2.9, ADR 0012–0014)
+- **"The screen should show the model you built."** The game had kept packs separate since M2.9, but the lobby still took their scenarios out and dealt them into one deck. Testing it by hand raised the question "can a pack have more than one scenario?", and the answer turned the pack, not the scenario, into the thing a player chooses. (M2.11)
 - **The context map** in §4.3 works as a slide.
 
 ---
@@ -563,7 +571,7 @@ The entry point is a small "Community packs" control in the lobby. Its final des
 - [ ] Add `https://raw.githubusercontent.com` and `https://*.github.io` to `connect-src` in `netlify.toml`
 - [ ] Re-run the headless CSP check (M1.6) with a remote pack loaded
 - [ ] Public docs-site pages for players and authors are live
-- [ ] Demo pack published and pinned to a tag
+- [x] Demo pack published and pinned to a tag (`gilded_ledger-v1.0.0`)
 
 ### M2.1: The packs repository, the demo pack, and where trust lives (2026-11-21)
 
@@ -652,8 +660,8 @@ GitHub Actions can't run locally, so we reproduced the job's checkout layout in 
 **Also done:** the GPL-3.0 `LICENSE` file was added to DDDnD's root on `main` (it had been declared in `package.json` and manifests, but the file was missing). DDDnD-packs has its own.
 
 **Release checklist additions:**
-- [ ] After merge: tag DDDnD `pack-validator-v1`, and switch the DDDnD-packs workflow refs to it
-- [ ] Tag DDDnD-packs `gilded_ledger-v1.0.0` once its CI is green against the released validator
+- [x] After merge: tag DDDnD `pack-validator-v1`, and switch the DDDnD-packs workflow refs to it (done 2026-11-22)
+- [x] Tag DDDnD-packs `gilded_ledger-v1.0.0` once its CI is green against the released validator (done 2026-11-22)
 
 ### M2.3: Where packs may come from, and loading one into memory (2026-11-22)
 
@@ -757,3 +765,344 @@ Behind the `VITE_ENABLE_COMMUNITY_PACKS` flag (ADR 0009).
 
 - `File.text()` is missing in some older browsers (and in jsdom). File reading falls back to `FileReader`.
 - A community quest has no difficulty plate, because the difficulty table only knows first-party scenarios. The Community badge takes its place. Fine for now; worth revisiting with the lobby design.
+
+---
+
+### Release point: PR #34 merged (2026-11-22)
+
+PR #34 (M1 plus M2.0–M2.5) was merged to `main`. In production, the community-pack UI stays off (ADR 0009). The hardened content boundary, the CSP, and the published schemas are live.
+
+**Before merging**, the browser checks were run once more against the PR's Netlify deploy preview, which is how the preview-only toolbar injection was found (recorded under M1.6).
+
+**After merging:**
+1. DDDnD was tagged `pack-validator-v1` at the merge commit. This is the moving major tag from ADR 0011.
+2. DDDnD-packs' CI was switched from the feature branch to that tag. Its run passed, so the published contract works for a real consumer.
+3. DDDnD-packs was tagged `gilded_ledger-v1.0.0`, the first per-pack release tag. A live load from `https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json` succeeded: 16 files, pinning recognized as a release, and the same content hash as every earlier load (`sha256:90fae984…`).
+
+The rest of M2 continues in a follow-up PR: pack identity in saves, local snapshots, the seeded cast, docs-site pages, and the end-to-end check.
+
+### M2.6: Packs and saved runs survive a reload (2026-11-22)
+
+Behind the flag (ADR 0009). With the flag off, the pack store is never opened.
+
+**What changed**
+
+- **Runs know their pack.** `RunMeta.content_pack` records `{ id, version, origin, content_hash?, source_url? }` when a run starts. First-party runs get `origin: "first_party"`; community runs also get the content hash and, for GitHub packs, the manifest URL. The simulation never reads it: it is identity, not behavior.
+  - Save files carry it automatically, because they store the whole game state and normalization spreads `meta`.
+  - Exact-run exports also summarize it in `seed_info.content_pack`.
+  - Persistence validation rejects malformed identities (for example, a hash that isn't `sha256:` plus 64 hex characters).
+  - Fun fact: `meta.content_pack_version` already existed in saves and exports but was never set. The schema had anticipated pack identity long before anything needed it.
+- **Added packs are kept on the device** (`community_pack_store.ts`, a persistence adapter next to the existing localStorage save adapter).
+  - It uses IndexedDB, keyed by pack id (one version per pack).
+  - What's stored is the pack's `.dddnd-pack.json` text, **re-validated on every load** with that day's rules and that day's loaded packs. A pack that no longer passes is left out, and the dialog says why.
+  - Without IndexedDB (some private modes, blocked storage), a memory store is used, and the dialog says packs last only until the page closes.
+- **Stored packs are restored inside content loading,** before anything else. A saved run is restored by the router before any lobby code runs, so the restore has to happen as part of the content load, not in a view.
+- **Saved runs are never deleted because their pack is missing.** Before, any restore failure called `reset()`, which deletes the save. Now, if a community run's pack isn't loaded, or a different version (different hash) is, the save is kept and `savedRunPackNotice` explains it. The lobby checks the save when it opens (without restoring it), opens the Community packs dialog with the explanation, and fills in the pack's original link so it can be re-added in one click.
+
+**Decisions**
+
+1. **One version per pack id.** *(Refined in M2.7 / [ADR 0012](adr/0012-pack-identity-from-source.md): one version per pack **key**, and one pack per id loaded at a time.)* Adding a new version replaces the old one. A saved run resumes only with the *exact* content it was played with (same hash). Otherwise it is kept and explained. Supporting two versions of a pack side by side would need two packs with the same id in the registry, which ADR 0001 forbids for good reasons. Known limitation, accepted for MVP.
+2. **Store text, not objects, and re-validate on load.** Storing parsed objects would trust whatever was written under an older validator. Storing the bundle text and running it back through `readPackBundle` means stricter future rules apply to old packs too.
+3. **Storage failures never block play.** If a pack can't be kept, it is still added for the visit, and the "Added" message says it won't survive closing the page.
+
+**Two bugs the real browser found (and the unit tests didn't)**
+
+1. **IndexedDB can't store Vue reactive proxies.** The candidate snapshot passes through a `ref`, so `origin` was a Proxy, and IndexedDB threw `DataCloneError`. Worse, the pack had already been added to the session, so the dialog said "couldn't be added" while it was in play.
+   - **Fix:** write plain copies, and add to the session regardless of storage.
+   - **Prevention:** the in-memory store used by tests now uses `structuredClone` like IndexedDB does, and a regression test adds a `reactive()` snapshot. We confirmed it fails with the same `DataCloneError` when the fix is removed.
+2. **A write isn't durable when the request succeeds, only when the transaction commits.** The first store resolved writes on request success. In the scripted scenario, adding a pack and immediately navigating away left IndexedDB empty. The store now resolves writes on `transaction.oncomplete`.
+
+   This one was found *because of* a mistake in the test script. The dialog has two `role="status"` regions; the script waited for the wrong one and navigated away mid-add. That accidental "player leaves immediately" turned out to be a real scenario.
+
+**Verification**
+
+- **Unit tests:**
+  - identity validation;
+  - save and exact-run round trips with a community identity;
+  - a malformed identity rejected;
+  - a pack restored on the "next visit" (a fresh adapter on the same store) with origin and hash intact;
+  - `describeScenarioPack` for community and first-party scenarios;
+  - a tampered stored pack left out and reported;
+  - removal deleting the stored copy;
+  - the reactive-proxy regression.
+- **Headless Chrome against the dev server, real GitHub, real IndexedDB:**
+  1. Add the demo from its release tag. The dialog says "Kept on this device".
+  2. Reload: the pack is still in the lobby.
+  3. Start the community scenario and play two turns. The save carries the full identity (`sha256:90fae984…`, the tag URL). Reload mid-run: the run resumes with its Community label.
+  4. Remove the pack and go to `/game`: redirected home, **save kept**. Open the lobby: the dialog opens by itself with the explanation and the original link filled in.
+  5. Re-add the pack and go to `/game`: the run resumes.
+
+  Run three times in a row with zero console errors.
+
+
+### M2.7: A pack's name is not its identity (2026-11-22)
+
+Behind the flag (ADR 0009). Decision recorded in [ADR 0012](adr/0012-pack-identity-from-source.md).
+
+**How it came up**
+
+Reviewing M2.6, the project owner asked what stops two remote packs with the same name from overriding each other. Nothing did. Stored packs and saved runs were keyed by the manifest `id`, and any author can call their pack `gilded_ledger`. The content hash would have stopped a wrong run from resuming, but the player would have been told "a different version", and the first pack would have been silently replaced on the device.
+
+This is a textbook DDD confusion between an **attribute** and an **identity**. The manifest id is something the pack *says about itself*. Identity has to come from something the author can't freely choose to collide with: here, the place the pack is published. It's the same shape as ADR 0010 ("a pack can't vouch for itself"), and it puts the authority in the Distribution and Trust context, which owns the source policy.
+
+**What changed**
+
+- **`pack_identity.ts`** (content domain) derives a **pack key**:
+  - `dddnd:base`
+  - `github:<owner>/<repo>/<folder>`
+  - `github-pages:<owner>/<folder>`
+  - `file:sha256:…`
+
+  The source policy now also reports `pack_dir`, the folder holding `manifest.json`.
+- **The ref is not in the key,** so `gilded_ledger-v1.0.0`, `-v1.1.0`, `main` and a commit SHA are the same pack. The content hash still pins the exact content.
+- **Owner and repo are lowercased; folders aren't.** That follows GitHub's own case rules.
+- **A file's key is its content hash,** so a file can never take over a GitHub pack's identity.
+- **Saves:** `RunContentPack.key` is required. A save is matched by key, then by hash.
+- **Storage:** IndexedDB version 2 is keyed by `pack_key`. Version 1 only ever existed in dev builds, so its store is dropped on upgrade. On restore, the key is recomputed from the stored origin and content and compared with the stored one. A mismatch is left out and reported ("doesn't match where it says it came from").
+- **Replacing is explicit.** The registry still holds one pack per manifest id, so a pack with a taken id replaces the loaded one. The review now says so before confirming, in three tones:
+  - another version of the same pack (calm): "Replaces the version you added before (v1.0.0)."
+  - the same content from somewhere else (caution): "The same content is already added from …"
+  - a different pack with the same name (caution, `role="alert"`): who, from where, and "adding this one removes it".
+
+  Replaced packs are also removed from storage, or they'd come back next visit beside the new one.
+- **The saved-run notice has a third case.** Besides `missing` and `different_version`, there is now `different_source`: "the pack added now with that name was loaded from somewhere else, and saved runs only continue with the pack they were played with". The matching moved from the store into the content adapter (`whyRunPackUnavailable`), where it can be unit-tested.
+
+**Decisions and trade-offs**
+
+1. **Readable key, not a URL hash.** The first idea in review was "some hash of the URL". A hash of the full URL would include the ref, making every release a different pack and stranding saved runs on update. A readable key without the ref keeps updates working, and is legible in a save file or an export.
+2. **Strict about provenance.** The same bytes from GitHub and from a file are two packs. We considered letting a matching content hash resume a run regardless of key: it would be safe for determinism, but it blurs "which pack is this", and the case is rare. We kept it strict, and worded the review gently for it.
+3. **Moving a pack changes its identity.** Renaming the repo, moving the folder, or transferring ownership makes a new pack. That's the price of identity-by-location without a central registry. The authoring guides now warn authors.
+4. **`depends_on` still uses ids.** That's fine while dependencies are first-party (`base`, `tutorial`), whose ids the registry protects: a community pack named `base` is refused outright. *(Not fine enough: tightened into a rule in M2.8 / ADR 0013.)*
+
+**Verification**
+
+- **Unit tests** (+17, 1022 total):
+  - key derivation, including every ref form mapping to one key, case rules, and same-named packs from other owners, repos, folders or Pages getting distinct keys;
+  - files keyed by content, and a tampered remote origin refused;
+  - the key shape check;
+  - a same-named pack reported as a non-same-pack replacement;
+  - adding it replaces the first in memory *and* storage;
+  - two versions of one pack stored as one entry;
+  - all three saved-run reasons;
+  - a file stored under a GitHub key refused on restore;
+  - a key now required in saves;
+  - the three review wordings.
+- **Headless Chrome, real GitHub, real IndexedDB:**
+  0. Seed a version-1 database like an old dev build left behind.
+  1. Add the demo from its tag. The database is version 2, keyed by `pack_key`, holding `github:mooeypoo/dddnd-packs/packs/gilded_ledger`, and the old entry is gone.
+  2. Play two turns. The save carries the key.
+  3. Add the same pack from its `.dddnd-pack.json` file. The review warns "The same content is already added from raw.githubusercontent.com/…". Confirm: storage holds only `file:sha256:90fae984…`.
+  4. Open `/game`: the save is kept, and the lobby explains the pack was loaded from somewhere else, with the original link prefilled.
+  5. Re-add from the link (the review warns about replacing the file copy). The run resumes with its Community label.
+
+  The only console error was Chrome's favicon request on the raw JSON page the script used to seed the old database, not the game.
+
+
+### M2.8: Dependencies must name a pack we can vouch for (2026-11-22)
+
+Behind the flag (ADR 0009). Decision recorded in [ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md).
+
+**How it came up**
+
+M2.7 left `depends_on` keyed by manifest id, and called it "fine while dependencies are first-party". The project owner didn't accept the hedge: without a central registry, nobody approves names or tracks duplicates, so an id can't decide *which pack* gets used. A dependency decides exactly that. If C depends on `alice_core`, any `alice_core` satisfies it, and C's scenarios run on someone else's content.
+
+They also asked whether always-unique ids would mitigate T15. The honest answer had three parts:
+
+1. **Storage and saves:** already closed by the pack key (M2.7).
+2. **Dependencies:** this was the open hole. It closes once a dependency can only name something whose identity can't be faked.
+3. **Look-alikes:** no id rule fixes these. A pack can copy another's title and write any author name. The only defense is to show the one fact it can't fake: who published it.
+
+"Always unique" can't be enforced on a name the author chooses, so uniqueness must come from something they can't choose. For dependencies today, the simplest such thing is "ships with DDDnD".
+
+**What changed**
+
+- **`communityManifestIssues`** in `pack_identity.ts` refuses two things:
+  - a `depends_on` naming anything but `base` or `tutorial` (`FIRST_PARTY_PACK_IDS` in `pack_policy.ts`);
+  - a community pack using one of those ids.
+- **It is enforced in `parseManifestText`,** which every community pack passes through (URL, file, bundle script), before any content is fetched.
+- **The author CLI applies the same function** to any pack that isn't one of ours, validated from our own folder. So the reusable workflow catches it in the author's CI, with the same message the game would give. `--dependency-root` / `dependency-roots` stay (the workflow input is published in `pack-validator-v1`), and now only stand in for a first-party pack.
+- **The removal cascade is deleted.** It removed community packs that depended on the removed one. Nothing can depend on a community pack now, so that was dead code. It is deleted rather than left looking meaningful.
+- **The review shows the publisher.**
+  - A new "Published by" row comes first: "mooeypoo on GitHub (mooeypoo/DDDnD-packs)", taken from the URL. For a file it shows "unknown (loaded from a file)".
+  - It carries the note "The account it was loaded from. Names below are written by the pack itself."
+  - "Made by" became "Credits".
+  - The added-packs list shows the publisher instead of the pinning label.
+
+**Decisions and trade-offs**
+
+1. **Restrict now, generalize later.** Key-based dependencies (`"pack": "github:alice/packs/core"`) are the general answer. But they change the published format, and they raise open questions: version ranges across sources, file-loaded dependencies, and how id-scoped registry resolution maps to keys. Nobody needs them yet. The restriction is reversible, and the general form fits in a later `schema_version`.
+2. **Show provenance rather than police names.** We considered refusing look-alike titles. There is no reliable way to tell "similar" from "same theme", and refusing would invite name-squatting games. Showing the publisher next to the credits lets the player compare a claim with a fact.
+3. **A stricter validator under the same tag.** In principle, a pack that passed `pack-validator-v1` could now fail. In practice, no such pack exists, and the game itself refuses it. A validator that passes packs the game refuses is worse than a stricter one.
+
+**DDD note (talk material)**
+
+This is about where trust may come from inside a model. An attribute (the id) is fine for *referring* to something inside a boundary you control: the registry within one session, or our own first-party packs. It is not fine for *choosing* something across a boundary you don't control. A dependency crosses that boundary, so it must refer to something the trusted side owns. M2.7 and M2.8 are the same lesson applied twice, and the second time it took a reviewer to see it.
+
+**Verification**
+
+- **Unit tests** (+6, 1028 total):
+  - first-party dependencies allowed;
+  - a community dependency refused, with the reason;
+  - first-party ids refused;
+  - both rules enforced on a real pack read (`PackLoadError` at the manifest stage);
+  - the publisher shown for GitHub raw and Pages, and "Unknown" for a file even when its credits name a real person;
+  - removal no longer cascading.
+- **CLI:**
+  - the demo pack, `base`, and `tutorial` still pass;
+  - a copy of the demo depending on `alice_core` is refused with exit code 1 and the same message the game gives.
+- **Headless Chrome:** the review shows "Published by" for a GitHub pack and "Unknown" for a file; the added list shows the publisher.
+
+### M2.9: Packs are known only by their key, and their worst case is text (2026-11-22)
+
+Behind the flag (ADR 0009). Decision recorded in [ADR 0014](adr/0014-pack-keys-everywhere.md).
+
+**How it came up**
+
+After M2.8, the project owner restated the goal more sharply than the code met it. Names may repeat; the identity the *system* uses must be unique and come from details that can't be duplicated. Players can see two packs called `gilded_ledger`, with where each comes from, but the game must never mix them up.
+
+An audit showed where we stood:
+
+- **Saves, storage and dependencies** already used keys.
+- **The running session did not.** The registry was keyed by manifest id, content files belonged to "the pack with that id", and the lobby picked scenarios by `(id, version)`. It was safe only because of the M2.7 rule that kept one pack per name loaded, so correctness rested on an invariant rather than on identity.
+
+The owner also set the primary rule: even repo-jacking or a pretender pack must never be able to *do* anything to the player. Seeing unwanted text is the worst acceptable case.
+
+And they asked about "content-id squatting", which I had listed as a minor risk. Today a content file belongs to whichever pack listed it first, so a pack that copies your card ids blocks yours from loading. The answer was the same move one level down: content belongs to its pack's key, not to a global space.
+
+**What changed**
+
+- **Registry (content domain).**
+  - Packs are registered and found by key; `registerPack(manifest, provider, key)` returns the key, and unkeyed packs are first-party (`dddnd:<id>`).
+  - Each pack keeps its own file set. Two packs may list the same file unless one depends on the other, or both are first-party.
+  - Scope resolution walks dependencies to `dddnd:<id>`, so a community pack named `base` can't satisfy a dependency even if it gets past the boundary checks.
+  - `getAvailableScenarios` and `getAvailableTutorials` return `{ pack_key, ref }`.
+  - The merged provider is gone. `createGameWideProvider` (first-party only) serves player classes and challenge modifiers, and `createScopedProvider(key)` serves everything else.
+  - `findOwnerPackId` and `createScenarioProvider` are gone: nothing asks "who owns this scenario id?" any more.
+- **Boundary.** `communityManifestIssues` also refuses community `classes` and `challenge_modifiers`. They are game-wide choices, and the demo has none.
+- **UI.**
+  - `QuestDisplayModel.packKey`, with `questKey` and `isSameQuest` for comparing quests.
+  - `RunSetupOptions.pack_key`, and a bundle cache keyed by `packKey|id-vN`.
+  - Restoring a save uses `meta.content_pack.key`. Saves from before pack identity are always first-party, so they fall back to the first-party pack that lists the scenario.
+  - Quest cards are loaded per pack with that pack's scoped provider.
+  - Adding a pack replaces only the same key. The review names same-named packs from elsewhere: "You also have another pack called …, published by …. Both stay added."
+  - Removal is by key.
+- **The publisher everywhere.** It is shown on the lobby badge tooltip, the table line ("Community pack: … · published by …"), and the in-game label, in addition to the review and the list. For a file it reads "unknown (loaded from a file)".
+- **Warnings.**
+  - The review banner now reads "From a source DDDnD hasn't reviewed: `<publisher>`. Packs can't run code or reach your device … The worst a pack can do is show you text you didn't expect."
+  - Pack-supplied links (author, homepage) have a tooltip and a visible note: "The links above come from the pack and lead to sites DDDnD doesn't know. Use caution."
+- **Rules written down.** AGENT.md has a new primary rule section, ARCHITECTURE.md lists the identity and worst-case rules, and the threat model updates T1, T8 and T15, adds T16 (squatting, closed), and adds the non-goal "a compromised official repository".
+
+**Decisions and trade-offs**
+
+1. **No filtering of URLs or HTML in text.** The owner's call: once nothing is rendered as markup and nothing is clickable, a URL or `mailto:` in text is visible and inert. Filtering would mostly block ordinary sentences ("the site example.com just died").
+2. **Plain text only, no formatting.** If emphasis is ever added, it has to come from our own tiny parser that builds elements, never HTML and never links.
+3. **Author and homepage links stay,** with a visible caution, so authors can be credited.
+4. **Repo-jacking is accepted as text-only damage.** The key names a location, and a location can change hands. The primary rule bounds the harm, saves still pin the content hash, and the banner always says the source isn't reviewed. Closing it fully would need GitHub's numeric repository ids, which only the API provides.
+5. **Same content from two places is two packs.** For example, the demo added from GitHub and from its file both appear, with different publishers. That's the principle applied consistently.
+
+**DDD note (talk material)**
+
+M2.7 to M2.9 is one lesson at three depths: what persists, what depends, and what runs. In each place, a name the outside world chose had been quietly doing an identity's job. The fix was the same each time: the identity comes from the context that owns the trust (where a pack is published), and names go back to being labels for people. Squatting was the tell that content ids had the same problem as pack ids.
+
+**Verification**
+
+- **Unit tests** (+7 net, 1035 total):
+  - registry: two same-named packs with identical content ids registered side by side, each resolving only its own content; a duplicate key refused; shadowing a dependency's file still refused; a community pack calling itself `base` can't satisfy a dependency; game-wide classes from first-party only;
+  - adapter: two `gilded_ledger`s added side by side and stored under both keys; each key resolves its own scenario text; removing one keeps the other; a newer version of the same key replaces it;
+  - boundary: community classes and challenge modifiers refused;
+  - review: the "replaces" and "both stay" notes.
+  - Tests that encoded the old one-pack-per-name behavior were rewritten rather than kept: replacement by name no longer exists. Everything else moved to the key-based APIs.
+- **Determinism:** a fixed-seed audit report is identical to `main`, so first-party bundles resolve exactly as before.
+- **Headless Chrome, real GitHub, real IndexedDB:**
+  1. Add the demo from its tag, then from its file. The review says "You also have another pack called … published by mooeypoo on GitHub … Both stay added". Storage holds both keys.
+  2. The lobby shows two Gilded Ledger quests, badged "published by mooeypoo on GitHub (mooeypoo/DDDnD-packs)" and "published by unknown (loaded from a file)".
+  3. Play the file copy. The save carries `file:sha256:90fae984…`, and the play label names the publisher.
+  4. Reload mid-run: the run resumes with the same pack.
+  5. Remove the GitHub copy: storage keeps only the file key, and `/game` still resumes the run.
+
+  No console errors.
+
+### M2.10: A run's cast, decided once (2026-11-22)
+
+Implements [ADR 0002](adr/0002-presentation-cast-decoupled-from-content.md). This change is not behind the flag: it changes how the base game looks too, which was the point. Three bugs from §3.4 get fixed here.
+
+**What changed**
+
+- **One cast function.** `buildRunCast(seed, stakeholderIds)` in `gameplay_stage_presentation.ts`:
+  - it shuffles the avatar-role pool with its own seeded generator (salt `dddnd:presentation-cast:v1` plus the run seed);
+  - it deals roles in sorted stakeholder-id order.
+
+  Play, the legacy game view, the end-of-run screen and the share card all call it. The old `shuffleAvatarRoles()` (`Math.random()`) and `resolveStakeholderAvatarRole(id)` (id hash, unshuffled pool) are gone.
+- **The three defects:**
+  1. **Duplicates.** `hash(id) % pool` could give two stakeholders the same role: `ab` and `ba` always collided. Roles are now dealt, not hashed, so they are distinct up to the pool size of 9. Validation caps a scenario at 8 stakeholders.
+  2. **Screens disagreed.** The results screen and the share card used the unshuffled pool. They now build the same cast from the same seed.
+  3. **Reloads reshuffled.** `Math.random()` gave a new cast on every reload. The seed is part of the save, so the cast comes back with the run.
+- **The share card needs the seed.** A share link is opened by someone without the save. So the share payload gained an optional `sd` (the run seed), checked on decode as a string of at most 200 characters. It only feeds the presentation generator. Older links still decode, and get a distinct, stable cast that may not match the one played.
+- **Scenes.**
+  - First-party scenarios keep their hand-picked scene.
+  - Any other scenario gets a scene from the pool, picked by a stable hash of its pack key and scenario id.
+  - The hand-picked map applies only to first-party pack keys, so a community scenario that reuses a base scenario's id doesn't borrow its scene (ADR 0014's rule, applied to looks).
+  - The legacy view, which picked a random scene, now uses the same function.
+- **Scores the UI doesn't know.**
+  - Before, they all got 📈 and the same grey.
+  - Now they get an icon and color from a six-entry fallback palette, by position among the active scenario's unknown scores. The game store records the scenario's `score_refs` order when a bundle becomes active.
+  - The fallback colors are global CSS classes with their own tokens, so every score component picks them up without its own rule. Their icons are ones no known score uses.
+
+**Decisions and trade-offs**
+
+1. **Scenes are picked by scenario, not by run.** ADR 0002 says "a seeded pick". We used the pack key and scenario id as the seed rather than the run seed. That way the lobby (which has no run yet) previews the same scene the run will use, and a scenario has a recognizable place, as first-party ones do.
+2. **The cast is dealt in sorted id order,** not in the order stakeholders appear. This makes it independent of how a snapshot was built or serialized.
+3. **Score order lives in a small reactive module value** set by the store, not threaded through six presentational components as a prop. It is UI presentation state, like the active theme.
+4. **Changing the role pool or the salt changes old runs' casts.** This was accepted in ADR 0002 as cosmetic.
+
+**DDD note (talk material)**
+
+The bugs came from one missing concept. "Which character plays the CFO in this run" was never anything's job. Each screen worked it out for itself, from whatever it had: a shuffled pool, an unshuffled pool, `Math.random()`. Naming it, as *the run's cast*, gave it one owner (the UI), one input (the run seed) and one function. The three bugs disappeared because the duplication behind them did. It is the presentation-side version of "a name is not an identity": a stakeholder's look had no identity of its own.
+
+**Verification**
+
+- **Unit tests** (+19, 1054 total):
+  - cast: distinct roles, including the old `ab`/`ba` collision; independent of stakeholder order; varies across seeds; cycles past the pool; leaves the simulation's random stream untouched; the stage uses it;
+  - scenes: first-party map, stable pick for other scenarios, spread across the pool, no borrowing of first-party scenes;
+  - scores: known looks kept, position-based fallbacks, cycling, no icon clash;
+  - share payload: the seed round-trips, older links decode, bad seeds are refused.
+
+  The old scene test "falls back to the hall for unknown packs" was replaced. It encoded the behavior ADR 0002 changes (every unknown scenario in the same hall).
+- **Determinism:** a fixed-seed audit report is identical to `main`. The engine and its random stream are untouched.
+- **Headless Chrome:** played The Merger of Minor Chaos. The four seated stakeholders had four different roles. After a reload mid-run the cast was identical, and the end-of-run screen and the share card showed the same role for every stakeholder. The fifth stakeholder, who isn't seated, has its own distinct role on both. No console errors.
+
+### M2.11 (design): Community packs get their own room (2026-11-22)
+
+A design decision made while testing PR #35 by hand. The build follows in the next PR, and the ADR will be written there once the look is chosen.
+
+**How it came up**
+
+When the project owner looked for the "Community packs" entry, it raised a broader question. Since M2.5, adding a pack has put its scenarios **into the existing lobby**: community adventures were dealt into the Adventures fan alongside the base game's, and community tutorials into the Tutorials tab, each with a small badge. The owner named two risks:
+
+1. **Confusion with the base game.** A pack's scenario sits among DDDnD's own as if it were one of them.
+2. **Confusion between packs.** Packs can be about radically different topics, an SRE incident pack next to a payments pack, and a mixed deck hides that.
+
+Then the more important question: **do packs only add one scenario?** No. A manifest has a `scenarios` list and a `tutorials` list, and the demo just happens to have one. Two six-scenario packs would put twelve community cards among the base game's five. That turned the presentation issue into a modeling one. The thing a player chooses is a **pack**, and a scenario is chosen *within* a pack.
+
+**Why this fits**
+
+Since M2.9 the game has known packs only by pack key, and every scenario is addressed as (pack key, id, version). The model already said "a scenario belongs to its pack". The lobby was the one place that flattened that back out. Showing packs as groups means the screen shows the model the code already has.
+
+**Decisions**
+
+1. **A separate route.** The lobby (`/play`) goes back to first-party content only: Tutorials and Adventures are "the DDDnD game". Community packs get their own place at `/community`, reached from the lobby. A route rather than a third lobby tab, because it is a different place, and `?pack=` links can land there directly.
+2. **It's a bazaar.** The community area has its own feel: a bazaar rather than the council chamber. Different shades, and a border or similar marking, tell the player at a glance that this content is external. The exact look will be chosen from screenshots of two or three versions.
+3. **Always pack first, then scenario.** The bazaar shows one tile per added pack: its name, publisher, kind, how many adventures and tutorials, and the unreviewed mark. Opening a tile shows that pack's table: its tutorials first, then its adventures, in the same quest-fan style, with the pack's banner and source warning visible throughout. **A one-scenario pack still opens its table**, for consistency.
+4. **"Add a pack" moves to the bazaar.** It is the same dialog, now inside the place where packs live.
+5. **The order of work.** PR #35 merges as groundwork (everything new in it is behind the flag except the M2.10 cast fix). The follow-up PR covers:
+   - the screenshots, an ADR, and the build;
+   - the docs-site pages, written for the new flow so they don't need rewriting;
+   - the end-to-end check.
+
+**What it sets up**
+
+The pack table is where pack-specific choices can live later: a standalone pack's own scores, and classes or challenge modifiers scoped to a pack (left open in ADR 0014), never in the base lobby. Overlay packs, which change text and have no scenarios, would show a tile that says what they change instead of offering quests.
+
+**DDD note (talk material)**
+
+The model had moved and the screen hadn't. A pack had been an aggregate in the code since M2.9: it owns its content, has one identity, and is added and removed as a whole. But the UI treated packs as a delivery mechanism for loose scenarios. A hands-on test plus one naive-sounding question ("do packs only add one scenario?") showed the gap. The fix is the same as in M2.7–M2.9: make the boundary that exists in the model visible where people meet it. Here that means a room of its own, with its own look, so the context boundary is something a player can *see*.

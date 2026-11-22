@@ -2,6 +2,7 @@
 
 Status: Accepted  
 Date: 2026-11-22  
+Refined by: [ADR 0013](0013-community-packs-depend-only-on-first-party.md) (`dependency-roots` now only stands in for first-party packs)  
 Feature journal: [docs/CONTENT_PACKS.md](../CONTENT_PACKS.md) (entry M2.2)
 
 ## Context

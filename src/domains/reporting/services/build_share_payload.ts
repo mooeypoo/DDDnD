@@ -50,6 +50,7 @@ export function buildSharePayload(input: BuildSharePayloadInput): SharePayload {
     avg: Math.round(run_outcome.score_average),
     scores: roundedScores,
     stakeholders: roundedStakeholders,
-    cr: run_outcome.completion_reason
+    cr: run_outcome.completion_reason,
+    sd: game_state.meta.seed || undefined
   }
 }

@@ -72,7 +72,8 @@ describe('quest loader', () => {
 
     const quest = await loadQuestDisplayModel(
       { id: 'test_scenario', version: 1 },
-      mockProvider as any
+      mockProvider as any,
+      'dddnd:base'
     )
 
     expect(quest.id).toBe('test_scenario')
@@ -132,7 +133,8 @@ describe('quest loader', () => {
         { id: 'failing_scenario', version: 1 },
         { id: 'another_scenario', version: 1 }
       ],
-      mockProvider as any
+      mockProvider as any,
+      'dddnd:base'
     )
 
     // Should only return 2 successful loads
@@ -177,7 +179,8 @@ describe('quest loader', () => {
         { id: 'missing_1', version: 1 },
         { id: 'missing_2', version: 1 }
       ],
-      mockProvider as any
+      mockProvider as any,
+      'dddnd:base'
     )
 
     expect(quests).toHaveLength(0)
@@ -231,7 +234,8 @@ describe('quest loader', () => {
 
     const quest = await loadQuestDisplayModel(
       { id: 'epic_scenario', version: 1 },
-      mockProvider as any
+      mockProvider as any,
+      'dddnd:base'
     )
 
     expect(quest.turnCount).toBe(20)
@@ -257,7 +261,7 @@ describe('quest loader', () => {
       default_value: 50,
     })
 
-    const quest = questDisplayFromBundle(bundle)
+    const quest = questDisplayFromBundle(bundle, 'dddnd:base')
 
     expect(quest.name).toBe('Test Quest')
     expect(quest.councilNames).toEqual(['Chief Technology Officer'])

@@ -59,7 +59,7 @@
       <div class="quest-fan" role="list">
         <div
           v-for="(quest, index) in fanQuests"
-          :key="quest.id + '-v' + quest.version"
+          :key="questKey(quest)"
           class="fan-slot"
           :class="{ 'is-selected': isQuestSelected(quest) }"
           :style="fanStyle(index)"
@@ -72,8 +72,8 @@
             :disabled="isAwaitingChamber"
             @click="$emit('selectQuest', quest)"
           >
-            <span class="quest-scene" :style="{ backgroundImage: `url(${sceneFor(quest.id)})` }" />
-            <span v-if="quest.communityPack" class="community-mark" :title="`From the community pack “${quest.communityPack.name}”`">Community</span>
+            <span class="quest-scene" :style="{ backgroundImage: `url(${sceneFor(quest)})` }" />
+            <span v-if="quest.communityPack" class="community-mark" :title="`From the community pack “${quest.communityPack.name}”, published by ${quest.communityPack.publisher}`">Community</span>
             <span v-if="quest.isTutorial" class="tutorial-mark">Tutorial</span>
             <span
               v-else-if="difficultyFor(quest)"
@@ -99,7 +99,7 @@
             <div v-if="selectedQuest" class="table-brief">
               <p class="table-nameplate">{{ selectedQuest.name }}</p>
               <p v-if="selectedQuest.communityPack" class="table-community">
-                Community pack: {{ selectedQuest.communityPack.name }}
+                Community pack: {{ selectedQuest.communityPack.name }} · published by {{ selectedQuest.communityPack.publisher }}
               </p>
               <p class="table-hook">{{ questHook(selectedQuest) }}</p>
               <p v-if="questFlavorLine(selectedQuest)" class="table-flavor">
@@ -228,13 +228,13 @@ import { computed, ref, watch } from 'vue'
 import type { ChallengeModifier, PlayerClass } from '@/domains/content/model'
 import { getClassPortraitUrl } from '@/ui/composables/class_artwork'
 import { requestSceneBackground } from '@/ui/composables/presentation_asset_lookup'
-import { resolveGameplaySceneId } from '@/ui/composables/gameplay_stage_presentation'
+import { resolveScenarioSceneId } from '@/ui/composables/gameplay_stage_presentation'
 import { preloadImageUrls } from '@/ui/composables/preload_presentation_assets'
 import { classAffinityCopy } from '@/ui/play/class_affinity'
 import { councilCountLabel } from '@/ui/play/council_copy'
 import { questDifficulty, sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
 import { handFanTransform } from '@/ui/play/card_fan'
-import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
+import { isSameQuest, questKey, type QuestDisplayModel } from '@/ui/types/quest_display_model'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import QuestBriefingPlaque from '@/ui/play/quest_briefing_plaque.vue'
@@ -291,7 +291,7 @@ watch(() => props.selectedQuest, (quest) => {
 })
 
 const sceneUrl = computed(() => {
-  return requestSceneBackground(resolveGameplaySceneId(props.selectedQuest?.id))
+  return requestSceneBackground(resolveScenarioSceneId(props.selectedQuest?.id, props.selectedQuest?.packKey))
 })
 
 const canSit = computed(() => Boolean(props.selectedQuest && props.selectedClass))
@@ -311,7 +311,7 @@ const lobbyAssetKey = computed(() => {
 })
 
 function collectLobbyAssetUrls(): string[] {
-  const sceneUrls = [...props.quests, ...props.tutorials].map((quest) => sceneFor(quest.id))
+  const sceneUrls = [...props.quests, ...props.tutorials].map((quest) => sceneFor(quest))
   const portraitUrls = props.classes
     .map((playerClass) => getClassPortraitUrl(playerClass.id))
     .filter((url): url is string => Boolean(url))
@@ -350,7 +350,7 @@ function setDeckMode(mode: DeckMode) {
 }
 
 function isQuestSelected(quest: QuestDisplayModel): boolean {
-  return props.selectedQuest?.id === quest.id && props.selectedQuest?.version === quest.version
+  return isSameQuest(props.selectedQuest, quest)
 }
 
 function fanStyle(index: number) {
@@ -361,8 +361,8 @@ function fanStyle(index: number) {
   }
 }
 
-function sceneFor(scenarioId: string): string {
-  return requestSceneBackground(resolveGameplaySceneId(scenarioId))
+function sceneFor(quest: QuestDisplayModel): string {
+  return requestSceneBackground(resolveScenarioSceneId(quest.id, quest.packKey))
 }
 
 function difficultyFor(quest: QuestDisplayModel) {

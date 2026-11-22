@@ -30,7 +30,8 @@ import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
  */
 export async function loadQuestDisplayModel(
   scenarioRef: VersionRef,
-  contentProvider: ContentProvider
+  contentProvider: ContentProvider,
+  packKey: string,
 ): Promise<QuestDisplayModel> {
   const scenario = await contentProvider.loadScenario(scenarioRef)
   const [councilNames, startingScoreShortNames] = await Promise.all([
@@ -39,7 +40,7 @@ export async function loadQuestDisplayModel(
   ])
 
   return {
-    ...transformScenarioToQuestDisplay(scenario),
+    ...transformScenarioToQuestDisplay(scenario, packKey),
     councilNames,
     startingScoreShortNames,
   }
@@ -57,11 +58,12 @@ export async function loadQuestDisplayModel(
  */
 export async function loadQuestDisplayModels(
   scenarioRefs: VersionRef[],
-  contentProvider: ContentProvider
+  contentProvider: ContentProvider,
+  packKey: string,
 ): Promise<QuestDisplayModel[]> {
   // Load all scenarios in parallel
   const results = await Promise.allSettled(
-    scenarioRefs.map(ref => loadQuestDisplayModel(ref, contentProvider))
+    scenarioRefs.map(ref => loadQuestDisplayModel(ref, contentProvider, packKey))
   )
   
   // Collect successful loads and log failures
@@ -91,8 +93,9 @@ export async function loadQuestDisplayModels(
  * @param scenario - The loaded scenario content
  * @returns A display model for rendering quest cards
  */
-function transformScenarioToQuestDisplay(scenario: Scenario): QuestDisplayModel {
+function transformScenarioToQuestDisplay(scenario: Scenario, packKey: string): QuestDisplayModel {
   return {
+    packKey,
     id: scenario.id,
     version: scenario.version,
     name: scenario.name,
@@ -112,7 +115,7 @@ function transformScenarioToQuestDisplay(scenario: Scenario): QuestDisplayModel 
  * Builds a quest display model from an already-loaded scenario bundle.
  * Presentation only — does not load content or run the engine.
  */
-export function questDisplayFromBundle(bundle: ScenarioBundle): QuestDisplayModel {
+export function questDisplayFromBundle(bundle: ScenarioBundle, packKey: string): QuestDisplayModel {
   const councilNames: string[] = []
   for (const stakeholder of bundle.stakeholders.values()) {
     if (stakeholder.name) councilNames.push(stakeholder.name)
@@ -126,7 +129,7 @@ export function questDisplayFromBundle(bundle: ScenarioBundle): QuestDisplayMode
   }
 
   return {
-    ...transformScenarioToQuestDisplay(bundle.scenario),
+    ...transformScenarioToQuestDisplay(bundle.scenario, packKey),
     councilNames,
     startingScoreShortNames,
   }

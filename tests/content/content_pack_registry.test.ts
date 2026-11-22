@@ -190,15 +190,17 @@ describe('content pack registry', () => {
     registry.registerPack(base, createMockProvider('base'))
     registry.registerPack(expansion, createMockProvider('expansion'))
 
+    // ADR 0014: entry points belong to their pack; the same scenario id in two packs is two entries.
     expect(registry.getAvailableScenarios()).toEqual([
-      { id: 'monolith_of_mild_despair', version: 1 },
-      { id: 'new_scenario', version: 1 },
+      { pack_key: 'dddnd:base', ref: { id: 'monolith_of_mild_despair', version: 1 } },
+      { pack_key: 'dddnd:expansion', ref: { id: 'monolith_of_mild_despair', version: 1 } },
+      { pack_key: 'dddnd:expansion', ref: { id: 'new_scenario', version: 1 } },
     ])
     expect(registry.getAvailableClasses()).toEqual([
       { id: 'boundary_mage', version: 1 },
       { id: 'new_class', version: 1 },
     ])
-    expect(registry.getAvailableTutorials()).toEqual([{ id: 'tutorial_extra', version: 1 }])
+    expect(registry.getAvailableTutorials()).toEqual([{ pack_key: 'dddnd:expansion', ref: { id: 'tutorial_extra', version: 1 } }])
   })
 
   it('resolves content loads to the owning pack provider using inventory', async () => {
@@ -244,7 +246,7 @@ describe('content pack registry', () => {
     registry.registerPack(baseManifest, baseProvider)
     registry.registerPack(tutorialManifest, tutorialProvider)
 
-    const merged = registry.createMergedProvider()
+    const merged = registry.createGameWideProvider()
 
     const tutorialScenario = await merged.loadScenario({ id: 'tutorial_basics', version: 1 })
     const baseScenario = await merged.loadScenario({ id: 'monolith_of_mild_despair', version: 1 })
@@ -363,7 +365,7 @@ describe('pack ownership and scope (M1.3, ADR 0001)', () => {
     const provider = createMockProvider('base')
     registry.registerPack(pack('base'), provider)
 
-    await expect(registry.createMergedProvider().loadCard({ id: 'unlisted', version: 1 })).rejects.toBeInstanceOf(ContentNotFoundError)
+    await expect(registry.createGameWideProvider().loadCard({ id: 'unlisted', version: 1 })).rejects.toBeInstanceOf(ContentNotFoundError)
     expect(provider.loadCard).not.toHaveBeenCalled()
   })
 
@@ -381,7 +383,7 @@ describe('pack ownership and scope (M1.3, ADR 0001)', () => {
       content: { ...emptyInventory, scenarios: ['top_scenario-v1.json'] },
     }), createMockProvider('top'))
 
-    const scoped = registry.createScenarioProvider({ id: 'top_scenario', version: 1 })
+    const scoped = registry.createScopedProvider('dddnd:top')
     await expect(scoped.loadCard({ id: 'middle_card', version: 1 })).resolves.toMatchObject({ name: 'middle-card' })
     await expect(scoped.loadScore({ id: 'budget', version: 1 })).resolves.toMatchObject({ name: 'base-score' })
   })
@@ -391,15 +393,15 @@ describe('pack ownership and scope (M1.3, ADR 0001)', () => {
     registry.registerPack(pack('other', { content: { ...emptyInventory, cards: ['secret_card-v1.json'] } }), createMockProvider('other'))
     registry.registerPack(pack('mine', { content: { ...emptyInventory, scenarios: ['my_scenario-v1.json'] } }), createMockProvider('mine'))
 
-    const scoped = registry.createScenarioProvider({ id: 'my_scenario', version: 1 })
+    const scoped = registry.createScopedProvider('dddnd:mine')
     await expect(scoped.loadCard({ id: 'secret_card', version: 1 })).rejects.toBeInstanceOf(ContentOutOfScopeError)
-    await expect(registry.createMergedProvider().loadCard({ id: 'secret_card', version: 1 })).resolves.toBeDefined()
+    await expect(registry.createGameWideProvider().loadCard({ id: 'secret_card', version: 1 })).resolves.toBeDefined()
   })
 
   it('reports a missing dependency', () => {
     const registry = new ContentPackRegistry()
     registry.registerPack(pack('orphan', { kind: 'extension', depends_on: [{ pack_id: 'base', version: '1.0.0' }] }), createMockProvider('orphan'))
-    expect(() => registry.createScopedProvider('orphan')).toThrow(/depends on pack "base", which is not loaded/)
+    expect(() => registry.createScopedProvider('dddnd:orphan')).toThrow(/depends on pack "base", which is not loaded/)
   })
 
   it('accepts newer minor versions of a dependency but not a different major', () => {
@@ -409,8 +411,81 @@ describe('pack ownership and scope (M1.3, ADR 0001)', () => {
     registry.registerPack(pack('too_new', { kind: 'extension', depends_on: [{ pack_id: 'base', version: '1.5.0' }] }), createMockProvider('too_new'))
     registry.registerPack(pack('wrong_major', { kind: 'extension', depends_on: [{ pack_id: 'base', version: '2.0.0' }] }), createMockProvider('wrong_major'))
 
-    expect(() => registry.createScopedProvider('fits')).not.toThrow()
-    expect(() => registry.createScopedProvider('too_new')).toThrow(ContentPackDependencyError)
-    expect(() => registry.createScopedProvider('wrong_major')).toThrow(ContentPackDependencyError)
+    expect(() => registry.createScopedProvider('dddnd:fits')).not.toThrow()
+    expect(() => registry.createScopedProvider('dddnd:too_new')).toThrow(ContentPackDependencyError)
+    expect(() => registry.createScopedProvider('dddnd:wrong_major')).toThrow(ContentPackDependencyError)
+  })
+})
+
+describe('packs are known by key, never by name (ADR 0014)', () => {
+  const emptyInventory = createManifest({}).content
+  const MINE = 'github:mooeypoo/dddnd-packs/packs/gilded_ledger'
+  const THEIRS = 'github:someone-else/their-packs/gilded_ledger'
+
+  function ledger(overrides: Partial<ContentPackManifest> = {}): ContentPackManifest {
+    return createManifest({
+      id: 'gilded_ledger',
+      kind: 'extension',
+      depends_on: [{ pack_id: 'base', version: '1.0.0' }],
+      scenarios: [{ id: 'ledger_scenario', version: 1 }],
+      content: { ...emptyInventory, scenarios: ['ledger_scenario-v1.json'], cards: ['ledger_card-v1.json'] },
+      ...overrides,
+    })
+  }
+
+  function withBase(): ContentPackRegistry {
+    const registry = new ContentPackRegistry()
+    registry.registerPack(createManifest({ id: 'base', content: { ...emptyInventory, cards: ['define_bounded_context-v1.json'] } }), createMockProvider('base'))
+    return registry
+  }
+
+  it('registers two same-named packs with the same content ids side by side, and returns each key', () => {
+    const registry = withBase()
+    expect(registry.registerPack(ledger(), createMockProvider('mine'), MINE)).toBe(MINE)
+    expect(registry.registerPack(ledger(), createMockProvider('theirs'), THEIRS)).toBe(THEIRS)
+    expect(registry.getPacks().map((pack) => pack.key)).toEqual(['dddnd:base', MINE, THEIRS])
+  })
+
+  it('resolves each pack\'s content from that pack only', async () => {
+    const registry = withBase()
+    registry.registerPack(ledger(), createMockProvider('mine'), MINE)
+    registry.registerPack(ledger(), createMockProvider('theirs'), THEIRS)
+
+    await expect(registry.createScopedProvider(MINE).loadCard({ id: 'ledger_card', version: 1 })).resolves.toMatchObject({ name: 'mine-card' })
+    await expect(registry.createScopedProvider(THEIRS).loadCard({ id: 'ledger_card', version: 1 })).resolves.toMatchObject({ name: 'theirs-card' })
+    expect(registry.getAvailableScenarios()).toEqual([
+      { pack_key: MINE, ref: { id: 'ledger_scenario', version: 1 } },
+      { pack_key: THEIRS, ref: { id: 'ledger_scenario', version: 1 } },
+    ])
+  })
+
+  it('refuses a second registration under the same key', () => {
+    const registry = withBase()
+    registry.registerPack(ledger(), createMockProvider('mine'), MINE)
+    expect(() => registry.registerPack(ledger({ id: 'renamed' }), createMockProvider('impostor'), MINE)).toThrow(ContentPackConflictError)
+  })
+
+  it('still refuses a pack that lists a file its dependency lists (its scenarios could not tell which one they meant)', () => {
+    const registry = withBase()
+    const shadowing = ledger({ content: { ...emptyInventory, cards: ['define_bounded_context-v1.json'] } })
+    expect(() => registry.registerPack(shadowing, createMockProvider('mine'), MINE)).toThrow(/which pack "base" already provides/)
+  })
+
+  it('a community pack can never satisfy a dependency, even if it calls itself what is depended on', () => {
+    const registry = new ContentPackRegistry()
+    registry.registerPack(createManifest({ id: 'base' }), createMockProvider('impostor'), 'github:evil/packs/base')
+    registry.registerPack(ledger(), createMockProvider('mine'), MINE)
+    expect(() => registry.createScopedProvider(MINE)).toThrow(/depends on pack "base", which is not loaded/)
+  })
+
+  it('offers game-wide choices (classes, challenge modifiers) only from first-party packs', async () => {
+    const registry = withBase()
+    registry.registerPack(
+      ledger({ classes: [{ id: 'sneaky_class', version: 1 }], content: { ...emptyInventory, classes: ['sneaky_class-v1.json'] } }),
+      createMockProvider('mine'),
+      MINE,
+    )
+    expect(registry.getAvailableClasses()).toEqual([])
+    await expect(registry.createGameWideProvider().loadPlayerClass({ id: 'sneaky_class', version: 1 })).rejects.toBeInstanceOf(ContentNotFoundError)
   })
 })

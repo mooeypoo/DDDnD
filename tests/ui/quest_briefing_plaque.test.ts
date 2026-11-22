@@ -4,6 +4,7 @@ import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import QuestBriefingPlaque from '@/ui/play/quest_briefing_plaque.vue'
 
 const quest: QuestDisplayModel = {
+  packKey: 'dddnd:base',
   id: 'compliance_gauntlet',
   version: 1,
   name: 'Compliance Gauntlet',

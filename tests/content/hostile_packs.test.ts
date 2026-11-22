@@ -147,8 +147,9 @@ async function runPipeline(pack: PackFiles): Promise<PipelineResult> {
   const registry = new ContentPackRegistry()
   const baseManifest = JSON.parse(readFileSync(path.join(BASE_ROOT, 'manifest.json'), 'utf8')) as ContentPackManifest
   registry.registerPack(baseManifest, createFileContentProvider(BASE_ROOT))
+  let packKey: string
   try {
-    registry.registerPack(manifest, createFileContentProvider(root))
+    packKey = registry.registerPack(manifest, createFileContentProvider(root))
   } catch (error) {
     return { stage: 'registry', messages: [(error as Error).message] }
   }
@@ -156,7 +157,7 @@ async function runPipeline(pack: PackFiles): Promise<PipelineResult> {
   for (const scenarioRef of manifest.scenarios) {
     let bundle
     try {
-      bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, registry.createScenarioProvider(scenarioRef))
+      bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, registry.createScopedProvider(packKey))
     } catch (error) {
       return { stage: 'bundle_build', messages: [(error as Error).message] }
     }
@@ -275,7 +276,7 @@ const HOSTILE_CASES: HostileCase[] = [
     attack: 'calling itself "base"',
     pack: () => variant((pack) => { pack.manifest.id = 'base'; pack.manifest.kind = 'standalone'; pack.manifest.depends_on = []; pack.manifest.license = 'MIT' }),
     stage: 'registry',
-    message: /A pack with id "base" is already loaded/,
+    message: /A pack with id "base" \(dddnd:base\) is already loaded/,
   },
   {
     threat: 'T7',

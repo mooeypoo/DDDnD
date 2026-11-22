@@ -98,6 +98,31 @@ function isStakeholderSnapshot(value: unknown): value is StakeholderSnapshot {
   })
 }
 
+/**
+ * Validates the optional pack identity recorded on a run (M2.6).
+ */
+export function isRunContentPack(value: unknown): boolean {
+  if (!isObject(value)) {
+    return false
+  }
+  if (!isString(value.key) || value.key.length === 0 || value.key.length > 512) {
+    return false
+  }
+  if (!isString(value.id) || value.id.length === 0 || !isString(value.version) || value.version.length === 0) {
+    return false
+  }
+  if (value.origin !== 'first_party' && value.origin !== 'remote' && value.origin !== 'file') {
+    return false
+  }
+  if (value.content_hash !== undefined && !(isString(value.content_hash) && /^sha256:[0-9a-f]{64}$/.test(value.content_hash))) {
+    return false
+  }
+  if (value.source_url !== undefined && !isString(value.source_url)) {
+    return false
+  }
+  return true
+}
+
 function isRunMeta(value: unknown): value is RunMeta {
   if (!isObject(value)) {
     return false
@@ -113,6 +138,10 @@ function isRunMeta(value: unknown): value is RunMeta {
   }
 
   if (value.content_pack_version !== undefined && !isString(value.content_pack_version)) {
+    return false
+  }
+
+  if (value.content_pack !== undefined && !isRunContentPack(value.content_pack)) {
     return false
   }
 
