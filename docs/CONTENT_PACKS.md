@@ -271,7 +271,7 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
 | ~~Whose pack does `depends_on` mean?~~ | **Resolved (M2.8):** community packs may depend only on first-party packs, whose ids we control ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)). Community-on-community dependencies would need key-based references in a new schema version. | Done |
-| Community hall look | The bazaar's colors, border, and "external" marking; chosen from screenshots of two or three versions (M2.11) | Follow-up to PR #35 |
+| ~~Community hall look~~ | **Resolved (M2.12):** warm canvas, a thin awning stripe, and a stitched border as the external mark ([ADR 0015](adr/0015-community-packs-in-their-own-place.md)). | Done |
 | Exact-run replay of retired remote packs | Snapshots make it possible. Do we promise it? (CONTENT_VERSIONING.md does not promise it for retired base scenarios.) | M2 |
 
 ---
