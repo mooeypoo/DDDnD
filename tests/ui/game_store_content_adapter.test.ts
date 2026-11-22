@@ -180,14 +180,15 @@ describe('community packs in the content adapter (M2.5)', () => {
     })])
   })
 
-  it('removing a pack also removes community packs that depend on it', async () => {
+  it('removing a pack removes only that pack (community packs never depend on each other, ADR 0013)', async () => {
     const { demoPackSnapshot } = await import('../content/support/demo_pack')
     const { adapter, communityPacks } = await createAdapter()
     const demo = await demoPackSnapshot()
-    communityPacks.value = [demo, { ...demo, manifest: { ...demo.manifest, id: 'sequel', depends_on: [{ pack_id: 'gilded_ledger', version: '1.0.0' }] } }]
+    const other = { ...demo, manifest: { ...demo.manifest, id: 'other_pack' } }
+    communityPacks.value = [demo, other]
 
-    expect((await adapter.removeCommunityPack('gilded_ledger')).sort()).toEqual(['gilded_ledger', 'sequel'])
-    expect(communityPacks.value).toEqual([])
+    await adapter.removeCommunityPack('gilded_ledger')
+    expect(communityPacks.value).toEqual([other])
   })
 })
 

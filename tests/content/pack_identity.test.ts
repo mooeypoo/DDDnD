@@ -5,8 +5,12 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { demoPackSnapshot } from './support/demo_pack'
+
 import {
   checkPackSourceUrl,
+  communityManifestIssues,
+  PackLoadError,
   firstPartyPackKey,
   isPackKey,
   packKeyForOrigin,
@@ -81,5 +85,40 @@ describe('pack keys (ADR 0012)', () => {
     for (const key of ['', 'base', 'dddnd:', 'file:md5:abc', 'github:has space', 'ftp:o/r', `github:${'x'.repeat(600)}`]) {
       expect(isPackKey(key), key).toBe(false)
     }
+  })
+})
+
+describe('community packs can only build on packs whose identity we control (ADR 0013)', () => {
+  const manifest = (id: string, ...deps: string[]) => ({ id, depends_on: deps.map((pack_id) => ({ pack_id, version: '1.0.0' })) })
+
+  it('allows depending on the packs that ship with DDDnD', () => {
+    expect(communityManifestIssues(manifest('gilded_ledger', 'base'))).toEqual([])
+    expect(communityManifestIssues(manifest('my_tutorial', 'base', 'tutorial'))).toEqual([])
+    expect(communityManifestIssues(manifest('standalone_world'))).toEqual([])
+  })
+
+  it('refuses a dependency on any other pack: its id proves nothing about which pack it is', () => {
+    expect(communityManifestIssues(manifest('sequel', 'base', 'gilded_ledger'))).toEqual([
+      { file: 'manifest.json', message: expect.stringMatching(/^depends_on: "gilded_ledger" is not a pack that ships with DDDnD/) },
+    ])
+  })
+
+  it('refuses a community pack that uses a first-party id', () => {
+    for (const id of ['base', 'tutorial']) {
+      expect(communityManifestIssues(manifest(id))).toEqual([{ file: 'manifest.json', message: expect.stringMatching(/belongs to a pack that ships with DDDnD/) }])
+    }
+  })
+
+  it('is enforced when any community pack is read, before its content is used', async () => {
+    const dependent = demoPackSnapshot((files) => {
+      files['manifest.json'] = files['manifest.json'].replace('"depends_on": [', '"depends_on": [\n    { "pack_id": "alice_core", "version": "1.0.0" },')
+    })
+    await expect(dependent).rejects.toBeInstanceOf(PackLoadError)
+    await expect(dependent).rejects.toMatchObject({ stage: 'manifest', issues: [expect.objectContaining({ message: expect.stringMatching(/alice_core/) })] })
+
+    const impostor = demoPackSnapshot((files) => {
+      files['manifest.json'] = files['manifest.json'].replace('"id": "gilded_ledger"', '"id": "tutorial"')
+    })
+    await expect(impostor).rejects.toMatchObject({ stage: 'manifest', issues: [expect.objectContaining({ message: expect.stringMatching(/"tutorial" belongs to a pack that ships with DDDnD/) })] })
   })
 })

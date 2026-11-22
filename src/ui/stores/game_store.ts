@@ -341,10 +341,9 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function remove_community_pack(packId: string) {
-    const removed = await contentAdapter.removeCommunityPack(packId)
+    await contentAdapter.removeCommunityPack(packId)
     scenarioBundleLoads.clear()
     await Promise.all([load_available_quests(), load_available_tutorials()])
-    return removed
   }
 
   /**

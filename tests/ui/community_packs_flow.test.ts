@@ -50,6 +50,19 @@ describe('community pack review (the consent screen)', () => {
     expect(review.privacyNote).toMatch(/IP address/)
   })
 
+  it('shows who published a GitHub pack: the claim a pack cannot fake (ADR 0013)', async () => {
+    const snapshot = withOrigin(await demoPackSnapshot(), { kind: 'remote', manifest_url: `${RAW}/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json`, pinning: 'release_tag' })
+    expect(buildPackReview(snapshot).publisher).toEqual({ label: 'mooeypoo on GitHub (mooeypoo/DDDnD-packs)', verified: true })
+    const pages = withOrigin(await demoPackSnapshot(), { kind: 'remote', manifest_url: 'https://mooeypoo.github.io/DDDnD-packs/packs/gilded_ledger/manifest.json', pinning: 'unpinned' })
+    expect(buildPackReview(pages).publisher).toEqual({ label: 'mooeypoo on GitHub Pages', verified: true })
+  })
+
+  it('says the publisher of a file is unknown, whatever its credits claim', async () => {
+    const review = buildPackReview(await demoPackSnapshot())
+    expect(review.authors[0].name).toBe('Moriel Schottlender')
+    expect(review.publisher).toEqual({ label: 'Unknown: it was loaded from a file', verified: false })
+  })
+
   it('reassures for pinned links', async () => {
     const pinned = buildPackReview(withOrigin(await demoPackSnapshot(), { kind: 'remote', manifest_url: `${RAW}/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json`, pinning: 'release_tag' }))
     expect(pinned.origin).toMatchObject({ label: 'From GitHub, pinned to a release', tone: 'calm' })

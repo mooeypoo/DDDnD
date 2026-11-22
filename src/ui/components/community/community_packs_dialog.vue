@@ -21,7 +21,13 @@
         <p class="pack-description">{{ flow.review.value.description }}</p>
 
         <dl class="pack-facts">
-          <dt>Made by</dt>
+          <dt>Published by</dt>
+          <dd>
+            <span class="publisher" :class="{ unverified: !flow.review.value.publisher.verified }">{{ flow.review.value.publisher.label }}</span>
+            <span class="origin-note">{{ flow.review.value.publisher.verified ? 'The account it was loaded from. ' : '' }}Names below are written by the pack itself.</span>
+          </dd>
+
+          <dt>Credits</dt>
           <dd>
             <template v-for="(author, index) in flow.review.value.authors" :key="author.name + index">
               <span v-if="index > 0">, </span>
@@ -148,7 +154,7 @@
             <li v-for="pack in flow.loadedPacks.value" :key="pack.id">
               <span>
                 <strong>{{ pack.review.title }}</strong> v{{ pack.review.version }}
-                <span class="link-host">{{ pack.review.origin.label }}</span>
+                <span class="link-host">{{ pack.review.publisher.label }}</span>
               </span>
               <AppButton variant="subtle" :disabled="busy" @click="flow.remove(pack.id)">Remove</AppButton>
             </li>
@@ -303,6 +309,15 @@ function close() {
 
 .origin-note {
   display: block;
+}
+
+.publisher {
+  display: block;
+  font-weight: 600;
+}
+
+.publisher.unverified {
+  color: var(--text-secondary);
 }
 
 .replace-note.tone-caution {

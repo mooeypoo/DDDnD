@@ -168,6 +168,12 @@ Content ids are shared by every loaded pack, and a pack whose files collide with
 
 An `extension` pack can reference base cards, events, aftershocks, stakeholders, outcome tiers, and endings by `{ id, version }`, without copying them. Check which stakeholders a reused card or event affects (its `stakeholder_changes`): if your scenario doesn't include that stakeholder, the game currently creates an invisible "phantom" stakeholder that still counts toward end-of-run classification. Either include the stakeholder or pick other content. The validator will reject this in a later version.
 
+### Dependencies
+
+**A community pack can depend only on packs that ship with DDDnD: `base` and `tutorial`.** A pack's `id` is a name its author chose, and anyone can publish a pack with the same name, so depending on `"some_other_pack"` couldn't guarantee *which* pack you'd get. Packs that ship with the game are the only ones whose ids can't be taken. A pack that depends on anything else is refused when it is loaded, and by the validator. Community packs that build on each other may come back later, naming the pack by where it is published instead of by id. See [ADR 0013](https://github.com/mooeypoo/DDDnD/blob/main/docs/adr/0013-community-packs-depend-only-on-first-party.md).
+
+For the same reason, a community pack can't use the id `base` or `tutorial`.
+
 ## Single-file packs (`.dddnd-pack.json`)
 
 A pack can also travel as one file, for workshops where hosting isn't practical: a player loads it into the game from their computer. Create one from a pack folder:
@@ -194,7 +200,7 @@ jobs:
       packs: packs/*/
 ```
 
-Inputs: `packs` (folders with a `manifest.json`; globs allowed), `dependency-roots` (folders of other packs yours depends on, besides `base` and `tutorial`), `audit-runs` (default 50; `0` skips the balance audit), `fail-on-audit-critical` (default `true`). Pin both refs to the same tag. `pack-validator-v1` only moves forward for compatible changes. See [ADR 0011](https://github.com/mooeypoo/DDDnD/blob/main/docs/adr/0011-reusable-pack-validation-workflow.md).
+Inputs: `packs` (folders with a `manifest.json`; globs allowed), `dependency-roots` (rarely needed: folders that stand in for `base` or `tutorial`, such as a work-in-progress base pack), `audit-runs` (default 50; `0` skips the balance audit), `fail-on-audit-critical` (default `true`). Pin both refs to the same tag. `pack-validator-v1` only moves forward for compatible changes. See [ADR 0011](https://github.com/mooeypoo/DDDnD/blob/main/docs/adr/0011-reusable-pack-validation-workflow.md).
 
 [DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs/blob/main/.github/workflows/validate-packs.yml) uses exactly this setup.
 

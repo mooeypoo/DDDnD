@@ -280,32 +280,19 @@ export function createGameStoreContentAdapter(
   }
 
   /**
-   * Removes a community pack, and any community pack that depends on it.
-   * Returns the ids removed.
+   * Removes a community pack, here and from storage. Nothing else can depend
+   * on it: community packs may depend only on first-party packs (ADR 0013).
    */
-  async function removeCommunityPack(packId: string): Promise<string[]> {
-    const removed = new Set([packId])
-    let changed = true
-    while (changed) {
-      changed = false
-      for (const pack of communityPacks.value) {
-        const dependsOnRemoved = pack.manifest.depends_on.some((dependency) => removed.has(dependency.pack_id))
-        if (!removed.has(pack.manifest.id) && dependsOnRemoved) {
-          removed.add(pack.manifest.id)
-          changed = true
-        }
-      }
-    }
-    const removedKeys = communityPacks.value.filter((pack) => removed.has(pack.manifest.id)).map(packKeyOf)
-    communityPacks.value = communityPacks.value.filter((pack) => !removed.has(pack.manifest.id))
+  async function removeCommunityPack(packId: string): Promise<void> {
+    const removed = communityPacks.value.filter((pack) => pack.manifest.id === packId)
+    communityPacks.value = communityPacks.value.filter((pack) => !removed.includes(pack))
     state.contentPackRegistry.value = null
 
     const store = getPackStore()
     if (store) {
       const opened = await store
-      await Promise.all(removedKeys.map((key) => opened.remove(key)))
+      await Promise.all(removed.map((pack) => opened.remove(packKeyOf(pack))))
     }
-    return [...removed]
   }
 
   /**

@@ -25,12 +25,17 @@
  *   different keys: a Pages URL doesn't reliably say which repository it is.
  *
  * Within one game session only one pack per manifest id can be loaded (the
- * registry refuses duplicates), so content references and `depends_on`
- * still resolve by manifest id. The key is what keeps two same-named packs
+ * registry refuses duplicates). The key is what keeps two same-named packs
  * from silently replacing each other.
+ *
+ * Dependencies name a pack id, and an id proves nothing. So a community pack
+ * may depend only on packs that ship with DDDnD, whose ids are reserved
+ * (ADR 0013): no community pack can stand in for another pack's dependency.
  */
 
+import type { ContentPackManifest } from '../model/content_pack_manifest'
 import type { PackOrigin, PackSnapshot } from '../model/pack_snapshot'
+import { FIRST_PARTY_PACK_IDS } from '../validation/pack_policy'
 import { checkPackSourceUrl, type PackSource } from './pack_source_policy'
 
 /** Key for a pack that ships with the game. */
@@ -73,4 +78,34 @@ export function isPackKey(value: unknown): value is string {
   return typeof value === 'string'
     && value.length <= 512
     && /^(?:dddnd:[a-z0-9_]{1,64}|github:[^\s]+|github-pages:[^\s]+|file:sha256:[0-9a-f]{64})$/.test(value)
+}
+
+/** A rule a community pack's manifest breaks, in the same shape as other load issues. */
+export interface CommunityManifestIssue {
+  file: 'manifest.json'
+  message: string
+}
+
+/**
+ * Identity rules for community packs (ADR 0013), checked when a community
+ * pack's manifest is read, before any content is fetched:
+ * - it may not use the id of a pack that ships with DDDnD;
+ * - it may depend only on packs that ship with DDDnD.
+ */
+export function communityManifestIssues(manifest: Pick<ContentPackManifest, 'id' | 'depends_on'>): CommunityManifestIssue[] {
+  const firstParty = FIRST_PARTY_PACK_IDS.join(', ')
+  const issues: CommunityManifestIssue[] = []
+  if (FIRST_PARTY_PACK_IDS.includes(manifest.id)) {
+    issues.push({ file: 'manifest.json', message: `id: "${manifest.id}" belongs to a pack that ships with DDDnD. Choose another id.` })
+  }
+  for (const dependency of manifest.depends_on) {
+    if (!FIRST_PARTY_PACK_IDS.includes(dependency.pack_id)) {
+      issues.push({
+        file: 'manifest.json',
+        message: `depends_on: "${dependency.pack_id}" is not a pack that ships with DDDnD. ` +
+          `Community packs can build only on DDDnD's own packs (${firstParty}) for now, because a pack id doesn't prove which pack it is.`,
+      })
+    }
+  }
+  return issues
 }

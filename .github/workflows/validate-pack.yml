@@ -30,7 +30,7 @@ on:
         type: string
         default: packs/*/
       dependency-roots:
-        description: Extra folders holding packs that the checked packs depend on (other than base and tutorial), separated by spaces.
+        description: Folders that stand in for DDDnD's own packs (base, tutorial), for example a work-in-progress base pack, separated by spaces. Community packs can't depend on other community packs (ADR 0013).
         type: string
         default: ''
       audit-runs:

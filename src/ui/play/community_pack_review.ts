@@ -8,6 +8,7 @@
  */
 
 import type { PackSnapshot, Scenario } from '@/domains/content/model'
+import { checkPackSourceUrl } from '@/domains/content/services/pack_source_policy'
 
 export interface ReviewLink {
   url: string
@@ -21,7 +22,13 @@ export interface PackReview {
   /** "Builds on DDDnD's base pack" or "A standalone world". */
   kindLabel: string
   license: string
+  /** Names the pack gives for its authors. Its own claim: anyone can write any name. */
   authors: Array<{ name: string; link?: ReviewLink }>
+  /**
+   * Who published it, from where it was loaded: the one thing a pack can't
+   * claim falsely (ADR 0013). Shown next to the authors so the two can be compared.
+   */
+  publisher: { label: string; verified: boolean }
   homepage?: ReviewLink
   origin: {
     label: string
@@ -83,6 +90,20 @@ function describeOrigin(snapshot: PackSnapshot): PackReview['origin'] {
   }
 }
 
+function describePublisher(snapshot: PackSnapshot): PackReview['publisher'] {
+  if (snapshot.origin.kind === 'file') {
+    return { label: 'Unknown: it was loaded from a file', verified: false }
+  }
+  const check = checkPackSourceUrl(snapshot.origin.manifest_url)
+  if (!check.ok) {
+    return { label: 'Unknown', verified: false }
+  }
+  const { source } = check
+  return source.host_kind === 'github_raw'
+    ? { label: `${source.owner} on GitHub (${source.owner}/${source.repo})`, verified: true }
+    : { label: `${source.owner} on GitHub Pages`, verified: true }
+}
+
 export function buildPackReview(snapshot: PackSnapshot): PackReview {
   const { manifest } = snapshot
   const dependencies = manifest.depends_on.map((dependency) => FIRST_PARTY_PACK_NAMES[dependency.pack_id] ?? `the "${dependency.pack_id}" pack`)
@@ -103,6 +124,7 @@ export function buildPackReview(snapshot: PackSnapshot): PackReview {
     kindLabel: manifest.kind === 'extension' ? `Builds on ${dependencies.join(' and ')}` : 'A standalone world with its own rules',
     license: manifest.license,
     authors: manifest.authors.map((author) => ({ name: author.name, link: toLink(author.url) })),
+    publisher: describePublisher(snapshot),
     homepage: toLink(manifest.pack_homepage_url),
     origin: describeOrigin(snapshot),
     privacyNote: snapshot.origin.kind === 'remote'

@@ -250,6 +250,10 @@ Typical use case:
 - your pack adds scenarios/cards
 - your scenarios reference shared base content (scores, outcome tiers, archetypes, or existing cards/events/stakeholders)
 
+**A community pack can depend only on packs that ship with DDDnD: `base` and `tutorial`.** A pack's `id` is a name its author chose, and anyone can publish a pack with the same name, so depending on `"some_other_pack"` couldn't guarantee *which* pack you'd get. Packs that ship with the game are the only ones whose ids can't be taken. A pack that depends on anything else is refused when it is loaded, and by the validator. Community packs that build on each other may come back later, naming the pack by where it is published instead of by id. See [ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md).
+
+For the same reason, a community pack can't use the id `base` or `tutorial`.
+
 Best practice: include only files your pack truly owns in `content.*` inventory.
 
 ## Single-file packs (`.dddnd-pack.json`)
@@ -278,7 +282,7 @@ jobs:
       packs: packs/*/
 ```
 
-Inputs: `packs` (folders with a `manifest.json`; globs allowed), `dependency-roots` (folders of other packs yours depends on, besides `base` and `tutorial`), `audit-runs` (default 50; `0` skips the balance audit), `fail-on-audit-critical` (default `true`). Pin both refs to the same tag. `pack-validator-v1` only moves forward for compatible changes. See [ADR 0011](adr/0011-reusable-pack-validation-workflow.md).
+Inputs: `packs` (folders with a `manifest.json`; globs allowed), `dependency-roots` (rarely needed: folders that stand in for `base` or `tutorial`, such as a work-in-progress base pack), `audit-runs` (default 50; `0` skips the balance audit), `fail-on-audit-critical` (default `true`). Pin both refs to the same tag. `pack-validator-v1` only moves forward for compatible changes. See [ADR 0011](adr/0011-reusable-pack-validation-workflow.md).
 
 [DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs/blob/main/.github/workflows/validate-packs.yml) uses exactly this setup.
 
@@ -345,7 +349,7 @@ npx tsx scripts/validate-content-pack.ts \
   --runs 50
 ```
 
-For a pack outside this repository, point `--content-root` at the pack folder. Packs it depends on are loaded too, so it is checked exactly as the game will see it. `base` and `tutorial` come from this repository automatically. Any other dependency is passed with `--dependency-root <folder>` (repeatable):
+For a pack outside this repository, point `--content-root` at the pack folder. The packs it depends on (`base`, `tutorial`) are loaded from this repository, so it is checked exactly as the game will see it. The validator applies the game's identity rules too: a community pack can't use a first-party id or depend on another community pack ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)). `--dependency-root <folder>` can stand in for a first-party pack, for example to check against a work-in-progress base pack:
 
 ```bash
 npx tsx scripts/validate-content-pack.ts \

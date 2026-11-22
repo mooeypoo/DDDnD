@@ -187,6 +187,7 @@ The engine never re-checks these, because the boundary guarantees them. That is 
 | **Consent screen** | The screen where a player approves loading a community pack |
 | **Pack id** | The name a pack gives itself in its manifest (`gilded_ledger`). Not unique |
 | **Pack key** | A pack's identity, from where it is published (`github:<owner>/<repo>/<folder>`). See [ADR 0012](adr/0012-pack-identity-from-source.md) |
+| **Publisher** | The GitHub account a pack was loaded from: the one thing about a pack it can't claim falsely. Shown next to its credits ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)) |
 | **Snapshot** | The validated, in-memory copy of a loaded pack; stored on the device under its pack key, with a content hash for the exact content |
 | **Bundle file** | Single-file pack format, `.dddnd-pack.json` |
 | **Cast** | The UI's per-run assignment of `avatarRole`s to stakeholders |
@@ -269,7 +270,7 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | Studio subdomain and repo folder names | Working names: `studio.dddnd.app`, `studio/` | M4 |
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
-| Whose pack does `depends_on` mean? | Dependencies name a manifest id, which is not unique ([ADR 0012](adr/0012-pack-identity-from-source.md)). Fine while dependencies are first-party. Community-on-community dependencies may need to name a pack key. | When community packs depend on each other |
+| ~~Whose pack does `depends_on` mean?~~ | **Resolved (M2.8):** community packs may depend only on first-party packs, whose ids we control ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)). Community-on-community dependencies would need key-based references in a new schema version. | Done |
 | Exact-run replay of retired remote packs | Snapshots make it possible. Do we promise it? (CONTENT_VERSIONING.md does not promise it for retired base scenarios.) | M2 |
 
 ---
@@ -868,7 +869,7 @@ This is a textbook DDD confusion between an **attribute** and an **identity**. T
 1. **Readable key, not a URL hash.** The first idea in review was "some hash of the URL". A hash of the full URL would include the ref, making every release a different pack and stranding saved runs on update. A readable key without the ref keeps updates working, and is legible in a save file or an export.
 2. **Strict about provenance.** The same bytes from GitHub and from a file are two packs. We considered letting a matching content hash resume a run regardless of key: it would be safe for determinism, but it blurs "which pack is this", and the case is rare. We kept it strict, and worded the review gently for it.
 3. **Moving a pack changes its identity.** Renaming the repo, moving the folder, or transferring ownership makes a new pack. That's the price of identity-by-location without a central registry. The authoring guides now warn authors.
-4. **`depends_on` still uses ids.** That's fine while dependencies are first-party (`base`, `tutorial`), whose ids the registry protects: a community pack named `base` is refused outright. Open question for when community packs depend on each other.
+4. **`depends_on` still uses ids.** That's fine while dependencies are first-party (`base`, `tutorial`), whose ids the registry protects: a community pack named `base` is refused outright. *(Not fine enough: tightened into a rule in M2.8 / ADR 0013.)*
 
 **Verification**
 
@@ -892,3 +893,58 @@ This is a textbook DDD confusion between an **attribute** and an **identity**. T
   5. Re-add from the link (the review warns about replacing the file copy). The run resumes with its Community label.
 
   The only console error was Chrome's favicon request on the raw JSON page the script used to seed the old database, not the game.
+
+
+### M2.8: Dependencies must name a pack we can vouch for (2026-11-22)
+
+Behind the flag (ADR 0009). Decision recorded in [ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md).
+
+**How it came up**
+
+M2.7 left `depends_on` keyed by manifest id, and called it "fine while dependencies are first-party". The project owner didn't accept the hedge: without a central registry, nobody approves names or tracks duplicates, so an id can't decide *which pack* gets used. A dependency decides exactly that. If C depends on `alice_core`, any `alice_core` satisfies it, and C's scenarios run on someone else's content.
+
+They also asked whether always-unique ids would mitigate T15. The honest answer had three parts:
+
+1. **Storage and saves:** already closed by the pack key (M2.7).
+2. **Dependencies:** this was the open hole. It closes once a dependency can only name something whose identity can't be faked.
+3. **Look-alikes:** no id rule fixes these. A pack can copy another's title and write any author name. The only defense is to show the one fact it can't fake: who published it.
+
+"Always unique" can't be enforced on a name the author chooses, so uniqueness must come from something they can't choose. For dependencies today, the simplest such thing is "ships with DDDnD".
+
+**What changed**
+
+- **`communityManifestIssues`** in `pack_identity.ts` refuses two things:
+  - a `depends_on` naming anything but `base` or `tutorial` (`FIRST_PARTY_PACK_IDS` in `pack_policy.ts`);
+  - a community pack using one of those ids.
+- **It is enforced in `parseManifestText`,** which every community pack passes through (URL, file, bundle script), before any content is fetched.
+- **The author CLI applies the same function** to any pack that isn't one of ours, validated from our own folder. So the reusable workflow catches it in the author's CI, with the same message the game would give. `--dependency-root` / `dependency-roots` stay (the workflow input is published in `pack-validator-v1`), and now only stand in for a first-party pack.
+- **The removal cascade is deleted.** It removed community packs that depended on the removed one. Nothing can depend on a community pack now, so that was dead code. It is deleted rather than left looking meaningful.
+- **The review shows the publisher.**
+  - A new "Published by" row comes first: "mooeypoo on GitHub (mooeypoo/DDDnD-packs)", taken from the URL. For a file it shows "Unknown: it was loaded from a file".
+  - It carries the note "The account it was loaded from. Names below are written by the pack itself."
+  - "Made by" became "Credits".
+  - The added-packs list shows the publisher instead of the pinning label.
+
+**Decisions and trade-offs**
+
+1. **Restrict now, generalize later.** Key-based dependencies (`"pack": "github:alice/packs/core"`) are the general answer. But they change the published format, and they raise open questions: version ranges across sources, file-loaded dependencies, and how id-scoped registry resolution maps to keys. Nobody needs them yet. The restriction is reversible, and the general form fits in a later `schema_version`.
+2. **Show provenance rather than police names.** We considered refusing look-alike titles. There is no reliable way to tell "similar" from "same theme", and refusing would invite name-squatting games. Showing the publisher next to the credits lets the player compare a claim with a fact.
+3. **A stricter validator under the same tag.** In principle, a pack that passed `pack-validator-v1` could now fail. In practice, no such pack exists, and the game itself refuses it. A validator that passes packs the game refuses is worse than a stricter one.
+
+**DDD note (talk material)**
+
+This is about where trust may come from inside a model. An attribute (the id) is fine for *referring* to something inside a boundary you control: the registry within one session, or our own first-party packs. It is not fine for *choosing* something across a boundary you don't control. A dependency crosses that boundary, so it must refer to something the trusted side owns. M2.7 and M2.8 are the same lesson applied twice, and the second time it took a reviewer to see it.
+
+**Verification**
+
+- **Unit tests** (+6, 1028 total):
+  - first-party dependencies allowed;
+  - a community dependency refused, with the reason;
+  - first-party ids refused;
+  - both rules enforced on a real pack read (`PackLoadError` at the manifest stage);
+  - the publisher shown for GitHub raw and Pages, and "Unknown" for a file even when its credits name a real person;
+  - removal no longer cascading.
+- **CLI:**
+  - the demo pack, `base`, and `tutorial` still pass;
+  - a copy of the demo depending on `alice_core` is refused with exit code 1 and the same message the game gives.
+- **Headless Chrome:** the review shows "Published by" for a GitHub pack and "Unknown" for a file; the added list shows the publisher.
