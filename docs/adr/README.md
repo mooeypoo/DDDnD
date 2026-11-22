@@ -26,3 +26,4 @@ An ADR captures one decision: the context that forced it, what we chose, what we
 | [0009](0009-community-packs-behind-a-flag.md) | Community packs ship behind a build-time flag until we choose to launch | Accepted | 2026-11-21 |
 | [0010](0010-sanctioned-list-lives-in-official-repo.md) | Which packs are "sanctioned" is decided only in the official DDDnD repository | Accepted | 2026-11-21 |
 | [0011](0011-reusable-pack-validation-workflow.md) | Pack authors validate with a reusable workflow published from DDDnD | Accepted | 2026-11-22 |
+| [0012](0012-pack-identity-from-source.md) | A pack's identity comes from where it is published, not from its manifest id | Accepted | 2026-11-22 |

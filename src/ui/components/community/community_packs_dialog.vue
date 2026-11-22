@@ -63,6 +63,13 @@
           </li>
         </ul>
 
+        <p
+          v-for="(replaced, index) in flow.replacing.value"
+          :key="index"
+          class="replace-note"
+          :class="`tone-${replaced.tone}`"
+          :role="replaced.samePack ? undefined : 'alert'"
+        >{{ replaced.message }}</p>
         <p v-if="flow.review.value.privacyNote" class="privacy-note">{{ flow.review.value.privacyNote }}</p>
         <p class="session-note">
           {{ flow.persistent.value
@@ -296,6 +303,11 @@ function close() {
 
 .origin-note {
   display: block;
+}
+
+.replace-note.tone-caution {
+  color: var(--effect-warning);
+  font-weight: 600;
 }
 
 .link-host {

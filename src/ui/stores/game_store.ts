@@ -34,7 +34,12 @@ import { isCommunityPacksEnabled } from '@/ui/config/feature_flags'
 
 /** Why a saved community-pack run can't be continued right now (M2.6). */
 export interface SavedRunPackNotice {
-  reason: 'missing' | 'different_version'
+  /**
+   * - `missing`: no pack with that key is added.
+   * - `different_version`: the same pack is added, but not the exact content played.
+   * - `different_source`: a different pack with the same name is added (ADR 0012).
+   */
+  reason: 'missing' | 'different_version' | 'different_source'
   pack: RunContentPack
 }
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
@@ -313,6 +318,11 @@ export const useGameStore = defineStore('game', () => {
     return contentAdapter.checkCommunityPack(snapshot)
   }
 
+  /** Loaded packs that adding this one would replace (shown in the review). */
+  function find_replaced_community_packs(snapshot: PackSnapshot) {
+    return contentAdapter.findReplacedPacks(snapshot)
+  }
+
   /** Stored packs that no longer pass today's checks (restored once per visit). */
   function community_pack_restore_issues() {
     return contentAdapter.ensurePacksRestored()
@@ -431,10 +441,8 @@ export const useGameStore = defineStore('game', () => {
   async function checkSavedRunPack(pack: RunContentPack | undefined): Promise<SavedRunPackNotice | null> {
     if (!pack || pack.origin === 'first_party') return null
     await contentAdapter.loadContentPacks()
-    const loaded = communityPacks.value.find((snapshot) => snapshot.manifest.id === pack.id)
-    if (!loaded) return { reason: 'missing', pack }
-    if (pack.content_hash && loaded.content_hash !== pack.content_hash) return { reason: 'different_version', pack }
-    return null
+    const reason = contentAdapter.whyRunPackUnavailable(pack)
+    return reason ? { reason, pack } : null
   }
 
   /**
@@ -581,6 +589,7 @@ export const useGameStore = defineStore('game', () => {
     load_available_classes,
     load_available_challenge_modifiers,
     check_community_pack,
+    find_replaced_community_packs,
     add_community_pack,
     remove_community_pack,
     is_pack_store_persistent,

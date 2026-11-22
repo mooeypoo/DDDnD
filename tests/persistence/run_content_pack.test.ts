@@ -11,13 +11,16 @@ describe('run content pack identity', () => {
   const hash = `sha256:${'a'.repeat(64)}`
 
   it('accepts first-party and community identities', () => {
-    expect(isRunContentPack({ id: 'base', version: '1.0.0', origin: 'first_party' })).toBe(true)
-    expect(isRunContentPack({ id: 'gilded_ledger', version: '1.0.0', origin: 'remote', content_hash: hash, source_url: 'https://raw.githubusercontent.com/o/r/t/manifest.json' })).toBe(true)
-    expect(isRunContentPack({ id: 'gilded_ledger', version: '1.0.0', origin: 'file', content_hash: hash })).toBe(true)
+    expect(isRunContentPack({ key: 'dddnd:base', id: 'base', version: '1.0.0', origin: 'first_party' })).toBe(true)
+    expect(isRunContentPack({ key: 'github:o/r', id: 'gilded_ledger', version: '1.0.0', origin: 'remote', content_hash: hash, source_url: 'https://raw.githubusercontent.com/o/r/t/manifest.json' })).toBe(true)
+    expect(isRunContentPack({ key: `file:${hash}`, id: 'gilded_ledger', version: '1.0.0', origin: 'file', content_hash: hash })).toBe(true)
   })
 
   it('rejects malformed identities', () => {
-    expect(isRunContentPack({ id: '', version: '1.0.0', origin: 'first_party' })).toBe(false)
+    expect(isRunContentPack({ key: 'dddnd:base', id: '', version: '1.0.0', origin: 'first_party' })).toBe(false)
+    // ADR 0012: a pack identity without its unique key is not an identity.
+    expect(isRunContentPack({ id: 'base', version: '1.0.0', origin: 'first_party' })).toBe(false)
+    expect(isRunContentPack({ key: '', id: 'base', version: '1.0.0', origin: 'first_party' })).toBe(false)
     expect(isRunContentPack({ id: 'x', version: '1.0.0', origin: 'somewhere' })).toBe(false)
     expect(isRunContentPack({ id: 'x', version: '1.0.0', origin: 'file', content_hash: 'md5:abc' })).toBe(false)
   })
@@ -38,6 +41,7 @@ describe('pack identity survives saves and exports', () => {
       created_at_utc: '2026-11-22T00:00:00.000Z',
     })
     gameState.meta.content_pack = {
+      key: 'github:mooeypoo/dddnd-packs/packs/gilded_ledger',
       id: 'gilded_ledger',
       version: '1.0.0',
       origin: 'remote',
@@ -66,7 +70,7 @@ describe('pack identity survives saves and exports', () => {
   it('rejects a save whose pack identity is malformed', async () => {
     const { serialize_save_file, deserialize_save_file } = await import('@/domains/persistence')
     const gameState = await communityRun()
-    gameState.meta.content_pack = { id: 'gilded_ledger', version: '1.0.0', origin: 'remote', content_hash: 'not-a-hash' }
+    gameState.meta.content_pack = { key: 'github:mooeypoo/dddnd-packs/packs/gilded_ledger', id: 'gilded_ledger', version: '1.0.0', origin: 'remote', content_hash: 'not-a-hash' }
     expect(deserialize_save_file(JSON.parse(JSON.stringify(serialize_save_file(gameState)))).ok).toBe(false)
   })
 })

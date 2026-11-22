@@ -124,3 +124,46 @@ describe('community packs flow', () => {
     expect(flow.phase.value).toBe('review')
   })
 })
+
+describe('replacing an added pack (ADR 0012)', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
+
+  async function reviewWith(replaced: Array<{ snapshot: PackSnapshot; same_pack: boolean }>) {
+    const store = useGameStore()
+    vi.spyOn(store, 'check_community_pack').mockResolvedValue({ ok: true, issues: [] })
+    vi.spyOn(store, 'find_replaced_community_packs').mockReturnValue(replaced)
+    const flow = useCommunityPacks({ loadRemote: vi.fn().mockResolvedValue(await demoPackSnapshot()) })
+    await flow.loadFromUrl(`${RAW}/gilded_ledger-v1.1.0/packs/gilded_ledger/manifest.json`)
+    return flow
+  }
+
+  it('says nothing when nothing is replaced', async () => {
+    expect((await reviewWith([])).replacing.value).toEqual([])
+  })
+
+  it('mentions calmly that an earlier version of the same pack is replaced', async () => {
+    const flow = await reviewWith([{ snapshot: await demoPackSnapshot(), same_pack: true }])
+    expect(flow.replacing.value).toEqual([expect.objectContaining({ tone: 'calm', message: 'Replaces the version you added before (v1.0.0).' })])
+  })
+
+  it('says when the same content is already added from somewhere else', async () => {
+    const other = withOrigin(await demoPackSnapshot(), { kind: 'remote', manifest_url: `${RAW}/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json`, pinning: 'release_tag' })
+    const flow = await reviewWith([{ snapshot: other, same_pack: false }])
+    expect(flow.replacing.value).toEqual([expect.objectContaining({ tone: 'caution', message: expect.stringMatching(/^The same content is already added from raw\.githubusercontent\.com/) })])
+  })
+
+  it('warns, before confirming, that a different pack with the same name will be removed, and where it came from', async () => {
+    const other = withOrigin(await demoPackSnapshot((files) => {
+      files['manifest.json'] = files['manifest.json'].replace('"name": "Demo: The Gilded Ledger"', '"name": "Someone Else\'s Ledger"')
+    }), { kind: 'remote', manifest_url: 'https://raw.githubusercontent.com/someone-else/their-packs/v1.0.0/gilded_ledger/manifest.json', pinning: 'release_tag' })
+    const flow = await reviewWith([{ snapshot: other, same_pack: false }])
+    expect(flow.phase.value).toBe('review')
+    expect(flow.replacing.value).toHaveLength(1)
+    expect(flow.replacing.value[0].tone).toBe('caution')
+    expect(flow.replacing.value[0].message).toMatch(/different pack also named “gilded_ledger”/)
+    expect(flow.replacing.value[0].message).toMatch(/raw\.githubusercontent\.com\/someone-else\/their-packs/)
+    expect(flow.replacing.value[0].message).toMatch(/adding this one removes it/)
+  })
+})

@@ -105,6 +105,9 @@ export function isRunContentPack(value: unknown): boolean {
   if (!isObject(value)) {
     return false
   }
+  if (!isString(value.key) || value.key.length === 0 || value.key.length > 512) {
+    return false
+  }
   if (!isString(value.id) || value.id.length === 0 || !isString(value.version) || value.version.length === 0) {
     return false
   }

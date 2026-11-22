@@ -185,7 +185,9 @@ The engine never re-checks these, because the boundary guarantees them. That is 
 | **Community pack** | Any pack not shipped in the game build |
 | **Source** | Where a pack was loaded from (allowlisted URL or local file) |
 | **Consent screen** | The screen where a player approves loading a community pack |
-| **Snapshot** | The locally stored copy of a loaded pack, keyed by content hash |
+| **Pack id** | The name a pack gives itself in its manifest (`gilded_ledger`). Not unique |
+| **Pack key** | A pack's identity, from where it is published (`github:<owner>/<repo>/<folder>`). See [ADR 0012](adr/0012-pack-identity-from-source.md) |
+| **Snapshot** | The validated, in-memory copy of a loaded pack; stored on the device under its pack key, with a content hash for the exact content |
 | **Bundle file** | Single-file pack format, `.dddnd-pack.json` |
 | **Cast** | The UI's per-run assignment of `avatarRole`s to stakeholders |
 | **Studio** | The authoring site |
@@ -267,6 +269,7 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | Studio subdomain and repo folder names | Working names: `studio.dddnd.app`, `studio/` | M4 |
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
+| Whose pack does `depends_on` mean? | Dependencies name a manifest id, which is not unique ([ADR 0012](adr/0012-pack-identity-from-source.md)). Fine while dependencies are first-party. Community-on-community dependencies may need to name a pack key. | When community packs depend on each other |
 | Exact-run replay of retired remote packs | Snapshots make it possible. Do we promise it? (CONTENT_VERSIONING.md does not promise it for retired base scenarios.) | M2 |
 
 ---
@@ -283,6 +286,7 @@ Threads worth telling, with where they are recorded:
 - **"Make the implicit explicit."** DDD knowledge hidden in engine constants and in English sentences. (§4.4)
 - **"A second domain is the only real test of generality."** The SRE pack as an acceptance test. (ADR 0006, M3)
 - **"Writing a pack is domain modeling."** Pack creation as a workshop exercise. (§2)
+- **"A name is not an identity."** Pack ids were quietly used as identities until review asked what happens when two authors pick the same name. Identity moved to where a pack is published, owned by the trust context. The textbook attribute-vs-entity distinction, found in the wild. (M2.7, ADR 0012)
 - **The context map** in §4.3 works as a slide.
 
 ---
@@ -793,7 +797,7 @@ Behind the flag (ADR 0009). With the flag off, the pack store is never opened.
 
 **Decisions**
 
-1. **One version per pack id.** Adding a new version replaces the old one. A saved run resumes only with the *exact* content it was played with (same hash). Otherwise it is kept and explained. Supporting two versions of a pack side by side would need two packs with the same id in the registry, which ADR 0001 forbids for good reasons. Known limitation, accepted for MVP.
+1. **One version per pack id.** *(Refined in M2.7 / [ADR 0012](adr/0012-pack-identity-from-source.md): one version per pack **key**, and one pack per id loaded at a time.)* Adding a new version replaces the old one. A saved run resumes only with the *exact* content it was played with (same hash). Otherwise it is kept and explained. Supporting two versions of a pack side by side would need two packs with the same id in the registry, which ADR 0001 forbids for good reasons. Known limitation, accepted for MVP.
 2. **Store text, not objects, and re-validate on load.** Storing parsed objects would trust whatever was written under an older validator. Storing the bundle text and running it back through `readPackBundle` means stricter future rules apply to old packs too.
 3. **Storage failures never block play.** If a pack can't be kept, it is still added for the visit, and the "Added" message says it won't survive closing the page.
 
@@ -825,3 +829,66 @@ Behind the flag (ADR 0009). With the flag off, the pack store is never opened.
   5. Re-add the pack and go to `/game`: the run resumes.
 
   Run three times in a row with zero console errors.
+
+
+### M2.7: A pack's name is not its identity (2026-11-22)
+
+Behind the flag (ADR 0009). Decision recorded in [ADR 0012](adr/0012-pack-identity-from-source.md).
+
+**How it came up**
+
+Reviewing M2.6, the project owner asked what stops two remote packs with the same name from overriding each other. Nothing did. Stored packs and saved runs were keyed by the manifest `id`, and any author can call their pack `gilded_ledger`. The content hash would have stopped a wrong run from resuming, but the player would have been told "a different version", and the first pack would have been silently replaced on the device.
+
+This is a textbook DDD confusion between an **attribute** and an **identity**. The manifest id is something the pack *says about itself*. Identity has to come from something the author can't freely choose to collide with: here, the place the pack is published. It's the same shape as ADR 0010 ("a pack can't vouch for itself"), and it puts the authority in the Distribution and Trust context, which owns the source policy.
+
+**What changed**
+
+- **`pack_identity.ts`** (content domain) derives a **pack key**:
+  - `dddnd:base`
+  - `github:<owner>/<repo>/<folder>`
+  - `github-pages:<owner>/<folder>`
+  - `file:sha256:…`
+
+  The source policy now also reports `pack_dir`, the folder holding `manifest.json`.
+- **The ref is not in the key,** so `gilded_ledger-v1.0.0`, `-v1.1.0`, `main` and a commit SHA are the same pack. The content hash still pins the exact content.
+- **Owner and repo are lowercased; folders aren't.** That follows GitHub's own case rules.
+- **A file's key is its content hash,** so a file can never take over a GitHub pack's identity.
+- **Saves:** `RunContentPack.key` is required. A save is matched by key, then by hash.
+- **Storage:** IndexedDB version 2 is keyed by `pack_key`. Version 1 only ever existed in dev builds, so its store is dropped on upgrade. On restore, the key is recomputed from the stored origin and content and compared with the stored one. A mismatch is left out and reported ("doesn't match where it says it came from").
+- **Replacing is explicit.** The registry still holds one pack per manifest id, so a pack with a taken id replaces the loaded one. The review now says so before confirming, in three tones:
+  - another version of the same pack (calm): "Replaces the version you added before (v1.0.0)."
+  - the same content from somewhere else (caution): "The same content is already added from …"
+  - a different pack with the same name (caution, `role="alert"`): who, from where, and "adding this one removes it".
+
+  Replaced packs are also removed from storage, or they'd come back next visit beside the new one.
+- **The saved-run notice has a third case.** Besides `missing` and `different_version`, there is now `different_source`: "the pack added now with that name was loaded from somewhere else, and saved runs only continue with the pack they were played with". The matching moved from the store into the content adapter (`whyRunPackUnavailable`), where it can be unit-tested.
+
+**Decisions and trade-offs**
+
+1. **Readable key, not a URL hash.** The first idea in review was "some hash of the URL". A hash of the full URL would include the ref, making every release a different pack and stranding saved runs on update. A readable key without the ref keeps updates working, and is legible in a save file or an export.
+2. **Strict about provenance.** The same bytes from GitHub and from a file are two packs. We considered letting a matching content hash resume a run regardless of key: it would be safe for determinism, but it blurs "which pack is this", and the case is rare. We kept it strict, and worded the review gently for it.
+3. **Moving a pack changes its identity.** Renaming the repo, moving the folder, or transferring ownership makes a new pack. That's the price of identity-by-location without a central registry. The authoring guides now warn authors.
+4. **`depends_on` still uses ids.** That's fine while dependencies are first-party (`base`, `tutorial`), whose ids the registry protects: a community pack named `base` is refused outright. Open question for when community packs depend on each other.
+
+**Verification**
+
+- **Unit tests** (+17, 1022 total):
+  - key derivation, including every ref form mapping to one key, case rules, and same-named packs from other owners, repos, folders or Pages getting distinct keys;
+  - files keyed by content, and a tampered remote origin refused;
+  - the key shape check;
+  - a same-named pack reported as a non-same-pack replacement;
+  - adding it replaces the first in memory *and* storage;
+  - two versions of one pack stored as one entry;
+  - all three saved-run reasons;
+  - a file stored under a GitHub key refused on restore;
+  - a key now required in saves;
+  - the three review wordings.
+- **Headless Chrome, real GitHub, real IndexedDB:**
+  0. Seed a version-1 database like an old dev build left behind.
+  1. Add the demo from its tag. The database is version 2, keyed by `pack_key`, holding `github:mooeypoo/dddnd-packs/packs/gilded_ledger`, and the old entry is gone.
+  2. Play two turns. The save carries the key.
+  3. Add the same pack from its `.dddnd-pack.json` file. The review warns "The same content is already added from raw.githubusercontent.com/…". Confirm: storage holds only `file:sha256:90fae984…`.
+  4. Open `/game`: the save is kept, and the lobby explains the pack was loaded from somewhere else, with the original link prefilled.
+  5. Re-add from the link (the review warns about replacing the file copy). The run resumes with its Community label.
+
+  The only console error was Chrome's favicon request on the raw JSON page the script used to seed the old database, not the game.

@@ -219,6 +219,12 @@ For hosted packs, set `"base_url": "."`. Content is then read from the folder th
 
 The game loads remote packs only from GitHub: `raw.githubusercontent.com` and GitHub Pages sites (`<owner>.github.io`). Share a URL pinned to a tag or commit, not a branch, so a saved game always finds the content it was played with. See [ADR 0003](adr/0003-remote-pack-source-allowlist.md). One repository can hold several packs, one folder each ([mooeypoo/DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs) is the reference layout).
 
+### A pack's identity is where it lives
+
+Your pack's `id` is its name, and other authors can use the same name. The game tells packs apart by **where they are published**: the GitHub owner, repository, and folder (`github:<owner>/<repo>/packs/<pack_id>`). The tag or commit is not part of it, so each new release is recognized as the same pack and replaces the older one for players.
+
+This means **moving a pack makes it a new pack** to the game. Renaming the repository, moving the pack's folder, or transferring the repository to another account all do this, and players' saved runs will ask for the old link. Pick a home for your pack and keep it there. A pack loaded from a `.dddnd-pack.json` file is identified by its exact content. See [ADR 0012](adr/0012-pack-identity-from-source.md).
+
 ### Naming your content ids
 
 Content ids are shared by every loaded pack, and a pack whose files collide with another pack's is refused. Prefix your ids with a short word unique to your pack. The demo pack uses `ledger_` (`ledger_split_refunds_context`).

@@ -9,6 +9,10 @@
  * On every load it goes back through the full validation (readPackBundle), so
  * a pack saved under older, looser rules can't skip newer checks.
  *
+ * Packs are keyed by their pack key (ADR 0012), not their manifest id: two
+ * different packs that both call themselves `gilded_ledger` never overwrite
+ * each other here.
+ *
  * IndexedDB is used because packs can be megabytes and localStorage is small
  * and synchronous. When IndexedDB is unavailable (some private browsing modes,
  * blocked storage), a memory store is used and `persistent` is false, so the
@@ -18,7 +22,9 @@
 import type { PackOrigin } from '@/domains/content/model'
 
 export interface StoredCommunityPack {
-  /** Key: one stored version per pack. */
+  /** Key: the pack key (ADR 0012). One stored version per pack. */
+  pack_key: string
+  /** The manifest id. A name, not unique. */
   pack_id: string
   name: string
   version: string
@@ -34,11 +40,16 @@ export interface CommunityPackStore {
   readonly persistent: boolean
   list(): Promise<StoredCommunityPack[]>
   put(pack: StoredCommunityPack): Promise<void>
-  remove(packId: string): Promise<void>
+  /** Removes by pack key. */
+  remove(packKey: string): Promise<void>
 }
 
 const DATABASE_NAME = 'dddnd'
-const DATABASE_VERSION = 1
+/**
+ * 2: keyed by pack_key (ADR 0012). Version 1 keyed by manifest id and only
+ * ever existed in development builds, so its store is dropped, not migrated.
+ */
+const DATABASE_VERSION = 2
 const STORE_NAME = 'community_packs'
 
 /**
@@ -52,10 +63,10 @@ export function createMemoryCommunityPackStore(persistent = false): CommunityPac
     persistent,
     list: async () => [...packs.values()].map((pack) => structuredClone(pack)),
     put: async (pack) => {
-      packs.set(pack.pack_id, structuredClone(pack))
+      packs.set(pack.pack_key, structuredClone(pack))
     },
-    remove: async (packId) => {
-      packs.delete(packId)
+    remove: async (packKey) => {
+      packs.delete(packKey)
     },
   }
 }
@@ -70,10 +81,13 @@ function requestToPromise<T>(request: IDBRequest<T>): Promise<T> {
 function openDatabase(factory: IDBFactory): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = factory.open(DATABASE_NAME, DATABASE_VERSION)
-    request.onupgradeneeded = () => {
+    request.onupgradeneeded = (event) => {
       const database = request.result
+      if (event.oldVersion < 2 && database.objectStoreNames.contains(STORE_NAME)) {
+        database.deleteObjectStore(STORE_NAME)
+      }
       if (!database.objectStoreNames.contains(STORE_NAME)) {
-        database.createObjectStore(STORE_NAME, { keyPath: 'pack_id' })
+        database.createObjectStore(STORE_NAME, { keyPath: 'pack_key' })
       }
     }
     request.onsuccess = () => resolve(request.result)
@@ -108,8 +122,8 @@ function indexedDbStore(database: IDBDatabase): CommunityPackStore {
     put: (pack) => write((store) => {
       store.put(pack)
     }),
-    remove: (packId) => write((store) => {
-      store.delete(packId)
+    remove: (packKey) => write((store) => {
+      store.delete(packKey)
     }),
   }
 }

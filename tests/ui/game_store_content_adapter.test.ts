@@ -216,7 +216,7 @@ describe('keeping community packs between visits (M2.6)', () => {
 
     const firstVisit = await adapterWithStore(store)
     await firstVisit.adapter.addCommunityPack(remote)
-    expect(await store.list()).toEqual([expect.objectContaining({ pack_id: 'gilded_ledger', content_hash: remote.content_hash })])
+    expect(await store.list()).toEqual([expect.objectContaining({ pack_key: 'github:mooeypoo/dddnd-packs/packs/gilded_ledger', pack_id: 'gilded_ledger', content_hash: remote.content_hash })])
 
     const nextVisit = await adapterWithStore(store)
     expect(await nextVisit.adapter.ensurePacksRestored()).toEqual([])
@@ -226,19 +226,21 @@ describe('keeping community packs between visits (M2.6)', () => {
 
     await nextVisit.adapter.loadContentPacks()
     expect(nextVisit.adapter.describeScenarioPack({ id: 'ledger_payments_monolith', version: 1 })).toEqual({
+      key: 'github:mooeypoo/dddnd-packs/packs/gilded_ledger',
       id: 'gilded_ledger',
       version: '1.0.0',
       origin: 'remote',
       content_hash: remote.content_hash,
       source_url: remote.origin.manifest_url,
     })
-    expect(nextVisit.adapter.describeScenarioPack({ id: 'monolith_of_mild_despair', version: 2 })).toEqual({ id: 'base', version: '1.0.0', origin: 'first_party' })
+    expect(nextVisit.adapter.describeScenarioPack({ id: 'monolith_of_mild_despair', version: 2 })).toEqual({ key: 'dddnd:base', id: 'base', version: '1.0.0', origin: 'first_party' })
   })
 
   it('re-validates stored packs: one that no longer passes is left out and reported', async () => {
     const { createMemoryCommunityPackStore } = await import('@/domains/persistence/adapters/community_pack_store')
     const store = createMemoryCommunityPackStore(true)
     await store.put({
+      pack_key: `file:sha256:${'0'.repeat(64)}`,
       pack_id: 'tampered',
       name: 'Tampered Pack',
       version: '1.0.0',
@@ -263,6 +265,118 @@ describe('keeping community packs between visits (M2.6)', () => {
     await visit.adapter.removeCommunityPack('gilded_ledger')
     expect(await store.list()).toEqual([])
   })
+})
+
+describe('same-named packs from different places (ADR 0012)', () => {
+  const MINE = 'https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json'
+  const THEIRS = 'https://raw.githubusercontent.com/someone-else/their-packs/v1.0.0/gilded_ledger/manifest.json'
+
+  async function setup() {
+    const { createMemoryCommunityPackStore } = await import('@/domains/persistence/adapters/community_pack_store')
+    const { createDiskBackedRegistry, readFirstPartyManifest, demoPackSnapshot } = await import('../content/support/demo_pack')
+    const store = createMemoryCommunityPackStore(true)
+    const contentPackRegistry = ref<ContentPackRegistry | null>(null)
+    const communityPacks = ref<import('@/domains/content/model').PackSnapshot[]>([])
+    const adapter = createGameStoreContentAdapter(
+      { contentPackRegistry, externalManifestUrls: ref<string[]>([]), communityPacks },
+      {
+        resolveManifestUrls: () => ['base', 'tutorial'],
+        loadManifestByUrl: async (id: string) => readFirstPartyManifest(id as 'base' | 'tutorial'),
+        createRegistry: createDiskBackedRegistry,
+        openPackStore: async () => store,
+      },
+    )
+    const demo = await demoPackSnapshot()
+    const from = (manifest_url: string, snapshot = demo) => ({ ...snapshot, origin: { kind: 'remote' as const, manifest_url, pinning: 'release_tag' as const } })
+    return { adapter, communityPacks, store, demo, from, demoPackSnapshot }
+  }
+
+  it('reports a different pack with the same name as a replacement the player must see', async () => {
+    const { adapter, from } = await setup()
+    await adapter.addCommunityPack(from(MINE))
+
+    const replaced = adapter.findReplacedPacks(from(THEIRS))
+    expect(replaced).toHaveLength(1)
+    expect(replaced[0].same_pack).toBe(false)
+    expect(replaced[0].snapshot.origin).toMatchObject({ manifest_url: MINE })
+  })
+
+  it('adding the other pack replaces the first everywhere, including storage', async () => {
+    const { adapter, communityPacks, store, from } = await setup()
+    await adapter.addCommunityPack(from(MINE))
+    await adapter.addCommunityPack(from(THEIRS))
+
+    expect(communityPacks.value.map((pack) => pack.origin)).toEqual([expect.objectContaining({ manifest_url: THEIRS })])
+    // Otherwise the first pack would come back on the next visit next to the second.
+    expect((await store.list()).map((stored) => stored.pack_key)).toEqual(['github:someone-else/their-packs/gilded_ledger'])
+  })
+
+  it('stores two versions of the same pack as one entry', async () => {
+    const { adapter, store, from, demoPackSnapshot } = await setup()
+    await adapter.addCommunityPack(from(MINE))
+    const newer = await demoPackSnapshot((files) => {
+      files['manifest.json'] = files['manifest.json'].replace('"version": "1.0.0"', '"version": "1.1.0"')
+    })
+    const next = from(MINE.replace('gilded_ledger-v1.0.0', 'gilded_ledger-v1.1.0'), newer)
+
+    expect(adapter.findReplacedPacks(next)).toEqual([expect.objectContaining({ same_pack: true })])
+    await adapter.addCommunityPack(next)
+    expect(await store.list()).toEqual([expect.objectContaining({ pack_key: 'github:mooeypoo/dddnd-packs/packs/gilded_ledger', version: '1.1.0' })])
+  })
+
+  it('says why a saved run cannot continue: missing, another pack with that name, or other content', async () => {
+    const { adapter, from, demo } = await setup()
+    const played = {
+      key: 'github:mooeypoo/dddnd-packs/packs/gilded_ledger',
+      id: 'gilded_ledger',
+      version: '1.0.0',
+      origin: 'remote' as const,
+      content_hash: demo.content_hash,
+      source_url: MINE,
+    }
+
+    expect(adapter.whyRunPackUnavailable(played)).toBe('missing')
+    await adapter.addCommunityPack(from(THEIRS))
+    expect(adapter.whyRunPackUnavailable(played)).toBe('different_source')
+    await adapter.addCommunityPack(from(MINE))
+    expect(adapter.whyRunPackUnavailable(played)).toBeNull()
+    expect(adapter.whyRunPackUnavailable({ ...played, content_hash: `sha256:${'d'.repeat(64)}` })).toBe('different_version')
+    expect(adapter.whyRunPackUnavailable({ key: 'dddnd:base', id: 'base', version: '1.0.0', origin: 'first_party' })).toBeNull()
+  })
+
+  it('does not trust a stored key: a file stored under a GitHub pack\'s key is left out', async () => {
+    const { store, demo } = await setup()
+    const { writePackBundle } = await import('@/domains/content/services/pack_bundle_file')
+    await store.put({
+      pack_key: 'github:mooeypoo/dddnd-packs/packs/gilded_ledger',
+      pack_id: 'gilded_ledger',
+      name: demo.manifest.name,
+      version: demo.manifest.version,
+      content_hash: demo.content_hash,
+      origin: { kind: 'file', file_name: 'gilded_ledger.dddnd-pack.json' },
+      bundle_text: writePackBundle(demo),
+      added_at: '2026-11-22T00:00:00.000Z',
+    })
+
+    const { adapter, communityPacks } = await setupWith(store)
+    expect(await adapter.ensurePacksRestored()).toEqual([expect.objectContaining({ reason: expect.stringMatching(/doesn't match where it says it came from/) })])
+    expect(communityPacks.value).toEqual([])
+  })
+
+  async function setupWith(store: import('@/domains/persistence/adapters/community_pack_store').CommunityPackStore) {
+    const { createDiskBackedRegistry, readFirstPartyManifest } = await import('../content/support/demo_pack')
+    const communityPacks = ref<import('@/domains/content/model').PackSnapshot[]>([])
+    const adapter = createGameStoreContentAdapter(
+      { contentPackRegistry: ref<ContentPackRegistry | null>(null), externalManifestUrls: ref<string[]>([]), communityPacks },
+      {
+        resolveManifestUrls: () => ['base', 'tutorial'],
+        loadManifestByUrl: async (id: string) => readFirstPartyManifest(id as 'base' | 'tutorial'),
+        createRegistry: createDiskBackedRegistry,
+        openPackStore: async () => store,
+      },
+    )
+    return { adapter, communityPacks }
+  }
 })
 
 describe('storing packs that passed through Vue reactivity (M2.6 regression)', () => {

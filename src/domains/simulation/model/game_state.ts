@@ -9,7 +9,13 @@ import { TurnHistoryEntry } from './turn_history_entry'
  * needs. Never read by the simulation: it is identity, not behavior.
  */
 export interface RunContentPack {
-  /** Pack id from the manifest (`base`, `gilded_ledger`). */
+  /**
+   * Unique pack identity, from where the pack is published (ADR 0012):
+   * `dddnd:base`, `github:<owner>/<repo>/<folder>`, `file:sha256:…`.
+   * Two packs can share a manifest id; they never share a key.
+   */
+  key: string
+  /** Pack id from the manifest (`base`, `gilded_ledger`). A name, not unique. */
   id: string
   /** Pack version from the manifest (`1.0.0`). */
   version: string
