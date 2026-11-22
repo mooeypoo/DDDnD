@@ -266,7 +266,8 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | ~~Exact limits~~ | **Resolved.** Per-file limits in M1.1 (table in [CONTENT_SCHEMA.md](../CONTENT_SCHEMA.md#validation-and-limits)). 2000 files per pack in M1.2. | Done |
 | ~~Demo pack topic~~ | **Resolved (M2.1):** "The Gilded Ledger", the monolith story retold for a fictional payments company. | Done |
 | ~~Demo pack repository name~~ | **Resolved (M2.1):** [mooeypoo/DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs), one folder per pack (ADR 0008). | Done |
-| SRE pack design | Scores, stakeholders, failure modes, and what "winning" means need a brainstorm | M3 |
+| SRE pack design | Strawman agreed in M3.0: scores (all higher-is-better), council, cards, events, endings. Details settle while building it. | M3 |
+| "Lower is better" scores | **Deferred (M3.0).** For now every score is higher-is-better, and packs phrase scores positively ("Rested on-call", not "Pager fatigue"). Supporting lower-is-better later touches: the tier average (invert or normalize per score), coupling triggers (fall *below* vs rise *above*), ending criteria (already explicit comparisons, so mostly fine), the balance audit's low-score telemetry, and the UI meters and deltas (a rising number shown as bad). It would be a `direction` field on the score, defaulting to higher-is-better, so existing content is unaffected. | When a pack needs it |
 | Studio subdomain and repo folder names | Working names: `studio.dddnd.app`, `studio/` | M4 |
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
@@ -1231,4 +1232,73 @@ The routes say the model out loud. `/play` is the game's own context. `/communit
 - **No replay promise for packs that are taken down.** A saved run continues only while its exact pack is imported in that browser.
 - **Launch waits.** The CSP change and the production flag come after MVP 1 and more local testing by the owner.
 - **Checked by the owner:** removing a pack while its run is saved, and leaving to `/play` or `/game` afterwards, behave as described.
+
+### M3.0 (design): Moving the engine's DDD knowledge into content (2026-11-22)
+
+The start of milestone M3. Before writing code, we listed every place where the engine, the balance audit, or the UI still hard-codes knowledge of the base game, and the project owner made the decisions below.
+
+**The inventory**
+
+None of it crashes. A pack whose scores differ from the base game's quietly gets wrong results:
+
+| Concept | Where it lived | What a different-domain pack got |
+|---|---|---|
+| Final tier | Literal ids and thresholds in `classify_run_outcome.ts` (≥75 triumph, ≥60 success, ≥45 survival, ≥30 struggle, else collapse). Tier JSON had only name, description and rank. | No tier unless it reused the base ids, and then the base thresholds |
+| Coarse result (success / partial / failure) | ≥60 / <35, written twice (`get_run_outcome.ts`, `serialize_exact_run.ts`). The simulator's "win" uses it. | The base game's idea of winning |
+| Ending (archetype) | Nine predicates over fixed score groups in `classify_outcome_archetype.ts`, with missing scores read as 50. The scenario's `outcome_archetype_refs` were ignored. | Almost always "Pragmatist" or "System Stabilizer", with the base game's icon, text and art |
+| Coupling | Five rules in `apply_score_changes.ts` (three base, two tutorial). Fixed text in the UI warnings and the rules modal. | No coupling at all, silently |
+| Archetype ids | A closed TypeScript union of 10, used by saves, exports and share links | A type error as soon as a pack names its own ending |
+| Results screen | Ending and tier names title-cased from the id; descriptions, icons and art from code maps | Base text, or generic fallbacks |
+| Balance audit | Targets keyed by base scenario ids; scripts scan only `content/` | Audits that find nothing |
+
+Stakeholder reaction rules were already fully driven by content (structured conditions since M1).
+
+**The surprise:** the tutorial is already a small standalone pack, and it is already affected. It has its own scores, tiers (`tutorial_done`, `tutorial_success`) and ending (`tutorial_learner`), and the engine never selects any of them. It works only because two of the hard-coded coupling rules were written for it.
+
+**The names question.** The owner asked why endings are shown as title-cased ids when every ending file has a human-written `name`. There is no good reason. The bundle loads the ending files, but the engine reports only an id, and the screens never looked the id up. The share card had a real constraint: a shared link opens on another device without the pack, so it only had the id. The fix is to use the content's names and descriptions on the results screen, and to carry the display name in share links.
+
+**Decisions**
+
+1. **Scores stay higher-is-better for now.** "Lower is better" is documented as a future option (open questions, §9), including everything it would touch.
+2. **Endings get declarative criteria in content,** replacing the TypeScript predicates. There must be no regressions in current packs: the base game's endings are re-expressed as content and proven identical by golden replays. Pack authors get clear documentation of the criteria.
+3. **The tutorial's endings and coupling get fixed,** through new tutorial content versions. Watch for regressions, and flag any risk.
+4. **The SRE pack is a community pack,** living in [DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs) alongside the demo, not in this repository. That collection is the owner's own "extras" (demos and additional packs). A separate "sanctioned community packs" list can come later (ADR 0010).
+5. **Pack-owned classes and challenge modifiers are part of M3** (option A from ADR 0015): a pack's table offers its own, plus those of the first-party packs it depends on, filtered to the scenario's scores. The SRE pack needs this, because the base classes favour scores it doesn't have.
+6. **SRE and incident response is the second domain,** with the strawman below.
+
+**The slices**
+
+0. **Golden replays.** Record fixed seeds × every first-party scenario × the simulator's play policies, capturing full history and outcome. Every later slice must reproduce them exactly for the base pack. Tutorial changes are deliberate, versioned, and called out.
+1. **Names from content:** ending and tier names and descriptions on the results screen and share card.
+2. **Coupling rules as content,** including the warning text the UI shows.
+3. **Tiers with thresholds and a result** (success, partial or failure), replacing both copies of the 60/35 rule.
+4. **Declarative ending criteria,** over generic measures:
+   - each score's final value and how much it changed;
+   - sums over score groups the pack defines;
+   - stakeholder average and minimum;
+   - volatility and event pressure.
+
+   Each ending has a priority, and the first match wins. The scenario names a fallback ending.
+5. **Ending ids become validated strings.** Icons and art fall back as they do for scores (ADR 0002).
+6. **Balance audit targets as content,** and audit scripts that accept a pack folder.
+7. **Phantom stakeholders refused** by the validator, with a new `microservice_sprawl` version.
+8. **Pack-owned classes and modifiers.**
+9. **The SRE pack** in DDDnD-packs: the acceptance test, needing no TypeScript changes.
+
+**The SRE strawman**
+
+- **What it teaches:**
+  - reliability is a budget you spend, not a virtue;
+  - heroics feel good and burn people out;
+  - blameless learning beats blame;
+  - toil compounds.
+- **Scores:** Availability (against the SLO), Error budget, Rested on-call, Customer trust, Change velocity, Observability.
+- **The council:** VP of Engineering, Product lead, Customer support lead, Finance, Security, the on-call engineer.
+- **Cards:** SLOs with an error-budget policy, runbooks, blameless postmortems, alert tuning, feature freeze, automated rollback, chaos drills, paying down toil.
+- **Events:** a 3 a.m. outage, cascading failure, a cloud region down, an alert storm, "root cause by noon", an expired certificate.
+- **Endings:** Reliability Architect, Error-Budget Accountant, Toil Slayer, Hero Firefighter (burnout), Pager-Haunted.
+
+**DDD note (talk material)**
+
+The tutorial was the first "second domain" all along, and nobody noticed. It had its own scores, tiers and ending, and the engine ignored them. Its coupling only worked because someone added tutorial score ids to the engine's own rule list. That is what implicit knowledge looks like up close: the system works because the code quietly knows things the model never said. The test for M3 is that both the tutorial and the SRE pack get their endings from their own content, with nothing about either in TypeScript.
 
