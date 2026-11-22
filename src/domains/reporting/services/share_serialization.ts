@@ -86,6 +86,8 @@ export function decodeSharePayload(encoded: string): SharePayloadParseResult {
 const MAX_SEED_LENGTH = 200
 /** Community pack name and publisher on a share card: plain text, kept short. */
 const MAX_PACK_LABEL_LENGTH = 160
+/** Ending and tier display names on a share card: plain text, kept short. */
+const MAX_OUTCOME_NAME_LENGTH = 80
 
 function validateSharePayload(raw: unknown): SharePayloadParseResult {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
@@ -163,6 +165,14 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     }
   }
 
+  // Optional ending and tier names: short plain text
+  for (const field of ['an', 'tn'] as const) {
+    const value = obj[field]
+    if (value !== undefined && (typeof value !== 'string' || value.length === 0 || value.length > MAX_OUTCOME_NAME_LENGTH)) {
+      return { ok: false, error: `Invalid ${field === 'an' ? 'ending' : 'tier'} name` }
+    }
+  }
+
   const payload: SharePayload = {
     v: obj.v as number,
     sid: obj.sid as string,
@@ -179,6 +189,8 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     stakeholders: obj.stakeholders as Record<string, number> | undefined,
     cr: obj.cr as string,
     sd: (obj.sd as string | undefined) || undefined,
+    ...(obj.an !== undefined ? { an: obj.an as string } : {}),
+    ...(obj.tn !== undefined ? { tn: obj.tn as string } : {}),
     ...(obj.cp !== undefined
       ? { cp: { n: (obj.cp as { n: string }).n, p: (obj.cp as { p: string }).p } }
       : {})

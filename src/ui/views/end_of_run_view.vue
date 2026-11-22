@@ -31,7 +31,7 @@
         <!-- Outcome Tier -->
         <div v-if="outcome" class="outcome-tier-badge" :class="getTierClass(displayTierId)">
           <span class="tier-icon">{{ getTierIcon(displayTierId) }}</span>
-          <span class="tier-label">{{ formatTier(displayTierId) }}</span>
+          <span class="tier-label">{{ outcomeText.tierName }}</span>
         </div>
 
         <!-- Quest Name -->
@@ -61,10 +61,11 @@
         
         <div class="archetype-content">
           <div class="archetype-label">Your Archetype</div>
-          <h2 class="archetype-name">{{ formatArchetype(outcome.archetype) }}</h2>
+          <h2 class="archetype-name">{{ outcomeText.archetypeName }}</h2>
           <p class="archetype-description">
-            {{ getArchetypeDescription(outcome.archetype) }}
+            {{ outcomeText.archetypeDescription }}
           </p>
+          <p v-if="outcomeText.archetypeFlavor" class="archetype-flavor">{{ outcomeText.archetypeFlavor }}</p>
         </div>
       </div>
       
@@ -236,6 +237,7 @@ import {
 } from '@/ui/composables/stakeholder_presentation'
 import { buildSharePayload } from '@/domains/reporting/services/build_share_payload'
 import { describeRunCommunityPack } from '@/ui/play/community_pack_review'
+import { describeOutcome } from '@/ui/play/outcome_presentation'
 import { lobbyRouteFor } from '@/ui/community/community_routes'
 import { buildShareUrl, type SharePayload } from '@/domains/reporting/services'
 
@@ -263,6 +265,8 @@ const playerAccentColor = computed(() => getClassAccentColor(playerClassId.value
 const scenarioName = computed(() => gameStore.scenarioBundle?.scenario?.name)
 
 const displayTierId = computed(() => outcome.value?.selected_tier_id ?? outcome.value?.tier ?? 'failure')
+/** Tier and ending names from the run's own content (M3 slice 1). */
+const outcomeText = computed(() => describeOutcome(gameStore.scenarioBundle, displayTierId.value, outcome.value?.archetype ?? ''))
 const endingVisualUrl = computed(() => {
   const archetype = outcome.value?.archetype
   if (!archetype) return undefined
@@ -305,23 +309,12 @@ onMounted(() => {
     sharePayload.value = buildSharePayload({
       run_outcome: gameStore.runOutcome,
       game_state: gameStore.gameState,
-      community_pack: runCommunityPack.value
+      community_pack: runCommunityPack.value,
+      names: { archetype: outcomeText.value.archetypeName, tier: outcomeText.value.tierName }
     })
   }
 })
 
-function formatTier(tier: string): string {
-  const labels: Record<string, string> = {
-    triumph: 'Triumph',
-    success: 'Success',
-    survival: 'Survival',
-    struggle: 'Struggle',
-    collapse: 'Collapse',
-    partial_success: 'Partial Success',
-    failure: 'Failure'
-  }
-  return labels[tier] ?? tier.charAt(0).toUpperCase() + tier.slice(1)
-}
 
 function getTierIcon(tier: string): string {
   const icons: Record<string, string> = {
@@ -340,12 +333,6 @@ function getTierClass(tier: string): string {
   return `tier-${tier.replace('_', '-')}`
 }
 
-function formatArchetype(archetype: OutcomeArchetypeId): string {
-  return archetype
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
 
 function getArchetypeIcon(archetype: OutcomeArchetypeId): string {
   const icons: Record<OutcomeArchetypeId, string> = {
@@ -363,21 +350,6 @@ function getArchetypeIcon(archetype: OutcomeArchetypeId): string {
   return icons[archetype] || '🎯'
 }
 
-function getArchetypeDescription(archetype: OutcomeArchetypeId): string {
-  const descriptions: Record<OutcomeArchetypeId, string> = {
-    'boundary_builder': 'You focused on establishing clear domain boundaries and architectural structure, laying the foundation for sustainable growth.',
-    'firefighter': 'You responded swiftly to immediate crises and kept the system running under pressure, saving the day when it mattered most.',
-    'runaway_refactorer': 'You pursued aggressive refactoring and technical excellence, sometimes at the cost of delivery speed.',
-    'stakeholder_whisperer': 'You skillfully navigated the council, building consensus for change.',
-    'system_stabilizer': 'You brought balance and stability to a chaotic system, carefully managing competing priorities.',
-    'the_diplomat': 'You kept every council member with you, even when the system was on fire.',
-    'budget_hawk': 'You proved that good architecture doesn\'t have to break the bank.',
-    'the_pragmatist': 'You balanced short-term fixes with long-term investments, never going to extremes.',
-    'the_visionary': 'You saw the big picture and reshaped the domain, even when others couldn\'t see why it mattered.',
-    'burnout_machine': 'You shipped everything on time, but at what cost? The team is exhausted.'
-  }
-  return descriptions[archetype] || 'Your architectural journey was unique and shaped by the choices you made.'
-}
 
 function formatCompletionReason(reason?: string): string {
   if (!reason) return 'Unknown'
@@ -864,6 +836,13 @@ function inlineComputedStyles(source: Element, target: Element) {
   font-size: var(--text-3xl);
   font-weight: var(--font-black);
   margin: 0 0 var(--space-lg) 0;
+}
+
+.archetype-flavor {
+  margin: 0.5rem 0 0;
+  font-style: italic;
+  color: var(--dng-subtitle-warm);
+  font-size: var(--text-sm);
 }
 
 .archetype-description {

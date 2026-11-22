@@ -1336,3 +1336,31 @@ The tutorial currently ends with **no tier** and with base endings (Stakeholder 
 **DDD note (talk material)**
 
 Characterization tests ("golden master") are how you change a model you don't fully trust yet. They don't say what the behavior *should* be, only what it *is*. The perturbation check is the part people skip: we found a rule the net couldn't see before relying on it.
+
+### M3.2 (slice 1): Endings and tiers are named by their content (2026-11-22)
+
+**How it came up**
+
+The owner asked why the results screen showed endings as title-cased ids ("the_visionary" → "The Visionary") when every ending file has a human-written name. There was no good reason. The scenario bundle already loaded the tier and ending files, but the engine reports only ids, and the screens never looked them up. They used title-casing plus descriptions hard-coded in the UI. That meant a pack's own endings could never be named properly, even before M3's engine work.
+
+**What changed**
+
+- **`describeOutcome(bundle, tierId, archetypeId)`** (`ui/play/outcome_presentation.ts`) returns the tier name, ending name, ending description and **flavor text** from the run's own content. Title-cased ids and a generic description remain only as fallbacks.
+- **The results screen** uses it, and now also shows each ending's flavor line, which was in the content all along but never displayed.
+- **Share links** carry the display names (`an`, `tn`), because a shared link opens without the pack. They are validated as plain text of at most 80 characters. Older links fall back to title-cased ids.
+
+**Player-visible differences**
+
+The text players see now comes from the content files, which differ slightly from the strings that were hard-coded in the UI:
+
+- Ending names gain their article where the content has one: "The Boundary Builder", "The Firefighter", "The System Stabilizer" (previously "Boundary Builder" and so on).
+- Five descriptions are worded as in the content. For example, Firefighter now reads "You spent your time managing crises and emergencies", where the screen used to say "You responded swiftly to immediate crises…". The other four are Boundary Builder, Runaway Refactorer, Stakeholder Whisperer and System Stabilizer.
+- Every ending now shows its flavor line ("Perfect code ships never").
+
+If any content wording reads worse than the old UI strings, the fix belongs in the content files, where pack authors can see and copy it.
+
+**Verification**
+
+- **Tests** (+9, 1090 total): naming from content, the coarse-tier fallback, title-case fallbacks, share-link names round-tripping and refused when too long or empty, and the share card using the carried names and falling back for old links.
+- **Golden replays and the fixed-seed audit are unchanged:** presentation only.
+- **Headless Chrome:** a full base run ended in "Triumph", "The Visionary", with the content's description and flavor line, the same names on the share card, and the same after a reload. No console errors.

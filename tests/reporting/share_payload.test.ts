@@ -202,6 +202,15 @@ describe('buildSharePayload', () => {
     expect(base).not.toHaveProperty('cp')
   })
 
+  it("carries the ending and tier names from the run's content (M3 slice 1)", () => {
+    const payload = buildSharePayload({
+      run_outcome: createMockRunOutcome(),
+      game_state: createMockGameState(),
+      names: { archetype: 'The Boundary Builder', tier: 'Survival' },
+    })
+    expect(payload).toMatchObject({ an: 'The Boundary Builder', tn: 'Survival' })
+  })
+
   it('omits name when display_name is not set', () => {
     const gameState = createMockGameState({
       player_profile: {
@@ -423,6 +432,16 @@ describe('decodeSharePayload — error handling', () => {
   it('rejects a community pack marker that is not two short strings', () => {
     for (const cp of [{ n: 'x' }, { n: '', p: 'y' }, { n: 'x'.repeat(161), p: 'y' }, ['x', 'y'], 'x']) {
       const payload = { ...createSamplePayload(), cp } as unknown as SharePayload
+      const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+      expect(decodeSharePayload(encoded).ok).toBe(false)
+    }
+  })
+
+  it('round-trips ending and tier names, and refuses long or empty ones', () => {
+    const ok = decodeSharePayload(encodeSharePayload(createSamplePayload({ an: 'The Toil Slayer', tn: 'Five Nines' })))
+    expect(ok.ok && [ok.payload.an, ok.payload.tn]).toEqual(['The Toil Slayer', 'Five Nines'])
+    for (const bad of [{ an: '' }, { tn: 'x'.repeat(81) }, { an: 3 }]) {
+      const payload = { ...createSamplePayload(), ...bad } as unknown as SharePayload
       const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
       expect(decodeSharePayload(encoded).ok).toBe(false)
     }
