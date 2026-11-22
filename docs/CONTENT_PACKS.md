@@ -1159,6 +1159,9 @@ Both looks share one rule: community content has a **stitched (dashed) border**,
 - **"Add a pack" became "Import a pack".** "Add" read as if the player would be *creating* a pack, which is the Pack Studio's job (M4+). "Import" says the pack exists elsewhere and is being brought in. The whole flow now uses the one verb: the dialog title, "Import this pack", "Don't import", "Importing…", the saved-run notices ("Import it again from its original link"), and the bazaar.
 
   Words in the UI are part of the ubiquitous language too: *import* (bring an existing pack in) and *create* (make one, in the Studio) are different actions and get different words.
+- **Importing is an action, not a pack.** In the first version "Import a pack" was a stall of its own and looked too much like the packs. It is now a plain button with a line of help *below* the stalls: no card, no stripes, nothing that could be mistaken for a pack.
+- **Stalls are centered:** fixed-width columns, centered as a group, so a single pack sits in the middle. The striped top edge is a little taller (6 px), so the rounded corners don't cut it off.
+- **Importing closes the dialog.** Most players import one pack and then play it, not a series of packs. After importing, the dialog closes, and the bazaar says "Imported “…”. Open it to play", linking to the pack's table. The new stall is highlighted (solid border instead of stitched). `confirm()` now returns what was imported (key, name, whether the browser keeps it), so the bazaar can point at it.
 
 **DDD note (talk material)**
 

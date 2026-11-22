@@ -169,7 +169,7 @@
     <template #footer>
       <template v-if="flow.phase.value === 'review'">
         <AppButton variant="secondary" @click="flow.cancel">Don't import</AppButton>
-        <AppButton variant="primary" @click="flow.confirm">Import this pack</AppButton>
+        <AppButton variant="primary" @click="importAndClose">Import this pack</AppButton>
       </template>
       <template v-else-if="flow.phase.value === 'adding'">
         <AppButton variant="primary" disabled>Importing…</AppButton>
@@ -195,7 +195,7 @@ import { computed, ref, watch } from 'vue'
 
 import AppButton from '@/ui/components/common/AppButton.vue'
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
-import { useCommunityPacks } from '@/ui/composables/use_community_packs'
+import { useCommunityPacks, type ImportedPack } from '@/ui/composables/use_community_packs'
 
 const props = defineProps<{
   isOpen: boolean
@@ -205,7 +205,7 @@ const props = defineProps<{
   inBazaar?: boolean
 }>()
 
-const emit = defineEmits<{ close: [] }>()
+const emit = defineEmits<{ close: []; imported: [pack: ImportedPack] }>()
 
 const flow = useCommunityPacks()
 const urlDraft = ref(props.initialUrl ?? '')
@@ -232,6 +232,18 @@ function loadFile(event: Event) {
   input.value = ''
   if (file && !busy.value) {
     void flow.loadFromFile(file)
+  }
+}
+
+/**
+ * Most players import one pack and then play it, so importing closes the
+ * dialog; the bazaar shows what was imported (journal M2.12).
+ */
+async function importAndClose() {
+  const imported = await flow.confirm()
+  if (imported) {
+    emit('imported', imported)
+    close()
   }
 }
 

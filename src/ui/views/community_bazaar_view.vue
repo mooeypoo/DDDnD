@@ -8,6 +8,7 @@
       :initialUrl="packLinkFromQuery"
       inBazaar
       @close="isAddOpen = false"
+      @imported="justImported = $event"
     />
 
     <header class="bazaar-mast">
@@ -39,6 +40,11 @@
         </template>
         Keep the links to packs you like somewhere of your own.
       </p>
+      <p v-if="justImported" class="bazaar-note imported-note" role="status">
+        Imported “{{ justImported.name }}”.
+        <RouterLink class="note-action" :to="packTableRoute(justImported.key)">Open it to play</RouterLink>
+        <template v-if="!justImported.kept"> This browser couldn't keep it, so it lasts until you close the page.</template>
+      </p>
       <p v-if="missingPackLink" class="bazaar-note" role="status">
         That pack isn't imported in this browser. Ask whoever shared it for the pack's link, then import it here.
       </p>
@@ -54,7 +60,7 @@
     </section>
 
     <section class="stalls" aria-label="Imported packs">
-      <article v-for="stall in stalls" :key="stall.key" class="stall">
+      <article v-for="stall in stalls" :key="stall.key" class="stall" :class="{ 'is-new': stall.key === justImported?.key }">
         <div class="stall-edge" aria-hidden="true" />
         <p class="stall-ribbon">External · not reviewed</p>
         <h2 class="stall-name">{{ stall.title }} <span class="stall-version">v{{ stall.version }}</span></h2>
@@ -77,17 +83,6 @@
         </div>
       </article>
 
-      <article class="stall add-stall">
-        <div class="stall-edge" aria-hidden="true" />
-        <h2 class="stall-name">Import a pack</h2>
-        <p class="stall-description">
-          From a GitHub link the pack's author gave you, or from a <code>.dddnd-pack.json</code> file.
-          You'll see what's in it, and where it comes from, before anything is imported.
-        </p>
-        <div class="stall-actions">
-          <button type="button" class="stall-btn primary" @click="isAddOpen = true">Import a pack</button>
-        </div>
-      </article>
     </section>
 
     <p v-if="stalls.length === 0" class="bazaar-empty">
@@ -95,6 +90,16 @@
       <button type="button" class="note-action" @click="openDemo">The Gilded Ledger</button>,
       to see how it works.
     </p>
+
+    <section class="import-slot" aria-label="Import a pack">
+      <button type="button" class="import-btn" @click="isAddOpen = true">
+        <span class="import-plus" aria-hidden="true">+</span> Import a pack
+      </button>
+      <p class="import-help">
+        From a GitHub link the pack's author gave you, or a <code>.dddnd-pack.json</code> file.
+        You'll see what's in it, and where it comes from, before anything is imported.
+      </p>
+    </section>
   </div>
 </template>
 
@@ -110,7 +115,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import CommunityPacksDialog from '@/ui/components/community/community_packs_dialog.vue'
 import { packTableRoute } from '@/ui/community/community_routes'
-import { useCommunityPacks } from '@/ui/composables/use_community_packs'
+import { useCommunityPacks, type ImportedPack } from '@/ui/composables/use_community_packs'
 import { useGameStore } from '@/ui/stores/game_store'
 
 const DEMO_PACK_URL = 'https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json'
@@ -127,6 +132,8 @@ const packLinkFromQuery = ref(typeof route.query.pack === 'string' ? route.query
 const isAddOpen = ref(Boolean(packLinkFromQuery.value))
 const missingPackLink = route.query.missing === '1'
 const pendingRemoval = ref<string | null>(null)
+/** The pack imported just now: named in a note and highlighted among the stalls. */
+const justImported = ref<ImportedPack | null>(null)
 
 function plural(count: number, one: string, many: string): string {
   return `${count} ${count === 1 ? one : many}`
@@ -155,6 +162,7 @@ function openDemo() {
 
 async function remove(packKey: string) {
   pendingRemoval.value = null
+  if (justImported.value?.key === packKey) justImported.value = null
   await flow.remove(packKey)
 }
 
@@ -295,9 +303,11 @@ onMounted(async () => {
   cursor: pointer;
 }
 
+/* Centered, also with a single pack: fixed-width columns, centered as a group. */
 .stalls {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 21rem));
+  justify-content: center;
   gap: 1.4rem;
   margin-top: 1.8rem;
 }
@@ -307,7 +317,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  padding: 1.1rem 1rem 1rem;
+  padding: 1.35rem 1rem 1rem;
   border: 1px dashed var(--bazaar-stitch);
   border-radius: 12px;
   background: var(--bazaar-panel);
@@ -320,7 +330,7 @@ onMounted(async () => {
   top: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 6px;
   background: repeating-linear-gradient(90deg, var(--bazaar-stripe-a) 0 12px, var(--bazaar-stripe-b) 12px 24px);
 }
 
@@ -400,12 +410,58 @@ onMounted(async () => {
   outline-offset: 2px;
 }
 
-.add-stall {
-  border-style: dotted;
+.stall.is-new {
+  border-style: solid;
+  border-color: var(--bazaar-accent);
+  box-shadow: 0 0 0 3px var(--bazaar-accent-soft);
 }
 
-.add-stall .stall-description {
-  display: block;
+/* Importing is an action, not a pack: no card, no stripes, so it never looks like a stall. */
+.import-slot {
+  position: relative;
+  z-index: 1;
+  max-width: 34rem;
+  margin: 2rem auto 0;
+  text-align: center;
+}
+
+.import-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--bazaar-accent);
+  background: var(--bazaar-accent-soft);
+  color: var(--bazaar-ink);
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.import-btn:hover {
+  background: rgba(108, 199, 187, 0.24);
+}
+
+.import-btn:focus-visible {
+  outline: 2px solid var(--bazaar-accent);
+  outline-offset: 3px;
+}
+
+.import-plus {
+  font-size: 1.2em;
+  line-height: 1;
+  color: var(--bazaar-accent);
+}
+
+.import-help {
+  margin: 0.6rem 0 0;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--bazaar-muted);
 }
 
 .bazaar-empty {

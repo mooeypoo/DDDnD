@@ -48,6 +48,13 @@ function readFileText(file: File): Promise<string> {
   })
 }
 
+/** A pack that was just imported: its key, its name, and whether this browser keeps it. */
+export interface ImportedPack {
+  key: string
+  name: string
+  kept: boolean
+}
+
 export interface CommunityPackDependencies {
   loadRemote?: typeof loadRemotePackSnapshot
   readBundle?: typeof readPackBundle
@@ -155,8 +162,9 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
     return review_(async () => readBundle(await readFileText(file), file.name))
   }
 
-  async function confirm() {
-    if (!candidate.value) return
+  /** Imports the pack under review. Returns what was imported, or null if it failed. */
+  async function confirm(): Promise<ImportedPack | null> {
+    if (!candidate.value) return null
     const snapshot = candidate.value
     phase.value = 'adding'
     try {
@@ -165,8 +173,10 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
       lastAdded.value = snapshot.manifest.name
       candidate.value = null
       phase.value = 'idle'
+      return { key: packKeyOf(snapshot), name: snapshot.manifest.name, kept: lastAddedKept.value }
     } catch (error) {
       showError('The pack couldn\'t be imported', [{ file: 'pack', message: error instanceof Error ? error.message : String(error) }])
+      return null
     }
   }
 
