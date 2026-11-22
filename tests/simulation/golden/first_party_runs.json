@@ -1,0 +1,6474 @@
+{
+  "monolith_of_mild_despair-v2 player_true": [
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 60,
+        "maintainability": 106,
+        "delivery_confidence": 15,
+        "team_morale": 33,
+        "user_trust": 70,
+        "budget": -12
+      },
+      "telemetry_sha256": "5bc59aa788bd57f3cc165bda628016f612319906b9f1bfd33f197c463b9296aa"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 43,
+        "maintainability": 51,
+        "delivery_confidence": 22,
+        "team_morale": -33,
+        "user_trust": 36,
+        "budget": 7
+      },
+      "telemetry_sha256": "94d7fc57aa268fa30fd694286b924333a1b51ac824cdc5742002657a9de93321"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 67,
+        "maintainability": 57,
+        "delivery_confidence": 43,
+        "team_morale": 66,
+        "user_trust": 56,
+        "budget": 34
+      },
+      "telemetry_sha256": "6d54add1f3d1d7e4f8c73e6b674907bd5fce42e7aeb77daf8cdcf0d4ef133640"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 97,
+        "maintainability": 117,
+        "delivery_confidence": 47,
+        "team_morale": 138,
+        "user_trust": 53,
+        "budget": 37
+      },
+      "telemetry_sha256": "d1513c2658c4e9a6063a3d0a55d8c3b48e1a5dfc5c661f389c2ead589384b2a6"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 63,
+        "maintainability": 87,
+        "delivery_confidence": 15,
+        "team_morale": 28,
+        "user_trust": 11,
+        "budget": 9
+      },
+      "telemetry_sha256": "32227825afa0281f6802b3f6425df4a67f2db7b9c69e40dfdbe7322b7c3e4f86"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 89,
+        "maintainability": 146,
+        "delivery_confidence": 88,
+        "team_morale": 160,
+        "user_trust": 87,
+        "budget": 83
+      },
+      "telemetry_sha256": "c4d855e21cf8f65c87836e86e1e3f8e1e52148982c5e957a51b6e0301bb0de6c"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 91,
+        "maintainability": 87,
+        "delivery_confidence": 86,
+        "team_morale": 177,
+        "user_trust": 103,
+        "budget": 93
+      },
+      "telemetry_sha256": "73dd3613a33a87bcb311d3a9daa83b0f419091f6bdf6c6e7d0e805d9dd711410"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 60,
+        "maintainability": 86,
+        "delivery_confidence": 60,
+        "team_morale": 58,
+        "user_trust": 103,
+        "budget": 31
+      },
+      "telemetry_sha256": "5d6bfe7b6f80982d653413e7c428e3f626cc152c0f5846dc83bc8b3e8ab6ec4f"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 72,
+        "maintainability": 108,
+        "delivery_confidence": 61,
+        "team_morale": 95,
+        "user_trust": 43,
+        "budget": 41
+      },
+      "telemetry_sha256": "dbb3714bede7a5fa1caf21cc7ead8532b2249d652d0b58a388030bd0fe15cec5"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 72,
+        "maintainability": 86,
+        "delivery_confidence": 32,
+        "team_morale": 62,
+        "user_trust": 17,
+        "budget": 32
+      },
+      "telemetry_sha256": "48d4e62d69a05e94e9f93ba735194f3dc746e8486ef5f40c757d652782e965dd"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 71,
+        "maintainability": 140,
+        "delivery_confidence": 47,
+        "team_morale": 96,
+        "user_trust": 58,
+        "budget": 24
+      },
+      "telemetry_sha256": "e1fc830015503aad5f06817785997dca959f25bc661918ec1c8d338dee4aa562"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 74,
+        "maintainability": 84,
+        "delivery_confidence": 28,
+        "team_morale": 72,
+        "user_trust": 73,
+        "budget": 23
+      },
+      "telemetry_sha256": "34a978f61329e133e6cc4cb6b341f452046c8719c8d3c05452ddb8cba54eb8cc"
+    }
+  ],
+  "monolith_of_mild_despair-v2 full_pool_oracle": [
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 46,
+        "maintainability": 104,
+        "delivery_confidence": 74,
+        "team_morale": 71,
+        "user_trust": 86,
+        "budget": 36
+      },
+      "telemetry_sha256": "16b1f30df7f3ea9bd5e822a6a7831030f8b7e4b0d98fefeafb7aca7f35af751e"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 48,
+        "maintainability": 64,
+        "delivery_confidence": -16,
+        "team_morale": -30,
+        "user_trust": 32,
+        "budget": 5
+      },
+      "telemetry_sha256": "cc155fd4e99fd2c7c0717ca1ed074a45d1d911c62d3d5090f40ae2ab98c9159a"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 67,
+        "maintainability": 69,
+        "delivery_confidence": 74,
+        "team_morale": 60,
+        "user_trust": 81,
+        "budget": 43
+      },
+      "telemetry_sha256": "e894d8c0153fbbd77641c86753faab8b7001775075c1698aa76bdf54e175271d"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 91,
+        "maintainability": 114,
+        "delivery_confidence": 46,
+        "team_morale": 132,
+        "user_trust": 50,
+        "budget": 36
+      },
+      "telemetry_sha256": "e8cf5fd86ed8769fecaacc11ea1a1b38a7c606f68fdc73c35fcb0a18527228b3"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 68,
+        "maintainability": 95,
+        "delivery_confidence": 23,
+        "team_morale": 29,
+        "user_trust": 24,
+        "budget": 0
+      },
+      "telemetry_sha256": "16eb8eebc62c0930fa922a7d1c5aae234f298a31d87497adc46a02a8713abd7d"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 95,
+        "maintainability": 115,
+        "delivery_confidence": 94,
+        "team_morale": 157,
+        "user_trust": 57,
+        "budget": 82
+      },
+      "telemetry_sha256": "f014cbacd299c0b65e57ef84f6f053d955c78f2d733fdd106a09d7120fb0b21e"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 83,
+        "maintainability": 63,
+        "delivery_confidence": 52,
+        "team_morale": 91,
+        "user_trust": 91,
+        "budget": 45
+      },
+      "telemetry_sha256": "8f92cba58b6dfa34b0438cc2909fd12b1f7b77f056bdb4e9d986e2996fbf1791"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 68,
+        "maintainability": 59,
+        "delivery_confidence": 53,
+        "team_morale": 92,
+        "user_trust": 117,
+        "budget": 43
+      },
+      "telemetry_sha256": "fa5c1b9dc9c54e1e115bbd706664faaa801b87760e5aa4df67f36306c1c980af"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_diplomat",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 43,
+        "maintainability": 54,
+        "delivery_confidence": 94,
+        "team_morale": 83,
+        "user_trust": 99,
+        "budget": 78
+      },
+      "telemetry_sha256": "1388fc94ee9e854996fae53d49fc6c22e3b378332c2cb3d965a5f3516959cc93"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 69,
+        "maintainability": 30,
+        "delivery_confidence": 53,
+        "team_morale": 53,
+        "user_trust": 44,
+        "budget": 26
+      },
+      "telemetry_sha256": "047a4a88d4bbd316d3424edc6b1f445a942cccb440640b3699512c9ba7d989ba"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 76,
+        "maintainability": 83,
+        "delivery_confidence": 45,
+        "team_morale": 121,
+        "user_trust": 87,
+        "budget": 54
+      },
+      "telemetry_sha256": "687a21ff5ddf9595fae358e765a9de9843cf7cae685b053c367db9c303191a54"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 66,
+        "maintainability": 99,
+        "delivery_confidence": 72,
+        "team_morale": 97,
+        "user_trust": 49,
+        "budget": 63
+      },
+      "telemetry_sha256": "6134493a1830ada1c2dfd3a26a44dac70f9aadb23f3cad514dcd2946324a4daa"
+    }
+  ],
+  "monolith_of_mild_despair-v2 player_true +domain_clarity +hard_mode": [
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 62,
+        "maintainability": 68,
+        "delivery_confidence": -5,
+        "team_morale": -19,
+        "user_trust": 63,
+        "budget": -35
+      },
+      "telemetry_sha256": "7f4dfeb01850fbe6f1593bdb051720c2e2ee9cb6037a7ef9e81beea51b1bad77"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 41,
+        "maintainability": 37,
+        "delivery_confidence": 10,
+        "team_morale": -72,
+        "user_trust": 27,
+        "budget": -12
+      },
+      "telemetry_sha256": "51429000574b240b2f0df6ea56bdb74726e7d69593105391b5ef5108f70323ce"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 58,
+        "maintainability": 32,
+        "delivery_confidence": 28,
+        "team_morale": -8,
+        "user_trust": 49,
+        "budget": 9
+      },
+      "telemetry_sha256": "a1836df76e9bb9c70ec00ed8917a8e8725d22b6444ed161465d0220654a996ad"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 96,
+        "maintainability": 105,
+        "delivery_confidence": 40,
+        "team_morale": 116,
+        "user_trust": 46,
+        "budget": 24
+      },
+      "telemetry_sha256": "f054ca14d06ae5ecbc6ea1da5ae22898f32f73794c87d0c47ed24d0b7fa36cdd"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 57,
+        "maintainability": 69,
+        "delivery_confidence": -12,
+        "team_morale": -22,
+        "user_trust": 0,
+        "budget": -15
+      },
+      "telemetry_sha256": "a8e7d46d6699ebc4eb849e37706964bb96e7682b773f5e1d55001360b2557e6f"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 81,
+        "maintainability": 119,
+        "delivery_confidence": 75,
+        "team_morale": 120,
+        "user_trust": 79,
+        "budget": 50
+      },
+      "telemetry_sha256": "a102690ca24a5f6676479f5e3b377be958008dfa595b74ef7f0aa6526e690b1e"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 94,
+        "maintainability": 78,
+        "delivery_confidence": 79,
+        "team_morale": 160,
+        "user_trust": 96,
+        "budget": 70
+      },
+      "telemetry_sha256": "3cced32c786f4fda370a92cc31ecf2063ebbb13ca2ab4fd6aa94ac3495d6d929"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "burnout_machine",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 53,
+        "maintainability": 62,
+        "delivery_confidence": 49,
+        "team_morale": 23,
+        "user_trust": 96,
+        "budget": 19
+      },
+      "telemetry_sha256": "14e732bfb655ea08ddd96c54d3a7d5a5ff7c1254a87a151255a03c0d61f9745d"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 73,
+        "maintainability": 103,
+        "delivery_confidence": 38,
+        "team_morale": 59,
+        "user_trust": 36,
+        "budget": -5
+      },
+      "telemetry_sha256": "729084a39e14d70aa0319ab5a90eaefed15041dd7c347b6155c7f9be5e554235"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 52,
+        "maintainability": 47,
+        "delivery_confidence": -10,
+        "team_morale": -17,
+        "user_trust": 8,
+        "budget": -12
+      },
+      "telemetry_sha256": "585fc5600b69a42ec6483a31f2ea661494193ad04e2c5139c342d80160a31c12"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 73,
+        "maintainability": 108,
+        "delivery_confidence": 37,
+        "team_morale": 61,
+        "user_trust": 49,
+        "budget": 7
+      },
+      "telemetry_sha256": "847c12c7f56b772fb9a7a099d80ba69e7af8c20f098a220b2ddda2578106f015"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 64,
+        "maintainability": 59,
+        "delivery_confidence": 16,
+        "team_morale": 22,
+        "user_trust": 73,
+        "budget": -11
+      },
+      "telemetry_sha256": "00572c0d555735a63aad1f44fd1537dfea1ae2df7c06784b980f1bacb07c733e"
+    }
+  ],
+  "microservice_sprawl-v2 player_true": [
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 74,
+        "maintainability": 111,
+        "delivery_confidence": 52,
+        "team_morale": 118,
+        "user_trust": 56,
+        "budget": 34
+      },
+      "telemetry_sha256": "b9bacf774fbbfc89b243cb63e654a8d595f0ff1788356391aaacf72ea43c9a62"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 82,
+        "maintainability": 89,
+        "delivery_confidence": 21,
+        "team_morale": 125,
+        "user_trust": 23,
+        "budget": 16
+      },
+      "telemetry_sha256": "c0e8bd065a715796027a671000a918b01acb9be19de55db5ac3ec185b9440937"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 79,
+        "maintainability": 102,
+        "delivery_confidence": 15,
+        "team_morale": 96,
+        "user_trust": 15,
+        "budget": 19
+      },
+      "telemetry_sha256": "62fafafed769456292cb3ea4c56ce60935853bc99553df2b5ffef2c4062f81f9"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 46,
+        "maintainability": 96,
+        "delivery_confidence": 37,
+        "team_morale": 70,
+        "user_trust": 21,
+        "budget": 22
+      },
+      "telemetry_sha256": "020cf9b65339bff2ffd3c54fb51699e3806e7e29ae691918545e0bf422cdfe53"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 72,
+        "maintainability": 136,
+        "delivery_confidence": 60,
+        "team_morale": 167,
+        "user_trust": 48,
+        "budget": 39
+      },
+      "telemetry_sha256": "db5dd313014410bf695295e691f7fb057955217074b9301d6fc1ae22b3f6888e"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 74,
+        "maintainability": 111,
+        "delivery_confidence": 65,
+        "team_morale": 94,
+        "user_trust": 25,
+        "budget": 29
+      },
+      "telemetry_sha256": "f9f722824dbb6fa2b6f64411dd97d480b8c3fb9e4c064c399e7ec72701755a4e"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 89,
+        "maintainability": 105,
+        "delivery_confidence": 86,
+        "team_morale": 167,
+        "user_trust": 100,
+        "budget": 72
+      },
+      "telemetry_sha256": "72f18bf65954109167b31ca9061a5eefec4e0114f4a61de4c8e7efd92269f91b"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 59,
+        "maintainability": 91,
+        "delivery_confidence": -15,
+        "team_morale": 76,
+        "user_trust": 6,
+        "budget": 4
+      },
+      "telemetry_sha256": "15c13e697d10e190a53128260a6e3a0cfc05febee0ab6181eae47cb58912d090"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 55,
+        "maintainability": 91,
+        "delivery_confidence": 63,
+        "team_morale": 118,
+        "user_trust": 58,
+        "budget": 30
+      },
+      "telemetry_sha256": "962f7e6edf7bb0984c3a9af12ffcc9d2a6995efa2820a59483bcf9c623d85231"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 60,
+        "maintainability": 125,
+        "delivery_confidence": 53,
+        "team_morale": 121,
+        "user_trust": 24,
+        "budget": 4
+      },
+      "telemetry_sha256": "30ad3f779e5c8f3f814c952e2b2e9af9ec29e3e9046c09d60fa70746ae6ba0f8"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 40,
+        "maintainability": 100,
+        "delivery_confidence": 14,
+        "team_morale": 43,
+        "user_trust": 52,
+        "budget": 7
+      },
+      "telemetry_sha256": "8d03563a4d2643f5d1dc885e1c60618640b27cc47188bda434cc2d30530bec56"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 90,
+        "maintainability": 120,
+        "delivery_confidence": 86,
+        "team_morale": 193,
+        "user_trust": 59,
+        "budget": 77
+      },
+      "telemetry_sha256": "f40c2a4da6360f7b4a30f3cb48fd9649528246f0a117148b01eccb63f8d3ad60"
+    }
+  ],
+  "microservice_sprawl-v2 full_pool_oracle": [
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 78,
+        "maintainability": 99,
+        "delivery_confidence": 58,
+        "team_morale": 125,
+        "user_trust": 55,
+        "budget": 33
+      },
+      "telemetry_sha256": "f56a26dc25ce3ffbabdd7db4e880c3960a024c01e3b53f72ab53bed108c32305"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 50,
+        "maintainability": 94,
+        "delivery_confidence": 12,
+        "team_morale": 68,
+        "user_trust": 37,
+        "budget": 3
+      },
+      "telemetry_sha256": "59ce4a5adb4e377620dcf08ce7de96b8de64f10a2dbddd4a917e226da0783812"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 76,
+        "maintainability": 80,
+        "delivery_confidence": 25,
+        "team_morale": 69,
+        "user_trust": 20,
+        "budget": 28
+      },
+      "telemetry_sha256": "db305c035d330338df9a24b6bf3de43ebadb811d4d1dec764a4e3308ca556483"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 57,
+        "maintainability": 61,
+        "delivery_confidence": 5,
+        "team_morale": 66,
+        "user_trust": 21,
+        "budget": 12
+      },
+      "telemetry_sha256": "87642248717cc83b41bc30e5b5a1a30120f51ff43863ec7c437749878e6b14d6"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 104,
+        "maintainability": 125,
+        "delivery_confidence": 45,
+        "team_morale": 149,
+        "user_trust": 27,
+        "budget": 38
+      },
+      "telemetry_sha256": "b17c874096b93011050b2a0b2a8d3aa40a84d5253ef74fb606ece3406137903a"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 82,
+        "maintainability": 148,
+        "delivery_confidence": 37,
+        "team_morale": 104,
+        "user_trust": 26,
+        "budget": 9
+      },
+      "telemetry_sha256": "fa30831267439030afdebf29c223945711e1eb0bb05faf190f64307dbcfdfc5f"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 109,
+        "maintainability": 86,
+        "delivery_confidence": 60,
+        "team_morale": 136,
+        "user_trust": 101,
+        "budget": 42
+      },
+      "telemetry_sha256": "00734cc4ccb01641bf62caf6e5bf862d26647f17c20ca0fde7667c8c87e03ea9"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 74,
+        "maintainability": 92,
+        "delivery_confidence": -8,
+        "team_morale": 61,
+        "user_trust": 10,
+        "budget": 12
+      },
+      "telemetry_sha256": "b94694ff7e4cf37ace0c2ce108385c3bf151ffaa72847e89b67e58d7f5e6d193"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 76,
+        "maintainability": 119,
+        "delivery_confidence": 56,
+        "team_morale": 124,
+        "user_trust": 58,
+        "budget": 18
+      },
+      "telemetry_sha256": "879d931b6ba8026353d31be6d1b344a7e98f38028e904c8ffbea328283b1d36f"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 64,
+        "maintainability": 109,
+        "delivery_confidence": 12,
+        "team_morale": 103,
+        "user_trust": 3,
+        "budget": 3
+      },
+      "telemetry_sha256": "41fac9cc285b7ce5595264bf0fdc4646fc6d7be28ee11dbb24f1605624c276cd"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 70,
+        "maintainability": 94,
+        "delivery_confidence": 28,
+        "team_morale": 112,
+        "user_trust": 51,
+        "budget": 14
+      },
+      "telemetry_sha256": "7fd6c65bd134875dd4981fa42a54076e25fba4cf25b2bd0e822fc1a1a78ed0b1"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 71,
+        "maintainability": 109,
+        "delivery_confidence": 114,
+        "team_morale": 185,
+        "user_trust": 65,
+        "budget": 65
+      },
+      "telemetry_sha256": "a0b1c9a881dc562788cfbe7c0e310dfea1ba70f08827f76952144b5190099780"
+    }
+  ],
+  "microservice_sprawl-v2 player_true +delivery_confidence +budget_crisis": [
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 88,
+        "maintainability": 126,
+        "delivery_confidence": 39,
+        "team_morale": 125,
+        "user_trust": 62,
+        "budget": 15
+      },
+      "telemetry_sha256": "f7147ce60fe800b4e1ac58f4080c83f56fa58a15990dbea12a22bd25b134cc8a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 71,
+        "maintainability": 75,
+        "delivery_confidence": 23,
+        "team_morale": 77,
+        "user_trust": 23,
+        "budget": -6
+      },
+      "telemetry_sha256": "5f672ab9f3fa9a3bd3c988b64e5aca722150da74af2beffefbae45a9c0f8907b"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 69,
+        "maintainability": 44,
+        "delivery_confidence": 27,
+        "team_morale": 7,
+        "user_trust": 19,
+        "budget": 9
+      },
+      "telemetry_sha256": "6c4c1d0aeec1eaac983a80660fb7f30534ab314fa2b8db52916353f75659f552"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 42,
+        "maintainability": 80,
+        "delivery_confidence": 27,
+        "team_morale": 36,
+        "user_trust": 21,
+        "budget": 0
+      },
+      "telemetry_sha256": "050de206c219f52dc49b005dbf0ed4b1d2929f0eb138670d634b71d0ce37cc09"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 61,
+        "maintainability": 110,
+        "delivery_confidence": 75,
+        "team_morale": 146,
+        "user_trust": 43,
+        "budget": 28
+      },
+      "telemetry_sha256": "d094e766a972c10916b17629e13d74d9ff70dd3ef9b1370705fd4ca504215f46"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 68,
+        "maintainability": 134,
+        "delivery_confidence": 77,
+        "team_morale": 124,
+        "user_trust": 43,
+        "budget": 14
+      },
+      "telemetry_sha256": "e352a2f7267c7090359a080f8e14562807b27fdafc99023d34cc58e6b5be6b0e"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 88,
+        "maintainability": 126,
+        "delivery_confidence": 93,
+        "team_morale": 196,
+        "user_trust": 112,
+        "budget": 55
+      },
+      "telemetry_sha256": "7d33766aa2e16107ab088b1da9fdb1187f2fdbc8284a992db28faba2b63a77c1"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 46,
+        "maintainability": 44,
+        "delivery_confidence": 22,
+        "team_morale": 21,
+        "user_trust": 23,
+        "budget": -2
+      },
+      "telemetry_sha256": "67e9ecc1870ed5d327a57c9b6be85f791360accaee121dec27b494938317ff0a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 41,
+        "maintainability": 87,
+        "delivery_confidence": 67,
+        "team_morale": 93,
+        "user_trust": 58,
+        "budget": 12
+      },
+      "telemetry_sha256": "0e9784ca5ee490eb7de41ca5c52bb54e8f82aa348d67aee6e9ea3b18c3b33fed"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 61,
+        "maintainability": 98,
+        "delivery_confidence": 64,
+        "team_morale": 129,
+        "user_trust": 24,
+        "budget": -5
+      },
+      "telemetry_sha256": "07fcc0de4da6a49893c6e4344cee95ff2dac7ce42bdd14435567ccba5c308435"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 46,
+        "maintainability": 72,
+        "delivery_confidence": 16,
+        "team_morale": 56,
+        "user_trust": 54,
+        "budget": -10
+      },
+      "telemetry_sha256": "197f8cfe17a6ce7d26d771c4553ae284140cb48333a30d400173cbb6a06de477"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 9,
+      "final_scores": {
+        "domain_clarity": 90,
+        "maintainability": 114,
+        "delivery_confidence": 90,
+        "team_morale": 186,
+        "user_trust": 59,
+        "budget": 57
+      },
+      "telemetry_sha256": "071f4dfdf8f3110b4c1e9c3721d690eb74e55a0606e418b79504fcdc317d2df4"
+    }
+  ],
+  "compliance_gauntlet-v2 player_true": [
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 115,
+        "maintainability": 83,
+        "delivery_confidence": 46,
+        "team_morale": 73,
+        "user_trust": 136,
+        "budget": 29
+      },
+      "telemetry_sha256": "477baedda1b72c738614f08c5ac838aefb81fdbdc9d36c3030687ac3e2b89ee9"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 92,
+        "maintainability": 75,
+        "delivery_confidence": 36,
+        "team_morale": 37,
+        "user_trust": 92,
+        "budget": 14
+      },
+      "telemetry_sha256": "2306e0733ca73df01e33e80dfe79114ebd7ddebb364f6c0e1a9023a84298c1fc"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 137,
+        "maintainability": 91,
+        "delivery_confidence": 119,
+        "team_morale": 177,
+        "user_trust": 156,
+        "budget": 78
+      },
+      "telemetry_sha256": "1f27f0c6eab31851fd75aafd0fff21bcf06cfc117b5dda51aabcb7edd9f559b1"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 61,
+        "maintainability": 98,
+        "delivery_confidence": 77,
+        "team_morale": 48,
+        "user_trust": 109,
+        "budget": 30
+      },
+      "telemetry_sha256": "8b89e1bc71b83759d702dc004b354603db31d47cf3869ebb155e558abd38db61"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 96,
+        "maintainability": 62,
+        "delivery_confidence": 21,
+        "team_morale": -42,
+        "user_trust": 79,
+        "budget": -22
+      },
+      "telemetry_sha256": "59330002233fd114b5270a90e7e15ed74ac52a0bd4af010a31571e9d80b25de9"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 97,
+        "maintainability": 121,
+        "delivery_confidence": 100,
+        "team_morale": 126,
+        "user_trust": 145,
+        "budget": 53
+      },
+      "telemetry_sha256": "6be7bf4a75eac2604e2127e163aeb810bee9b944b9225e007e739125b74dc0a6"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 117,
+        "maintainability": 110,
+        "delivery_confidence": 93,
+        "team_morale": 150,
+        "user_trust": 194,
+        "budget": 85
+      },
+      "telemetry_sha256": "0c8fceb3d2c36f59311953f27eeedb561a172bdd1dd88ad7ed431dda5a845cc3"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 74,
+        "maintainability": 94,
+        "delivery_confidence": 113,
+        "team_morale": 134,
+        "user_trust": 141,
+        "budget": 107
+      },
+      "telemetry_sha256": "1f7ddbbf45d1aaebd655627f96ef0b49cae300addd10329fe0122b9251fda540"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "burnout_machine",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 67,
+        "maintainability": 64,
+        "delivery_confidence": 45,
+        "team_morale": -15,
+        "user_trust": 100,
+        "budget": -9
+      },
+      "telemetry_sha256": "9229b30a5e9b19ded4eb59c40671c511d7be76a99fb2fa7e14c37972b54f97a2"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 75,
+        "maintainability": 52,
+        "delivery_confidence": 17,
+        "team_morale": -54,
+        "user_trust": 79,
+        "budget": -8
+      },
+      "telemetry_sha256": "8f85c24086ed62cf7cdc6d3b1c9118aa4aafa31b598ecb2e84ef9c143d5459ab"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 74,
+        "maintainability": 78,
+        "delivery_confidence": 110,
+        "team_morale": 133,
+        "user_trust": 111,
+        "budget": 69
+      },
+      "telemetry_sha256": "5a48691caf9866656c7b0f46e7e1bc2ba87e9743e6d553ad914093972af8bb26"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 99,
+        "maintainability": 97,
+        "delivery_confidence": 71,
+        "team_morale": 137,
+        "user_trust": 85,
+        "budget": 60
+      },
+      "telemetry_sha256": "4b3314f50a759aeaf78c40c04d3251e2eb6dd82709658bd8219f2e224b9bcad2"
+    }
+  ],
+  "compliance_gauntlet-v2 full_pool_oracle": [
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 85,
+        "maintainability": 88,
+        "delivery_confidence": 85,
+        "team_morale": 76,
+        "user_trust": 140,
+        "budget": 62
+      },
+      "telemetry_sha256": "4cdf931608bad9981a001e85d39249f03c8081e1076c49597f0cadd79e34320a"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 82,
+        "maintainability": 28,
+        "delivery_confidence": 39,
+        "team_morale": -54,
+        "user_trust": 97,
+        "budget": -9
+      },
+      "telemetry_sha256": "b0a396b0eea900299ee6ae7735b9fe7d44f59c4a14fa8e5380320451272036a1"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 106,
+        "maintainability": 23,
+        "delivery_confidence": 34,
+        "team_morale": -67,
+        "user_trust": 103,
+        "budget": 22
+      },
+      "telemetry_sha256": "e99832e79abcadb00489d62a7d7a2de2222dcc59d46b469a45ca7489484fa83c"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 66,
+        "maintainability": 63,
+        "delivery_confidence": 69,
+        "team_morale": 30,
+        "user_trust": 114,
+        "budget": 28
+      },
+      "telemetry_sha256": "56a6177c22014e3d4eff441b1a62f717f74614e089464ecc3bf2ef2401e1767c"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 136,
+        "maintainability": 69,
+        "delivery_confidence": 85,
+        "team_morale": 51,
+        "user_trust": 109,
+        "budget": 56
+      },
+      "telemetry_sha256": "98706f10c23fdc43c789b29e498a6253b1612e21473a768f05f115337ea5fdc6"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 85,
+        "maintainability": 75,
+        "delivery_confidence": 76,
+        "team_morale": 69,
+        "user_trust": 123,
+        "budget": 29
+      },
+      "telemetry_sha256": "484bd8212ce3af3adac4055317a6864d53639225078e4c0e17e79eebe2815758"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 89,
+        "maintainability": 116,
+        "delivery_confidence": 109,
+        "team_morale": 165,
+        "user_trust": 210,
+        "budget": 91
+      },
+      "telemetry_sha256": "fd35f8766f290295d8a2d1e4b5733e3197ee18969e9379690ce2031f69b29d14"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "burnout_machine",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 90,
+        "maintainability": 49,
+        "delivery_confidence": 77,
+        "team_morale": -12,
+        "user_trust": 147,
+        "budget": 74
+      },
+      "telemetry_sha256": "ed158ff9ae4e329ea21472beb04407cde3dfdbe5d6f2faff4347e2ee64cbbad2"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 73,
+        "maintainability": 62,
+        "delivery_confidence": 31,
+        "team_morale": -35,
+        "user_trust": 102,
+        "budget": -24
+      },
+      "telemetry_sha256": "42307949112d9e79014132b3d98a90b6faa1a93f3866b03abd1cf1bfd63b0880"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 88,
+        "maintainability": 124,
+        "delivery_confidence": 93,
+        "team_morale": 79,
+        "user_trust": 95,
+        "budget": 51
+      },
+      "telemetry_sha256": "2adc68bbb45598366c493f8505198041b903298ba46410663808658acde02b27"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 105,
+        "maintainability": 118,
+        "delivery_confidence": 124,
+        "team_morale": 162,
+        "user_trust": 138,
+        "budget": 87
+      },
+      "telemetry_sha256": "34905522fb24d25608c5d7a446bf5e8fe330e4544a1501bfc7201ea257699d26"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 115,
+        "maintainability": 77,
+        "delivery_confidence": 77,
+        "team_morale": 104,
+        "user_trust": 85,
+        "budget": 41
+      },
+      "telemetry_sha256": "727fb35333bf058d225309aab00abc62ab58bd050ed34cd4e585b406772fd0d4"
+    }
+  ],
+  "compliance_gauntlet-v2 player_true +maintainability +stakeholder_revolt": [
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 102,
+        "maintainability": 88,
+        "delivery_confidence": 34,
+        "team_morale": 33,
+        "user_trust": 136,
+        "budget": 6
+      },
+      "telemetry_sha256": "a20af1ea1a5210faeb2ba6af06c57d528e6e02b64b6d30c26bbecc7ce031365f"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 80,
+        "maintainability": 76,
+        "delivery_confidence": 28,
+        "team_morale": -23,
+        "user_trust": 89,
+        "budget": -16
+      },
+      "telemetry_sha256": "65f337b5a51d50bbbd150636032853cbbb514b608fb9e8e22ecd1d620d3e132c"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 137,
+        "maintainability": 102,
+        "delivery_confidence": 115,
+        "team_morale": 169,
+        "user_trust": 152,
+        "budget": 71
+      },
+      "telemetry_sha256": "95047b6c796f8cfa2511b141c268f37f3520039d85bfe5abb32bd4ceca431267"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 79,
+        "maintainability": 114,
+        "delivery_confidence": 76,
+        "team_morale": 71,
+        "user_trust": 115,
+        "budget": 42
+      },
+      "telemetry_sha256": "a113a07dc76d6483a7137040c4bef62ee48a7be2d8e5a46f98bd700fd1d75c7a"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 92,
+        "maintainability": 71,
+        "delivery_confidence": 16,
+        "team_morale": -44,
+        "user_trust": 79,
+        "budget": -22
+      },
+      "telemetry_sha256": "f0133ab7c8e749fc04a3cce27ccb12381b860b3dbbae1797e93b1d4ad43df954"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 95,
+        "maintainability": 124,
+        "delivery_confidence": 114,
+        "team_morale": 124,
+        "user_trust": 154,
+        "budget": 66
+      },
+      "telemetry_sha256": "2707f369ca6c3f9e4422119a38fd00e75f327315a82d5d752366081a80b15861"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 89,
+        "maintainability": 76,
+        "delivery_confidence": 39,
+        "team_morale": -19,
+        "user_trust": 158,
+        "budget": 3
+      },
+      "telemetry_sha256": "19d83b6473cd7174e41f1dd91a18e7581d930d9248e1d9025cc40f3d74fc192e"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "burnout_machine",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 63,
+        "maintainability": 56,
+        "delivery_confidence": 51,
+        "team_morale": -40,
+        "user_trust": 152,
+        "budget": 39
+      },
+      "telemetry_sha256": "1e6302f0b25afe12235b4b401b9be68e133b36a16915f76c33ad6664ee185d94"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 69,
+        "maintainability": 76,
+        "delivery_confidence": 42,
+        "team_morale": -26,
+        "user_trust": 74,
+        "budget": -20
+      },
+      "telemetry_sha256": "6459980c5ffe48c9221402a82be20b9931fafbc380c9d57d0d491803c7054572"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 73,
+        "maintainability": 61,
+        "delivery_confidence": 11,
+        "team_morale": -61,
+        "user_trust": 79,
+        "budget": -8
+      },
+      "telemetry_sha256": "9dff9012df12c221ff8e57e53c22ea1a38c54fbd0e177697cc4a2c2ac59251d0"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "burnout_machine",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 57,
+        "maintainability": 72,
+        "delivery_confidence": 51,
+        "team_morale": 10,
+        "user_trust": 63,
+        "budget": 19
+      },
+      "telemetry_sha256": "bda7489e97bb2d07a17f3f5764f6fb667ca7c99749c1893eecb80c00631757a0"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 12,
+      "final_scores": {
+        "domain_clarity": 99,
+        "maintainability": 109,
+        "delivery_confidence": 70,
+        "team_morale": 128,
+        "user_trust": 85,
+        "budget": 53
+      },
+      "telemetry_sha256": "901a5b090e2f321fc632cc01701a866665f5d99794b7ae929c5590f7c1d443c4"
+    }
+  ],
+  "startup_hypergrowth-v1 player_true": [
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 72,
+        "maintainability": 103,
+        "delivery_confidence": 64,
+        "team_morale": 127,
+        "user_trust": 74,
+        "budget": 50
+      },
+      "telemetry_sha256": "124c30b46502e764fdb3618f33394c95f1dd84ad605be767b4a1517bb2ff6ff6"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 60,
+        "maintainability": 58,
+        "delivery_confidence": 74,
+        "team_morale": 41,
+        "user_trust": 62,
+        "budget": 69
+      },
+      "telemetry_sha256": "727b7191c554c971df447879aa0f8db3dacc83baab5c6a284ac080128932e339"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 93,
+        "maintainability": 149,
+        "delivery_confidence": 65,
+        "team_morale": 186,
+        "user_trust": 57,
+        "budget": 89
+      },
+      "telemetry_sha256": "0d6d74e65be0f2050bdf25384020a19f53f1049ff474dfc523767eae87b2e398"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 76,
+        "maintainability": 142,
+        "delivery_confidence": 94,
+        "team_morale": 146,
+        "user_trust": 77,
+        "budget": 118
+      },
+      "telemetry_sha256": "7897ee48babd3ae762f04ece3f639ef35b08d9c8dc0527ded86ece065ccb51ff"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 86,
+        "maintainability": 115,
+        "delivery_confidence": 52,
+        "team_morale": 133,
+        "user_trust": 55,
+        "budget": 70
+      },
+      "telemetry_sha256": "5a75caf07bca0fdd6e75dfbe671a308f6fffb4adb56627948c4e558d303ca8e7"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 52,
+        "maintainability": 35,
+        "delivery_confidence": -2,
+        "team_morale": -34,
+        "user_trust": 64,
+        "budget": -5
+      },
+      "telemetry_sha256": "fea2f07fbccee0326d9abebc236bf6fb763021216d77142daa887d9798ca9564"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 65,
+        "maintainability": 62,
+        "delivery_confidence": 79,
+        "team_morale": 130,
+        "user_trust": 111,
+        "budget": 110
+      },
+      "telemetry_sha256": "2eeea3ad6e7fda751f0f81db0796e3fbd331f8fab06fb3d8542fb6f8a63afc38"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 79,
+        "maintainability": 120,
+        "delivery_confidence": 94,
+        "team_morale": 172,
+        "user_trust": 100,
+        "budget": 134
+      },
+      "telemetry_sha256": "f1d7c585719edbfb7b0f918145a337a064fd4d4d0fdb57efde348010731531c7"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 59,
+        "maintainability": 80,
+        "delivery_confidence": 6,
+        "team_morale": 7,
+        "user_trust": 35,
+        "budget": -10
+      },
+      "telemetry_sha256": "ffb75733f7747b506ee89692542a14216fb4a9c256c8402e2be0a08d582fcd1e"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 66,
+        "maintainability": 83,
+        "delivery_confidence": 49,
+        "team_morale": 62,
+        "user_trust": 99,
+        "budget": 20
+      },
+      "telemetry_sha256": "bac9e5add90cc7bffa022ab68499579bf63c4887067f793da54ea3542100782d"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 65,
+        "maintainability": 84,
+        "delivery_confidence": 46,
+        "team_morale": 35,
+        "user_trust": 62,
+        "budget": 20
+      },
+      "telemetry_sha256": "5e27a9cec010606a55d4208293b266eb2c0b76564009e32bacba5c3d8d239f42"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 70,
+        "maintainability": 68,
+        "delivery_confidence": 64,
+        "team_morale": 109,
+        "user_trust": 54,
+        "budget": 72
+      },
+      "telemetry_sha256": "7e3b66ffccf61d518d77735b0195309617e4fe7bdce481808cc2f00a14ddf33c"
+    }
+  ],
+  "startup_hypergrowth-v1 full_pool_oracle": [
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 63,
+        "maintainability": 78,
+        "delivery_confidence": 78,
+        "team_morale": 145,
+        "user_trust": 62,
+        "budget": 97
+      },
+      "telemetry_sha256": "6e2fb4592934a3baeaa73e03cb50cd3ce1f3846c4d5024958df3e6c82dbaead8"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_diplomat",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 42,
+        "maintainability": 57,
+        "delivery_confidence": 76,
+        "team_morale": 44,
+        "user_trust": 69,
+        "budget": 73
+      },
+      "telemetry_sha256": "e03dc44d8bd0643890bd3f902ed67dcd60bfa353f8e3fa95ef8bf298a779cd52"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 104,
+        "maintainability": 121,
+        "delivery_confidence": 51,
+        "team_morale": 169,
+        "user_trust": 52,
+        "budget": 59
+      },
+      "telemetry_sha256": "627d26fea375c710e1d79912ed49bf696654d9af1823c262a229fa3f9acf99c4"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 66,
+        "maintainability": 77,
+        "delivery_confidence": 108,
+        "team_morale": 171,
+        "user_trust": 75,
+        "budget": 116
+      },
+      "telemetry_sha256": "5976321e5d6640b9353c03d93f64232737c4464f1659afafceba552ba4780959"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 101,
+        "maintainability": 98,
+        "delivery_confidence": 64,
+        "team_morale": 155,
+        "user_trust": 34,
+        "budget": 88
+      },
+      "telemetry_sha256": "d1c33b9804da34a1124c5e3e4306731cd4e238ea1a463793fb49114ece28d91f"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_diplomat",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 52,
+        "maintainability": 51,
+        "delivery_confidence": 79,
+        "team_morale": 43,
+        "user_trust": 92,
+        "budget": 69
+      },
+      "telemetry_sha256": "353889a93539e0e3f0bb459bffc0e155ca5b1d2b6516891e97ecb4f5fbdcf125"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_diplomat",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 59,
+        "maintainability": 36,
+        "delivery_confidence": 82,
+        "team_morale": 73,
+        "user_trust": 93,
+        "budget": 112
+      },
+      "telemetry_sha256": "410fc58d179471617657b983295965aa44ef91c0a7ec7c636e0ef313358cb340"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 83,
+        "maintainability": 122,
+        "delivery_confidence": 95,
+        "team_morale": 170,
+        "user_trust": 100,
+        "budget": 156
+      },
+      "telemetry_sha256": "84f07da0035da381a688a05d11fc7cef505700940f5f6308a0ae7533d08a5c49"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 71,
+        "maintainability": 69,
+        "delivery_confidence": 51,
+        "team_morale": 63,
+        "user_trust": 84,
+        "budget": 10
+      },
+      "telemetry_sha256": "0ae3b55672a4abab817ceac029f1931aa184edeb22e91ef0e5d978f45e8fc4f8"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "struggle",
+      "ending": "runaway_refactorer",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 58,
+        "maintainability": 29,
+        "delivery_confidence": 23,
+        "team_morale": 19,
+        "user_trust": 68,
+        "budget": -4
+      },
+      "telemetry_sha256": "77ade54b06d44e6cf5bb68ec2b4f488783466a50db6348e4e7328c57ea90e0f8"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 72,
+        "maintainability": 67,
+        "delivery_confidence": 86,
+        "team_morale": 146,
+        "user_trust": 67,
+        "budget": 102
+      },
+      "telemetry_sha256": "d5a5baa4564987a721185f274eac620bd6f04255965b5fd8e162977a04548533"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 77,
+        "maintainability": 91,
+        "delivery_confidence": 58,
+        "team_morale": 104,
+        "user_trust": 57,
+        "budget": 50
+      },
+      "telemetry_sha256": "013c18dcb3962594a1dba52b83372f92816e7b5a890b70acae08b72f37c0cf66"
+    }
+  ],
+  "startup_hypergrowth-v1 player_true +user_trust +speed_run": [
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 69,
+        "maintainability": 81,
+        "delivery_confidence": 56,
+        "team_morale": 108,
+        "user_trust": 59,
+        "budget": 53
+      },
+      "telemetry_sha256": "e9451411564152490dadea2bc3fca26c30004ca384c4d8e3d76b5dcf88801a0a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "burnout_machine",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 49,
+        "maintainability": 54,
+        "delivery_confidence": 64,
+        "team_morale": 25,
+        "user_trust": 60,
+        "budget": 63
+      },
+      "telemetry_sha256": "b570ee4a452be53c7c96c767c226a259849b18e11c8abe4922df1fe38208e48d"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 89,
+        "maintainability": 135,
+        "delivery_confidence": 61,
+        "team_morale": 168,
+        "user_trust": 53,
+        "budget": 72
+      },
+      "telemetry_sha256": "1b01b5382741bb09cac749bbaec11863f8cf86907087dee3bef16633023680db"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 71,
+        "maintainability": 126,
+        "delivery_confidence": 98,
+        "team_morale": 119,
+        "user_trust": 81,
+        "budget": 90
+      },
+      "telemetry_sha256": "af190d2b8125936a8ed3d4d022a3a7523b95028e9e6a6cd7919af5fbec3c64c2"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 81,
+        "maintainability": 97,
+        "delivery_confidence": 48,
+        "team_morale": 121,
+        "user_trust": 50,
+        "budget": 54
+      },
+      "telemetry_sha256": "4b10f879ace7ede0a4e4c7019aa8119382e06515585a4e86d40613615a655d3d"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 56,
+        "maintainability": 47,
+        "delivery_confidence": 30,
+        "team_morale": 10,
+        "user_trust": 65,
+        "budget": 24
+      },
+      "telemetry_sha256": "5a80f815aa088567415de70d5d18af91f665454d600f7746d1628103b7fdf638"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 58,
+        "maintainability": 49,
+        "delivery_confidence": 73,
+        "team_morale": 95,
+        "user_trust": 99,
+        "budget": 89
+      },
+      "telemetry_sha256": "56abd93025e7c6b4672a2751a1804c6df0d82124043ef098614fbaae72186de8"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 68,
+        "maintainability": 103,
+        "delivery_confidence": 97,
+        "team_morale": 148,
+        "user_trust": 106,
+        "budget": 115
+      },
+      "telemetry_sha256": "7df4ace6fadb28c2b3e6f1469919930a7220fd9ce4272149f363ec15e1cd8f80"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 59,
+        "maintainability": 76,
+        "delivery_confidence": 10,
+        "team_morale": 13,
+        "user_trust": 43,
+        "budget": 12
+      },
+      "telemetry_sha256": "90f1e82ba87ef62869314479b4cf9231bf0e209560317b08f69c5b09995537a6"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 59,
+        "maintainability": 70,
+        "delivery_confidence": 37,
+        "team_morale": 54,
+        "user_trust": 86,
+        "budget": 14
+      },
+      "telemetry_sha256": "43407ae01724e65150e12e9c43884f6849ebfdf377a6157fbf4582874acdd00f"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "burnout_machine",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 52,
+        "maintainability": 71,
+        "delivery_confidence": 45,
+        "team_morale": 13,
+        "user_trust": 75,
+        "budget": 27
+      },
+      "telemetry_sha256": "2ffb526473b876eac3d4c340fdab32127a4d3bb019a84ed7b5c9b30d7922718f"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 8,
+      "final_scores": {
+        "domain_clarity": 69,
+        "maintainability": 47,
+        "delivery_confidence": 66,
+        "team_morale": 86,
+        "user_trust": 60,
+        "budget": 54
+      },
+      "telemetry_sha256": "c8d0b126c9918f2b987a152516daaf20ff5b6c921b84193a36f8239ed65c2313"
+    }
+  ],
+  "merger_of_minor_chaos-v2 player_true": [
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 79,
+        "maintainability": 59,
+        "delivery_confidence": 47,
+        "team_morale": 69,
+        "user_trust": 71,
+        "budget": 42
+      },
+      "telemetry_sha256": "2bf8dea248df1ca18b4d81aedf2686206f254203d9021b402ecdff5c66021fbd"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 76,
+        "maintainability": 48,
+        "delivery_confidence": 53,
+        "team_morale": 51,
+        "user_trust": 58,
+        "budget": 27
+      },
+      "telemetry_sha256": "cdd75f48e0ab6bbf7d98f62bbc5a90cdda29aaffc2b55a1c10426b90d739511d"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 95,
+        "maintainability": 72,
+        "delivery_confidence": 56,
+        "team_morale": 84,
+        "user_trust": 56,
+        "budget": 38
+      },
+      "telemetry_sha256": "7b61686be23794d5f1fc3f8c053e75c76a6d65bc2ec424d4f0d6d9ad1c288380"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 84,
+        "maintainability": 133,
+        "delivery_confidence": 109,
+        "team_morale": 215,
+        "user_trust": 66,
+        "budget": 86
+      },
+      "telemetry_sha256": "5d19df9967d67b4a5210eb2641b96f735bde2c3e136ba3c4aff850711abe9e2f"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 88,
+        "maintainability": 106,
+        "delivery_confidence": 72,
+        "team_morale": 135,
+        "user_trust": 56,
+        "budget": 52
+      },
+      "telemetry_sha256": "c3ce005d8b712fc20cf770bb6e33dbb0cd8034a1b76e020ba473890fea37fcb3"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 77,
+        "maintainability": 104,
+        "delivery_confidence": 89,
+        "team_morale": 177,
+        "user_trust": 60,
+        "budget": 90
+      },
+      "telemetry_sha256": "a816d193bc29dcccd3e587d02d06765242798eb28cc02f65cda0dd9e18685618"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 101,
+        "maintainability": 69,
+        "delivery_confidence": 64,
+        "team_morale": 129,
+        "user_trust": 52,
+        "budget": 60
+      },
+      "telemetry_sha256": "e2e860bdfe151a0e80ddbcbad076d48e934194748f2a2a0b695467b1a6ae45f3"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 72,
+        "maintainability": 65,
+        "delivery_confidence": 105,
+        "team_morale": 125,
+        "user_trust": 79,
+        "budget": 82
+      },
+      "telemetry_sha256": "f943eaf6e78dbd32e770b4a7a0fb41ef24caa521d7ccb67d647426e871cf6924"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 55,
+        "maintainability": 64,
+        "delivery_confidence": 53,
+        "team_morale": 42,
+        "user_trust": 58,
+        "budget": -5
+      },
+      "telemetry_sha256": "2faeaaf88e1c37a2e6471c2545fff40cd829105a0d9c9cda871b1efc485129f0"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 75,
+        "maintainability": 58,
+        "delivery_confidence": 23,
+        "team_morale": 50,
+        "user_trust": 55,
+        "budget": 9
+      },
+      "telemetry_sha256": "4c28b6a4fe8bc57fcda5c2b43d287e10f1114723c1e3a32673ce54f6bdeb3b64"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 55,
+        "maintainability": 57,
+        "delivery_confidence": 45,
+        "team_morale": -3,
+        "user_trust": 46,
+        "budget": -32
+      },
+      "telemetry_sha256": "5498d2e361b8edd52dbca372dd8629f22c02449c82a371c55fed286b348eed9e"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 33,
+        "maintainability": 24,
+        "delivery_confidence": 49,
+        "team_morale": -39,
+        "user_trust": 43,
+        "budget": 10
+      },
+      "telemetry_sha256": "497c14404d0103849c02aad6f599643855a12ff711fdb68d3b56fbb01bab0dbc"
+    }
+  ],
+  "merger_of_minor_chaos-v2 full_pool_oracle": [
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 78,
+        "maintainability": 76,
+        "delivery_confidence": 86,
+        "team_morale": 138,
+        "user_trust": 100,
+        "budget": 90
+      },
+      "telemetry_sha256": "54fad29aaa15b721ad5e8511361871e951f1841c38ae10ac21ef9a63f6934c7e"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 42,
+        "maintainability": 54,
+        "delivery_confidence": 44,
+        "team_morale": -16,
+        "user_trust": 52,
+        "budget": 0
+      },
+      "telemetry_sha256": "42816347e061edf38f0b643b6a9f7812b1c88ba04a68a07472dfaaed995c32eb"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 81,
+        "maintainability": 33,
+        "delivery_confidence": 18,
+        "team_morale": -4,
+        "user_trust": 60,
+        "budget": 18
+      },
+      "telemetry_sha256": "8a9bab1d7e0d6b71bfb729dd3fc02794f4adcb9686333fb2f9519e54cc828128"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 99,
+        "maintainability": 77,
+        "delivery_confidence": 99,
+        "team_morale": 195,
+        "user_trust": 72,
+        "budget": 101
+      },
+      "telemetry_sha256": "e05f2616db180ab10c5fce13d2d0023345c9d5e1b2317d13f3c67f3f5d0b7d1c"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 99,
+        "maintainability": 102,
+        "delivery_confidence": 83,
+        "team_morale": 149,
+        "user_trust": 53,
+        "budget": 81
+      },
+      "telemetry_sha256": "63cda7eafed84e1b92e57729fe34b7d340789f7e498833237f4274616c137ded"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 72,
+        "maintainability": 118,
+        "delivery_confidence": 75,
+        "team_morale": 158,
+        "user_trust": 56,
+        "budget": 83
+      },
+      "telemetry_sha256": "b97c0a3ac1cd30c4a26fc25cb2f8b07063cebf5efaa1e2f10d0da90c944cfd48"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 76,
+        "maintainability": 121,
+        "delivery_confidence": 89,
+        "team_morale": 126,
+        "user_trust": 58,
+        "budget": 62
+      },
+      "telemetry_sha256": "f5416d1ae9a98fc24581ffe80fe26087ca82494c62c283f21672a5cda655fea2"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 40,
+        "maintainability": 15,
+        "delivery_confidence": 70,
+        "team_morale": -36,
+        "user_trust": 53,
+        "budget": 58
+      },
+      "telemetry_sha256": "3c988f17566b3746bb9f7ba59729efffd51f444e157c2e86f1e5876858873456"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 48,
+        "maintainability": 95,
+        "delivery_confidence": 53,
+        "team_morale": 51,
+        "user_trust": 32,
+        "budget": -38
+      },
+      "telemetry_sha256": "a6639e99e3cd254cedb148c85d517ad2346e7f401d8fc7ce6d7bd593d394cf88"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 81,
+        "maintainability": 102,
+        "delivery_confidence": 30,
+        "team_morale": 73,
+        "user_trust": 51,
+        "budget": 30
+      },
+      "telemetry_sha256": "30aed6d94384479ca18c98ab95f53170c61c27fed457333dbc6f9ec0a55b9fee"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 62,
+        "maintainability": 45,
+        "delivery_confidence": 104,
+        "team_morale": 86,
+        "user_trust": 98,
+        "budget": 57
+      },
+      "telemetry_sha256": "0a61253492a365aec7ff9eec805b7e74acb4554c20fd5b16b6fd829f20acfff6"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 58,
+        "maintainability": 92,
+        "delivery_confidence": 56,
+        "team_morale": 75,
+        "user_trust": 36,
+        "budget": 36
+      },
+      "telemetry_sha256": "2b38fef36849297c17962bdafa06f4a8bf6ffb6dc31d0dcb7ed640501db981ab"
+    }
+  ],
+  "merger_of_minor_chaos-v2 player_true +team_morale +hard_mode": [
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 43,
+        "maintainability": 18,
+        "delivery_confidence": -45,
+        "team_morale": -162,
+        "user_trust": 59,
+        "budget": -41
+      },
+      "telemetry_sha256": "ddecaa8a66e31a295fa773451a5ff44214f7487a184cad32af8de6581e88a99d"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 38,
+        "maintainability": 15,
+        "delivery_confidence": -27,
+        "team_morale": -164,
+        "user_trust": 51,
+        "budget": -64
+      },
+      "telemetry_sha256": "b2b77ac88b06eb8bc5a8d7e58666f082f812791d4171503114bc437656905c17"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "burnout_machine",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 75,
+        "maintainability": 59,
+        "delivery_confidence": 48,
+        "team_morale": 19,
+        "user_trust": 69,
+        "budget": 19
+      },
+      "telemetry_sha256": "d1232f4907ba89a31d686f122abd5e00e13a95d49a6d47e105f11c40762c50f6"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 67,
+        "maintainability": 115,
+        "delivery_confidence": 68,
+        "team_morale": 155,
+        "user_trust": 52,
+        "budget": 46
+      },
+      "telemetry_sha256": "29b6a11704b5eda7f59f9477f13998f11a65c3cd1d80c2f47b9b0f62fa2489ad"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 80,
+        "maintainability": 100,
+        "delivery_confidence": 61,
+        "team_morale": 127,
+        "user_trust": 49,
+        "budget": 39
+      },
+      "telemetry_sha256": "e86ba594c26fbd34c68260c1dd9e9e72706ef0be763a18d5683e06f9bcc4d176"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 35,
+        "maintainability": 44,
+        "delivery_confidence": 54,
+        "team_morale": -21,
+        "user_trust": 45,
+        "budget": -43
+      },
+      "telemetry_sha256": "f7c51e7a686149faf3e1e9441793e5d5644bb90a261572a09a20f3811aac2939"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 65,
+        "maintainability": 24,
+        "delivery_confidence": -12,
+        "team_morale": -67,
+        "user_trust": 45,
+        "budget": -25
+      },
+      "telemetry_sha256": "d93b19c197c59001e3c36ff16f7a42fea4f9ac2fb5cde784ab45560a9d2740d7"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 51,
+        "maintainability": 17,
+        "delivery_confidence": 21,
+        "team_morale": -39,
+        "user_trust": 58,
+        "budget": -12
+      },
+      "telemetry_sha256": "b12383f8630b7c2cd2b18e6369be507ec1c09e1ac5520d8fd35bb00b8c343583"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 35,
+        "maintainability": 45,
+        "delivery_confidence": 2,
+        "team_morale": -70,
+        "user_trust": 59,
+        "budget": -90
+      },
+      "telemetry_sha256": "f5abd2bfb56c4139481e3c0fd81cfb3164baf6a49e0ffa51d1660df95ce1133e"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 55,
+        "maintainability": 30,
+        "delivery_confidence": -4,
+        "team_morale": -47,
+        "user_trust": 42,
+        "budget": -39
+      },
+      "telemetry_sha256": "3b16a0e452c5ce67902ef1b09d44391982d98c394af380c03f5f45622c117902"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 31,
+        "maintainability": 35,
+        "delivery_confidence": -20,
+        "team_morale": -111,
+        "user_trust": 65,
+        "budget": -119
+      },
+      "telemetry_sha256": "52412746888191e0128eaa3be440b2c6d86424687b7daf79604a11635f7bb2eb"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "collapse",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 11,
+      "final_scores": {
+        "domain_clarity": 16,
+        "maintainability": 13,
+        "delivery_confidence": -5,
+        "team_morale": -138,
+        "user_trust": 62,
+        "budget": -68
+      },
+      "telemetry_sha256": "5be7a4f5e8cd9afd9aec0e958e650ca54b56447e058ef15047019f0c038572a9"
+    }
+  ],
+  "tutorial_basics-v1 player_true": [
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 82,
+        "code_clarity": 45,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "c8c8ad688d2e64019de863bb9001bcf19964aa32c726f1c4d064c0bf2861d3f8"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "b85a769c70ef937077bee523b82db57dcace9e587a79ba12e423f71fdd797b16"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 47,
+        "code_clarity": 57,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "368625a0ee56f2b81d6ff8a257d2fc6d52451c9feec1c1a64b27e07d9cd74dca"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "06f025837d1baa7943de263f0ab412eaa0ce879c77e8681e51855882cf4c6465"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "e0b7ae011cb2976f621deeb0173f7e77692b2601c7ba49fd860faee9c3789b15"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 85,
+        "code_clarity": 57,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "c57178343b4b00802d0cf2701de69ae49d7e107e5d0ae0445c83dd38d99171bc"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 71,
+        "team_capacity": 50,
+        "code_clarity": 69,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "7cad0585d01511ae785a8bb4d922a99d05729847785304a1da62cc74dbf340fc"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 71,
+        "team_capacity": 50,
+        "code_clarity": 69,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "f6143df66046e5473f2b1f3f6a813e60def7cde4240441e83b8dc47b37aff2df"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 90,
+        "code_clarity": 55,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "21a0af7f3aad4d50bace710aa038b6894d95087c132ebcfb5468cbc327daad11"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 81,
+        "team_capacity": 50,
+        "code_clarity": 74,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "259f5d06f802770e79fa8e9785ce26a66d126a10f8dd999561d4cd7bde774596"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "6a1de0ebc7dd8f6a5dab876e8452d8e72b15a8a0af110e9c8c5b94a068d5a7e6"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 36,
+        "code_clarity": 40,
+        "stakeholder_trust": 84
+      },
+      "telemetry_sha256": "2e236720c849ba25607a728f54ff107d20b5925d6310e1a35e44aa4c7b5af881"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 78,
+        "team_capacity": 55,
+        "code_clarity": 67,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "06dd607a5fa8de07ce583d5cb0ef1dc045803a94becece40f33f9996dee9a4d8"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 82,
+        "code_clarity": 45,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "e6c189c618e05fc7dbbb965cf99a3d82984d086d0171f271263e99633014a58b"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 39,
+        "code_clarity": 52,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "a0ffb243ef681d9bac63e435576900fdc55f8dc650b7797ad4fd9dd8c4c1853e"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 44,
+        "code_clarity": 45,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "91d75f8242dc0758feb4659bcb5cf6311793647765d76712bc28efbbe3a52edd"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 36,
+        "code_clarity": 40,
+        "stakeholder_trust": 84
+      },
+      "telemetry_sha256": "433fe9290e2c98f87fc6342b9e1b3f4a3626e1d595fcbb73f5d302ee18fd5185"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 100,
+        "code_clarity": 40,
+        "stakeholder_trust": 58
+      },
+      "telemetry_sha256": "1082e459f36a7c07c4db500a60ddcf53c3d57340250b331a0fae6a5f2cb31f59"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 39,
+        "code_clarity": 52,
+        "stakeholder_trust": 71
+      },
+      "telemetry_sha256": "53e400edf8695ac93c9df14fb68ba418bcb0afe4791239b7f2bd28ff8a6a2bf8"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 39,
+        "code_clarity": 52,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "b5e305dfd52349a9df34b85ae323adb40aea540554082436f0e51f42edc87ee1"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "2f15d1ea31cf30b11663ab737180e0f9278ea6fce2c98ab124feab65f4096165"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "166e8e97eca0805073697c99b744f757a16675e762695a715c5d4770b149e8da"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "2af3190214af67a32e0357796d6278d1377760255d9d04492e34b318cd3efdf0"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 74,
+        "team_capacity": 45,
+        "code_clarity": 76,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "804506238b777e8264a574e0cdc655332ee9087f282c35c1e55403d923d6aac9"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "41182b920cb8029b132d1017db7e712bb3999e5f531870b9ecee5f61cc5a3cc2"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 100,
+        "code_clarity": 45,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "34fac35a72ea16e0b245d5cb8dccfd4f1a701e5767b855b5b913359de40f7432"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 42,
+        "code_clarity": 64,
+        "stakeholder_trust": 58
+      },
+      "telemetry_sha256": "46546043b438cf8f96ea4adc35facf5bd4929b8696938fdb9e29b786cd6d0782"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 44,
+        "code_clarity": 45,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "eceec23e99afaa567b9cf3d8c44919d4d8d99112022c998c8c7e94ba064baabb"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 80,
+        "code_clarity": 64,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "86c85782b6d5032528def902957e53c70349a36f47598ae187c9730b09ca492a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 100,
+        "code_clarity": 45,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "cad694c663a00b66173d86ead3d6bb2a7487295a850546c256e2288f60bdb5c0"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 71,
+        "team_capacity": 50,
+        "code_clarity": 69,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "f547ed18824db631627857703cb1e791f6a2cc1344207a313822a354314506f1"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "c4913e163adfc5c8176e3d422b781c1505edce520531482000ef0be26f7c6268"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "f8d0191bce7c72c0a5b76f1a976f8e7c70cbe5cffd14b81078b78ee0ad6b68f5"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 47,
+        "code_clarity": 57,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "3f6b8d10eb0de88dc1156b37945f2643053a93f0b9e5e5895a23fdfc21892bac"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 80,
+        "code_clarity": 64,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "2381865c2a0f76bb145f861177407c7174589afc44fa984ab581a61dae9a7394"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 95,
+        "code_clarity": 52,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "c50b9fd475ef05d02c994822ec9ded58e95cdadca4c4101114e5182818bf558a"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 85,
+        "code_clarity": 57,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "82b62524c7831db2eb4a826a04357b4640602aa53d8ccff39ed749aae4a2448e"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 58
+      },
+      "telemetry_sha256": "604ad890a611067f4867028423b518e48878e2b3eddf5a8cb151167bdd29c01c"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 85,
+        "code_clarity": 57,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "a04812aa7238f2b0e3d84c72c2e484ea03554b0df8b5c38be00ccdc76c6a6529"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 90,
+        "code_clarity": 55,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "5e87d4c7e8fb9de8f525a787b109e9e7e55b2ffc20bd7015e20e1ad1cecb0b4f"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 100,
+        "code_clarity": 52,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "89256b1cbdf522b011233f25e10bc3449891a4bd42c6334a97d317b1ba02703f"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 65,
+        "team_capacity": 82,
+        "code_clarity": 50,
+        "stakeholder_trust": 58
+      },
+      "telemetry_sha256": "9c814b5d362a10aebf94cd51a5471c503de12855ac4e3422ef35251c295a83d4"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 42,
+        "code_clarity": 64,
+        "stakeholder_trust": 64
+      },
+      "telemetry_sha256": "20032a4fef2d03733bb5f5a4d7ae9af747f9a02becf6f8fd0171c85a4588ade1"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 78,
+        "team_capacity": 55,
+        "code_clarity": 67,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "1bc8c9f8a46fe5234d137f2880c45160c9732eb13c07c5ea13712a1040401483"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 44,
+        "code_clarity": 45,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "9c3a8a97b8f7af298ecadc052013283e26c8ecc76aeb1b6eb65cc876671dbf94"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "85d9f8c91b84c9b7d47f385574d02762978c7ab6f94aaf35b89b926d3d288c5e"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "b3ebf310d4ecdee9b979caf32c6d969898f464399c5ca61cdf4d876f204b5b89"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 92,
+        "code_clarity": 40,
+        "stakeholder_trust": 49
+      },
+      "telemetry_sha256": "36783363dc230c465b97f69b6a8be3071b62f0b22e8fd744c26e760852e50318"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 39,
+        "code_clarity": 52,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "e2ac158a666bf9a5c6e2afdb67440c9f3c24561b8c35743e8f4f1ec93f9c1b25"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 74,
+        "team_capacity": 45,
+        "code_clarity": 76,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "54cf6ab6bdd2be99889ffb769b54f62e69621db5fe7edb8b2993653094773376"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 82,
+        "code_clarity": 45,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "f4ea39a952a19d9ac4888f3a5c639b0f4a9ec53d73217db03083762e637d8780"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 85,
+        "code_clarity": 57,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "44990e4f090f6253994a9018cbe463726750ca42fd9be28dd8e7c955d68f92f5"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 71,
+        "team_capacity": 50,
+        "code_clarity": 69,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "e32b06eae3819c00029a3b84ffdb645c70c846fd2798724210be075ecbc97adc"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 92,
+        "code_clarity": 40,
+        "stakeholder_trust": 49
+      },
+      "telemetry_sha256": "7eaad2ad5ad11b8dac7d36777746dfed3e3690e18982b45205d872567faa5574"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 100,
+        "code_clarity": 52,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "4daf2dee2e932b477a5a53ac7506cc3772d08addc2ea0e5d358a277f2507a7c9"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 85,
+        "code_clarity": 57,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "1c1ebd8391df840d2e60eef37748f727d51004de940591bac6d7f33fb9206190"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 100,
+        "code_clarity": 45,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "741d15b3d48118d62d78a83a94a1df6f92ad33b453b7adc204f51d77a9cf1089"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 44,
+        "code_clarity": 45,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "890949bbb8e03914369efb220cbad89fb2f325bbd9a8dc8b54c0bc4aab97ada3"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 100,
+        "code_clarity": 52,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "9b735a48c9ccb4e5c399a082452a6f7b9b9577345fe67611fb319904132a6331"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 80,
+        "code_clarity": 64,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "7602b72b43e5df7e78bf77275f201be2491ece506e776bdab8cb0e35407a0a43"
+    }
+  ],
+  "tutorial_basics-v1 full_pool_oracle": [
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 82,
+        "code_clarity": 45,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "c8c8ad688d2e64019de863bb9001bcf19964aa32c726f1c4d064c0bf2861d3f8"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "b85a769c70ef937077bee523b82db57dcace9e587a79ba12e423f71fdd797b16"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 47,
+        "code_clarity": 57,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "368625a0ee56f2b81d6ff8a257d2fc6d52451c9feec1c1a64b27e07d9cd74dca"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "06f025837d1baa7943de263f0ab412eaa0ce879c77e8681e51855882cf4c6465"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "e0b7ae011cb2976f621deeb0173f7e77692b2601c7ba49fd860faee9c3789b15"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 85,
+        "code_clarity": 57,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "c57178343b4b00802d0cf2701de69ae49d7e107e5d0ae0445c83dd38d99171bc"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 71,
+        "team_capacity": 50,
+        "code_clarity": 69,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "7cad0585d01511ae785a8bb4d922a99d05729847785304a1da62cc74dbf340fc"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 71,
+        "team_capacity": 50,
+        "code_clarity": 69,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "f6143df66046e5473f2b1f3f6a813e60def7cde4240441e83b8dc47b37aff2df"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 90,
+        "code_clarity": 55,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "21a0af7f3aad4d50bace710aa038b6894d95087c132ebcfb5468cbc327daad11"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 81,
+        "team_capacity": 50,
+        "code_clarity": 74,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "259f5d06f802770e79fa8e9785ce26a66d126a10f8dd999561d4cd7bde774596"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "6a1de0ebc7dd8f6a5dab876e8452d8e72b15a8a0af110e9c8c5b94a068d5a7e6"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 36,
+        "code_clarity": 40,
+        "stakeholder_trust": 84
+      },
+      "telemetry_sha256": "2e236720c849ba25607a728f54ff107d20b5925d6310e1a35e44aa4c7b5af881"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 78,
+        "team_capacity": 55,
+        "code_clarity": 67,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "06dd607a5fa8de07ce583d5cb0ef1dc045803a94becece40f33f9996dee9a4d8"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 82,
+        "code_clarity": 45,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "e6c189c618e05fc7dbbb965cf99a3d82984d086d0171f271263e99633014a58b"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 39,
+        "code_clarity": 52,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "a0ffb243ef681d9bac63e435576900fdc55f8dc650b7797ad4fd9dd8c4c1853e"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 44,
+        "code_clarity": 45,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "91d75f8242dc0758feb4659bcb5cf6311793647765d76712bc28efbbe3a52edd"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 36,
+        "code_clarity": 40,
+        "stakeholder_trust": 84
+      },
+      "telemetry_sha256": "433fe9290e2c98f87fc6342b9e1b3f4a3626e1d595fcbb73f5d302ee18fd5185"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 100,
+        "code_clarity": 40,
+        "stakeholder_trust": 58
+      },
+      "telemetry_sha256": "1082e459f36a7c07c4db500a60ddcf53c3d57340250b331a0fae6a5f2cb31f59"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 39,
+        "code_clarity": 52,
+        "stakeholder_trust": 71
+      },
+      "telemetry_sha256": "53e400edf8695ac93c9df14fb68ba418bcb0afe4791239b7f2bd28ff8a6a2bf8"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 39,
+        "code_clarity": 52,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "b5e305dfd52349a9df34b85ae323adb40aea540554082436f0e51f42edc87ee1"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "2f15d1ea31cf30b11663ab737180e0f9278ea6fce2c98ab124feab65f4096165"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "166e8e97eca0805073697c99b744f757a16675e762695a715c5d4770b149e8da"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "2af3190214af67a32e0357796d6278d1377760255d9d04492e34b318cd3efdf0"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 74,
+        "team_capacity": 45,
+        "code_clarity": 76,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "804506238b777e8264a574e0cdc655332ee9087f282c35c1e55403d923d6aac9"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "41182b920cb8029b132d1017db7e712bb3999e5f531870b9ecee5f61cc5a3cc2"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 100,
+        "code_clarity": 45,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "34fac35a72ea16e0b245d5cb8dccfd4f1a701e5767b855b5b913359de40f7432"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 42,
+        "code_clarity": 64,
+        "stakeholder_trust": 58
+      },
+      "telemetry_sha256": "46546043b438cf8f96ea4adc35facf5bd4929b8696938fdb9e29b786cd6d0782"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 44,
+        "code_clarity": 45,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "eceec23e99afaa567b9cf3d8c44919d4d8d99112022c998c8c7e94ba064baabb"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 80,
+        "code_clarity": 64,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "86c85782b6d5032528def902957e53c70349a36f47598ae187c9730b09ca492a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 100,
+        "code_clarity": 45,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "cad694c663a00b66173d86ead3d6bb2a7487295a850546c256e2288f60bdb5c0"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 71,
+        "team_capacity": 50,
+        "code_clarity": 69,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "f547ed18824db631627857703cb1e791f6a2cc1344207a313822a354314506f1"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "c4913e163adfc5c8176e3d422b781c1505edce520531482000ef0be26f7c6268"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "f8d0191bce7c72c0a5b76f1a976f8e7c70cbe5cffd14b81078b78ee0ad6b68f5"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 47,
+        "code_clarity": 57,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "3f6b8d10eb0de88dc1156b37945f2643053a93f0b9e5e5895a23fdfc21892bac"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 80,
+        "code_clarity": 64,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "2381865c2a0f76bb145f861177407c7174589afc44fa984ab581a61dae9a7394"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 95,
+        "code_clarity": 52,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "c50b9fd475ef05d02c994822ec9ded58e95cdadca4c4101114e5182818bf558a"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 85,
+        "code_clarity": 57,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "82b62524c7831db2eb4a826a04357b4640602aa53d8ccff39ed749aae4a2448e"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 58
+      },
+      "telemetry_sha256": "604ad890a611067f4867028423b518e48878e2b3eddf5a8cb151167bdd29c01c"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 85,
+        "code_clarity": 57,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "a04812aa7238f2b0e3d84c72c2e484ea03554b0df8b5c38be00ccdc76c6a6529"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 90,
+        "code_clarity": 55,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "5e87d4c7e8fb9de8f525a787b109e9e7e55b2ffc20bd7015e20e1ad1cecb0b4f"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 100,
+        "code_clarity": 52,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "89256b1cbdf522b011233f25e10bc3449891a4bd42c6334a97d317b1ba02703f"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 65,
+        "team_capacity": 82,
+        "code_clarity": 50,
+        "stakeholder_trust": 58
+      },
+      "telemetry_sha256": "9c814b5d362a10aebf94cd51a5471c503de12855ac4e3422ef35251c295a83d4"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 42,
+        "code_clarity": 64,
+        "stakeholder_trust": 64
+      },
+      "telemetry_sha256": "20032a4fef2d03733bb5f5a4d7ae9af747f9a02becf6f8fd0171c85a4588ade1"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 78,
+        "team_capacity": 55,
+        "code_clarity": 67,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "1bc8c9f8a46fe5234d137f2880c45160c9732eb13c07c5ea13712a1040401483"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 44,
+        "code_clarity": 45,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "9c3a8a97b8f7af298ecadc052013283e26c8ecc76aeb1b6eb65cc876671dbf94"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 52,
+        "code_clarity": 55,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "85d9f8c91b84c9b7d47f385574d02762978c7ab6f94aaf35b89b926d3d288c5e"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 77,
+        "code_clarity": 52,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "b3ebf310d4ecdee9b979caf32c6d969898f464399c5ca61cdf4d876f204b5b89"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 92,
+        "code_clarity": 40,
+        "stakeholder_trust": 49
+      },
+      "telemetry_sha256": "36783363dc230c465b97f69b6a8be3071b62f0b22e8fd744c26e760852e50318"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 39,
+        "code_clarity": 52,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "e2ac158a666bf9a5c6e2afdb67440c9f3c24561b8c35743e8f4f1ec93f9c1b25"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 74,
+        "team_capacity": 45,
+        "code_clarity": 76,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "54cf6ab6bdd2be99889ffb769b54f62e69621db5fe7edb8b2993653094773376"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 82,
+        "code_clarity": 45,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "f4ea39a952a19d9ac4888f3a5c639b0f4a9ec53d73217db03083762e637d8780"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 85,
+        "code_clarity": 57,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "44990e4f090f6253994a9018cbe463726750ca42fd9be28dd8e7c955d68f92f5"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 71,
+        "team_capacity": 50,
+        "code_clarity": 69,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "e32b06eae3819c00029a3b84ffdb645c70c846fd2798724210be075ecbc97adc"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 92,
+        "code_clarity": 40,
+        "stakeholder_trust": 49
+      },
+      "telemetry_sha256": "7eaad2ad5ad11b8dac7d36777746dfed3e3690e18982b45205d872567faa5574"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 100,
+        "code_clarity": 52,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "4daf2dee2e932b477a5a53ac7506cc3772d08addc2ea0e5d358a277f2507a7c9"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 85,
+        "code_clarity": 57,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "1c1ebd8391df840d2e60eef37748f727d51004de940591bac6d7f33fb9206190"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 100,
+        "code_clarity": 45,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "741d15b3d48118d62d78a83a94a1df6f92ad33b453b7adc204f51d77a9cf1089"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 44,
+        "code_clarity": 45,
+        "stakeholder_trust": 74
+      },
+      "telemetry_sha256": "890949bbb8e03914369efb220cbad89fb2f325bbd9a8dc8b54c0bc4aab97ada3"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 100,
+        "code_clarity": 52,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "9b735a48c9ccb4e5c399a082452a6f7b9b9577345fe67611fb319904132a6331"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 3,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 80,
+        "code_clarity": 64,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "7602b72b43e5df7e78bf77275f201be2491ece506e776bdab8cb0e35407a0a43"
+    }
+  ],
+  "tutorial_systems_under_pressure-v1 player_true": [
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 68,
+        "team_capacity": 43,
+        "code_clarity": 45,
+        "stakeholder_trust": 38
+      },
+      "telemetry_sha256": "11028ed9e215a4b881dbbfffe58674637179b993652434187c1b5de420866f05"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 84,
+        "team_capacity": 28,
+        "code_clarity": 46,
+        "stakeholder_trust": 32
+      },
+      "telemetry_sha256": "a357582e2b9dd34ef7c9b1c14484fd8163177e31cd6506b1523d5cdb14716640"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 48,
+        "team_capacity": 49,
+        "code_clarity": 45,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "472441c6ad0702f06e353489c6a36299b082406184eb946b0b72cba9bb38a91d"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 96,
+        "team_capacity": 40,
+        "code_clarity": 58,
+        "stakeholder_trust": 23
+      },
+      "telemetry_sha256": "815f630e1325f9e7d2377df26072d34bcad521536895eedeca31b4d2ff7c0e12"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 39,
+        "team_capacity": 23,
+        "code_clarity": 46,
+        "stakeholder_trust": 56
+      },
+      "telemetry_sha256": "89f966f9508da76c99d93424e39a649be3f317cede06bf98de237969b1a8a64a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 83,
+        "code_clarity": 47,
+        "stakeholder_trust": 43
+      },
+      "telemetry_sha256": "e9782a905624e7143fe6fb6ebe1516630c8a669e28a1b9416f2a1dc50208e25f"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 78,
+        "team_capacity": 74,
+        "code_clarity": 62,
+        "stakeholder_trust": 25
+      },
+      "telemetry_sha256": "62d647e7fb235faef4a1e6f4d624cd99500be78ac3a5ffa9a45397abf2fcf767"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 60,
+        "team_capacity": 47,
+        "code_clarity": 62,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "63d63359cb505e0604c8185b18b619dc0c3fd77954fd97953f37e55cf9f9baf3"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 69,
+        "team_capacity": 75,
+        "code_clarity": 47,
+        "stakeholder_trust": 35
+      },
+      "telemetry_sha256": "744f9cb4de91941f322339c503b5db92d6025616108318b6666860dabbf95616"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 9,
+        "code_clarity": 43,
+        "stakeholder_trust": 36
+      },
+      "telemetry_sha256": "78a04c5c419fb18c137bd3dafd6bcbfbd729be58788d5ace99540e8cd0b558cf"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 77,
+        "team_capacity": 58,
+        "code_clarity": 58,
+        "stakeholder_trust": 19
+      },
+      "telemetry_sha256": "fca9afaced6c2a4b4198dcfedd9890481c593a9175243ccb0d0d5a9e6ee0468e"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 40,
+        "team_capacity": 56,
+        "code_clarity": 30,
+        "stakeholder_trust": 64
+      },
+      "telemetry_sha256": "a8891cd47c4dbdcc37d762eaabd234ec45f17c0d7ee6d5e0a14081ba222a02e2"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 68,
+        "team_capacity": 44,
+        "code_clarity": 35,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "d2f88c0150dc96c884e32b71ce106911aaa4352a484d91ab035d3259f693280e"
+    },
+    {
+      "tier": "failure",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 49,
+        "team_capacity": 2,
+        "code_clarity": 38,
+        "stakeholder_trust": 43
+      },
+      "telemetry_sha256": "1f9c767038fa5c8a8c21edec60fb37a4ed255a2b5c785d6838ffc9b944634d2a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 48,
+        "team_capacity": 9,
+        "code_clarity": 45,
+        "stakeholder_trust": 51
+      },
+      "telemetry_sha256": "f50c31d360eea0fb05708292edbb43232505b955ae37e95ef5f10cb2efb1c3a3"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 80,
+        "team_capacity": 33,
+        "code_clarity": 58,
+        "stakeholder_trust": 33
+      },
+      "telemetry_sha256": "1b2e5ea1d9e19a43a009435f6172f40710d830156a428fb34db315d40338b666"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 22,
+        "team_capacity": 62,
+        "code_clarity": 30,
+        "stakeholder_trust": 65
+      },
+      "telemetry_sha256": "4545a9dd85dc23496ddb7e81ffcc1950a2a53feec7ba3adcefa15261822dc657"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 46,
+        "team_capacity": 59,
+        "code_clarity": 57,
+        "stakeholder_trust": 38
+      },
+      "telemetry_sha256": "654873cfd06d70b17c33c89a3e76e268239c9d8b954037304b3ff5533922e11f"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 25,
+        "team_capacity": 48,
+        "code_clarity": 38,
+        "stakeholder_trust": 60
+      },
+      "telemetry_sha256": "3d45dfa6ab3c0f19d92805bb5d8cb3b16e31cf9bc76bf166918dec15dc3f1098"
+    },
+    {
+      "tier": "failure",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 33,
+        "team_capacity": 10,
+        "code_clarity": 53,
+        "stakeholder_trust": 43
+      },
+      "telemetry_sha256": "a481b4ae44cb4fc50a0c54bcf078ff1a5604abb3a1457147140afddf47bde7b5"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 48,
+        "team_capacity": 40,
+        "code_clarity": 30,
+        "stakeholder_trust": 70
+      },
+      "telemetry_sha256": "13c8f8c637fce0aeb473f519d29dd9d983680bc39f397ce411c0f5b9c7c04aa9"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 92,
+        "code_clarity": 30,
+        "stakeholder_trust": 33
+      },
+      "telemetry_sha256": "9d9bbdc48e251cea7d8f03ce0cb1ca75d516c0f1a2f512e6b3ee19c7fedb534c"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 67,
+        "code_clarity": 57,
+        "stakeholder_trust": 38
+      },
+      "telemetry_sha256": "3c34cbbb67d7f2de568e149c6b9ea0904deb55c5665f04a326da307cefabe9dd"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 55,
+        "team_capacity": 47,
+        "code_clarity": 65,
+        "stakeholder_trust": 22
+      },
+      "telemetry_sha256": "65c97d6ea89d7ffdb0e95d409c79f388913b1906cabcafd118c4280771df1a3e"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 96,
+        "team_capacity": 34,
+        "code_clarity": 46,
+        "stakeholder_trust": 25
+      },
+      "telemetry_sha256": "06b3776c469418e38f3b731d5c422559bf7e211009a16124d94e4011b12380e0"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 76,
+        "team_capacity": 37,
+        "code_clarity": 47,
+        "stakeholder_trust": 46
+      },
+      "telemetry_sha256": "41b168e07025031ac9de6df9e6efe293b25dc9fa9409958f99f6d1facadd0e85"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 37,
+        "team_capacity": 20,
+        "code_clarity": 65,
+        "stakeholder_trust": 30
+      },
+      "telemetry_sha256": "edc1b0f32c103f2644632f9668b1c8d2e02aabd96e7a2a2c12726b6ada3b8bf6"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 48,
+        "team_capacity": 16,
+        "code_clarity": 53,
+        "stakeholder_trust": 41
+      },
+      "telemetry_sha256": "0eb7d9e1c0dbb9115692721059a24478c584abf68dce5068fde0a8b7760e8e7b"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 48,
+        "team_capacity": 64,
+        "code_clarity": 47,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "a26a212f0a54265b3ff0ce08cc18c9f0be147b6fc5da6c991586d742ebd1f3b4"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 92,
+        "team_capacity": 44,
+        "code_clarity": 62,
+        "stakeholder_trust": 27
+      },
+      "telemetry_sha256": "ac2142f41c93444be7bf1eae492feac6e409f2a7a6b1c02e1dcea697059ec944"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 27,
+        "team_capacity": 0,
+        "code_clarity": 54,
+        "stakeholder_trust": 62
+      },
+      "telemetry_sha256": "541e5d60a4f5b595df83880d5a98209684b7b36739c34bcf120df53d0ff7977b"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 48,
+        "code_clarity": 46,
+        "stakeholder_trust": 31
+      },
+      "telemetry_sha256": "bda5a985cfe8080746c0ce7bd5db2ea456dfcd7f5689433e39b897306a87d786"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 36,
+        "team_capacity": 51,
+        "code_clarity": 38,
+        "stakeholder_trust": 61
+      },
+      "telemetry_sha256": "fee2c1f74ec0716e90d274849f907a4ece51d3a33370f1e91b53270386aa9141"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 43,
+        "team_capacity": 0,
+        "code_clarity": 65,
+        "stakeholder_trust": 33
+      },
+      "telemetry_sha256": "6f18d4afef06eaad2915d802a746113e0afc2e6e765c047dc03c3dfb148a9fd4"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 21,
+        "code_clarity": 62,
+        "stakeholder_trust": 43
+      },
+      "telemetry_sha256": "58122e51b3c91e03e3b349a47228932c0a26e84347c47befe3c072caee1dbfeb"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 25,
+        "code_clarity": 43,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "50d5849b90a5584f37ec1fc7c986f57ab349191ddf70ef38a0e0f783feb08717"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 62,
+        "team_capacity": 21,
+        "code_clarity": 53,
+        "stakeholder_trust": 26
+      },
+      "telemetry_sha256": "0f4a521e8803dd267d060c78808146207ce88af9d2998cd3ce8427634eb7703b"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 25,
+        "team_capacity": 30,
+        "code_clarity": 41,
+        "stakeholder_trust": 52
+      },
+      "telemetry_sha256": "51390f62183cb895aa3ed68cf5e37f591b298d8297accca69076cbb7060e405a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 71,
+        "team_capacity": 37,
+        "code_clarity": 43,
+        "stakeholder_trust": 37
+      },
+      "telemetry_sha256": "a50938c398b443ca93843d8a69407adf40ae9e7f4dd07f7bbf9d70722033c716"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 38,
+        "code_clarity": 62,
+        "stakeholder_trust": 27
+      },
+      "telemetry_sha256": "10d7643a782452576745ceffb09d54896d1665ca6b8744b512c3601694c84d44"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 63,
+        "team_capacity": 44,
+        "code_clarity": 35,
+        "stakeholder_trust": 48
+      },
+      "telemetry_sha256": "fc345e652614c995505f1c2af921326c476821560f67c3fdf25c89def5c50573"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 46,
+        "team_capacity": 32,
+        "code_clarity": 57,
+        "stakeholder_trust": 41
+      },
+      "telemetry_sha256": "0de857b45ed051f5f93bdde3cddeb63f2627fc077ddc66e059084ecfd3a61257"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 38,
+        "team_capacity": 51,
+        "code_clarity": 42,
+        "stakeholder_trust": 64
+      },
+      "telemetry_sha256": "e7512daac5b66de1c7461af3e6e43d898dc81e18c8689c43f07bb4266691b265"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 71,
+        "team_capacity": 6,
+        "code_clarity": 50,
+        "stakeholder_trust": 32
+      },
+      "telemetry_sha256": "bc37785c3c754072f3b9704e0861521d749f2db0f367121a5d3123d085fb1409"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 46,
+        "team_capacity": 27,
+        "code_clarity": 60,
+        "stakeholder_trust": 29
+      },
+      "telemetry_sha256": "df6dd7523723c76763076178648f55802c9cfe3fb76a62dc917f6afc45309688"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 40,
+        "team_capacity": 53,
+        "code_clarity": 30,
+        "stakeholder_trust": 46
+      },
+      "telemetry_sha256": "506ecf2274017de03f4bd67d30af785f567a7c58dd850e6d02fbf2543fdede47"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 48,
+        "team_capacity": 46,
+        "code_clarity": 42,
+        "stakeholder_trust": 65
+      },
+      "telemetry_sha256": "898099ac9c8be6ccf8f3445f80e8057da4fd51247b49d4a8c7ccec811f89ac8f"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 74,
+        "team_capacity": 57,
+        "code_clarity": 42,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "a3a0017068fcf26d8c327e5d7f07ef7715efe71359e08b2dd915da2e6d31c47b"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 78,
+        "team_capacity": 78,
+        "code_clarity": 45,
+        "stakeholder_trust": 35
+      },
+      "telemetry_sha256": "885617b1245251ae8c1cf9c892eff543453186c2dfe4b96147cfdaf1bf16b851"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 47,
+        "team_capacity": 56,
+        "code_clarity": 47,
+        "stakeholder_trust": 50
+      },
+      "telemetry_sha256": "5a8ea77808f8919423ac22b7997f5e5905c55bec775d6c80c07d2590a7b20ae3"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 48,
+        "team_capacity": 46,
+        "code_clarity": 42,
+        "stakeholder_trust": 62
+      },
+      "telemetry_sha256": "d6b2fd6fbca961aa3120510b332066751c15fe42dfdb124eb38b7873b965795c"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 83,
+        "code_clarity": 47,
+        "stakeholder_trust": 43
+      },
+      "telemetry_sha256": "45367ca9dfd5c6ee5d333862794c767efc314db86e754dc1023918f3efd12f3d"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 80,
+        "team_capacity": 8,
+        "code_clarity": 73,
+        "stakeholder_trust": 17
+      },
+      "telemetry_sha256": "a0b23079a74e40ded74d6a42d1a14909ffd580e75b63d19328a842ccdd696527"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 92,
+        "code_clarity": 30,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "c64879fd0957b4862c833c11a486a3b9f600190a9fee9c24ec574ebb73878d0e"
+    },
+    {
+      "tier": "failure",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 34,
+        "team_capacity": 0,
+        "code_clarity": 46,
+        "stakeholder_trust": 57
+      },
+      "telemetry_sha256": "eff4871cf906ffd6eef092329949a7b69b112c6e32ab96f06963b7b7d6270ea9"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 100,
+        "team_capacity": 69,
+        "code_clarity": 50,
+        "stakeholder_trust": 25
+      },
+      "telemetry_sha256": "7f45c3836a263c1863324ca2b29d4204cc756f2f1756bc2213d679aa1551345b"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 94,
+        "team_capacity": 100,
+        "code_clarity": 35,
+        "stakeholder_trust": 30
+      },
+      "telemetry_sha256": "c2158e2f12bcfc87384eab6617c8d9a04823018d16b8c92b01ee4c1c16723850"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 46,
+        "team_capacity": 84,
+        "code_clarity": 42,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "724e4ca10f2bdf7c3d351171b28a6e75dd0fc287951f764875845ff2222e5597"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 62,
+        "code_clarity": 50,
+        "stakeholder_trust": 38
+      },
+      "telemetry_sha256": "080bd97cf1610cd4593a6e4eb051fa0f524c98ba6b9073937502ae899b1492cc"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 78,
+        "team_capacity": 68,
+        "code_clarity": 50,
+        "stakeholder_trust": 33
+      },
+      "telemetry_sha256": "d7aec2141bf5e57700ee006ef6b2acf0a2900997aa067f3bd85989685b93efde"
+    }
+  ],
+  "tutorial_systems_under_pressure-v1 full_pool_oracle": [
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 74,
+        "team_capacity": 85,
+        "code_clarity": 42,
+        "stakeholder_trust": 37
+      },
+      "telemetry_sha256": "dac2876d1016a37d577bb2da4f2f97a996fac25e278b62045252d465e450312c"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 14,
+        "code_clarity": 65,
+        "stakeholder_trust": 32
+      },
+      "telemetry_sha256": "16bc05099a095d8e6b25fe9c26c902339c716455c4f0d27f254ed2519ea533e8"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 38,
+        "team_capacity": 61,
+        "code_clarity": 45,
+        "stakeholder_trust": 41
+      },
+      "telemetry_sha256": "757f319851c964e0b998127fc01c3ee98d5d17f3193a97b6368a24a7ae1ec7b3"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 56,
+        "team_capacity": 91,
+        "code_clarity": 42,
+        "stakeholder_trust": 41
+      },
+      "telemetry_sha256": "67a9c84c234b28b2a3de26f1c4d91bb39664205e1bf9d634dd287288b082602a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 40,
+        "team_capacity": 0,
+        "code_clarity": 61,
+        "stakeholder_trust": 43
+      },
+      "telemetry_sha256": "f0b8b792c89f27aeb85e337c3df163fa47a803fe64a94fb8c98aceedd6959921"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 32,
+        "team_capacity": 51,
+        "code_clarity": 35,
+        "stakeholder_trust": 64
+      },
+      "telemetry_sha256": "79b3013ab0b3ee7d1fb8714f0b86a19aa2a3f19e31780a0afdabfc5da00c95f6"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 70,
+        "team_capacity": 31,
+        "code_clarity": 65,
+        "stakeholder_trust": 22
+      },
+      "telemetry_sha256": "c5b6218e945958e3b19a961025332ca826ad4f7c2cbc36380e091191e9516a53"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 52,
+        "team_capacity": 4,
+        "code_clarity": 65,
+        "stakeholder_trust": 33
+      },
+      "telemetry_sha256": "207d0ffe63f0bc6ed3fff872a45c8be72ad3e08b50c0a7c96b72047e67cb070e"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 100,
+        "team_capacity": 76,
+        "code_clarity": 47,
+        "stakeholder_trust": 30
+      },
+      "telemetry_sha256": "aab5c2fe433af828b5e9794b1a9763e30767b08f1b884e961ba74ac8bab29dc3"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 100,
+        "team_capacity": 80,
+        "code_clarity": 62,
+        "stakeholder_trust": 25
+      },
+      "telemetry_sha256": "2b22e6e36f996eca00fa0af8540d6e96d84198c8db3b0398a95b2460030ca5c2"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 74,
+        "team_capacity": 85,
+        "code_clarity": 42,
+        "stakeholder_trust": 40
+      },
+      "telemetry_sha256": "42a1305d4958fa92facfe5ea28a60fed0b532bb60d77da7f2129f59bbd66d5eb"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 10,
+        "team_capacity": 61,
+        "code_clarity": 40,
+        "stakeholder_trust": 53
+      },
+      "telemetry_sha256": "3a26007bbba9137c2e6e4d983ff8d9b3360e7bfedf83952820104983ab4785aa"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 100,
+        "code_clarity": 35,
+        "stakeholder_trust": 43
+      },
+      "telemetry_sha256": "5157da867f5712e68def8e807cce8bbd7eeb7e7df3d643227f7a22207b5e9b4a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 40,
+        "team_capacity": 28,
+        "code_clarity": 30,
+        "stakeholder_trust": 63
+      },
+      "telemetry_sha256": "4464302ba3260b04adc2e80d62205f68ff5679fc8b11a58ddf937c9c16403026"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 60,
+        "team_capacity": 47,
+        "code_clarity": 58,
+        "stakeholder_trust": 39
+      },
+      "telemetry_sha256": "627a23c058980c5f2682c15a983831df49f21ceaf13e32139522e3bfb99a7962"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 54,
+        "team_capacity": 13,
+        "code_clarity": 53,
+        "stakeholder_trust": 32
+      },
+      "telemetry_sha256": "949397114325324162329144cb9fa09ab4f49564646ca4d25d54ff18fef78045"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 48,
+        "team_capacity": 0,
+        "code_clarity": 71,
+        "stakeholder_trust": 42
+      },
+      "telemetry_sha256": "8f1f0beeff107374d16d5770cfd70e8f548fff4ba2ce58d1558abf6fa4852cb4"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 48,
+        "team_capacity": 29,
+        "code_clarity": 57,
+        "stakeholder_trust": 38
+      },
+      "telemetry_sha256": "be27f64e17a2c73c9660461801921808d4b85d9f13040ba1ffda4d36d52bb320"
+    },
+    {
+      "tier": "failure",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 17,
+        "team_capacity": 23,
+        "code_clarity": 30,
+        "stakeholder_trust": 69
+      },
+      "telemetry_sha256": "307049762e033d22fabe6d48dd7e2ac35c87cc6c018aca54a80c77468ddc1b50"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 32,
+        "team_capacity": 26,
+        "code_clarity": 57,
+        "stakeholder_trust": 48
+      },
+      "telemetry_sha256": "50e8c3d2f52640cd7b6ca66224e9dbb27b531504bc3bd885ef8d10a96415d67c"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 83,
+        "code_clarity": 47,
+        "stakeholder_trust": 46
+      },
+      "telemetry_sha256": "e7ac526740f8c3fe6482fb98c216f9e6874a182880e23d7770dd3a088acf2c0d"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 84,
+        "team_capacity": 100,
+        "code_clarity": 47,
+        "stakeholder_trust": 32
+      },
+      "telemetry_sha256": "4ef90a69ce306990f953a780a20ac64609f9074d08121a14fbc6d4d8c0ca7bf2"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 48,
+        "code_clarity": 45,
+        "stakeholder_trust": 45
+      },
+      "telemetry_sha256": "abc4e8358254e0b2f51a652d7c94b5a3b3a90d32e8e3c49857951034512f6f71"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 54,
+        "team_capacity": 38,
+        "code_clarity": 83,
+        "stakeholder_trust": 10
+      },
+      "telemetry_sha256": "b7f1f42b7693f5547fbfdb3c569a6bacfa003af7161f1bcc505d4d6f44474cec"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 58,
+        "code_clarity": 45,
+        "stakeholder_trust": 37
+      },
+      "telemetry_sha256": "f504747b1dfee9b2a249a7f6ce4c82e1966a6824612165c89100a263c5e5cca3"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 78,
+        "team_capacity": 54,
+        "code_clarity": 35,
+        "stakeholder_trust": 47
+      },
+      "telemetry_sha256": "f198eeb06d1c5da2720e0afc96d998043c5ef794d71876184986273c3dcc883a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 32,
+        "team_capacity": 58,
+        "code_clarity": 60,
+        "stakeholder_trust": 28
+      },
+      "telemetry_sha256": "ce2bb832f3e11c1b809c5972a6ec49a87030500e856e080efa8cf72a0b029d33"
+    },
+    {
+      "tier": "failure",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 30,
+        "team_capacity": 2,
+        "code_clarity": 57,
+        "stakeholder_trust": 46
+      },
+      "telemetry_sha256": "c20682ac805364c8d74bb9d5e9ffb22776b6d7d6cbdcb0d21e23928b294cb251"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 22,
+        "team_capacity": 24,
+        "code_clarity": 47,
+        "stakeholder_trust": 71
+      },
+      "telemetry_sha256": "b1f81268b34bc8587706d11fb23d15375e671e962fd54b1b48437bc1026d74ba"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 84,
+        "team_capacity": 79,
+        "code_clarity": 50,
+        "stakeholder_trust": 27
+      },
+      "telemetry_sha256": "48030611974e6cd9123db1ec6345cd075415d56273e311617a754e29cacca5e8"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 53,
+        "team_capacity": 37,
+        "code_clarity": 35,
+        "stakeholder_trust": 58
+      },
+      "telemetry_sha256": "d243316ad196d5b1e5ee89a96458ba7fd880787655549379efdc410086162b7f"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "stakeholder_whisperer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 75,
+        "code_clarity": 30,
+        "stakeholder_trust": 58
+      },
+      "telemetry_sha256": "e853cb9998c9327e7877d73705ec48c6987bfdb7f31a0f9d6697de3127581539"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 48,
+        "team_capacity": 24,
+        "code_clarity": 47,
+        "stakeholder_trust": 51
+      },
+      "telemetry_sha256": "0ce812bff10e8d8e078ab2cbf2c3b16734a2b9ab9ef35306cab18d1c5e3350d6"
+    },
+    {
+      "tier": "failure",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 2,
+        "team_capacity": 0,
+        "code_clarity": 38,
+        "stakeholder_trust": 86
+      },
+      "telemetry_sha256": "9e2db128540df783d41e6a5ae2aea62746602596ab153fcd6aaacd282857c206"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 40,
+        "team_capacity": 64,
+        "code_clarity": 35,
+        "stakeholder_trust": 54
+      },
+      "telemetry_sha256": "16aeaa78081eedd87efa8c975df846e2060ff369e733f96ab36640f6c6018da5"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 78,
+        "team_capacity": 26,
+        "code_clarity": 35,
+        "stakeholder_trust": 46
+      },
+      "telemetry_sha256": "69f32d11c24fd2a1156a47395bc45c4721a58b9be2a1e339023de38f177acd64"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 57,
+        "team_capacity": 5,
+        "code_clarity": 69,
+        "stakeholder_trust": 23
+      },
+      "telemetry_sha256": "19886cfbba8d4581ee0cb78528bcdf1a947bfcdc0359e9964ee2f10b2a43bb2a"
+    },
+    {
+      "tier": "failure",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 22,
+        "team_capacity": 0,
+        "code_clarity": 45,
+        "stakeholder_trust": 68
+      },
+      "telemetry_sha256": "cc4ef0553718b9b339a4c16c59a51bfa747fe90b0e85cef98b51f91a2545efba"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 53,
+        "team_capacity": 43,
+        "code_clarity": 47,
+        "stakeholder_trust": 47
+      },
+      "telemetry_sha256": "5683222432c335c274f7c1815a89e7f8e56d83206df8e93bb30ec93eec31b032"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 100,
+        "team_capacity": 73,
+        "code_clarity": 50,
+        "stakeholder_trust": 26
+      },
+      "telemetry_sha256": "777e0e083fbaaf73912d0c9c2da7576e05f1a5f83b11b38a0765d35a16973934"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 100,
+        "code_clarity": 35,
+        "stakeholder_trust": 40
+      },
+      "telemetry_sha256": "880f9f65953d855b8f856c3a79d7f487300c1bf94cf55c2061bc1b2fefc66969"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 54,
+        "team_capacity": 30,
+        "code_clarity": 38,
+        "stakeholder_trust": 44
+      },
+      "telemetry_sha256": "61c3902c2e8465fc1a4dca210df39fd14a8cb806032a37834772ae04c634df1a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 29,
+        "team_capacity": 14,
+        "code_clarity": 47,
+        "stakeholder_trust": 66
+      },
+      "telemetry_sha256": "c2bceb64d860024daab843cbfc3cf7224798b2b4af38f397a4c3b4db674f0fca"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 72,
+        "team_capacity": 46,
+        "code_clarity": 50,
+        "stakeholder_trust": 41
+      },
+      "telemetry_sha256": "e54c7cf5e4d9027e755882e56b5b2e6008a7fe9f62672290ff366dc97c1f1fb6"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 28,
+        "team_capacity": 100,
+        "code_clarity": 42,
+        "stakeholder_trust": 38
+      },
+      "telemetry_sha256": "f0827dfda90ee03faaed0d19c82ca6831cc1a36b9f51e61f08ed15c32ad7e26a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 56,
+        "team_capacity": 54,
+        "code_clarity": 59,
+        "stakeholder_trust": 50
+      },
+      "telemetry_sha256": "fa1eaf980d0554c739360085859cc2c7b8d5fbedfc1e5467c854d132b4930287"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 40,
+        "team_capacity": 52,
+        "code_clarity": 47,
+        "stakeholder_trust": 60
+      },
+      "telemetry_sha256": "a021f69e643624ec001044a2e4bf0fb34181e2de8930994d618c442e39683ea4"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 76,
+        "team_capacity": 74,
+        "code_clarity": 30,
+        "stakeholder_trust": 40
+      },
+      "telemetry_sha256": "cf61c30d8b24ac180895a679f6357d9da1812034309c733a12add8fcad22290a"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 66,
+        "team_capacity": 28,
+        "code_clarity": 86,
+        "stakeholder_trust": 28
+      },
+      "telemetry_sha256": "359d232afdaafd6000d8c34aedb0715c517c53986b733da8958137260c99bed3"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 26,
+        "team_capacity": 8,
+        "code_clarity": 51,
+        "stakeholder_trust": 66
+      },
+      "telemetry_sha256": "8f82f9dba6174d7314e2e3451da328d1a2ec6935238474e85790318ae76aa08c"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 71,
+        "code_clarity": 47,
+        "stakeholder_trust": 48
+      },
+      "telemetry_sha256": "f9e707dfcbed272fcd51e38115ae91f838d224ae683539bc1b2466317ec5da92"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 58,
+        "team_capacity": 62,
+        "code_clarity": 35,
+        "stakeholder_trust": 47
+      },
+      "telemetry_sha256": "20c2387df844d7d0bbe2039db528933c72928043d9941a1716b32597782429a4"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 77,
+        "team_capacity": 12,
+        "code_clarity": 58,
+        "stakeholder_trust": 19
+      },
+      "telemetry_sha256": "913a10b6dc111be5085449f80c80f5cf58a0c330f064bb2ba2584d79a6fd435d"
+    },
+    {
+      "tier": "success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 76,
+        "team_capacity": 98,
+        "code_clarity": 47,
+        "stakeholder_trust": 34
+      },
+      "telemetry_sha256": "6db944de418f69d174bbf8579aaf035dadf1dcba5e3daf0e93883350be917932"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 50,
+        "team_capacity": 17,
+        "code_clarity": 50,
+        "stakeholder_trust": 56
+      },
+      "telemetry_sha256": "2cc82b10249291d4fba3905eefa42f4236b026427d71a06ee6124be2fc7e2f3b"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 60,
+        "team_capacity": 77,
+        "code_clarity": 65,
+        "stakeholder_trust": 25
+      },
+      "telemetry_sha256": "70b53c3125b0b2c1563826485ac13b7acd660986b88caa8af526106303d6ee4c"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 68,
+        "team_capacity": 100,
+        "code_clarity": 35,
+        "stakeholder_trust": 31
+      },
+      "telemetry_sha256": "9ea8b50802ece95bc6fffa1483e0f6fa8c91d64af03ca0278edfa486528f0fc3"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 79,
+        "team_capacity": 35,
+        "code_clarity": 59,
+        "stakeholder_trust": 30
+      },
+      "telemetry_sha256": "6f72c4808ab1376e7c6bfe2dbaccede4842318fc312910cf96f71aa8152af4ac"
+    },
+    {
+      "tier": "failure",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 39,
+        "team_capacity": 0,
+        "code_clarity": 61,
+        "stakeholder_trust": 37
+      },
+      "telemetry_sha256": "a33f3a177a9bdaee6ba15a0c4c84ed46558d04eea7faa9dce6f7a83637fdbe37"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": null,
+      "ending": "system_stabilizer",
+      "status": "completed_max_turns",
+      "turns": 5,
+      "final_scores": {
+        "system_health": 68,
+        "team_capacity": 32,
+        "code_clarity": 65,
+        "stakeholder_trust": 29
+      },
+      "telemetry_sha256": "741032355bbe876f0b924f2a38a285d8cba2ab75971cee60b8633db611d4ecbc"
+    }
+  ],
+  "demo:ledger_payments_monolith-v1 player_true": [
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 83,
+        "maintainability": 58,
+        "delivery_confidence": 64,
+        "team_morale": 94,
+        "user_trust": 77,
+        "budget": 43
+      },
+      "telemetry_sha256": "0ba16b991cfe3eda3e4ebad4d43cc898ddd68885c96b87ca23f91d4a157ce58b"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 70,
+        "maintainability": 111,
+        "delivery_confidence": 53,
+        "team_morale": 64,
+        "user_trust": 55,
+        "budget": 36
+      },
+      "telemetry_sha256": "074fcef99c268ef095cf5e47b6477b472aab9e73e3bae1f99b43e9dee91fe415"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 90,
+        "maintainability": 88,
+        "delivery_confidence": 51,
+        "team_morale": 64,
+        "user_trust": 83,
+        "budget": 32
+      },
+      "telemetry_sha256": "781d30515b6ae415fc6a03e9417964321245de6b0e729966b25eb7ddce29359f"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 62,
+        "maintainability": 84,
+        "delivery_confidence": 60,
+        "team_morale": 76,
+        "user_trust": 79,
+        "budget": 25
+      },
+      "telemetry_sha256": "d9f0e352550e23a12dc8a38933b4fcd47ff3e65af6bfec4c6d2215ce106b7ad1"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 90,
+        "maintainability": 114,
+        "delivery_confidence": 39,
+        "team_morale": 45,
+        "user_trust": 45,
+        "budget": 36
+      },
+      "telemetry_sha256": "8097fc4b8e58c2eda701e6bc5d8f73d6b1010a03e14ebf59f928a93264e8a02b"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 89,
+        "maintainability": 108,
+        "delivery_confidence": 57,
+        "team_morale": 83,
+        "user_trust": 75,
+        "budget": 33
+      },
+      "telemetry_sha256": "0458459ded04fd071fbe2e9e3879788d2fdbb143272b82aae6f9987f7c85dc61"
+    },
+    {
+      "tier": "success",
+      "tier_id": "triumph",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 76,
+        "maintainability": 108,
+        "delivery_confidence": 72,
+        "team_morale": 110,
+        "user_trust": 54,
+        "budget": 50
+      },
+      "telemetry_sha256": "9e1c27b6c9e1abe721b1dfc28df8b5c5363646b21583c7785b909c62097fd861"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 71,
+        "maintainability": 85,
+        "delivery_confidence": 66,
+        "team_morale": 67,
+        "user_trust": 74,
+        "budget": 51
+      },
+      "telemetry_sha256": "b3b793415e8dceaeb8b28fc0d700f49107f5997587cd520ea12d82465b677fdd"
+    },
+    {
+      "tier": "failure",
+      "tier_id": "struggle",
+      "ending": "firefighter",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 54,
+        "maintainability": 66,
+        "delivery_confidence": 19,
+        "team_morale": 34,
+        "user_trust": 30,
+        "budget": -9
+      },
+      "telemetry_sha256": "15e0c67267aa8cd5fb0154e21429101603c470e15b3c7d2e27ad62040bb7f712"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 94,
+        "maintainability": 97,
+        "delivery_confidence": 68,
+        "team_morale": 93,
+        "user_trust": 55,
+        "budget": 33
+      },
+      "telemetry_sha256": "c60a2c107b9e2945acf8b5faf3658ad19da09993c6ad34376da5bb6c1dad5a7d"
+    },
+    {
+      "tier": "partial_success",
+      "tier_id": "survival",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 70,
+        "maintainability": 101,
+        "delivery_confidence": 41,
+        "team_morale": 60,
+        "user_trust": 44,
+        "budget": 9
+      },
+      "telemetry_sha256": "1e0b2d7e26433b6f273cd1a19d1372887c6da5bafddc78489685b952d7f97ed6"
+    },
+    {
+      "tier": "success",
+      "tier_id": "success",
+      "ending": "the_visionary",
+      "status": "completed_max_turns",
+      "turns": 10,
+      "final_scores": {
+        "domain_clarity": 68,
+        "maintainability": 101,
+        "delivery_confidence": 51,
+        "team_morale": 95,
+        "user_trust": 46,
+        "budget": 40
+      },
+      "telemetry_sha256": "5fefb41597316466ff68c940d8fee837e842ac4957f1de7e203f2606758fa10d"
+    }
+  ]
+}

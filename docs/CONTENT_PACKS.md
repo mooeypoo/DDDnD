@@ -1302,3 +1302,37 @@ Stakeholder reaction rules were already fully driven by content (structured cond
 
 The tutorial was the first "second domain" all along, and nobody noticed. It had its own scores, tiers and ending, and the engine ignored them. Its coupling only worked because someone added tutorial score ids to the engine's own rule list. That is what implicit knowledge looks like up close: the system works because the code quietly knows things the model never said. The test for M3 is that both the tutorial and the SRE pack get their endings from their own content, with nothing about either in TypeScript.
 
+
+### M3.1 (slice 0): Golden replays, the safety net for M3 (2026-11-22)
+
+**What changed**
+
+- **`tests/simulation/golden_replays.test.ts`** replays fixed seeds (`golden-v1`) through:
+  - every first-party scenario, 12 runs each, with both simulator policies (`player_true`, `full_pool_oracle`);
+  - each base scenario once more with a class affinity and a challenge modifier, rotated so all five classes and all four modifiers are covered;
+  - both tutorials, 60 runs each, with both policies;
+  - the demo pack fixture.
+
+  Each run is recorded as a readable summary (coarse tier, tier id, ending, status, turns, final scores) plus a SHA-256 of its full telemetry: every turn's cards, events, reactions, scores and stakeholders. The fixture is `tests/simulation/golden/first_party_runs.json`. The test never rewrites it; `npm run test:golden:update` does, and should only be used when content deliberately changes.
+- **The simulation runner** accepts an optional `class_score_affinity` and `challenge_modifier`, applied the way the game applies a player's picks, so the replays cover those paths. Its per-run telemetry gained `selected_tier_id`. The fixed-seed audit report is still identical to `main`.
+
+**Checking the net catches things**
+
+A golden test that never fails is worth nothing, so each coupling rule was perturbed in turn:
+
+- **A tiny change** (0.7 → 0.71) did *not* fail. Scores are whole numbers, so it was absorbed by rounding.
+- **A real change** (→ 0.31) failed for all three base rules and the tutorial's `team_capacity` rule. It did **not** fail for the tutorial's `system_health` rule: twelve gentle tutorial runs never pushed system health below 25.
+- **The fix** was 60 tutorial runs, with the oracle policy too. After that, all five rules fail the replay when changed.
+
+**What the net does not cover**
+
+- **Three endings never occur** in the replays: Boundary Builder, Budget Hawk and Pragmatist. All five base tiers and seven of the ten endings do occur.
+- **The plan for slice 4:** when endings move into content, an equivalence test will compare the old TypeScript classifier with the new content-driven one on many synthetic run summaries, covering every rule and the priority order. The golden replays alone can't prove those three.
+
+**Risk flagged for the owner**
+
+The tutorial currently ends with **no tier** and with base endings (Stakeholder Whisperer, System Stabilizer), because the engine ignores its own tiers and ending. Fixing that (decision 3) will deliberately change the tutorial's golden results. It will be done with new tutorial content versions and a re-recorded fixture, called out in that slice's entry.
+
+**DDD note (talk material)**
+
+Characterization tests ("golden master") are how you change a model you don't fully trust yet. They don't say what the behavior *should* be, only what it *is*. The perturbation check is the part people skip: we found a rule the net couldn't see before relying on it.
