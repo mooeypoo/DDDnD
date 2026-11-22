@@ -9,3 +9,19 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Security headers (docs/CONTENT_PACKS_SECURITY.md, threats T1 and T3).
+# Content packs are data only, so the game never needs inline or eval'd scripts.
+# connect-src is 'self' until M2 adds the allowlisted pack hosts (ADR 0003).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Published JSON Schemas for pack authors: readable from web-based editors.
+[[headers]]
+  for = "/schema/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"

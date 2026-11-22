@@ -4,6 +4,12 @@
   "name": "Security Officer Relaxes Stance",
   "description": "The security officer is reassured when user trust is solid and the system is well-maintained",
   "condition_description": "User trust > 80",
+  "condition": {
+    "target_type": "score",
+    "target_id": "user_trust",
+    "operator": ">",
+    "value": 80
+  },
   "score_changes": [
     {
       "score_id": "delivery_confidence",

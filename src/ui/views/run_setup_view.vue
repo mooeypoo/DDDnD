@@ -3,6 +3,12 @@
     <AboutModal :isOpen="gameStore.isAboutModalOpen" @close="gameStore.closeAboutModal" />
     <RulesModal :isOpen="gameStore.isRulesModalOpen" @close="gameStore.closeRulesModal" />
     <DungeonMasterModal :isOpen="gameStore.isDungeonMasterModalOpen" @close="gameStore.closeDungeonMasterModal" />
+    <CommunityPacksDialog
+      v-if="communityPacksEnabled"
+      :isOpen="isCommunityPacksOpen"
+      :initialUrl="packLinkFromQuery"
+      @close="closeCommunityPacks"
+    />
 
     <CouncilLobby
       :quests="gameStore.availableQuests"
@@ -14,6 +20,7 @@
       :selectedModifier="selectedModifier"
       :characterName="characterName"
       :isLoading="isPreparing"
+      :communityPacksEnabled="communityPacksEnabled"
       @selectQuest="selectQuest"
       @selectClass="selectClass"
       @selectModifier="selectModifier"
@@ -23,6 +30,7 @@
       @showAbout="gameStore.openAboutModal"
       @showRules="gameStore.openRulesModal"
       @showDungeonMaster="gameStore.openDungeonMasterModal"
+      @showCommunityPacks="isCommunityPacksOpen = true"
     />
   </div>
 </template>
@@ -42,6 +50,8 @@ import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 import CouncilLobby from '@/ui/play/council_lobby.vue'
+import CommunityPacksDialog from '@/ui/components/community/community_packs_dialog.vue'
+import { isCommunityPacksEnabled } from '@/ui/config/feature_flags'
 import { sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
 
 const router = useRouter()
@@ -53,6 +63,24 @@ const selectedQuest = ref<QuestDisplayModel | null>(null)
 const selectedModifier = ref<ChallengeModifier | null>(null)
 const availableModifiers = ref<ChallengeModifier[]>([])
 const characterName = ref('')
+
+/** Community packs (ADR 0009): nothing here renders or runs unless the build flag is on. */
+const communityPacksEnabled = isCommunityPacksEnabled()
+/**
+ * A `?pack=<manifest URL>` link opens the dialog with the link filled in. It
+ * never loads by itself: fetching tells the host the player's IP address, so
+ * the player decides.
+ */
+const packLinkFromQuery = communityPacksEnabled && typeof route.query.pack === 'string' ? route.query.pack : undefined
+const isCommunityPacksOpen = ref(Boolean(packLinkFromQuery))
+
+function closeCommunityPacks() {
+  isCommunityPacksOpen.value = false
+  if (selectedQuest.value && !gameStore.availableQuests.some((quest) => quest.id === selectedQuest.value?.id && quest.version === selectedQuest.value?.version)
+    && !gameStore.availableTutorials.some((quest) => quest.id === selectedQuest.value?.id)) {
+    selectedQuest.value = easiestAdventure(gameStore.availableQuests)
+  }
+}
 const isLoadingClasses = ref(false)
 const isLoadingQuests = ref(false)
 const isLoadingTutorials = ref(false)

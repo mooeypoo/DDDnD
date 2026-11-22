@@ -1,0 +1,68 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/manifest.schema.json",
+  "schema_version": 1,
+  "kind": "extension",
+  "id": "gilded_ledger",
+  "version": "1.0.0",
+  "name": "Demo: The Gilded Ledger",
+  "description": "A demo extension pack: the DDDnD monolith story retold for a fictional payments company, built on the base pack's scores, cards, and endings.",
+  "depends_on": [
+    {
+      "pack_id": "base",
+      "version": "1.0.0"
+    }
+  ],
+  "base_url": ".",
+  "license": "GPL-3.0-only",
+  "authors": [
+    {
+      "name": "Moriel Schottlender",
+      "url": "https://moriel.tech"
+    }
+  ],
+  "pack_homepage_url": "https://github.com/mooeypoo/DDDnD-packs/tree/main/packs/gilded_ledger",
+  "scenarios": [
+    {
+      "id": "ledger_payments_monolith",
+      "version": 1
+    }
+  ],
+  "classes": [],
+  "challenge_modifiers": [],
+  "tutorials": [],
+  "content": {
+    "scenarios": [
+      "ledger_payments_monolith-v1.json"
+    ],
+    "cards": [
+      "ledger_add_transactional_outbox-v1.json",
+      "ledger_freeze_payment_changes-v1.json",
+      "ledger_nightly_reconciliation-v1.json",
+      "ledger_split_refunds_context-v1.json"
+    ],
+    "stakeholders": [
+      "ledger_head_of_payments-v1.json",
+      "ledger_support_lead-v1.json"
+    ],
+    "stakeholder_reaction_rules": [
+      "ledger_payments_fears_outages-v1.json",
+      "ledger_payments_values_steady_delivery-v1.json",
+      "ledger_support_drowning-v1.json",
+      "ledger_support_relieved-v1.json"
+    ],
+    "scores": [],
+    "events": [
+      "ledger_audit_dry_run_passes-v1.json",
+      "ledger_chargeback_storm-v1.json",
+      "ledger_double_charge_incident-v1.json",
+      "ledger_regulator_letter-v1.json"
+    ],
+    "delayed_effects": [
+      "ledger_outbox_settles-v1.json"
+    ],
+    "outcome_tiers": [],
+    "outcome_archetypes": [],
+    "classes": [],
+    "challenge_modifiers": []
+  }
+}

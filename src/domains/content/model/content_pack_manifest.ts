@@ -38,6 +38,17 @@ export interface ContentPackInventory {
 }
 
 /**
+ * What a pack is allowed to be (ADR 0001, docs/CONTENT_PACKS.md §5).
+ *
+ * - `standalone`: a complete world; declares no dependencies.
+ * - `extension`: builds on the scores/stakeholders of the packs it depends on.
+ *
+ * `overlay` (text-only reskin or translation) is planned for a later
+ * `schema_version` and is not accepted yet.
+ */
+export type PackKind = 'standalone' | 'extension'
+
+/**
  * Validated manifest model for a pack namespace.
  *
  * This model describes where content exists and which scenario/class/tutorial
@@ -45,6 +56,12 @@ export interface ContentPackInventory {
  * services resolve this into validated runtime content structures.
  */
 export interface ContentPackManifest {
+  /**
+   * Version of the pack format this manifest is written for. The game rejects
+   * packs written for a newer schema instead of misreading them.
+   */
+  schema_version: number
+  kind: PackKind
   id: string
   version: string
   name: string

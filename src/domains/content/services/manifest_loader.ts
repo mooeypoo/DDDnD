@@ -1,5 +1,7 @@
 import type { ContentPackManifest } from '../model/content_pack_manifest'
 import { assertValidContentPackManifest } from './manifest_validator'
+import { CONTENT_LIMITS } from '../validation/content_limits'
+import { readJsonWithLimit } from './bounded_json_reader'
 
 /**
  * Error used for manifest fetch/parse/validation failures.
@@ -30,9 +32,10 @@ export async function loadManifest(manifestUrl: string): Promise<ContentPackMani
 
   let parsed: unknown
   try {
-    parsed = await response.json()
-  } catch {
-    throw new ManifestLoadError(`Manifest is not valid JSON: ${manifestUrl}`)
+    parsed = await readJsonWithLimit(response, CONTENT_LIMITS.max_manifest_bytes, manifestUrl)
+  } catch (error) {
+    const details = error instanceof Error ? error.message : String(error)
+    throw new ManifestLoadError(`Unable to read manifest: ${details}`)
   }
 
   try {

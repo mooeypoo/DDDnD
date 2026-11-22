@@ -1,0 +1,22 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/stakeholder-reaction-rule.schema.json",
+  "id": "ledger_support_relieved",
+  "version": 1,
+  "name": "Support Breathes Again",
+  "description": "A maintainable system means fewer mystery tickets.",
+  "condition_description": "Maintainability > 55",
+  "condition": {
+    "target_type": "score",
+    "target_id": "maintainability",
+    "operator": ">",
+    "value": 55
+  },
+  "score_changes": [],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "ledger_support_lead",
+      "delta": 3
+    }
+  ],
+  "priority": 50
+}

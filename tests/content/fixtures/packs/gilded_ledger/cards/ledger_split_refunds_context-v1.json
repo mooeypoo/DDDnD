@@ -1,0 +1,43 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/card.schema.json",
+  "id": "ledger_split_refunds_context",
+  "version": 1,
+  "name": "Split Out the Refunds Context",
+  "description": "Give refunds and chargebacks their own bounded context, with their own model and language.",
+  "flavor_text": "Refunds were never 'negative payments'. Now the code agrees.",
+  "style_tags": [
+    "boundary",
+    "architecture"
+  ],
+  "usage_limit": 1,
+  "score_changes": [
+    {
+      "score_id": "domain_clarity",
+      "delta": 7
+    },
+    {
+      "score_id": "maintainability",
+      "delta": 3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -4
+    },
+    {
+      "score_id": "budget",
+      "delta": -5
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "ledger_head_of_payments",
+      "delta": 2
+    }
+  ],
+  "delayed_effect_refs": [
+    {
+      "id": "boundaries_clarify",
+      "version": 1
+    }
+  ]
+}

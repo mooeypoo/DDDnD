@@ -1,0 +1,17 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/stakeholder.schema.json",
+  "id": "ledger_head_of_payments",
+  "version": 1,
+  "name": "Head of Payments",
+  "description": "Owns the money flow. Measures success in uptime, and in not being on the evening news.",
+  "reaction_rule_refs": [
+    {
+      "id": "ledger_payments_fears_outages",
+      "version": 1
+    },
+    {
+      "id": "ledger_payments_values_steady_delivery",
+      "version": 1
+    }
+  ]
+}

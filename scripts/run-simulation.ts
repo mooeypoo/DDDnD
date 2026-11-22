@@ -19,6 +19,7 @@
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createFileContentProvider } from './lib/file_content_provider.js'
 
 // ── Resolve project paths ───────────────────────────────────────
 
@@ -34,24 +35,6 @@ const contentRoot = path.resolve(projectRoot, 'content')
 interface VersionRef {
   id: string
   version: number
-}
-
-async function loadJson<T extends { id: string; version: number }>(
-  directory: string,
-  ref: VersionRef
-): Promise<T> {
-  const filename = `${ref.id}-v${ref.version}.json`
-  const filePath = path.join(contentRoot, directory, filename)
-  const raw = await readFile(filePath, 'utf8')
-  const parsed = JSON.parse(raw) as T
-
-  if (parsed.id !== ref.id || parsed.version !== ref.version) {
-    throw new Error(
-      `Version mismatch in ${filename}: expected ${ref.id} v${ref.version}, got ${parsed.id} v${parsed.version}`
-    )
-  }
-
-  return parsed
 }
 
 // Dynamic import so tsx resolves the @/ aliases via tsconfig paths
@@ -71,21 +54,6 @@ type ContentProvider = {
   loadOutcomeTier: (ref: VersionRef) => Promise<any>
   loadOutcomeArchetype: (ref: VersionRef) => Promise<any>
   loadPlayerClass: (ref: VersionRef) => Promise<any>
-}
-
-function createFileContentProvider(): ContentProvider {
-  return {
-    loadScenario: (ref) => loadJson('scenarios', ref),
-    loadScore: (ref) => loadJson('scores', ref),
-    loadStakeholder: (ref) => loadJson('stakeholders', ref),
-    loadStakeholderReactionRule: (ref) => loadJson('stakeholder-reaction-rules', ref),
-    loadCard: (ref) => loadJson('cards', ref),
-    loadEvent: (ref) => loadJson('events', ref),
-    loadDelayedEffect: (ref) => loadJson('delayed-effects', ref),
-    loadOutcomeTier: (ref) => loadJson('outcome-tiers', ref),
-    loadOutcomeArchetype: (ref) => loadJson('outcome-archetypes', ref),
-    loadPlayerClass: (ref) => loadJson('classes', ref)
-  }
 }
 
 // ── CLI argument parsing ────────────────────────────────────────
@@ -418,7 +386,7 @@ async function main() {
   }
 
   // Build scenario bundle
-  const provider = createFileContentProvider()
+  const provider = createFileContentProvider(contentRoot)
   let bundle: any
   try {
     bundle = await buildScenarioBundle(scenarioRef.id, scenarioRef.version, provider)

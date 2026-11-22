@@ -4,6 +4,12 @@
   "name": "VP Product Loses Patience",
   "description": "The VP Product escalates to the CEO when both delivery and user trust are critically low",
   "condition_description": "Delivery confidence < 25",
+  "condition": {
+    "target_type": "score",
+    "target_id": "delivery_confidence",
+    "operator": "<",
+    "value": 25
+  },
   "priority": 50,
   "score_changes": [
     {

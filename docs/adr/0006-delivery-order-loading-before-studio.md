@@ -1,6 +1,6 @@
 # ADR 0006: Ship pack loading (with a demo pack) before the Studio
 
-Status: Accepted  
+Status: Accepted (decision 2 refined by [ADR 0008](0008-multi-pack-repository.md): one repository holds several packs)  
 Date: 2026-11-21  
 Feature journal: [docs/CONTENT_PACKS.md](../CONTENT_PACKS.md) (section "Milestones")
 

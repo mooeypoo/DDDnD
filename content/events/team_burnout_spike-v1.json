@@ -6,6 +6,12 @@
   "flavor_text": "Three people called in sick. Two more updated their LinkedIn.",
   "occurrence_weight": 4,
   "trigger_condition_description": "Team morale < 30",
+  "trigger_condition": {
+    "target_type": "score",
+    "target_id": "team_morale",
+    "operator": "<",
+    "value": 30
+  },
   "score_changes": [
     {
       "score_id": "team_morale",

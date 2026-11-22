@@ -4,6 +4,12 @@
   "name": "CTO Impressed by Architecture",
   "description": "The CTO is energized by clear architectural progress and increased system quality",
   "condition_description": "Domain clarity > 70",
+  "condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": ">",
+    "value": 70
+  },
   "score_changes": [
     {
       "score_id": "team_morale",

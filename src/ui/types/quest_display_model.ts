@@ -38,6 +38,12 @@ export interface QuestDisplayModel {
   /** Pack short_name for each starting score id. Presentation only. */
   startingScoreShortNames?: Record<string, string>
 
+  /**
+   * Present when the scenario comes from a community pack (ADR 0001). The UI
+   * labels such quests so players always know they are not first-party.
+   */
+  communityPack?: { id: string; name: string }
+
   // Tutorial metadata (only present for tutorial quests)
   isTutorial?: boolean
   tutorialOrder?: number

@@ -15,10 +15,18 @@ import type {
   ChallengeModifier,
 } from '@/domains/content/model'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
-import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
+import {
+  ContentOutOfScopeError,
+  ContentPackConflictError,
+  ContentPackDependencyError,
+  ContentPackRegistry,
+} from '@/domains/content/services/content_pack_registry'
+import { ContentNotFoundError } from '@/domains/content/services/content_provider'
 
 function createManifest(overrides: Partial<ContentPackManifest>): ContentPackManifest {
   return {
+    schema_version: 1,
+    kind: 'standalone',
     id: 'pack',
     version: '1.0.0',
     name: 'Pack',
@@ -85,6 +93,7 @@ function createMockProvider(label: string): ContentProvider {
     name: `${label}-rule`,
     description: label,
     condition_description: 'always',
+    condition: { target_type: 'score', target_id: 'budget', operator: '>=', value: 0 },
     score_changes: [],
   })
 
@@ -246,58 +255,21 @@ describe('content pack registry', () => {
     expect(baseProvider.loadScenario).toHaveBeenCalledTimes(1)
   })
 
-  it('prefers later packs when multiple packs own the same challenge modifier ref', async () => {
+  // Before M1.3 this test asserted the opposite: the later pack silently won.
+  // ADR 0001 removes cross-pack overrides, so a second claim is now refused.
+  it('refuses a pack that claims content another pack already owns', () => {
     const registry = new ContentPackRegistry()
-    const baseProvider = createMockProvider('base')
-    const expansionProvider = createMockProvider('expansion')
-
-    const sharedModifierRef = { id: 'budget_crisis', version: 1 }
-
-    const baseManifest = createManifest({
-      id: 'base',
-      challenge_modifiers: [sharedModifierRef],
-      content: {
-        scenarios: [],
-        cards: [],
-        stakeholders: [],
-        stakeholder_reaction_rules: [],
-        scores: [],
-        events: [],
-        delayed_effects: [],
-        outcome_tiers: [],
-        outcome_archetypes: [],
-        classes: [],
-        challenge_modifiers: ['budget_crisis-v1.json'],
-      },
+    const inventory = (challengeModifiers: string[]) => ({
+      ...createManifest({}).content,
+      challenge_modifiers: challengeModifiers,
     })
 
-    const expansionManifest = createManifest({
-      id: 'expansion',
-      challenge_modifiers: [sharedModifierRef],
-      content: {
-        scenarios: [],
-        cards: [],
-        stakeholders: [],
-        stakeholder_reaction_rules: [],
-        scores: [],
-        events: [],
-        delayed_effects: [],
-        outcome_tiers: [],
-        outcome_archetypes: [],
-        classes: [],
-        challenge_modifiers: ['budget_crisis-v1.json'],
-      },
-    })
+    registry.registerPack(createManifest({ id: 'base', content: inventory(['budget_crisis-v1.json']) }), createMockProvider('base'))
 
-    registry.registerPack(baseManifest, baseProvider)
-    registry.registerPack(expansionManifest, expansionProvider)
-
-    const merged = registry.createMergedProvider()
-    const modifier = await merged.loadChallengeModifier(sharedModifierRef)
-
-    expect(modifier.name).toBe('expansion-modifier')
-    expect(expansionProvider.loadChallengeModifier).toHaveBeenCalledTimes(1)
-    expect(baseProvider.loadChallengeModifier).not.toHaveBeenCalled()
+    expect(() =>
+      registry.registerPack(createManifest({ id: 'expansion', content: inventory(['budget_crisis-v1.json']) }), createMockProvider('expansion')),
+    ).toThrow(ContentPackConflictError)
+    expect(registry.getManifests().map((manifest) => manifest.id)).toEqual(['base'])
   })
 
   it('derives available outcome archetypes from manifest inventory', () => {
@@ -331,7 +303,7 @@ describe('content pack registry', () => {
         events: [],
         delayed_effects: [],
         outcome_tiers: [],
-        outcome_archetypes: ['the_visionary-v1.json', 'system_stabilizer-v1.json'],
+        outcome_archetypes: ['the_visionary-v1.json'],
         classes: [],
         challenge_modifiers: [],
       },
@@ -370,5 +342,75 @@ describe('content pack registry', () => {
     registry.registerPack(manifest, createMockProvider('invalid'))
 
     expect(registry.getAvailableOutcomeArchetypes()).toEqual([{ id: 'budget_hawk', version: 2 }])
+  })
+})
+
+describe('pack ownership and scope (M1.3, ADR 0001)', () => {
+  const emptyInventory = createManifest({}).content
+
+  function pack(id: string, overrides: Partial<ContentPackManifest> = {}): ContentPackManifest {
+    return createManifest({ id, ...overrides })
+  }
+
+  it('refuses a second pack with the same id', () => {
+    const registry = new ContentPackRegistry()
+    registry.registerPack(pack('base'), createMockProvider('base'))
+    expect(() => registry.registerPack(pack('base'), createMockProvider('impostor'))).toThrow(ContentPackConflictError)
+  })
+
+  it('does not fall back to other packs for content no pack lists', async () => {
+    const registry = new ContentPackRegistry()
+    const provider = createMockProvider('base')
+    registry.registerPack(pack('base'), provider)
+
+    await expect(registry.createMergedProvider().loadCard({ id: 'unlisted', version: 1 })).rejects.toBeInstanceOf(ContentNotFoundError)
+    expect(provider.loadCard).not.toHaveBeenCalled()
+  })
+
+  it('lets a pack use its own content and its dependencies, transitively', async () => {
+    const registry = new ContentPackRegistry()
+    registry.registerPack(pack('base', { content: { ...emptyInventory, scores: ['budget-v1.json'] } }), createMockProvider('base'))
+    registry.registerPack(pack('middle', {
+      kind: 'extension',
+      depends_on: [{ pack_id: 'base', version: '1.0.0' }],
+      content: { ...emptyInventory, cards: ['middle_card-v1.json'] },
+    }), createMockProvider('middle'))
+    registry.registerPack(pack('top', {
+      kind: 'extension',
+      depends_on: [{ pack_id: 'middle', version: '1.0.0' }],
+      content: { ...emptyInventory, scenarios: ['top_scenario-v1.json'] },
+    }), createMockProvider('top'))
+
+    const scoped = registry.createScenarioProvider({ id: 'top_scenario', version: 1 })
+    await expect(scoped.loadCard({ id: 'middle_card', version: 1 })).resolves.toMatchObject({ name: 'middle-card' })
+    await expect(scoped.loadScore({ id: 'budget', version: 1 })).resolves.toMatchObject({ name: 'base-score' })
+  })
+
+  it('refuses content from a loaded pack the scenario does not depend on', async () => {
+    const registry = new ContentPackRegistry()
+    registry.registerPack(pack('other', { content: { ...emptyInventory, cards: ['secret_card-v1.json'] } }), createMockProvider('other'))
+    registry.registerPack(pack('mine', { content: { ...emptyInventory, scenarios: ['my_scenario-v1.json'] } }), createMockProvider('mine'))
+
+    const scoped = registry.createScenarioProvider({ id: 'my_scenario', version: 1 })
+    await expect(scoped.loadCard({ id: 'secret_card', version: 1 })).rejects.toBeInstanceOf(ContentOutOfScopeError)
+    await expect(registry.createMergedProvider().loadCard({ id: 'secret_card', version: 1 })).resolves.toBeDefined()
+  })
+
+  it('reports a missing dependency', () => {
+    const registry = new ContentPackRegistry()
+    registry.registerPack(pack('orphan', { kind: 'extension', depends_on: [{ pack_id: 'base', version: '1.0.0' }] }), createMockProvider('orphan'))
+    expect(() => registry.createScopedProvider('orphan')).toThrow(/depends on pack "base", which is not loaded/)
+  })
+
+  it('accepts newer minor versions of a dependency but not a different major', () => {
+    const registry = new ContentPackRegistry()
+    registry.registerPack(pack('base', { version: '1.4.0' }), createMockProvider('base'))
+    registry.registerPack(pack('fits', { kind: 'extension', depends_on: [{ pack_id: 'base', version: '1.2.0' }] }), createMockProvider('fits'))
+    registry.registerPack(pack('too_new', { kind: 'extension', depends_on: [{ pack_id: 'base', version: '1.5.0' }] }), createMockProvider('too_new'))
+    registry.registerPack(pack('wrong_major', { kind: 'extension', depends_on: [{ pack_id: 'base', version: '2.0.0' }] }), createMockProvider('wrong_major'))
+
+    expect(() => registry.createScopedProvider('fits')).not.toThrow()
+    expect(() => registry.createScopedProvider('too_new')).toThrow(ContentPackDependencyError)
+    expect(() => registry.createScopedProvider('wrong_major')).toThrow(ContentPackDependencyError)
   })
 })

@@ -4,6 +4,12 @@
   "name": "Product Owner Frustrated",
   "description": "The Product Owner loses confidence when team capacity is very low.",
   "condition_description": "team_capacity < 30",
+  "condition": {
+    "target_type": "score",
+    "target_id": "team_capacity",
+    "operator": "<",
+    "value": 30
+  },
   "score_changes": [
     { "score_id": "stakeholder_trust", "delta": -3 }
   ],

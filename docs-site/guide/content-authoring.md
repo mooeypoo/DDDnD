@@ -78,6 +78,8 @@ The `manifest.json` is the entry point for your pack.
 
 ```json
 {
+  "schema_version": 1,
+  "kind": "extension",
   "id": "my_pack",
   "version": "1.0.0",
   "name": "My Pack",
@@ -86,7 +88,7 @@ The `manifest.json` is the entry point for your pack.
     { "pack_id": "base", "version": "1.0.0" }
   ],
   "base_url": "/content/my-pack",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "authors": [
     { "name": "Example Author", "url": "https://example.com" }
   ],
@@ -116,14 +118,18 @@ The `manifest.json` is the entry point for your pack.
 
 | Field | Description |
 |---|---|
-| `id` | Non-empty string, unique pack identifier |
+| `schema_version` | Pack format version. Use `1`. |
+| `kind` | `standalone` (complete world, no dependencies) or `extension` (builds on a pack in `depends_on`) |
+| `id` | Lowercase snake_case, 1–64 characters, unique pack identifier |
 | `version` | Semver string, e.g. `1.0.0` |
-| `name`, `description` | Non-empty strings |
+| `name`, `description` | Non-blank text |
 | `depends_on` | Array of `{ pack_id, version }` |
-| `base_url` | Directory path prefix for content fetches |
-| `license` | Valid SPDX expression |
-| `authors` | Non-empty array; each entry requires a non-empty `name` |
-| `content` | Object with all inventory arrays present (may be empty) |
+| `base_url` | Root-relative path (`/content`) or `https://` URL for content fetches |
+| `license` | Valid SPDX expression. Packs that depend on `base` must use `GPL-3.0-only` or `GPL-3.0-or-later`. |
+| `authors` | 1–20 entries; each requires a non-blank `name`. Optional `url` must be `https://`. |
+| `content` | Object with all inventory arrays present (may be empty). Every entry point must be listed here. |
+
+Unknown fields are rejected, so typos are reported instead of silently ignored.
 
 ## Extending the Base Pack
 
@@ -139,13 +145,94 @@ Include only files your pack **truly owns** in the `content.*` inventory. Refere
 
 ## Hosting External Packs
 
-For remote hosting, `base_url` should point to the directory containing your content subfolders.
+For hosted packs, set `"base_url": "."`. Content is then read from the folder that holds `manifest.json`, so the same manifest works for every release tag without edits:
 
-Examples:
-- GitHub raw: `https://raw.githubusercontent.com/<owner>/<repo>/<branch>/content`
-- CDN mirror: `https://cdn.example.com/dddnd/my-pack/content`
+- manifest: `https://raw.githubusercontent.com/<owner>/<repo>/<tag>/packs/<pack_id>/manifest.json`
+- a scenario: `https://raw.githubusercontent.com/<owner>/<repo>/<tag>/packs/<pack_id>/scenarios/<id>-v<version>.json`
 
-A scenario fetch resolves to: `${base_url}/scenarios/<id>-v<version>.json`
+`"./some/folder"` also works when content sits in a subfolder. `..` is never allowed.
+
+The game loads remote packs only from GitHub: `raw.githubusercontent.com` and GitHub Pages sites (`<owner>.github.io`). Share a URL pinned to a tag or commit, not a branch, so a saved game always finds the content it was played with. See [ADR 0003](https://github.com/mooeypoo/DDDnD/blob/main/docs/adr/0003-remote-pack-source-allowlist.md). One repository can hold several packs, one folder each ([mooeypoo/DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs) is the reference layout).
+
+## Naming your content ids
+
+Content ids are shared by every loaded pack, and a pack whose files collide with another pack's is refused. Prefix your ids with a short word unique to your pack. The demo pack uses `ledger_` (`ledger_split_refunds_context`).
+
+## Reusing base content
+
+An `extension` pack can reference base cards, events, aftershocks, stakeholders, outcome tiers, and endings by `{ id, version }`, without copying them. Check which stakeholders a reused card or event affects (its `stakeholder_changes`): if your scenario doesn't include that stakeholder, the game currently creates an invisible "phantom" stakeholder that still counts toward end-of-run classification. Either include the stakeholder or pick other content. The validator will reject this in a later version.
+
+## Single-file packs (`.dddnd-pack.json`)
+
+A pack can also travel as one file, for workshops where hosting isn't practical: a player loads it into the game from their computer. Create one from a pack folder:
+
+```bash
+npm run content:bundle -- --content-root ../DDDnD-packs/packs/gilded_ledger
+# writes gilded_ledger-v1.0.0.dddnd-pack.json
+```
+
+The file holds the manifest and every content file. The game validates it exactly like a hosted pack, and the same content gets the same content hash either way. The game never unzips archives; this is its only file format for packs.
+
+## Continuous validation (GitHub Actions)
+
+Pack repositories on GitHub can run DDDnD's validator and balance audit on every push with DDDnD's reusable workflow. Add `.github/workflows/validate-packs.yml`:
+
+```yaml
+name: Validate packs
+on: [push, pull_request]
+jobs:
+  validate:
+    uses: mooeypoo/DDDnD/.github/workflows/validate-pack.yml@pack-validator-v1
+    with:
+      dddnd-ref: pack-validator-v1
+      packs: packs/*/
+```
+
+Inputs: `packs` (folders with a `manifest.json`; globs allowed), `dependency-roots` (folders of other packs yours depends on, besides `base` and `tutorial`), `audit-runs` (default 50; `0` skips the balance audit), `fail-on-audit-critical` (default `true`). Pin both refs to the same tag. `pack-validator-v1` only moves forward for compatible changes. See [ADR 0011](https://github.com/mooeypoo/DDDnD/blob/main/docs/adr/0011-reusable-pack-validation-workflow.md).
+
+> The `pack-validator-v1` tag is published when community pack support is released. Until then, use the ref given in the [DDDnD-packs workflow](https://github.com/mooeypoo/DDDnD-packs/blob/main/.github/workflows/validate-packs.yml).
+
+## Editor support (JSON Schema)
+
+Every content type has a published JSON Schema generated from the game's own validator:
+
+```text
+https://dddnd.app/schema/v1/manifest.schema.json
+https://dddnd.app/schema/v1/scenario.schema.json
+https://dddnd.app/schema/v1/card.schema.json
+https://dddnd.app/schema/v1/event.schema.json
+https://dddnd.app/schema/v1/delayed-effect.schema.json
+https://dddnd.app/schema/v1/score.schema.json
+https://dddnd.app/schema/v1/stakeholder.schema.json
+https://dddnd.app/schema/v1/stakeholder-reaction-rule.schema.json
+https://dddnd.app/schema/v1/outcome-tier.schema.json
+https://dddnd.app/schema/v1/outcome-archetype.schema.json
+https://dddnd.app/schema/v1/class.schema.json
+https://dddnd.app/schema/v1/challenge-modifier.schema.json
+```
+
+Add a `"$schema"` line to any file for autocomplete and inline errors in VS Code and most editors. The game ignores it:
+
+```json
+{
+  "$schema": "https://dddnd.app/schema/v1/card.schema.json",
+  "id": "escalate_incident_command",
+  "version": 1
+}
+```
+
+Or map whole folders once in `.vscode/settings.json`:
+
+```json
+{
+  "json.schemas": [
+    { "fileMatch": ["content/cards/*.json"], "url": "https://dddnd.app/schema/v1/card.schema.json" },
+    { "fileMatch": ["content/manifest.json"], "url": "https://dddnd.app/schema/v1/manifest.schema.json" }
+  ]
+}
+```
+
+The schemas catch shapes, types, id formats, and ranges while you type. A few rules can only be checked by the validator (blank text, control characters, license compatibility, entry points listed in the inventory, cross-file references), so always run the validator before publishing.
 
 ## Validation Workflow
 
@@ -183,6 +270,7 @@ npm run build
 - Keep gameplay changes versioned by file (`-v2`, `-v3`, ...)
 - Ensure every score file includes both `name` and `short_name`
 - Ensure every `score_id` reachable from a scenario (cards, events, delayed effects, reaction rules, requirements, failure conditions) is in that scenario’s `score_refs`
+- give every reaction rule a structured `condition`, and every event with `trigger_condition_description` a structured `trigger_condition` (the text is for people; the engine only reads the structured field). Conditions may only check scores the scenario tracks and stakeholders in the scenario.
 - Ensure `scenarios`, `classes`, `tutorials` entry points are intentional
 - Include every owned file in `manifest.content.*`
 - Use a valid SPDX license expression

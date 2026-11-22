@@ -1,0 +1,35 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/card.schema.json",
+  "id": "ledger_freeze_payment_changes",
+  "version": 1,
+  "name": "Freeze Changes to the Payment Path",
+  "description": "Pause every non-critical change to the payment flow until the audit is over.",
+  "flavor_text": "The safest deploy is the one you didn't do.",
+  "style_tags": [
+    "process",
+    "short-term"
+  ],
+  "usage_limit": 2,
+  "cooldown_turns": 3,
+  "score_changes": [
+    {
+      "score_id": "user_trust",
+      "delta": 5
+    },
+    {
+      "score_id": "team_morale",
+      "delta": -3
+    },
+    {
+      "score_id": "delivery_confidence",
+      "delta": -3
+    }
+  ],
+  "stakeholder_changes": [
+    {
+      "stakeholder_id": "ledger_head_of_payments",
+      "delta": 3
+    }
+  ],
+  "delayed_effect_refs": []
+}

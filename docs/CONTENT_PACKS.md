@@ -1,6 +1,6 @@
 # Community Content Packs
 
-Status: Planning. No implementation yet. This file is the journal and plan for the feature.  
+Status: In progress. M1 (harden the content boundary) is complete; M2 is next. See section 11. This file is the journal and plan for the feature.  
 Audience: future-us, other agents, and later writing (talk, blog posts, the public docs site)  
 Decisions: [docs/adr/](adr/README.md) (ADRs 0001–0006)  
 Threat model: [docs/CONTENT_PACKS_SECURITY.md](CONTENT_PACKS_SECURITY.md)  
@@ -259,13 +259,14 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 
 | Question | Notes | Decide by |
 |---|---|---|
-| Schema library | Zod v4 is the working proposal (CSP-safe, emits JSON Schema). Valibot is the alternative. Ajv is out for the runtime. | Start of M1 |
-| Exact limits (bytes per file, files per pack, stakeholders per scenario, `max_turns` range, string lengths) | Set them from the base pack's real maximums with generous headroom. Record them in CONTENT_SCHEMA.md. | M1 |
-| Demo pack topic | `extension` kind is fixed. A likely shape is "the Monolith, retold for a fictional company", to show the facilitator use case. | M2 |
-| Demo pack repository name and owner | Public GitHub repo, separate from this one | M2 |
+| ~~Schema library~~ | **Resolved (M1.1):** `zod/mini` in jitless mode with our own messages. See [ADR 0007](adr/0007-zod-mini-jitless-for-content-validation.md). | Done |
+| ~~Exact limits~~ | **Resolved.** Per-file limits in M1.1 (table in [CONTENT_SCHEMA.md](../CONTENT_SCHEMA.md#validation-and-limits)). 2000 files per pack in M1.2. | Done |
+| ~~Demo pack topic~~ | **Resolved (M2.1):** "The Gilded Ledger", the monolith story retold for a fictional payments company. | Done |
+| ~~Demo pack repository name~~ | **Resolved (M2.1):** [mooeypoo/DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs), one folder per pack (ADR 0008). | Done |
 | SRE pack design | Scores, stakeholders, failure modes, and what "winning" means need a brainstorm | M3 |
 | Studio subdomain and repo folder names | Working names: `studio.dddnd.app`, `studio/` | M4 |
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
+| Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
 | Exact-run replay of retired remote packs | Snapshots make it possible. Do we promise it? (CONTENT_VERSIONING.md does not promise it for retired base scenarios.) | M2 |
 
 ---
@@ -283,3 +284,476 @@ Threads worth telling, with where they are recorded:
 - **"A second domain is the only real test of generality."** The SRE pack as an acceptance test. (ADR 0006, M3)
 - **"Writing a pack is domain modeling."** Pack creation as a workshop exercise. (§2)
 - **The context map** in §4.3 works as a slide.
+
+---
+
+## 11. Implementation log
+
+One entry per slice of work: what changed, what we learned, and why we chose what we chose. Newest last. Each entry is written for someone reading it months later, such as the talk, a blog post, or a reviewer.
+
+### M1.1: Field-level schemas and limits (2026-11-21)
+
+Branch: `feat/content-packs-mvp1` (PR #34).
+
+**What changed**
+
+- New `src/domains/content/validation/` module (the folder already existed, empty, from the original architecture):
+  - `content_limits.ts`: every bound in one place, each annotated with the base pack's measured maximum.
+  - `schema_primitives.ts`: id grammar, bounded integers, safe text, refs, records, https URLs.
+  - `content_entity_schemas.ts`: one strict schema per content type, typed against `model/content_types.ts`.
+  - `content_entity_parser.ts`: `parseContentEntity()`, the single entry point, plus author-facing error messages.
+- `bounded_json_reader.ts`: reads a response body with a byte cap. It checks `Content-Length` early, then counts the actual stream, because the header can lie or be missing.
+- The browser loader (`createContentProvider`) now goes: bounded read → JSON parse → schema → filename identity check. The old `score_shape.ts` check is subsumed by the score schema. Its tests moved to `content_schema.test.ts` with the same rules.
+- The four CLI scripts each had their own copy of a disk loader that checked only `id`/`version`. They now share `scripts/lib/file_content_provider.ts`, which applies the same schema as the game.
+- `Stakeholder.short_description` was documented in CONTENT_SCHEMA.md but missing from the TypeScript type. It's now in the type, so the strict schema accepts a documented field.
+- CONTENT_SCHEMA.md gains a "Validation and Limits" section. Its accidentally duplicated opening section (noted during planning) is fixed.
+
+**How the limits were chosen**
+
+We measured all 209 first-party content files first (longest strings, numeric ranges, array sizes, largest file at about 5 KB). Each limit is that maximum with generous headroom: descriptions 174 → 600 characters, cards per scenario 26 → 100, `max_turns` 12 → 50. Two limits are set by something other than content:
+
+- **Stakeholders per scenario is 8.** That keeps it below the UI's 9 avatar roles, so ADR 0002's distinct cast is always possible.
+- **Deltas are bounded at ±100**, because scores and satisfaction live on roughly a 0–100 scale.
+
+**What we learned**
+
+1. **Every first-party file passed on the first run.** The base content was already disciplined; the boundary was the only thing missing. That made it safe to make objects strict (unknown keys are errors).
+2. **Zod v4 quietly calls `new Function`.** We had picked Zod partly because Ajv uses `new Function`. Reading Zod's source showed it does too: it probes for `eval` to JIT-compile object parsers. The probe fails safely under CSP but still triggers a violation report. Fix: `jitless: true`. We wrote a test that spies on the `Function` constructor and confirmed it failed with jitless off, so the test is real.
+3. **We measured the bundle before committing to the API.** Classic Zod added 28 kB gzipped (about 20%). `zod/mini` adds 9.5 kB. We switched while the schemas were fresh.
+4. **`zod/mini` has no English messages, and that turned out to be useful.** Its default is "Invalid input", which helps no author. We wrote about 40 lines mapping Zod's structured issues to plain messages, such as `unknown field "stakehoder_changes" (check the spelling)`. These are the messages Pack Studio will show. One subtlety: mini doesn't keep the input value on issues, so "missing" and "wrong type" looked the same. We tell them apart by looking up the path in the raw JSON.
+5. **Zod silently drops a `"__proto__"` key from records.** That's safe (no prototype pollution), but an author would never learn their key vanished. Our rule is "reject, don't silently fix", so we check the raw input first and report it. Same reasoning for text: bidi-override characters are rejected with a message, not stripped (this refines the threat model's original "stripped").
+6. **One boundary, many doors.** The game validated nothing, and neither did the CLI, but they skipped validation in four separate places. Consolidating the loaders matters for authors: before this, a pack could pass `npm run content:validate` and still be rejected by the game.
+
+**How we know the game didn't change**
+
+- The full test suite passes (894 tests, up from 664).
+- A fixed-seed audit report (5 scenarios × 20 runs × both bot policies, about 300 KB of JSON) is byte-identical between `main` and this branch. This matters because schema parsing rebuilds objects (key order can change). The engine's behavior did not.
+
+**Still to do in M1:** manifest schema (`schema_version`, `kind`, URL rules, files per pack), pack-scoped resolution, structured reaction conditions, JSON Schema export, CSP header, and the hostile-pack fixture suite.
+
+### M1.2: Manifest schema, pack kinds, and the license rule (2026-11-21)
+
+**What changed**
+
+- Manifests gain two required fields:
+  - `schema_version` (integer, currently `1`)
+  - `kind` (`standalone` or `extension`)
+
+  The base manifest is `standalone`. The tutorial manifest is `extension` (it depends on base).
+- `manifest_validator.ts` keeps its public API (`{ valid, errors: [{ field, message }] }`), so the loader, CLI, and tests did not change their calls. The hand-written checks were replaced by `validation/manifest_schema.ts`, which has the same strictness, limits, and messages as content files.
+- New rules that span several fields (`manifestRuleIssues`):
+  - A `standalone` pack has no dependencies. An `extension` has at least one.
+  - **ADR 0004 is enforced:** a pack that depends on `base` must be `GPL-3.0-only` or `GPL-3.0-or-later`.
+  - Every entry point (scenario, class, modifier, tutorial) must be listed in the pack's own inventory.
+  - At most 2000 files per pack.
+- New field rules:
+  - Inventory entries must be versioned filenames built from safe ids, so `../../secrets-v1.json` is rejected.
+  - `base_url` is a root-relative path without `..` or an `https://` URL.
+  - Author and homepage URLs must be `https://`.
+- Manifest reads are byte-capped (256 KB) like content reads.
+- New policy constants live in `validation/pack_policy.ts`, each naming its ADR.
+
+**Decisions made along the way**
+
+1. **`schema_version` is checked before anything else.** A pack written for a newer format will contain fields this game has never seen. Strict validation would report each one as "unknown field", which is accurate but useless. A single message ("this pack uses pack format 2, but this version of DDDnD supports up to 1") tells the player what to do. Forward compatibility comes from the explicit version, not from tolerating unknown keys.
+2. **`overlay` is not accepted yet.** The three kinds are designed, but only two have engine support. Accepting `overlay` before the overlay merge exists would mean loading a pack that does nothing. It will arrive with a schema bump.
+3. **`kind` is required, not defaulted.** A default would be convenient, but the content philosophy is "explicit", and kind is part of what a player is told on the consent screen. The cost was adding two fields to five test fixtures. Expectations were unchanged.
+4. **The authoring guide's own example was invalid under ADR 0004.** It depended on `base` and used MIT. Both copies of the guide (repo and public docs site) are fixed. A new test extracts the example manifest from each guide and validates it, so the docs can't drift again.
+
+**How we know nothing broke:** all existing manifest tests pass unchanged against the new implementation, both first-party manifests validate, and the CLI validator passes for base and tutorial.
+
+### M1.3: One owner per file, and scenarios see only their own pack (2026-11-21)
+
+**What changed**
+
+- `ContentPackRegistry` now records an owner for every inventory file:
+  - **Registering a pack that claims a file another pack owns fails** (`ContentPackConflictError`). So does registering a second pack with the same id. Nothing is registered in that case.
+  - **No fallback search.** Before, content that no pack listed was looked for in every pack, newest first. Now it is simply not found. Every file must be listed in its pack's inventory.
+- New `createScopedProvider(packId)` and `createScenarioProvider(scenarioRef)`. A scenario's bundle resolves only from the pack that owns the scenario plus its transitive `depends_on`:
+  - Content in a loaded but undeclared pack fails with `ContentOutOfScopeError`, which names the owning pack.
+  - A missing or incompatible dependency fails with `ContentPackDependencyError`.
+- Dependency versions use caret semantics: same major, at least the declared version.
+- The game store builds every scenario bundle (lobby warm-up, run start, restoring a save) with the scenario's scoped provider. The game-wide merged provider is still used for things a player chooses across packs: the quest list, player classes, challenge modifiers.
+- The run-lifecycle coordinator's `buildScenarioBundle` dependency no longer takes a provider, because choosing the provider is now the store's job.
+
+**The design discussion**
+
+The plan said "external packs may not override another pack's content", which suggests tracking which packs are first-party and which are community. Before building that, we checked the data: **the base and tutorial inventories share no files at all.** So the simpler rule holds for everyone, first-party included: *one file, one owner*. No origin flag, no special cases, and nothing a future code path could forget to set. A stricter invariant turned out to be cheaper than a conditional one.
+
+Scope is a separate question from ownership. Ownership stops one pack *replacing* another's content. Scope stops a pack *depending on* content it never declared. Without scope, a community pack could quietly use another community pack's cards. It would work on the author's machine (where both are loaded) and break for players who only loaded one. Scope makes `depends_on` mean something.
+
+Player classes and challenge modifiers are deliberately *not* scoped. They are run-setup choices that sit outside a scenario bundle. A base-pack class works with any scenario, because classes only affect presentation and a score affinity, which is ignored if the scenario doesn't track that score. Whether standalone packs should bring their own classes is a question for M3.
+
+**Tests that changed, and why**
+
+- "prefers later packs when multiple packs own the same challenge modifier ref" asserted the old override behavior. ADR 0001 removes that behavior on purpose, so the test now asserts the opposite: a second claim is refused and the registry is unchanged.
+- "derives available outcome archetypes" had two fixture packs both owning `system_stabilizer-v1.json`. The second pack now owns only its own file. The expected result is identical.
+
+**How we know nothing broke:** with the fallback removed, every first-party scenario and tutorial builds and validates under its own pack scope (new integration test). That proves the first-party inventories were already complete. The game store orchestration tests (start, restore, tutorials) pass unchanged.
+
+### M1.4: Conditions become data, and the prose parser leaves the engine (2026-11-21)
+
+**What changed**
+
+- `StakeholderReactionRule.condition` (required) and `Event.trigger_condition` (optional) use the existing structured `NumericCondition` shape: `{ target_type, target_id, operator, value }`.
+- `condition_description` and `trigger_condition_description` stay, but **only as text for people**. The schema requires `trigger_condition` whenever an event has the description.
+- The engine evaluates only the structured fields. `parseConditionDescription` (a regex plus a fuzzy match of the left side against score/stakeholder ids *and display names*) is gone from the simulation.
+- The bundle validator checks every rule and event condition: scores must be in `score_refs`, stakeholders must be in the scenario. Card requirements and failure conditions now get the stakeholder check too.
+- All 42 first-party rule and conditional-event files gained a structured condition. This was a pure text insertion; the diff has no removed lines.
+- The old parser lives on, unchanged, as `tests/content/support/legacy_condition_parser.ts`. A permanent test uses it to prove that every structured condition in every playable first-party scenario equals what its prose meant (over 100 rule/event checks).
+
+**What we found before changing anything**
+
+We ran the old parser over every rule in every scenario first. 33 of 36 rules resolved the same way everywhere. **Three rules resolved to a condition in some scenarios and to nothing in one.** In that scenario they silently never fired. That scenario was `test_scenario-v1`, which tracks neither `maintainability` nor `domain_clarity`. It turned out to be unplayable anyway: it already fails bundle validation for other untracked scores. So no player ever met the bug. But it is exactly the bug a community author *would* hit: rename "Domain clarity" to "Model clarity" in a workshop pack, and every rule that mentions it goes quiet with no error.
+
+There was also a trap in the obvious fix. With structured conditions, a condition on a score the scenario does not track reads that score as 0. So "Maintainability < 45" would go from "never fires" to "always fires". The new bundle-validator check closes that: an untracked condition target is now an error, the same rule that already applied to card requirements.
+
+**Why no content version bump**
+
+CONTENT_VERSIONING.md says to bump when behavior changes. Here, behavior is provably identical: the equivalence test covers every playable scenario, and the fixed-seed audit report is still byte-identical to `main`. Adding the structured field makes an implicit rule explicit without changing it. That interpretation is now written into CONTENT_VERSIONING.md, so the next person doesn't have to re-derive it.
+
+**Why require it instead of keeping a prose fallback**
+
+A fallback ("use `condition` if present, otherwise parse the text") would have kept old-style files working. But no community packs exist yet, so this is the cheapest moment the format will ever have to become strict. And a fallback keeps the silent-failure mode alive for exactly the authors least able to debug it.
+
+**The DDD angle (talk material)**
+
+This is "make the implicit explicit" in its most literal form. The domain concept, *when a stakeholder reacts*, lived inside an English sentence, and the engine recovered it by guessing. The human description and the machine rule had been one string, so changing the wording changed the behavior. Now there are two fields, each with one job: the ubiquitous-language sentence for people and the model for the engine. The equivalence test keeps them in agreement for first-party content.
+
+**Tests that changed, and why**
+
+Test fixtures that build rules by hand gained a `condition` matching their prose (type change, no expectation changes). One fixture needed care: a turn-pipeline event with prose `"Team morale > 40"`. Without a matching `trigger_condition` it would have quietly become unconditional and changed what the test exercises. Two content tests that called the parser on rules now read `rule.condition`, with the same assertions.
+
+### M1.5: Published JSON Schemas for authors (2026-11-21)
+
+**What changed**
+
+- `validation/json_schema_export.ts` generates JSON Schemas from the same Zod schemas the game validates with. `npm run content:schemas` writes them to `public/schema/v1/`, so they are served at `https://dddnd.app/schema/v1/<type>.schema.json`.
+- The generated files are committed. A test regenerates them and fails on any difference, so the published contract can't drift from the validator.
+- Authors may put `"$schema": "<url>"` at the top of any manifest or content file. The parser accepts and drops it before strict validation, because it is tooling metadata, not content.
+- Both authoring guides gained an "Editor support" section (per-file `$schema`, or a `.vscode/settings.json` folder mapping).
+
+**Decisions**
+
+1. **Serve from the game's domain, not the docs site.** The docs site is on GitHub Pages under a project path. `dddnd.app` is the stable, owned domain, and `$id` URLs should outlive hosting changes. The path carries the pack format version (`/v1/`), so a future format can publish `/v2/` without breaking v1 authors.
+2. **Commit the output, test for drift.** Generating at build time would hide changes to the published contract inside unrelated diffs. A committed file makes every contract change visible in review, which is what a published language needs.
+3. **Be honest about what JSON Schema can't say.** Refinements such as "not blank", forbidden characters, license-by-dependency, and cross-file references don't translate. Each schema's `description` says so, and the guides tell authors to run the validator before publishing. The editor helps; the validator is the authority.
+4. **The export stays out of the player bundle.** It is not re-exported from the validation barrel, so only the script and the test import it.
+
+**DDD angle:** this is the *Published Language* from the context map (§4.3), made concrete. Until now the "pack schema" was a TypeScript type plus prose docs. Now it is a versioned, machine-readable contract at a stable URL, generated from the one model the engine trusts.
+
+### M1.6: Content Security Policy and the rendering guard (2026-11-21)
+
+**What changed**
+
+- `netlify.toml` now sends a Content Security Policy on every page:
+
+  ```
+  default-src 'self'; script-src 'self';
+  style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com;
+  img-src 'self' data: blob:; connect-src 'self';
+  object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  ```
+
+  It also sends `X-Content-Type-Options: nosniff` and a `Referrer-Policy`. Published schemas under `/schema/*` get `Access-Control-Allow-Origin: *`, so browser-based editors (vscode.dev, github.dev) can fetch them.
+- `tests/ui/no_markup_injection.test.ts` fails if any file uses `v-html`, `innerHTML`, `outerHTML`, `insertAdjacentHTML`, `document.write`, or `createContextualFragment`. There is one allow-listed exception, with its reason: the social links panel renders hard-coded SVG icons. The test also checks that the allow-list doesn't go stale.
+- AGENT.md gains a non-negotiable rule: content is rendered as text, never as markup.
+
+**How the policy was chosen**
+
+We inventoried what the game actually loads instead of guessing:
+- `index.html` has no inline scripts, and nothing in `src` uses `eval` or `new Function`.
+- Fonts come from Google Fonts (a CSS `@import`).
+- CSS backgrounds use `data:` SVG images.
+- The result-card export draws an SVG `foreignObject` into a canvas through a `data:` image.
+
+The policy allows exactly those and nothing else. There is no `'unsafe-inline'` and no `'unsafe-eval'`. `connect-src` is `'self'` for now. M2 adds the GitHub pack hosts from ADR 0003, and that will be the only change pack loading needs.
+
+**How we verified it (a CSP is easy to get subtly wrong)**
+
+Unit tests can't see a CSP, so we checked it in a real browser:
+1. We served the production build (`npm run build`) from a small local server that sends the *exact* header string read from `netlify.toml`.
+2. Headless Chrome (playwright-core, run from a scratch directory, not added to the project) recorded every `securitypolicyviolation` event and console error.
+3. A scripted player then:
+   - loaded the welcome page,
+   - entered the lobby (all five quests, class selection, fonts and art rendered),
+   - joined an adventure and played a complete run to the results screen,
+   - exported the result card as a PNG (the riskiest path: canvas plus `data:` SVG),
+   - and separately started the advanced tutorial.
+
+**Result: zero CSP violations and zero console errors across all of it.** As a side effect, this was also the first end-to-end check of M1.1–M1.4 in a real browser: every quest and the tutorial loaded through the validated, pack-scoped pipeline.
+
+**Checked again on real Netlify hosting (2026-11-22).** Before merging, the same browser checks ran against the PR's Netlify deploy preview: a full run with result-card export, the tutorial, and the flag-off `?pack=` check. Everything worked, and the real headers were confirmed: CSP, `nosniff`, `Referrer-Policy`, and CORS on `/schema/v1/`. The browser did report two violations the local check never showed: a blocked inline `style` attribute and a blocked frame from `app.netlify.com`. Comparing the served HTML with our build found the cause. On Deploy Preview URLs only, Netlify inserts a `<div style="position:fixed">` with a script that loads its collaboration toolbar in a frame. Production pages don't get that injection, so production is unaffected. The cost is that Netlify's preview toolbar doesn't load on previews. We chose not to widen the production policy for a preview-only tool. A local check would never have found this; testing on the real host did.
+
+**Follow-ups noted:** Trusted Types (`require-trusted-types-for 'script'`) would turn the rendering guard into a browser-enforced rule. It needs the one `v-html` replaced with components first. Making the browser check a permanent CI job would need Playwright as a dev dependency, which is worth considering when M2 adds a real network path.
+
+### M1.7: The hostile-pack suite (2026-11-21)
+
+`tests/content/hostile_packs.test.ts` is the acceptance test for M1. It starts from a small, valid community `extension` pack (a facilitator's "Payments Monolith" built on base scores) and writes it to disk. It then runs it through the whole pipeline next to the real base pack: manifest validation → registry ownership → scoped provider → bundle build (bounded read and schema per file) → bundle validation.
+
+The baseline passes. Then 17 variants each apply one attack or mistake, and each is stopped at the stage and with the message an author would need:
+
+| Threat | Attack | Stopped at |
+|---|---|---|
+| T2 | `javascript:` author URL | manifest |
+| T3 | inventory filename `../../../etc/passwd-v1.json` | manifest |
+| T3 | `base_url` with `..` | manifest |
+| T3 | content ref id `../../secrets` | bundle build (schema) |
+| T4 | `"__proto__"` key in starting scores | bundle build (schema) |
+| T4 | `constructor` as a score id | bundle build (schema) |
+| T5 | `max_turns: 1000000000` | bundle build (schema) |
+| T5 | `delta: 1e999` (parses to Infinity) | bundle build (schema) |
+| T5 | 100 KB card file | bundle build (byte cap) |
+| T6 | shipping its own `define_bounded_context-v1.json` | registry (ownership) |
+| T6 | naming itself `base` | registry (pack id) |
+| T7 | rule with only a prose condition | bundle build (schema) |
+| T7 | condition on an untracked score | bundle validation |
+| T7 | typo `stakehoder_changes` | bundle build (schema) |
+| T14 | `schema_version: 2` | manifest |
+| ADR 0004 | depends on base, licensed MIT | manifest |
+| scope | uses base content without declaring `depends_on` | bundle build (scope) |
+
+One case is deliberately different. **T1: a card named `<img src=x onerror=alert(1)>` passes validation.** Validation doesn't sanitize text, because there is nothing to sanitize: the text is never interpreted. The defense is that content is only ever rendered as text (the M1.6 rendering guard), with the CSP as a second wall. Rejecting angle brackets would be security theater, and it would also break legitimate content (`"Latency < 200ms"`).
+
+---
+
+### M1 summary: what "harden the content boundary" turned out to mean
+
+Seven slices, each shipped with tests and a journal entry:
+
+| Slice | Result |
+|---|---|
+| M1.1 | Every content file is validated by a strict, bounded schema; byte-capped reads; one loader shared by the game and every CLI script |
+| M1.2 | Manifests: `schema_version`, `kind`, safe filenames and URLs, entry points in the inventory, the ADR 0004 license rule |
+| M1.3 | One owner per content file; scenarios resolve only within their own pack and its dependencies |
+| M1.4 | Conditions are structured data; the engine no longer parses English |
+| M1.5 | Published JSON Schemas for editors, with a drift test |
+| M1.6 | Content Security Policy and a rendering guard, verified in a real browser |
+| M1.7 | Hostile-pack suite: 17 attacks stopped, 1 baseline passing |
+
+What held throughout:
+- **The base game did not change.** A fixed-seed audit report (5 scenarios × 20 runs × both bot policies) is byte-identical to `main` after every engine-touching slice.
+- **Tests went from 664 to 946.** No test was changed just to make it pass. Every changed test was either a fixture gaining a new required field, or an assertion of the old override behavior that ADR 0001 removes on purpose. Each is listed in its slice's entry.
+- **Bundle cost was +9.5 kB gzipped**, measured before choosing the API (ADR 0007).
+
+What we learned that the plan did not predict:
+1. "Use Zod, not Ajv, because of CSP" was half right: Zod needs `jitless` too.
+2. Validation libraries make choices for you: Zod silently drops `__proto__` keys and ships no English messages in `zod/mini`. Both pushed us toward explicit, author-facing errors, which is what Pack Studio will need anyway.
+3. Three reaction rules were silently dead in one scenario. Real data found it before any author did.
+4. The first-party inventories didn't overlap at all, which made "one owner per file, for everyone" possible. That is a stricter and simpler rule than the planned "community packs can't override".
+5. The docs had an example that broke the new rules. They are now tested.
+
+**Next: M2**, where the game actually loads a pack: source allowlist, consent screen, pack manager, bundle-file import, pack identity in saves, the seeded cast (ADR 0002), and the demo pack.
+
+---
+
+### M2.0: Decisions before building the player path, and the feature gate (2026-11-21)
+
+Two decisions from the project owner shaped M2 before any UI was written:
+
+1. **One repository for several packs** ([ADR 0008](adr/0008-multi-pack-repository.md)). The owner asked whether demos and, later, "sanctioned" packs could share one public repo. M1's design already allows it: a pack is addressed by its manifest URL, and ADR 0003 only requires a pack to stay within its own repo prefix. So the layout is `packs/<pack_id>/manifest.json`, plus an `index.json` that seeds the future curated directory. One principle came out of the discussion: **"sanctioned" is a label, not a security boundary.** Trust affects discovery, never validation.
+2. **Ship behind a build-time flag** ([ADR 0009](adr/0009-community-packs-behind-a-flag.md)). `VITE_ENABLE_COMMUNITY_PACKS=true` in a local `.env` turns the feature on; production leaves it unset. That lets M2 merge to `main` slice by slice without exposing anything on dddnd.app. A runtime flag (query string, like the existing play-stage switch) was rejected, because anyone could flip it in production, and this feature fetches third-party content.
+
+The entry point is a small "Community packs" control in the lobby. Its final design is deliberately left for later.
+
+**What this changed in the code:** `src/ui/config/feature_flags.ts` (`isCommunityPacksEnabled()`, true only for the exact string `"true"`), typed `import.meta.env`, `.env.example` documentation, and a test.
+
+**Launch checklist** (kept here so turning the feature on is one reviewable change):
+- [ ] Set `VITE_ENABLE_COMMUNITY_PACKS=true` in Netlify production
+- [ ] Add `https://raw.githubusercontent.com` and `https://*.github.io` to `connect-src` in `netlify.toml`
+- [ ] Re-run the headless CSP check (M1.6) with a remote pack loaded
+- [ ] Public docs-site pages for players and authors are live
+- [ ] Demo pack published and pinned to a tag
+
+### M2.1: The packs repository, the demo pack, and where trust lives (2026-11-21)
+
+**Where "sanctioned" lives ([ADR 0010](adr/0010-sanctioned-list-lives-in-official-repo.md))**
+
+ADR 0008 (written the same day) put an `index.json` with a `demo`/`sanctioned` status in the packs repository. The project owner caught the flaw right away: a trust label stored next to what it vouches for can be written by whoever writes that thing. ADR 0010 supersedes that one decision. The packs repository makes no trust claims. If DDDnD ever endorses packs, the list lives in the official repository, pinned to exact manifest URLs and reviewed like code. In DDD terms, endorsement belongs to the DDDnD context, not to the supplier context. It is a small example of ADRs working as intended: the decision changed within hours, and the record shows both the mistake and the correction.
+
+**The packs repository ([mooeypoo/DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs))**
+
+Created by the project owner and set up for many packs, not one:
+- `packs/<pack_id>/`, each pack self-contained with its own README
+- a README explaining what the repo is, how to load and add packs, the license, and credits
+- GPL-3.0 `LICENSE`
+- `.vscode/settings.json` mapping the published JSON Schemas onto pack folders
+- a CI workflow that checks out DDDnD and runs its validator *with the balance audit* on every pack
+
+The CI checks out a DDDnD ref set in one variable. It currently points at this feature branch and must move to `main` after merge.
+
+**Two gaps the demo pack exposed in M1, fixed here**
+
+1. **`base_url` had to be absolute for hosted packs.** That meant editing the manifest for every release tag, which defeats pinning. ADR 0003 always said `base_url` resolves relative to the manifest. The schema now accepts `"."` and `"./folder"` (never `..`). The one hostile-pack test that matched the old error wording was updated; the attack is still rejected at the same stage.
+2. **The CLI validator couldn't check an extension pack.** It read one folder, so the base content an extension references was "missing". It now builds the same registry the game uses (one owner per file, pack-scoped resolution). `base` and `tutorial` come from the DDDnD checkout, and other dependencies come from `--dependency-root`. This one change is what lets the packs repo's CI work.
+
+**The demo pack: The Gilded Ledger**
+
+An `extension` pack about a fictional payments company with one monolith and an audit coming. It is deliberately mostly reuse:
+- **From base, by reference:** all six scores, the CTO and Security Officer, 16 base cards, 6 base events, all outcome tiers and endings.
+- **New:** 2 stakeholders with 4 reaction rules, 4 cards, 4 events, and 1 aftershock.
+
+All new ids are prefixed `ledger_`, because content ids are global and the registry refuses collisions. That convention is now in the authoring guides.
+
+**Balancing it was the best demo of the tooling so far.** The first draft *validated* fine and was still a bad game. The audit said why:
+
+| Draft | What the audit / simulation showed | Change |
+|---|---|---|
+| 1 | 2 critical: the CTO declined on 87% of turns and ended at 6/100. All event weight negative. | The base CTO loses satisfaction every turn while clarity is below 35, and the draft started at 28. Start clarity at 36; drop a CTO penalty; add two positive events and a CTO-friendly card. |
+| 2 | Criticals gone, but the stakeholder list included **`vp_product`**, who isn't in the scenario. The win rate was 12.5% (base scenarios: 67–72%), budget averaged −5.6. | Swapped out a reused base event that targets `vp_product`; added budget and morale relief cards from base; softened the new cards' costs. |
+| 3 | 0 findings, win rate 47% | Starting budget 66 → 72 |
+| 4 | **0 critical, 0 warnings**, success 48.5% / partial 37.5% / failure 14% | Done. Deliberately a little harder than base: an audit deadline should feel tight. |
+
+The base comparison came from running base scenarios through the same harness. That turned "is 12.5% too hard?" from a gut call into a comparison.
+
+**A finding: phantom stakeholders**
+
+`apply_stakeholder_changes` creates a stakeholder entry for *any* id a card, event, aftershock, or rule names, even one who isn't at the table. That phantom then counts toward the end-of-run archetype metrics, and could even be picked as a stage actor. The demo hit it by reusing base content, which is exactly what extension packs are for. A scan of first-party content found one existing case: `automate_deployment_pipeline` targets `vp_product` in `microservice_sprawl-v2`. Fixing it changes that scenario's behavior, so it needs a new content version and then a validator error. It is logged for M3, and the guides tell authors how to avoid it meanwhile. The demo pack's fixture test asserts it has no phantom targets.
+
+**Tests:** the demo pack is copied to `tests/content/fixtures/packs/gilded_ledger`, so CI never needs the network. A test builds it next to the real base pack and asserts zero bundle errors and no phantom stakeholder targets.
+
+### M2.2: How pack authors validate, and how packs are versioned (2026-11-22)
+
+**"Do authors need our tests?"**
+
+The project owner asked whether pack authors would need a pack of DDDnD's tests, or instructions for including them. Answering it separated two things that are easy to blur:
+- DDDnD's test suite and hostile-pack fixtures test **the engine**.
+- Authors need **the validator applied to their pack**.
+
+So the question became how to give authors the validator. There were three options:
+- each author copies a workflow,
+- a reusable GitHub workflow published from DDDnD,
+- an npm CLI.
+
+The reusable workflow won ([ADR 0011](adr/0011-reusable-pack-validation-workflow.md)). The npm CLI is not planned unless authoring sees real use.
+
+**What changed**
+
+- `.github/workflows/validate-pack.yml` in DDDnD (`workflow_call`). Inputs: `dddnd-ref`, `packs` (globs), `dependency-roots`, `audit-runs`, `fail-on-audit-critical`. A pack repo needs about 5 lines to use it.
+- DDDnD-packs now uses it, replacing its copied 40-line workflow.
+- Both authoring guides have a "Continuous validation" section.
+
+**A payoff of the architecture**
+
+The workflow installs only DDDnD's *runtime* dependencies (about 50 MB) plus the exact `tsx` version from DDDnD's lockfile, instead of the whole game toolchain. That works only because the validator imports the content and simulation domains and never the UI, which is the AGENT.md boundary rule doing practical work years after it was written.
+
+**How it was verified**
+
+GitHub Actions can't run locally, so we reproduced the job's checkout layout in a scratch folder (a fresh clone of this branch with the lean install, plus a copy of DDDnD-packs) and ran the step's actual script. The demo pack passed. Then a copy of the pack with `max_turns: 999` was added: the job exited 1 with `max_turns: must be at most 50`, and still checked the valid pack after it.
+
+**Confirmed on GitHub (2026-11-22):** the first push of DDDnD-packs ran the reusable workflow for real. All steps passed, and the demo pack was validated and audited with 0 critical findings and 0 warnings.
+
+**Versioning decisions (agreed with the project owner)**
+
+- **Pack releases are tagged per pack:** `<pack_id>-v<version>`, for example `gilded_ledger-v1.0.0`, matching the manifest's `version`. A repo-wide `v1.0.0` becomes ambiguous once a second pack releases on its own schedule. The load URL is `…/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json`.
+- **Timing:** the first tag waits until this PR is merged and the packs CI points at released DDDnD rules, so the first tagged release is validated against what players will run.
+- **The validator gets a moving major tag, `pack-validator-v1`,** published at release and moved forward only for compatible changes.
+
+**Also done:** the GPL-3.0 `LICENSE` file was added to DDDnD's root on `main` (it had been declared in `package.json` and manifests, but the file was missing). DDDnD-packs has its own.
+
+**Release checklist additions:**
+- [ ] After merge: tag DDDnD `pack-validator-v1`, and switch the DDDnD-packs workflow refs to it
+- [ ] Tag DDDnD-packs `gilded_ledger-v1.0.0` once its CI is green against the released validator
+
+### M2.3: Where packs may come from, and loading one into memory (2026-11-22)
+
+**What changed**
+
+- `pack_source_policy.ts` (ADR 0003 as code):
+  - `checkPackSourceUrl` allows only `https://raw.githubusercontent.com/<owner>/<repo>/<ref>/…/manifest.json` and `https://<owner>.github.io/…/manifest.json`. It refuses ports, credentials, query strings, `.`/`..` segments, and lookalike hosts (`github.io.evil.example`, `raw.githubusercontent.com.evil.example`).
+  - It also classifies how the URL is pinned: a full commit SHA, a release-tag-looking ref, or `unpinned` (branches, and every GitHub Pages URL). The consent screen will show this.
+  - `resolvePackContentBase` resolves `base_url` against the manifest and keeps it inside the same origin, and on GitHub raw inside the same owner/repo/ref.
+- `PackSnapshot` (model) and `pack_snapshot_builder.ts`. A snapshot is a whole pack held in memory:
+  - the manifest,
+  - every validated entity,
+  - the origin,
+  - a `sha256:` content hash over the manifest and files exactly as published.
+
+  The builder collects *every* problem (missing files, unlisted extra files, size limits, schema errors with field paths, filename/id mismatches) before failing, so an author sees the full list at once. `createSnapshotContentProvider` serves a snapshot to the registry like any other pack.
+- `remote_pack_loader.ts`: policy check → manifest (no redirects, no credentials, byte-capped) → content base → every inventory file, six at a time, byte-capped → snapshot.
+- A new limit: 4 MB per whole pack.
+
+**The design decision: fetch everything up front**
+
+The game's first-party loader fetches files lazily as a scenario needs them. For community packs we fetch the whole inventory at load time instead, into one in-memory snapshot. The extra up-front cost buys a lot:
+
+1. **One shape for every way a pack arrives.** A GitHub URL, an imported file, and a cached copy all become a snapshot through the same validation. The next steps (file import, local cache) reuse the builder unchanged.
+2. **Every file is validated before the consent screen**, not only the files one scenario happens to reach. A broken card in an unplayed scenario is still reported.
+3. **The content hash is exact and free**, because we already hold every byte.
+4. **After loading, nothing is fetched**, so a pack can't change mid-run and the host sees one visit per load, not one per turn (threat T9, privacy).
+
+**Verification**
+
+- Unit tests run the real demo-pack fixture through a fake GitHub: load, hash stability, registering next to the real base pack and building a valid bundle. Each refusal is tested too (disallowed URL with zero fetches, a redirect, a missing file, invalid files reported with paths, a `base_url` escaping its tag, smuggled unlisted files).
+- A live check loaded the demo pack from real GitHub (the copy committed in this branch, pinned to the pushed commit SHA): 16 files in about 0.6 s, pinning detected as `commit`. The same path on `main` produced a clear `HTTP 404` message.
+
+Browser behavior (CORS and the real `redirect: 'error'`) gets its own check in the end-to-end step, with the CSP widened only on that branch's preview, per ADR 0009.
+
+### M2.4: Single-file packs, and what a pack's identity is (2026-11-22)
+
+**What changed**
+
+- `pack_bundle_file.ts`: the `.dddnd-pack.json` format (`format`, `format_version`, `manifest`, `files`).
+  - `readPackBundle` turns a file into a snapshot through the *same* builder as remote loading.
+  - `writePackBundle` turns a snapshot back into a file.
+  - A newer `format_version` gets a "needs a newer DDDnD" message.
+- `npm run content:bundle -- --content-root <pack folder>` writes a validated bundle for authors and releases.
+- **The content hash became canonical.** Each file is hashed as its parsed JSON with keys sorted at every level, no whitespace, and no top-level `$schema` link.
+
+**Why the hash changed after M2.3**
+
+M2.3 hashed files exactly as published. That is "exact" in the wrong way. The same pack loaded from GitHub and from a bundle would get *different* hashes, because a bundle re-serializes the JSON, and the schema parser even reorders keys. A save made with the file version would then look like it belonged to a different pack.
+
+The question was what identity should mean. The answer: **a pack's identity is its content, not its bytes.** Reformatting, reordering keys, or adding an editor `$schema` link doesn't change what a player plays, so it shouldn't change identity. Any change to a value does. The tests pin both halves, and a round-trip test proves a URL-loaded pack written to a bundle and read back keeps its hash.
+
+**Verified against reality:** the demo bundle built from the DDDnD-packs folder and the copy loaded live from GitHub produced the identical hash, `sha256:90fae984…ea078`.
+
+### M2.5: Adding a community pack in the game (2026-11-22)
+
+Behind the `VITE_ENABLE_COMMUNITY_PACKS` flag (ADR 0009).
+
+**What a player sees**
+
+1. **The lobby header gains a small "Community packs" link.** It opens a dialog where the player pastes a GitHub link to a pack's `manifest.json` or picks a `.dddnd-pack.json` file.
+2. **The game downloads and checks the pack *before* showing anything to accept.** If it is broken, the player sees the problems grouped by stage, up to 12 of them (the author can see all of them with the validator).
+3. **The confirmation screen** shows:
+   - a standing note: "Not made or checked by DDDnD. Packs can't run code: they only change the game's text and numbers."
+   - name, version, and description
+   - authors, with each link's hostname next to it
+   - what kind of pack it is ("Builds on DDDnD's base pack")
+   - the license
+   - **where it comes from**, in plain words: pinned to a commit ("This exact content can't change"), to a release, or *not pinned* ("The author can change this content at any time"), the last shown in warning color
+   - a short content fingerprint
+   - the scenarios it adds
+   - a privacy note for downloads ("GitHub can see your IP address, as any website can. Once added, nothing more is downloaded")
+4. **On "Add this pack"**, its scenarios appear in the lobby with a **Community** badge, the briefing names the pack, and during play a "Community pack · <name>" label sits under the scenario title.
+5. **Packs last for this visit only**; the dialog says so. Keeping them across reloads is the next step.
+
+**`?pack=<url>` links** open the dialog with the link filled in, but never download by themselves. Fetching tells GitHub the player's IP address, so the player decides. With the flag off, the link does nothing at all.
+
+**How it's built (and where the boundaries are)**
+
+- **Domain:** `checkPackPlayable` registers the candidate next to the packs it will be played with, then builds and validates every one of its scenarios. File-level validation can't see cross-pack problems (ownership conflicts, missing dependencies, untracked scores), so this runs *before* the consent screen. A player is never offered a pack that would fail when they sit down.
+- **Store adapter:**
+  - It caches first-party manifests separately from the registry, so adding a pack rebuilds the registry without refetching.
+  - `checkCommunityPack` is a dry run that changes nothing.
+  - `addCommunityPack` re-checks, then adds.
+  - `removeCommunityPack` cascades to packs that depend on the removed one.
+  - Quests from community packs get a `communityPack` label.
+- **UI:**
+  - `community_pack_review.ts` is a pure view model. All the wording lives there and is unit-tested.
+  - `use_community_packs.ts` is the load → check → review → confirm flow.
+  - `community_packs_dialog.vue` renders it with the existing modal and button components.
+
+  All pack text is rendered as text (the M1.6 guard still passes).
+
+**Verification**
+
+- **Unit tests** cover the adapter with the real registry, base pack, and demo fixture: accept, refuse an impostor without side effects, refuse a scenario that would fail, cascade removal. They also cover the review wording for each origin, and the flow: nothing is added before confirm, declining adds nothing, error stages, issue capping, file import.
+- **Headless Chrome against the dev server with the flag on and real GitHub:** opened the dialog, pasted a commit-pinned link to the demo pack, read the confirmation screen (same fingerprint as the CLI, `90fae984cfca`), added it, found "The Gilded Ledger" in the lobby marked Community, joined, and played with a hand mixing base cards (Introduce Anti-Corruption Layer) and pack cards (Add a Transactional Outbox). Zero console errors.
+- **Production build with the flag off,** served with the production CSP: no lobby link, a `?pack=` link opens nothing, **zero requests to GitHub**, zero CSP violations.
+
+**Two small things the browser test taught us**
+
+- `File.text()` is missing in some older browsers (and in jsdom). File reading falls back to `FileReader`.
+- A community quest has no difficulty plate, because the difficulty table only knows first-party scenarios. The Community badge takes its place. Fine for now; worth revisiting with the lobby design.

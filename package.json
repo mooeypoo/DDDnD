@@ -24,6 +24,8 @@
     "audit:gate": "npx tsx scripts/audit-gate.ts",
     "content:validate": "npx tsx scripts/validate-content-pack.ts",
     "content:validate:audit": "npx tsx scripts/validate-content-pack.ts --audit --runs 50 --fail-on-audit-critical",
+    "content:schemas": "npx tsx scripts/generate-json-schemas.ts",
+    "content:bundle": "npx tsx scripts/bundle-pack.ts",
     "docs:dev": "vitepress dev docs-site",
     "docs:build": "vitepress build docs-site",
     "docs:preview": "vitepress preview docs-site",
@@ -34,7 +36,8 @@
     "pinia": "^2.1.0",
     "spdx-expression-validate": "^2.0.0",
     "vue": "^3.4.0",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@resvg/resvg-js": "^2.6.2",

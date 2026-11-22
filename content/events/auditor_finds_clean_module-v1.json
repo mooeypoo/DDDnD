@@ -6,6 +6,12 @@
   "flavor_text": "The auditor smiled. Nobody knew auditors could smile.",
   "occurrence_weight": 4,
   "trigger_condition_description": "Domain clarity > 50",
+  "trigger_condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": ">",
+    "value": 50
+  },
   "score_changes": [
     {
       "score_id": "domain_clarity",

@@ -6,6 +6,12 @@
   "flavor_text": "Both systems talking to each other. Nobody expected it to actually work.",
   "occurrence_weight": 4,
   "trigger_condition_description": "Domain clarity > 40",
+  "trigger_condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": ">",
+    "value": 40
+  },
   "score_changes": [
     {
       "score_id": "team_morale",

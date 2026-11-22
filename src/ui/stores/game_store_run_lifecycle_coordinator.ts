@@ -49,10 +49,10 @@ interface RunLifecycleState {
 
 interface RunLifecycleDependencies {
   getMergedContentProvider: () => Promise<ContentProvider>
+  /** Builds the scenario bundle with a provider scoped to the scenario's pack. */
   buildScenarioBundle: (
     scenarioId: string,
     scenarioVersion: number,
-    provider: ContentProvider,
   ) => Promise<ScenarioBundle>
   initializeEngine: (bundle: ScenarioBundle, seed: string) => void
   persistRunState: () => void
@@ -100,7 +100,6 @@ export function createGameStoreRunLifecycleCoordinator(
         deps.buildScenarioBundle(
           options.scenario_id,
           options.scenario_version,
-          provider,
         ),
         modifierRef
           ? provider.loadChallengeModifier(modifierRef).catch(() => undefined)

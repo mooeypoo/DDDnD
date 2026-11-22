@@ -4,6 +4,12 @@
   "name": "CTO Wants Clarity",
   "description": "CTO pushes for better domain understanding when clarity is low",
   "condition_description": "Domain clarity < 35",
+  "condition": {
+    "target_type": "score",
+    "target_id": "domain_clarity",
+    "operator": "<",
+    "value": 35
+  },
   "score_changes": [
     {
       "score_id": "budget",

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dddnd.app/schema/v1/delayed-effect.schema.json",
+  "title": "DDDnD delayed effect (aftershock)",
+  "description": "Generated from the DDDnD content validator (pack format 1). Some rules (non-blank text, forbidden characters, cross-field rules) are only checked by the game and CLI validator.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional link to this schema, for editor support. Ignored by the game."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]{1,64}$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 999
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 600
+    },
+    "turns_until_resolution": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 20
+    },
+    "score_changes": {
+      "maxItems": 16,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "score_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "delta": {
+            "type": "integer",
+            "minimum": -100,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "score_id",
+          "delta"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "stakeholder_changes": {
+      "maxItems": 16,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stakeholder_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "delta": {
+            "type": "integer",
+            "minimum": -100,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "stakeholder_id",
+          "delta"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "name",
+    "description",
+    "turns_until_resolution",
+    "score_changes"
+  ],
+  "additionalProperties": false
+}

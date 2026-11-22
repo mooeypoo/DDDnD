@@ -21,6 +21,7 @@ function makeMinimalBundle(overrides: Partial<ScenarioBundle> = {}): ScenarioBun
   const positiveRule: StakeholderReactionRule = {
     id: 'cto_happy', version: 1, name: 'CTO Happy', description: '',
     condition_description: 'delivery > 60',
+    condition: { target_type: 'score', target_id: 'delivery_confidence', operator: '>', value: 60 },
     score_changes: [],
     stakeholder_changes: [{ stakeholder_id: 'cto', delta: 6 }],
   }
@@ -28,6 +29,7 @@ function makeMinimalBundle(overrides: Partial<ScenarioBundle> = {}): ScenarioBun
   const negativeRule: StakeholderReactionRule = {
     id: 'cto_sad', version: 1, name: 'CTO Sad', description: '',
     condition_description: 'clarity < 40',
+    condition: { target_type: 'score', target_id: 'domain_clarity', operator: '<', value: 40 },
     score_changes: [],
     stakeholder_changes: [{ stakeholder_id: 'cto', delta: -5 }],
   }
@@ -156,6 +158,7 @@ describe('auditStructuralContent', () => {
     const bigNegRule: StakeholderReactionRule = {
       id: 'cto_very_sad', version: 1, name: 'CTO Very Sad', description: '',
       condition_description: 'failure',
+      condition: { target_type: 'score', target_id: 'delivery_confidence', operator: '<', value: 20 },
       score_changes: [],
       stakeholder_changes: [{ stakeholder_id: 'cto', delta: -14 }],
     }
@@ -163,6 +166,7 @@ describe('auditStructuralContent', () => {
     const smallPosRule: StakeholderReactionRule = {
       id: 'cto_slightly_happy', version: 1, name: 'CTO Slightly Happy', description: '',
       condition_description: 'ok',
+      condition: { target_type: 'score', target_id: 'delivery_confidence', operator: '>', value: 50 },
       score_changes: [],
       stakeholder_changes: [{ stakeholder_id: 'cto', delta: 4 }],
     }

@@ -127,10 +127,7 @@ describe('createContentProvider cache', () => {
     vi.stubGlobal('fetch', vi.fn(async () => {
       calls += 1
       await new Promise((resolve) => setTimeout(resolve, 15))
-      return {
-        ok: true,
-        json: async () => score,
-      }
+      return new Response(JSON.stringify(score))
     }))
 
     const provider = createContentProvider()
@@ -152,9 +149,9 @@ describe('createContentProvider cache', () => {
     vi.stubGlobal('fetch', vi.fn(async () => {
       calls += 1
       if (calls === 1) {
-        return { ok: false, json: async () => ({}) }
+        return new Response('{}', { status: 404 })
       }
-      return { ok: true, json: async () => score }
+      return new Response(JSON.stringify(score))
     }))
 
     const provider = createContentProvider()

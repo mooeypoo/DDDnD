@@ -4,6 +4,12 @@
   "name": "Security Officer Escalates to Board",
   "description": "The security officer escalates systemic trust failures to the board of directors, triggering external scrutiny",
   "condition_description": "User trust < 20",
+  "condition": {
+    "target_type": "score",
+    "target_id": "user_trust",
+    "operator": "<",
+    "value": 20
+  },
   "priority": 50,
   "score_changes": [
     {

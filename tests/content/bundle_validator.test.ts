@@ -431,6 +431,7 @@ describe('Bundle Validator', () => {
         name: 'Test Rule',
         description: 'Test',
         condition_description: 'Team morale < 40',
+        condition: { target_type: 'score', target_id: 'team_morale', operator: '<', value: 40 },
         score_changes: [{ score_id: 'delivery_confidence', delta: -2 }]
       })
 

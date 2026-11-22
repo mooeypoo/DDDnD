@@ -4,6 +4,12 @@
   "name": "Lead Dev Appreciates Team Investment",
   "description": "The lead developer is grateful when investment in quality starts paying off",
   "condition_description": "Maintainability > 75",
+  "condition": {
+    "target_type": "score",
+    "target_id": "maintainability",
+    "operator": ">",
+    "value": 75
+  },
   "score_changes": [
     {
       "score_id": "team_morale",

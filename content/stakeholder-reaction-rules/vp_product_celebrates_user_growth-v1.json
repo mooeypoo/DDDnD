@@ -4,6 +4,12 @@
   "name": "VP Product Celebrates User Growth",
   "description": "VP Product is supportive when user trust is healthy",
   "condition_description": "User trust > 70",
+  "condition": {
+    "target_type": "score",
+    "target_id": "user_trust",
+    "operator": ">",
+    "value": 70
+  },
   "score_changes": [
     {
       "score_id": "budget",

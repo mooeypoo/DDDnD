@@ -1,0 +1,317 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dddnd.app/schema/v1/manifest.schema.json",
+  "title": "DDDnD content pack manifest",
+  "description": "Generated from the DDDnD content validator (pack format 1). Some rules (non-blank text, forbidden characters, cross-field rules) are only checked by the game and CLI validator.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional link to this schema, for editor support. Ignored by the game."
+    },
+    "schema_version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "standalone",
+        "extension"
+      ]
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]{1,64}$"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d{1,6}\\.\\d{1,6}\\.\\d{1,6}(-[0-9A-Za-z.-]{1,32})?$"
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 600
+    },
+    "depends_on": {
+      "maxItems": 10,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "pack_id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "version": {
+            "type": "string",
+            "pattern": "^\\d{1,6}\\.\\d{1,6}\\.\\d{1,6}(-[0-9A-Za-z.-]{1,32})?$"
+          }
+        },
+        "required": [
+          "pack_id",
+          "version"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "base_url": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "license": {
+      "type": "string"
+    },
+    "authors": {
+      "minItems": 1,
+      "maxItems": 20,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 2048
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "pack_homepage_url": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "scenarios": {
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "classes": {
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "challenge_modifiers": {
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tutorials": {
+      "maxItems": 500,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 999
+          }
+        },
+        "required": [
+          "id",
+          "version"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "tutorial_base_url": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "content": {
+      "type": "object",
+      "properties": {
+        "scenarios": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
+        "cards": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
+        "stakeholders": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
+        "stakeholder_reaction_rules": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
+        "scores": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
+        "events": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
+        "delayed_effects": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
+        "outcome_tiers": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
+        "outcome_archetypes": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
+        "classes": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
+        "challenge_modifiers": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        }
+      },
+      "required": [
+        "scenarios",
+        "cards",
+        "stakeholders",
+        "stakeholder_reaction_rules",
+        "scores",
+        "events",
+        "delayed_effects",
+        "outcome_tiers",
+        "outcome_archetypes",
+        "classes",
+        "challenge_modifiers"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "kind",
+    "id",
+    "version",
+    "name",
+    "description",
+    "depends_on",
+    "base_url",
+    "license",
+    "authors",
+    "scenarios",
+    "classes",
+    "challenge_modifiers",
+    "tutorials",
+    "content"
+  ],
+  "additionalProperties": false
+}

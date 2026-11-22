@@ -73,6 +73,7 @@ export const mockStakeholderReactionRules: Record<string, StakeholderReactionRul
     name: 'Concerned About Technical Debt',
     description: 'React negatively when technical debt is high',
     condition_description: 'Technical debt > 70',
+    condition: { target_type: 'score', target_id: 'technical_debt', operator: '>', value: 70 },
     score_changes: [
       { score_id: 'team_morale', delta: -5 }
     ]

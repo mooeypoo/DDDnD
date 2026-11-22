@@ -1,0 +1,17 @@
+{
+  "$schema": "https://dddnd.app/schema/v1/stakeholder.schema.json",
+  "id": "ledger_support_lead",
+  "version": 1,
+  "name": "Customer Support Lead",
+  "description": "Hears about every payment problem first, usually from an upset customer.",
+  "reaction_rule_refs": [
+    {
+      "id": "ledger_support_drowning",
+      "version": 1
+    },
+    {
+      "id": "ledger_support_relieved",
+      "version": 1
+    }
+  ]
+}

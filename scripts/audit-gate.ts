@@ -13,6 +13,7 @@
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createFileContentProvider } from './lib/file_content_provider.js'
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(scriptDir, '..')
@@ -23,39 +24,6 @@ const contentRoot = path.resolve(projectRoot, 'content')
 interface VersionRef {
   id: string
   version: number
-}
-
-async function loadJson<T extends { id: string; version: number }>(
-  directory: string,
-  ref: VersionRef
-): Promise<T> {
-  const filename = `${ref.id}-v${ref.version}.json`
-  const filePath = path.join(contentRoot, directory, filename)
-  const raw = await readFile(filePath, 'utf8')
-  const parsed = JSON.parse(raw) as T
-
-  if (parsed.id !== ref.id || parsed.version !== ref.version) {
-    throw new Error(
-      `Version mismatch in ${filename}: expected ${ref.id} v${ref.version}, got ${parsed.id} v${parsed.version}`
-    )
-  }
-
-  return parsed
-}
-
-function createFileContentProvider() {
-  return {
-    loadScenario: (ref: VersionRef) => loadJson('scenarios', ref),
-    loadScore: (ref: VersionRef) => loadJson('scores', ref),
-    loadStakeholder: (ref: VersionRef) => loadJson('stakeholders', ref),
-    loadStakeholderReactionRule: (ref: VersionRef) => loadJson('stakeholder-reaction-rules', ref),
-    loadCard: (ref: VersionRef) => loadJson('cards', ref),
-    loadEvent: (ref: VersionRef) => loadJson('events', ref),
-    loadDelayedEffect: (ref: VersionRef) => loadJson('delayed-effects', ref),
-    loadOutcomeTier: (ref: VersionRef) => loadJson('outcome-tiers', ref),
-    loadOutcomeArchetype: (ref: VersionRef) => loadJson('outcome-archetypes', ref),
-    loadPlayerClass: (ref: VersionRef) => loadJson('classes', ref),
-  }
 }
 
 // ── List production scenarios ────────────────────────────────────
@@ -109,7 +77,7 @@ async function main() {
   const { buildContentAuditReport } = await import('../src/domains/simulation/services/audit/content_audit_report_builder.js')
 
   const scenarios = await listProductionScenarioRefs()
-  const provider = createFileContentProvider()
+  const provider = createFileContentProvider(contentRoot)
 
   console.log('')
   console.log('╔══════════════════════════════════════════════════════╗')

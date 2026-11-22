@@ -4,6 +4,12 @@
   "name": "CFO Cuts Spending When Budget Is Low",
   "description": "The CFO tightens spending when the budget gets dangerously low",
   "condition_description": "Budget < 35",
+  "condition": {
+    "target_type": "score",
+    "target_id": "budget",
+    "operator": "<",
+    "value": 35
+  },
   "score_changes": [
     {
       "score_id": "team_morale",

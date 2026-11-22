@@ -21,6 +21,9 @@ import { assertValidContentPackManifest } from '../src/domains/content/services/
 import { simulate_player_true_and_oracle } from '../src/domains/simulation/services/simulation_runner.js'
 import { buildContentAuditReport } from '../src/domains/simulation/services/audit/content_audit_report_builder.js'
 import { buildScenarioBundle } from '../src/domains/content/services/bundle_builder.js'
+import { createFileContentProvider } from './lib/file_content_provider.js'
+import { ContentPackRegistry } from '../src/domains/content/services/content_pack_registry.js'
+import type { ContentProvider } from '../src/domains/content/services/content_provider.js'
 
 interface VersionedEntity {
   id: string
@@ -30,6 +33,16 @@ interface VersionedEntity {
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const defaultProjectRoot = path.resolve(scriptDir, '..')
 const defaultContentRoot = path.resolve(defaultProjectRoot, 'content')
+
+/**
+ * First-party packs a community pack may depend on, by pack id. When a
+ * validated pack declares one of these in depends_on, it is loaded from this
+ * repository so the pack is checked exactly as the game will see it.
+ */
+const FIRST_PARTY_PACK_ROOTS: Record<string, string> = {
+  base: defaultContentRoot,
+  tutorial: path.resolve(defaultContentRoot, 'tutorial'),
+}
 
 function parseArgs(args: string[]) {
   const getValue = (flag: string): string | undefined => {
@@ -45,6 +58,10 @@ function parseArgs(args: string[]) {
   const packId = getValue('--pack-id')
   const runsRaw = getValue('--runs')
   const runs = runsRaw ? Number.parseInt(runsRaw, 10) : 50
+  const dependencyRoots = args
+    .map((value, index) => (value === '--dependency-root' ? args[index + 1] : undefined))
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => path.resolve(value))
   const withAudit = hasFlag('--audit')
   const failOnAuditCritical = hasFlag('--fail-on-audit-critical')
   const includeTestScenarios = hasFlag('--include-test-scenarios')
@@ -58,44 +75,10 @@ function parseArgs(args: string[]) {
     manifestPath,
     packId,
     runs,
+    dependencyRoots,
     withAudit,
     failOnAuditCritical,
     includeTestScenarios,
-  }
-}
-
-async function loadJson<T extends VersionedEntity>(
-  contentRoot: string,
-  directory: string,
-  ref: VersionRef,
-): Promise<T> {
-  const filename = `${ref.id}-v${ref.version}.json`
-  const filePath = path.join(contentRoot, directory, filename)
-  const raw = await readFile(filePath, 'utf8')
-  const parsed = JSON.parse(raw) as T
-
-  if (parsed.id !== ref.id || parsed.version !== ref.version) {
-    throw new Error(
-      `Version mismatch in ${filename}: expected ${ref.id} v${ref.version}, got ${parsed.id} v${parsed.version}`,
-    )
-  }
-
-  return parsed
-}
-
-function createFileContentProvider(contentRoot: string): ContentProvider {
-  return {
-    loadScenario: (ref: VersionRef) => loadJson<Scenario>(contentRoot, 'scenarios', ref),
-    loadScore: (ref: VersionRef) => loadJson<Score>(contentRoot, 'scores', ref),
-    loadStakeholder: (ref: VersionRef) => loadJson<Stakeholder>(contentRoot, 'stakeholders', ref),
-    loadStakeholderReactionRule: (ref: VersionRef) =>
-      loadJson<StakeholderReactionRule>(contentRoot, 'stakeholder-reaction-rules', ref),
-    loadCard: (ref: VersionRef) => loadJson<Card>(contentRoot, 'cards', ref),
-    loadEvent: (ref: VersionRef) => loadJson<Event>(contentRoot, 'events', ref),
-    loadDelayedEffect: (ref: VersionRef) => loadJson<DelayedEffect>(contentRoot, 'delayed-effects', ref),
-    loadOutcomeTier: (ref: VersionRef) => loadJson<OutcomeTier>(contentRoot, 'outcome-tiers', ref),
-    loadOutcomeArchetype: (ref: VersionRef) => loadJson<OutcomeArchetype>(contentRoot, 'outcome-archetypes', ref),
-    loadPlayerClass: (ref: VersionRef) => loadJson<PlayerClass>(contentRoot, 'classes', ref),
   }
 }
 
@@ -136,10 +119,51 @@ function listEntryPointScenarioRefs(manifest: ContentPackManifest, includeTestSc
   return scenarioRefs
 }
 
+/**
+ * Builds the provider the game would use for this pack's scenarios: the pack
+ * plus its declared dependencies, with one owner per file and pack-scoped
+ * resolution (M1.3). First-party dependencies come from this repository;
+ * other dependencies come from --dependency-root folders.
+ */
+async function createPackScopedProvider(
+  manifest: ContentPackManifest,
+  contentRoot: string,
+  dependencyRoots: string[],
+): Promise<ContentProvider> {
+  const registry = new ContentPackRegistry()
+  const registered = new Set<string>()
+
+  const candidates = new Map<string, string>(Object.entries(FIRST_PARTY_PACK_ROOTS))
+  for (const root of dependencyRoots) {
+    const dependencyManifest = await loadManifestFromDisk(path.join(root, 'manifest.json'))
+    candidates.set(dependencyManifest.id, root)
+  }
+
+  async function registerWithDependencies(packManifest: ContentPackManifest, root: string): Promise<void> {
+    for (const dependency of packManifest.depends_on) {
+      if (registered.has(dependency.pack_id)) continue
+      const dependencyRoot = candidates.get(dependency.pack_id)
+      if (!dependencyRoot) {
+        throw new Error(
+          `Pack "${packManifest.id}" depends on "${dependency.pack_id}". Pass its folder with --dependency-root <dir>.`,
+        )
+      }
+      await registerWithDependencies(await loadManifestFromDisk(path.join(dependencyRoot, 'manifest.json')), dependencyRoot)
+    }
+    if (!registered.has(packManifest.id)) {
+      registry.registerPack(packManifest, createFileContentProvider(root))
+      registered.add(packManifest.id)
+    }
+  }
+
+  await registerWithDependencies(manifest, contentRoot)
+  return registry.createScopedProvider(manifest.id)
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2))
   const manifest = await loadManifestFromDisk(options.manifestPath)
-  const provider = createFileContentProvider(options.contentRoot)
+  const provider = await createPackScopedProvider(manifest, options.contentRoot, options.dependencyRoots)
   const scenarioRefs = listEntryPointScenarioRefs(manifest, options.includeTestScenarios)
 
   const resolvedPackId = options.packId ?? manifest.id

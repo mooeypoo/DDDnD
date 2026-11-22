@@ -1,0 +1,108 @@
+# Reusable workflow: validate and balance-check DDDnD content packs in another
+# repository, with DDDnD's own validator (ADR 0011).
+#
+# In a pack repository, add .github/workflows/validate-packs.yml:
+#
+#   name: Validate packs
+#   on: [push, pull_request]
+#   jobs:
+#     validate:
+#       uses: mooeypoo/DDDnD/.github/workflows/validate-pack.yml@<ref>
+#       with:
+#         dddnd-ref: <ref>          # use the same ref as after the @
+#         packs: packs/*/           # folders that each contain a manifest.json
+#
+# Each pack is validated the way the game loads it: every file against the
+# schema, every scenario built with the packs it depends on (base and tutorial
+# come from DDDnD), then played many times by the balance-audit bots.
+
+name: Validate DDDnD packs
+
+on:
+  workflow_call:
+    inputs:
+      dddnd-ref:
+        description: DDDnD branch or tag to validate against. Use the same ref as the one after "@" in "uses".
+        type: string
+        default: main
+      packs:
+        description: Pack folders to check (each with a manifest.json). Shell globs allowed, separated by spaces.
+        type: string
+        default: packs/*/
+      dependency-roots:
+        description: Extra folders holding packs that the checked packs depend on (other than base and tutorial), separated by spaces.
+        type: string
+        default: ''
+      audit-runs:
+        description: Simulated runs per scenario for the balance audit. 0 skips the audit.
+        type: number
+        default: 50
+      fail-on-audit-critical:
+        description: Fail when the audit reports critical findings.
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the pack repository
+        uses: actions/checkout@v5
+        with:
+          path: pack-repo
+
+      - name: Check out DDDnD
+        uses: actions/checkout@v5
+        with:
+          repository: mooeypoo/DDDnD
+          ref: ${{ inputs.dddnd-ref }}
+          path: dddnd
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+
+      # Only DDDnD's runtime dependencies are needed (the validator imports the
+      # content and simulation domains, not the game UI): about 50 MB.
+      - name: Install the validator's dependencies
+        working-directory: dddnd
+        run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+
+      - name: Validate each pack
+        working-directory: pack-repo
+        env:
+          PACKS: ${{ inputs.packs }}
+          DEPENDENCY_ROOTS: ${{ inputs.dependency-roots }}
+          AUDIT_RUNS: ${{ inputs.audit-runs }}
+          FAIL_ON_CRITICAL: ${{ inputs.fail-on-audit-critical }}
+        run: |
+          tsx_version=$(node -p "require('../dddnd/package-lock.json').packages['node_modules/tsx'].version")
+          dependency_args=()
+          for root in $DEPENDENCY_ROOTS; do dependency_args+=(--dependency-root "$PWD/$root"); done
+          audit_args=()
+          if [ "$AUDIT_RUNS" -gt 0 ]; then
+            audit_args+=(--audit --runs "$AUDIT_RUNS")
+            if [ "$FAIL_ON_CRITICAL" = "true" ]; then audit_args+=(--fail-on-audit-critical); fi
+          fi
+
+          shopt -s nullglob
+          status=0
+          checked=0
+          for pack in $PACKS; do
+            [ -f "$pack/manifest.json" ] || continue
+            checked=$((checked + 1))
+            echo "::group::$pack"
+            (cd ../dddnd && npx --yes "tsx@$tsx_version" scripts/validate-content-pack.ts \
+              --content-root "$GITHUB_WORKSPACE/pack-repo/$pack" "${dependency_args[@]}" "${audit_args[@]}") || status=1
+            echo "::endgroup::"
+          done
+
+          if [ "$checked" -eq 0 ]; then
+            echo "::error::No pack folders with a manifest.json matched: $PACKS"
+            exit 1
+          fi
+          exit $status
