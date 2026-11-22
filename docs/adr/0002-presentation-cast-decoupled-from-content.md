@@ -2,6 +2,7 @@
 
 Status: Accepted  
 Date: 2026-11-21  
+Implemented: M2.10 (see the journal entry for how decisions 2, 4 and 5 were applied)  
 Feature journal: [docs/CONTENT_PACKS.md](../CONTENT_PACKS.md) (section "Presentation: who decides what a stakeholder looks like?")
 
 ## Context

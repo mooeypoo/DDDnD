@@ -84,7 +84,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import { requestSceneBackground } from '@/ui/composables/presentation_asset_lookup'
-import { resolveGameplaySceneId } from '@/ui/composables/gameplay_stage_presentation'
+import { resolveScenarioSceneId } from '@/ui/composables/gameplay_stage_presentation'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
@@ -96,7 +96,7 @@ import GameLogo from '@/ui/components/branding/game_logo.vue'
 const router = useRouter()
 const gameStore = useGameStore()
 
-const sceneUrl = computed(() => requestSceneBackground(resolveGameplaySceneId('monolith_of_mild_despair')))
+const sceneUrl = computed(() => requestSceneBackground(resolveScenarioSceneId('monolith_of_mild_despair')))
 
 function goToSetup(tutorialType?: string) {
   if (tutorialType) {

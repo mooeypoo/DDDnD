@@ -25,6 +25,7 @@ import type {
 } from '@/domains/simulation'
 import type { ScenarioBundle, VersionRef, PlayerClass, ChallengeModifier, PackSnapshot } from '@/domains/content/model'
 import { buildScenarioBundle } from '@/domains/content'
+import { setActiveScoreOrder } from '@/ui/composables/metric_presentation'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
 import { create_engine } from '@/domains/simulation'
@@ -189,6 +190,7 @@ export const useGameStore = defineStore('game', () => {
    */
   function initialize_engine(bundle: ScenarioBundle, seed: string) {
     scenarioBundle.value = bundle
+    setActiveScoreOrder(bundle.scenario.score_refs.map((ref) => ref.id))
     engine.value = create_engine({
       scenario_bundle: bundle,
       seed
@@ -450,6 +452,7 @@ export const useGameStore = defineStore('game', () => {
     engine.value = null
     gameState.value = null
     scenarioBundle.value = null
+    setActiveScoreOrder([])
     turnBriefing.value = null
     lastTurnResolution.value = null
     runOutcome.value = null

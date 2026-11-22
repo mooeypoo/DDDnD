@@ -223,7 +223,8 @@ import { ENDING_VISUAL_ASSETS, type EndingVisualId } from '@/ui/config/presentat
 import { getClassAccentColor } from '@/ui/composables/class_artwork'
 import { requestAvatarRoleImage } from '@/ui/composables/presentation_asset_lookup'
 import {
-  resolveStakeholderAvatarRole,
+  buildRunCast,
+  castRoleFor,
   resolveStakeholderMood
 } from '@/ui/composables/gameplay_stage_presentation'
 import {
@@ -427,9 +428,15 @@ function getSatisfactionClass(value: number): string {
   return 'critical'
 }
 
+/** The same cast the run was played with (ADR 0002). */
+const runCast = computed(() => {
+  const state = gameStore.gameState
+  return buildRunCast(state?.meta.seed ?? '', Object.keys(state?.stakeholders ?? {}))
+})
+
 function getStakeholderAvatarUrl(stakeholderId: string, satisfaction: number): string {
   return requestAvatarRoleImage({
-    avatarRole: resolveStakeholderAvatarRole(stakeholderId),
+    avatarRole: castRoleFor(runCast.value, stakeholderId),
     mood: resolveStakeholderMood(satisfaction)
   })
 }

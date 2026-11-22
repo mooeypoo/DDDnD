@@ -1019,3 +1019,52 @@ M2.7 to M2.9 is one lesson at three depths: what persists, what depends, and wha
   5. Remove the GitHub copy: storage keeps only the file key, and `/game` still resumes the run.
 
   No console errors.
+
+### M2.10: A run's cast, decided once (2026-11-22)
+
+Implements [ADR 0002](adr/0002-presentation-cast-decoupled-from-content.md). This change is not behind the flag: it changes how the base game looks too, which was the point. Three bugs from §3.4 get fixed here.
+
+**What changed**
+
+- **One cast function.** `buildRunCast(seed, stakeholderIds)` in `gameplay_stage_presentation.ts`:
+  - it shuffles the avatar-role pool with its own seeded generator (salt `dddnd:presentation-cast:v1` plus the run seed);
+  - it deals roles in sorted stakeholder-id order.
+
+  Play, the legacy game view, the end-of-run screen and the share card all call it. The old `shuffleAvatarRoles()` (`Math.random()`) and `resolveStakeholderAvatarRole(id)` (id hash, unshuffled pool) are gone.
+- **The three defects:**
+  1. **Duplicates.** `hash(id) % pool` could give two stakeholders the same role: `ab` and `ba` always collided. Roles are now dealt, not hashed, so they are distinct up to the pool size of 9. Validation caps a scenario at 8 stakeholders.
+  2. **Screens disagreed.** The results screen and the share card used the unshuffled pool. They now build the same cast from the same seed.
+  3. **Reloads reshuffled.** `Math.random()` gave a new cast on every reload. The seed is part of the save, so the cast comes back with the run.
+- **The share card needs the seed.** A share link is opened by someone without the save. So the share payload gained an optional `sd` (the run seed), checked on decode as a string of at most 200 characters. It only feeds the presentation generator. Older links still decode, and get a distinct, stable cast that may not match the one played.
+- **Scenes.**
+  - First-party scenarios keep their hand-picked scene.
+  - Any other scenario gets a scene from the pool, picked by a stable hash of its pack key and scenario id.
+  - The hand-picked map applies only to first-party pack keys, so a community scenario that reuses a base scenario's id doesn't borrow its scene (ADR 0014's rule, applied to looks).
+  - The legacy view, which picked a random scene, now uses the same function.
+- **Scores the UI doesn't know.**
+  - Before, they all got 📈 and the same grey.
+  - Now they get an icon and color from a six-entry fallback palette, by position among the active scenario's unknown scores. The game store records the scenario's `score_refs` order when a bundle becomes active.
+  - The fallback colors are global CSS classes with their own tokens, so every score component picks them up without its own rule. Their icons are ones no known score uses.
+
+**Decisions and trade-offs**
+
+1. **Scenes are picked by scenario, not by run.** ADR 0002 says "a seeded pick". We used the pack key and scenario id as the seed rather than the run seed. That way the lobby (which has no run yet) previews the same scene the run will use, and a scenario has a recognizable place, as first-party ones do.
+2. **The cast is dealt in sorted id order,** not in the order stakeholders appear. This makes it independent of how a snapshot was built or serialized.
+3. **Score order lives in a small reactive module value** set by the store, not threaded through six presentational components as a prop. It is UI presentation state, like the active theme.
+4. **Changing the role pool or the salt changes old runs' casts.** This was accepted in ADR 0002 as cosmetic.
+
+**DDD note (talk material)**
+
+The bugs came from one missing concept. "Which character plays the CFO in this run" was never anything's job. Each screen worked it out for itself, from whatever it had: a shuffled pool, an unshuffled pool, `Math.random()`. Naming it, as *the run's cast*, gave it one owner (the UI), one input (the run seed) and one function. The three bugs disappeared because the duplication behind them did. It is the presentation-side version of "a name is not an identity": a stakeholder's look had no identity of its own.
+
+**Verification**
+
+- **Unit tests** (+19, 1054 total):
+  - cast: distinct roles, including the old `ab`/`ba` collision; independent of stakeholder order; varies across seeds; cycles past the pool; leaves the simulation's random stream untouched; the stage uses it;
+  - scenes: first-party map, stable pick for other scenarios, spread across the pool, no borrowing of first-party scenes;
+  - scores: known looks kept, position-based fallbacks, cycling, no icon clash;
+  - share payload: the seed round-trips, older links decode, bad seeds are refused.
+
+  The old scene test "falls back to the hall for unknown packs" was replaced. It encoded the behavior ADR 0002 changes (every unknown scenario in the same hall).
+- **Determinism:** a fixed-seed audit report is identical to `main`. The engine and its random stream are untouched.
+- **Headless Chrome:** played The Merger of Minor Chaos. The four seated stakeholders had four different roles. After a reload mid-run the cast was identical, and the end-of-run screen and the share card showed the same role for every stakeholder. The fifth stakeholder, who isn't seated, has its own distinct role on both. No console errors.

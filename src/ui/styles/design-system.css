@@ -11,6 +11,19 @@
 @import '../prototypes/dungeon/dungeon-design-tokens.css';
 
 
+/* ─── Fallback score colors (ADR 0002) ──────────────────────────
+   Scores the UI has no hand-picked color for (from content packs).
+   Global, so every score component can use them; see
+   src/ui/composables/metric_presentation.ts. */
+
+.metric-fallback-1 { color: var(--metric-fallback-1); }
+.metric-fallback-2 { color: var(--metric-fallback-2); }
+.metric-fallback-3 { color: var(--metric-fallback-3); }
+.metric-fallback-4 { color: var(--metric-fallback-4); }
+.metric-fallback-5 { color: var(--metric-fallback-5); }
+.metric-fallback-6 { color: var(--metric-fallback-6); }
+
+
 /* ─── Global element base ───────────────────────────────────── */
 
 *,

@@ -237,13 +237,13 @@ import { useGameStore } from '@/ui/stores/game_store'
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
 import {
   buildGameplayStageActors,
-  resolveGameplaySceneId,
-  shuffleAvatarRoles,
+  buildRunCast,
+  resolveScenarioSceneId,
   type StakeholderSpeechBubblePresentation,
 } from '@/ui/composables/gameplay_stage_presentation'
 import { buildStakeholderSpeechBubbles } from '@/ui/composables/stakeholder_reaction_bubbles'
 import { getCollapseWarnings, hasActiveCoupling } from '@/ui/composables/system_coupling'
-import type { AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
+import type { SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
@@ -314,7 +314,6 @@ const refillPhase = ref<'idle' | 'hidden' | 'flying'>('idle')
 const isGrimoireOpen = ref(false)
 const isAnnalsOpen = ref(false)
 const isQuestBriefingOpen = ref(false)
-const randomAvatarRoles = ref<AvatarRoleId[]>(shuffleAvatarRoles())
 const pendingStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 const activeStakeholderBubbles = ref<Record<string, StakeholderSpeechBubblePresentation>>({})
 
@@ -406,7 +405,7 @@ const pendingAftershockCount = computed(() => {
 })
 
 const gameplaySceneId = computed<SceneBackgroundId>(() => {
-  return resolveGameplaySceneId(scenario.value?.id)
+  return resolveScenarioSceneId(scenario.value?.id, gameStore.gameState?.meta.content_pack?.key)
 })
 
 const availabilitySummaryByKey = computed(() => {
@@ -521,11 +520,17 @@ const stakeholderNames = computed((): Record<string, string> => {
   return buildStakeholderNamesMap(gameStore.scenarioBundle)
 })
 
+/** The run's cast (ADR 0002): the same on every screen and after a reload. */
+const runCast = computed(() => {
+  const state = gameStore.gameState
+  return buildRunCast(state?.meta.seed ?? '', Object.keys(state?.stakeholders ?? {}))
+})
+
 const stageActors = computed(() => {
   return buildGameplayStageActors(
     gameStore.gameState?.stakeholders,
     stakeholderNames.value,
-    randomAvatarRoles.value,
+    runCast.value,
     activeStakeholderBubbles.value,
   )
 })
@@ -592,12 +597,6 @@ const showTutorialArrow = computed(() => {
   }
 
   return Boolean(tutorialArrowSelector.value)
-})
-
-watch(scenario, (newScenario, oldScenario) => {
-  if (newScenario?.id !== oldScenario?.id) {
-    randomAvatarRoles.value = shuffleAvatarRoles()
-  }
 })
 
 watch([fxKind, currentBeat], ([kind, beat]) => {

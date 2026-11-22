@@ -73,6 +73,12 @@ export interface SharePayload {
 
   /** Completion reason — "max_turns_reached" | "failure_condition_met" */
   cr: string
+
+  /**
+   * Run seed, so the share card shows the cast the run was played with
+   * (ADR 0002). Optional: older links don't have it.
+   */
+  sd?: string
 }
 
 /**

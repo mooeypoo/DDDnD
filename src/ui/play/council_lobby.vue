@@ -72,7 +72,7 @@
             :disabled="isAwaitingChamber"
             @click="$emit('selectQuest', quest)"
           >
-            <span class="quest-scene" :style="{ backgroundImage: `url(${sceneFor(quest.id)})` }" />
+            <span class="quest-scene" :style="{ backgroundImage: `url(${sceneFor(quest)})` }" />
             <span v-if="quest.communityPack" class="community-mark" :title="`From the community pack “${quest.communityPack.name}”, published by ${quest.communityPack.publisher}`">Community</span>
             <span v-if="quest.isTutorial" class="tutorial-mark">Tutorial</span>
             <span
@@ -228,7 +228,7 @@ import { computed, ref, watch } from 'vue'
 import type { ChallengeModifier, PlayerClass } from '@/domains/content/model'
 import { getClassPortraitUrl } from '@/ui/composables/class_artwork'
 import { requestSceneBackground } from '@/ui/composables/presentation_asset_lookup'
-import { resolveGameplaySceneId } from '@/ui/composables/gameplay_stage_presentation'
+import { resolveScenarioSceneId } from '@/ui/composables/gameplay_stage_presentation'
 import { preloadImageUrls } from '@/ui/composables/preload_presentation_assets'
 import { classAffinityCopy } from '@/ui/play/class_affinity'
 import { councilCountLabel } from '@/ui/play/council_copy'
@@ -291,7 +291,7 @@ watch(() => props.selectedQuest, (quest) => {
 })
 
 const sceneUrl = computed(() => {
-  return requestSceneBackground(resolveGameplaySceneId(props.selectedQuest?.id))
+  return requestSceneBackground(resolveScenarioSceneId(props.selectedQuest?.id, props.selectedQuest?.packKey))
 })
 
 const canSit = computed(() => Boolean(props.selectedQuest && props.selectedClass))
@@ -311,7 +311,7 @@ const lobbyAssetKey = computed(() => {
 })
 
 function collectLobbyAssetUrls(): string[] {
-  const sceneUrls = [...props.quests, ...props.tutorials].map((quest) => sceneFor(quest.id))
+  const sceneUrls = [...props.quests, ...props.tutorials].map((quest) => sceneFor(quest))
   const portraitUrls = props.classes
     .map((playerClass) => getClassPortraitUrl(playerClass.id))
     .filter((url): url is string => Boolean(url))
@@ -361,8 +361,8 @@ function fanStyle(index: number) {
   }
 }
 
-function sceneFor(scenarioId: string): string {
-  return requestSceneBackground(resolveGameplaySceneId(scenarioId))
+function sceneFor(quest: QuestDisplayModel): string {
+  return requestSceneBackground(resolveScenarioSceneId(quest.id, quest.packKey))
 }
 
 function difficultyFor(quest: QuestDisplayModel) {

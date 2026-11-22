@@ -185,6 +185,11 @@ describe('buildSharePayload', () => {
     })
   })
 
+  it('carries the run seed, so the share card shows the cast that was played (ADR 0002)', () => {
+    const payload = buildSharePayload({ run_outcome: createMockRunOutcome(), game_state: createMockGameState() })
+    expect(payload.sd).toBe('test-seed')
+  })
+
   it('omits name when display_name is not set', () => {
     const gameState = createMockGameState({
       player_profile: {
@@ -268,6 +273,17 @@ describe('encodeSharePayload / decodeSharePayload', () => {
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.payload.stakeholders).toBeUndefined()
+    }
+  })
+
+  it('round-trips the seed, and links without one still decode', () => {
+    const withSeed = decodeSharePayload(encodeSharePayload(createSamplePayload({ sd: 'seed-123' })))
+    expect(withSeed.ok && withSeed.payload.sd).toBe('seed-123')
+
+    const without = decodeSharePayload(encodeSharePayload(createSamplePayload({ sd: undefined })))
+    expect(without.ok).toBe(true)
+    if (without.ok) {
+      expect(without.payload.sd).toBeUndefined()
     }
   })
 
@@ -384,6 +400,14 @@ describe('decodeSharePayload — error handling', () => {
     const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
     const result = decodeSharePayload(encoded)
     expect(result.ok).toBe(false)
+  })
+
+  it('rejects a seed that is not a short string', () => {
+    for (const sd of [42, 'x'.repeat(201)]) {
+      const payload = { ...createSamplePayload(), sd } as unknown as SharePayload
+      const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+      expect(decodeSharePayload(encoded).ok).toBe(false)
+    }
   })
 
   it('rejects payload with invalid stakeholders entries', () => {

@@ -1,4 +1,7 @@
+import { firstPartyPackKey } from '@/domains/content/services/pack_identity'
+import { BASE_PACK_ID } from '@/domains/content/validation/pack_policy'
 import type { StakeholderSnapshot } from '@/domains/simulation/model'
+import { createSeededRandom } from '@/shared/random/seeded_random'
 import type { AvatarMood, AvatarRoleId, SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import type { SceneActorSlot } from '@/ui/composables/scene_avatar_positioning'
 import type { StakeholderReactionBubbleTone } from '@/ui/config/stakeholder_reaction_bubble_language'
@@ -34,10 +37,12 @@ export const ALL_SCENE_BACKGROUND_IDS: SceneBackgroundId[] = [
 ]
 
 /**
- * Explicit scenario → scene map. Presentation only; content packs do not
- * ship image paths. Unknown ids fall back to the fortified hall.
+ * Hand-picked scenes for first-party scenarios. Presentation only: content
+ * packs never name a scene (ADR 0002). Keyed by scenario id, and only used
+ * for first-party packs, so a community scenario that reuses one of these
+ * ids doesn't borrow its scene (ADR 0014).
  */
-const SCENARIO_SCENE_BY_ID: Record<string, SceneBackgroundId> = {
+const FIRST_PARTY_SCENE_BY_SCENARIO_ID: Record<string, SceneBackgroundId> = {
   monolith_of_mild_despair: 'fortified_monolith_hall',
   microservice_sprawl: 'strategic_war_room',
   compliance_gauntlet: 'archive_library_chamber',
@@ -47,7 +52,9 @@ const SCENARIO_SCENE_BY_ID: Record<string, SceneBackgroundId> = {
   tutorial_systems_under_pressure: 'dark_dungeon_room',
 }
 
-export const AVATAR_ROLE_ROTATION: AvatarRoleId[] = [
+const DEFAULT_SCENE_ID: SceneBackgroundId = 'fortified_monolith_hall'
+
+export const AVATAR_ROLE_ROTATION: readonly AvatarRoleId[] = [
   'wizard',
   'rogue',
   'paladin',
@@ -62,35 +69,94 @@ export const AVATAR_ROLE_ROTATION: AvatarRoleId[] = [
 const ACTOR_SLOTS: SceneActorSlot[] = ['left', 'center', 'right', 'far']
 
 /**
- * Picks a random background for presentation-only variation.
+ * Salt for the presentation generator. It keeps the cast's random stream
+ * apart from the simulation's, which is seeded with the bare run seed: art can
+ * never change gameplay (ADR 0002, decision 3). Changing the salt reshuffles
+ * every run's cast, which is cosmetic.
  */
-export function pickRandomSceneId(): SceneBackgroundId {
-  return ALL_SCENE_BACKGROUND_IDS[Math.floor(Math.random() * ALL_SCENE_BACKGROUND_IDS.length)]
+const CAST_SALT = 'dddnd:presentation-cast:v1'
+
+/** A run's cast: which avatar role plays each stakeholder. */
+export type RunCast = Readonly<Record<string, AvatarRoleId>>
+
+/** Small stable string hash (FNV-1a), for picks that have no run seed. */
+function stableHash(text: string): number {
+  let hash = 0x811c9dc5
+  for (let i = 0; i < text.length; i++) {
+    hash ^= text.charCodeAt(i)
+    hash = Math.imul(hash, 0x01000193)
+  }
+  return hash >>> 0
 }
 
 /**
- * Randomizes avatar-role pool order for presentation-only variation.
+ * The cast for one run (ADR 0002). Every screen that draws a stakeholder
+ * (play, end of run, share card) calls this with the same seed and the same
+ * stakeholders, so a stakeholder looks the same everywhere and after a reload.
+ *
+ * - Distinct: stakeholders get different roles until the pool runs out, then
+ *   it cycles. Validation caps stakeholders below the pool size.
+ * - Stable: roles go out in sorted id order, so the order stakeholders are
+ *   listed in doesn't matter.
+ * - Separate: its own generator instance with its own salt; the simulation's
+ *   random stream is never touched.
+ *
+ * `seed` may be empty (share links made before the seed was shared); the cast
+ * is then still distinct and stable, just the same for every such link.
  */
-export function shuffleAvatarRoles(): AvatarRoleId[] {
-  const roles = [...AVATAR_ROLE_ROTATION]
+export function buildRunCast(
+  seed: string,
+  stakeholderIds: Iterable<string>,
+  pool: readonly AvatarRoleId[] = AVATAR_ROLE_ROTATION,
+): RunCast {
+  const random = createSeededRandom(`${CAST_SALT}|${seed}`)
+  const roles = [...pool]
   for (let i = roles.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
+    const j = random.nextInt(0, i)
     ;[roles[i], roles[j]] = [roles[j], roles[i]]
   }
-  return roles
+
+  const ids = [...new Set(stakeholderIds)].sort()
+  const cast: Record<string, AvatarRoleId> = {}
+  ids.forEach((id, index) => {
+    cast[id] = roles[index % roles.length]
+  })
+  return cast
 }
 
 /**
- * Resolves the scene background for a scenario id.
- *
- * This is a UI map, not a content-pack field and not random.
+ * A stakeholder's role in a cast. A stakeholder the cast doesn't know (which
+ * shouldn't happen) still gets a stable role rather than none.
  */
-export function resolveGameplaySceneId(scenarioId: string | undefined): SceneBackgroundId {
+export function castRoleFor(cast: RunCast, stakeholderId: string): AvatarRoleId {
+  return cast[stakeholderId] ?? AVATAR_ROLE_ROTATION[stableHash(stakeholderId) % AVATAR_ROLE_ROTATION.length]
+}
+
+/**
+ * The scene for a scenario (ADR 0002, decision 4).
+ *
+ * First-party scenarios keep their hand-picked scene. Any other scenario gets
+ * a pick from the scene pool derived from its pack key and id, so the lobby
+ * preview and the run show the same scene, and two packs' same-named
+ * scenarios can differ. A missing pack key means first-party: runs and quests
+ * from before pack identity always were.
+ */
+export function resolveScenarioSceneId(
+  scenarioId: string | undefined,
+  packKey: string = firstPartyPackKey(BASE_PACK_ID),
+): SceneBackgroundId {
   if (!scenarioId) {
-    return 'fortified_monolith_hall'
+    return DEFAULT_SCENE_ID
   }
 
-  return SCENARIO_SCENE_BY_ID[scenarioId] ?? 'fortified_monolith_hall'
+  if (packKey.startsWith(firstPartyPackKey(''))) {
+    const handPicked = FIRST_PARTY_SCENE_BY_SCENARIO_ID[scenarioId]
+    if (handPicked) {
+      return handPicked
+    }
+  }
+
+  return ALL_SCENE_BACKGROUND_IDS[stableHash(`${packKey}|${scenarioId}`) % ALL_SCENE_BACKGROUND_IDS.length]
 }
 
 /**
@@ -113,20 +179,12 @@ export function resolveStakeholderMood(satisfaction: number): AvatarMood {
 }
 
 /**
- * Resolves deterministic avatarRole assignment from stakeholder id.
- */
-export function resolveStakeholderAvatarRole(stakeholderId: string, rolePool: AvatarRoleId[] = AVATAR_ROLE_ROTATION): AvatarRoleId {
-  const hash = stakeholderId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
-  return rolePool[hash % rolePool.length]
-}
-
-/**
  * Builds scene actor presentation models from stakeholder runtime snapshots.
  */
 export function buildGameplayStageActors(
   stakeholders: StakeholderSnapshot | undefined,
   stakeholderNames: Record<string, string>,
-  rolePool?: AvatarRoleId[],
+  cast: RunCast,
   speechBubblesByStakeholderId: Record<string, StakeholderSpeechBubblePresentation> = {},
 ): GameplayStageActor[] {
   if (!stakeholders) {
@@ -139,7 +197,7 @@ export function buildGameplayStageActors(
       id: stakeholderId,
       displayName: stakeholderNames[stakeholderId] ?? stakeholderId,
       satisfaction: data.satisfaction,
-      avatarRole: resolveStakeholderAvatarRole(stakeholderId, rolePool),
+      avatarRole: castRoleFor(cast, stakeholderId),
       mood: resolveStakeholderMood(data.satisfaction),
       slot: ACTOR_SLOTS[index] ?? 'far',
       speechBubble: speechBubblesByStakeholderId[stakeholderId],
