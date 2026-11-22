@@ -1,11 +1,12 @@
 <template>
   <div
     class="council-lobby"
-    :class="{ 'is-awaiting-chamber': isAwaitingChamber }"
+    :class="[{ 'is-awaiting-chamber': isAwaitingChamber, 'is-bazaar': Boolean(bazaarPack) }, bazaarPack ? bazaarLookClass(bazaarLook ?? DEFAULT_BAZAAR_LOOK) : '']"
     :aria-busy="isAwaitingChamber"
   >
     <div class="chamber-glow" aria-hidden="true" />
     <div class="chamber-grain" aria-hidden="true" />
+    <div v-if="bazaarPack" class="bazaar-awning" aria-hidden="true" />
 
     <div class="lobby-body">
     <header class="lobby-mast">
@@ -15,13 +16,26 @@
         <button type="button" class="plaque-link" @click="$emit('showRules')">How to play</button>
         <button type="button" class="plaque-link" @click="$emit('showDungeonMaster')">Dungeon Master</button>
         <button
-          v-if="communityPacksEnabled"
+          v-if="communityPacksEnabled && !bazaarPack"
           type="button"
           class="plaque-link"
           @click="$emit('showCommunityPacks')"
-        >Community packs</button>
+        >Community bazaar ›</button>
+        <button
+          v-if="bazaarPack"
+          type="button"
+          class="plaque-link bazaar-back"
+          @click="$emit('back')"
+        >‹ Bazaar</button>
       </nav>
     </header>
+
+    <section v-if="bazaarPack" class="pack-banner" aria-label="Community pack">
+      <p class="pack-banner-kicker">Community pack · not reviewed by DDDnD</p>
+      <h1 class="pack-banner-name">{{ bazaarPack.name }} <span class="pack-banner-version">v{{ bazaarPack.version }}</span></h1>
+      <p class="pack-banner-publisher">Published by {{ bazaarPack.publisher }}</p>
+      <p class="pack-banner-description">{{ bazaarPack.description }}</p>
+    </section>
 
     <section class="quest-deck" :aria-label="deckMode === 'tutorials' ? 'Tutorials' : 'Choose your adventure'">
       <div v-if="tutorials.length > 0" class="deck-toggle" role="tablist" aria-label="Tutorials or adventures">
@@ -73,7 +87,7 @@
             @click="$emit('selectQuest', quest)"
           >
             <span class="quest-scene" :style="{ backgroundImage: `url(${sceneFor(quest)})` }" />
-            <span v-if="quest.communityPack" class="community-mark" :title="`From the community pack “${quest.communityPack.name}”, published by ${quest.communityPack.publisher}`">Community</span>
+            <span v-if="quest.communityPack && !bazaarPack" class="community-mark" :title="`From the community pack “${quest.communityPack.name}”, published by ${quest.communityPack.publisher}`">Community</span>
             <span v-if="quest.isTutorial" class="tutorial-mark">Tutorial</span>
             <span
               v-else-if="difficultyFor(quest)"
@@ -98,7 +112,7 @@
             <div class="table-veil" />
             <div v-if="selectedQuest" class="table-brief">
               <p class="table-nameplate">{{ selectedQuest.name }}</p>
-              <p v-if="selectedQuest.communityPack" class="table-community">
+              <p v-if="selectedQuest.communityPack && !bazaarPack" class="table-community">
                 Community pack: {{ selectedQuest.communityPack.name }} · published by {{ selectedQuest.communityPack.publisher }}
               </p>
               <p class="table-hook">{{ questHook(selectedQuest) }}</p>
@@ -188,7 +202,7 @@
 
     <footer class="lobby-actions">
       <button class="ghost-btn" type="button" :disabled="isAwaitingChamber" @click="$emit('back')">
-        Back to the door
+        {{ bazaarPack ? 'Back to the bazaar' : 'Back to the door' }}
       </button>
       <button
         class="sit-btn"
@@ -238,6 +252,7 @@ import { isSameQuest, questKey, type QuestDisplayModel } from '@/ui/types/quest_
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import QuestBriefingPlaque from '@/ui/play/quest_briefing_plaque.vue'
+import { bazaarLookClass, DEFAULT_BAZAAR_LOOK, type BazaarLook } from '@/ui/community/bazaar_look'
 
 type DeckMode = 'adventures' | 'tutorials'
 
@@ -253,6 +268,12 @@ const props = defineProps<{
   isLoading?: boolean
   /** Shows the community packs entry (ADR 0009 flag, decided by the parent view). */
   communityPacksEnabled?: boolean
+  /**
+   * Set at a community pack's table (journal M2.11): shows the pack's banner
+   * and the bazaar's look instead of the council chamber.
+   */
+  bazaarPack?: { name: string; version: string; description: string; publisher: string } | null
+  bazaarLook?: BazaarLook
 }>()
 
 const emit = defineEmits<{
@@ -1206,6 +1227,101 @@ function affinityLine(scoreId: string | undefined): string {
   font-size: var(--text-2xs);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+/* ─── A community pack's table (journal M2.11) ─────────────────── */
+
+.council-lobby.is-bazaar {
+  background: var(--bazaar-bg);
+}
+
+.is-bazaar .chamber-glow {
+  background:
+    radial-gradient(ellipse at 50% 12%, var(--bazaar-glow), transparent 50%),
+    radial-gradient(ellipse at 50% 100%, var(--bazaar-glow-low), transparent 45%);
+}
+
+.bazaar-awning {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 26px;
+  z-index: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, var(--bazaar-stripe-a) 0 28px, var(--bazaar-stripe-b) 28px 56px);
+  -webkit-mask: radial-gradient(circle 14px at 14px 12px, #000 98%, transparent) 0 0 / 28px 26px repeat-x, linear-gradient(#000, #000) 0 0 / 100% 12px no-repeat;
+  mask: radial-gradient(circle 14px at 14px 12px, #000 98%, transparent) 0 0 / 28px 26px repeat-x, linear-gradient(#000, #000) 0 0 / 100% 12px no-repeat;
+  opacity: 0.9;
+}
+
+.is-bazaar .lobby-mast {
+  margin-top: 1.2rem;
+}
+
+.pack-banner {
+  position: relative;
+  z-index: 1;
+  max-width: 46rem;
+  margin: 0 auto 1rem;
+  padding: 0.75rem 1rem 0.85rem;
+  border: 2px dashed var(--bazaar-stitch);
+  border-radius: 12px;
+  background: var(--bazaar-panel);
+  text-align: center;
+  color: var(--bazaar-ink);
+}
+
+.pack-banner-kicker {
+  margin: 0;
+  font-size: var(--text-kicker);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bazaar-accent);
+}
+
+.pack-banner-name {
+  margin: 0.2rem 0 0;
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  color: var(--bazaar-ink);
+}
+
+.pack-banner-version {
+  font-size: var(--text-sm);
+  color: var(--bazaar-muted);
+}
+
+.pack-banner-publisher,
+.pack-banner-description {
+  margin: 0.2rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--bazaar-muted);
+}
+
+.pack-banner-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.is-bazaar .row-kicker,
+.is-bazaar .rim-kicker {
+  color: var(--bazaar-accent);
+}
+
+.is-bazaar .bazaar-back {
+  color: var(--bazaar-accent);
+}
+
+.is-bazaar .table-quest {
+  outline: 2px dashed var(--bazaar-stitch);
+  outline-offset: 3px;
+}
+
+.is-bazaar .table-quest.selected {
+  outline-style: solid;
 }
 
 .table-community {

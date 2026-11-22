@@ -1106,3 +1106,46 @@ The pack table is where pack-specific choices can live later: a standalone pack'
 **DDD note (talk material)**
 
 The model had moved and the screen hadn't. A pack had been an aggregate in the code since M2.9: it owns its content, has one identity, and is added and removed as a whole. But the UI treated packs as a delivery mechanism for loose scenarios. A hands-on test plus one naive-sounding question ("do packs only add one scenario?") showed the gap. The fix is the same as in M2.7–M2.9: make the boundary that exists in the model visible where people meet it. Here that means a room of its own, with its own look, so the context boundary is something a player can *see*.
+
+### M2.12 (design): The bazaar and the pack table, brainstormed (2026-11-22)
+
+The UX brainstorm for the community area decided in M2.11, and the owner's answers. It's recorded before the build so the reasoning survives whichever look wins.
+
+**The shape**
+
+- **The council lobby (`/play`) is first-party only.** Its "Community packs" dialog link becomes "Community bazaar ›", a link to a page.
+- **The bazaar (`/community`)** has one stall per added pack. Each stall shows:
+  - the pack's name and version;
+  - its publisher, prominently, so same-named packs are told apart;
+  - how many adventures and tutorials it has;
+  - its description;
+  - an "External · not reviewed" ribbon.
+
+  Each stall has Open, and Remove with an inline confirmation that names the cost: a saved run from that pack can't continue until the pack is added back. "Add a pack" is a stall of its own that opens the existing dialog. `?pack=` links and saved-run notices land here.
+- **The pack table (`/community/<pack key>`)** is the lobby's own layout, reused, with:
+  - the pack's banner: "Community pack · not reviewed by DDDnD", name, publisher, description;
+  - only that pack's scenarios;
+  - "‹ Bazaar" in place of the bazaar link.
+
+  The pack key goes in the path as is (`/community/github:mooeypoo/dddnd-packs/packs/gilded_ledger`). It is readable and shareable. A link to a pack that isn't added here lands in the bazaar with an explanation.
+
+**The owner's answers**
+
+1. **Pack-owned classes and modifiers: later.** The owner had assumed packs could already add them. They can't: ADR 0014 refuses them, because the lobby offered every class with every scenario. Now that each pack has its own table, that reason goes away. The preferred design for later is **option A**: a pack's table offers its own classes and modifiers plus those of the packs it depends on, filtered to the scenario's scores. This is recorded as a planned improvement, not built now. Until then a pack table offers the game's classes, as before. The other options considered were:
+   - B: the pack's own only, which leaves the Gilded Ledger with no classes until its author copies them;
+   - C: own plus base everywhere, which breaks standalone packs whose scores differ.
+2. **A visible external marker during a run, including in what people share.** If a player screenshots a community run, it must be clear that it isn't a DDDnD pack. The play screen already has the "Community pack · name · publisher" label. The results screen and the share card get one too.
+3. **Entry points: the lobby only, for now.** The welcome page can link to the bazaar later.
+4. **The look:** compare a warm canvas-and-awning market with an indigo night market.
+
+**A new requirement from the owner: say where packs are kept**
+
+Added packs live in this browser's storage (IndexedDB). There are no accounts and DDDnD stores nothing about the player. A player who sees their pack in the bazaar today could reasonably assume it will always be there, on any device. So the bazaar says it plainly: "Kept in this browser only … they won't follow you to another browser or device, and clearing this site's data removes them. Keep the links to packs you like somewhere of your own." When the browser refuses persistent storage, it says packs last only until the page closes.
+
+**The external mark**
+
+Both looks share one rule: community content has a **stitched (dashed) border**, which base content never uses, plus an awning stripe across the top. The colors come from `.bazaar-look-<look>` tokens in `design-system.css`, so the look is a palette swap. `?look=night` switches while the comparison is open.
+
+**DDD note (talk material)**
+
+Where data lives is part of the model the player needs to know. "Your packs" sounds like an account. Saying "kept in this browser" is the user-facing side of a decision made for privacy: no backend, no accounts, nothing about the player stored. Hiding that would have made the privacy choice look like a bug the first time someone switched devices.

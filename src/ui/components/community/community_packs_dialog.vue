@@ -102,7 +102,7 @@
 
       <!-- Load a pack, and the list of added packs -->
       <section v-else class="pack-load">
-        <p v-if="flow.savedRunNotice.value" class="saved-run-note" role="status">
+        <p v-if="flow.savedRunNotice.value && !inBazaar" class="saved-run-note" role="status">
           {{ flow.savedRunNotice.value.message }}
         </p>
         <ul v-if="flow.restoreIssues.value.length > 0" class="issue-list restore-issues">
@@ -151,7 +151,7 @@
           </label>
         </div>
 
-        <div v-if="flow.loadedPacks.value.length > 0" class="loaded">
+        <div v-if="flow.loadedPacks.value.length > 0 && !inBazaar" class="loaded">
           <h4 class="section-kicker">{{ flow.persistent.value ? 'Added packs' : 'Added this visit' }}</h4>
           <ul class="loaded-list">
             <li v-for="pack in flow.loadedPacks.value" :key="pack.key">
@@ -201,6 +201,8 @@ const props = defineProps<{
   isOpen: boolean
   /** Prefills the link field (from a `?pack=` link). Never loads by itself. */
   initialUrl?: string
+  /** Opened from the bazaar, which lists added packs and saved-run notices itself. */
+  inBazaar?: boolean
 }>()
 
 const emit = defineEmits<{ close: [] }>()

@@ -43,6 +43,11 @@ export function firstPartyPackKey(packId: string): string {
   return `dddnd:${packId}`
 }
 
+/** True for the key of a pack that ships with the game. */
+export function isFirstPartyPackKey(key: string | undefined): boolean {
+  return typeof key === 'string' && key.startsWith(firstPartyPackKey(''))
+}
+
 /** Key for a pack loaded from a URL that passed the source policy. */
 export function packKeyForSource(source: PackSource): string {
   const folder = source.pack_dir ? `/${source.pack_dir}` : ''
