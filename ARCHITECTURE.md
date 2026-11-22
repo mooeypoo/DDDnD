@@ -337,7 +337,7 @@ It is not required to duplicate every internal detail of the simulation engineâ€
 
 ## Exact Run Export Scope
 
-Exact-run exports currently use a minimal deterministic schema.
+Exact-run exports currently use a minimal deterministic schema. The game doesn't create or read them yet: they are ready in code (and record the pack's identity) for a future "download this run" feature.
 
 They must include enough information to:
 
