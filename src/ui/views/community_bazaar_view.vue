@@ -1,5 +1,5 @@
 <template>
-  <div class="community-bazaar" :class="bazaarLookClass(look)">
+  <div class="community-bazaar bazaar-theme">
     <div class="bazaar-glow" aria-hidden="true" />
     <div class="bazaar-awning" aria-hidden="true" />
 
@@ -30,21 +30,21 @@
       <p class="bazaar-note storage-note">
         <strong>Kept in this browser only.</strong>
         <template v-if="flow.persistent.value">
-          Packs you add stay in this browser on this device. There are no accounts and DDDnD keeps nothing about
+          Packs you import stay in this browser on this device. There are no accounts and DDDnD keeps nothing about
           you, so they won't follow you to another browser or device, and clearing this site's data removes them.
         </template>
         <template v-else>
-          This browser isn't letting DDDnD keep anything, so packs you add last only until you close the page.
+          This browser isn't letting DDDnD keep anything, so packs you import last only until you close the page.
           There are no accounts and DDDnD keeps nothing about you.
         </template>
         Keep the links to packs you like somewhere of your own.
       </p>
       <p v-if="missingPackLink" class="bazaar-note" role="status">
-        That pack isn't added in this browser. Ask whoever shared it for the pack's link, then add it here.
+        That pack isn't imported in this browser. Ask whoever shared it for the pack's link, then import it here.
       </p>
       <p v-if="flow.savedRunNotice.value" class="bazaar-note saved-run-note" role="status">
         {{ flow.savedRunNotice.value.message }}
-        <button type="button" class="note-action" @click="isAddOpen = true">Add a pack</button>
+        <button type="button" class="note-action" @click="isAddOpen = true">Import a pack</button>
       </p>
       <ul v-if="flow.restoreIssues.value.length > 0" class="bazaar-note restore-issues">
         <li v-for="issue in flow.restoreIssues.value" :key="issue.name">
@@ -53,9 +53,9 @@
       </ul>
     </section>
 
-    <section class="stalls" aria-label="Added packs">
+    <section class="stalls" aria-label="Imported packs">
       <article v-for="stall in stalls" :key="stall.key" class="stall">
-        <div class="stall-awning" aria-hidden="true" />
+        <div class="stall-edge" aria-hidden="true" />
         <p class="stall-ribbon">External · not reviewed</p>
         <h2 class="stall-name">{{ stall.title }} <span class="stall-version">v{{ stall.version }}</span></h2>
         <p class="stall-publisher">Published by {{ stall.publisher }}</p>
@@ -64,7 +64,7 @@
 
         <div v-if="pendingRemoval === stall.key" class="stall-confirm" role="group" :aria-label="`Remove ${stall.title}?`">
           <p class="stall-confirm-copy">
-            Remove “{{ stall.title }}”? A saved run from this pack can't be continued until you add it back.
+            Remove “{{ stall.title }}”? A saved run from this pack can't be continued until you import it again.
           </p>
           <div class="stall-actions">
             <button type="button" class="stall-btn" @click="pendingRemoval = null">Keep it</button>
@@ -78,14 +78,14 @@
       </article>
 
       <article class="stall add-stall">
-        <div class="stall-awning" aria-hidden="true" />
-        <h2 class="stall-name">Add a pack</h2>
+        <div class="stall-edge" aria-hidden="true" />
+        <h2 class="stall-name">Import a pack</h2>
         <p class="stall-description">
           From a GitHub link the pack's author gave you, or from a <code>.dddnd-pack.json</code> file.
-          You'll see what's in it, and where it comes from, before anything is added.
+          You'll see what's in it, and where it comes from, before anything is imported.
         </p>
         <div class="stall-actions">
-          <button type="button" class="stall-btn primary" @click="isAddOpen = true">Add a pack</button>
+          <button type="button" class="stall-btn primary" @click="isAddOpen = true">Import a pack</button>
         </div>
       </article>
     </section>
@@ -100,7 +100,7 @@
 
 <script setup lang="ts">
 /**
- * The Community Bazaar (journal M2.11): every community pack added in this
+ * The Community Bazaar (journal M2.11): every community pack imported in this
  * browser, one stall per pack. Opening a stall goes to that pack's own table.
  * Gated by the ADR 0009 flag at the route.
  */
@@ -109,7 +109,6 @@ import { RouterLink, useRoute } from 'vue-router'
 
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import CommunityPacksDialog from '@/ui/components/community/community_packs_dialog.vue'
-import { bazaarLookClass, bazaarLookFromQuery } from '@/ui/community/bazaar_look'
 import { packTableRoute } from '@/ui/community/community_routes'
 import { useCommunityPacks } from '@/ui/composables/use_community_packs'
 import { useGameStore } from '@/ui/stores/game_store'
@@ -120,7 +119,6 @@ const route = useRoute()
 const gameStore = useGameStore()
 const flow = useCommunityPacks()
 
-const look = computed(() => bazaarLookFromQuery(route.query.look))
 /**
  * A `?pack=<manifest URL>` link opens the add dialog with the link filled in.
  * It never loads by itself: fetching tells the host the player's IP address.
@@ -170,7 +168,7 @@ onMounted(async () => {
 .community-bazaar {
   position: relative;
   min-height: 100dvh;
-  padding: 2rem 1rem 4rem;
+  padding: 1.4rem 1rem 4rem;
   background: var(--bazaar-bg);
   color: var(--bazaar-ink);
   overflow-x: hidden;
@@ -185,20 +183,16 @@ onMounted(async () => {
     radial-gradient(ellipse at 50% 100%, var(--bazaar-glow-low), transparent 45%);
 }
 
-.bazaar-awning,
-.stall-awning {
-  background: repeating-linear-gradient(90deg, var(--bazaar-stripe-a) 0 28px, var(--bazaar-stripe-b) 28px 56px);
-  -webkit-mask: radial-gradient(circle 14px at 14px 12px, #000 98%, transparent) 0 0 / 28px 26px repeat-x, linear-gradient(#000, #000) 0 0 / 100% 12px no-repeat;
-  mask: radial-gradient(circle 14px at 14px 12px, #000 98%, transparent) 0 0 / 28px 26px repeat-x, linear-gradient(#000, #000) 0 0 / 100% 12px no-repeat;
-}
-
+/* A thin valance: the room's only awning. */
 .bazaar-awning {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 26px;
-  opacity: 0.9;
+  height: 10px;
+  background: repeating-linear-gradient(90deg, var(--bazaar-stripe-a) 0 18px, var(--bazaar-stripe-b) 18px 36px);
+  -webkit-mask: radial-gradient(circle 5px at 9px 5px, #000 98%, transparent) 0 0 / 18px 10px repeat-x, linear-gradient(#000, #000) 0 0 / 100% 5px no-repeat;
+  mask: radial-gradient(circle 5px at 9px 5px, #000 98%, transparent) 0 0 / 18px 10px repeat-x, linear-gradient(#000, #000) 0 0 / 100% 5px no-repeat;
 }
 
 .bazaar-mast,
@@ -252,7 +246,7 @@ onMounted(async () => {
 .bazaar-title {
   margin: 0.3rem 0 0;
   font-family: var(--font-heading);
-  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  font-size: clamp(1.5rem, 3.4vw, 2.2rem);
   color: var(--bazaar-ink);
 }
 
@@ -313,19 +307,21 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  padding: 2.1rem 1rem 1rem;
-  border: 2px dashed var(--bazaar-stitch);
+  padding: 1.1rem 1rem 1rem;
+  border: 1px dashed var(--bazaar-stitch);
   border-radius: 12px;
   background: var(--bazaar-panel);
   overflow: hidden;
 }
 
-.stall-awning {
+/* A flat striped edge, echoing the valance without another awning. */
+.stall-edge {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 26px;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--bazaar-stripe-a) 0 12px, var(--bazaar-stripe-b) 12px 24px);
 }
 
 .stall-name {
@@ -406,6 +402,10 @@ onMounted(async () => {
 
 .add-stall {
   border-style: dotted;
+}
+
+.add-stall .stall-description {
+  display: block;
 }
 
 .bazaar-empty {

@@ -1146,6 +1146,20 @@ Added packs live in this browser's storage (IndexedDB). There are no accounts an
 
 Both looks share one rule: community content has a **stitched (dashed) border**, which base content never uses, plus an awning stripe across the top. The colors come from `.bazaar-look-<look>` tokens in `design-system.css`, so the look is a palette swap. `?look=night` switches while the comparison is open.
 
+**The owner's review of the two looks**
+
+- **Warm canvas won.** The indigo night market and the `?look=` switch were removed, leaving one `.bazaar-theme` token set.
+- **"Too much" became "quieter":**
+  - the awning is now a thin valance (10 px instead of 26 px, with softer stripes);
+  - the stalls lost their own awnings for a 3 px striped top edge;
+  - the stitching is 1 px and fainter;
+  - the title is a size smaller.
+
+  The external mark is still unmistakable, just not loud.
+- **"Add a pack" became "Import a pack".** "Add" read as if the player would be *creating* a pack, which is the Pack Studio's job (M4+). "Import" says the pack exists elsewhere and is being brought in. The whole flow now uses the one verb: the dialog title, "Import this pack", "Don't import", "Importing…", the saved-run notices ("Import it again from its original link"), and the bazaar.
+
+  Words in the UI are part of the ubiquitous language too: *import* (bring an existing pack in) and *create* (make one, in the Studio) are different actions and get different words.
+
 **DDD note (talk material)**
 
 Where data lives is part of the model the player needs to know. "Your packs" sounds like an account. Saying "kept in this browser" is the user-facing side of a decision made for privacy: no backend, no accounts, nothing about the player stored. Hiding that would have made the privacy choice look like a bug the first time someone switched devices.

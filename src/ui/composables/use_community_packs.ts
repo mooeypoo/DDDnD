@@ -76,11 +76,11 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
     const notice = store.savedRunPackNotice
     if (!notice) return null
     const label = `${notice.pack.id} v${notice.pack.version}`
-    const addAgain = notice.pack.source_url ? 'Add it again from its original link' : 'Add that pack file again'
+    const addAgain = notice.pack.source_url ? 'Import it again from its original link' : 'Import that pack file again'
     const messages: Record<typeof notice.reason, string> = {
-      missing: `Your saved run was played with the community pack “${label}”, which isn't added right now. ${addAgain} to continue that run, or start a new one.`,
-      different_version: `Your saved run was played with a different version of “${label}” than the one added now. ${addAgain} to continue it, or start a new run.`,
-      different_source: `Your saved run was played with “${label}”, but the pack added now with that name was loaded from somewhere else, and saved runs only continue with the pack they were played with. ${addAgain} to continue that run, or start a new one.`,
+      missing: `Your saved run was played with the community pack “${label}”, which isn't imported right now. ${addAgain} to continue that run, or start a new one.`,
+      different_version: `Your saved run was played with a different version of “${label}” than the one imported now. ${addAgain} to continue it, or start a new run.`,
+      different_source: `Your saved run was played with “${label}”, but the pack imported now with that name was loaded from somewhere else, and saved runs only continue with the pack they were played with. ${addAgain} to continue that run, or start a new one.`,
     }
     return { message: messages[notice.reason], sourceUrl: notice.pack.source_url }
   })
@@ -102,13 +102,13 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
     const { replaces, same_name } = store.find_community_pack_relations(candidate.value)
     const notes: Array<{ tone: 'calm'; message: string }> = []
     if (replaces) {
-      notes.push({ tone: 'calm', message: `Replaces the version you added before (v${replaces.manifest.version}).` })
+      notes.push({ tone: 'calm', message: `Replaces the version you imported before (v${replaces.manifest.version}).` })
     }
     for (const other of same_name) {
       const otherReview = buildPackReview(other)
       notes.push({
         tone: 'calm',
-        message: `You also have another pack called “${otherReview.title}”, published by ${otherReview.publisher.label}. Both stay added; the lobby shows who published each.`,
+        message: `You also have another pack called “${otherReview.title}”, published by ${otherReview.publisher.label}. Both stay; the bazaar shows who published each.`,
       })
     }
     return notes
@@ -166,7 +166,7 @@ export function useCommunityPacks(deps: CommunityPackDependencies = {}) {
       candidate.value = null
       phase.value = 'idle'
     } catch (error) {
-      showError('The pack couldn\'t be added', [{ file: 'pack', message: error instanceof Error ? error.message : String(error) }])
+      showError('The pack couldn\'t be imported', [{ file: 'pack', message: error instanceof Error ? error.message : String(error) }])
     }
   }
 

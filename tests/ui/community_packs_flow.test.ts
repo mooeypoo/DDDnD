@@ -156,9 +156,9 @@ describe('what the review says about packs already added (ADR 0014)', () => {
     expect((await reviewWith({ replaces: null, same_name: [] })).relations.value).toEqual([])
   })
 
-  it('says it replaces the version added before (same pack)', async () => {
+  it('says it replaces the version imported before (same pack)', async () => {
     const flow = await reviewWith({ replaces: await demoPackSnapshot(), same_name: [] })
-    expect(flow.relations.value).toEqual([{ tone: 'calm', message: 'Replaces the version you added before (v1.0.0).' }])
+    expect(flow.relations.value).toEqual([{ tone: 'calm', message: 'Replaces the version you imported before (v1.0.0).' }])
   })
 
   it('tells same-named packs apart by publisher, and keeps both', async () => {
@@ -169,6 +169,6 @@ describe('what the review says about packs already added (ADR 0014)', () => {
     expect(flow.phase.value).toBe('review')
     expect(flow.relations.value).toHaveLength(1)
     expect(flow.relations.value[0].message).toMatch(/published by someone-else on GitHub \(someone-else\/their-packs\)/)
-    expect(flow.relations.value[0].message).toMatch(/Both stay added/)
+    expect(flow.relations.value[0].message).toMatch(/Both stay; the bazaar shows who published each/)
   })
 })

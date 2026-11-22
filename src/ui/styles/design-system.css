@@ -11,37 +11,23 @@
 @import '../prototypes/dungeon/dungeon-design-tokens.css';
 
 
-/* ─── Community bazaar looks (journal M2.11) ────────────────────
+/* ─── Community bazaar (journal M2.11, M2.12) ───────────────────
    Tokens for the community area, so it never looks like the council
-   lobby. A stitched (dashed) border is the "external" mark: base content
-   never uses one. See src/ui/community/bazaar_look.ts. */
+   lobby: warm canvas, a thin awning valance, and a stitched (dashed)
+   border, which base content never uses, as the "external" mark. */
 
-.bazaar-look-awning {
-  --bazaar-bg: #170c09;
-  --bazaar-glow: rgba(196, 92, 48, 0.3);
-  --bazaar-glow-low: rgba(40, 14, 8, 0.85);
-  --bazaar-stripe-a: #a9472a;
-  --bazaar-stripe-b: #e6cc9c;
-  --bazaar-accent: #5fd3c6;
-  --bazaar-accent-soft: rgba(95, 211, 198, 0.16);
-  --bazaar-ink: #f3e3c4;
-  --bazaar-muted: #c9ae86;
-  --bazaar-panel: rgba(34, 18, 12, 0.88);
-  --bazaar-stitch: rgba(95, 211, 198, 0.75);
-}
-
-.bazaar-look-night {
-  --bazaar-bg: #0a0b1c;
-  --bazaar-glow: rgba(110, 84, 230, 0.32);
-  --bazaar-glow-low: rgba(6, 6, 20, 0.88);
-  --bazaar-stripe-a: #3b2f8f;
-  --bazaar-stripe-b: #e4689f;
-  --bazaar-accent: #f59ac4;
-  --bazaar-accent-soft: rgba(245, 154, 196, 0.15);
-  --bazaar-ink: #ece8ff;
-  --bazaar-muted: #b3acd9;
-  --bazaar-panel: rgba(20, 18, 46, 0.88);
-  --bazaar-stitch: rgba(245, 154, 196, 0.75);
+.bazaar-theme {
+  --bazaar-bg: #150c09;
+  --bazaar-glow: rgba(176, 90, 52, 0.2);
+  --bazaar-glow-low: rgba(36, 14, 8, 0.8);
+  --bazaar-stripe-a: rgba(158, 76, 48, 0.7);
+  --bazaar-stripe-b: rgba(214, 190, 146, 0.55);
+  --bazaar-accent: #6cc7bb;
+  --bazaar-accent-soft: rgba(108, 199, 187, 0.14);
+  --bazaar-ink: #f1e2c6;
+  --bazaar-muted: #c3aa86;
+  --bazaar-panel: rgba(32, 18, 12, 0.82);
+  --bazaar-stitch: rgba(108, 199, 187, 0.45);
 }
 
 /* ─── Fallback score colors (ADR 0002) ──────────────────────────

@@ -1,7 +1,7 @@
 <template>
   <div
     class="council-lobby"
-    :class="[{ 'is-awaiting-chamber': isAwaitingChamber, 'is-bazaar': Boolean(bazaarPack) }, bazaarPack ? bazaarLookClass(bazaarLook ?? DEFAULT_BAZAAR_LOOK) : '']"
+    :class="{ 'is-awaiting-chamber': isAwaitingChamber, 'is-bazaar bazaar-theme': Boolean(bazaarPack) }"
     :aria-busy="isAwaitingChamber"
   >
     <div class="chamber-glow" aria-hidden="true" />
@@ -252,7 +252,6 @@ import { isSameQuest, questKey, type QuestDisplayModel } from '@/ui/types/quest_
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import QuestBriefingPlaque from '@/ui/play/quest_briefing_plaque.vue'
-import { bazaarLookClass, DEFAULT_BAZAAR_LOOK, type BazaarLook } from '@/ui/community/bazaar_look'
 
 type DeckMode = 'adventures' | 'tutorials'
 
@@ -273,7 +272,6 @@ const props = defineProps<{
    * and the bazaar's look instead of the council chamber.
    */
   bazaarPack?: { name: string; version: string; description: string; publisher: string } | null
-  bazaarLook?: BazaarLook
 }>()
 
 const emit = defineEmits<{
@@ -1246,17 +1244,16 @@ function affinityLine(scoreId: string | undefined): string {
   top: 0;
   left: 0;
   right: 0;
-  height: 26px;
+  height: 10px;
   z-index: 0;
   pointer-events: none;
-  background: repeating-linear-gradient(90deg, var(--bazaar-stripe-a) 0 28px, var(--bazaar-stripe-b) 28px 56px);
-  -webkit-mask: radial-gradient(circle 14px at 14px 12px, #000 98%, transparent) 0 0 / 28px 26px repeat-x, linear-gradient(#000, #000) 0 0 / 100% 12px no-repeat;
-  mask: radial-gradient(circle 14px at 14px 12px, #000 98%, transparent) 0 0 / 28px 26px repeat-x, linear-gradient(#000, #000) 0 0 / 100% 12px no-repeat;
-  opacity: 0.9;
+  background: repeating-linear-gradient(90deg, var(--bazaar-stripe-a) 0 18px, var(--bazaar-stripe-b) 18px 36px);
+  -webkit-mask: radial-gradient(circle 5px at 9px 5px, #000 98%, transparent) 0 0 / 18px 10px repeat-x, linear-gradient(#000, #000) 0 0 / 100% 5px no-repeat;
+  mask: radial-gradient(circle 5px at 9px 5px, #000 98%, transparent) 0 0 / 18px 10px repeat-x, linear-gradient(#000, #000) 0 0 / 100% 5px no-repeat;
 }
 
 .is-bazaar .lobby-mast {
-  margin-top: 1.2rem;
+  margin-top: 0.5rem;
 }
 
 .pack-banner {
@@ -1265,7 +1262,7 @@ function affinityLine(scoreId: string | undefined): string {
   max-width: 46rem;
   margin: 0 auto 1rem;
   padding: 0.75rem 1rem 0.85rem;
-  border: 2px dashed var(--bazaar-stitch);
+  border: 1px dashed var(--bazaar-stitch);
   border-radius: 12px;
   background: var(--bazaar-panel);
   text-align: center;
@@ -1316,7 +1313,7 @@ function affinityLine(scoreId: string | undefined): string {
 }
 
 .is-bazaar .table-quest {
-  outline: 2px dashed var(--bazaar-stitch);
+  outline: 1px dashed var(--bazaar-stitch);
   outline-offset: 3px;
 }
 

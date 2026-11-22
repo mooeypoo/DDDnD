@@ -15,7 +15,6 @@
       :isLoading="isPreparing"
       :communityPacksEnabled="communityPacksEnabled"
       :bazaarPack="bazaarPack"
-      :bazaarLook="bazaarLook"
       @selectQuest="selectQuest"
       @selectClass="selectClass"
       @selectModifier="selectModifier"
@@ -49,7 +48,6 @@ import { isCommunityPacksEnabled } from '@/ui/config/feature_flags'
 import { isFirstPartyPackKey } from '@/domains/content/services/pack_identity'
 import { describePackPublisher } from '@/ui/play/community_pack_review'
 import { BAZAAR_PATH, packKeyFromParam } from '@/ui/community/community_routes'
-import { bazaarLookFromQuery } from '@/ui/community/bazaar_look'
 import { sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
 
 /**
@@ -72,7 +70,6 @@ const characterName = ref('')
 /** Community packs (ADR 0009): nothing here renders or runs unless the build flag is on. */
 const communityPacksEnabled = isCommunityPacksEnabled()
 const tablePackKey = computed(() => (communityPacksEnabled ? packKeyFromParam(props.packKey) : undefined))
-const bazaarLook = computed(() => bazaarLookFromQuery(route.query.look))
 
 /** Quests at this table: the pack's own at a pack table, first-party ones in the lobby. */
 function belongsHere(quest: QuestDisplayModel): boolean {
