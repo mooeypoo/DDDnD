@@ -176,6 +176,30 @@ export interface OutcomeArchetype extends ContentMetadata {
 }
 
 /**
+ * Coupling Rule (M3)
+ *
+ * While one score sits below a threshold, gains to other scores shrink: a
+ * collapsing system drags the rest down. Applies to scenarios that list it in
+ * `coupling_rule_refs`. Positive changes to each affected score are multiplied
+ * by `gain_multiplier` (rounded); losses are never changed. When several
+ * active rules affect the same score, their multipliers stack.
+ *
+ * `name` and `description` are what the player sees while the rule is active.
+ */
+export interface CouplingRule extends ContentMetadata {
+  name: string
+  description: string
+  /** The score that triggers the rule. */
+  trigger_score_id: string
+  /** The rule is active while the trigger score is strictly below this value. */
+  threshold: number
+  /** Scores whose gains shrink while the rule is active. */
+  affected_score_ids: string[]
+  /** Multiplier for those gains, between 0.1 and 1. */
+  gain_multiplier: number
+}
+
+/**
  * Scenario
  * 
  * Defines a complete gameplay scenario.
@@ -194,6 +218,8 @@ export interface Scenario extends ContentMetadata {
   event_refs: VersionRef[]
   outcome_tier_refs?: VersionRef[]
   outcome_archetype_refs?: VersionRef[]
+  /** Coupling between this scenario's scores (M3). None when omitted. */
+  coupling_rule_refs?: VersionRef[]
   failure_conditions?: NumericCondition[]
   /**
    * When set and the playable pool is larger than the legal hand, these

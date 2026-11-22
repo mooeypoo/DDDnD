@@ -1364,3 +1364,46 @@ If any content wording reads worse than the old UI strings, the fix belongs in t
 - **Tests** (+8, 1089 total): naming from content, the coarse-tier fallback, title-case fallbacks, share-link names round-tripping and refused when too long or empty, and the share card using the carried names and falling back for old links.
 - **Golden replays and the fixed-seed audit are unchanged:** presentation only.
 - **Headless Chrome:** a full base run ended in "Triumph", "The Visionary", with the content's description and flavor line, the same names on the share card, and the same after a reload. No console errors.
+
+### M3.3 (slice 2): Coupling rules are content (2026-11-22)
+
+**What changed**
+
+- **A new content type, `CouplingRule`** (`coupling-rules/<id>-v<version>.json`). It has:
+  - `trigger_score_id` and `threshold` (the rule is active while the score is strictly below it);
+  - `affected_score_ids`;
+  - `gain_multiplier` (0.1–1, applied to gains only);
+  - `name` and `description`, the warning players see.
+
+  It is wired through every place a content type lives: the schema with limits, the published JSON Schema, the manifest inventory (`content.coupling_rules`, optional, so packs written before M3 stay valid), all four content providers, the scenario bundle, and the bundle validator.
+- **Scenarios opt in** with `coupling_rule_refs`. The validator refuses a rule that names a score the scenario doesn't track, and a missing rule.
+- **The engine has no coupling of its own.** `computeCouplingMultiplier` and `getActiveCouplingEffects` take the rules as an argument, and `applyScoreChanges` reads them from the bundle. `SYSTEM_COUPLING_RULES` is gone, including the two tutorial rules someone had added to it.
+- **Five rule files:**
+  - `delivery_collapse`, `morale_collapse`, `trust_collapse` in the base pack;
+  - `capacity_collapse`, `system_health_collapse` in the tutorial.
+
+  Each has the old numbers, and the title and description the UI used to hard-code.
+- **The references were added in place** to every scenario file whose scores include a trigger: the five playable base scenarios, their retired v1 files, both test scenarios, both tutorials, and the demo fixture. They were added in the order the engine used to apply the rules. This follows CONTENT_VERSIONING.md: a new version is needed when gameplay could change, and here it doesn't, which the golden replays prove. The insertion was done textually, so each diff shows only the added lines.
+- **The UI** reads the active scenario's rules, set by the game store like the score order. Warnings show each rule's own title and description. Icons stay in the UI (ADR 0002): base triggers keep theirs, and other rules get ⚠️. During a run, the rules screen lists that adventure's collapses. Outside a run it keeps the base list, introduced as "In DDDnD's own adventures". `getScoreModifiers`, which had three base score ids as field names, became `getGainMultipliers`, keyed by whatever the rules affect.
+
+**Verification**
+
+- **Golden replays unchanged** for every first-party scenario, both tutorials and the demo fixture, and the fixed-seed audit report is identical to `main`. This is the key result: the engine now gets all of its coupling from content and plays exactly as before.
+- **The existing coupling tests** (base multipliers, stacking, thresholds, negatives untouched) now load the real rule files, so they also prove the content reproduces the old numbers.
+- **New tests** (+5, 1095 total):
+  - no coupling for a scenario that lists no rules, even with base score ids;
+  - a pack's own rule on its own scores;
+  - warnings using a rule's own text, with the generic icon for pack rules;
+  - no warnings outside a run;
+  - validation of untracked scores and missing rules.
+- `content:validate` passes for base, tutorial and the demo fixture.
+
+**Risk flagged for the owner**
+
+The demo pack **published** at `gilded_ledger-v1.0.0` in DDDnD-packs has no `coupling_rule_refs`. Once this merges, anyone loading that tag plays the Gilded Ledger with **no coupling**. Before, it silently inherited the base game's rules through the engine. The in-repo fixture already has the references.
+
+The fix is a `gilded_ledger-v1.1.0` release in DDDnD-packs with the same three lines, and the docs pointed at the new tag. That needs a push and a tag on the public packs repository, so it waits for the owner's go-ahead. It could go out together with the SRE pack (slice 9), or sooner.
+
+**DDD note (talk material)**
+
+"Someone added the tutorial's score ids to the engine's rule list" is the smell in one line. When a second domain shows up and the fix is to edit the engine's constants, the knowledge is in the wrong place. After this slice, the tutorial's coupling lives in the tutorial, the base game's in the base game, and a new pack writes its own. The engine only knows *how* coupling works, not *what* is coupled.

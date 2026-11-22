@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://dddnd.app/schema/v1/coupling-rule.schema.json",
+  "title": "DDDnD coupling rule",
+  "description": "Generated from the DDDnD content validator (pack format 1). Some rules (non-blank text, forbidden characters, cross-field rules) are only checked by the game and CLI validator.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Optional link to this schema, for editor support. Ignored by the game."
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]{1,64}$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 999
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 600
+    },
+    "trigger_score_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]{1,64}$"
+    },
+    "threshold": {
+      "type": "integer",
+      "minimum": -1000,
+      "maximum": 1000
+    },
+    "affected_score_ids": {
+      "minItems": 1,
+      "maxItems": 12,
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]{1,64}$"
+      }
+    },
+    "gain_multiplier": {
+      "type": "number",
+      "minimum": 0.1,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "name",
+    "description",
+    "trigger_score_id",
+    "threshold",
+    "affected_score_ids",
+    "gain_multiplier"
+  ],
+  "additionalProperties": false
+}

@@ -26,6 +26,8 @@ import type {
 import type { ScenarioBundle, VersionRef, PlayerClass, ChallengeModifier, PackSnapshot } from '@/domains/content/model'
 import { buildScenarioBundle } from '@/domains/content'
 import { setActiveScoreOrder } from '@/ui/composables/metric_presentation'
+import { setActiveCouplingRules } from '@/ui/composables/system_coupling'
+import { couplingRulesOf } from '@/domains/simulation'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
 import { create_engine } from '@/domains/simulation'
@@ -191,6 +193,7 @@ export const useGameStore = defineStore('game', () => {
   function initialize_engine(bundle: ScenarioBundle, seed: string) {
     scenarioBundle.value = bundle
     setActiveScoreOrder(bundle.scenario.score_refs.map((ref) => ref.id))
+    setActiveCouplingRules(couplingRulesOf(bundle))
     engine.value = create_engine({
       scenario_bundle: bundle,
       seed
@@ -458,6 +461,7 @@ export const useGameStore = defineStore('game', () => {
     gameState.value = null
     scenarioBundle.value = null
     setActiveScoreOrder([])
+    setActiveCouplingRules([])
     turnBriefing.value = null
     lastTurnResolution.value = null
     runOutcome.value = null

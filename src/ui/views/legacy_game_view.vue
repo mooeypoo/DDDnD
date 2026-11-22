@@ -583,7 +583,7 @@ import type { TurnBriefingActionSummary } from '@/domains/simulation'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
 import { getCollapseWarnings, hasActiveCoupling } from '@/ui/composables/system_coupling'
-import { getActiveCouplingEffects } from '@/domains/simulation'
+import { couplingRulesOf, getActiveCouplingEffects } from '@/domains/simulation'
 import { getMetricPresentation } from '@/ui/composables/metric_presentation'
 import { useScoreLabels } from '@/ui/composables/use_score_labels'
 import { resolveScenarioShortDescription } from '@/ui/composables/scenario_presentation'
@@ -871,7 +871,7 @@ const hasActiveCardEffects = computed(() => hasActiveCoupling(currentScores.valu
 
 const detailedCouplingEffects = computed(() => {
   const warnings = getCollapseWarnings(currentScores.value)
-  const effects = getActiveCouplingEffects(currentScores.value)
+  const effects = getActiveCouplingEffects(currentScores.value, gameStore.scenarioBundle ? couplingRulesOf(gameStore.scenarioBundle) : [])
   return warnings.map(w => {
     const effect = effects.find(e => e.trigger_score_id === w.triggerScoreId)
     return {

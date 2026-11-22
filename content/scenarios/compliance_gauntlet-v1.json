@@ -86,5 +86,10 @@
     { "id": "the_pragmatist", "version": 1 },
     { "id": "the_visionary", "version": 1 },
     { "id": "burnout_machine", "version": 1 }
+  ],
+  "coupling_rule_refs": [
+    { "id": "delivery_collapse", "version": 1 },
+    { "id": "morale_collapse", "version": 1 },
+    { "id": "trust_collapse", "version": 1 }
   ]
 }

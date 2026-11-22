@@ -10,6 +10,7 @@ export * from './services'
 // Re-export coupling query functions for UI display
 export {
   computeCouplingMultiplier,
+  couplingRulesOf,
   getActiveCouplingEffects,
   type ActiveCouplingEffect
 } from './rules/apply_score_changes'

@@ -1,0 +1,13 @@
+{
+  "id": "delivery_collapse",
+  "version": 1,
+  "name": "Delivery Collapse",
+  "description": "Architecture improvements are less effective.",
+  "trigger_score_id": "delivery_confidence",
+  "threshold": 25,
+  "affected_score_ids": [
+    "domain_clarity",
+    "maintainability"
+  ],
+  "gain_multiplier": 0.7
+}

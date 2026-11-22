@@ -86,14 +86,19 @@ export async function buildScenarioBundle(
   // Direct scenario references do not depend on each other. Fetch them
   // together so a run start is one round of requests instead of one file
   // after another.
-  const [scores, stakeholders, cards, events, outcomeTiers, outcomeArchetypes] = await Promise.all([
+  const [scores, stakeholders, cards, events, outcomeTiers, outcomeArchetypes, couplingRules] = await Promise.all([
     Promise.all(scenario.score_refs.map((ref) => provider.loadScore(ref))),
     Promise.all(scenario.stakeholder_refs.map((ref) => provider.loadStakeholder(ref))),
     Promise.all(scenario.card_refs.map((ref) => provider.loadCard(ref))),
     Promise.all(scenario.event_refs.map((ref) => provider.loadEvent(ref))),
     Promise.all((scenario.outcome_tier_refs ?? []).map((ref) => provider.loadOutcomeTier(ref))),
     Promise.all((scenario.outcome_archetype_refs ?? []).map((ref) => provider.loadOutcomeArchetype(ref))),
+    Promise.all((scenario.coupling_rule_refs ?? []).map((ref) => provider.loadCouplingRule(ref))),
   ])
+
+  for (const rule of couplingRules) {
+    addToBundle(bundle, 'coupling_rule', rule)
+  }
 
   for (const score of scores) {
     addToBundle(bundle, 'score', score)

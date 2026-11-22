@@ -5,7 +5,7 @@ import {
   Card,
   DelayedEffect,
   Event,
-  OutcomeArchetype,
+  OutcomeArchetype, CouplingRule,
   OutcomeTier,
   Scenario,
   Score,
@@ -49,6 +49,7 @@ function createFileContentProvider(contentRoot: string): ContentProvider {
     loadDelayedEffect: (ref) => loadJson<DelayedEffect>('delayed-effects', ref),
     loadOutcomeTier: (ref) => loadJson<OutcomeTier>('outcome-tiers', ref),
     loadOutcomeArchetype: (ref) => loadJson<OutcomeArchetype>('outcome-archetypes', ref),
+    loadCouplingRule: (ref) => loadJson<CouplingRule>('coupling-rules', ref),
     loadPlayerClass: (ref) => loadJson<PlayerClass>('classes', ref),
     loadChallengeModifier: (ref) => loadJson<ChallengeModifier>('challenge-modifiers', ref)
   }

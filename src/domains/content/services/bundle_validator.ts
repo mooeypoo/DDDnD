@@ -281,6 +281,30 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
     }
   }
   
+  // Coupling rules (M3): present, and only about scores this scenario tracks
+  const couplingScoreIds = new Set(bundle.scenario.score_refs.map((ref) => ref.id))
+  for (const ruleRef of bundle.scenario.coupling_rule_refs ?? []) {
+    const key = versionRefKey(ruleRef)
+    const rule = bundle.coupling_rules.get(key)
+    if (!rule) {
+      errors.push({
+        type: 'missing_coupling_rule',
+        message: `Scenario references missing coupling rule: ${key}`,
+        details: { ruleRef }
+      })
+      continue
+    }
+    for (const scoreId of [rule.trigger_score_id, ...rule.affected_score_ids]) {
+      if (!couplingScoreIds.has(scoreId)) {
+        errors.push({
+          type: 'untracked_coupling_score',
+          message: `Coupling rule ${key} uses score "${scoreId}", which this scenario doesn't track (add it to score_refs or use another rule)`,
+          details: { ruleRef, scoreId }
+        })
+      }
+    }
+  }
+
   return {
     valid: errors.length === 0,
     errors

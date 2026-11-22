@@ -238,6 +238,9 @@ export function createMockContentProvider(): ContentProvider {
     loadOutcomeArchetype: async (_ref) => {
       throw new Error('Mock outcome archetype not implemented')
     },
+    loadCouplingRule: async (_ref) => {
+      throw new Error('Mock coupling rule not implemented')
+    },
     loadPlayerClass: async (_ref) => {
       throw new Error('Mock player class not implemented')
     },

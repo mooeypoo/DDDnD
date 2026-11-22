@@ -164,6 +164,10 @@ function createMockProvider(label: string): ContentProvider {
     loadDelayedEffect: vi.fn(async (ref: VersionRef) => makeDelayedEffect(ref)),
     loadOutcomeTier: vi.fn(async (ref: VersionRef) => makeOutcomeTier(ref)),
     loadOutcomeArchetype: vi.fn(async (ref: VersionRef) => makeOutcomeArchetype(ref)),
+    loadCouplingRule: vi.fn(async (ref: VersionRef) => ({
+      id: ref.id, version: ref.version, name: `${label}-coupling`, description: label,
+      trigger_score_id: 'score_a', threshold: 25, affected_score_ids: ['score_b'], gain_multiplier: 0.7,
+    })),
     loadPlayerClass: vi.fn(async (ref: VersionRef) => makePlayerClass(ref)),
     loadChallengeModifier: vi.fn(async (ref: VersionRef) => makeChallengeModifier(ref)),
   }

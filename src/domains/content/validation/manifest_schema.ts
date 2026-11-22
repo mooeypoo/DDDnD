@@ -79,6 +79,7 @@ const inventorySchema = z.strictObject({
   delayed_effects: inventorySectionSchema,
   outcome_tiers: inventorySectionSchema,
   outcome_archetypes: inventorySectionSchema,
+  coupling_rules: z.optional(inventorySectionSchema),
   classes: inventorySectionSchema,
   challenge_modifiers: inventorySectionSchema,
 })
@@ -168,7 +169,7 @@ export function manifestRuleIssues(manifest: ContentPackManifest): ManifestRuleI
   for (const [field, section] of entryPoints) {
     manifest[field].forEach((ref, index) => {
       const filename = `${ref.id}-v${ref.version}.json`
-      if (!manifest.content[section].includes(filename)) {
+      if (!(manifest.content[section] ?? []).includes(filename)) {
         issues.push({
           path: `${field}[${index}]`,
           message: `${filename} is an entry point but is not listed in content.${section}`,

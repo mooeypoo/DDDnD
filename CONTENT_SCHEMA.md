@@ -113,6 +113,7 @@ A scenario defines:
 - possible events
 - maximum turns
 - outcome definitions
+- coupling rules (`coupling_rule_refs`, optional; see below)
 
 ---
 
@@ -255,6 +256,32 @@ Each delayed effect specifies:
 - flavor text explaining the effect
 
 Score changes on delayed effects are subject to the same `score_refs` rule as cards and events.
+
+---
+
+# Coupling Rules
+
+A coupling rule (`coupling-rules/<id>-v<version>.json`) says that while one score sits **below** a threshold, gains to other scores shrink. A collapsing system drags the rest down.
+
+```json
+{
+  "id": "delivery_collapse",
+  "version": 1,
+  "name": "Delivery Collapse",
+  "description": "Architecture improvements are less effective.",
+  "trigger_score_id": "delivery_confidence",
+  "threshold": 25,
+  "affected_score_ids": ["domain_clarity", "maintainability"],
+  "gain_multiplier": 0.7
+}
+```
+
+- A rule applies only to scenarios that list it in `coupling_rule_refs`. The engine has no built-in coupling.
+- **When it is active:** while the trigger score is strictly below `threshold`.
+- **What it does:** positive changes to each affected score are multiplied by `gain_multiplier` (0.1–1) and rounded. Losses are never changed. When several active rules affect the same score, their multipliers stack (0.7 × 0.75 = 0.525).
+- **What players see:** `name` and `description` are shown as the collapse warning while the rule is active, and in the rules screen during that adventure.
+- **Validation:** the trigger and every affected score must be in the scenario's `score_refs`.
+- A pack can reference a rule from a pack it depends on. The demo pack uses the base game's three rules.
 
 ---
 

@@ -16,7 +16,8 @@ import {
   Event,
   DelayedEffect,
   OutcomeTier,
-  OutcomeArchetype
+  OutcomeArchetype,
+  CouplingRule
 } from './content_types'
 import { versionRefKey, VersionRef } from './version_ref'
 
@@ -36,6 +37,8 @@ export interface ScenarioBundle {
   delayed_effects: Map<string, DelayedEffect>
   outcome_tiers: Map<string, OutcomeTier>
   outcome_archetypes: Map<string, OutcomeArchetype>
+  /** The scenario's coupling rules (M3), in `coupling_rule_refs` order. */
+  coupling_rules: Map<string, CouplingRule>
 }
 
 /**
@@ -53,7 +56,8 @@ export function createEmptyBundle(scenario: Scenario): ScenarioBundle {
     events: new Map(),
     delayed_effects: new Map(),
     outcome_tiers: new Map(),
-    outcome_archetypes: new Map()
+    outcome_archetypes: new Map(),
+    coupling_rules: new Map()
   }
 }
 
@@ -63,8 +67,8 @@ export function createEmptyBundle(scenario: Scenario): ScenarioBundle {
  */
 export function addToBundle(
   bundle: ScenarioBundle,
-  type: 'score' | 'stakeholder' | 'stakeholder_reaction_rule' | 'card' | 'event' | 'delayed_effect' | 'outcome_tier' | 'outcome_archetype',
-  entity: Score | Stakeholder | StakeholderReactionRule | Card | Event | DelayedEffect | OutcomeTier | OutcomeArchetype
+  type: 'score' | 'stakeholder' | 'stakeholder_reaction_rule' | 'card' | 'event' | 'delayed_effect' | 'outcome_tier' | 'outcome_archetype' | 'coupling_rule',
+  entity: Score | Stakeholder | StakeholderReactionRule | Card | Event | DelayedEffect | OutcomeTier | OutcomeArchetype | CouplingRule
 ): string {
   const key = versionRefKey({ id: entity.id, version: entity.version })
   
@@ -92,6 +96,9 @@ export function addToBundle(
       break
     case 'outcome_archetype':
       bundle.outcome_archetypes.set(key, entity as OutcomeArchetype)
+      break
+    case 'coupling_rule':
+      bundle.coupling_rules.set(key, entity as CouplingRule)
       break
   }
   

@@ -269,6 +269,25 @@ For the same reason, a community pack can't use the id `base` or `tutorial`.
 
 Best practice: include only files your pack truly owns in `content.*` inventory.
 
+## Coupling: when one score drags others down
+
+A **coupling rule** makes a collapsing score hurt others: "while delivery confidence is below 25, gains to domain clarity and maintainability shrink to 70%". The engine has no coupling of its own; a scenario lists the rules that apply in `coupling_rule_refs`:
+
+```json
+"coupling_rule_refs": [
+  { "id": "delivery_collapse", "version": 1 }
+]
+```
+
+A rule file (`coupling-rules/<id>-v<version>.json`, listed under `content.coupling_rules` in the manifest) has:
+
+- `trigger_score_id` and `threshold`: the rule is active while that score is strictly below the threshold;
+- `affected_score_ids`: the scores whose gains shrink;
+- `gain_multiplier`: between 0.1 and 1, applied to gains only, never to losses;
+- `name` and `description`: the warning players see while it is active.
+
+All the scores a rule names must be in the scenario's `score_refs`. An extension pack can reuse the base game's rules (`delivery_collapse`, `morale_collapse`, `trust_collapse`). A pack with its own scores writes its own. See [CONTENT_SCHEMA.md](https://github.com/mooeypoo/DDDnD/blob/main/CONTENT_SCHEMA.md#coupling-rules).
+
 ## Single-file packs (`.dddnd-pack.json`)
 
 A pack can also travel as one file, for workshops where hosting isn't practical: a player loads it into the game from their computer. Create one from a pack folder:

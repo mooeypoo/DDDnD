@@ -23,6 +23,7 @@ import {
   DelayedEffect,
   OutcomeTier,
   OutcomeArchetype,
+  CouplingRule,
   PlayerClass,
   ChallengeModifier,
   ContentMetadata,
@@ -46,6 +47,7 @@ export type ContentType =
   | 'delayed-effects'
   | 'outcome-tiers'
   | 'outcome-archetypes'
+  | 'coupling-rules'
   | 'classes'
   | 'challenge-modifiers'
 
@@ -95,6 +97,7 @@ export interface ContentProvider {
   loadDelayedEffect(ref: VersionRef): Promise<DelayedEffect>
   loadOutcomeTier(ref: VersionRef): Promise<OutcomeTier>
   loadOutcomeArchetype(ref: VersionRef): Promise<OutcomeArchetype>
+  loadCouplingRule(ref: VersionRef): Promise<CouplingRule>
   loadPlayerClass(ref: VersionRef): Promise<PlayerClass>
   loadChallengeModifier(ref: VersionRef): Promise<ChallengeModifier>
 }
@@ -192,6 +195,7 @@ export function createContentProvider(basePath = '/content'): ContentProvider {
     loadDelayedEffect: (ref) => loadContent('delayed-effects', ref),
     loadOutcomeTier: (ref) => loadContent('outcome-tiers', ref),
     loadOutcomeArchetype: (ref) => loadContent('outcome-archetypes', ref),
+    loadCouplingRule: (ref) => loadContent('coupling-rules', ref),
     loadPlayerClass: (ref) => loadContent('classes', ref),
     loadChallengeModifier: (ref) => loadContent('challenge-modifiers', ref)
   }

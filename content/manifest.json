@@ -268,6 +268,11 @@
       "the_pragmatist-v1.json",
       "the_visionary-v1.json"
     ],
+    "coupling_rules": [
+      "delivery_collapse-v1.json",
+      "morale_collapse-v1.json",
+      "trust_collapse-v1.json"
+    ],
     "classes": [
       "boundary_mage-v1.json",
       "delivery_rogue-v1.json",

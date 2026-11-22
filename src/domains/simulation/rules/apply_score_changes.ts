@@ -1,68 +1,34 @@
-import { ScenarioBundle } from '@/domains/content/model'
+import { CouplingRule, ScenarioBundle } from '@/domains/content/model'
 import { ScoreChangeRecord } from '@/shared/contracts'
 import { GameState } from '../model'
 
 /**
- * System coupling rules model interdependencies between system dimensions.
+ * System coupling (M3: the rules are content, see `CouplingRule`).
  *
- * When certain scores collapse below a threshold, positive gains to related
- * scores are reduced by a multiplier. Negative deltas are never modified.
+ * While a trigger score sits below its threshold, positive gains to the
+ * affected scores are multiplied down. Negative deltas are never modified.
+ * The rules come from the scenario's `coupling_rule_refs`; the engine knows
+ * no score ids of its own. A rule whose trigger score isn't in the run does
+ * nothing.
  *
- * This prevents dominant strategies where players completely ignore
- * key system dimensions without consequence.
+ * This prevents dominant strategies where players completely ignore key
+ * system dimensions without consequence.
  */
 
-interface CouplingRule {
-  /** Score that, when collapsed, triggers the modifier */
-  trigger_score_id: string
-  /** Threshold below which the rule activates */
-  threshold: number
-  /** Scores whose positive gains are reduced */
-  affected_score_ids: string[]
-  /** Multiplier applied to positive deltas (e.g. 0.7 = 30% reduction) */
-  multiplier: number
+/** The scenario's coupling rules, in `coupling_rule_refs` order. */
+export function couplingRulesOf(scenarioBundle: Pick<ScenarioBundle, 'coupling_rules'>): CouplingRule[] {
+  return Array.from(scenarioBundle.coupling_rules?.values() ?? [])
 }
-
-const SYSTEM_COUPLING_RULES: readonly CouplingRule[] = [
-  // Main campaign coupling rules
-  {
-    trigger_score_id: 'delivery_confidence',
-    threshold: 25,
-    affected_score_ids: ['domain_clarity', 'maintainability'],
-    multiplier: 0.7
-  },
-  {
-    trigger_score_id: 'team_morale',
-    threshold: 25,
-    affected_score_ids: ['maintainability'],
-    multiplier: 0.75
-  },
-  {
-    trigger_score_id: 'user_trust',
-    threshold: 25,
-    affected_score_ids: ['delivery_confidence'],
-    multiplier: 0.7
-  },
-  // Tutorial coupling rules (tutorial score IDs don't overlap with campaign)
-  {
-    trigger_score_id: 'team_capacity',
-    threshold: 25,
-    affected_score_ids: ['code_clarity', 'system_health'],
-    multiplier: 0.7
-  },
-  {
-    trigger_score_id: 'system_health',
-    threshold: 25,
-    affected_score_ids: ['team_capacity'],
-    multiplier: 0.75
-  }
-]
 
 /**
  * Describes a coupling rule that is currently active given the system state.
  * Returned by getActiveCouplingEffects for UI display purposes.
  */
 export interface ActiveCouplingEffect {
+  rule_id: string
+  /** What the player sees while the rule is active (from content). */
+  name: string
+  description: string
   trigger_score_id: string
   threshold: number
   current_value: number
@@ -76,19 +42,23 @@ export interface ActiveCouplingEffect {
  * UI display — it does not modify any state.
  */
 export function getActiveCouplingEffects(
-  scores: Record<string, number>
+  scores: Record<string, number>,
+  rules: readonly CouplingRule[]
 ): ActiveCouplingEffect[] {
-  return SYSTEM_COUPLING_RULES
+  return rules
     .filter(rule => {
       const value = scores[rule.trigger_score_id]
       return value !== undefined && value < rule.threshold
     })
     .map(rule => ({
+      rule_id: rule.id,
+      name: rule.name,
+      description: rule.description,
       trigger_score_id: rule.trigger_score_id,
       threshold: rule.threshold,
       current_value: scores[rule.trigger_score_id] ?? 0,
       affected_score_ids: rule.affected_score_ids,
-      multiplier: rule.multiplier
+      multiplier: rule.gain_multiplier
     }))
 }
 
@@ -99,11 +69,12 @@ export function getActiveCouplingEffects(
  */
 export function computeCouplingMultiplier(
   scoreId: string,
-  currentScores: GameState['scores']
+  currentScores: GameState['scores'],
+  rules: readonly CouplingRule[]
 ): number {
   let multiplier = 1.0
 
-  for (const rule of SYSTEM_COUPLING_RULES) {
+  for (const rule of rules) {
     if (!rule.affected_score_ids.includes(scoreId)) {
       continue
     }
@@ -113,7 +84,7 @@ export function computeCouplingMultiplier(
       continue // score not part of this scenario
     }
     if (triggerValue < rule.threshold) {
-      multiplier *= rule.multiplier
+      multiplier *= rule.gain_multiplier
     }
   }
 
@@ -126,6 +97,7 @@ export function applyScoreChanges(
   scenarioBundle: ScenarioBundle
 ): GameState['scores'] {
   const nextScores: GameState['scores'] = { ...scores }
+  const couplingRules = couplingRulesOf(scenarioBundle)
 
   for (const change of scoreChanges) {
     const score = nextScores[change.score_id] ?? 0
@@ -134,7 +106,7 @@ export function applyScoreChanges(
 
     // Apply coupling modifiers only to positive gains
     if (effectiveDelta > 0) {
-      const multiplier = computeCouplingMultiplier(change.score_id, nextScores)
+      const multiplier = computeCouplingMultiplier(change.score_id, nextScores, couplingRules)
       effectiveDelta = Math.round(effectiveDelta * multiplier)
     }
 

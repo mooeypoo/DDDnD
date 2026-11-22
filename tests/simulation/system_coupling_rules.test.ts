@@ -3,6 +3,7 @@ import { createEmptyBundle, Scenario, addToBundle } from '@/domains/content/mode
 import { applyScoreChanges, computeCouplingMultiplier } from '@/domains/simulation/rules'
 import { ScoreChangeRecord } from '@/shared/contracts'
 import { GameState } from '@/domains/simulation/model'
+import { BASE_COUPLING_RULES } from '../support/base_coupling_rules'
 
 function createTestScenario(): Scenario {
   return {
@@ -49,6 +50,10 @@ function createTestBundle() {
     })
   }
 
+  for (const rule of BASE_COUPLING_RULES) {
+    addToBundle(bundle, 'coupling_rule', rule)
+  }
+
   return bundle
 }
 
@@ -61,9 +66,9 @@ describe('System coupling rules', () => {
         user_trust: 50
       }
 
-      expect(computeCouplingMultiplier('domain_clarity', scores)).toBe(1.0)
-      expect(computeCouplingMultiplier('maintainability', scores)).toBe(1.0)
-      expect(computeCouplingMultiplier('delivery_confidence', scores)).toBe(1.0)
+      expect(computeCouplingMultiplier('domain_clarity', scores, BASE_COUPLING_RULES)).toBe(1.0)
+      expect(computeCouplingMultiplier('maintainability', scores, BASE_COUPLING_RULES)).toBe(1.0)
+      expect(computeCouplingMultiplier('delivery_confidence', scores, BASE_COUPLING_RULES)).toBe(1.0)
     })
 
     it('returns 0.7 for domain_clarity when delivery_confidence < 25', () => {
@@ -73,7 +78,7 @@ describe('System coupling rules', () => {
         user_trust: 50
       }
 
-      expect(computeCouplingMultiplier('domain_clarity', scores)).toBe(0.7)
+      expect(computeCouplingMultiplier('domain_clarity', scores, BASE_COUPLING_RULES)).toBe(0.7)
     })
 
     it('returns 0.7 for maintainability when only delivery_confidence < 25', () => {
@@ -83,7 +88,7 @@ describe('System coupling rules', () => {
         user_trust: 50
       }
 
-      expect(computeCouplingMultiplier('maintainability', scores)).toBe(0.7)
+      expect(computeCouplingMultiplier('maintainability', scores, BASE_COUPLING_RULES)).toBe(0.7)
     })
 
     it('returns 0.75 for maintainability when only team_morale < 25', () => {
@@ -93,7 +98,7 @@ describe('System coupling rules', () => {
         user_trust: 50
       }
 
-      expect(computeCouplingMultiplier('maintainability', scores)).toBe(0.75)
+      expect(computeCouplingMultiplier('maintainability', scores, BASE_COUPLING_RULES)).toBe(0.75)
     })
 
     it('returns 0.7 for delivery_confidence when user_trust < 25', () => {
@@ -103,7 +108,7 @@ describe('System coupling rules', () => {
         user_trust: 20
       }
 
-      expect(computeCouplingMultiplier('delivery_confidence', scores)).toBe(0.7)
+      expect(computeCouplingMultiplier('delivery_confidence', scores, BASE_COUPLING_RULES)).toBe(0.7)
     })
 
     it('stacks multipliers for maintainability when both delivery and morale collapse', () => {
@@ -114,7 +119,7 @@ describe('System coupling rules', () => {
       }
 
       // 0.7 * 0.75 = 0.525
-      const multiplier = computeCouplingMultiplier('maintainability', scores)
+      const multiplier = computeCouplingMultiplier('maintainability', scores, BASE_COUPLING_RULES)
       expect(multiplier).toBeCloseTo(0.525, 5)
     })
 
@@ -125,9 +130,9 @@ describe('System coupling rules', () => {
         user_trust: 10
       }
 
-      expect(computeCouplingMultiplier('budget', scores)).toBe(1.0)
-      expect(computeCouplingMultiplier('team_morale', scores)).toBe(1.0)
-      expect(computeCouplingMultiplier('user_trust', scores)).toBe(1.0)
+      expect(computeCouplingMultiplier('budget', scores, BASE_COUPLING_RULES)).toBe(1.0)
+      expect(computeCouplingMultiplier('team_morale', scores, BASE_COUPLING_RULES)).toBe(1.0)
+      expect(computeCouplingMultiplier('user_trust', scores, BASE_COUPLING_RULES)).toBe(1.0)
     })
 
     it('does not trigger at exactly the threshold value', () => {
@@ -137,9 +142,9 @@ describe('System coupling rules', () => {
         user_trust: 25
       }
 
-      expect(computeCouplingMultiplier('domain_clarity', scores)).toBe(1.0)
-      expect(computeCouplingMultiplier('maintainability', scores)).toBe(1.0)
-      expect(computeCouplingMultiplier('delivery_confidence', scores)).toBe(1.0)
+      expect(computeCouplingMultiplier('domain_clarity', scores, BASE_COUPLING_RULES)).toBe(1.0)
+      expect(computeCouplingMultiplier('maintainability', scores, BASE_COUPLING_RULES)).toBe(1.0)
+      expect(computeCouplingMultiplier('delivery_confidence', scores, BASE_COUPLING_RULES)).toBe(1.0)
     })
   })
 
@@ -322,5 +327,42 @@ describe('System coupling rules', () => {
       // delivery_confidence: negative delta unchanged, 20 + (-5) = 15
       expect(result.delivery_confidence).toBe(15)
     })
+  })
+})
+
+describe('coupling comes only from the scenario (M3 slice 2)', () => {
+  it('applies no coupling to a scenario that lists no rules, even with base score ids', () => {
+    const bundle = createEmptyBundle(createTestScenario())
+    const scores: GameState['scores'] = { delivery_confidence: 10, domain_clarity: 50 }
+    const changes: ScoreChangeRecord[] = [{ score_id: 'domain_clarity', delta: 10 }]
+    expect(applyScoreChanges(scores, changes, bundle).domain_clarity).toBe(60)
+  })
+
+  it("applies a pack's own rule to its own scores", () => {
+    const bundle = createEmptyBundle(createTestScenario())
+    addToBundle(bundle, 'coupling_rule', {
+      id: 'pager_overload', version: 1, name: 'Pager Overload', description: 'Exhausted on-call slows everything.',
+      trigger_score_id: 'rested_on_call', threshold: 30, affected_score_ids: ['change_velocity'], gain_multiplier: 0.5,
+    })
+    const scores: GameState['scores'] = { rested_on_call: 20, change_velocity: 40 }
+    expect(applyScoreChanges(scores, [{ score_id: 'change_velocity', delta: 10 }], bundle).change_velocity).toBe(45)
+  })
+})
+
+
+describe('coupling rule validation (M3 slice 2)', () => {
+  it('refuses a rule about a score the scenario does not track, and a missing rule', async () => {
+    const { validateScenarioBundle } = await import('@/domains/content/services/bundle_validator')
+    const scenario = { ...createTestScenario(), coupling_rule_refs: [{ id: 'pager_overload', version: 1 }, { id: 'gone', version: 1 }] }
+    const bundle = createEmptyBundle(scenario)
+    for (const score of createTestBundle().scores.values()) addToBundle(bundle, 'score', score)
+    addToBundle(bundle, 'coupling_rule', {
+      id: 'pager_overload', version: 1, name: 'Pager Overload', description: 'd',
+      trigger_score_id: 'rested_on_call', threshold: 30, affected_score_ids: ['budget'], gain_multiplier: 0.5,
+    })
+    const messages = validateScenarioBundle(bundle).errors.map((error) => error.message)
+    expect(messages).toContain('Coupling rule pager_overload-v1 uses score "rested_on_call", which this scenario doesn\'t track (add it to score_refs or use another rule)')
+    expect(messages).toContain('Scenario references missing coupling rule: gone-v1')
+    expect(messages.some((message) => message.includes('"budget"'))).toBe(false)
   })
 })

@@ -98,6 +98,7 @@ describe('buildContentAuditReport', () => {
       delayed_effects: new Map(),
       outcome_tiers: new Map(),
       outcome_archetypes: new Map(),
+      coupling_rules: new Map(),
     }
 
     const first = buildContentAuditReport({ scenario_bundle: scenarioBundle, simulation_report: synthetic })
@@ -173,6 +174,7 @@ describe('buildContentAuditReport', () => {
       delayed_effects: new Map(),
       outcome_tiers: new Map(),
       outcome_archetypes: new Map(),
+      coupling_rules: new Map(),
     }
 
     const report = buildContentAuditReport({ scenario_bundle: scenarioBundle, simulation_report: synthetic })
