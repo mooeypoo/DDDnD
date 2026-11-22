@@ -29,3 +29,4 @@ An ADR captures one decision: the context that forced it, what we chose, what we
 | [0012](0012-pack-identity-from-source.md) | A pack's identity comes from where it is published, not from its manifest id | Accepted | 2026-11-22 |
 | [0013](0013-community-packs-depend-only-on-first-party.md) | Community packs may depend only on first-party packs | Accepted | 2026-11-22 |
 | [0014](0014-pack-keys-everywhere.md) | The game identifies packs and their content only by pack key, and a pack's worst case is unwanted text | Accepted | 2026-11-22 |
+| [0015](0015-community-packs-in-their-own-place.md) | Community packs live in their own place, grouped by pack | Accepted | 2026-11-22 |

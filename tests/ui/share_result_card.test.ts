@@ -79,3 +79,24 @@ describe('share_result_card score display', () => {
     expect(scoreValue.text()).toBe('180')
   })
 })
+
+describe('share_result_card community pack marker (journal M2.12)', () => {
+  it('says a community run is not a DDDnD scenario, naming the pack and publisher', () => {
+    const wrapper = mount(ShareResultCard, {
+      props: { payload: makePayload({ cp: { n: 'Demo: The Gilded Ledger', p: 'mooeypoo on GitHub (mooeypoo/DDDnD-packs)' } }) },
+    })
+    expect(wrapper.find('.community-pack-line').text()).toBe(
+      'Community pack · Demo: The Gilded Ledger · mooeypoo on GitHub (mooeypoo/DDDnD-packs) · not a DDDnD scenario',
+    )
+  })
+
+  it('shows pack-supplied text as text, never markup', () => {
+    const wrapper = mount(ShareResultCard, { props: { payload: makePayload({ cp: { n: '<b>bold</b>', p: 'x' } }) } })
+    expect(wrapper.find('.community-pack-line b').exists()).toBe(false)
+    expect(wrapper.find('.community-pack-line').text()).toContain('<b>bold</b>')
+  })
+
+  it('has no marker for first-party runs', () => {
+    expect(mount(ShareResultCard, { props: { payload: makePayload() } }).find('.community-pack-line').exists()).toBe(false)
+  })
+})

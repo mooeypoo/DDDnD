@@ -39,6 +39,9 @@
           <span class="quest-banner-label">Quest</span>
           <span class="quest-banner-name">{{ scenarioName }}</span>
         </div>
+        <p v-if="runCommunityPack" class="community-run-label" title="This scenario comes from a community pack, not from DDDnD">
+          Community pack · {{ runCommunityPack.name }} · {{ runCommunityPack.publisher }} · not a DDDnD scenario
+        </p>
       </div>
       
       <!-- Archetype Display -->
@@ -232,6 +235,8 @@ import {
   formatStakeholderName as resolveStakeholderName
 } from '@/ui/composables/stakeholder_presentation'
 import { buildSharePayload } from '@/domains/reporting/services/build_share_payload'
+import { describeRunCommunityPack } from '@/ui/play/community_pack_review'
+import { lobbyRouteFor } from '@/ui/community/community_routes'
 import { buildShareUrl, type SharePayload } from '@/domains/reporting/services'
 
 const router = useRouter()
@@ -299,7 +304,8 @@ onMounted(() => {
   if (gameStore.runOutcome && gameStore.gameState) {
     sharePayload.value = buildSharePayload({
       run_outcome: gameStore.runOutcome,
-      game_state: gameStore.gameState
+      game_state: gameStore.gameState,
+      community_pack: runCommunityPack.value
     })
   }
 })
@@ -428,6 +434,12 @@ function getSatisfactionClass(value: number): string {
   return 'critical'
 }
 
+/** The community pack this run was played with, if any: marked on the screen and the share card. */
+const runCommunityPack = computed(() => describeRunCommunityPack(
+  gameStore.gameState?.meta.content_pack,
+  gameStore.activeCommunityPack?.manifest.name,
+))
+
 /** The same cast the run was played with (ADR 0002). */
 const runCast = computed(() => {
   const state = gameStore.gameState
@@ -447,8 +459,10 @@ function goHome() {
 }
 
 function playAgain() {
+  // Back to the table the run came from: the pack's own for a community pack.
+  const lobby = lobbyRouteFor(gameStore.gameState?.meta.content_pack?.key)
   gameStore.reset()
-  router.push('/play')
+  router.push(lobby)
 }
 
 // ─── Share actions ─────────────────────────────────
@@ -774,6 +788,18 @@ function inlineComputedStyles(source: Element, target: Element) {
 .quest-banner-name {
   color: var(--dng-subtitle-warm);
   font-weight: var(--font-semibold);
+}
+
+.community-run-label {
+  margin: 0.6rem auto 0;
+  max-width: 36rem;
+  padding: 0.25rem 0.75rem;
+  border: 1px dashed var(--effect-warning-border);
+  border-radius: 999px;
+  color: var(--effect-warning);
+  font-size: var(--text-sm);
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 /* Archetype Card */

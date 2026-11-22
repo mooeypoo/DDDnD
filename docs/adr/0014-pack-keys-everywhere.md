@@ -3,6 +3,7 @@
 Status: Accepted  
 Date: 2026-11-22  
 Supersedes: [ADR 0012](0012-pack-identity-from-source.md), decision 6 (one pack per manifest id, with explicit replacement)  
+Refined by: [ADR 0015](0015-community-packs-in-their-own-place.md) (where community packs and their publisher are shown; pack-owned classes and modifiers planned)  
 Feature journal: [docs/CONTENT_PACKS.md](../CONTENT_PACKS.md) (entry M2.9)
 
 ## Context

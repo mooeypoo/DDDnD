@@ -7,6 +7,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { PackSnapshot } from '@/domains/content/model'
+import { packKeyOf } from '@/domains/content/services/pack_identity'
 import { PackLoadError } from '@/domains/content/services/pack_snapshot_builder'
 import { useCommunityPacks } from '@/ui/composables/use_community_packs'
 import { buildPackReview } from '@/ui/play/community_pack_review'
@@ -87,10 +88,12 @@ describe('community packs flow', () => {
     expect(flow.phase.value).toBe('review')
     expect(flow.review.value?.title).toBe('Demo: The Gilded Ledger')
 
-    await flow.confirm()
+    const imported = await flow.confirm()
     expect(add).toHaveBeenCalledWith(snapshot)
     expect(flow.phase.value).toBe('idle')
     expect(flow.lastAdded.value).toBe('Demo: The Gilded Ledger')
+    // The bazaar names and highlights what was just imported (journal M2.12)
+    expect(imported).toEqual({ key: packKeyOf(snapshot), name: 'Demo: The Gilded Ledger', kept: true })
   })
 
   it('never adds a pack the player declines', async () => {

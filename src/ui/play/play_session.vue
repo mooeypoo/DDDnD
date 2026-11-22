@@ -27,7 +27,7 @@
     <TutorialCompleteSplash
       :isOpen="gameStore.isTutorialCompleteSplashOpen && !isTheaterActive && !gameStore.tutorial.isHintVisible && refillPhase === 'idle'"
       :currentScenarioId="scenario?.id ?? ''"
-      :availableTutorials="gameStore.availableTutorials"
+      :availableTutorials="tutorialsAtThisTable"
       @launchTutorial="handleLaunchAnotherTutorial"
       @startRealGame="handleStartRealGame"
     />
@@ -115,11 +115,11 @@
         {{ scenario.name }}
       </button>
       <p
-        v-if="gameStore.activeCommunityPack"
+        v-if="runCommunityPack"
         class="community-run-label"
         :title="`This scenario comes from a community pack, not from DDDnD`"
       >
-        Community pack · {{ gameStore.activeCommunityPack.manifest.name }} · {{ activeCommunityPublisher }}
+        Community pack · {{ runCommunityPack.name }} · {{ runCommunityPack.publisher }}
       </p>
 
       <WeatherStrip
@@ -270,7 +270,9 @@ import { diffHandCards, peekConsultDrawId, type ArchiveReplaceOffer } from '@/ui
 import { buildAnnalsTurns } from '@/ui/play/turn_theater'
 import { remainingTurns } from '@/ui/play/weather_band'
 import { questDisplayFromBundle } from '@/ui/services/quest_loader'
-import { describePackPublisher } from '@/ui/play/community_pack_review'
+import { describeRunCommunityPack } from '@/ui/play/community_pack_review'
+import { lobbyRouteFor } from '@/ui/community/community_routes'
+import { isFirstPartyPackKey } from '@/domains/content/services/pack_identity'
 import { useTurnTheater } from '@/ui/play/use_turn_theater'
 import { useCommitmentFlight } from '@/ui/play/use_commitment_flight'
 
@@ -371,11 +373,23 @@ const modifierScoreAdjustments = computed(() => {
 
 const turnsRemaining = computed(() => remainingTurns(gameStore.currentTurn, gameStore.maxTurns))
 
-/** Who published the community pack this run uses (ADR 0013), shown on the play label. */
-const activeCommunityPublisher = computed(() => {
-  const pack = gameStore.activeCommunityPack
-  return pack ? describePackPublisher(pack).label : ''
+/**
+ * Tutorials offered after finishing one: those at the same table as this run,
+ * so a base tutorial never suggests a community pack's, and the other way round.
+ */
+const tutorialsAtThisTable = computed(() => {
+  const runKey = gameStore.gameState?.meta.content_pack?.key
+  const communityKey = runKey && !isFirstPartyPackKey(runKey) ? runKey : null
+  return gameStore.availableTutorials.filter((tutorial) => (
+    communityKey ? tutorial.packKey === communityKey : isFirstPartyPackKey(tutorial.packKey)
+  ))
 })
+
+/** The community pack this run uses and its publisher (ADR 0013), for the play label. */
+const runCommunityPack = computed(() => describeRunCommunityPack(
+  gameStore.gameState?.meta.content_pack,
+  gameStore.activeCommunityPack?.manifest.name,
+))
 
 const playQuestBriefing = computed(() => {
   return gameStore.scenarioBundle
@@ -635,14 +649,19 @@ onMounted(() => {
   window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
 })
 
-function handleResetRun() {
+/** The table this run came from: the pack's own for a community pack (journal M2.11). */
+function leaveToRunLobby() {
+  const lobby = lobbyRouteFor(gameStore.gameState?.meta.content_pack?.key)
   gameStore.reset()
-  router.push('/play')
+  router.push(lobby)
+}
+
+function handleResetRun() {
+  leaveToRunLobby()
 }
 
 function handleLeaveTutorial() {
-  gameStore.reset()
-  router.push('/play')
+  leaveToRunLobby()
 }
 
 function handleStartBasicsTutorial() {
@@ -674,8 +693,7 @@ async function handleLaunchAnotherTutorial(tutorial: QuestDisplayModel) {
 
 function handleStartRealGame() {
   gameStore.isTutorialCompleteSplashOpen = false
-  gameStore.reset()
-  router.push('/play')
+  leaveToRunLobby()
 }
 
 function handleShowDetails(cardId: string) {

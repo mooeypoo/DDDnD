@@ -42,6 +42,11 @@
       <span class="quest-name">{{ scenarioDisplayName }}</span>
     </div>
 
+    <!-- Community pack: a shared card must not pass for a DDDnD scenario (journal M2.12) -->
+    <p v-if="payload.cp" class="community-pack-line">
+      Community pack · {{ payload.cp.n }} · {{ payload.cp.p }} · not a DDDnD scenario
+    </p>
+
     <!-- Stats Row -->
     <div class="stats-row">
       <div class="stat">
@@ -424,6 +429,18 @@ function getStakeholderAvatarUrl(stakeholder: StakeholderEntry): string {
 }
 
 /* ─── Player Info ─────────────────────────────────── */
+
+.community-pack-line {
+  margin: 0 1rem 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border: 1px dashed var(--effect-warning-border, rgba(251, 191, 36, 0.3));
+  border-radius: 8px;
+  color: var(--effect-warning, #fbbf24);
+  font-size: 0.72rem;
+  line-height: 1.4;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
 
 .player-info {
   display: flex;

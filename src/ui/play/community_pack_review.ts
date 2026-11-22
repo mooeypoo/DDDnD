@@ -8,7 +8,9 @@
  */
 
 import type { PackSnapshot, Scenario } from '@/domains/content/model'
+import { isFirstPartyPackKey } from '@/domains/content/services/pack_identity'
 import { checkPackSourceUrl } from '@/domains/content/services/pack_source_policy'
+import type { RunContentPack } from '@/domains/simulation/model'
 
 export interface ReviewLink {
   url: string
@@ -90,12 +92,32 @@ function describeOrigin(snapshot: PackSnapshot): PackReview['origin'] {
   }
 }
 
-/** Who published a pack, from where it was loaded (ADR 0013). Also used for lobby and play labels. */
+/** Who published a pack, from where it was loaded (ADR 0013). Also used for bazaar and play labels. */
 export function describePackPublisher(snapshot: PackSnapshot): PackReview['publisher'] {
-  if (snapshot.origin.kind === 'file') {
-    return { label: 'unknown (loaded from a file)', verified: false }
-  }
-  const check = checkPackSourceUrl(snapshot.origin.manifest_url)
+  return snapshot.origin.kind === 'file' ? FILE_PUBLISHER : publisherFromManifestUrl(snapshot.origin.manifest_url)
+}
+
+const FILE_PUBLISHER: PackReview['publisher'] = { label: 'unknown (loaded from a file)', verified: false }
+
+/**
+ * A community run's pack, as shown on the results screen, the share card and
+ * the play label: its name and publisher. Null for first-party runs. Works
+ * from what the save recorded, so it still shows when the pack has since been
+ * removed (then the name falls back to the pack id).
+ */
+export function describeRunCommunityPack(
+  contentPack: RunContentPack | undefined,
+  loadedName?: string,
+): { name: string; publisher: string } | null {
+  if (!contentPack || isFirstPartyPackKey(contentPack.key)) return null
+  const publisher = contentPack.origin === 'remote' && contentPack.source_url
+    ? publisherFromManifestUrl(contentPack.source_url)
+    : FILE_PUBLISHER
+  return { name: loadedName ?? contentPack.id, publisher: publisher.label }
+}
+
+function publisherFromManifestUrl(manifestUrl: string): PackReview['publisher'] {
+  const check = checkPackSourceUrl(manifestUrl)
   if (!check.ok) {
     return { label: 'Unknown', verified: false }
   }
