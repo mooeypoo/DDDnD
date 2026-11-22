@@ -271,6 +271,7 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
 | ~~Whose pack does `depends_on` mean?~~ | **Resolved (M2.8):** community packs may depend only on first-party packs, whose ids we control ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)). Community-on-community dependencies would need key-based references in a new schema version. | Done |
+| Community hall look | The bazaar's colors, border, and "external" marking; chosen from screenshots of two or three versions (M2.11) | Follow-up to PR #35 |
 | Exact-run replay of retired remote packs | Snapshots make it possible. Do we promise it? (CONTENT_VERSIONING.md does not promise it for retired base scenarios.) | M2 |
 
 ---
@@ -289,6 +290,7 @@ Threads worth telling, with where they are recorded:
 - **"Writing a pack is domain modeling."** Pack creation as a workshop exercise. (§2)
 - **"The worst case is text."** One rule that every feature must keep, and that makes repo-jacking and pretenders survivable. (M2.9, ADR 0014)
 - **"A name is not an identity."** Pack ids were quietly used as identities until review asked what happens when two authors pick the same name. Identity moved to where a pack is published, owned by the trust context: first for what persists, then for dependencies, then for everything that runs (and content ids, via squatting). The textbook attribute-vs-entity distinction, found in the wild three times. (M2.7–M2.9, ADR 0012–0014)
+- **"The screen should show the model you built."** The game had kept packs separate since M2.9, but the lobby still took their scenarios out and dealt them into one deck. Testing it by hand raised the question "can a pack have more than one scenario?", and the answer turned the pack, not the scenario, into the thing a player chooses. (M2.11)
 - **The context map** in §4.3 works as a slide.
 
 ---
@@ -1068,3 +1070,39 @@ The bugs came from one missing concept. "Which character plays the CFO in this r
   The old scene test "falls back to the hall for unknown packs" was replaced. It encoded the behavior ADR 0002 changes (every unknown scenario in the same hall).
 - **Determinism:** a fixed-seed audit report is identical to `main`. The engine and its random stream are untouched.
 - **Headless Chrome:** played The Merger of Minor Chaos. The four seated stakeholders had four different roles. After a reload mid-run the cast was identical, and the end-of-run screen and the share card showed the same role for every stakeholder. The fifth stakeholder, who isn't seated, has its own distinct role on both. No console errors.
+
+### M2.11 (design): Community packs get their own room (2026-11-22)
+
+A design decision made while testing PR #35 by hand. The build follows in the next PR, and the ADR will be written there once the look is chosen.
+
+**How it came up**
+
+When the project owner looked for the "Community packs" entry, it raised a broader question. Since M2.5, adding a pack has put its scenarios **into the existing lobby**: community adventures were dealt into the Adventures fan alongside the base game's, and community tutorials into the Tutorials tab, each with a small badge. The owner named two risks:
+
+1. **Confusion with the base game.** A pack's scenario sits among DDDnD's own as if it were one of them.
+2. **Confusion between packs.** Packs can be about radically different topics, an SRE incident pack next to a payments pack, and a mixed deck hides that.
+
+Then the more important question: **do packs only add one scenario?** No. A manifest has a `scenarios` list and a `tutorials` list, and the demo just happens to have one. Two six-scenario packs would put twelve community cards among the base game's five. That turned the presentation issue into a modeling one. The thing a player chooses is a **pack**, and a scenario is chosen *within* a pack.
+
+**Why this fits**
+
+Since M2.9 the game has known packs only by pack key, and every scenario is addressed as (pack key, id, version). The model already said "a scenario belongs to its pack". The lobby was the one place that flattened that back out. Showing packs as groups means the screen shows the model the code already has.
+
+**Decisions**
+
+1. **A separate route.** The lobby (`/play`) goes back to first-party content only: Tutorials and Adventures are "the DDDnD game". Community packs get their own place at `/community`, reached from the lobby. A route rather than a third lobby tab, because it is a different place, and `?pack=` links can land there directly.
+2. **It's a bazaar.** The community area has its own feel: a bazaar rather than the council chamber. Different shades, and a border or similar marking, tell the player at a glance that this content is external. The exact look will be chosen from screenshots of two or three versions.
+3. **Always pack first, then scenario.** The bazaar shows one tile per added pack: its name, publisher, kind, how many adventures and tutorials, and the unreviewed mark. Opening a tile shows that pack's table: its tutorials first, then its adventures, in the same quest-fan style, with the pack's banner and source warning visible throughout. **A one-scenario pack still opens its table**, for consistency.
+4. **"Add a pack" moves to the bazaar.** It is the same dialog, now inside the place where packs live.
+5. **The order of work.** PR #35 merges as groundwork (everything new in it is behind the flag except the M2.10 cast fix). The follow-up PR covers:
+   - the screenshots, an ADR, and the build;
+   - the docs-site pages, written for the new flow so they don't need rewriting;
+   - the end-to-end check.
+
+**What it sets up**
+
+The pack table is where pack-specific choices can live later: a standalone pack's own scores, and classes or challenge modifiers scoped to a pack (left open in ADR 0014), never in the base lobby. Overlay packs, which change text and have no scenarios, would show a tile that says what they change instead of offering quests.
+
+**DDD note (talk material)**
+
+The model had moved and the screen hadn't. A pack had been an aggregate in the code since M2.9: it owns its content, has one identity, and is added and removed as a whole. But the UI treated packs as a delivery mechanism for loose scenarios. A hands-on test plus one naive-sounding question ("do packs only add one scenario?") showed the gap. The fix is the same as in M2.7–M2.9: make the boundary that exists in the model visible where people meet it. Here that means a room of its own, with its own look, so the context boundary is something a player can *see*.
