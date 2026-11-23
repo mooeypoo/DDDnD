@@ -259,20 +259,20 @@ Requirements, checked like the game's (automated checks plus a keyboard and scre
 
 ## 12. Deploying the Studio (Netlify)
 
-The Studio is its own Netlify site, built from this repository. It shares the game's domain code, so it builds from the repository root. Its settings live in [`studio/netlify.toml`](../studio/netlify.toml).
+The Studio is its own Netlify site, built from this repository. Its settings live in [`studio/netlify.toml`](../studio/netlify.toml).
 
 **Creating the site** (once):
 
 1. In Netlify: **Add new site → Import an existing project → GitHub → `mooeypoo/DDDnD`**.
 2. Build settings:
    - **Branch to deploy:** `main`
-   - **Base directory:** leave empty (the repository root)
-   - **Package directory:** `studio`. This makes Netlify read `studio/netlify.toml` instead of the game's `netlify.toml`.
-   - **Build command:** `npm run studio:build` (also set in `studio/netlify.toml`)
-   - **Publish directory:** `studio/dist` (also set in `studio/netlify.toml`)
-   - **Node:** 24 (set in `studio/netlify.toml`)
+   - **Base directory:** `studio`. This is the important one: Netlify then reads `studio/netlify.toml` and never the game's `netlify.toml`, whose settings would otherwise build the game.
+   - **Build command** and **Publish directory:** leave them as Netlify fills them, or empty. `studio/netlify.toml` sets both, and a file's settings override the UI: the build is `cd .. && npm ci && npm run studio:build` (the Studio shares the game's domain code, so it installs and builds from the repository root), and the publish directory is `dist` (relative to `studio/`).
+   - **Functions directory:** leave empty.
 3. Site name: something like `dddnd-studio`, giving `dddnd-studio.netlify.app` until the domain is attached.
-4. No environment variables are needed.
+4. No environment variables are needed (Node 24 is set in `studio/netlify.toml`).
+
+After the first deploy, **Site configuration → Build & deploy → Build settings** should show Base directory `studio`. The deploy log should show the build command above, and `vite build --config studio/vite.config.ts`.
 
 **When to do it:**
 - **Create the site now** (with the first Studio PR), so every Studio PR gets a deploy preview.
@@ -287,7 +287,7 @@ The Studio is its own Netlify site, built from this repository. It shares the ga
 3. Wait for Netlify's HTTPS certificate (automatic).
 4. At launch: remove `noindex` (`studio/index.html` and `X-Robots-Tag` in `studio/netlify.toml`), and add the Studio's origin to the game's preview allowlist (§11) in the same PR.
 
-**What the game's site needs:** nothing until "Play it" (§11). The game's `netlify.toml` and site are unaffected: the Studio site reads only `studio/netlify.toml`. It skips deploys when nothing under `studio/`, `src/domains/` or the package files changed.
+**What the game's site needs:** nothing until "Play it" (§11). The game's `netlify.toml` and site are unaffected, because the Studio site reads only `studio/netlify.toml`. The Studio site skips deploys when nothing under `studio/`, `src/domains/` or the package files changed. That was checked locally: the scaffold commit builds, and the launch PR, which touches neither, is skipped.
 
 ---
 
@@ -310,7 +310,7 @@ The first piece: an app that builds, deploys on its own, and keeps its boundarie
   - **Readability:** secondary text at `#a89a78`, and reduced motion respected.
 - **The authoring domain** starts with `contentIdFromName`: "Tune the Noisy Alerts" in a pack prefixed `sre` becomes `sre_tune_the_noisy_alerts`. It follows the content id grammar, avoids reserved ids, stays within 64 characters, and adds `_2`, `_3`… on a clash. Authors never type an id (§4.1).
 - **Boundaries, enforced:** a test fails if the Studio imports the game's UI, if the game imports the Studio, or if the authoring domain touches Vue, the DOM or storage. It was checked by planting a violating import, which failed the test.
-- **Deploying:** `studio/netlify.toml` sets the build, a strict CSP (`connect-src 'self'`: the Studio fetches nothing yet), `noindex`, and skipping deploys when nothing the Studio is built from changed. The Netlify steps are in §12.
+- **Deploying:** `studio/netlify.toml` (with Base directory `studio`) sets the build, a strict CSP (`connect-src 'self'`: the Studio fetches nothing yet), `noindex`, and skipping deploys when nothing the Studio is built from changed. The Netlify steps are in §12.
 
 **Verification**
 - Headless Chrome against the production build, served with the Studio's CSP:

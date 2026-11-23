@@ -1,16 +1,17 @@
 # DDDnD Pack Studio ("The Forge"): its own Netlify site (ADR 0005).
 #
-# The site builds from the repository root, because the Studio shares the
-# game's domain code (src/domains). In Netlify: Base directory = (empty, the
-# repository root), Package directory = studio. Netlify then reads this file
-# instead of the game's netlify.toml. Steps: docs/PACK_STUDIO.md §12.
+# In Netlify, set Base directory = studio. Netlify then reads this file (not
+# the game's netlify.toml) and runs commands from studio/. The Studio shares
+# the game's domain code, so the build installs and builds from the
+# repository root (cd ..). Paths below are relative to studio/.
+# Steps: docs/PACK_STUDIO.md section 12.
 
 [build]
-  command = "npm run studio:build"
-  publish = "studio/dist"
+  command = "cd .. && npm ci && npm run studio:build"
+  publish = "dist"
   # Skip a deploy when nothing the Studio is built from has changed.
   # (git diff exits 0 when there's no difference, which tells Netlify to skip.)
-  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- studio src/domains package.json package-lock.json"
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- . ../src/domains ../package.json ../package-lock.json"
 
 [build.environment]
   NODE_VERSION = "24"
