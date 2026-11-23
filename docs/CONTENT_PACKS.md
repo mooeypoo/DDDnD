@@ -1557,3 +1557,30 @@ The fix is in `play_turn.ts`: the bonus applies only to a score in the scenario'
 
 The built-in classifier now applies only to content whose endings have no criteria: the v1 tutorials (old saves) and the internal test scenarios. Slice 5, which turns ending ids into plain strings, decides whether it can go entirely.
 
+### M3.7 (slice 5): Ending ids are content ids (2026-11-23)
+
+**What changed**
+
+- **`OutcomeArchetypeId` is a string.** It was a union of the ten base ids, so a pack's ending could exist in content but not in the type. The engine now records whatever ending the scenario's criteria choose (M3.5), under its own id.
+- **One icon helper, `endingIcon`** (`ui/play/ending_icons.ts`), replaces three copies of the same ten-entry map:
+  - the results screen;
+  - the outcome panel, which returned `undefined` for an unknown id;
+  - the share card.
+
+  Base endings keep their icons, and any other ending gets 🎯. Icons stay in the UI (ADR 0002). The lookup checks own properties, so an id like `constructor` can't return an object internal.
+- **Share links accept a pack's ending.** The share view used to refuse any ending id missing from the *viewer's* loaded packs ("Unknown archetype"). Once packs have their own endings, that would break every shared community run for anyone who hadn't imported that pack. Decoding now checks the id's shape (the content id pattern) instead. The ending's display name already travels in the link (`an`, M3.2), so nothing needs the pack. `get_available_outcome_archetype_ids` had no other caller and was removed.
+
+**What still knows the base ids**
+
+- **The icon map:** presentation, by design.
+- **The old built-in classifier.** It is reachable only for content whose endings have no criteria. After M3.5 and M3.6, that's the v1 tutorials, kept for saved runs, and the internal test scenarios. Base, demo and v2 tutorial content never reach it. It can be deleted once the v1 tutorials are retired. Keeping it costs nothing and protects old saves.
+
+**Verification**
+
+- **Golden replays unchanged,** and the fixed-seed audit is identical to `main`.
+- **New tests** (1128 total):
+  - icons for base, pack, tutorial and prototype-name ids;
+  - a share link with a pack ending decodes, and a malformed id is refused;
+  - `getRunOutcome` records a pack's ending id.
+- **Headless Chrome:** a share link for a pack run opens with its tier ("Calm Nights"), its ending ("The Pager Whisperer") and 🎯, plus the community-pack line, with no errors. One pre-existing gap: the quest shows as "Sre Pager Storm", a title-cased id, because share links don't carry the scenario's name. That is worth fixing with slice 9, when a real pack's runs are shared.
+

@@ -127,7 +127,7 @@
  */
 import { computed, ref } from 'vue'
 import type { SharePayload } from '@/domains/reporting/services/share_payload'
-import type { OutcomeArchetypeId } from '@/shared/contracts'
+import { endingIcon } from '@/ui/play/ending_icons'
 import ClassPortrait from '@/ui/components/common/class_portrait.vue'
 import { requestAvatarRoleImage } from '@/ui/composables/presentation_asset_lookup'
 import {
@@ -199,21 +199,7 @@ const tierClass = computed(() => {
 /**
  * Emoji archetype fallback used when no portrait artwork is rendered.
  */
-const archetypeIcon = computed(() => {
-  const icons: Record<OutcomeArchetypeId, string> = {
-    boundary_builder: '🏗️',
-    firefighter: '🧯',
-    runaway_refactorer: '♻️',
-    stakeholder_whisperer: '🗣️',
-    system_stabilizer: '⚖️',
-    the_diplomat: '🤝',
-    budget_hawk: '🦅',
-    the_pragmatist: '🔧',
-    the_visionary: '🔭',
-    burnout_machine: '🔥'
-  }
-  return icons[props.payload.arch] ?? '🎯'
-})
+const archetypeIcon = computed(() => endingIcon(props.payload.arch))
 
 const archetypeDisplayName = computed(() => props.payload.an ?? titleCaseId(props.payload.arch))
 

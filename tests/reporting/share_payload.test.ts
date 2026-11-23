@@ -469,6 +469,26 @@ describe('decodeSharePayload — error handling', () => {
 
 // ─── URL Construction ─────────────────────────────────────────
 
+describe("a pack's own ending in a share link (journal M3.7)", () => {
+  const encode = (payload: object) => btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+
+  it('opens with an ending id the viewer has never loaded, keeping its name', () => {
+    const result = decodeSharePayload(encode({ ...createSamplePayload(), arch: 'pager_whisperer', an: 'The Pager Whisperer' }))
+    expect(result.ok).toBe(true)
+    if (result.ok) {
+      expect(result.payload.arch).toBe('pager_whisperer')
+      expect(result.payload.an).toBe('The Pager Whisperer')
+    }
+  })
+
+  it('refuses an ending id that is not a content id', () => {
+    for (const arch of ['Pager Whisperer', '<img src=x>', 'a'.repeat(65), '../x']) {
+      const result = decodeSharePayload(encode({ ...createSamplePayload(), arch }))
+      expect(result.ok, arch).toBe(false)
+    }
+  })
+})
+
 describe('buildShareUrl', () => {
   it('builds a valid share URL', () => {
     const payload = createSamplePayload()

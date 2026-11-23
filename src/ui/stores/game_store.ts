@@ -303,11 +303,6 @@ export const useGameStore = defineStore('game', () => {
     availableChallengeModifiers.value = mods
   }
 
-  async function get_available_outcome_archetype_ids(): Promise<string[]> {
-    await load_content_packs()
-    const refs = contentPackRegistry.value?.getAvailableOutcomeArchetypes() ?? []
-    return refs.map((ref) => ref.id)
-  }
   
   /**
    * Marks quests that come from a community pack, with the pack's name and
@@ -638,7 +633,6 @@ export const useGameStore = defineStore('game', () => {
     is_pack_store_persistent,
     refresh_saved_run_pack_notice,
     community_pack_restore_issues,
-    get_available_outcome_archetype_ids,
     start_new_run,
     warm_scenario_bundle,
     refresh_turn_briefing,

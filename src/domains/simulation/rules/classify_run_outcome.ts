@@ -69,8 +69,7 @@ export function selectOutcomeTier(scoreAverage: number, scenarioBundle: Scenario
 function selectArchetypeId(gameState: GameState, scenarioBundle: ScenarioBundle): OutcomeArchetypeId {
   const ending = selectEnding(gameState, scenarioBundle)
   if (ending) {
-    // Slice 5 widens OutcomeArchetypeId to any validated content id.
-    return ending.id as OutcomeArchetypeId
+    return ending.id
   }
   return classifyOutcomeArchetype({ game_state: gameState })
 }

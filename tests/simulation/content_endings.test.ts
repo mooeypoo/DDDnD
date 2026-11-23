@@ -15,6 +15,8 @@ import { addToBundle, createEmptyBundle, type OutcomeArchetype, type Scenario, t
 import { validateScenarioBundle } from '@/domains/content/services/bundle_validator'
 import { ContentSchemaError, parseContentEntity } from '@/domains/content/validation'
 import { classifyOutcomeArchetype, selectEnding, type EndingRunState } from '@/domains/simulation/rules'
+import { createInitialGameState } from '@/domains/simulation/model'
+import { getRunOutcome } from '@/domains/simulation/services'
 import type { RunAnalytics } from '@/domains/simulation/model'
 import { createSeededRandom } from '@/shared/random/seeded_random'
 
@@ -123,6 +125,21 @@ describe('pack endings', () => {
     expect(selectEnding(run({ cumulative_score_deltas: { maintainability: 5 } }, { user_trust: 80 }), bundle)?.id).toBe('pager_hero')
     expect(selectEnding(run({ cumulative_score_deltas: { maintainability: 5 } }, { user_trust: 60 }), bundle)?.id).toBe('toil_tamer')
     expect(selectEnding(run({}, { user_trust: 60 }), bundle)?.id).toBe('on_call')
+  })
+
+  it("is the run's recorded ending, under the pack's own id (journal M3.7)", () => {
+    const bundle = bundleWith([
+      ending('pager_hero', 20, [{ measure: 'final_score', score_id: 'user_trust', operator: '>=', value: 70 }]),
+      ending('on_call', 0, []),
+    ])
+    const state = createInitialGameState({
+      run_id: 'r', seed: 's', scenario_ref: { id: SCENARIO.id, version: 1 }, max_turns: 8,
+      starting_scores: { ...SCENARIO.starting_scores, user_trust: 80 }, stakeholder_refs: [], available_action_refs: [], available_event_refs: [],
+      created_at_utc: '2026-11-23T00:00:00.000Z',
+    })
+    state.progress.run_status = 'completed_max_turns'
+    state.run_analytics.turns_completed = 8
+    expect(getRunOutcome(state, bundle)).toMatchObject({ archetype: 'pager_hero', selected_archetype_id: 'pager_hero' })
   })
 
   it('can check named stakeholders only', () => {

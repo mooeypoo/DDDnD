@@ -25,7 +25,7 @@ import {
   type SharePayload,
   type SharePayloadParseResult
 } from './share_payload'
-import type { OutcomeArchetypeId } from '@/shared/contracts'
+import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 
 // ─── Base64url helpers ───────────────────────────────────────
 
@@ -111,6 +111,12 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     }
   }
 
+  // The ending is any content id: a pack's own endings are shared too, and the
+  // viewer may not have that pack (journal M3.7). Its name travels in `an`.
+  if (!CONTENT_LIMITS.id_pattern.test(obj.arch as string)) {
+    return { ok: false, error: 'Invalid ending id' }
+  }
+
   // Required numeric fields
   for (const field of ['sv', 'tc', 'mt', 'avg'] as const) {
     if (typeof obj[field] !== 'number' || !isFinite(obj[field] as number)) {
@@ -180,7 +186,7 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     cls: obj.cls as string,
     name: (obj.name as string) || undefined,
     tier: obj.tier as string,
-    arch: obj.arch as OutcomeArchetypeId,
+    arch: obj.arch as string,
     tid: (obj.tid as string | null) ?? null,
     tc: obj.tc as number,
     mt: obj.mt as number,
