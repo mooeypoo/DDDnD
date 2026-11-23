@@ -118,7 +118,7 @@ import { packTableRoute } from '@/ui/community/community_routes'
 import { useCommunityPacks, type ImportedPack } from '@/ui/composables/use_community_packs'
 import { useGameStore } from '@/ui/stores/game_store'
 
-const DEMO_PACK_URL = 'https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.0.0/packs/gilded_ledger/manifest.json'
+const DEMO_PACK_URL = 'https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.1.0/packs/gilded_ledger/manifest.json'
 
 const route = useRoute()
 const gameStore = useGameStore()
