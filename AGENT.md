@@ -51,6 +51,7 @@ Read these on top of the base set when applicable.
 ### Community content packs / Pack Studio
 
 - [docs/CONTENT_PACKS.md](docs/CONTENT_PACKS.md) — canonical journal, plan, and milestones for loading community packs and for Pack Studio
+- [docs/PACK_STUDIO.md](docs/PACK_STUDIO.md) — Pack Studio design brainstorm: decisions so far, the two kinds of authors, editors, the tutorial round, open questions
 - [docs/CONTENT_PACKS_SECURITY.md](docs/CONTENT_PACKS_SECURITY.md) — threat model and required controls for untrusted packs
 - [docs/adr/](docs/adr/README.md) — architecture decision records (ADRs 0001–0006 cover packs)
 
