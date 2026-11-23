@@ -14,7 +14,7 @@ function makeMinimalBundle(overrides: Partial<ScenarioBundle> = {}): ScenarioBun
     id: 'healthy_scenario', version: 1, name: 'Healthy', description: '',
     short_description: '', flavor_text: '', max_turns: 8,
     starting_scores: { budget: 60 },
-    score_refs: [], stakeholder_refs: [], card_refs: [], event_refs: [],
+    score_refs: [], stakeholder_refs: [{ id: 'cto', version: 1 }], card_refs: [], event_refs: [],
     outcome_tier_refs: [], outcome_archetype_refs: [],
   }
 

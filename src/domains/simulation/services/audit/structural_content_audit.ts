@@ -170,5 +170,31 @@ export function auditStructuralContent(bundle: ScenarioBundle): AuditFinding[] {
     }
   }
 
+  // ── Stakeholder changes that do nothing here (journal M3.9) ──
+  // Shared content may name a stakeholder this scenario doesn't have; the
+  // engine ignores that change. Not a problem, but worth knowing.
+  const atTable = new Set(bundle.scenario.stakeholder_refs.map((ref) => ref.id))
+  const sources: Array<[string, Array<{ stakeholder_id: string }> | undefined]> = [
+    ...[...bundle.cards.values()].map((entity): [string, Array<{ stakeholder_id: string }> | undefined] => [`card ${entity.id}`, entity.stakeholder_changes]),
+    ...[...bundle.events.values()].map((entity): [string, Array<{ stakeholder_id: string }> | undefined] => [`event ${entity.id}`, entity.stakeholder_changes]),
+    ...[...bundle.delayed_effects.values()].map((entity): [string, Array<{ stakeholder_id: string }> | undefined] => [`aftershock ${entity.id}`, entity.stakeholder_changes]),
+    ...[...bundle.stakeholder_reaction_rules.values()].map((entity): [string, Array<{ stakeholder_id: string }> | undefined] => [`reaction rule ${entity.id}`, entity.stakeholder_changes]),
+  ]
+  for (const [source, changes] of sources) {
+    for (const change of changes ?? []) {
+      if (!atTable.has(change.stakeholder_id)) {
+        findings.push({
+          id: `structural.stakeholder_not_at_table.${source.split(' ').pop()}.${change.stakeholder_id}`,
+          severity: 'info',
+          category: 'stakeholder_balance',
+          title: `${source} affects ${change.stakeholder_id}, who isn't in this scenario`,
+          description: `That change does nothing here. This is normal for content shared between scenarios; check it if you expected ${change.stakeholder_id} to react.`,
+          evidence: [`${source} → ${change.stakeholder_id}`],
+          recommended_fix_surface: 'content',
+        })
+      }
+    }
+  }
+
   return findings
 }

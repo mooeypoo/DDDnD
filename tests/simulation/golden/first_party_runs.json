@@ -644,7 +644,7 @@
         "user_trust": 21,
         "budget": 22
       },
-      "telemetry_sha256": "020cf9b65339bff2ffd3c54fb51699e3806e7e29ae691918545e0bf422cdfe53"
+      "telemetry_sha256": "3c65b708bbccddca280b00228537af82baf31fb11cf0d22854518b8c273f105a"
     },
     {
       "tier": "success",
@@ -676,7 +676,7 @@
         "user_trust": 25,
         "budget": 29
       },
-      "telemetry_sha256": "f9f722824dbb6fa2b6f64411dd97d480b8c3fb9e4c064c399e7ec72701755a4e"
+      "telemetry_sha256": "b45f27f8c1a6fe6f3bef42524b598555eed5c3b0f0c5fd2679ca65b4854957e2"
     },
     {
       "tier": "success",
@@ -790,7 +790,7 @@
         "user_trust": 55,
         "budget": 33
       },
-      "telemetry_sha256": "f56a26dc25ce3ffbabdd7db4e880c3960a024c01e3b53f72ab53bed108c32305"
+      "telemetry_sha256": "2f4a4c6f407e3f42f08e6738caf68ca2de706c0c34a5f3f93333e85e9880e1a9"
     },
     {
       "tier": "partial_success",
@@ -806,7 +806,7 @@
         "user_trust": 37,
         "budget": 3
       },
-      "telemetry_sha256": "59ce4a5adb4e377620dcf08ce7de96b8de64f10a2dbddd4a917e226da0783812"
+      "telemetry_sha256": "15e2c0ed740e55ae80b31fd8cdd5a7f1a8c42bccd384f1969a1996a445edff25"
     },
     {
       "tier": "partial_success",
@@ -854,7 +854,7 @@
         "user_trust": 27,
         "budget": 38
       },
-      "telemetry_sha256": "b17c874096b93011050b2a0b2a8d3aa40a84d5253ef74fb606ece3406137903a"
+      "telemetry_sha256": "ce5087f37d1f210f13bbc86e19e481beace75990c0797382bf3ff95747b96677"
     },
     {
       "tier": "success",
@@ -870,7 +870,7 @@
         "user_trust": 26,
         "budget": 9
       },
-      "telemetry_sha256": "fa30831267439030afdebf29c223945711e1eb0bb05faf190f64307dbcfdfc5f"
+      "telemetry_sha256": "2981fa6744db0ba524fd329e9cd62a3014a8bf929da928e889b9c9a569e1e114"
     },
     {
       "tier": "success",
@@ -902,7 +902,7 @@
         "user_trust": 10,
         "budget": 12
       },
-      "telemetry_sha256": "b94694ff7e4cf37ace0c2ce108385c3bf151ffaa72847e89b67e58d7f5e6d193"
+      "telemetry_sha256": "18f0e062fe3c325642df851b82220191234dbd3423fb0bbbcae60cea5eaa6cf9"
     },
     {
       "tier": "success",
@@ -966,7 +966,7 @@
         "user_trust": 65,
         "budget": 65
       },
-      "telemetry_sha256": "a0b1c9a881dc562788cfbe7c0e310dfea1ba70f08827f76952144b5190099780"
+      "telemetry_sha256": "3f1c8923be8402fbcd58a1e84d3c545e46f35c79510b7ae27b230b0286d9f81a"
     }
   ],
   "microservice_sprawl-v2 player_true +delivery_confidence +budget_crisis": [
@@ -1032,7 +1032,7 @@
         "user_trust": 21,
         "budget": 0
       },
-      "telemetry_sha256": "a61b0e1db7b515cb2774c1a267f05e97fa09944d04103f120afb3e6a07b86284"
+      "telemetry_sha256": "f2087019bd4556368ec9c431be408331f7c7384049b58cb1ad9144f901e343cf"
     },
     {
       "tier": "success",
@@ -1064,7 +1064,7 @@
         "user_trust": 43,
         "budget": 14
       },
-      "telemetry_sha256": "e352a2f7267c7090359a080f8e14562807b27fdafc99023d34cc58e6b5be6b0e"
+      "telemetry_sha256": "0997169a54f8ee0ab2354dc4fcb7afe25bc67423605414aec0b1aa393a3861a9"
     },
     {
       "tier": "success",

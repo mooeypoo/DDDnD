@@ -179,7 +179,7 @@ Community packs can't add player classes or challenge modifiers yet, so leave `c
 
 ## Reusing base content
 
-An `extension` pack can reference base cards, events, aftershocks, stakeholders, outcome tiers, and endings by `{ id, version }`, without copying them. Check which stakeholders a reused card or event affects (its `stakeholder_changes`): if your scenario doesn't include that stakeholder, the game currently creates an invisible "phantom" stakeholder that still counts toward end-of-run classification. Either include the stakeholder or pick other content. The validator will reject this in a later version.
+An `extension` pack can reference base cards, events, aftershocks, stakeholders, outcome tiers, and endings by `{ id, version }`, without copying them. A reused card or event may affect a stakeholder your scenario doesn't include (its `stakeholder_changes`). That part of it simply does nothing in your scenario; the rest of the card still works. The balance audit lists each case as an info note ("affects vp_product, who isn't in this scenario"), so you can check it was intended.
 
 ### Dependencies
 

@@ -1623,3 +1623,38 @@ This is the same class of bug ADR 0014 fixed for scenes and bundles, in two plac
   - The existing audit, difficulty, lobby and store tests now read targets from the scenario files, through `tests/support/base_balance_targets.ts`. That proves the content matches the old table.
   - New tests cover a scenario's own targets winning over its id, the default floor without targets, the validator refusals, and a reused base id with no targets getting no mark.
 
+### M3.9 (slice 7): Changes to absent stakeholders do nothing (2026-11-23)
+
+**The problem (logged in M2.4)**
+
+`applyStakeholderChanges` created an entry for *any* stakeholder id a card, event, aftershock or reaction rule named, even one not at the scenario's table. That "phantom" then counted toward the endings' stakeholder totals and showed up in audit reports. The known case: the base card `automate_deployment_pipeline` raises `vp_product`, and `microservice_sprawl` uses it without a VP Product. Every audit of that scenario reported a VP Product satisfaction.
+
+**The plan changed, on evidence**
+
+The M3.0 plan was to refuse such content in the validator and release a new `microservice_sprawl` version without it. Measuring first changed that:
+
+- **Refusing it would block reuse.** A base card naming a stakeholder that some scenarios lack is normal: cards are shared across adventures, and reusing base content is what extension packs are for. A validator error would reject the demo-style pack that reuses a card for its own cast.
+- **A new scenario version wouldn't help.** The fix is an engine rule, not a content change, so versioning the scenario preserves nothing.
+- **The impact is nil.** With the rule, 10 golden runs changed (all Microservice Sprawl) and only in their telemetry hash. Tier, ending, scores, turns and status are identical. In the fixed-seed audit, the only differences are that the phantom VP Product disappears from Microservice Sprawl's report and the new info note appears.
+
+So the rule became: **a change to a stakeholder who isn't at the table does nothing.** It's implemented once, in `toStakeholderChanges`, which every resolver already used (card, event, aftershock, reaction rule). The converter now takes the scenario bundle as a required argument, so a new caller can't forget it. Filtering at the source means the state, the run's totals (endings), the turn history and the UI all see the same clean changes.
+
+**Telling authors instead of refusing them**
+
+The structural audit adds an **info** finding per case: "card automate_deployment_pipeline affects vp_product, who isn't in this scenario". Info doesn't change a scenario's status or warning count. Its entry in the report's structural checks list is now `pass` (with the note), not `warning`. Info findings used to be listed as warnings there; no base scenario had one until now, so nobody had seen it.
+
+**Verification**
+
+- **Golden replays:** 10 Microservice Sprawl runs changed, in their telemetry hash only. The fixture was regenerated.
+- **Fixed-seed audit vs `main`:** the phantom `vp_product` aggregates are gone from Microservice Sprawl, and its report has one info finding. Nothing else changed.
+- **Tests** (+4, 1135 total):
+  - the converter drops absent stakeholders;
+  - Microservice Sprawl's simulated aggregates list only its own stakeholders (fails on `main`);
+  - the info finding is reported for Microservice Sprawl, and no other base scenario has such content.
+
+  A structural-audit fixture that added a stakeholder without seating it in its scenario now seats it.
+
+**DDD note (talk material)**
+
+"Who is at the table" is part of the scenario's model, and the old engine let any content add people to it. The phantom VP Product is a small invariant violation: an aggregate (the run) accepting a change to an entity that isn't part of it. The fix enforces the invariant at the boundary where content becomes runtime changes, and keeps the content valid: the card isn't wrong, it just has no one to affect here.
+
