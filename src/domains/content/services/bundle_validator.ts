@@ -297,6 +297,66 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
     }
   }
   
+  // Ending criteria (journal M3.5): reachable, ordered, and about this scenario
+  const endingsWithCriteria = Array.from(bundle.outcome_archetypes.values()).filter((ending) => ending.criteria)
+  if (endingsWithCriteria.length > 0) {
+    const scenarioStakeholderIds = new Set(bundle.scenario.stakeholder_refs.map((ref) => ref.id))
+    const endingByPriority = new Map<number, string>()
+    for (const ending of endingsWithCriteria) {
+      const { priority, when } = ending.criteria!
+      const other = endingByPriority.get(priority)
+      if (other) {
+        errors.push({
+          type: 'duplicate_ending_priority',
+          message: `Endings ${other} and ${ending.id} both have priority ${priority}; give each ending its own, so the order they are tried in is clear`,
+          details: { ending_ids: [other, ending.id], priority }
+        })
+      } else {
+        endingByPriority.set(priority, ending.id)
+      }
+      for (const condition of when) {
+        const scoreIds = condition.measure === 'score_change' ? condition.score_ids : condition.measure === 'final_score' ? [condition.score_id] : []
+        for (const scoreId of scoreIds) {
+          if (!trackedScoreIds.has(scoreId)) {
+            errors.push({
+              type: 'untracked_ending_score',
+              message: `Ending ${ending.id} checks score "${scoreId}", which this scenario doesn't track`,
+              details: { ending_id: ending.id, scoreId }
+            })
+          }
+        }
+        for (const stakeholderId of condition.measure === 'stakeholder_change' ? condition.stakeholder_ids ?? [] : []) {
+          if (!scenarioStakeholderIds.has(stakeholderId)) {
+            errors.push({
+              type: 'unknown_ending_stakeholder',
+              message: `Ending ${ending.id} checks stakeholder "${stakeholderId}", who isn't in this scenario`,
+              details: { ending_id: ending.id, stakeholderId }
+            })
+          }
+        }
+      }
+    }
+    const fallbacks = endingsWithCriteria.filter((ending) => ending.criteria!.when.length === 0)
+    if (fallbacks.length === 0) {
+      errors.push({
+        type: 'no_fallback_ending',
+        message: 'No ending has an empty "when", so some runs would match no ending; add a fallback ending with the lowest priority and no conditions',
+        details: { ending_ids: endingsWithCriteria.map((ending) => ending.id) }
+      })
+    } else {
+      const fallbackPriority = Math.max(...fallbacks.map((ending) => ending.criteria!.priority))
+      for (const ending of endingsWithCriteria) {
+        if (ending.criteria!.priority < fallbackPriority) {
+          errors.push({
+            type: 'unreachable_ending',
+            message: `Ending ${ending.id} has a lower priority than a fallback ending (no conditions), so it can never be reached`,
+            details: { ending_id: ending.id, priority: ending.criteria!.priority, fallback_priority: fallbackPriority }
+          })
+        }
+      }
+    }
+  }
+
   // Coupling rules (M3): present, and only about scores this scenario tracks
   const couplingScoreIds = new Set(bundle.scenario.score_refs.map((ref) => ref.id))
   for (const ruleRef of bundle.scenario.coupling_rule_refs ?? []) {

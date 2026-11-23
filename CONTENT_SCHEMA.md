@@ -324,6 +324,50 @@ Two tiers in one scenario can't share a `min_average` (the validator refuses it)
 
 The base tiers: triumph 75 (success), success 60 (success), survival 45 (partial), struggle 30 (partial), collapse 0 (failure, the floor).
 
+## Ending Criteria
+
+`outcome-archetypes/<id>-v<version>.json`, listed by a scenario in `outcome_archetype_refs`. An ending (shown to players as "ending type") says when it is chosen:
+
+```json
+{
+  "id": "boundary_builder",
+  "version": 1,
+  "name": "The Boundary Builder",
+  "description": "You excelled at defining clear domain boundaries",
+  "flavor_text": "Every line you drew made the system clearer",
+  "criteria": {
+    "priority": 50,
+    "when": [
+      { "measure": "score_change", "score_ids": ["domain_clarity", "maintainability"], "operator": ">=", "value": 20 },
+      { "measure": "final_score", "score_id": "delivery_confidence", "operator": ">=", "value": 30 }
+    ]
+  }
+}
+```
+
+How the ending is chosen: endings are tried from the highest `priority` down, and the first whose `when` conditions **all** hold wins. An ending with an empty `when` always matches: that is the scenario's fallback.
+
+Measures:
+
+| `measure` | Extra fields | What it reads |
+|---|---|---|
+| `score_change` | `score_ids` (1 or more) | Sum of the run's total change to those scores |
+| `final_score` | `score_id` | That score's value when the run ends |
+| `stakeholder_change` | `stakeholder_ids` (optional) | Sum of satisfaction changes for those stakeholders, or all of them |
+| `pressure_per_turn` | none | Events plus aftershocks, divided by turns played |
+
+`operator` is `<`, `<=`, `>` or `>=`. `value` is a number from -1000 to 1000; decimals are allowed (`1.5`).
+
+The validator checks, per scenario:
+
+- no two endings share a priority;
+- there is a fallback ending (empty `when`), and no ending has a lower priority than it (it could never be reached);
+- every score a condition names is in the scenario's `score_refs`, and every stakeholder in its `stakeholder_refs`.
+
+An ending without `criteria` is never chosen. A scenario with no criteria at all (the tutorials, until their fix) uses the game's original built-in classification.
+
+The base endings, in priority order: firefighter 90, burnout_machine 80, the_visionary 70, the_diplomat 60, boundary_builder 50, stakeholder_whisperer 40, budget_hawk 30, runaway_refactorer 20, the_pragmatist 10, system_stabilizer 0 (fallback).
+
 Outcomes are determined based on final state and run analytics.
 
 Presentation naming in UI may map these outcomes to `endingType` labels without changing content schema structure.

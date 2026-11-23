@@ -3,5 +3,12 @@
   "version": 1,
   "name": "The Runaway Refactorer",
   "description": "You pursued architectural purity at the expense of delivery",
-  "flavor_text": "Perfect code ships never"
+  "flavor_text": "Perfect code ships never",
+  "criteria": {
+    "priority": 20,
+    "when": [
+      { "measure": "score_change", "score_ids": ["domain_clarity", "maintainability"], "operator": ">=", "value": 20 },
+      { "measure": "final_score", "score_id": "delivery_confidence", "operator": "<", "value": 30 }
+    ]
+  }
 }

@@ -226,6 +226,30 @@ At the end of a run, the game averages the scenario's scores and picks the tier 
 
 Higher scores are better, for every score (a "lower is better" option may come later). An extension pack can reuse the base tiers (`triumph`, `success`, `survival`, `struggle`, `collapse`) by listing them in `outcome_tier_refs`. A pack with its own scores can write its own. See [CONTENT_SCHEMA.md](https://github.com/mooeypoo/DDDnD/blob/main/CONTENT_SCHEMA.md#outcome-tiers).
 
+## Endings: what kind of leader the player was
+
+Alongside the tier, a run gets an **ending** ("The Boundary Builder", "The Firefighter"). Each ending file says when it is chosen:
+
+```json
+"criteria": {
+  "priority": 50,
+  "when": [
+    { "measure": "score_change", "score_ids": ["domain_clarity", "maintainability"], "operator": ">=", "value": 20 },
+    { "measure": "final_score", "score_id": "delivery_confidence", "operator": ">=", "value": 30 }
+  ]
+}
+```
+
+The game tries endings from the highest `priority` down and picks the first whose conditions all hold. Give one ending an empty `when` and the lowest priority: it catches every run the others don't. Conditions can read a score's total change (`score_change`, summed over the scores you list), a score's final value (`final_score`), stakeholder satisfaction change (`stakeholder_change`, all stakeholders or the ones you list), and events plus aftershocks per turn (`pressure_per_turn`).
+
+Tips:
+
+- Put the most specific endings first. "Architecture up a lot" (priority 70) has to come before "architecture up somewhat" (50), or the first would never be chosen.
+- Every run must end somewhere: the validator refuses a scenario without a fallback ending.
+- Extension packs can list the base endings in `outcome_archetype_refs` and get the base game's endings unchanged. A pack with its own scores writes its own.
+
+See [CONTENT_SCHEMA.md](https://github.com/mooeypoo/DDDnD/blob/main/CONTENT_SCHEMA.md#ending-criteria) for every measure and check.
+
 ## Single-file packs (`.dddnd-pack.json`)
 
 A pack can also travel as one file, for workshops where hosting isn't practical: a player loads it into the game from their computer. Create one from a pack folder:

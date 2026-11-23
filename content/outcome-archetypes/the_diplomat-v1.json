@@ -3,5 +3,12 @@
   "version": 1,
   "name": "The Diplomat",
   "description": "You kept every stakeholder at the table, even when the system was on fire",
-  "flavor_text": "Your greatest architecture decision was knowing who to talk to"
+  "flavor_text": "Your greatest architecture decision was knowing who to talk to",
+  "criteria": {
+    "priority": 60,
+    "when": [
+      { "measure": "stakeholder_change", "operator": ">=", "value": 15 },
+      { "measure": "pressure_per_turn", "operator": ">=", "value": 1.0 }
+    ]
+  }
 }

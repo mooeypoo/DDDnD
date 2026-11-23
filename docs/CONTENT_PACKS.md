@@ -273,7 +273,7 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
 | ~~Whose pack does `depends_on` mean?~~ | **Resolved (M2.8):** community packs may depend only on first-party packs, whose ids we control ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)). Community-on-community dependencies would need key-based references in a new schema version. | Done |
 | ~~Community hall look~~ | **Resolved (M2.12):** warm canvas, a thin awning stripe, and a stitched border as the external mark ([ADR 0015](adr/0015-community-packs-in-their-own-place.md)). | Done |
-| Player-facing run download | **Ready in code, not used.** The exact-run export (seed, scenario, pack identity and content hash, every turn's choice, history, outcome) can replay a run exactly, but nothing in the game creates or reads one; only tests do. Possible uses: a player sends a pack author a run that felt broken, or a facilitator collects a workshop's runs. Add a button when one of those is wanted (M2.13). Before wiring it up: its outcome snapshot still computes the coarse result with the old fixed cutoffs over every score, because it has no bundle. It should take the result from the run's tiers (M3.4). | When needed |
+| Player-facing run download | **Ready in code, not used.** The exact-run export (seed, scenario, pack identity and content hash, every turn's choice, history, outcome) can replay a run exactly, but nothing in the game creates or reads one; only tests do. Possible uses: a player sends a pack author a run that felt broken, or a facilitator collects a workshop's runs. Add a button when one of those is wanted (M2.13). Before wiring it up: its outcome snapshot still computes the coarse result with the old fixed cutoffs over every score, because it has no bundle. It should take the result from the run's tiers (M3.4), and its ending from the scenario's endings (M3.5); today it uses the built-in classifier. | When needed |
 | ~~Exact-run replay of retired remote packs~~ | **Resolved (M2.13): no promise.** If a pack is taken down, it's gone. Saved runs continue only while their exact pack is imported in that browser; players aren't led to expect more. Same stance as retired base scenarios in CONTENT_VERSIONING.md. | Done |
 
 ---
@@ -1460,3 +1460,52 @@ The tier files were edited in place, not given new versions. The tier a run land
 **DDD note (talk material)**
 
 The old code had *two* ubiquitous-language terms for "how did it go", maintained in two places with numbers that almost agreed. A domain expert asked "is a Struggle a failure?" would have got "it depends on the decimal". Moving tiers into content forced the question, and the answer became one sentence the content states: Struggle counts as partial. Making knowledge explicit often surfaces an inconsistency nobody chose.
+
+### M3.5 (slice 4): Endings declare when they are chosen (2026-11-23)
+
+**What changed**
+
+- **Endings gain `criteria`**: a `priority` and a list of `when` conditions. Endings are tried from the highest priority down, and the first whose conditions all hold wins. An empty `when` is the fallback. Conditions use four measures:
+  - `score_change`: summed over listed scores;
+  - `final_score`;
+  - `stakeholder_change`: all stakeholders, or listed ones;
+  - `pressure_per_turn`: events plus aftershocks per turn.
+
+  The comparison is `<`, `<=`, `>` or `>=` against a number.
+- **The engine chooses endings from content.** `selectEnding` (new, `simulation/rules/select_ending.ts`) measures the run and compares. It doesn't know any ending, score or stakeholder by name.
+- **The ten base ending files gained criteria in place.** Each one is a line-by-line translation of the old TypeScript predicate, with the old evaluation order as the priorities (firefighter 90 down to system_stabilizer 0).
+- **The validator checks the ending set:**
+  - no two endings share a priority;
+  - there is a fallback, and nothing sits below it;
+  - every score and stakeholder a condition names is in the scenario.
+- **Docs:** CONTENT_SCHEMA.md "Ending Criteria", and "Endings: what kind of leader the player was" in both authoring guides.
+
+**What still uses the old classifier, and why**
+
+- **The tutorials.** Their scenarios list `tutorial_learner`, which has no criteria, so they still get base endings from the built-in classifier. That's the bug the tutorial fix addresses. The fallback in `selectArchetypeId` goes away with it.
+- **The (unused) exact-run export.** It has no bundle; see the open question.
+
+**Decision: a small fixed vocabulary of measures**
+
+The old predicates used a handful of derived numbers ("architecture delta" = clarity + maintainability, "stability delta" = trust + morale, and "volatility" = events plus aftershocks per turn). Rather than naming those base-game concepts in the schema, a condition says which scores it sums. So "architecture" is something the *content* defines (`score_ids: ["domain_clarity", "maintainability"]`), and an SRE pack can sum `["uptime", "latency"]` without the engine knowing either word. Only measures every pack has are built in: scores, stakeholders, and how eventful the run was.
+
+The alternative was a general expression language (`"architecture_delta >= 20 && ..."`). It was rejected because it would need a parser, would be harder to validate and explain, and is more than any ending needs today. A flat list of conditions, all of which must hold, covered all ten base endings without strain. "Or" is expressed as two endings.
+
+**Verification**
+
+- **Golden replays unchanged**, and the fixed-seed audit report is identical to `main`.
+- **Equivalence sweep:** the old classifier is kept and compared with the content criteria on 40,000 generated runs. The values cluster around every threshold the endings use. Every run gets the same ending, and every one of the ten endings is reached over 100 times, including the three the golden replays never reach (boundary_builder, budget_hawk, the_pragmatist).
+- **The sweep is sensitive:** moving Budget Hawk's budget threshold from 65 to 66 fails it at once. Changing the Pragmatist's `< 20` to `<= 20` doesn't, and shouldn't: at exactly 20, Boundary Builder or Runaway Refactorer always wins first, so the two rules behave the same. That condition is redundant in the original code too, and is kept for readability.
+- **New tests** (+8, 1115 total):
+  - a pack's own endings by priority;
+  - named stakeholders;
+  - a missing final score never satisfies a condition;
+  - no criteria means no content ending;
+  - every validator check;
+  - schema refusals: unknown measure, `==`, stray fields, empty score list.
+- `content:validate` passes for base, tutorial and the demo fixture.
+
+**DDD note (talk material)**
+
+The predicates *were* domain knowledge: "a Boundary Builder improved the architecture and kept delivery viable". It lived as code only an engineer could read. As content, the definition is next to the ending's name and flavor text, in terms a facilitator can argue with ("shouldn't a Boundary Builder also keep morale up?"). The interesting design move was refusing to put "architecture" in the schema. It's a word from *this* game's ubiquitous language, not from the engine's, so the content defines it by listing scores.
+

@@ -3,5 +3,12 @@
   "version": 1,
   "name": "The Budget Hawk",
   "description": "You proved that good architecture doesn't have to break the bank",
-  "flavor_text": "The CFO's new favorite architect"
+  "flavor_text": "The CFO's new favorite architect",
+  "criteria": {
+    "priority": 30,
+    "when": [
+      { "measure": "final_score", "score_id": "budget", "operator": ">=", "value": 65 },
+      { "measure": "score_change", "score_ids": ["delivery_confidence", "budget"], "operator": ">=", "value": 5 }
+    ]
+  }
 }

@@ -3,5 +3,12 @@
   "version": 1,
   "name": "The Burnout Machine",
   "description": "You shipped everything on time, but at what cost? The team is exhausted",
-  "flavor_text": "Velocity was high. So was the turnover rate."
+  "flavor_text": "Velocity was high. So was the turnover rate.",
+  "criteria": {
+    "priority": 80,
+    "when": [
+      { "measure": "final_score", "score_id": "team_morale", "operator": "<", "value": 30 },
+      { "measure": "final_score", "score_id": "delivery_confidence", "operator": ">=", "value": 45 }
+    ]
+  }
 }

@@ -189,7 +189,37 @@ export interface OutcomeArchetype extends ContentMetadata {
   name: string
   description: string
   flavor_text?: string
+  /**
+   * When this ending is chosen (journal M3.5). Endings are tried from the
+   * highest `priority` down; the first whose conditions all hold wins. An
+   * empty `when` always matches: the scenario's fallback ending. Endings
+   * without criteria are never chosen.
+   */
+  criteria?: EndingCriteria
 }
+
+/** When an ending is chosen. See CONTENT_SCHEMA.md "Ending criteria". */
+export interface EndingCriteria {
+  priority: number
+  when: EndingCondition[]
+}
+
+/** Comparison used by ending conditions. */
+export type EndingOperator = '<' | '<=' | '>' | '>='
+
+/**
+ * One thing an ending checks at the end of a run. Every condition compares a
+ * measure of the run with `value`.
+ */
+export type EndingCondition =
+  /** Sum of the run's total changes to these scores. */
+  | { measure: 'score_change'; score_ids: string[]; operator: EndingOperator; value: number }
+  /** A score's value at the end of the run. */
+  | { measure: 'final_score'; score_id: string; operator: EndingOperator; value: number }
+  /** Sum of the run's satisfaction changes, for these stakeholders or all of them. */
+  | { measure: 'stakeholder_change'; stakeholder_ids?: string[]; operator: EndingOperator; value: number }
+  /** Events plus aftershocks, per turn played. */
+  | { measure: 'pressure_per_turn'; operator: EndingOperator; value: number }
 
 /**
  * Coupling Rule (M3)

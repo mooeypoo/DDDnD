@@ -20,6 +20,8 @@ import type {
   Card,
   ChallengeModifier,
   DelayedEffect,
+  EndingCondition,
+  EndingCriteria,
   Event,
   NumericCondition,
   OutcomeArchetype,
@@ -173,11 +175,37 @@ export const outcomeTierSchema: z.ZodMiniType<OutcomeTier> = z.strictObject({
   }),
 )
 
+const endingOperatorSchema = z.enum(['<', '<=', '>', '>='])
+const endingValueSchema = z.number().check(z.gte(numbers.ending_condition_value.min), z.lte(numbers.ending_condition_value.max))
+
+const endingConditionSchema: z.ZodMiniType<EndingCondition> = z.discriminatedUnion('measure', [
+  z.strictObject({
+    measure: z.literal('score_change'),
+    score_ids: boundedArray(idSchema, counts.score_refs).check(z.minLength(1)),
+    operator: endingOperatorSchema,
+    value: endingValueSchema,
+  }),
+  z.strictObject({ measure: z.literal('final_score'), score_id: idSchema, operator: endingOperatorSchema, value: endingValueSchema }),
+  z.strictObject({
+    measure: z.literal('stakeholder_change'),
+    stakeholder_ids: z.optional(boundedArray(idSchema, counts.stakeholder_refs).check(z.minLength(1))),
+    operator: endingOperatorSchema,
+    value: endingValueSchema,
+  }),
+  z.strictObject({ measure: z.literal('pressure_per_turn'), operator: endingOperatorSchema, value: endingValueSchema }),
+])
+
+const endingCriteriaSchema: z.ZodMiniType<EndingCriteria> = z.strictObject({
+  priority: boundedInt(numbers.ending_priority),
+  when: boundedArray(endingConditionSchema, counts.ending_conditions),
+})
+
 export const outcomeArchetypeSchema: z.ZodMiniType<OutcomeArchetype> = z.strictObject({
   ...metadataShape,
   name: nameSchema,
   description: descriptionSchema,
   flavor_text: z.optional(flavorTextSchema),
+  criteria: z.optional(endingCriteriaSchema),
 })
 
 export const couplingRuleSchema: z.ZodMiniType<CouplingRule> = z.strictObject({
