@@ -204,6 +204,7 @@ const archetypeIcon = computed(() => endingIcon(props.payload.arch))
 const archetypeDisplayName = computed(() => props.payload.an ?? titleCaseId(props.payload.arch))
 
 const classDisplayName = computed(() => {
+  if (props.payload.cn) return props.payload.cn
   return props.payload.cls
     .split('_')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
@@ -211,6 +212,7 @@ const classDisplayName = computed(() => {
 })
 
 const scenarioDisplayName = computed(() => {
+  if (props.payload.sn) return props.payload.sn
   return props.payload.sid
     .split('_')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))

@@ -211,6 +211,18 @@ describe('buildSharePayload', () => {
     expect(payload).toMatchObject({ an: 'The Boundary Builder', tn: 'Survival' })
   })
 
+  it("carries the scenario and class names from the run's content, so a pack run isn't shown by id (journal M3.11)", () => {
+    const payload = buildSharePayload({
+      run_outcome: createMockRunOutcome(),
+      game_state: createMockGameState(),
+      run_names: { scenario: 'The Pager Storm', player_class: 'Pager Paladin' },
+    })
+    expect(payload).toMatchObject({ sn: 'The Pager Storm', cn: 'Pager Paladin' })
+    const without = buildSharePayload({ run_outcome: createMockRunOutcome(), game_state: createMockGameState(), run_names: {} })
+    expect(without).not.toHaveProperty('sn')
+    expect(without).not.toHaveProperty('cn')
+  })
+
   it('omits name when display_name is not set', () => {
     const gameState = createMockGameState({
       player_profile: {
@@ -441,6 +453,18 @@ describe('decodeSharePayload — error handling', () => {
     const ok = decodeSharePayload(encodeSharePayload(createSamplePayload({ an: 'The Toil Slayer', tn: 'Five Nines' })))
     expect(ok.ok && [ok.payload.an, ok.payload.tn]).toEqual(['The Toil Slayer', 'Five Nines'])
     for (const bad of [{ an: '' }, { tn: 'x'.repeat(81) }, { an: 3 }]) {
+      const payload = { ...createSamplePayload(), ...bad } as unknown as SharePayload
+      const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+      expect(decodeSharePayload(encoded).ok).toBe(false)
+    }
+  })
+
+  it('round-trips scenario and class names, and refuses long or empty ones (journal M3.11)', () => {
+    const ok = decodeSharePayload(encodeSharePayload(createSamplePayload({ sn: 'The Pager Storm', cn: 'Pager Paladin' })))
+    expect(ok.ok && [ok.payload.sn, ok.payload.cn]).toEqual(['The Pager Storm', 'Pager Paladin'])
+    const old = decodeSharePayload(encodeSharePayload(createSamplePayload()))
+    expect(old.ok && old.payload).not.toHaveProperty('sn')
+    for (const bad of [{ sn: '' }, { cn: 'x'.repeat(81) }, { sn: 7 }]) {
       const payload = { ...createSamplePayload(), ...bad } as unknown as SharePayload
       const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
       expect(decodeSharePayload(encoded).ok).toBe(false)

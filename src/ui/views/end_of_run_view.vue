@@ -252,6 +252,8 @@ const playerClassId = computed(() => gameStore.gameState?.player_profile.selecte
 const playerClassName = computed(() => {
   const classId = playerClassId.value
   if (!classId) return 'Adventurer'
+  // The class as the run's own pack names it (journal M3.11)
+  if (gameStore.runPlayerClass?.id === classId) return gameStore.runPlayerClass.name
   return classId
     .split('_')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
@@ -310,7 +312,8 @@ onMounted(() => {
       run_outcome: gameStore.runOutcome,
       game_state: gameStore.gameState,
       community_pack: runCommunityPack.value,
-      names: { archetype: outcomeText.value.archetypeName, tier: outcomeText.value.tierName }
+      names: { archetype: outcomeText.value.archetypeName, tier: outcomeText.value.tierName },
+      run_names: { scenario: scenarioName.value, player_class: gameStore.runPlayerClass?.name },
     })
   }
 })
