@@ -204,6 +204,7 @@ const archetypeIcon = computed(() => endingIcon(props.payload.arch))
 const archetypeDisplayName = computed(() => props.payload.an ?? titleCaseId(props.payload.arch))
 
 const classDisplayName = computed(() => {
+  if (props.payload.cn) return props.payload.cn
   return props.payload.cls
     .split('_')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
@@ -211,6 +212,7 @@ const classDisplayName = computed(() => {
 })
 
 const scenarioDisplayName = computed(() => {
+  if (props.payload.sn) return props.payload.sn
   return props.payload.sid
     .split('_')
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
@@ -226,7 +228,7 @@ const completionLabel = computed(() => {
 })
 
 function formatScoreName(scoreId: string): string {
-  return scoreLabels.short(scoreId)
+  return props.payload.scn?.[scoreId] ?? scoreLabels.short(scoreId)
 }
 
 function scoreClass(value: number): string {
@@ -261,7 +263,7 @@ const stakeholderEntries = computed<StakeholderEntry[]>(() => {
 
     return {
       id: stakeholderId,
-      displayName: formatStakeholderName(stakeholderId),
+      displayName: props.payload.stn?.[stakeholderId] ?? formatStakeholderName(stakeholderId),
       satisfaction: roundedSatisfaction,
       stateClass: stakeholderStateClass(roundedSatisfaction),
       stateLabel: stakeholderStateLabel(roundedSatisfaction),

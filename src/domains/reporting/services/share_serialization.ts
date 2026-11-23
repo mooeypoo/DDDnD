@@ -172,10 +172,25 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
   }
 
   // Optional ending and tier names: short plain text
-  for (const field of ['an', 'tn'] as const) {
+  // Optional ending, tier, scenario and class names: short plain text
+  const NAME_FIELDS = { an: 'ending', tn: 'tier', sn: 'scenario', cn: 'class' } as const
+  for (const [field, label] of Object.entries(NAME_FIELDS) as Array<[keyof typeof NAME_FIELDS, string]>) {
     const value = obj[field]
     if (value !== undefined && (typeof value !== 'string' || value.length === 0 || value.length > MAX_OUTCOME_NAME_LENGTH)) {
-      return { ok: false, error: `Invalid ${field === 'an' ? 'ending' : 'tier'} name` }
+      return { ok: false, error: `Invalid ${label} name` }
+    }
+  }
+
+  // Optional council and score names: one short plain-text name per id the link already carries
+  for (const [field, ids, label] of [['stn', obj.stakeholders, 'council'], ['scn', obj.scores, 'score']] as const) {
+    const names = obj[field]
+    if (names === undefined) continue
+    if (typeof names !== 'object' || names === null || Array.isArray(names)) return { ok: false, error: `Invalid ${label} names` }
+    const known = new Set(Object.keys((ids as Record<string, unknown> | undefined) ?? {}))
+    for (const [id, name] of Object.entries(names as Record<string, unknown>)) {
+      if (!known.has(id) || typeof name !== 'string' || name.length === 0 || name.length > MAX_OUTCOME_NAME_LENGTH) {
+        return { ok: false, error: `Invalid ${label} names` }
+      }
     }
   }
 
@@ -197,6 +212,10 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     sd: (obj.sd as string | undefined) || undefined,
     ...(obj.an !== undefined ? { an: obj.an as string } : {}),
     ...(obj.tn !== undefined ? { tn: obj.tn as string } : {}),
+    ...(obj.sn !== undefined ? { sn: obj.sn as string } : {}),
+    ...(obj.cn !== undefined ? { cn: obj.cn as string } : {}),
+    ...(obj.stn !== undefined ? { stn: { ...(obj.stn as Record<string, string>) } } : {}),
+    ...(obj.scn !== undefined ? { scn: { ...(obj.scn as Record<string, string>) } } : {}),
     ...(obj.cp !== undefined
       ? { cp: { n: (obj.cp as { n: string }).n, p: (obj.cp as { p: string }).p } }
       : {})

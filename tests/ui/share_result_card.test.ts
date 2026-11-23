@@ -115,3 +115,29 @@ describe('share_result_card names (M3 slice 1)', () => {
   })
 })
 
+
+describe('share_result_card names (journal M3.11)', () => {
+  it("shows the scenario and class names a pack run's link carries", () => {
+    const text = mount(ShareResultCard, {
+      props: { payload: makePayload({ sid: 'sre_pager_storm', cls: 'sre_pager_paladin', sn: 'The Pager Storm', cn: 'Pager Paladin' }) },
+    }).text()
+    expect(text).toContain('The Pager Storm')
+    expect(text).toContain('Pager Paladin')
+    expect(text).not.toContain('Sre ')
+  })
+
+  it('falls back to title-cased ids for older links', () => {
+    const text = mount(ShareResultCard, { props: { payload: makePayload({ sid: 'monolith_of_mild_despair', cls: 'boundary_mage' }) } }).text()
+    expect(text).toContain('Monolith Of Mild Despair')
+    expect(text).toContain('Boundary Mage')
+  })
+
+  it("shows the council's and scores' names a link carries, not their ids", () => {
+    const text = mount(ShareResultCard, {
+      props: { payload: makePayload({ stakeholders: { sre_vp_engineering: 60 }, scores: { sre_availability: 70 }, stn: { sre_vp_engineering: 'VP of Engineering' }, scn: { sre_availability: 'Uptime' } }) },
+    }).text()
+    expect(text).toContain('VP of Engineering')
+    expect(text).toContain('Uptime')
+    expect(text).not.toMatch(/Sre /)
+  })
+})

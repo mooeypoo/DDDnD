@@ -211,6 +211,34 @@ describe('buildSharePayload', () => {
     expect(payload).toMatchObject({ an: 'The Boundary Builder', tn: 'Survival' })
   })
 
+  it("carries the scenario and class names from the run's content, so a pack run isn't shown by id (journal M3.11)", () => {
+    const payload = buildSharePayload({
+      run_outcome: createMockRunOutcome(),
+      game_state: createMockGameState(),
+      run_names: { scenario: 'The Pager Storm', player_class: 'Pager Paladin' },
+    })
+    expect(payload).toMatchObject({ sn: 'The Pager Storm', cn: 'Pager Paladin' })
+    const without = buildSharePayload({ run_outcome: createMockRunOutcome(), game_state: createMockGameState(), run_names: {} })
+    expect(without).not.toHaveProperty('sn')
+    expect(without).not.toHaveProperty('cn')
+  })
+
+  it('carries council and score names for the ids in the payload, and nothing without them', () => {
+    const state = createMockGameState()
+    const stakeholderId = Object.keys(state.stakeholders)[0]
+    const scoreId = Object.keys(state.scores)[0]
+    const payload = buildSharePayload({
+      run_outcome: createMockRunOutcome(),
+      game_state: state,
+      run_names: { stakeholders: { [stakeholderId]: 'VP of Engineering', not_here: 'Ghost' }, scores: { [scoreId]: 'Uptime' } },
+    })
+    expect(payload.stn).toEqual({ [stakeholderId]: 'VP of Engineering' })
+    expect(payload.scn).toEqual({ [scoreId]: 'Uptime' })
+    const bare = buildSharePayload({ run_outcome: createMockRunOutcome(), game_state: state })
+    expect(bare).not.toHaveProperty('stn')
+    expect(bare).not.toHaveProperty('scn')
+  })
+
   it('omits name when display_name is not set', () => {
     const gameState = createMockGameState({
       player_profile: {
@@ -442,6 +470,31 @@ describe('decodeSharePayload — error handling', () => {
     expect(ok.ok && [ok.payload.an, ok.payload.tn]).toEqual(['The Toil Slayer', 'Five Nines'])
     for (const bad of [{ an: '' }, { tn: 'x'.repeat(81) }, { an: 3 }]) {
       const payload = { ...createSamplePayload(), ...bad } as unknown as SharePayload
+      const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+      expect(decodeSharePayload(encoded).ok).toBe(false)
+    }
+  })
+
+  it('round-trips scenario and class names, and refuses long or empty ones (journal M3.11)', () => {
+    const ok = decodeSharePayload(encodeSharePayload(createSamplePayload({ sn: 'The Pager Storm', cn: 'Pager Paladin' })))
+    expect(ok.ok && [ok.payload.sn, ok.payload.cn]).toEqual(['The Pager Storm', 'Pager Paladin'])
+    const old = decodeSharePayload(encodeSharePayload(createSamplePayload()))
+    expect(old.ok && old.payload).not.toHaveProperty('sn')
+    for (const bad of [{ sn: '' }, { cn: 'x'.repeat(81) }, { sn: 7 }]) {
+      const payload = { ...createSamplePayload(), ...bad } as unknown as SharePayload
+      const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+      expect(decodeSharePayload(encoded).ok).toBe(false)
+    }
+  })
+
+  it('round-trips council and score names, only for ids the link carries (journal M3.11)', () => {
+    const sample = createSamplePayload()
+    const stakeholderId = Object.keys(sample.stakeholders ?? {})[0]
+    const scoreId = Object.keys(sample.scores)[0]
+    const ok = decodeSharePayload(encodeSharePayload({ ...sample, stn: { [stakeholderId]: 'On-Call Engineer' }, scn: { [scoreId]: 'Uptime' } }))
+    expect(ok.ok && [ok.payload.stn, ok.payload.scn]).toEqual([{ [stakeholderId]: 'On-Call Engineer' }, { [scoreId]: 'Uptime' }])
+    for (const bad of [{ stn: { ghost: 'Ghost' } }, { scn: { [scoreId]: '' } }, { stn: ['x'] }, { scn: { [scoreId]: 'x'.repeat(81) } }]) {
+      const payload = { ...sample, ...bad } as unknown as SharePayload
       const encoded = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
       expect(decodeSharePayload(encoded).ok).toBe(false)
     }
