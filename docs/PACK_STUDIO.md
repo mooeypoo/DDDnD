@@ -32,6 +32,10 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D10 | **Desktop-primary.** Laptops and desktops are the target, tablets are supported, and a phone can browse drafts but not edit. The start screen says so. | Editing 20 cards is a desk job, and until there's some form of upload, a phone has nothing to do with the result. |
 | D11 | **Name: "DDDnD Pack Studio", subtitled "The Forge".** The full name leads everywhere (title, header, docs); "The Forge" is the flavour line under it. | Clear first: authors search for "pack studio", not "forge". The subtitle keeps the game's voice. |
 | D12 | **Look: professional, in DDDnD's style** (§9). | It's a tool people spend hours in, so clarity wins, but it should feel like the same world as the game. |
+| D13 | **"Start from a DDDnD scenario":** the start screen lists the base game's scenarios, and "Copy and adapt" starts a retelling with a copy of that scenario, its council, cards and events already attached. Base cards stay references until the author changes one; then "make my own version" (D7) copies it. | Most facilitators want "the Monolith, but ours". Starting from a working, balanced scenario beats starting from nothing, and editing the copy teaches by example. |
+| D14 | **Examples come from DDDnD-packs,** the owner's official extension repository, pinned to release tags. A small list in the Studio names which ones are shown, and which one the guided round draws its worked examples from. | One source of truth for examples: the packs already published and validated. Today the round would draw from the Gilded Ledger (a retelling) and the SRE pack (a new topic). |
+| D15 | **"Play it" stores nothing** (answers Q9). The Studio opens the game's preview route in a new tab and sends the bundle over `postMessage`. The game checks the sender's exact origin, validates the bundle like any import, and plays it with no-op save and pack-store adapters. Nothing reaches disk or a server, and closing the tab ends it; to play again, press "Play it" again. | The game already writes runs and packs through two adapters (`persistGameState` and the pack store), so a preview mode swaps both. No backend is needed (D4), and a preview can never overwrite a real saved run. |
+| D16 | **Accessibility is a requirement, not a polish item,** including **text size** (§10). | The Studio is all forms and reading. People with low vision, keyboard users and people on long sessions are all authors. |
 
 ---
 
@@ -145,13 +149,12 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 
 ## 7. Open questions (for discussion)
 
-Q1–Q8 from the first round are settled: Q1 → D6, Q2 → D3, Q3 → D12, Q4 → D10, Q5 → D7, Q6 → D8, Q7 → D9, Q8 → D11.
+Q1–Q8 from the first round are settled: Q1 → D6, Q2 → D3, Q3 → D12, Q4 → D10, Q5 → D7, Q6 → D8, Q7 → D9, Q8 → D11. Q9 → D15, Q10 → D14, Q11 → D16.
 
 | # | Question | Options and notes |
 |---|---|---|
-| Q9 | **What does "Play it" need from the game?** | A preview route that accepts a bundle only from the Studio's exact origin, runs it like an imported pack (same validation), labels it "Preview", and writes no saves. Does a preview run show the results screen and share link? Probably the results, but no share link: a preview isn't a published pack. |
-| Q10 | **Who maintains the tutorial's worked examples?** | Written once, in the Studio's own code, around a neutral example organization. Or taken from the Gilded Ledger, which already exists and is a retelling. |
-| Q11 | **Accessibility bar** | The Studio is forms-heavy: keyboard-first editing, visible focus, labelled controls, and 4.5:1 text contrast as a requirement, checked like the game's. |
+| Q12 | **Does a preview run show the results screen?** | Yes, so the author sees their endings; but no share link, because a preview isn't a published pack. |
+| Q13 | **Text size in the game too?** | The Studio's text-size setting (§10) could later come to the game, which has the same reading load on cards and briefings. |
 
 ## 8. Not doing (and why)
 
@@ -197,4 +200,22 @@ If packs ever need more visual identity, the safe form is **choosing from the ga
 - Three columns in the workspace: the pack's contents, the editor, and the Checks rail with balance hints. Below about 1100 px the Checks rail moves under the editor; on a tablet the contents become a drawer.
 - Editors are stacked sections: "What players read", "When played", limits, a plain-language preview, and "Used in".
 
-**Open on the look:** the Forge's mark (the mockup uses a simple anvil outline), and whether the ember accent should also tint the header on the guided round, to make "you're in a lesson" more obvious.
+**Open on the look:** the Forge's mark (three options on the mockup's "mark options" board: an anvil, an anvil with sparks, a hammer over an anvil), and whether the ember accent should also tint the header on the guided round, to make "you're in a lesson" more obvious.
+
+---
+
+## 10. Accessibility (D16)
+
+Requirements, checked like the game's (automated checks plus a keyboard and screen-reader pass per milestone):
+
+- **Text size setting:** Standard, Large and Largest in the header, remembered in this browser (a per-viewer convenience, like the bazaar's notices). Everything is sized in `rem`, so browser zoom and the system font size work too. Layouts reflow at Largest instead of truncating.
+- **Readable by default:** body text at least 16 px at Standard, long text in the body font (Inter), Cinzel only for headings. Text contrast at least 4.5:1, including secondary text (the reason for `#a89a78`, §9).
+- **Keyboard first:**
+  - every editor and picker works without a mouse;
+  - visible focus everywhere;
+  - a "skip to editor" link;
+  - shortcuts for "new card" and moving between items, never single-key shortcuts that fire while typing.
+- **Real controls:** labelled inputs, real buttons and links, and pickers built on listbox or combobox patterns with announced selections.
+- **Not by colour alone:** score changes show `+`/`−` as well as green and coral, and checks say "must fix" or "worth a look" in words, not just colour.
+- **Announced changes:** the Checks rail and balance hints update in a polite live region, so screen-reader users hear "2 problems" without losing their place.
+- **Motion:** none needed, and `prefers-reduced-motion` respected wherever any is added.
