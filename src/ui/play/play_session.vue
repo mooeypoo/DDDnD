@@ -134,6 +134,7 @@
 
       <WarTable
         :actors="stageActors"
+        :otherCouncil="otherCouncil"
         :sceneId="gameplaySceneId"
         :currentBeat="currentBeat"
         :highlight="tableHighlight"
@@ -227,7 +228,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { Card } from '@/domains/content/model'
@@ -237,11 +238,13 @@ import { useGameStore } from '@/ui/stores/game_store'
 import { buildStakeholderNamesMap } from '@/ui/composables/stakeholder_presentation'
 import {
   buildGameplayStageActors,
+  resolveStakeholderMood,
   buildRunCast,
   resolveScenarioSceneId,
   type StakeholderSpeechBubblePresentation,
 } from '@/ui/composables/gameplay_stage_presentation'
 import { buildStakeholderSpeechBubbles } from '@/ui/composables/stakeholder_reaction_bubbles'
+import { seatBudgetForWidth, seatCouncil } from '@/ui/play/council_seating'
 import { getCollapseWarnings, hasActiveCoupling } from '@/ui/composables/system_coupling'
 import type { SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
@@ -543,13 +546,40 @@ const runCast = computed(() => {
   return buildRunCast(state?.meta.seed ?? '', Object.keys(state?.stakeholders ?? {}))
 })
 
+/** Seats at the table for this screen width (journal: council seating). */
+const viewportWidth = ref(typeof window === 'undefined' ? 1280 : window.innerWidth)
+function onViewportResize() {
+  viewportWidth.value = window.innerWidth
+}
+onMounted(() => window.addEventListener('resize', onViewportResize, { passive: true }))
+onBeforeUnmount(() => window.removeEventListener('resize', onViewportResize))
+
+/** Who sits at the table: the most recently active, when the council outnumbers the seats. */
+const councilSeating = computed(() => seatCouncil({
+  stakeholder_ids: Object.keys(gameStore.gameState?.stakeholders ?? {}),
+  history: gameStore.gameState?.history ?? [],
+  seat_count: seatBudgetForWidth(viewportWidth.value),
+  voicing: voicingStakeholderId.value,
+}))
+
 const stageActors = computed(() => {
   return buildGameplayStageActors(
     gameStore.gameState?.stakeholders,
     stakeholderNames.value,
     runCast.value,
     activeStakeholderBubbles.value,
+    councilSeating.value.seated,
   )
+})
+
+/** Council members without a seat right now, for the table's "others" list. */
+const otherCouncil = computed(() => {
+  const stakeholders = gameStore.gameState?.stakeholders ?? {}
+  return councilSeating.value.others.map((id) => ({
+    id,
+    displayName: stakeholderNames.value[id] ?? id,
+    mood: resolveStakeholderMood(stakeholders[id]?.satisfaction ?? 50),
+  }))
 })
 
 const canConsultArchives = computed(() => gameStore.turnBriefing?.can_consult_archives === true)

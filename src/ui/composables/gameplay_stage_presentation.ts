@@ -24,6 +24,8 @@ export interface GameplayStageActor {
   avatarRole: AvatarRoleId
   mood: AvatarMood
   slot: SceneActorSlot
+  /** Seat index at the war table (0 = leftmost). */
+  seat?: number
   speechBubble?: StakeholderSpeechBubblePresentation
 }
 
@@ -178,6 +180,22 @@ export function resolveStakeholderMood(satisfaction: number): AvatarMood {
   return 'angry'
 }
 
+/** Player-facing word for a seat's mood, shared by seats and the "others" list. */
+export function stakeholderMoodLabel(mood: AvatarMood | string): string {
+  switch (mood) {
+    case 'happy':
+      return 'Allied'
+    case 'neutral':
+      return 'Watching'
+    case 'concerned':
+      return 'Uneasy'
+    case 'angry':
+      return 'Opposed'
+    default:
+      return 'Present'
+  }
+}
+
 /**
  * Builds scene actor presentation models from stakeholder runtime snapshots.
  */
@@ -186,20 +204,30 @@ export function buildGameplayStageActors(
   stakeholderNames: Record<string, string>,
   cast: RunCast,
   speechBubblesByStakeholderId: Record<string, StakeholderSpeechBubblePresentation> = {},
+  /**
+   * Who sits at the table, by seat (see council_seating.ts). Without it, the
+   * first four in council order: the table's original behavior.
+   */
+  seatedIds?: readonly string[],
 ): GameplayStageActor[] {
   if (!stakeholders) {
     return []
   }
 
-  return Object.entries(stakeholders)
-    .slice(0, 4)
-    .map(([stakeholderId, data], index) => ({
-      id: stakeholderId,
-      displayName: stakeholderNames[stakeholderId] ?? stakeholderId,
-      satisfaction: data.satisfaction,
-      avatarRole: castRoleFor(cast, stakeholderId),
-      mood: resolveStakeholderMood(data.satisfaction),
-      slot: ACTOR_SLOTS[index] ?? 'far',
-      speechBubble: speechBubblesByStakeholderId[stakeholderId],
-    }))
+  const ids = seatedIds ?? Object.keys(stakeholders).slice(0, 4)
+  return ids
+    .filter((stakeholderId) => stakeholders[stakeholderId] !== undefined)
+    .map((stakeholderId, index) => {
+      const data = stakeholders[stakeholderId]
+      return {
+        id: stakeholderId,
+        displayName: stakeholderNames[stakeholderId] ?? stakeholderId,
+        satisfaction: data.satisfaction,
+        avatarRole: castRoleFor(cast, stakeholderId),
+        mood: resolveStakeholderMood(data.satisfaction),
+        slot: ACTOR_SLOTS[index] ?? 'far',
+        seat: index,
+        speechBubble: speechBubblesByStakeholderId[stakeholderId],
+      }
+    })
 }
