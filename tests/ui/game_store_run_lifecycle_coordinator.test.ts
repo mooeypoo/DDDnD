@@ -24,6 +24,8 @@ function makeState(overrides: Record<string, unknown> = {}) {
     isIntroSplashOpen: ref(false),
     isTutorialCompleteSplashOpen: ref(false),
     isRunComplete: ref(false),
+    runPlayerClass: ref(null),
+    runChallengeModifier: ref(null),
     ...overrides,
   }
 }
@@ -92,8 +94,9 @@ describe('game_store_run_lifecycle_coordinator', () => {
       state.scenarioBundle.value = bundle
     })
 
+    const getPackContentProvider = vi.fn(async () => provider)
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getGameWideContentProvider: vi.fn(async () => provider),
+      getPackContentProvider,
       buildScenarioBundle: vi.fn(async () => bundle),
       initializeEngine,
       persistRunState,
@@ -112,6 +115,10 @@ describe('game_store_run_lifecycle_coordinator', () => {
     })
 
     expect(initializeEngine).toHaveBeenCalledWith(bundle, 'seed-a')
+    // Class and modifier load from the run's own pack, not a game-wide list (journal M3.10)
+    expect(getPackContentProvider).toHaveBeenCalledWith('dddnd:base')
+    expect(state.runPlayerClass.value).toMatchObject({ id: 'boundary_mage' })
+    expect(state.runChallengeModifier.value).toMatchObject({ id: 'nightmare_mode' })
     expect(state.gameState.value).toEqual(initialState)
     expect(state.turnBriefing.value).toEqual(briefing)
     expect(initialState.player_profile).toMatchObject({
@@ -143,7 +150,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
       }
 
       const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-        getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
+        getPackContentProvider: vi.fn(async () => ({} as ContentProvider)),
         buildScenarioBundle: vi.fn(async () => bundle),
         initializeEngine: vi.fn(() => {
           state.engine.value = engine
@@ -186,11 +193,13 @@ describe('game_store_run_lifecycle_coordinator', () => {
       engine: ref(engine),
       gameState: ref({ progress: { current_turn: 3 } } as unknown as GameState),
       isRunComplete: ref(true),
+      runPlayerClass: ref(null),
+      runChallengeModifier: ref(null),
     })
 
     const onTutorialCompleted = vi.fn()
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getPackContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState: vi.fn(),
@@ -227,7 +236,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
     }
 
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getPackContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState: vi.fn(),
@@ -256,6 +265,8 @@ describe('game_store_run_lifecycle_coordinator', () => {
     const state = makeState({
       engine: ref(engine),
       isRunComplete: ref(false),
+      runPlayerClass: ref(null),
+      runChallengeModifier: ref(null),
       isIntroSplashOpen: ref(false),
     })
 
@@ -269,7 +280,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
     const persistRunState = vi.fn()
 
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getPackContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState,
@@ -301,6 +312,8 @@ describe('game_store_run_lifecycle_coordinator', () => {
     const state = makeState({
       engine: ref(engine),
       isRunComplete: ref(true),
+      runPlayerClass: ref(null),
+      runChallengeModifier: ref(null),
     })
 
     const tutorial = {
@@ -311,7 +324,7 @@ describe('game_store_run_lifecycle_coordinator', () => {
     }
 
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getPackContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState: vi.fn(),
@@ -341,12 +354,14 @@ describe('game_store_run_lifecycle_coordinator', () => {
     const state = makeState({
       engine: ref(engine),
       isRunComplete: ref(false),
+      runPlayerClass: ref(null),
+      runChallengeModifier: ref(null),
       isIntroSplashOpen: ref(false),
     })
 
     const persistRunState = vi.fn()
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getPackContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState,
@@ -382,11 +397,13 @@ describe('game_store_run_lifecycle_coordinator', () => {
     const state = makeState({
       engine: ref(engine),
       isRunComplete: ref(false),
+      runPlayerClass: ref(null),
+      runChallengeModifier: ref(null),
       isIntroSplashOpen: ref(false),
     })
 
     const coordinator = createGameStoreRunLifecycleCoordinator(state, {
-      getGameWideContentProvider: vi.fn(async () => ({} as ContentProvider)),
+      getPackContentProvider: vi.fn(async () => ({} as ContentProvider)),
       buildScenarioBundle: vi.fn(async () => ({} as ScenarioBundle)),
       initializeEngine: vi.fn(),
       persistRunState: vi.fn(),

@@ -50,6 +50,21 @@ export async function createPackScopedProvider(
   contentRoot: string,
   dependencyRoots: string[],
 ): Promise<ContentProvider> {
+  return (await loadPackScope(manifest, contentRoot, dependencyRoots)).provider
+}
+
+/** The registry holding the pack and its dependencies, the pack's key, and its scoped provider. */
+export interface PackScope {
+  registry: ContentPackRegistry
+  packKey: string
+  provider: ContentProvider
+}
+
+export async function loadPackScope(
+  manifest: ContentPackManifest,
+  contentRoot: string,
+  dependencyRoots: string[],
+): Promise<PackScope> {
   const registry = new ContentPackRegistry()
   const registered = new Set<string>()
 
@@ -77,5 +92,6 @@ export async function createPackScopedProvider(
   }
 
   await registerWithDependencies(manifest, contentRoot)
-  return registry.createScopedProvider(firstPartyPackKey(manifest.id))
+  const packKey = firstPartyPackKey(manifest.id)
+  return { registry, packKey, provider: registry.createScopedProvider(packKey) }
 }

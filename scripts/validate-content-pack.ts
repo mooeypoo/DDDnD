@@ -19,7 +19,8 @@ import { validateContentPack } from '../src/domains/content/services/content_pac
 import { simulate_player_true_and_oracle } from '../src/domains/simulation/services/simulation_runner.js'
 import { buildContentAuditReport } from '../src/domains/simulation/services/audit/content_audit_report_builder.js'
 import { buildScenarioBundle } from '../src/domains/content/services/bundle_builder.js'
-import { createPackScopedProvider, FIRST_PARTY_PACK_ROOTS, loadManifestFromDisk } from './lib/pack_loader.js'
+import { FIRST_PARTY_PACK_ROOTS, loadManifestFromDisk, loadPackScope } from './lib/pack_loader.js'
+import { checkTableChoices } from '../src/domains/content/services/pack_playability_check.js'
 import { communityManifestIssues } from '../src/domains/content/services/pack_identity.js'
 
 interface VersionedEntity {
@@ -118,7 +119,7 @@ async function main() {
     }
   }
 
-  const provider = await createPackScopedProvider(manifest, options.contentRoot, options.dependencyRoots)
+  const { registry, packKey, provider } = await loadPackScope(manifest, options.contentRoot, options.dependencyRoots)
   const scenarioRefs = listEntryPointScenarioRefs(manifest, options.includeTestScenarios)
 
   const resolvedPackId = options.packId ?? manifest.id
@@ -162,6 +163,21 @@ async function main() {
         console.log(`    [${error.type}] ${error.message}`)
       }
     }
+  }
+
+  // Classes and modifiers fit the pack's scenarios, and every scenario has a
+  // class to sit down with (journal M3.10).
+  const tableScenarios = []
+  for (const ref of manifest.scenarios) {
+    if (!validationReport.scenarios.find((s) => s.scenario_ref.id === ref.id && s.scenario_ref.version === ref.version)?.valid) continue
+    const bundle = await buildScenarioBundle(ref.id, ref.version, provider)
+    tableScenarios.push({ ref, tracked_score_ids: bundle.scenario.score_refs.map((scoreRef) => scoreRef.id) })
+  }
+  const tableIssues = await checkTableChoices(registry, packKey, provider, tableScenarios)
+  console.log('')
+  console.log(`Table choices (classes and challenge modifiers): ${tableIssues.length === 0 ? 'PASS' : 'FAIL'}`)
+  for (const issue of tableIssues) {
+    console.log(`    ${issue.file}: ${issue.message}`)
   }
 
   let totalAuditCritical = 0
@@ -209,7 +225,7 @@ async function main() {
     console.log(`  audit_warnings: ${totalAuditWarnings}`)
   }
 
-  const structuralFailure = validationReport.summary.invalid_scenarios > 0
+  const structuralFailure = validationReport.summary.invalid_scenarios > 0 || tableIssues.length > 0
   const auditFailure = options.withAudit && options.failOnAuditCritical && totalAuditCritical > 0
 
   if (structuralFailure || auditFailure) {

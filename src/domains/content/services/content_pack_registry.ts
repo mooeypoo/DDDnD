@@ -242,6 +242,20 @@ export class ContentPackRegistry {
   }
 
   /**
+   * Player classes offered at a pack's table: the pack's own first, then those
+   * of the packs it depends on (journal M3.10). A pack that only adds
+   * scenarios on the base scores gets the base classes this way.
+   */
+  getTableClasses(packKey: string): VersionRef[] {
+    return dedupeVersionRefs(this.resolveScope(packKey).flatMap((pack) => pack.manifest.classes))
+  }
+
+  /** Challenge modifiers offered at a pack's table, ordered like getTableClasses. */
+  getTableChallengeModifiers(packKey: string): VersionRef[] {
+    return dedupeVersionRefs(this.resolveScope(packKey).flatMap((pack) => pack.manifest.challenge_modifiers ?? []))
+  }
+
+  /**
    * Returns deduplicated outcome archetype refs discovered from every pack's
    * inventory. Used only to recognize archetype ids (share links).
    */

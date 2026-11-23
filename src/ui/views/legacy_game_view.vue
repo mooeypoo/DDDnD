@@ -698,6 +698,7 @@ const playerDisplayName = computed(() => gameStore.gameState?.player_profile.dis
 const playerClassName = computed(() => {
   const classRef = gameStore.gameState?.player_profile.selected_class_ref
   if (!classRef) return undefined
+  if (gameStore.runPlayerClass?.id === classRef.id) return gameStore.runPlayerClass.name
   const found = gameStore.availableClasses.find(
     c => c.id === classRef.id && c.version === classRef.version
   )
@@ -785,6 +786,7 @@ const activeChallengeModifier = computed(() => {
   if (!modifierRef) {
     return null
   }
+  if (gameStore.runChallengeModifier?.id === modifierRef.id) return gameStore.runChallengeModifier
 
   return gameStore.availableChallengeModifiers.find(
     modifier => modifier.id === modifierRef.id && modifier.version === modifierRef.version

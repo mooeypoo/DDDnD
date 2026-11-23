@@ -123,6 +123,9 @@ export const useGameStore = defineStore('game', () => {
   // Available classes (loaded from content)
   const availableClasses = ref<PlayerClass[]>([])
   const availableChallengeModifiers = ref<ChallengeModifier[]>([])
+  /** The current run's class and modifier, from the run's own pack (journal M3.10). */
+  const runPlayerClass = ref<PlayerClass | null>(null)
+  const runChallengeModifier = ref<ChallengeModifier | null>(null)
   const contentPackRegistry = ref<ContentPackRegistry | null>(null)
   const externalManifestUrls = ref<string[]>([])
   /** Community packs the player added this session (ADR 0001, gated by ADR 0009 in the UI). */
@@ -171,9 +174,11 @@ export const useGameStore = defineStore('game', () => {
       isIntroSplashOpen,
       isTutorialCompleteSplashOpen,
       isRunComplete,
+      runPlayerClass,
+      runChallengeModifier,
     },
     {
-      getGameWideContentProvider: get_game_wide_content_provider,
+      getPackContentProvider: (packKey) => contentAdapter.getPackContentProvider(packKey),
       buildScenarioBundle: resolveScenarioBundle,
       initializeEngine: initialize_engine,
       persistRunState: persist_run_state,
@@ -303,7 +308,40 @@ export const useGameStore = defineStore('game', () => {
     availableChallengeModifiers.value = mods
   }
 
-  
+
+  /**
+   * Classes and modifiers offered at a table (journal M3.10). The lobby
+   * (no pack key) offers the first-party ones. A community pack's table offers
+   * its own first, then those of the packs it depends on, loaded through the
+   * pack's scope. The view filters them to the selected scenario's scores.
+   */
+  async function load_table_choices(packKey?: string): Promise<{ classes: PlayerClass[]; modifiers: ChallengeModifier[] }> {
+    if (!packKey) {
+      if (availableClasses.value.length === 0) await load_available_classes()
+      if (availableChallengeModifiers.value.length === 0) await load_available_challenge_modifiers()
+      return { classes: availableClasses.value, modifiers: availableChallengeModifiers.value }
+    }
+    const provider = await contentAdapter.getPackContentProvider(packKey)
+    const registry = contentPackRegistry.value
+    if (!registry) return { classes: [], modifiers: [] }
+    const [classes, modifiers] = await Promise.all([
+      Promise.all(registry.getTableClasses(packKey).map((ref) => provider.loadPlayerClass(ref))),
+      Promise.all(registry.getTableChallengeModifiers(packKey).map((ref) => provider.loadChallengeModifier(ref))),
+    ])
+    return { classes, modifiers }
+  }
+
+  /** Loads a restored run's class and modifier from its pack, for display. Gameplay doesn't need them. */
+  async function loadRunChoices(packKey: string, profile: GameState['player_profile']): Promise<void> {
+    const provider = await contentAdapter.getPackContentProvider(packKey)
+    const [playerClass, modifier] = await Promise.all([
+      profile.selected_class_ref ? provider.loadPlayerClass(profile.selected_class_ref).catch(() => null) : null,
+      profile.challenge_modifier_ref ? provider.loadChallengeModifier(profile.challenge_modifier_ref).catch(() => null) : null,
+    ])
+    runPlayerClass.value = playerClass
+    runChallengeModifier.value = modifier
+  }
+
   /**
    * Marks quests that come from a community pack, with the pack's name and
    * its publisher, so the lobby can label them and tell same-named packs apart.
@@ -460,6 +498,8 @@ export const useGameStore = defineStore('game', () => {
     turnBriefing.value = null
     lastTurnResolution.value = null
     runOutcome.value = null
+    runPlayerClass.value = null
+    runChallengeModifier.value = null
     isTutorialCompleteSplashOpen.value = false
     contentPackRegistry.value = null
     tutorial.resetTutorial()
@@ -523,6 +563,8 @@ export const useGameStore = defineStore('game', () => {
 
       engine.value.restore_run(restoredGameState)
       gameState.value = restoredGameState
+      // Display only: a failure here must not lose the run
+      await loadRunChoices(packKey, restoredGameState.player_profile).catch(() => undefined)
       lastTurnResolution.value = null
 
       if (isRunComplete.value) {
@@ -593,6 +635,8 @@ export const useGameStore = defineStore('game', () => {
     availableTutorials,
     availableClasses,
     availableChallengeModifiers,
+    runPlayerClass,
+    runChallengeModifier,
     externalManifestUrls,
     isAboutModalOpen,
     isRulesModalOpen,
@@ -625,6 +669,7 @@ export const useGameStore = defineStore('game', () => {
     load_available_tutorials,
     load_available_classes,
     load_available_challenge_modifiers,
+    load_table_choices,
     check_community_pack,
     find_community_pack,
     find_community_pack_relations,

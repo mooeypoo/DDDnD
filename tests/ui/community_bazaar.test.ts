@@ -69,6 +69,7 @@ beforeEach(async () => {
     availableTutorials: [],
     availableClasses: [{ id: 'boundary_mage', version: 1, name: 'Boundary Mage', description: 'd' }],
     availableChallengeModifiers: [],
+    load_table_choices: vi.fn(async () => ({ classes: storeMock.availableClasses, modifiers: storeMock.availableChallengeModifiers })),
     communityPacks: [pack],
     savedRunPackNotice: null,
     load_available_quests: vi.fn().mockResolvedValue(undefined),

@@ -46,7 +46,7 @@ The model already said so. Since ADR 0014, every scenario is addressed as (pack 
 ## Consequences
 
 - A community scenario can't be mistaken for a base one in the lobby. Two packs about different subjects never share a deck.
-- Each pack's table is the natural home for pack-specific choices. **Planned, not built:** pack-owned classes and challenge modifiers (option A from the M2.12 brainstorm). A pack's table would offer its own classes and modifiers plus those of the first-party packs it depends on, filtered to the scenario's scores. That would supersede ADR 0014 decision 5, which refuses them today. The refusal was needed only because the lobby offered every class with every scenario.
+- Each pack's table is the natural home for pack-specific choices. **Built in M3 slice 8 (journal M3.10):** pack-owned classes and challenge modifiers (option A from the M2.12 brainstorm). A pack's table offers its own classes and modifiers plus those of the first-party packs it depends on, filtered to the scenario's scores. This supersedes ADR 0014 decision 5, whose refusal was needed only because the lobby offered every class with every scenario.
 - **Share links stay forgeable,** as they always were: anyone can write a link with any scores, and now with any `cp` text, or with none. The marker is honest for links the game makes. It renders as plain text, so the worst case is unwanted text (ADR 0014).
 - **Translation (overlay) packs** have no scenarios. Their stall will need to say what they change instead of offering a table. That comes with overlay packs.
 - The lobby no longer shows the publisher on quest badges (ADR 0014 decision 7). The bazaar stall, the pack banner and the run labels show it instead.

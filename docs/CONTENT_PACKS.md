@@ -1658,3 +1658,59 @@ The structural audit adds an **info** finding per case: "card automate_deploymen
 
 "Who is at the table" is part of the scenario's model, and the old engine let any content add people to it. The phantom VP Product is a small invariant violation: an aggregate (the run) accepting a change to an entity that isn't part of it. The fix enforces the invariant at the boundary where content becomes runtime changes, and keeps the content valid: the card isn't wrong, it just has no one to affect here.
 
+
+### M3.10 (slice 8): A pack's table offers its own classes and modifiers (2026-11-23)
+
+**The problem**
+
+Player classes and challenge modifiers were "game-wide": the lobby offered the five base classes and four modifiers with every scenario, and a community pack listing its own was refused (ADR 0014 decision 5). That was right while every scenario used the base scores. A pack with its own scores breaks it: the SRE pack's scenarios won't track `domain_clarity`, so the Boundary Mage's +1 does nothing there, and "Hard Mode: -7 to six scores" would quietly change nothing.
+
+**The decision (option A from ADR 0015)**
+
+- **A pack's table offers its own classes and modifiers first, then those of the first-party packs it depends on.** The owner asked for the second half explicitly: an author making a "DDDnD-like" pack that only adds scenarios or cards shouldn't have to redo everything. The Gilded Ledger demo declares no classes and still offers all five base ones, unchanged.
+- **Each is offered only where it fits the selected scenario:**
+  - a class fits when the scenario tracks its favored score, or when it has no favored score (identity only);
+  - a modifier fits only when the scenario tracks **every** score it changes. "Some of it applies" would leave a card describing an effect that silently doesn't happen.
+- **Switching quest swaps out what no longer fits:** the class moves to the first one that fits, and the modifier goes back to none.
+- **A pack's own choices that never work are refused,** at import (the playability check) and by the validator CLI:
+  - a class of its own that fits none of its scenarios;
+  - a modifier of its own that fits none of its scenarios;
+  - a scenario no class at its table fits.
+
+  Dependencies' classes are never refused for not fitting: they belong to another pack, so they are only filtered out.
+
+**What changed**
+
+- **Domain:** `table_choices.ts` holds the two fit rules and `tableChoiceIssues`. The registry gained `getTableClasses(packKey)` and `getTableChallengeModifiers(packKey)`, which walk the pack's scope in order (the pack first).
+- **Boundary:** the community-manifest refusal is gone. `checkPackPlayable` runs the table check after building the scenarios, and `validate-content-pack` prints a "Table choices" section and fails on issues.
+- **Run start:** the class and modifier now load through the run's own pack scope, like the bundle, so a pack's class is found in that pack. They're kept on the store as `runPlayerClass` and `runChallengeModifier`, and reloaded from the run's pack when a saved run is restored.
+- **Play screen:** it shows the run's class name from the run's own class, so a resumed pack run shows "Ledger Auditor" and not a title-cased id. Before, it looked in the lobby's list, which might not even be loaded after a reload.
+- **Base lobby:** unchanged. Every base scenario tracks all six scores, so all five classes and four modifiers fit everywhere.
+
+**Verification**
+
+- **Engine untouched:** golden replays pass unchanged, and the fixed-seed audit is identical to slice 7.
+- **Validator:** base, tutorial and the Gilded Ledger pass the new check. A copy of the demo pack with a class on `uptime` is refused (exit 1) with a message naming the file.
+- **Headless Chrome**, with a copy of the demo pack that adds a "Ledger Auditor" class (budget) and an "Audit Season" modifier (budget -10):
+  - the base lobby shows the same five classes and four modifiers;
+  - the pack's table shows Ledger Auditor first, then the five base classes, and Audit Season first, then the four base modifiers;
+  - a run started with both shows them in the opening briefing and next to the player;
+  - after a reload, the player still shows Ledger Auditor.
+- **Tests** (+10, 1145 total):
+  - the fit rules;
+  - the demo pack offers the base classes and modifiers with nothing declared;
+  - a pack's own choices come first, and the base lobby is unaffected;
+  - the three refusals, and dependencies' classes never being refused;
+  - the lobby filters per quest and swaps a choice that stops fitting;
+  - the run's class loads from the run's pack.
+
+**Known gaps**
+
+- A pack's class has no portrait (the seat shows its initial), and its accent colour is the default one. Presentation stays keyed by id (ADR 0002), so a pack class reusing a base id would get the base art.
+- Share links carry only the class id, so a shared pack run names its class as a title-cased id, like the scenario name (noted for slice 9).
+- The modifier's name appears only in the opening briefing, which a resumed run doesn't reopen. That's unchanged.
+- The `pack-validator-v1` workflow in DDDnD-packs still refuses classes until its tag moves to a commit with this slice.
+
+**DDD note (talk material)**
+
+"Game-wide" was an assumption hiding in the model: it held only because there was one score vocabulary. Once a pack can bring its own scores, a class is meaningful only inside the context that defines its favored score. The table (a pack and what it builds on) is that context, and the fit rules are the translation at its edge. The other half of the decision is about the published language: base content stays reusable by default, so an extension pack inherits the base classes the way it inherits base cards.

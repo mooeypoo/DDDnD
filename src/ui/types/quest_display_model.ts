@@ -38,6 +38,8 @@ export interface QuestDisplayModel {
   councilNames?: string[]
   /** Authored scenario starting_scores. Weather mapping happens in the UI. */
   startingScores?: Record<string, number>
+  /** Scores the scenario tracks (score_refs): which classes and modifiers fit it (journal M3.10). */
+  trackedScoreIds?: string[]
   /** Pack short_name for each starting score id. Presentation only. */
   startingScoreShortNames?: Record<string, string>
 

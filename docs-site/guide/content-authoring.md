@@ -175,7 +175,28 @@ This means **moving a pack makes it a new pack** to the game. Renaming the repos
 
 Your content ids (cards, scenarios, events…) belong to your pack: another pack using the same ids doesn't affect yours. They must not reuse an id the packs you build on (`base`, `tutorial`) already use, because your scenarios couldn't tell which one they meant. A short prefix keeps that easy and makes your files easy to recognize. The demo pack uses `ledger_` (`ledger_split_refunds_context`).
 
-Community packs can't add player classes or challenge modifiers yet, so leave `classes` and `challenge_modifiers` empty. Your pack's table offers DDDnD's classes. Classes and modifiers of your own, offered only on your pack's table, are planned ([ADR 0015](https://github.com/mooeypoo/DDDnD/blob/main/docs/adr/0015-community-packs-in-their-own-place.md)).
+## Classes and challenge modifiers
+
+**You don't have to add any.** Your pack's table offers DDDnD's own classes and challenge modifiers (from `base`, which your pack depends on). A pack that only adds scenarios, cards or events on the base scores plays with the usual five classes and four modifiers without listing anything.
+
+You can also add your own, listed in `classes` and `challenge_modifiers` (and their files in `content`). Your table offers them first, then DDDnD's. They appear only at your pack's table, never in the main lobby or in another pack.
+
+At each scenario, the table offers only what **fits** that scenario's scores:
+
+- **A class fits** when the scenario tracks its `score_affinity` (the score it gives +1 to on every card played). A class without `score_affinity` has no bonus and fits every scenario.
+- **A challenge modifier fits** when the scenario tracks **every** score in its `score_adjustments`. A modifier that would change a missing score isn't offered there, so its description never promises an effect that doesn't happen. `turn_adjustment` and `stakeholder_satisfaction_override` apply everywhere.
+
+So a scenario with its own scores (say `uptime` and `toil`) won't offer the base classes whose bonus is `domain_clarity`, and you'll want classes of your own for it.
+
+When the player switches adventure, a class or modifier that doesn't fit the new one is swapped out: the class moves to the first one that fits, the modifier back to none.
+
+**Refused when the pack is loaded, and by the validator:**
+
+- a class of yours whose `score_affinity` none of your scenarios track (it would never be offered);
+- a modifier of yours that changes a score none of your scenarios track in full (likewise);
+- a scenario that no class at your table fits (the player would have nothing to sit down with). Add a class with one of its scores as `score_affinity`, or one without `score_affinity`.
+
+DDDnD's own classes are never refused for not fitting your scenarios; they are simply not offered there. Tutorials skip the class choice, so they aren't checked. Your classes have no portrait art; the table shows their initial instead.
 
 ## Reusing base content
 

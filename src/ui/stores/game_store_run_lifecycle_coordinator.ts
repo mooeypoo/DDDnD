@@ -7,6 +7,8 @@ import type {
   TurnBriefing,
 } from '@/domains/simulation'
 import type {
+  ChallengeModifier,
+  PlayerClass,
   Scenario,
   ScenarioBundle,
   VersionRef,
@@ -47,11 +49,18 @@ interface RunLifecycleState {
   isIntroSplashOpen: ValueRef<boolean>
   isTutorialCompleteSplashOpen: ValueRef<boolean>
   isRunComplete: ValueRef<boolean>
+  /** The run's class and modifier, loaded from the run's own pack (journal M3.10). */
+  runPlayerClass: ValueRef<PlayerClass | null>
+  runChallengeModifier: ValueRef<ChallengeModifier | null>
 }
 
 interface RunLifecycleDependencies {
-  /** Provider for game-wide choices (classes, challenge modifiers). */
-  getGameWideContentProvider: () => Promise<ContentProvider>
+  /**
+   * Provider for one pack and its dependencies. The run's class and modifier
+   * load through it, like the bundle: a pack's own class is found in that pack
+   * (journal M3.10).
+   */
+  getPackContentProvider: (packKey: string) => Promise<ContentProvider>
   /** Builds the scenario bundle with a provider scoped to the scenario's pack. */
   buildScenarioBundle: (
     packKey: string,
@@ -96,7 +105,7 @@ export function createGameStoreRunLifecycleCoordinator(
     state.isLoadingBundle.value = true
 
     try {
-      const provider = await deps.getGameWideContentProvider()
+      const provider = await deps.getPackContentProvider(options.pack_key)
 
       // Class and modifier files are tiny next to the scenario bundle, and
       // they do not depend on it. Load them in the same wait.
@@ -115,6 +124,9 @@ export function createGameStoreRunLifecycleCoordinator(
           ? provider.loadPlayerClass(classRef).catch(() => undefined)
           : Promise.resolve(undefined),
       ])
+
+      state.runPlayerClass.value = playerClass ?? null
+      state.runChallengeModifier.value = challengeModifier ?? null
 
       const seed = options.seed || `seed-${Date.now()}`
       deps.initializeEngine(bundle, seed)

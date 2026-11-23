@@ -6,8 +6,8 @@
     <CouncilLobby
       :quests="tableQuests"
       :tutorials="tableTutorials"
-      :classes="gameStore.availableClasses"
-      :modifiers="availableModifiers"
+      :classes="questClasses"
+      :modifiers="questModifiers"
       :selectedQuest="selectedQuest"
       :selectedClass="selectedClass"
       :selectedModifier="selectedModifier"
@@ -49,6 +49,7 @@ import { isFirstPartyPackKey } from '@/domains/content/services/pack_identity'
 import { describePackPublisher } from '@/ui/play/community_pack_review'
 import { BAZAAR_PATH, packKeyFromParam } from '@/ui/community/community_routes'
 import { sortQuestsByDifficulty } from '@/ui/play/quest_difficulty'
+import { classFitsScenario, modifierFitsScenario } from '@/domains/content/services/table_choices'
 
 /**
  * Without `packKey` this is the council lobby: first-party content only.
@@ -64,7 +65,9 @@ const gameStore = useGameStore()
 const selectedClass = ref<PlayerClass | null>(null)
 const selectedQuest = ref<QuestDisplayModel | null>(null)
 const selectedModifier = ref<ChallengeModifier | null>(null)
-const availableModifiers = ref<ChallengeModifier[]>([])
+/** Every class and modifier this table offers; the quest's fitting ones are shown (journal M3.10). */
+const tableClasses = ref<PlayerClass[]>([])
+const tableModifiers = ref<ChallengeModifier[]>([])
 const characterName = ref('')
 
 /** Community packs (ADR 0009): nothing here renders or runs unless the build flag is on. */
@@ -100,6 +103,50 @@ if (communityPacksEnabled) {
     })
   }
 }
+
+/** Classes and modifiers that fit the selected scenario's scores (journal M3.10). */
+const questScores = computed(() => selectedQuest.value?.trackedScoreIds)
+const questClasses = computed(() => {
+  const scores = questScores.value
+  return scores ? tableClasses.value.filter((playerClass) => classFitsScenario(playerClass, scores)) : tableClasses.value
+})
+const questModifiers = computed(() => {
+  const scores = questScores.value
+  return scores ? tableModifiers.value.filter((modifier) => modifierFitsScenario(modifier, scores)) : tableModifiers.value
+})
+
+function sameRef(a: { id: string; version: number } | null, b: { id: string; version: number }): boolean {
+  return a !== null && a.id === b.id && a.version === b.version
+}
+
+// A choice that doesn't fit the newly selected quest moves to one that does.
+watch(questClasses, (classes) => {
+  if (!classes.some((playerClass) => sameRef(selectedClass.value, playerClass))) {
+    selectedClass.value = classes[0] ?? null
+  }
+})
+watch(questModifiers, (modifiers) => {
+  if (selectedModifier.value && !modifiers.some((modifier) => sameRef(selectedModifier.value, modifier))) {
+    selectedModifier.value = null
+  }
+})
+
+async function loadTableChoices(): Promise<void> {
+  isLoadingClasses.value = true
+  isLoadingModifiers.value = true
+  try {
+    const choices = await gameStore.load_table_choices(tablePackKey.value)
+    tableClasses.value = choices.classes
+    tableModifiers.value = choices.modifiers
+  } catch {
+    tableClasses.value = []
+    tableModifiers.value = []
+  } finally {
+    isLoadingClasses.value = false
+    isLoadingModifiers.value = false
+  }
+}
+
 const isLoadingClasses = ref(false)
 const isLoadingQuests = ref(false)
 const isLoadingTutorials = ref(false)
@@ -116,14 +163,6 @@ const isPreparing = computed(() => {
 })
 
 onMounted(async () => {
-  if (gameStore.availableClasses.length === 0) {
-    isLoadingClasses.value = true
-    try {
-      await gameStore.load_available_classes()
-    } finally {
-      isLoadingClasses.value = false
-    }
-  }
 
   if (gameStore.availableTutorials.length === 0) {
     isLoadingTutorials.value = true
@@ -143,15 +182,7 @@ onMounted(async () => {
     }
   }
 
-  isLoadingModifiers.value = true
-  try {
-    await gameStore.load_available_challenge_modifiers?.()
-    availableModifiers.value = gameStore.availableChallengeModifiers ?? []
-  } catch {
-    availableModifiers.value = []
-  } finally {
-    isLoadingModifiers.value = false
-  }
+  await loadTableChoices()
 
   const tutorialParam = route.query.tutorial as string | undefined
   const tutorialMatch = tutorialParam
@@ -178,24 +209,16 @@ onMounted(async () => {
     selectedQuest.value = easiestAdventure(tableQuests.value) ?? tableTutorials.value[0] ?? null
   }
 
-  if (!selectedClass.value && gameStore.availableClasses.length > 0) {
-    selectedClass.value = gameStore.availableClasses[0]
+  if (!selectedClass.value) {
+    selectedClass.value = questClasses.value[0] ?? null
   }
 })
-
-watch(
-  () => gameStore.availableClasses,
-  (classes) => {
-    if (!selectedClass.value && classes.length > 0) {
-      selectedClass.value = classes[0]
-    }
-  },
-)
 
 // Moving from one pack's table to another reuses this view: start fresh.
 watch(tablePackKey, () => {
   selectedQuest.value = easiestAdventure(tableQuests.value) ?? tableTutorials.value[0] ?? null
   selectedModifier.value = null
+  void loadTableChoices()
 })
 
 watch(tableQuests, (quests) => {

@@ -115,13 +115,8 @@ export function communityManifestIssues(
       })
     }
   }
-  // Player classes and challenge modifiers are game-wide choices offered for
-  // every scenario, so they come only from packs that ship with DDDnD (ADR 0014).
-  if (manifest.classes.length > 0) {
-    issues.push({ file: 'manifest.json', message: 'classes: community packs can\'t add player classes yet; leave "classes" empty.' })
-  }
-  if ((manifest.challenge_modifiers ?? []).length > 0) {
-    issues.push({ file: 'manifest.json', message: 'challenge_modifiers: community packs can\'t add challenge modifiers yet; leave "challenge_modifiers" empty.' })
-  }
+  // Classes and challenge modifiers are offered only at the pack's own table,
+  // so community packs may add them (journal M3.10, superseding ADR 0014
+  // decision 5). The playability check refuses ones that fit no scenario.
   return issues
 }
