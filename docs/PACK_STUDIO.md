@@ -1,6 +1,6 @@
 # DDDnD Pack Studio ("The Forge"): design brainstorm
 
-Status: **brainstorm in progress** (started 2026-11-24; look and naming settled the same day)  
+Status: **design agreed for M4** (brainstorm 2026-11-24). Q13 is on hold; Q14 is revisited once the Studio works end to end.  
 Decided so far: [ADR 0005](adr/0005-pack-studio-as-separate-app.md) (architecture), [ADR 0006](adr/0006-delivery-order-loading-before-studio.md) (loading before the Studio), and the decisions in §2 below.  
 Plan and milestones: [CONTENT_PACKS.md §7–8](CONTENT_PACKS.md#7-pack-studio) (M4 Studio MVP, M5 balance lab, M6 explain/graph/playtest).
 
@@ -157,8 +157,8 @@ Q1–Q8 from the first round are settled: Q1 → D6, Q2 → D3, Q3 → D12, Q4 �
 
 | # | Question | Options and notes |
 |---|---|---|
-| Q14 | **A simpler start screen** | The mockup's start screen offers a lot at once: two kinds of pack, five base scenarios, example packs, import, and drafts. A simpler flow might be "Start from the core pack", then choose a scenario, with the rest one step further in. To iterate on later (owner, 2026-11-24). |
-| Q13 | **Text size in the game too?** | The Studio's text-size setting (§10) could later come to the game, which has the same reading load on cards and briefings. |
+| Q14 | **A simpler start screen** | The mockup's start screen offers a lot at once: two kinds of pack, five base scenarios, example packs, import, and drafts. A simpler flow might be "Start from the core pack", then choose a scenario, with the rest one step further in. Revisit once the Studio works end to end, to see which starting points authors actually use (owner, 2026-11-24). |
+| Q13 | **Text size in the game too?** | **On hold** (owner, 2026-11-24). The Studio's text-size setting (§10) could later come to the game, which has the same reading load on cards and briefings. |
 
 ## 8. Not doing (and why)
 
