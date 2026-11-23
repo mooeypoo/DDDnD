@@ -26,17 +26,19 @@
   "tutorials": [
     {
       "id": "tutorial_basics",
-      "version": 1
+      "version": 2
     },
     {
       "id": "tutorial_systems_under_pressure",
-      "version": 1
+      "version": 2
     }
   ],
   "content": {
     "scenarios": [
       "tutorial_basics-v1.json",
-      "tutorial_systems_under_pressure-v1.json"
+      "tutorial_basics-v2.json",
+      "tutorial_systems_under_pressure-v1.json",
+      "tutorial_systems_under_pressure-v2.json"
     ],
     "cards": [
       "tutorial_clean_up_code-v1.json",
@@ -76,10 +78,13 @@
     ],
     "outcome_tiers": [
       "tutorial_done-v1.json",
-      "tutorial_success-v1.json"
+      "tutorial_done-v2.json",
+      "tutorial_success-v1.json",
+      "tutorial_success-v2.json"
     ],
     "outcome_archetypes": [
-      "tutorial_learner-v1.json"
+      "tutorial_learner-v1.json",
+      "tutorial_learner-v2.json"
     ],
     "coupling_rules": [
       "capacity_collapse-v1.json",

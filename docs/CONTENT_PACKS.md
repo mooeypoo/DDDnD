@@ -1509,3 +1509,38 @@ The alternative was a general expression language (`"architecture_delta >= 20 &&
 
 The predicates *were* domain knowledge: "a Boundary Builder improved the architecture and kept delivery viable". It lived as code only an engineer could read. As content, the definition is next to the ending's name and flavor text, in terms a facilitator can argue with ("shouldn't a Boundary Builder also keep morale up?"). The interesting design move was refusing to put "architecture" in the schema. It's a word from *this* game's ubiquitous language, not from the engine's, so the content defines it by listing scores.
 
+### M3.6: The tutorial gets its own tiers and ending (2026-11-23)
+
+**The bug**
+
+The tutorials list their own tiers ("Tutorial Complete", "Tutorial Finished") and their own ending ("The Learner"), but neither was ever used:
+
+- **Tiers:** the engine only knew the five base tier ids, so a tutorial run got no tier at all. The results screen showed the generic result ("Partial Success").
+- **Endings:** the built-in classifier read base score ids the tutorial doesn't have. It fell back to a default value of 50 for each of them and almost always landed on "System Stabilizer" (sometimes "Stakeholder Whisperer"), described in base-game terms: "You prioritized reliability and user trust above all else."
+
+**The fix: new versions, not edits**
+
+Results change, so per CONTENT_VERSIONING.md the content gets new versions. The v1 files stay, so a tutorial saved before the deploy still loads and finishes as it would have.
+
+- `tutorial_success` v2: from an average of 60, counts as success. It keeps the cutoff the game already used for success.
+- `tutorial_done` v2: the floor, counts as **partial**, never failure. It matches its own description, "Every ending is a learning experience", and the tutorials have no failure conditions.
+- Both tiers' `rank` was also flipped (v1 had Finished above Complete). Nothing reads `rank` today, but it should read correctly.
+- `tutorial_learner` v2: the fallback ending (`priority: 0`, empty `when`). The tutorial has one ending on purpose: it teaches the mechanics, not play styles.
+- `tutorial_basics` and `tutorial_systems_under_pressure` v2: identical to v1 except for the version and these three references. The manifest offers v2.
+
+**What players see (approved by the owner as "fix, but watch for regressions")**
+
+- Results screen: "Tutorial Complete" or "Tutorial Finished" with "The Learner", instead of "Success"/"Partial Success" with "The System Stabilizer".
+- Low-scoring runs of "Systems under pressure" (average below 35) now count as partial instead of failure.
+- Gameplay is untouched: same cards, events, scores and turns.
+
+**Verification**
+
+- **Golden replays:** the four tutorial cases moved from v1 to v2. Run by run (240 runs), the scores, turns and status are identical. Every run's tier and ending changed as intended. In the pressure tutorial, 8 runs changed from failure to partial. No other case in the fixture changed.
+- **Playthrough** in headless Chrome to the results screen; see the PR.
+- `content:validate` passes for the tutorial pack: v1 and v2 of both scenarios.
+
+**Still open**
+
+The built-in classifier now applies only to content whose endings have no criteria: the v1 tutorials (old saves) and the internal test scenarios. Slice 5, which turns ending ids into plain strings, decides whether it can go entirely.
+

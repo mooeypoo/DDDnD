@@ -1,0 +1,9 @@
+{
+  "id": "tutorial_done",
+  "version": 2,
+  "name": "Tutorial Finished",
+  "description": "You finished the tutorial. Every ending is a learning experience.",
+  "rank": 1,
+  "min_average": 0,
+  "result": "partial_success"
+}

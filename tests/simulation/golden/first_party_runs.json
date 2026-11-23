@@ -2909,11 +2909,11 @@
       "telemetry_sha256": "5be7a4f5e8cd9afd9aec0e958e650ca54b56447e058ef15047019f0c038572a9"
     }
   ],
-  "tutorial_basics-v1 player_true": [
+  "tutorial_basics-v2 player_true": [
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -2922,12 +2922,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "c8c8ad688d2e64019de863bb9001bcf19964aa32c726f1c4d064c0bf2861d3f8"
+      "telemetry_sha256": "0628f2c1a8f5dab978d6410ed61c4c1f854432d7bd33ba9d899af6c09251c9fc"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -2936,12 +2936,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "b85a769c70ef937077bee523b82db57dcace9e587a79ba12e423f71fdd797b16"
+      "telemetry_sha256": "e67f6bc00b0fcaea70073a97562eb486b04e8599413588cafe7884ea85210197"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -2950,12 +2950,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "368625a0ee56f2b81d6ff8a257d2fc6d52451c9feec1c1a64b27e07d9cd74dca"
+      "telemetry_sha256": "1b69fa247e44ba18ddd7777fd3c30740e8c78e29b1fabce30218d17a98b75808"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -2964,12 +2964,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "06f025837d1baa7943de263f0ab412eaa0ce879c77e8681e51855882cf4c6465"
+      "telemetry_sha256": "64ec1c9ca459867673b20cdfc9869c3d4d008a077459edb27897c2416517699a"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -2978,12 +2978,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "e0b7ae011cb2976f621deeb0173f7e77692b2601c7ba49fd860faee9c3789b15"
+      "telemetry_sha256": "f8e034099339b1f41db441ed65fb6feba6be490afd37207ca7b003916fa4855e"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -2992,12 +2992,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "c57178343b4b00802d0cf2701de69ae49d7e107e5d0ae0445c83dd38d99171bc"
+      "telemetry_sha256": "2ffd15f010ba9361b9cde16f6bea34dad317567c8462acd915f6e7ea33dd8f32"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3006,12 +3006,12 @@
         "code_clarity": 69,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "7cad0585d01511ae785a8bb4d922a99d05729847785304a1da62cc74dbf340fc"
+      "telemetry_sha256": "ad8734b048f8b6582bd276de805377691b60bb68e1b8db4f8767273a2f9b2a2d"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3020,12 +3020,12 @@
         "code_clarity": 69,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "f6143df66046e5473f2b1f3f6a813e60def7cde4240441e83b8dc47b37aff2df"
+      "telemetry_sha256": "4f8359305a8e02319909fe93849a26c5b793aa72cd6d89e8168b1bd252d31129"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3034,12 +3034,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "21a0af7f3aad4d50bace710aa038b6894d95087c132ebcfb5468cbc327daad11"
+      "telemetry_sha256": "a292d9dd435005812834a2c4b82c5ccdc492d4d9035dd9bfeae2e7e3d2c955de"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3048,12 +3048,12 @@
         "code_clarity": 74,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "259f5d06f802770e79fa8e9785ce26a66d126a10f8dd999561d4cd7bde774596"
+      "telemetry_sha256": "a91b0104dd305db37a1f2c1bd0b0073a70844d7d55325fa845d84eacca7d1cf8"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3062,12 +3062,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "6a1de0ebc7dd8f6a5dab876e8452d8e72b15a8a0af110e9c8c5b94a068d5a7e6"
+      "telemetry_sha256": "bbb0d19dde3cea963c519922597af4778f3cb200a0ca5e2bffebfeec5883a48f"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3076,12 +3076,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 84
       },
-      "telemetry_sha256": "2e236720c849ba25607a728f54ff107d20b5925d6310e1a35e44aa4c7b5af881"
+      "telemetry_sha256": "dd231d6d372048e083d35a69fff401869dfd71c5d075bee00a802d81b2513eb8"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3090,12 +3090,12 @@
         "code_clarity": 67,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "06dd607a5fa8de07ce583d5cb0ef1dc045803a94becece40f33f9996dee9a4d8"
+      "telemetry_sha256": "5f0526d4ffa4fd7a9eaccf9b168fb76782c62f347f44fa9af38165ce7d9d42d9"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3104,12 +3104,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "e6c189c618e05fc7dbbb965cf99a3d82984d086d0171f271263e99633014a58b"
+      "telemetry_sha256": "4f29a63dccc7f941c682e96fc4f795a566985b46b38bee977c10afff91a89464"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3118,12 +3118,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "a0ffb243ef681d9bac63e435576900fdc55f8dc650b7797ad4fd9dd8c4c1853e"
+      "telemetry_sha256": "b41fb45ed359482cd760cda04b77c1765ab25d1b558895e0c5dd93068d318d9a"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3132,12 +3132,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "91d75f8242dc0758feb4659bcb5cf6311793647765d76712bc28efbbe3a52edd"
+      "telemetry_sha256": "0922da32d0c5c69848c141650dd61ae8706804d00a80be603692e8afb6e04366"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3146,12 +3146,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 84
       },
-      "telemetry_sha256": "433fe9290e2c98f87fc6342b9e1b3f4a3626e1d595fcbb73f5d302ee18fd5185"
+      "telemetry_sha256": "3f06b18da23bbdc9dc464f138331dc1308fab8fe1ce1dd27c41b88a4758d363a"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3160,12 +3160,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 58
       },
-      "telemetry_sha256": "1082e459f36a7c07c4db500a60ddcf53c3d57340250b331a0fae6a5f2cb31f59"
+      "telemetry_sha256": "d2de5ecd677c217f6fa20e5a9767a768af580a47e15bd995a491339fb148e00b"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3174,12 +3174,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 71
       },
-      "telemetry_sha256": "53e400edf8695ac93c9df14fb68ba418bcb0afe4791239b7f2bd28ff8a6a2bf8"
+      "telemetry_sha256": "236b7b3e81f666ce8c27eac917e5264f71935911da4da67ecd250e0e3c33384e"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3188,12 +3188,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "b5e305dfd52349a9df34b85ae323adb40aea540554082436f0e51f42edc87ee1"
+      "telemetry_sha256": "6c85d64b4b19c5f10b6114bffaec15838f7a78cfd17bbefe3f5989cf64fd1368"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3202,12 +3202,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "2f15d1ea31cf30b11663ab737180e0f9278ea6fce2c98ab124feab65f4096165"
+      "telemetry_sha256": "20e653cdf94f3eef970b2b430ffc931242d7752ba4fdd3a8c9fd804750ca97ce"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3216,12 +3216,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "166e8e97eca0805073697c99b744f757a16675e762695a715c5d4770b149e8da"
+      "telemetry_sha256": "279077fe7d27e81100e9e91b3330196a3e760d6eb086939d20868c6823a3eca9"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3230,12 +3230,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "2af3190214af67a32e0357796d6278d1377760255d9d04492e34b318cd3efdf0"
+      "telemetry_sha256": "129bbddd3bdf8fac0f4fdfa8bf86de3bb4dc06c8a2b5b89933ff8207e41198dc"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3244,12 +3244,12 @@
         "code_clarity": 76,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "804506238b777e8264a574e0cdc655332ee9087f282c35c1e55403d923d6aac9"
+      "telemetry_sha256": "81f80088550ead248599a10ca6e53a69ad24a9fefe3e52129910163285ace811"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3258,12 +3258,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "41182b920cb8029b132d1017db7e712bb3999e5f531870b9ecee5f61cc5a3cc2"
+      "telemetry_sha256": "0a3524282a4ebd0648feaba1d82f4b2eac6cc4c3e8e0638fabe418b4563bf00b"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3272,12 +3272,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "34fac35a72ea16e0b245d5cb8dccfd4f1a701e5767b855b5b913359de40f7432"
+      "telemetry_sha256": "a7b8e9846e8e4209fb3c18597ca74d63338a3a83fa1c7073117c3ef20e353512"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3286,12 +3286,12 @@
         "code_clarity": 64,
         "stakeholder_trust": 58
       },
-      "telemetry_sha256": "46546043b438cf8f96ea4adc35facf5bd4929b8696938fdb9e29b786cd6d0782"
+      "telemetry_sha256": "bd42cda99ba2afa6a1d2fed1b5b19561aa1c0426ee6e060fe1aa4869fe45995f"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3300,12 +3300,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "eceec23e99afaa567b9cf3d8c44919d4d8d99112022c998c8c7e94ba064baabb"
+      "telemetry_sha256": "02a596c5d3168c63143e3aa5fa655a037324c879ce4b47f7ac05a085687588f6"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3314,12 +3314,12 @@
         "code_clarity": 64,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "86c85782b6d5032528def902957e53c70349a36f47598ae187c9730b09ca492a"
+      "telemetry_sha256": "d8138f2d63de6326f73e3f39fe463ab2d7380ddc5b9c3dda0a9b667f870bfb3a"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3328,12 +3328,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "cad694c663a00b66173d86ead3d6bb2a7487295a850546c256e2288f60bdb5c0"
+      "telemetry_sha256": "2df87cd23fc1c5290ba3d6f7513aae73b1f6a1018d770c9b6f3a32b1d8097429"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3342,12 +3342,12 @@
         "code_clarity": 69,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "f547ed18824db631627857703cb1e791f6a2cc1344207a313822a354314506f1"
+      "telemetry_sha256": "91a1253a1a180797660dc3b5a38dea1743b9cb01780c2e404de4e05ad79aa03f"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3356,12 +3356,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "c4913e163adfc5c8176e3d422b781c1505edce520531482000ef0be26f7c6268"
+      "telemetry_sha256": "fcdb6054d319c30f31b58dd517d7c745e09065bb5591acb98a4b9e58a714c429"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3370,12 +3370,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "f8d0191bce7c72c0a5b76f1a976f8e7c70cbe5cffd14b81078b78ee0ad6b68f5"
+      "telemetry_sha256": "b176d82dabf16eed962498a561618dce359e3f9d6257e53ce8ab2f4f7dc27080"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3384,12 +3384,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "3f6b8d10eb0de88dc1156b37945f2643053a93f0b9e5e5895a23fdfc21892bac"
+      "telemetry_sha256": "6ca29ea8095b9619b521be8c74b07251525129a3054796af5fb4fbb0526f235c"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3398,12 +3398,12 @@
         "code_clarity": 64,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "2381865c2a0f76bb145f861177407c7174589afc44fa984ab581a61dae9a7394"
+      "telemetry_sha256": "02a8370f19945eb149ac39ba0d38b8d74c871e605c8fdcb44cd971162a58431e"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3412,12 +3412,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "c50b9fd475ef05d02c994822ec9ded58e95cdadca4c4101114e5182818bf558a"
+      "telemetry_sha256": "a86ed1afc4ded0d6a699c23e1b9e3f2907e8ace199788a36d46da75ea8725125"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3426,12 +3426,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "82b62524c7831db2eb4a826a04357b4640602aa53d8ccff39ed749aae4a2448e"
+      "telemetry_sha256": "022e348975c2f059745a6d303cc763e9c159ce65f7a56385f5a172d9ab4bab40"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3440,12 +3440,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 58
       },
-      "telemetry_sha256": "604ad890a611067f4867028423b518e48878e2b3eddf5a8cb151167bdd29c01c"
+      "telemetry_sha256": "8e043707628681a42d5945498b09fc3958892f57e742c203850ca418a3ab3d66"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3454,12 +3454,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "a04812aa7238f2b0e3d84c72c2e484ea03554b0df8b5c38be00ccdc76c6a6529"
+      "telemetry_sha256": "5886f901142c40d0ba59dd9926e714abf9297c76f456448365162f42e56f04cf"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3468,12 +3468,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "5e87d4c7e8fb9de8f525a787b109e9e7e55b2ffc20bd7015e20e1ad1cecb0b4f"
+      "telemetry_sha256": "4f3808c267b7c669951fe1f4a1bbe0b39c87a87ad2b10443a37cf8213c1065b0"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3482,12 +3482,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "89256b1cbdf522b011233f25e10bc3449891a4bd42c6334a97d317b1ba02703f"
+      "telemetry_sha256": "8411db2e1cdc6cd074dece2e65f775fd5971efdce645b669272c40c7a67db8dd"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3496,12 +3496,12 @@
         "code_clarity": 50,
         "stakeholder_trust": 58
       },
-      "telemetry_sha256": "9c814b5d362a10aebf94cd51a5471c503de12855ac4e3422ef35251c295a83d4"
+      "telemetry_sha256": "5deca03504903f20cac8efb805ae7a1890daceaa824599f7740f87d91ff9bf35"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3510,12 +3510,12 @@
         "code_clarity": 64,
         "stakeholder_trust": 64
       },
-      "telemetry_sha256": "20032a4fef2d03733bb5f5a4d7ae9af747f9a02becf6f8fd0171c85a4588ade1"
+      "telemetry_sha256": "04497da0579a5068b208222a0f21fd6edd8d4117290c1eacd3f1d9509b46ca45"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3524,12 +3524,12 @@
         "code_clarity": 67,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "1bc8c9f8a46fe5234d137f2880c45160c9732eb13c07c5ea13712a1040401483"
+      "telemetry_sha256": "9ec40be8c58b27e21a30a94d1d76ffb5dc91d978dad82e559121dc99675d7ec4"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3538,12 +3538,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "9c3a8a97b8f7af298ecadc052013283e26c8ecc76aeb1b6eb65cc876671dbf94"
+      "telemetry_sha256": "e30dae19a5c153549703f46e4716867890fe8e5ebcebe24c2628c015ceb89b0c"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3552,12 +3552,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "85d9f8c91b84c9b7d47f385574d02762978c7ab6f94aaf35b89b926d3d288c5e"
+      "telemetry_sha256": "bde6f37bf125aa8124898aa7cbf17b7ab69a4c4d30b90e66511c2a5a78a70ca7"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3566,12 +3566,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "b3ebf310d4ecdee9b979caf32c6d969898f464399c5ca61cdf4d876f204b5b89"
+      "telemetry_sha256": "fd31f0f84b5cd2042103921ba00692f43ffc1be0a3b3c17cc597da2b1e28672d"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3580,12 +3580,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 49
       },
-      "telemetry_sha256": "36783363dc230c465b97f69b6a8be3071b62f0b22e8fd744c26e760852e50318"
+      "telemetry_sha256": "0efec00e3eb9ccbd6a6843b362d8be88709b83f4f13554d936079e305459560e"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3594,12 +3594,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "e2ac158a666bf9a5c6e2afdb67440c9f3c24561b8c35743e8f4f1ec93f9c1b25"
+      "telemetry_sha256": "2d3c969f86f10cd0386ebb323e2c0a2cfe267f9e621343496425bde0b9f0b7e3"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3608,12 +3608,12 @@
         "code_clarity": 76,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "54cf6ab6bdd2be99889ffb769b54f62e69621db5fe7edb8b2993653094773376"
+      "telemetry_sha256": "e422be12df161a492c170ae579e5e2f86d07b7bf36d5c8981e9ed59c7c8d5004"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3622,12 +3622,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "f4ea39a952a19d9ac4888f3a5c639b0f4a9ec53d73217db03083762e637d8780"
+      "telemetry_sha256": "2d1f82199a9dda6ff6cccd935dc452df5373f6bc6faf68e75ea1743e4a779415"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3636,12 +3636,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "44990e4f090f6253994a9018cbe463726750ca42fd9be28dd8e7c955d68f92f5"
+      "telemetry_sha256": "b24f83f61f4905faf8f108b96ae229ac964f14dee4d2b2133ca38f39aed337a1"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3650,12 +3650,12 @@
         "code_clarity": 69,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "e32b06eae3819c00029a3b84ffdb645c70c846fd2798724210be075ecbc97adc"
+      "telemetry_sha256": "2b486cc8c971ede893969155548b66b133ec23229773dcd421790d3d86bfb76a"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3664,12 +3664,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 49
       },
-      "telemetry_sha256": "7eaad2ad5ad11b8dac7d36777746dfed3e3690e18982b45205d872567faa5574"
+      "telemetry_sha256": "9c6f1e7fd676aad94e108fe9569bdffc43738e28517f14f199f588f188a98540"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3678,12 +3678,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "4daf2dee2e932b477a5a53ac7506cc3772d08addc2ea0e5d358a277f2507a7c9"
+      "telemetry_sha256": "a7102dc89a8904c493f561cd40c40615e4c23f08560af7f51dcec0c78dec0891"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3692,12 +3692,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "1c1ebd8391df840d2e60eef37748f727d51004de940591bac6d7f33fb9206190"
+      "telemetry_sha256": "3eacaf3140c51d43d377414200fa30e8f9c8a74ca1aadb12e38c7bf2665667cd"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3706,12 +3706,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "741d15b3d48118d62d78a83a94a1df6f92ad33b453b7adc204f51d77a9cf1089"
+      "telemetry_sha256": "e19ac847d8f77c239bad38121c16b7fcfad3e81a5b9b57326ec2bce9ab08d128"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3720,12 +3720,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "890949bbb8e03914369efb220cbad89fb2f325bbd9a8dc8b54c0bc4aab97ada3"
+      "telemetry_sha256": "40c331d179a084a40e9076219c5e5e6e5d879ba69fdb12d379e78c01cdc7cae9"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3734,12 +3734,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "9b735a48c9ccb4e5c399a082452a6f7b9b9577345fe67611fb319904132a6331"
+      "telemetry_sha256": "723c2629f742e5ac0d75faa387abd46d2314bd39336907370814441c20f99d27"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3748,14 +3748,14 @@
         "code_clarity": 64,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "7602b72b43e5df7e78bf77275f201be2491ece506e776bdab8cb0e35407a0a43"
+      "telemetry_sha256": "726ddaf38dab4f720284ac8b69be7ccc4e2015a8727370e10fd4e23dbdf794d2"
     }
   ],
-  "tutorial_basics-v1 full_pool_oracle": [
+  "tutorial_basics-v2 full_pool_oracle": [
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3764,12 +3764,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "c8c8ad688d2e64019de863bb9001bcf19964aa32c726f1c4d064c0bf2861d3f8"
+      "telemetry_sha256": "0628f2c1a8f5dab978d6410ed61c4c1f854432d7bd33ba9d899af6c09251c9fc"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3778,12 +3778,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "b85a769c70ef937077bee523b82db57dcace9e587a79ba12e423f71fdd797b16"
+      "telemetry_sha256": "e67f6bc00b0fcaea70073a97562eb486b04e8599413588cafe7884ea85210197"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3792,12 +3792,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "368625a0ee56f2b81d6ff8a257d2fc6d52451c9feec1c1a64b27e07d9cd74dca"
+      "telemetry_sha256": "1b69fa247e44ba18ddd7777fd3c30740e8c78e29b1fabce30218d17a98b75808"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3806,12 +3806,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "06f025837d1baa7943de263f0ab412eaa0ce879c77e8681e51855882cf4c6465"
+      "telemetry_sha256": "64ec1c9ca459867673b20cdfc9869c3d4d008a077459edb27897c2416517699a"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3820,12 +3820,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "e0b7ae011cb2976f621deeb0173f7e77692b2601c7ba49fd860faee9c3789b15"
+      "telemetry_sha256": "f8e034099339b1f41db441ed65fb6feba6be490afd37207ca7b003916fa4855e"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3834,12 +3834,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "c57178343b4b00802d0cf2701de69ae49d7e107e5d0ae0445c83dd38d99171bc"
+      "telemetry_sha256": "2ffd15f010ba9361b9cde16f6bea34dad317567c8462acd915f6e7ea33dd8f32"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3848,12 +3848,12 @@
         "code_clarity": 69,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "7cad0585d01511ae785a8bb4d922a99d05729847785304a1da62cc74dbf340fc"
+      "telemetry_sha256": "ad8734b048f8b6582bd276de805377691b60bb68e1b8db4f8767273a2f9b2a2d"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3862,12 +3862,12 @@
         "code_clarity": 69,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "f6143df66046e5473f2b1f3f6a813e60def7cde4240441e83b8dc47b37aff2df"
+      "telemetry_sha256": "4f8359305a8e02319909fe93849a26c5b793aa72cd6d89e8168b1bd252d31129"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3876,12 +3876,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "21a0af7f3aad4d50bace710aa038b6894d95087c132ebcfb5468cbc327daad11"
+      "telemetry_sha256": "a292d9dd435005812834a2c4b82c5ccdc492d4d9035dd9bfeae2e7e3d2c955de"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3890,12 +3890,12 @@
         "code_clarity": 74,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "259f5d06f802770e79fa8e9785ce26a66d126a10f8dd999561d4cd7bde774596"
+      "telemetry_sha256": "a91b0104dd305db37a1f2c1bd0b0073a70844d7d55325fa845d84eacca7d1cf8"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3904,12 +3904,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "6a1de0ebc7dd8f6a5dab876e8452d8e72b15a8a0af110e9c8c5b94a068d5a7e6"
+      "telemetry_sha256": "bbb0d19dde3cea963c519922597af4778f3cb200a0ca5e2bffebfeec5883a48f"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3918,12 +3918,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 84
       },
-      "telemetry_sha256": "2e236720c849ba25607a728f54ff107d20b5925d6310e1a35e44aa4c7b5af881"
+      "telemetry_sha256": "dd231d6d372048e083d35a69fff401869dfd71c5d075bee00a802d81b2513eb8"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3932,12 +3932,12 @@
         "code_clarity": 67,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "06dd607a5fa8de07ce583d5cb0ef1dc045803a94becece40f33f9996dee9a4d8"
+      "telemetry_sha256": "5f0526d4ffa4fd7a9eaccf9b168fb76782c62f347f44fa9af38165ce7d9d42d9"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3946,12 +3946,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "e6c189c618e05fc7dbbb965cf99a3d82984d086d0171f271263e99633014a58b"
+      "telemetry_sha256": "4f29a63dccc7f941c682e96fc4f795a566985b46b38bee977c10afff91a89464"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3960,12 +3960,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "a0ffb243ef681d9bac63e435576900fdc55f8dc650b7797ad4fd9dd8c4c1853e"
+      "telemetry_sha256": "b41fb45ed359482cd760cda04b77c1765ab25d1b558895e0c5dd93068d318d9a"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3974,12 +3974,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "91d75f8242dc0758feb4659bcb5cf6311793647765d76712bc28efbbe3a52edd"
+      "telemetry_sha256": "0922da32d0c5c69848c141650dd61ae8706804d00a80be603692e8afb6e04366"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -3988,12 +3988,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 84
       },
-      "telemetry_sha256": "433fe9290e2c98f87fc6342b9e1b3f4a3626e1d595fcbb73f5d302ee18fd5185"
+      "telemetry_sha256": "3f06b18da23bbdc9dc464f138331dc1308fab8fe1ce1dd27c41b88a4758d363a"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4002,12 +4002,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 58
       },
-      "telemetry_sha256": "1082e459f36a7c07c4db500a60ddcf53c3d57340250b331a0fae6a5f2cb31f59"
+      "telemetry_sha256": "d2de5ecd677c217f6fa20e5a9767a768af580a47e15bd995a491339fb148e00b"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4016,12 +4016,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 71
       },
-      "telemetry_sha256": "53e400edf8695ac93c9df14fb68ba418bcb0afe4791239b7f2bd28ff8a6a2bf8"
+      "telemetry_sha256": "236b7b3e81f666ce8c27eac917e5264f71935911da4da67ecd250e0e3c33384e"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4030,12 +4030,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "b5e305dfd52349a9df34b85ae323adb40aea540554082436f0e51f42edc87ee1"
+      "telemetry_sha256": "6c85d64b4b19c5f10b6114bffaec15838f7a78cfd17bbefe3f5989cf64fd1368"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4044,12 +4044,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "2f15d1ea31cf30b11663ab737180e0f9278ea6fce2c98ab124feab65f4096165"
+      "telemetry_sha256": "20e653cdf94f3eef970b2b430ffc931242d7752ba4fdd3a8c9fd804750ca97ce"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4058,12 +4058,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "166e8e97eca0805073697c99b744f757a16675e762695a715c5d4770b149e8da"
+      "telemetry_sha256": "279077fe7d27e81100e9e91b3330196a3e760d6eb086939d20868c6823a3eca9"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4072,12 +4072,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "2af3190214af67a32e0357796d6278d1377760255d9d04492e34b318cd3efdf0"
+      "telemetry_sha256": "129bbddd3bdf8fac0f4fdfa8bf86de3bb4dc06c8a2b5b89933ff8207e41198dc"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4086,12 +4086,12 @@
         "code_clarity": 76,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "804506238b777e8264a574e0cdc655332ee9087f282c35c1e55403d923d6aac9"
+      "telemetry_sha256": "81f80088550ead248599a10ca6e53a69ad24a9fefe3e52129910163285ace811"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4100,12 +4100,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "41182b920cb8029b132d1017db7e712bb3999e5f531870b9ecee5f61cc5a3cc2"
+      "telemetry_sha256": "0a3524282a4ebd0648feaba1d82f4b2eac6cc4c3e8e0638fabe418b4563bf00b"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4114,12 +4114,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "34fac35a72ea16e0b245d5cb8dccfd4f1a701e5767b855b5b913359de40f7432"
+      "telemetry_sha256": "a7b8e9846e8e4209fb3c18597ca74d63338a3a83fa1c7073117c3ef20e353512"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4128,12 +4128,12 @@
         "code_clarity": 64,
         "stakeholder_trust": 58
       },
-      "telemetry_sha256": "46546043b438cf8f96ea4adc35facf5bd4929b8696938fdb9e29b786cd6d0782"
+      "telemetry_sha256": "bd42cda99ba2afa6a1d2fed1b5b19561aa1c0426ee6e060fe1aa4869fe45995f"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4142,12 +4142,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "eceec23e99afaa567b9cf3d8c44919d4d8d99112022c998c8c7e94ba064baabb"
+      "telemetry_sha256": "02a596c5d3168c63143e3aa5fa655a037324c879ce4b47f7ac05a085687588f6"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4156,12 +4156,12 @@
         "code_clarity": 64,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "86c85782b6d5032528def902957e53c70349a36f47598ae187c9730b09ca492a"
+      "telemetry_sha256": "d8138f2d63de6326f73e3f39fe463ab2d7380ddc5b9c3dda0a9b667f870bfb3a"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4170,12 +4170,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "cad694c663a00b66173d86ead3d6bb2a7487295a850546c256e2288f60bdb5c0"
+      "telemetry_sha256": "2df87cd23fc1c5290ba3d6f7513aae73b1f6a1018d770c9b6f3a32b1d8097429"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4184,12 +4184,12 @@
         "code_clarity": 69,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "f547ed18824db631627857703cb1e791f6a2cc1344207a313822a354314506f1"
+      "telemetry_sha256": "91a1253a1a180797660dc3b5a38dea1743b9cb01780c2e404de4e05ad79aa03f"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4198,12 +4198,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "c4913e163adfc5c8176e3d422b781c1505edce520531482000ef0be26f7c6268"
+      "telemetry_sha256": "fcdb6054d319c30f31b58dd517d7c745e09065bb5591acb98a4b9e58a714c429"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4212,12 +4212,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "f8d0191bce7c72c0a5b76f1a976f8e7c70cbe5cffd14b81078b78ee0ad6b68f5"
+      "telemetry_sha256": "b176d82dabf16eed962498a561618dce359e3f9d6257e53ce8ab2f4f7dc27080"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4226,12 +4226,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "3f6b8d10eb0de88dc1156b37945f2643053a93f0b9e5e5895a23fdfc21892bac"
+      "telemetry_sha256": "6ca29ea8095b9619b521be8c74b07251525129a3054796af5fb4fbb0526f235c"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4240,12 +4240,12 @@
         "code_clarity": 64,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "2381865c2a0f76bb145f861177407c7174589afc44fa984ab581a61dae9a7394"
+      "telemetry_sha256": "02a8370f19945eb149ac39ba0d38b8d74c871e605c8fdcb44cd971162a58431e"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4254,12 +4254,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "c50b9fd475ef05d02c994822ec9ded58e95cdadca4c4101114e5182818bf558a"
+      "telemetry_sha256": "a86ed1afc4ded0d6a699c23e1b9e3f2907e8ace199788a36d46da75ea8725125"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4268,12 +4268,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "82b62524c7831db2eb4a826a04357b4640602aa53d8ccff39ed749aae4a2448e"
+      "telemetry_sha256": "022e348975c2f059745a6d303cc763e9c159ce65f7a56385f5a172d9ab4bab40"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4282,12 +4282,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 58
       },
-      "telemetry_sha256": "604ad890a611067f4867028423b518e48878e2b3eddf5a8cb151167bdd29c01c"
+      "telemetry_sha256": "8e043707628681a42d5945498b09fc3958892f57e742c203850ca418a3ab3d66"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4296,12 +4296,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "a04812aa7238f2b0e3d84c72c2e484ea03554b0df8b5c38be00ccdc76c6a6529"
+      "telemetry_sha256": "5886f901142c40d0ba59dd9926e714abf9297c76f456448365162f42e56f04cf"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4310,12 +4310,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "5e87d4c7e8fb9de8f525a787b109e9e7e55b2ffc20bd7015e20e1ad1cecb0b4f"
+      "telemetry_sha256": "4f3808c267b7c669951fe1f4a1bbe0b39c87a87ad2b10443a37cf8213c1065b0"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4324,12 +4324,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "89256b1cbdf522b011233f25e10bc3449891a4bd42c6334a97d317b1ba02703f"
+      "telemetry_sha256": "8411db2e1cdc6cd074dece2e65f775fd5971efdce645b669272c40c7a67db8dd"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4338,12 +4338,12 @@
         "code_clarity": 50,
         "stakeholder_trust": 58
       },
-      "telemetry_sha256": "9c814b5d362a10aebf94cd51a5471c503de12855ac4e3422ef35251c295a83d4"
+      "telemetry_sha256": "5deca03504903f20cac8efb805ae7a1890daceaa824599f7740f87d91ff9bf35"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4352,12 +4352,12 @@
         "code_clarity": 64,
         "stakeholder_trust": 64
       },
-      "telemetry_sha256": "20032a4fef2d03733bb5f5a4d7ae9af747f9a02becf6f8fd0171c85a4588ade1"
+      "telemetry_sha256": "04497da0579a5068b208222a0f21fd6edd8d4117290c1eacd3f1d9509b46ca45"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4366,12 +4366,12 @@
         "code_clarity": 67,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "1bc8c9f8a46fe5234d137f2880c45160c9732eb13c07c5ea13712a1040401483"
+      "telemetry_sha256": "9ec40be8c58b27e21a30a94d1d76ffb5dc91d978dad82e559121dc99675d7ec4"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4380,12 +4380,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "9c3a8a97b8f7af298ecadc052013283e26c8ecc76aeb1b6eb65cc876671dbf94"
+      "telemetry_sha256": "e30dae19a5c153549703f46e4716867890fe8e5ebcebe24c2628c015ceb89b0c"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4394,12 +4394,12 @@
         "code_clarity": 55,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "85d9f8c91b84c9b7d47f385574d02762978c7ab6f94aaf35b89b926d3d288c5e"
+      "telemetry_sha256": "bde6f37bf125aa8124898aa7cbf17b7ab69a4c4d30b90e66511c2a5a78a70ca7"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4408,12 +4408,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "b3ebf310d4ecdee9b979caf32c6d969898f464399c5ca61cdf4d876f204b5b89"
+      "telemetry_sha256": "fd31f0f84b5cd2042103921ba00692f43ffc1be0a3b3c17cc597da2b1e28672d"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4422,12 +4422,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 49
       },
-      "telemetry_sha256": "36783363dc230c465b97f69b6a8be3071b62f0b22e8fd744c26e760852e50318"
+      "telemetry_sha256": "0efec00e3eb9ccbd6a6843b362d8be88709b83f4f13554d936079e305459560e"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4436,12 +4436,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "e2ac158a666bf9a5c6e2afdb67440c9f3c24561b8c35743e8f4f1ec93f9c1b25"
+      "telemetry_sha256": "2d3c969f86f10cd0386ebb323e2c0a2cfe267f9e621343496425bde0b9f0b7e3"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4450,12 +4450,12 @@
         "code_clarity": 76,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "54cf6ab6bdd2be99889ffb769b54f62e69621db5fe7edb8b2993653094773376"
+      "telemetry_sha256": "e422be12df161a492c170ae579e5e2f86d07b7bf36d5c8981e9ed59c7c8d5004"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4464,12 +4464,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "f4ea39a952a19d9ac4888f3a5c639b0f4a9ec53d73217db03083762e637d8780"
+      "telemetry_sha256": "2d1f82199a9dda6ff6cccd935dc452df5373f6bc6faf68e75ea1743e4a779415"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4478,12 +4478,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "44990e4f090f6253994a9018cbe463726750ca42fd9be28dd8e7c955d68f92f5"
+      "telemetry_sha256": "b24f83f61f4905faf8f108b96ae229ac964f14dee4d2b2133ca38f39aed337a1"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4492,12 +4492,12 @@
         "code_clarity": 69,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "e32b06eae3819c00029a3b84ffdb645c70c846fd2798724210be075ecbc97adc"
+      "telemetry_sha256": "2b486cc8c971ede893969155548b66b133ec23229773dcd421790d3d86bfb76a"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4506,12 +4506,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 49
       },
-      "telemetry_sha256": "7eaad2ad5ad11b8dac7d36777746dfed3e3690e18982b45205d872567faa5574"
+      "telemetry_sha256": "9c6f1e7fd676aad94e108fe9569bdffc43738e28517f14f199f588f188a98540"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4520,12 +4520,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "4daf2dee2e932b477a5a53ac7506cc3772d08addc2ea0e5d358a277f2507a7c9"
+      "telemetry_sha256": "a7102dc89a8904c493f561cd40c40615e4c23f08560af7f51dcec0c78dec0891"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4534,12 +4534,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "1c1ebd8391df840d2e60eef37748f727d51004de940591bac6d7f33fb9206190"
+      "telemetry_sha256": "3eacaf3140c51d43d377414200fa30e8f9c8a74ca1aadb12e38c7bf2665667cd"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4548,12 +4548,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "741d15b3d48118d62d78a83a94a1df6f92ad33b453b7adc204f51d77a9cf1089"
+      "telemetry_sha256": "e19ac847d8f77c239bad38121c16b7fcfad3e81a5b9b57326ec2bce9ab08d128"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4562,12 +4562,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 74
       },
-      "telemetry_sha256": "890949bbb8e03914369efb220cbad89fb2f325bbd9a8dc8b54c0bc4aab97ada3"
+      "telemetry_sha256": "40c331d179a084a40e9076219c5e5e6e5d879ba69fdb12d379e78c01cdc7cae9"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4576,12 +4576,12 @@
         "code_clarity": 52,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "9b735a48c9ccb4e5c399a082452a6f7b9b9577345fe67611fb319904132a6331"
+      "telemetry_sha256": "723c2629f742e5ac0d75faa387abd46d2314bd39336907370814441c20f99d27"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 3,
       "final_scores": {
@@ -4590,14 +4590,14 @@
         "code_clarity": 64,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "7602b72b43e5df7e78bf77275f201be2491ece506e776bdab8cb0e35407a0a43"
+      "telemetry_sha256": "726ddaf38dab4f720284ac8b69be7ccc4e2015a8727370e10fd4e23dbdf794d2"
     }
   ],
-  "tutorial_systems_under_pressure-v1 player_true": [
+  "tutorial_systems_under_pressure-v2 player_true": [
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4606,12 +4606,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 38
       },
-      "telemetry_sha256": "11028ed9e215a4b881dbbfffe58674637179b993652434187c1b5de420866f05"
+      "telemetry_sha256": "e8e8b2d87ba7728e01fb38759195d869a170cddf90370c02dc03642520986f36"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4620,12 +4620,12 @@
         "code_clarity": 46,
         "stakeholder_trust": 32
       },
-      "telemetry_sha256": "a357582e2b9dd34ef7c9b1c14484fd8163177e31cd6506b1523d5cdb14716640"
+      "telemetry_sha256": "f288e6e19d49956461cded08626e69b9f5a3478e4257f91f12678647b31b0ec6"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4634,12 +4634,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "472441c6ad0702f06e353489c6a36299b082406184eb946b0b72cba9bb38a91d"
+      "telemetry_sha256": "d49f92863738a358ca194666f7b91eca96c45c25858f1cf73e87d38678b3aa0b"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4648,12 +4648,12 @@
         "code_clarity": 58,
         "stakeholder_trust": 23
       },
-      "telemetry_sha256": "815f630e1325f9e7d2377df26072d34bcad521536895eedeca31b4d2ff7c0e12"
+      "telemetry_sha256": "2c44a33f09bb55d26881eb088eab002cad9cf1dee63eabe3128e68979bb6f807"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4662,12 +4662,12 @@
         "code_clarity": 46,
         "stakeholder_trust": 56
       },
-      "telemetry_sha256": "89f966f9508da76c99d93424e39a649be3f317cede06bf98de237969b1a8a64a"
+      "telemetry_sha256": "cd267181844a8167379d5515d24617ca7a2b9afa3147eb5eb44cd4fe0fabe7ea"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4676,12 +4676,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 43
       },
-      "telemetry_sha256": "e9782a905624e7143fe6fb6ebe1516630c8a669e28a1b9416f2a1dc50208e25f"
+      "telemetry_sha256": "842487df1f24094371c6b3374a32dd6b114b57665ce8dffd70a4b692794bfb48"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4690,12 +4690,12 @@
         "code_clarity": 62,
         "stakeholder_trust": 25
       },
-      "telemetry_sha256": "62d647e7fb235faef4a1e6f4d624cd99500be78ac3a5ffa9a45397abf2fcf767"
+      "telemetry_sha256": "140bc39c80d4c7a70c16e890c4281b3bc299938650536a7eb241862d1aef9b02"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4704,12 +4704,12 @@
         "code_clarity": 62,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "63d63359cb505e0604c8185b18b619dc0c3fd77954fd97953f37e55cf9f9baf3"
+      "telemetry_sha256": "17b953e28103fa37636855f1d06eaf8c9baca8d3f7ae21d5b0f3ff1be1b73fe8"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4718,12 +4718,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 35
       },
-      "telemetry_sha256": "744f9cb4de91941f322339c503b5db92d6025616108318b6666860dabbf95616"
+      "telemetry_sha256": "a5a7f2c4d0a9a02f07f7a3aa4931627f7b9fae4f8fc8ac0c78476ca5960d2fe2"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4732,12 +4732,12 @@
         "code_clarity": 43,
         "stakeholder_trust": 36
       },
-      "telemetry_sha256": "78a04c5c419fb18c137bd3dafd6bcbfbd729be58788d5ace99540e8cd0b558cf"
+      "telemetry_sha256": "761c66fbb0275c3e31b364b53a4e08a68b9bfd1e6308278a964e683599eafdb8"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4746,12 +4746,12 @@
         "code_clarity": 58,
         "stakeholder_trust": 19
       },
-      "telemetry_sha256": "fca9afaced6c2a4b4198dcfedd9890481c593a9175243ccb0d0d5a9e6ee0468e"
+      "telemetry_sha256": "005bc249d9bea4598bee5cef57e31e5ff26c31f45895780b3b075f7068ba1fe1"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4760,12 +4760,12 @@
         "code_clarity": 30,
         "stakeholder_trust": 64
       },
-      "telemetry_sha256": "a8891cd47c4dbdcc37d762eaabd234ec45f17c0d7ee6d5e0a14081ba222a02e2"
+      "telemetry_sha256": "207abc39a2477655dc9ed1103d352c90294500aebab74fc7111e78478e28b975"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4774,12 +4774,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "d2f88c0150dc96c884e32b71ce106911aaa4352a484d91ab035d3259f693280e"
+      "telemetry_sha256": "a324c5b0c47d5cfaa3e0eb5d3fca55ebcd135b035b31c6a6b5c2456e2c73ada6"
     },
     {
-      "tier": "failure",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier": "partial_success",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4788,12 +4788,12 @@
         "code_clarity": 38,
         "stakeholder_trust": 43
       },
-      "telemetry_sha256": "1f9c767038fa5c8a8c21edec60fb37a4ed255a2b5c785d6838ffc9b944634d2a"
+      "telemetry_sha256": "9ec7640af40028c7b6c6699dbab1518e471b90dd0822a054054b7af2c2989537"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4802,12 +4802,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 51
       },
-      "telemetry_sha256": "f50c31d360eea0fb05708292edbb43232505b955ae37e95ef5f10cb2efb1c3a3"
+      "telemetry_sha256": "037b9df6d82f0ff653704cc9cfb9e9ae389bfe0331822e3a3034d4d79e8b3647"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4816,12 +4816,12 @@
         "code_clarity": 58,
         "stakeholder_trust": 33
       },
-      "telemetry_sha256": "1b2e5ea1d9e19a43a009435f6172f40710d830156a428fb34db315d40338b666"
+      "telemetry_sha256": "366a96f44e0b470b98d3af015f1a4f9a77181587c42ce9a781b6aea0ea9e94e7"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4830,12 +4830,12 @@
         "code_clarity": 30,
         "stakeholder_trust": 65
       },
-      "telemetry_sha256": "4545a9dd85dc23496ddb7e81ffcc1950a2a53feec7ba3adcefa15261822dc657"
+      "telemetry_sha256": "16c521f1f009f154b11e5cd97bac56c818eb80ee735386cd1cbcd01429727b5f"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4844,12 +4844,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 38
       },
-      "telemetry_sha256": "654873cfd06d70b17c33c89a3e76e268239c9d8b954037304b3ff5533922e11f"
+      "telemetry_sha256": "7ed6df124382f8230bde06c64db79608d75e6d92d36c8d5d600991ff91c15e08"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4858,12 +4858,12 @@
         "code_clarity": 38,
         "stakeholder_trust": 60
       },
-      "telemetry_sha256": "3d45dfa6ab3c0f19d92805bb5d8cb3b16e31cf9bc76bf166918dec15dc3f1098"
+      "telemetry_sha256": "27380a1d92a53b5a0f1909ec9f52c72ba595d219dc7cea027472dee4102a87f0"
     },
     {
-      "tier": "failure",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier": "partial_success",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4872,12 +4872,12 @@
         "code_clarity": 53,
         "stakeholder_trust": 43
       },
-      "telemetry_sha256": "a481b4ae44cb4fc50a0c54bcf078ff1a5604abb3a1457147140afddf47bde7b5"
+      "telemetry_sha256": "9fadae4a346a0bce9a310f19850fcacf59a51704d9240f6c19d4eb066cc37336"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4886,12 +4886,12 @@
         "code_clarity": 30,
         "stakeholder_trust": 70
       },
-      "telemetry_sha256": "13c8f8c637fce0aeb473f519d29dd9d983680bc39f397ce411c0f5b9c7c04aa9"
+      "telemetry_sha256": "15f2d87e00e2f8d86b059ddf83e2169e582c526d39928b8cee88619b932c9a88"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4900,12 +4900,12 @@
         "code_clarity": 30,
         "stakeholder_trust": 33
       },
-      "telemetry_sha256": "9d9bbdc48e251cea7d8f03ce0cb1ca75d516c0f1a2f512e6b3ee19c7fedb534c"
+      "telemetry_sha256": "97f486abf657af59f47f19a32beec308394224f5dd0848da531a233017d632f3"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4914,12 +4914,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 38
       },
-      "telemetry_sha256": "3c34cbbb67d7f2de568e149c6b9ea0904deb55c5665f04a326da307cefabe9dd"
+      "telemetry_sha256": "22ec1c25edfdc6d08a6366f8775330d8c15e1279436713369e596fdb5f8a8205"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4928,12 +4928,12 @@
         "code_clarity": 65,
         "stakeholder_trust": 22
       },
-      "telemetry_sha256": "65c97d6ea89d7ffdb0e95d409c79f388913b1906cabcafd118c4280771df1a3e"
+      "telemetry_sha256": "0dbebcd8997370b55a7429f4be162cd1a969787219cf42e68b774afc7470952d"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4942,12 +4942,12 @@
         "code_clarity": 46,
         "stakeholder_trust": 25
       },
-      "telemetry_sha256": "06b3776c469418e38f3b731d5c422559bf7e211009a16124d94e4011b12380e0"
+      "telemetry_sha256": "b4cc2a5e4d67f40a1c45f63304dd6ed4b43478216d3478abffc5bb194c21bd2c"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4956,12 +4956,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 46
       },
-      "telemetry_sha256": "41b168e07025031ac9de6df9e6efe293b25dc9fa9409958f99f6d1facadd0e85"
+      "telemetry_sha256": "ff626975c6fd3f0933088d57e809244a61b22d9f3b39814d516f923bd91613fc"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4970,12 +4970,12 @@
         "code_clarity": 65,
         "stakeholder_trust": 30
       },
-      "telemetry_sha256": "edc1b0f32c103f2644632f9668b1c8d2e02aabd96e7a2a2c12726b6ada3b8bf6"
+      "telemetry_sha256": "265fb67bcf821bd9ea2f212ff382022fc3080f76232753c14e2d6c72df562170"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4984,12 +4984,12 @@
         "code_clarity": 53,
         "stakeholder_trust": 41
       },
-      "telemetry_sha256": "0eb7d9e1c0dbb9115692721059a24478c584abf68dce5068fde0a8b7760e8e7b"
+      "telemetry_sha256": "858249c9c1c726848ba7c3a5f8e7d171751c4335db74d4ed1afad02ee7dadc23"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -4998,12 +4998,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "a26a212f0a54265b3ff0ce08cc18c9f0be147b6fc5da6c991586d742ebd1f3b4"
+      "telemetry_sha256": "ffffbe4bec6c2bb5812905c53c93c70c78220d28dab4671a9ba5b0ec0e3347b3"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5012,12 +5012,12 @@
         "code_clarity": 62,
         "stakeholder_trust": 27
       },
-      "telemetry_sha256": "ac2142f41c93444be7bf1eae492feac6e409f2a7a6b1c02e1dcea697059ec944"
+      "telemetry_sha256": "643b66f3a3b7df010620e3a6a72d9bd3fe79e7584678f62c15dd0614f9cd1bc3"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5026,12 +5026,12 @@
         "code_clarity": 54,
         "stakeholder_trust": 62
       },
-      "telemetry_sha256": "541e5d60a4f5b595df83880d5a98209684b7b36739c34bcf120df53d0ff7977b"
+      "telemetry_sha256": "67dcd0b6ecf39b0c92863423800c4d992d53f34383a8bf80f82fb644467763af"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5040,12 +5040,12 @@
         "code_clarity": 46,
         "stakeholder_trust": 31
       },
-      "telemetry_sha256": "bda5a985cfe8080746c0ce7bd5db2ea456dfcd7f5689433e39b897306a87d786"
+      "telemetry_sha256": "0c62c7e7dba0a8a8999853735cfe61459f4ca05fb4be3012a053bc55df9340da"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5054,12 +5054,12 @@
         "code_clarity": 38,
         "stakeholder_trust": 61
       },
-      "telemetry_sha256": "fee2c1f74ec0716e90d274849f907a4ece51d3a33370f1e91b53270386aa9141"
+      "telemetry_sha256": "9826cc71675bf503612529436193b91cf673172ca328f5a5aa947155c5883ab9"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5068,12 +5068,12 @@
         "code_clarity": 65,
         "stakeholder_trust": 33
       },
-      "telemetry_sha256": "6f18d4afef06eaad2915d802a746113e0afc2e6e765c047dc03c3dfb148a9fd4"
+      "telemetry_sha256": "795f59e959ad5b3a73cf421189b60f73212e66a50c8844949b22e8259e458bdc"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5082,12 +5082,12 @@
         "code_clarity": 62,
         "stakeholder_trust": 43
       },
-      "telemetry_sha256": "58122e51b3c91e03e3b349a47228932c0a26e84347c47befe3c072caee1dbfeb"
+      "telemetry_sha256": "7a4e36da0a87751a34199da97caecaa728e91e40389acedcd309e25435dfdfa3"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5096,12 +5096,12 @@
         "code_clarity": 43,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "50d5849b90a5584f37ec1fc7c986f57ab349191ddf70ef38a0e0f783feb08717"
+      "telemetry_sha256": "8f0c50f0b50ad24f5c2dc5cfad42ed773e9796a5b5269d8ac77903dffbfe492f"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5110,12 +5110,12 @@
         "code_clarity": 53,
         "stakeholder_trust": 26
       },
-      "telemetry_sha256": "0f4a521e8803dd267d060c78808146207ce88af9d2998cd3ce8427634eb7703b"
+      "telemetry_sha256": "c4fde56dc54bc5c33cf29834f6ad1cb95fcf54508a18017968ddd34f47382e45"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5124,12 +5124,12 @@
         "code_clarity": 41,
         "stakeholder_trust": 52
       },
-      "telemetry_sha256": "51390f62183cb895aa3ed68cf5e37f591b298d8297accca69076cbb7060e405a"
+      "telemetry_sha256": "19997a435431465f2c34dd6718ae4060b7bde6254a40d004a6f2d01db9273cf7"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5138,12 +5138,12 @@
         "code_clarity": 43,
         "stakeholder_trust": 37
       },
-      "telemetry_sha256": "a50938c398b443ca93843d8a69407adf40ae9e7f4dd07f7bbf9d70722033c716"
+      "telemetry_sha256": "5419a4ac09bc805a32bd885e0010eb7009b30e4241bdff8a7dbc791845ffdcc6"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5152,12 +5152,12 @@
         "code_clarity": 62,
         "stakeholder_trust": 27
       },
-      "telemetry_sha256": "10d7643a782452576745ceffb09d54896d1665ca6b8744b512c3601694c84d44"
+      "telemetry_sha256": "79542014c41005d5dae03a10fb52d6efc5d18437cbaa42cfa67f9922e4ae4cff"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5166,12 +5166,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 48
       },
-      "telemetry_sha256": "fc345e652614c995505f1c2af921326c476821560f67c3fdf25c89def5c50573"
+      "telemetry_sha256": "9df5ba34cbbe1ca82821a3405acffd3696efc4668f57cadd32fc70cfa8e9e351"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5180,12 +5180,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 41
       },
-      "telemetry_sha256": "0de857b45ed051f5f93bdde3cddeb63f2627fc077ddc66e059084ecfd3a61257"
+      "telemetry_sha256": "109db980d3e1962b7dabd187b925cfbf14f51241f697bad71fbd3686c946181d"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5194,12 +5194,12 @@
         "code_clarity": 42,
         "stakeholder_trust": 64
       },
-      "telemetry_sha256": "e7512daac5b66de1c7461af3e6e43d898dc81e18c8689c43f07bb4266691b265"
+      "telemetry_sha256": "b62d60f68208ff87664cd8dfeea9b4acb09d7764a21cf11c681d936d21c83453"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5208,12 +5208,12 @@
         "code_clarity": 50,
         "stakeholder_trust": 32
       },
-      "telemetry_sha256": "bc37785c3c754072f3b9704e0861521d749f2db0f367121a5d3123d085fb1409"
+      "telemetry_sha256": "4317100a3b1a273552ade18c36fdf09e49ce2b5bee82813b6c9fe3c440a8fe00"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5222,12 +5222,12 @@
         "code_clarity": 60,
         "stakeholder_trust": 29
       },
-      "telemetry_sha256": "df6dd7523723c76763076178648f55802c9cfe3fb76a62dc917f6afc45309688"
+      "telemetry_sha256": "fd2c89dcf9d40d605b60bb676eabf25a852a4884e66570a8358cc17c6fc8ec44"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5236,12 +5236,12 @@
         "code_clarity": 30,
         "stakeholder_trust": 46
       },
-      "telemetry_sha256": "506ecf2274017de03f4bd67d30af785f567a7c58dd850e6d02fbf2543fdede47"
+      "telemetry_sha256": "bd8ff7de88385a927239331f6723ae8a24d2cb448e21d5cbc4013a4c574a021b"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5250,12 +5250,12 @@
         "code_clarity": 42,
         "stakeholder_trust": 65
       },
-      "telemetry_sha256": "898099ac9c8be6ccf8f3445f80e8057da4fd51247b49d4a8c7ccec811f89ac8f"
+      "telemetry_sha256": "6e38879999f57d1fe77b852b1523db1450dc0cc9030d04628dd74ee8f31f1bbe"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5264,12 +5264,12 @@
         "code_clarity": 42,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "a3a0017068fcf26d8c327e5d7f07ef7715efe71359e08b2dd915da2e6d31c47b"
+      "telemetry_sha256": "8ecb23d39dc2245f9b367aea7bb6d1685633b34b49415ab1e82e8e87e8d24697"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5278,12 +5278,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 35
       },
-      "telemetry_sha256": "885617b1245251ae8c1cf9c892eff543453186c2dfe4b96147cfdaf1bf16b851"
+      "telemetry_sha256": "5170b29809317bc628142ce99fb68378ad5225d26ffaee4bf31987d2d57e957b"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5292,12 +5292,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 50
       },
-      "telemetry_sha256": "5a8ea77808f8919423ac22b7997f5e5905c55bec775d6c80c07d2590a7b20ae3"
+      "telemetry_sha256": "8e0759f3570a0b9598db7a8844bc4ac4270190e37a86c94ff0cae20d653dfc88"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5306,12 +5306,12 @@
         "code_clarity": 42,
         "stakeholder_trust": 62
       },
-      "telemetry_sha256": "d6b2fd6fbca961aa3120510b332066751c15fe42dfdb124eb38b7873b965795c"
+      "telemetry_sha256": "faf7655d979a6c0547801229057e189e5cda987bba22ecab2a8838837093b0ee"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5320,12 +5320,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 43
       },
-      "telemetry_sha256": "45367ca9dfd5c6ee5d333862794c767efc314db86e754dc1023918f3efd12f3d"
+      "telemetry_sha256": "e69a7fac4a99ab7516715549264ec29bb5d9b1507ab4f79df36504ac7bccce52"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5334,12 +5334,12 @@
         "code_clarity": 73,
         "stakeholder_trust": 17
       },
-      "telemetry_sha256": "a0b23079a74e40ded74d6a42d1a14909ffd580e75b63d19328a842ccdd696527"
+      "telemetry_sha256": "f630f7da08d46b2cc77c26fbd9c089601c26cde765f94a937b81c12e20cf198a"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5348,12 +5348,12 @@
         "code_clarity": 30,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "c64879fd0957b4862c833c11a486a3b9f600190a9fee9c24ec574ebb73878d0e"
+      "telemetry_sha256": "dc9e3c17e95bc11d0f774dabfc10ee4544534f4b78e7fa4a9d2facd4247a3268"
     },
     {
-      "tier": "failure",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier": "partial_success",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5362,12 +5362,12 @@
         "code_clarity": 46,
         "stakeholder_trust": 57
       },
-      "telemetry_sha256": "eff4871cf906ffd6eef092329949a7b69b112c6e32ab96f06963b7b7d6270ea9"
+      "telemetry_sha256": "73ebca69513842d2423cb53dfbaea1889c8b001d2a30e93ea2281c114ff845d7"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5376,12 +5376,12 @@
         "code_clarity": 50,
         "stakeholder_trust": 25
       },
-      "telemetry_sha256": "7f45c3836a263c1863324ca2b29d4204cc756f2f1756bc2213d679aa1551345b"
+      "telemetry_sha256": "41c752d7692a8d6c20ce7b1f36230732ead46393be05296986187cf0ef15c8f0"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5390,12 +5390,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 30
       },
-      "telemetry_sha256": "c2158e2f12bcfc87384eab6617c8d9a04823018d16b8c92b01ee4c1c16723850"
+      "telemetry_sha256": "b37588df2f37a576bf545ee5f3ad9b5ededf22c8c234b224502b99d2739c97a6"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5404,12 +5404,12 @@
         "code_clarity": 42,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "724e4ca10f2bdf7c3d351171b28a6e75dd0fc287951f764875845ff2222e5597"
+      "telemetry_sha256": "4991f4b42f084e01015208108d053c3fd6e97ac4b42bf3f63f1545ce6ad3ade6"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5418,12 +5418,12 @@
         "code_clarity": 50,
         "stakeholder_trust": 38
       },
-      "telemetry_sha256": "080bd97cf1610cd4593a6e4eb051fa0f524c98ba6b9073937502ae899b1492cc"
+      "telemetry_sha256": "ab0ab400ba5da1029c07158c5a6314990ec28fdf1dc3655380cfbe8210db2f32"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5432,14 +5432,14 @@
         "code_clarity": 50,
         "stakeholder_trust": 33
       },
-      "telemetry_sha256": "d7aec2141bf5e57700ee006ef6b2acf0a2900997aa067f3bd85989685b93efde"
+      "telemetry_sha256": "f2301c6196b45643caf389baa87dcd683a52b8627ccf07169e32e45e935292cf"
     }
   ],
-  "tutorial_systems_under_pressure-v1 full_pool_oracle": [
+  "tutorial_systems_under_pressure-v2 full_pool_oracle": [
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5448,12 +5448,12 @@
         "code_clarity": 42,
         "stakeholder_trust": 37
       },
-      "telemetry_sha256": "dac2876d1016a37d577bb2da4f2f97a996fac25e278b62045252d465e450312c"
+      "telemetry_sha256": "6095f8db7b9e555e34befea514481a4ffcbbe85f06d61cee129968a5f85c2a96"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5462,12 +5462,12 @@
         "code_clarity": 65,
         "stakeholder_trust": 32
       },
-      "telemetry_sha256": "16bc05099a095d8e6b25fe9c26c902339c716455c4f0d27f254ed2519ea533e8"
+      "telemetry_sha256": "1d2a990677cbba2a16a892adb5132477e8cda89ad6024aba71b8713aeb889042"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5476,12 +5476,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 41
       },
-      "telemetry_sha256": "757f319851c964e0b998127fc01c3ee98d5d17f3193a97b6368a24a7ae1ec7b3"
+      "telemetry_sha256": "8057398fd113acd9f7463224aacca1d42b9afec1034bb71a6a02728d0837f362"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5490,12 +5490,12 @@
         "code_clarity": 42,
         "stakeholder_trust": 41
       },
-      "telemetry_sha256": "67a9c84c234b28b2a3de26f1c4d91bb39664205e1bf9d634dd287288b082602a"
+      "telemetry_sha256": "c46d7a5e5266d29952bb6b0653a46deaf1e4c3bba1793de3bf3ddea894ad3c54"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5504,12 +5504,12 @@
         "code_clarity": 61,
         "stakeholder_trust": 43
       },
-      "telemetry_sha256": "f0b8b792c89f27aeb85e337c3df163fa47a803fe64a94fb8c98aceedd6959921"
+      "telemetry_sha256": "dcd7d4d64bc0e4418a5de81783d62a5821417994584da1750d3488d32c7e4fca"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5518,12 +5518,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 64
       },
-      "telemetry_sha256": "79b3013ab0b3ee7d1fb8714f0b86a19aa2a3f19e31780a0afdabfc5da00c95f6"
+      "telemetry_sha256": "a2d6ff9f034481007643a6984ddfebbdb02a30170d6f432931f0d79784498b88"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5532,12 +5532,12 @@
         "code_clarity": 65,
         "stakeholder_trust": 22
       },
-      "telemetry_sha256": "c5b6218e945958e3b19a961025332ca826ad4f7c2cbc36380e091191e9516a53"
+      "telemetry_sha256": "bbf38b8f17b42df9eda0e49b2100dad28879977536e0aac93a7adb6a45dddc2c"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5546,12 +5546,12 @@
         "code_clarity": 65,
         "stakeholder_trust": 33
       },
-      "telemetry_sha256": "207d0ffe63f0bc6ed3fff872a45c8be72ad3e08b50c0a7c96b72047e67cb070e"
+      "telemetry_sha256": "edccbf3a69e44361e7b083afb7e2c12963dda33708577fb9e31c29a95c4d0757"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5560,12 +5560,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 30
       },
-      "telemetry_sha256": "aab5c2fe433af828b5e9794b1a9763e30767b08f1b884e961ba74ac8bab29dc3"
+      "telemetry_sha256": "8d7e48c392f4290a507b2ede936078e51452c4ea7de81a76a137bc2924ebbb9e"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5574,12 +5574,12 @@
         "code_clarity": 62,
         "stakeholder_trust": 25
       },
-      "telemetry_sha256": "2b22e6e36f996eca00fa0af8540d6e96d84198c8db3b0398a95b2460030ca5c2"
+      "telemetry_sha256": "8c2ebe4f7fc09b30025c615ff39298ee6d1cf0d1a8dde24410bb365b3c0f1851"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5588,12 +5588,12 @@
         "code_clarity": 42,
         "stakeholder_trust": 40
       },
-      "telemetry_sha256": "42a1305d4958fa92facfe5ea28a60fed0b532bb60d77da7f2129f59bbd66d5eb"
+      "telemetry_sha256": "32863421d505e08c02b7771560c4d43602e099941ca42122ad9e8a11a2e0c72f"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5602,12 +5602,12 @@
         "code_clarity": 40,
         "stakeholder_trust": 53
       },
-      "telemetry_sha256": "3a26007bbba9137c2e6e4d983ff8d9b3360e7bfedf83952820104983ab4785aa"
+      "telemetry_sha256": "2bca869b16feb509ea6685acadc43c0b3b40efb4e3b21366082e44b738daef29"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5616,12 +5616,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 43
       },
-      "telemetry_sha256": "5157da867f5712e68def8e807cce8bbd7eeb7e7df3d643227f7a22207b5e9b4a"
+      "telemetry_sha256": "692dace593f9a397b1e1068b270af9f7d06e9cede01c1cfa74b2504bfa1d2a12"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5630,12 +5630,12 @@
         "code_clarity": 30,
         "stakeholder_trust": 63
       },
-      "telemetry_sha256": "4464302ba3260b04adc2e80d62205f68ff5679fc8b11a58ddf937c9c16403026"
+      "telemetry_sha256": "a2b5db3114c47e44b370902ef88c2613e85680fed2615b175e1a9b383d40e258"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5644,12 +5644,12 @@
         "code_clarity": 58,
         "stakeholder_trust": 39
       },
-      "telemetry_sha256": "627a23c058980c5f2682c15a983831df49f21ceaf13e32139522e3bfb99a7962"
+      "telemetry_sha256": "3d6215a426f7f3ce6f92421cfc963f43ba2f2da8688f7790de2f7d09e4cd8af6"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5658,12 +5658,12 @@
         "code_clarity": 53,
         "stakeholder_trust": 32
       },
-      "telemetry_sha256": "949397114325324162329144cb9fa09ab4f49564646ca4d25d54ff18fef78045"
+      "telemetry_sha256": "d3f69abdb22b0a8e9ad9efb96a5a5fe64af4a5c77de138f618253692d29d8358"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5672,12 +5672,12 @@
         "code_clarity": 71,
         "stakeholder_trust": 42
       },
-      "telemetry_sha256": "8f1f0beeff107374d16d5770cfd70e8f548fff4ba2ce58d1558abf6fa4852cb4"
+      "telemetry_sha256": "b23e9bed75b8eb096d55188781fa5ad9abdfa78e8ceaf922a24c0187b874fcaa"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5686,12 +5686,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 38
       },
-      "telemetry_sha256": "be27f64e17a2c73c9660461801921808d4b85d9f13040ba1ffda4d36d52bb320"
+      "telemetry_sha256": "19378c841beff32c41726676966c0b98ed241cd5c252fa718cee2687ac9c8d48"
     },
     {
-      "tier": "failure",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier": "partial_success",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5700,12 +5700,12 @@
         "code_clarity": 30,
         "stakeholder_trust": 69
       },
-      "telemetry_sha256": "307049762e033d22fabe6d48dd7e2ac35c87cc6c018aca54a80c77468ddc1b50"
+      "telemetry_sha256": "9ae64b82e0f161ac7bc7dd820edd39275ab81588d2a01e7d78ecefd1e63d6ccc"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5714,12 +5714,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 48
       },
-      "telemetry_sha256": "50e8c3d2f52640cd7b6ca66224e9dbb27b531504bc3bd885ef8d10a96415d67c"
+      "telemetry_sha256": "4fc5caca309d8ee2699c64576bb12dfb31227d3801dcf6d3604208276f8f239b"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5728,12 +5728,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 46
       },
-      "telemetry_sha256": "e7ac526740f8c3fe6482fb98c216f9e6874a182880e23d7770dd3a088acf2c0d"
+      "telemetry_sha256": "f053a35a0fd6be02f98daa2b73179dec5c05df8a476cd458e1efd824c02ccba5"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5742,12 +5742,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 32
       },
-      "telemetry_sha256": "4ef90a69ce306990f953a780a20ac64609f9074d08121a14fbc6d4d8c0ca7bf2"
+      "telemetry_sha256": "ddf580203ff71c740b978c7d3d507de6dd1e4d6951e5b759c8db4a046ffaaef7"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5756,12 +5756,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 45
       },
-      "telemetry_sha256": "abc4e8358254e0b2f51a652d7c94b5a3b3a90d32e8e3c49857951034512f6f71"
+      "telemetry_sha256": "395a0048b15112506dc8ea89a35647239563bcd4c141a6318cffaaffb7361833"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5770,12 +5770,12 @@
         "code_clarity": 83,
         "stakeholder_trust": 10
       },
-      "telemetry_sha256": "b7f1f42b7693f5547fbfdb3c569a6bacfa003af7161f1bcc505d4d6f44474cec"
+      "telemetry_sha256": "cb630ce94adf8ac58c5dc538cfe6e0dd2ddb949d7df012e59be633328af3e439"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5784,12 +5784,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 37
       },
-      "telemetry_sha256": "f504747b1dfee9b2a249a7f6ce4c82e1966a6824612165c89100a263c5e5cca3"
+      "telemetry_sha256": "f08ad22617042554238a71135fb91c4215e6ca355807b09cae5541320eb90d96"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5798,12 +5798,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 47
       },
-      "telemetry_sha256": "f198eeb06d1c5da2720e0afc96d998043c5ef794d71876184986273c3dcc883a"
+      "telemetry_sha256": "3c8e367dac85dd8222854b80218883f9b01dd89981ed465b69d146f9957097a0"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5812,12 +5812,12 @@
         "code_clarity": 60,
         "stakeholder_trust": 28
       },
-      "telemetry_sha256": "ce2bb832f3e11c1b809c5972a6ec49a87030500e856e080efa8cf72a0b029d33"
+      "telemetry_sha256": "f448c35a574ffc8820636aa4555d9ad3c8e8fc4e2ae87445caffc2c8928392be"
     },
     {
-      "tier": "failure",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier": "partial_success",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5826,12 +5826,12 @@
         "code_clarity": 57,
         "stakeholder_trust": 46
       },
-      "telemetry_sha256": "c20682ac805364c8d74bb9d5e9ffb22776b6d7d6cbdcb0d21e23928b294cb251"
+      "telemetry_sha256": "097c0cf354d6c5e700e658222349f9a144cdc1737cd236c1e3324772e846d1a6"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5840,12 +5840,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 71
       },
-      "telemetry_sha256": "b1f81268b34bc8587706d11fb23d15375e671e962fd54b1b48437bc1026d74ba"
+      "telemetry_sha256": "bee995858e59c27c49dd294f26e9059290e1c4e92e907354036c8824b0d01c33"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5854,12 +5854,12 @@
         "code_clarity": 50,
         "stakeholder_trust": 27
       },
-      "telemetry_sha256": "48030611974e6cd9123db1ec6345cd075415d56273e311617a754e29cacca5e8"
+      "telemetry_sha256": "f2d5eb0faf59c4832ea2465a7b1e9197e68d6520a831cfb0ddb73ff44babfc32"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5868,12 +5868,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 58
       },
-      "telemetry_sha256": "d243316ad196d5b1e5ee89a96458ba7fd880787655549379efdc410086162b7f"
+      "telemetry_sha256": "f8775005cb1b32adc85ea5fa1361629ad0bcc49c57905b121d2e8675d12b0ca2"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "stakeholder_whisperer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5882,12 +5882,12 @@
         "code_clarity": 30,
         "stakeholder_trust": 58
       },
-      "telemetry_sha256": "e853cb9998c9327e7877d73705ec48c6987bfdb7f31a0f9d6697de3127581539"
+      "telemetry_sha256": "b6486d5a097522fad9139db02b410dead95e3b871e3f93a7c1dfb30c50e69852"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5896,12 +5896,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 51
       },
-      "telemetry_sha256": "0ce812bff10e8d8e078ab2cbf2c3b16734a2b9ab9ef35306cab18d1c5e3350d6"
+      "telemetry_sha256": "3cb29594fa74b6fb6bd121232cc6756c7e6c8c40e0bd729a37d7d9cf9b60d144"
     },
     {
-      "tier": "failure",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier": "partial_success",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5910,12 +5910,12 @@
         "code_clarity": 38,
         "stakeholder_trust": 86
       },
-      "telemetry_sha256": "9e2db128540df783d41e6a5ae2aea62746602596ab153fcd6aaacd282857c206"
+      "telemetry_sha256": "898eb0d606fa7e07b2a187fdc700b2ef0d62e6d18a4106a9817980393c9e88ae"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5924,12 +5924,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 54
       },
-      "telemetry_sha256": "16aeaa78081eedd87efa8c975df846e2060ff369e733f96ab36640f6c6018da5"
+      "telemetry_sha256": "40c81fc563ab893f9c679bbd413da16ef92589c52411709e91f243b07053ced6"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5938,12 +5938,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 46
       },
-      "telemetry_sha256": "69f32d11c24fd2a1156a47395bc45c4721a58b9be2a1e339023de38f177acd64"
+      "telemetry_sha256": "7ff439ac9be58f16e21234430406201204453b95a8d8e3050dab74a904fac728"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5952,12 +5952,12 @@
         "code_clarity": 69,
         "stakeholder_trust": 23
       },
-      "telemetry_sha256": "19886cfbba8d4581ee0cb78528bcdf1a947bfcdc0359e9964ee2f10b2a43bb2a"
+      "telemetry_sha256": "5f73d812107f0443840b089cce11e90faf7ab3b7fd85842b334d393b87448a1f"
     },
     {
-      "tier": "failure",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier": "partial_success",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5966,12 +5966,12 @@
         "code_clarity": 45,
         "stakeholder_trust": 68
       },
-      "telemetry_sha256": "cc4ef0553718b9b339a4c16c59a51bfa747fe90b0e85cef98b51f91a2545efba"
+      "telemetry_sha256": "02574394450a45a39026e5d0402b2b30631f82328f2c4644756f68ca30a36cf5"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5980,12 +5980,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 47
       },
-      "telemetry_sha256": "5683222432c335c274f7c1815a89e7f8e56d83206df8e93bb30ec93eec31b032"
+      "telemetry_sha256": "13748f537ccd74f30bf5262471b93ad0cb16bf63c2c5cb404fb707b89d09fabb"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -5994,12 +5994,12 @@
         "code_clarity": 50,
         "stakeholder_trust": 26
       },
-      "telemetry_sha256": "777e0e083fbaaf73912d0c9c2da7576e05f1a5f83b11b38a0765d35a16973934"
+      "telemetry_sha256": "48817ca883190e1c74017b0b987640cf84d39f6717e4abf8996fb1afa7a44601"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6008,12 +6008,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 40
       },
-      "telemetry_sha256": "880f9f65953d855b8f856c3a79d7f487300c1bf94cf55c2061bc1b2fefc66969"
+      "telemetry_sha256": "7f7804e57b2a929e8f391219ac1a0706374d0a49ce93c5c85e0ac06f703e58d7"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6022,12 +6022,12 @@
         "code_clarity": 38,
         "stakeholder_trust": 44
       },
-      "telemetry_sha256": "61c3902c2e8465fc1a4dca210df39fd14a8cb806032a37834772ae04c634df1a"
+      "telemetry_sha256": "81d40abbd61dd536097fa6be2b111c96f75666955402dbde953ac4678de7f063"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6036,12 +6036,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 66
       },
-      "telemetry_sha256": "c2bceb64d860024daab843cbfc3cf7224798b2b4af38f397a4c3b4db674f0fca"
+      "telemetry_sha256": "db088da821bb1b86ebef821722d754dabe4386cb9c879c646de22d50a58aceb9"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6050,12 +6050,12 @@
         "code_clarity": 50,
         "stakeholder_trust": 41
       },
-      "telemetry_sha256": "e54c7cf5e4d9027e755882e56b5b2e6008a7fe9f62672290ff366dc97c1f1fb6"
+      "telemetry_sha256": "7fe92649ebd723ce6fd9c38ba66bd29671409f0967b87c347cb487c126078d37"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6064,12 +6064,12 @@
         "code_clarity": 42,
         "stakeholder_trust": 38
       },
-      "telemetry_sha256": "f0827dfda90ee03faaed0d19c82ca6831cc1a36b9f51e61f08ed15c32ad7e26a"
+      "telemetry_sha256": "2015556e88523149b41e77f3cc5c4b02c5ad8e1958738880f35b037e69c97991"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6078,12 +6078,12 @@
         "code_clarity": 59,
         "stakeholder_trust": 50
       },
-      "telemetry_sha256": "fa1eaf980d0554c739360085859cc2c7b8d5fbedfc1e5467c854d132b4930287"
+      "telemetry_sha256": "e4bf3aeba7d6ff5ea297622d52086fc1e21290a88d8d460c8ae25112c0915412"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6092,12 +6092,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 60
       },
-      "telemetry_sha256": "a021f69e643624ec001044a2e4bf0fb34181e2de8930994d618c442e39683ea4"
+      "telemetry_sha256": "35685d4c9f6b8ddd453f16cb88c178521b33fb3f848d515786d3a531609459b9"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6106,12 +6106,12 @@
         "code_clarity": 30,
         "stakeholder_trust": 40
       },
-      "telemetry_sha256": "cf61c30d8b24ac180895a679f6357d9da1812034309c733a12add8fcad22290a"
+      "telemetry_sha256": "b3a6e8df39f107ab9be9f77467eb27b27efc92740044d58ccbb0c506505a1575"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6120,12 +6120,12 @@
         "code_clarity": 86,
         "stakeholder_trust": 28
       },
-      "telemetry_sha256": "359d232afdaafd6000d8c34aedb0715c517c53986b733da8958137260c99bed3"
+      "telemetry_sha256": "2614e142a4e283ea20e8593fa67b55489e67a19d528ee5975585623248aa7c87"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6134,12 +6134,12 @@
         "code_clarity": 51,
         "stakeholder_trust": 66
       },
-      "telemetry_sha256": "8f82f9dba6174d7314e2e3451da328d1a2ec6935238474e85790318ae76aa08c"
+      "telemetry_sha256": "36e8c2cc3d1c329bd4cf27ec01464010488631dc1a00176748b4bee605b83ff4"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6148,12 +6148,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 48
       },
-      "telemetry_sha256": "f9e707dfcbed272fcd51e38115ae91f838d224ae683539bc1b2466317ec5da92"
+      "telemetry_sha256": "273a551a4876b49c4a21048a29d791b06adfd6c2e9ec5f73a64692967f07dbd8"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6162,12 +6162,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 47
       },
-      "telemetry_sha256": "20c2387df844d7d0bbe2039db528933c72928043d9941a1716b32597782429a4"
+      "telemetry_sha256": "c41b84db5ee8e35db6c833db275ce275985adc0c120e9c21a5a3f4342bbd8075"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6176,12 +6176,12 @@
         "code_clarity": 58,
         "stakeholder_trust": 19
       },
-      "telemetry_sha256": "913a10b6dc111be5085449f80c80f5cf58a0c330f064bb2ba2584d79a6fd435d"
+      "telemetry_sha256": "67246d50ad5ce27e4189bed3de55a03efa8f6cd30ac3c0064dfc98ea5f3a64fa"
     },
     {
       "tier": "success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_success",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6190,12 +6190,12 @@
         "code_clarity": 47,
         "stakeholder_trust": 34
       },
-      "telemetry_sha256": "6db944de418f69d174bbf8579aaf035dadf1dcba5e3daf0e93883350be917932"
+      "telemetry_sha256": "069ddfdd3596400a382dbfbbbd640002cf00b0f958894fc018dd28e8fb50ba8b"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6204,12 +6204,12 @@
         "code_clarity": 50,
         "stakeholder_trust": 56
       },
-      "telemetry_sha256": "2cc82b10249291d4fba3905eefa42f4236b026427d71a06ee6124be2fc7e2f3b"
+      "telemetry_sha256": "cf5d7b5e40413547f1fbe427434858ec65f0a597ad3ba9b90b23f1fab40afd8d"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6218,12 +6218,12 @@
         "code_clarity": 65,
         "stakeholder_trust": 25
       },
-      "telemetry_sha256": "70b53c3125b0b2c1563826485ac13b7acd660986b88caa8af526106303d6ee4c"
+      "telemetry_sha256": "d4472f0f41a4bf83f5ff7562ad02772007962ba7ce8df8809108d513f607ebf2"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6232,12 +6232,12 @@
         "code_clarity": 35,
         "stakeholder_trust": 31
       },
-      "telemetry_sha256": "9ea8b50802ece95bc6fffa1483e0f6fa8c91d64af03ca0278edfa486528f0fc3"
+      "telemetry_sha256": "1435d291cc7b0c93fcf72fe923e12780de71975d616f2011d3232b90385eda58"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6246,12 +6246,12 @@
         "code_clarity": 59,
         "stakeholder_trust": 30
       },
-      "telemetry_sha256": "6f72c4808ab1376e7c6bfe2dbaccede4842318fc312910cf96f71aa8152af4ac"
+      "telemetry_sha256": "df60b6f1b667e9f62e671683ba0ad9804c44828bc278ac8b3432f75b612ce645"
     },
     {
-      "tier": "failure",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier": "partial_success",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6260,12 +6260,12 @@
         "code_clarity": 61,
         "stakeholder_trust": 37
       },
-      "telemetry_sha256": "a33f3a177a9bdaee6ba15a0c4c84ed46558d04eea7faa9dce6f7a83637fdbe37"
+      "telemetry_sha256": "03f0db307efb000ddd5bd999649eb7d91ac4d2a27b631e13abdfce961731cda5"
     },
     {
       "tier": "partial_success",
-      "tier_id": null,
-      "ending": "system_stabilizer",
+      "tier_id": "tutorial_done",
+      "ending": "tutorial_learner",
       "status": "completed_max_turns",
       "turns": 5,
       "final_scores": {
@@ -6274,7 +6274,7 @@
         "code_clarity": 65,
         "stakeholder_trust": 29
       },
-      "telemetry_sha256": "741032355bbe876f0b924f2a38a285d8cba2ab75971cee60b8633db611d4ecbc"
+      "telemetry_sha256": "57105fdc8b82ce9d9035453e14f0a162b656ff00b6787aad3df2bb766a6daf93"
     }
   ],
   "demo:ledger_payments_monolith-v1 player_true": [
