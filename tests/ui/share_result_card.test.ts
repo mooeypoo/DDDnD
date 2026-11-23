@@ -85,19 +85,22 @@ describe('share_result_card community pack marker (journal M2.12)', () => {
     const wrapper = mount(ShareResultCard, {
       props: { payload: makePayload({ cp: { n: 'Demo: The Gilded Ledger', p: 'mooeypoo on GitHub (mooeypoo/DDDnD-packs)' } }) },
     })
-    expect(wrapper.find('.community-pack-line').text()).toBe(
-      'Community pack · Demo: The Gilded Ledger · mooeypoo on GitHub (mooeypoo/DDDnD-packs) · not a DDDnD scenario',
-    )
+    const badge = wrapper.find('.community-pack-badge')
+    expect(badge.find('.badge-pill').text()).toBe('Community pack')
+    expect(badge.find('.badge-name').text()).toBe('Demo: The Gilded Ledger')
+    expect(badge.find('.badge-publisher').text()).toBe('by mooeypoo on GitHub (mooeypoo/DDDnD-packs)')
+    expect(badge.find('.badge-note').text()).toBe('Not an official DDDnD scenario')
   })
 
   it('shows pack-supplied text as text, never markup', () => {
-    const wrapper = mount(ShareResultCard, { props: { payload: makePayload({ cp: { n: '<b>bold</b>', p: 'x' } }) } })
-    expect(wrapper.find('.community-pack-line b').exists()).toBe(false)
-    expect(wrapper.find('.community-pack-line').text()).toContain('<b>bold</b>')
+    const wrapper = mount(ShareResultCard, { props: { payload: makePayload({ cp: { n: '<b>bold</b>', p: '<i>x</i>' } }) } })
+    expect(wrapper.find('.community-pack-badge b').exists()).toBe(false)
+    expect(wrapper.find('.community-pack-badge i').exists()).toBe(false)
+    expect(wrapper.find('.badge-name').text()).toBe('<b>bold</b>')
   })
 
   it('has no marker for first-party runs', () => {
-    expect(mount(ShareResultCard, { props: { payload: makePayload() } }).find('.community-pack-line').exists()).toBe(false)
+    expect(mount(ShareResultCard, { props: { payload: makePayload() } }).find('.community-pack-badge').exists()).toBe(false)
   })
 })
 

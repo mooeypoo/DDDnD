@@ -39,9 +39,7 @@
           <span class="quest-banner-label">Quest</span>
           <span class="quest-banner-name">{{ scenarioName }}</span>
         </div>
-        <p v-if="runCommunityPack" class="community-run-label" title="This scenario comes from a community pack, not from DDDnD">
-          Community pack · {{ runCommunityPack.name }} · {{ runCommunityPack.publisher }} · not a DDDnD scenario
-        </p>
+        <CommunityPackBadge v-if="runCommunityPack" :name="runCommunityPack.name" :publisher="runCommunityPack.publisher" />
       </div>
       
       <!-- Archetype Display -->
@@ -237,6 +235,7 @@ import {
 } from '@/ui/composables/stakeholder_presentation'
 import { buildSharePayload } from '@/domains/reporting/services/build_share_payload'
 import { describeRunCommunityPack } from '@/ui/play/community_pack_review'
+import CommunityPackBadge from '@/ui/components/results/community_pack_badge.vue'
 import { describeOutcome, titleCaseId } from '@/ui/play/outcome_presentation'
 import { lobbyRouteFor } from '@/ui/community/community_routes'
 import { buildShareUrl, type SharePayload } from '@/domains/reporting/services'
@@ -753,18 +752,6 @@ function inlineComputedStyles(source: Element, target: Element) {
 .quest-banner-name {
   color: var(--dng-subtitle-warm);
   font-weight: var(--font-semibold);
-}
-
-.community-run-label {
-  margin: 0.6rem auto 0;
-  max-width: 36rem;
-  padding: 0.25rem 0.75rem;
-  border: 1px dashed var(--effect-warning-border);
-  border-radius: 999px;
-  color: var(--effect-warning);
-  font-size: var(--text-sm);
-  text-align: center;
-  overflow-wrap: anywhere;
 }
 
 /* Archetype Card */
