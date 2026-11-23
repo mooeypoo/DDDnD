@@ -1,4 +1,4 @@
-import { readdir, readFile } from 'node:fs/promises'
+import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type {
@@ -15,16 +15,12 @@ import type {
   VersionRef,
   PlayerClass,
 } from '../src/domains/content/model/index.js'
-import type { ContentProvider } from '../src/domains/content/services/content_provider.js'
 import { validateContentPack } from '../src/domains/content/services/content_pack_validator.js'
-import { assertValidContentPackManifest } from '../src/domains/content/services/manifest_validator.js'
 import { simulate_player_true_and_oracle } from '../src/domains/simulation/services/simulation_runner.js'
 import { buildContentAuditReport } from '../src/domains/simulation/services/audit/content_audit_report_builder.js'
 import { buildScenarioBundle } from '../src/domains/content/services/bundle_builder.js'
-import { createFileContentProvider } from './lib/file_content_provider.js'
-import { ContentPackRegistry } from '../src/domains/content/services/content_pack_registry.js'
-import { communityManifestIssues, firstPartyPackKey } from '../src/domains/content/services/pack_identity.js'
-import type { ContentProvider } from '../src/domains/content/services/content_provider.js'
+import { createPackScopedProvider, FIRST_PARTY_PACK_ROOTS, loadManifestFromDisk } from './lib/pack_loader.js'
+import { communityManifestIssues } from '../src/domains/content/services/pack_identity.js'
 
 interface VersionedEntity {
   id: string
@@ -34,16 +30,6 @@ interface VersionedEntity {
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const defaultProjectRoot = path.resolve(scriptDir, '..')
 const defaultContentRoot = path.resolve(defaultProjectRoot, 'content')
-
-/**
- * First-party packs a community pack may depend on, by pack id. When a
- * validated pack declares one of these in depends_on, it is loaded from this
- * repository so the pack is checked exactly as the game will see it.
- */
-const FIRST_PARTY_PACK_ROOTS: Record<string, string> = {
-  base: defaultContentRoot,
-  tutorial: path.resolve(defaultContentRoot, 'tutorial'),
-}
 
 function parseArgs(args: string[]) {
   const getValue = (flag: string): string | undefined => {
@@ -105,13 +91,6 @@ async function listScenarioRefs(contentRoot: string, includeTestScenarios: boole
     .sort((a: VersionRef, b: VersionRef) => a.id.localeCompare(b.id) || a.version - b.version)
 }
 
-async function loadManifestFromDisk(manifestPath: string): Promise<ContentPackManifest> {
-  const raw = await readFile(manifestPath, 'utf8')
-  const parsed = JSON.parse(raw) as unknown
-  assertValidContentPackManifest(parsed)
-  return parsed
-}
-
 function listEntryPointScenarioRefs(manifest: ContentPackManifest, includeTestScenarios: boolean): VersionRef[] {
   const scenarioRefs = [...manifest.scenarios, ...manifest.tutorials]
     .filter(ref => includeTestScenarios || !ref.id.startsWith('test_'))
@@ -120,48 +99,6 @@ function listEntryPointScenarioRefs(manifest: ContentPackManifest, includeTestSc
   return scenarioRefs
 }
 
-/**
- * Builds the provider the game would use for this pack's scenarios: the pack
- * plus its declared dependencies, with one owner per file and pack-scoped
- * resolution (M1.3). First-party dependencies come from this repository.
- * --dependency-root folders can stand in for them (for example, to check a
- * pack against a work-in-progress base pack); community packs may not depend
- * on other community packs (ADR 0013).
- */
-async function createPackScopedProvider(
-  manifest: ContentPackManifest,
-  contentRoot: string,
-  dependencyRoots: string[],
-): Promise<ContentProvider> {
-  const registry = new ContentPackRegistry()
-  const registered = new Set<string>()
-
-  const candidates = new Map<string, string>(Object.entries(FIRST_PARTY_PACK_ROOTS))
-  for (const root of dependencyRoots) {
-    const dependencyManifest = await loadManifestFromDisk(path.join(root, 'manifest.json'))
-    candidates.set(dependencyManifest.id, root)
-  }
-
-  async function registerWithDependencies(packManifest: ContentPackManifest, root: string): Promise<void> {
-    for (const dependency of packManifest.depends_on) {
-      if (registered.has(dependency.pack_id)) continue
-      const dependencyRoot = candidates.get(dependency.pack_id)
-      if (!dependencyRoot) {
-        throw new Error(
-          `Pack "${packManifest.id}" depends on "${dependency.pack_id}". Pass its folder with --dependency-root <dir>.`,
-        )
-      }
-      await registerWithDependencies(await loadManifestFromDisk(path.join(dependencyRoot, 'manifest.json')), dependencyRoot)
-    }
-    if (!registered.has(packManifest.id)) {
-      registry.registerPack(packManifest, createFileContentProvider(root))
-      registered.add(packManifest.id)
-    }
-  }
-
-  await registerWithDependencies(manifest, contentRoot)
-  return registry.createScopedProvider(firstPartyPackKey(manifest.id))
-}
 
 async function main() {
   const options = parseArgs(process.argv.slice(2))

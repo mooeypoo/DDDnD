@@ -250,6 +250,33 @@ Tips:
 
 See [CONTENT_SCHEMA.md](https://github.com/mooeypoo/DDDnD/blob/main/CONTENT_SCHEMA.md#ending-criteria) for every measure and check.
 
+## Balance targets: how hard your adventure should be
+
+A scenario can say how often a player-like bot should win it. The balance audit checks it, and the lobby shows a difficulty mark (Easy, Normal or Hard) from it:
+
+```json
+"balance_targets": {
+  "win_rate_min": 0.35,
+  "win_rate_max": 0.6,
+  "max_critical_findings": 0,
+  "min_avg_stakeholder_satisfaction": { "cto": 45, "cfo": 40 }
+}
+```
+
+- `win_rate_min` and `win_rate_max` are shares (0 to 1) of simulated player-like runs that reach a `success` tier. The audit warns when the observed rate falls outside the band.
+- The lobby's mark uses the middle of the band: 0.6 or more is Easy, 0.45 or more is Normal, below that is Hard. Easier adventures are listed first.
+- `max_critical_findings` is how many critical audit findings you accept (usually 0).
+- `min_avg_stakeholder_satisfaction` (optional) sets a floor per stakeholder. Without one, the audit warns below an average of 45.
+
+Leave `balance_targets` out and your adventure gets no difficulty mark and no target checks; the other audit checks still run. To see how your pack plays, audit its folder:
+
+```bash
+npm run audit:gate -- --content-root ../my-packs/packs/my_pack
+npx tsx scripts/generate-audit-report.ts --content-root ../my-packs/packs/my_pack --out my-audit.json
+```
+
+See [CONTENT_SCHEMA.md](https://github.com/mooeypoo/DDDnD/blob/main/CONTENT_SCHEMA.md#balance-targets).
+
 ## Single-file packs (`.dddnd-pack.json`)
 
 A pack can also travel as one file, for workshops where hosting isn't practical: a player loads it into the game from their computer. Create one from a pack folder:

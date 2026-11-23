@@ -108,6 +108,9 @@ function transformScenarioToQuestDisplay(scenario: Scenario, packKey: string): Q
     isTutorial: scenario.is_tutorial ?? false,
     tutorialOrder: scenario.tutorial_order,
     startingScores: { ...scenario.starting_scores },
+    ...(scenario.balance_targets
+      ? { winRateTarget: { min: scenario.balance_targets.win_rate_min, max: scenario.balance_targets.win_rate_max } }
+      : {}),
   }
 }
 

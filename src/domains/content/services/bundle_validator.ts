@@ -297,6 +297,18 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
     }
   }
   
+  // Balance targets (journal M3.8): satisfaction floors only for this scenario's stakeholders
+  const targetStakeholderIds = new Set(bundle.scenario.stakeholder_refs.map((ref) => ref.id))
+  for (const stakeholderId of Object.keys(bundle.scenario.balance_targets?.min_avg_stakeholder_satisfaction ?? {})) {
+    if (!targetStakeholderIds.has(stakeholderId)) {
+      errors.push({
+        type: 'unknown_target_stakeholder',
+        message: `balance_targets sets a satisfaction floor for "${stakeholderId}", who isn't in this scenario`,
+        details: { stakeholderId }
+      })
+    }
+  }
+
   // Ending criteria (journal M3.5): reachable, ordered, and about this scenario
   const endingsWithCriteria = Array.from(bundle.outcome_archetypes.values()).filter((ending) => ending.criteria)
   if (endingsWithCriteria.length > 0) {

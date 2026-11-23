@@ -16,6 +16,7 @@
  */
 
 import type {
+  BalanceTargets,
   CouplingRule,
   Card,
   ChallengeModifier,
@@ -218,6 +219,19 @@ export const couplingRuleSchema: z.ZodMiniType<CouplingRule> = z.strictObject({
   gain_multiplier: z.number().check(z.gte(numbers.gain_multiplier.min), z.lte(numbers.gain_multiplier.max)),
 })
 
+const winRateSchema = z.number().check(z.gte(numbers.win_rate.min), z.lte(numbers.win_rate.max))
+
+const balanceTargetsSchema: z.ZodMiniType<BalanceTargets> = z.strictObject({
+  win_rate_min: winRateSchema,
+  win_rate_max: winRateSchema,
+  max_critical_findings: boundedInt(numbers.max_critical_findings),
+  min_avg_stakeholder_satisfaction: z.optional(idRecord(boundedInt(numbers.satisfaction), counts.stakeholder_refs)),
+}).check(
+  z.refine((targets) => targets.win_rate_min <= targets.win_rate_max, {
+    message: 'win_rate_min must not be above win_rate_max',
+  }),
+)
+
 export const scenarioSchema: z.ZodMiniType<Scenario> = z.strictObject({
   ...metadataShape,
   name: nameSchema,
@@ -239,6 +253,7 @@ export const scenarioSchema: z.ZodMiniType<Scenario> = z.strictObject({
   is_tutorial: z.optional(z.boolean()),
   tutorial_order: z.optional(boundedInt(numbers.tutorial_order)),
   tutorial_script_ref: z.optional(versionRefSchema),
+  balance_targets: z.optional(balanceTargetsSchema),
 })
 
 export const playerClassSchema: z.ZodMiniType<PlayerClass> = z.strictObject({

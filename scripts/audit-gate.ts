@@ -8,12 +8,16 @@
  * Usage:
  *   npm run audit:gate
  *   npm run audit:gate -- --runs 100   (override simulation run count)
+ *   npm run audit:gate -- --content-root ../my-packs/packs/my_pack
+ *     (audit any pack folder: its manifest's scenarios, with its first-party
+ *     dependencies loaded from this repository; journal M3.8)
  */
 
-import { readFile, readdir } from 'node:fs/promises'
+import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createFileContentProvider } from './lib/file_content_provider.js'
+import { createPackScopedProvider, loadManifestFromDisk } from './lib/pack_loader.js'
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url))
 const projectRoot = path.resolve(scriptDir, '..')
@@ -76,8 +80,20 @@ async function main() {
   const { simulate_player_true_and_oracle } = await import('../src/domains/simulation/services/simulation_runner.js')
   const { buildContentAuditReport } = await import('../src/domains/simulation/services/audit/content_audit_report_builder.js')
 
-  const scenarios = await listProductionScenarioRefs()
-  const provider = createFileContentProvider(contentRoot)
+  const packRootArg = args.indexOf('--content-root')
+  const packRoot = packRootArg !== -1 ? path.resolve(args[packRootArg + 1]) : null
+  let scenarios: VersionRef[]
+  let provider: Awaited<ReturnType<typeof createPackScopedProvider>>
+  let contentPackId = 'core'
+  if (packRoot) {
+    const manifest = await loadManifestFromDisk(path.join(packRoot, 'manifest.json'))
+    scenarios = manifest.scenarios
+    provider = await createPackScopedProvider(manifest, packRoot, [])
+    contentPackId = manifest.id
+  } else {
+    scenarios = await listProductionScenarioRefs()
+    provider = createFileContentProvider(contentRoot)
+  }
 
   console.log('')
   console.log('╔══════════════════════════════════════════════════════╗')
@@ -109,14 +125,14 @@ async function main() {
       seed: 'audit-gate',
     })
     const auditReport = buildContentAuditReport({
-      content_pack_id: 'core',
+      content_pack_id: contentPackId,
       scenario_bundle: bundle,
       simulation_report: report,
       oracle_simulation_report: oracleReport,
     })
 
     const { summary, findings } = auditReport
-    const statusIcon = summary.overall_status === 'pass' ? '✓' : summary.overall_status === 'warn' ? '△' : '✗'
+    const statusIcon = summary.overall_status === 'pass' ? '✓' : summary.overall_status === 'warning' ? '△' : '✗'
 
     console.log(` ${statusIcon} ${summary.overall_status.toUpperCase()}  (critical: ${summary.critical_count}, warning: ${summary.warning_count}, info: ${summary.info_count})`)
 

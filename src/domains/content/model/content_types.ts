@@ -282,6 +282,22 @@ export interface Scenario extends ContentMetadata {
   tutorial_order?: number
   /** Tutorial-only: reference to the tutorial script content file */
   tutorial_script_ref?: VersionRef
+  /**
+   * What the balance audit expects of this scenario, and where the lobby's
+   * difficulty mark comes from (journal M3.8). Never read during play.
+   */
+  balance_targets?: BalanceTargets
+}
+
+/** A scenario's balance intent. See CONTENT_SCHEMA.md "Balance Targets". */
+export interface BalanceTargets {
+  /** Expected share of player-like runs that win (0–1). */
+  win_rate_min: number
+  win_rate_max: number
+  /** Critical audit findings tolerated. */
+  max_critical_findings: number
+  /** Lowest acceptable average final satisfaction, per stakeholder id. */
+  min_avg_stakeholder_satisfaction?: Record<string, number>
 }
 
 /**

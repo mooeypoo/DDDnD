@@ -3,6 +3,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import type { PlayerClass } from '@/domains/content/model'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import CouncilLobby from '@/ui/play/council_lobby.vue'
+import { baseQuest } from '../support/base_balance_targets'
 
 function makeQuest(id: string, name: string, extras: Partial<QuestDisplayModel> = {}): QuestDisplayModel {
   return {
@@ -16,6 +17,8 @@ function makeQuest(id: string, name: string, extras: Partial<QuestDisplayModel> 
     turnCount: 8,
     stakeholderCount: 4,
     actionCardCount: 10,
+    // Base scenario ids carry their content's win-rate band, as the loader gives them
+    ...(baseQuest(id).winRateTarget ? { winRateTarget: baseQuest(id).winRateTarget } : {}),
     ...extras,
   }
 }

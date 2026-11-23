@@ -1584,3 +1584,42 @@ The built-in classifier now applies only to content whose endings have no criter
   - `getRunOutcome` records a pack's ending id.
 - **Headless Chrome:** a share link for a pack run opens with its tier ("Calm Nights"), its ending ("The Pager Whisperer") and 🎯, plus the community-pack line, with no errors. One pre-existing gap: the quest shows as "Sre Pager Storm", a title-cased id, because share links don't carry the scenario's name. That is worth fixing with slice 9, when a real pack's runs are shared.
 
+### M3.8 (slice 6): Balance targets are content; the audit takes any pack folder (2026-11-23)
+
+**What changed**
+
+- **Scenarios gain optional `balance_targets`:**
+  - `win_rate_min` and `win_rate_max`;
+  - `max_critical_findings`;
+  - `min_avg_stakeholder_satisfaction`.
+
+  These are the same fields as the old `SCENARIO_BALANCE_TARGETS` table in `scenario_balance_targets_audit.ts`. The table is gone. The five current base scenarios carry their old values, copied exactly, added in place because they are never read during play.
+- **The audit reads the scenario's own targets** (`auditScenarioBalanceTargets` and `auditStakeholderBalance` take them from the bundle).
+- **The lobby's difficulty mark and ordering read them too.** `QuestDisplayModel` gains `winRateTarget`, filled by the quest loader from the scenario. `questDifficulty` and `sortQuestsByDifficulty` take the quest, not its id.
+- **The validator** refuses a band with min above max, and a satisfaction floor for a stakeholder the scenario doesn't have.
+- **Audit scripts take a pack folder.** The pack-loading code moved from `validate-content-pack.ts` into `scripts/lib/pack_loader.ts`; it loads the pack plus its first-party dependencies, as the game does. `audit:gate` and `generate-audit-report.ts` gained `--content-root` (and the report `--out`). With no flags, both behave exactly as before.
+- **Docs:** CONTENT_SCHEMA.md "Balance Targets", and "Balance targets: how hard your adventure should be" in both authoring guides.
+
+**Why it mattered: two more id-keyed leaks**
+
+Both the audit and the lobby looked targets up by **scenario id alone**. A community scenario that reused an id like `microservice_sprawl` (allowed since ADR 0014) would have been:
+
+- marked "Hard" in its bazaar table;
+- sorted by the base game's band;
+- audited against the base game's expectations.
+
+This is the same class of bug ADR 0014 fixed for scenes and bundles, in two places that review missed. Reading the targets from the scenario's own content closes it. A new test pins it: a quest with a base id and no targets gets no mark.
+
+**Found on the way**
+
+- **The gate printed ✗ for warnings.** `audit-gate.ts` compared the status to `'warn'`, but the status is `'warning'`, so every scenario with a warning printed a failure icon (the gate's exit code was right). It's fixed. This is the only intended change to the gate's output.
+- **Unused imports.** The scripts aren't covered by the project typecheck (`tsconfig.json` includes `src` and `tests` only). A one-off check found unused imports in `validate-content-pack.ts`. They're harmless and left alone, and the new `pack_loader.ts` is clean. Adding `scripts/` to the typecheck is a small follow-up.
+
+**Verification**
+
+- **Golden replays unchanged.** The fixed-seed audit report is identical to `main` (the targets reproduce the table exactly). The gate's output is identical before and after the script change, apart from the icon fix.
+- **The demo pack folder** passes `audit:gate --content-root`, `generate-audit-report.ts --content-root` and `content:validate:audit` with no findings.
+- **Tests** (1131 total):
+  - The existing audit, difficulty, lobby and store tests now read targets from the scenario files, through `tests/support/base_balance_targets.ts`. That proves the content matches the old table.
+  - New tests cover a scenario's own targets winning over its id, the default floor without targets, the validator refusals, and a reused base id with no targets getting no mark.
+

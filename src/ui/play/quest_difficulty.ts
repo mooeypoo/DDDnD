@@ -1,16 +1,20 @@
 /**
  * Player-facing difficulty mark for a quest.
  *
- * Derived from the authored win-rate band the balance audit already gates on,
- * so the badge and the design intent cannot drift apart. A scenario the audit
- * expects to be won 25–50% of the time is harder than one expected at 50–80%.
+ * Derived from the win-rate band the scenario's own `balance_targets` declare
+ * (journal M3.8), the same band the balance audit gates on, so the badge and
+ * the design intent cannot drift apart. A scenario expected to be won 25–50%
+ * of the time is harder than one expected at 50–80%.
  *
- * Presentation only: this reads audit configuration to label a plate. It does
- * not change a rule, a threshold, or an outcome. Packs without a balance target
- * (including tutorials) simply carry no mark.
+ * Presentation only: it labels a plate. It does not change a rule, a
+ * threshold, or an outcome. Scenarios without targets (including tutorials)
+ * simply carry no mark.
  */
 
-import { SCENARIO_BALANCE_TARGETS } from '@/domains/simulation'
+/** What difficulty reads from a quest. */
+export interface DifficultyTarget {
+  winRateTarget?: { min: number; max: number }
+}
 
 export type QuestDifficultyId = 'easy' | 'normal' | 'hard'
 
@@ -44,20 +48,20 @@ const EASY_WIN_RATE = 0.6
 const NORMAL_WIN_RATE = 0.45
 
 /** Share of attempts the pack expects to end in a win, or null if untargeted. */
-function expectedWinRate(scenarioId: string): number | null {
-  const target = SCENARIO_BALANCE_TARGETS[scenarioId]
+function expectedWinRate(quest: DifficultyTarget): number | null {
+  const target = quest.winRateTarget
   if (!target) {
     return null
   }
 
-  return (target.win_rate_min + target.win_rate_max) / 2
+  return (target.min + target.max) / 2
 }
 
 /**
  * Difficulty mark for a scenario, or null when the pack sets no target.
  */
-export function questDifficulty(scenarioId: string): QuestDifficultyPresentation | null {
-  const expected = expectedWinRate(scenarioId)
+export function questDifficulty(quest: DifficultyTarget): QuestDifficultyPresentation | null {
+  const expected = expectedWinRate(quest)
   if (expected === null) {
     return null
   }
@@ -76,10 +80,10 @@ export function questDifficulty(scenarioId: string): QuestDifficultyPresentation
  * thresholds on the same number. Untargeted quests hold their pack order at
  * the end, where they cannot displace a graded opening plate.
  */
-export function sortQuestsByDifficulty<T extends { id: string }>(quests: readonly T[]): T[] {
+export function sortQuestsByDifficulty<T extends DifficultyTarget>(quests: readonly T[]): T[] {
   return [...quests].sort((left, right) => {
-    const leftRate = expectedWinRate(left.id)
-    const rightRate = expectedWinRate(right.id)
+    const leftRate = expectedWinRate(left)
+    const rightRate = expectedWinRate(right)
 
     if (leftRate === null && rightRate === null) return 0
     if (leftRate === null) return 1

@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createFileContentProvider } from './lib/file_content_provider.js'
+import { createPackScopedProvider, loadManifestFromDisk } from './lib/pack_loader.js'
 
 interface VersionRef {
   id: string
@@ -26,6 +27,10 @@ function parseArgs(argv: string[]) {
       opts.seed = args[++i]
     } else if (arg === '--per-run') {
       opts.perRun = true
+    } else if (arg === '--content-root' && args[i + 1]) {
+      opts.contentRoot = args[++i]
+    } else if (arg === '--out' && args[i + 1]) {
+      opts.out = args[++i]
     }
   }
 
@@ -67,8 +72,15 @@ async function main() {
     throw new Error('--runs (or AUDIT_RUNS) must be a positive integer')
   }
 
-  const manifestRaw = await readFile(path.join(contentRoot, 'manifest.json'), 'utf8')
+  // Any pack folder can be audited (journal M3.8); the default is this repo's base pack
+  const packRoot = opts.contentRoot ? path.resolve(String(opts.contentRoot)) : null
+  const manifestRaw = await readFile(path.join(packRoot ?? contentRoot, 'manifest.json'), 'utf8')
   const manifest = JSON.parse(manifestRaw) as Manifest
+  const outputFile = opts.out
+    ? path.resolve(String(opts.out))
+    : packRoot
+      ? path.resolve(`audit-report-${manifest.id}.json`)
+      : path.join(outputDir, 'audit-report.json')
 
   const { buildScenarioBundle } = await import('../src/domains/content/services/bundle_builder.js')
   const { simulate_player_true_and_oracle } = await import('../src/domains/simulation/services/simulation_runner.js')
@@ -76,7 +88,9 @@ async function main() {
     '../src/domains/simulation/services/audit/content_audit_report_builder.js'
   )
 
-  const provider = createFileContentProvider(contentRoot)
+  const provider = packRoot
+    ? await createPackScopedProvider(await loadManifestFromDisk(path.join(packRoot, 'manifest.json')), packRoot, [])
+    : createFileContentProvider(contentRoot)
   const scenarioReports: Record<string, any> = {}
 
   for (const scenarioRef of manifest.scenarios) {
@@ -126,10 +140,10 @@ async function main() {
     scenarios: scenarioReports,
   }
 
-  await mkdir(outputDir, { recursive: true })
-  await writeFile(path.join(outputDir, 'audit-report.json'), JSON.stringify(output, null, 2), 'utf8')
+  await mkdir(path.dirname(outputFile), { recursive: true })
+  await writeFile(outputFile, JSON.stringify(output, null, 2), 'utf8')
 
-  console.log(`Wrote ${path.join(outputDir, 'audit-report.json')}`)
+  console.log(`Wrote ${outputFile}`)
 }
 
 main().catch((error) => {

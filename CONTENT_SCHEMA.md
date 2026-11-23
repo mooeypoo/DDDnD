@@ -372,6 +372,18 @@ Outcomes are determined based on final state and run analytics.
 
 Presentation naming in UI may map these outcomes to `endingType` labels without changing content schema structure.
 
+## Balance Targets
+
+Optional `balance_targets` on a scenario: what the balance audit expects of it, and where the lobby's difficulty mark comes from. Never read during play.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `win_rate_min`, `win_rate_max` | number 0–1, min ≤ max | Expected share of player-like simulated runs that reach a `success` tier |
+| `max_critical_findings` | integer 0–100 | Critical audit findings tolerated |
+| `min_avg_stakeholder_satisfaction` | `{ stakeholder_id: 0–100 }`, optional | Lowest acceptable average final satisfaction; each id must be in the scenario's `stakeholder_refs` |
+
+The lobby's difficulty mark uses the band's midpoint: ≥ 0.6 Easy, ≥ 0.45 Normal, otherwise Hard. A scenario without targets has no mark and no target findings. Without a floor for a stakeholder, the audit warns below 45.
+
 ---
 
 # Schema Stability

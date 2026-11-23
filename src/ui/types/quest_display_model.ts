@@ -52,6 +52,12 @@ export interface QuestDisplayModel {
     publisher: string
   }
 
+  /**
+   * The scenario's expected win-rate band, from its `balance_targets`
+   * (journal M3.8). The lobby's difficulty mark comes from it.
+   */
+  winRateTarget?: { min: number; max: number }
+
   // Tutorial metadata (only present for tutorial quests)
   isTutorial?: boolean
   tutorialOrder?: number

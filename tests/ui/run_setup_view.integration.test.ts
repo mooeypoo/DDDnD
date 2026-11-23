@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import type { PlayerClass } from '@/domains/content/model'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import RunSetupView from '@/ui/views/run_setup_view.vue'
+import { baseQuest } from '../support/base_balance_targets'
 
 const pushSpy = vi.fn()
 const routeQuery: Record<string, string> = {}
@@ -30,6 +31,8 @@ function makeQuest(id: string, name: string, extras: Partial<QuestDisplayModel> 
     turnCount: 8,
     stakeholderCount: 4,
     actionCardCount: 10,
+    // Base scenario ids carry their content's win-rate band, as the loader gives them
+    ...(baseQuest(id).winRateTarget ? { winRateTarget: baseQuest(id).winRateTarget } : {}),
     ...extras
   }
 }

@@ -83,6 +83,10 @@ export const CONTENT_LIMITS = {
     ending_priority: { min: 0, max: 1000 },
     /** Ending condition value (not an integer). Base: -10 to 65. */
     ending_condition_value: { min: -1000, max: 1000 },
+    /** Balance target win rate (a share, 0–1). */
+    win_rate: { min: 0, max: 1 },
+    /** Balance target tolerated critical findings. Base: 0. */
+    max_critical_findings: { min: 0, max: 100 },
     /** Coupling gain multiplier (not an integer). Base: 0.7–0.75. */
     gain_multiplier: { min: 0.1, max: 1 },
   },
