@@ -1714,3 +1714,89 @@ Player classes and challenge modifiers were "game-wide": the lobby offered the f
 **DDD note (talk material)**
 
 "Game-wide" was an assumption hiding in the model: it held only because there was one score vocabulary. Once a pack can bring its own scores, a class is meaningful only inside the context that defines its favored score. The table (a pack and what it builds on) is that context, and the fit rules are the translation at its edge. The other half of the decision is about the published language: base content stays reusable by default, so an extension pack inherits the base classes the way it inherits base cards.
+
+### M3.11 (slice 9): The SRE pack, M3's acceptance test (2026-11-23)
+
+**The test**
+
+M3's goal was an engine that knows nothing about any one game. The acceptance test, set in M3.0, was a second domain written as a pack, needing no TypeScript changes. The domain is site reliability engineering and incident response: **SRE: The Pager Storm** (`sre_on_call`) in [DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs).
+
+**What the pack contains**
+
+- **Scores:** six of its own: Availability, Error Budget, Rested On-Call, Customer Trust, Change Velocity, Observability.
+- **Council:** five stakeholders of its own, each with two reaction rules: VP of Engineering, Product Lead, Customer Support Lead, Finance Director, On-Call Engineer.
+- **Play:** 22 cards, 14 events and 7 aftershocks.
+- **Coupling:** three rules of its own, for example "Burnout Spiral": an exhausted on-call weakens availability and observability gains.
+- **Endings:** six of its own, from The Hero Firefighter to The Steady Operator.
+- **Table choices:** four classes and two challenge modifiers of its own.
+- **From the base pack:** only the outcome tiers. They are generic ("Triumph", "Survival"), so reusing them is the point of an extension.
+
+**Result: it worked without engine changes**
+
+- The pack validated on the first try.
+- A full playthrough in headless Chrome worked end to end:
+  - the bazaar imported it;
+  - the table offered its four classes, its two modifiers, and the base "Speed Run". Speed Run only changes the turn count, so it fits, while every base class and the other three base modifiers were filtered out;
+  - the run played ten turns on the pack's own scores and council;
+  - the results screen showed the pack's own tier and ending.
+- No console errors, and no TypeScript change to the engine, content model, validator or UI logic.
+
+**What did need fixing: names on the results screen and share card**
+
+The playthrough showed "Sre Pager Paladin" under the player on the results screen, and "Sre Pager Storm" on the share card. Both places showed a title-cased id instead of the content's name:
+
+- The results screen derived the class name from the id. It now uses the run's own class, loaded from the run's pack since slice 8.
+- The share card can't look up a pack's scenario or class where the link is opened. So, like the ending and tier names in slice 1, the names now travel in the link:
+  - `sn` is the scenario name and `cn` the class name;
+  - `stn` holds the council's names and `scn` the scores' short names, each keyed by an id the link already carries. Without them, a link opened on a device without the pack showed "Sre Vp Engineering" and "Sre Availability". Even base links showed "Domain Clarity" where the game says "Clarity";
+  - all are optional plain text, validated like `an` and `tn`, and a name for an id the link doesn't carry is refused;
+  - older links keep the title-cased fallback.
+
+  The owner's rule from this: **always show the human-readable name, never the id.** Ids are only a fallback for links made before the names travelled with them. The native share text now uses the ending's name too.
+
+This is presentation, not engine, so the acceptance test stands. It was also the same lesson for the third time (endings, tiers, now scenario and class): any screen that may show a pack's content must take names from the content, never from ids.
+
+**Balancing, and what the audit taught**
+
+The first draft was unplayable: 0% win rate, Rest averaging 14 and Availability 24. Comparing with the base scenarios gave the calibration:
+
+| | Average card (net, aftershocks included) | Event pool (weighted net) |
+|---|---|---|
+| Base scenarios | about +11 to +12 | about -1 to -4 |
+| SRE first draft | +4.7 | -5.7 |
+
+The draft had been written "realistically": every SRE practice has a cost. But the game's arithmetic needs cards to net positive, and the trade-off has to live in *which* scores move, not in the total.
+
+Three rounds of tuning followed:
+
+1. **Numbers:**
+   - cards up, events down, and two positive events added;
+   - the always-on "Alert Storm" made conditional;
+   - slightly higher starting scores.
+2. **Endings:** the Reliability Architect won 70% of runs, so its conditions were raised.
+3. **The Hero Firefighter:** it was never reached. In base, the firefighter uses "pressure per turn" (events plus aftershocks). In this pack, aftershocks come from the *long-term* cards, so a heroics-heavy run actually has *low* pressure. The ending was redefined in the domain's own terms: availability went up while Rest went down. The measure vocabulary from slice 4 handled it without change.
+
+Final numbers:
+
+- **Win rate:** 40–44% over 500 runs on four seeds. The band is 30–60%, so the lobby marks it Normal. The floor sits at 30% because the 100-run audit gate sampled 34% once.
+- **Endings:** all six are reached.
+- **Audit:** no critical findings and no warnings, in both the validator and `audit:gate`.
+
+**Verification**
+
+- `content:validate --audit` and `audit:gate --content-root` pass for the pack.
+- Headless Chrome: import, table choices, a full run, the results screen and the share card. The copied share link, opened in a fresh browser that never imported the pack, shows every name: class, scenario, scores and council.
+- Tests (+7, 1152 total):
+  - payload round-trip of `sn`, `cn`, `stn` and `scn`, refusing empty, long or unknown-id ones;
+  - the payload builder carries them;
+  - the share card shows them, and falls back for older links.
+- Engine untouched: golden replays pass, and the fixed-seed audit is identical to `main`.
+
+**Known gaps**
+
+- A pack's scores, classes and scenario have no art. Icons fall back to generic ones, class seats show an initial, and the quest card uses the default room.
+- Nothing in the scenario can make a run *fail* outright. A run only fails below an average of 30 (the base Collapse tier), which balanced play never reaches. The base scenarios behave the same way.
+
+**DDD note (talk material)**
+
+The interesting failure wasn't in the engine; it was in the ubiquitous language. "Firefighter" in the base game means "many things happened to you", and the base measure for it was right *there*. Carried into SRE, the same word means "you saved the day personally", and the measure pointed the wrong way. The ending had to be redefined in the new context's terms. That's the bounded-context lesson in miniature: the same word, two models, and a translation that can't be mechanical.

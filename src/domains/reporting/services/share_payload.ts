@@ -94,6 +94,24 @@ export interface SharePayload {
    */
   an?: string
   tn?: string
+
+  /**
+   * Display names of the scenario (`sn`) and the player's class (`cn`), from
+   * the run's content (journal M3.11). A pack's scenario and class can't be
+   * looked up where the link is opened, so the names travel with it. Older
+   * links fall back to title-cased ids.
+   */
+  sn?: string
+  cn?: string
+
+  /**
+   * Display names of the council (`stn`, by stakeholder id) and the scores'
+   * short names (`scn`, by score id), from the run's content. Like the other
+   * names, they let a link opened without the pack show what the player saw.
+   * Older links fall back to title-cased ids.
+   */
+  stn?: Record<string, string>
+  scn?: Record<string, string>
 }
 
 /**
