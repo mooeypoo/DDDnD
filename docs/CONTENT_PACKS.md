@@ -1406,6 +1406,15 @@ The fix is a `gilded_ledger-v1.1.0` release in DDDnD-packs with the same three l
 
 *Update (2026-11-23):* the owner approved a new release. `gilded_ledger` 1.1.0 is committed in DDDnD-packs on a local branch, validated and audited with this branch's validator (no findings). It can't be published yet: the packs repository checks every push with `pack-validator-v1`, which still points at the validator from before M3, and that validator's strict schemas refuse `coupling_rule_refs`. Order: merge PR #37, move `pack-validator-v1` forward (adding a field is a compatible change), then push and tag `gilded_ledger-v1.1.0`. The owner noted that nobody could have loaded 1.0.0 yet, since community packs are switched off in production; a new tag was still chosen, so a tag never changes what it points at.
 
+*Done (2026-11-23), after PR #37 merged:*
+
+1. `pack-validator-v1` moved to 3b1f351, the merge of #37. The move is compatible: the new fields are optional, and the new checks apply only to them.
+2. The DDDnD-packs branch `gilded-ledger-1.1.0` was pushed, and its CI passed against the moved tag.
+3. `gilded_ledger-v1.1.0` was tagged; the pinned manifest URL loads.
+4. The bazaar's demo button now loads v1.1.0.
+
+DDDnD-packs PR #1 brings the release into its `main`. The in-repo fixture keeps manifest version 1.0.0, because the tests use it as "an earlier import"; its content already matches 1.1.0.
+
 **DDD note (talk material)**
 
 "Someone added the tutorial's score ids to the engine's rule list" is the smell in one line. When a second domain shows up and the fix is to edit the engine's constants, the knowledge is in the wrong place. After this slice, the tutorial's coupling lives in the tutorial, the base game's in the base game, and a new pack writes its own. The engine only knows *how* coupling works, not *what* is coupled.
