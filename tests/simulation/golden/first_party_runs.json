@@ -1019,7 +1019,7 @@
       "telemetry_sha256": "6c4c1d0aeec1eaac983a80660fb7f30534ab314fa2b8db52916353f75659f552"
     },
     {
-      "tier": "failure",
+      "tier": "partial_success",
       "tier_id": "struggle",
       "ending": "firefighter",
       "status": "completed_max_turns",
@@ -1032,7 +1032,7 @@
         "user_trust": 21,
         "budget": 0
       },
-      "telemetry_sha256": "050de206c219f52dc49b005dbf0ed4b1d2929f0eb138670d634b71d0ce37cc09"
+      "telemetry_sha256": "a61b0e1db7b515cb2774c1a267f05e97fa09944d04103f120afb3e6a07b86284"
     },
     {
       "tier": "success",
@@ -1229,7 +1229,7 @@
       "telemetry_sha256": "8b89e1bc71b83759d702dc004b354603db31d47cf3869ebb155e558abd38db61"
     },
     {
-      "tier": "failure",
+      "tier": "partial_success",
       "tier_id": "struggle",
       "ending": "firefighter",
       "status": "completed_max_turns",
@@ -1242,7 +1242,7 @@
         "user_trust": 79,
         "budget": -22
       },
-      "telemetry_sha256": "59330002233fd114b5270a90e7e15ed74ac52a0bd4af010a31571e9d80b25de9"
+      "telemetry_sha256": "6a16fbeb37e02821bcb338d49bfb2420ade3fcd18c8cf0d9d9559d4321c059a1"
     },
     {
       "tier": "success",
@@ -1375,7 +1375,7 @@
       "telemetry_sha256": "4cdf931608bad9981a001e85d39249f03c8081e1076c49597f0cadd79e34320a"
     },
     {
-      "tier": "failure",
+      "tier": "partial_success",
       "tier_id": "struggle",
       "ending": "firefighter",
       "status": "completed_max_turns",
@@ -1388,7 +1388,7 @@
         "user_trust": 97,
         "budget": -9
       },
-      "telemetry_sha256": "b0a396b0eea900299ee6ae7735b9fe7d44f59c4a14fa8e5380320451272036a1"
+      "telemetry_sha256": "55b0698e8e45ba7cff90d22f0ff6bc4499130f3634498954c1076a3aef06e03c"
     },
     {
       "tier": "partial_success",
@@ -1487,7 +1487,7 @@
       "telemetry_sha256": "ed158ff9ae4e329ea21472beb04407cde3dfdbe5d6f2faff4347e2ee64cbbad2"
     },
     {
-      "tier": "failure",
+      "tier": "partial_success",
       "tier_id": "struggle",
       "ending": "firefighter",
       "status": "completed_max_turns",
@@ -1500,7 +1500,7 @@
         "user_trust": 102,
         "budget": -24
       },
-      "telemetry_sha256": "42307949112d9e79014132b3d98a90b6faa1a93f3866b03abd1cf1bfd63b0880"
+      "telemetry_sha256": "48c63b5e554a2e312763eb9090f390f95831c9edd1f3675ef15b4ec249105ea0"
     },
     {
       "tier": "success",
@@ -1617,7 +1617,7 @@
       "telemetry_sha256": "a113a07dc76d6483a7137040c4bef62ee48a7be2d8e5a46f98bd700fd1d75c7a"
     },
     {
-      "tier": "failure",
+      "tier": "partial_success",
       "tier_id": "struggle",
       "ending": "firefighter",
       "status": "completed_max_turns",
@@ -1630,7 +1630,7 @@
         "user_trust": 79,
         "budget": -22
       },
-      "telemetry_sha256": "f0133ab7c8e749fc04a3cce27ccb12381b860b3dbbae1797e93b1d4ad43df954"
+      "telemetry_sha256": "e4e6d3f4597e1db697c68ee4aa4c6eb874c9126cbc600a10379c49d091c10fbb"
     },
     {
       "tier": "success",
@@ -2085,7 +2085,7 @@
       "telemetry_sha256": "0ae3b55672a4abab817ceac029f1931aa184edeb22e91ef0e5d978f45e8fc4f8"
     },
     {
-      "tier": "failure",
+      "tier": "partial_success",
       "tier_id": "struggle",
       "ending": "runaway_refactorer",
       "status": "completed_max_turns",
@@ -2098,7 +2098,7 @@
         "user_trust": 68,
         "budget": -4
       },
-      "telemetry_sha256": "77ade54b06d44e6cf5bb68ec2b4f488783466a50db6348e4e7328c57ea90e0f8"
+      "telemetry_sha256": "c7d706399bd8934725649c54e37702d391c07a49816a852e5401dfcf85aad505"
     },
     {
       "tier": "success",
@@ -2555,7 +2555,7 @@
       "telemetry_sha256": "42816347e061edf38f0b643b6a9f7812b1c88ba04a68a07472dfaaed995c32eb"
     },
     {
-      "tier": "failure",
+      "tier": "partial_success",
       "tier_id": "struggle",
       "ending": "firefighter",
       "status": "completed_max_turns",
@@ -2568,7 +2568,7 @@
         "user_trust": 60,
         "budget": 18
       },
-      "telemetry_sha256": "8a9bab1d7e0d6b71bfb729dd3fc02794f4adcb9686333fb2f9519e54cc828128"
+      "telemetry_sha256": "59b1c32f8a8cab97a4a42ef7e46bdda69965d97e3712480641692dd7d4fbcb4e"
     },
     {
       "tier": "success",
@@ -2635,7 +2635,7 @@
       "telemetry_sha256": "f5416d1ae9a98fc24581ffe80fe26087ca82494c62c283f21672a5cda655fea2"
     },
     {
-      "tier": "failure",
+      "tier": "partial_success",
       "tier_id": "struggle",
       "ending": "firefighter",
       "status": "completed_max_turns",
@@ -2648,7 +2648,7 @@
         "user_trust": 53,
         "budget": 58
       },
-      "telemetry_sha256": "3c988f17566b3746bb9f7ba59729efffd51f444e157c2e86f1e5876858873456"
+      "telemetry_sha256": "da8131a5407fa16151ab373b047ca419ea6ae4d2ca5f301bac4d49b4a707c259"
     },
     {
       "tier": "partial_success",
@@ -6407,7 +6407,7 @@
       "telemetry_sha256": "b3b793415e8dceaeb8b28fc0d700f49107f5997587cd520ea12d82465b677fdd"
     },
     {
-      "tier": "failure",
+      "tier": "partial_success",
       "tier_id": "struggle",
       "ending": "firefighter",
       "status": "completed_max_turns",
@@ -6420,7 +6420,7 @@
         "user_trust": 30,
         "budget": -9
       },
-      "telemetry_sha256": "15e0c67267aa8cd5fb0154e21429101603c470e15b3c7d2e27ad62040bb7f712"
+      "telemetry_sha256": "bdcf2f0232c831aff4c13cb2ae21b7f81eb294a78514299fb2d1450637f93499"
     },
     {
       "tier": "success",

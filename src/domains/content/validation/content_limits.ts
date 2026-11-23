@@ -77,6 +77,8 @@ export const CONTENT_LIMITS = {
     turn_adjustment: { min: -20, max: 20 },
     /** Coupling threshold: compared with a score. Base: 25. */
     coupling_threshold: { min: -1000, max: 1000 },
+    /** Outcome tier score average threshold (not an integer). Base: 0–75. */
+    tier_min_average: { min: -1000, max: 1000 },
     /** Coupling gain multiplier (not an integer). Base: 0.7–0.75. */
     gain_multiplier: { min: 0.1, max: 1 },
   },

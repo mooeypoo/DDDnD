@@ -3,5 +3,7 @@
   "version": 1,
   "name": "Success",
   "description": "Solid improvement with most goals achieved",
-  "rank": 4
+  "rank": 4,
+  "min_average": 60,
+  "result": "success"
 }

@@ -3,5 +3,7 @@
   "version": 1,
   "name": "Triumph",
   "description": "Outstanding success with high scores across all metrics",
-  "rank": 5
+  "rank": 5,
+  "min_average": 75,
+  "result": "success"
 }

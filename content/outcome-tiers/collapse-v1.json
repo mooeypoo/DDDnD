@@ -3,5 +3,7 @@
   "version": 1,
   "name": "Collapse",
   "description": "Critical failure with the system in serious trouble",
-  "rank": 1
+  "rank": 1,
+  "min_average": 0,
+  "result": "failure"
 }

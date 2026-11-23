@@ -1,4 +1,4 @@
-import { ScenarioBundle } from '@/domains/content/model'
+import type { OutcomeResult, OutcomeTier, ScenarioBundle } from '@/domains/content/model'
 import type { OutcomeArchetypeId } from '@/shared/contracts'
 import { GameState, RunAnalytics } from '../model'
 import { evaluateNumericCondition } from './condition_evaluator'
@@ -22,6 +22,8 @@ export interface RunOutcomeClassification {
   max_turns: number
   matched_failure_conditions: string[]
   selected_tier_id: string | null
+  /** The selected tier's `result`; null when no tier was selected. */
+  selected_tier_result: OutcomeResult | null
   selected_archetype_id: OutcomeArchetypeId
   score_average: number
   analytics_snapshot: RunAnalytics
@@ -41,32 +43,19 @@ function computeScoreAverage(gameState: GameState, scenarioBundle: ScenarioBundl
 }
 
 /**
- * Selects a tier id from score average when matching tier ids exist in content.
+ * Selects the run's tier from the scenario's own tiers (journal M3.4).
+ *
+ * The tier with the highest `min_average` at or below the average wins.
+ * Below every threshold, the lowest tier catches the run, so a tier list
+ * always has a floor. Tiers without a threshold are never picked; with none
+ * at all, there is no tier (the tutorial today).
  */
-function classifyTierId(scoreAverage: number, scenarioBundle: ScenarioBundle): string | null {
-  const existingTierIds = new Set(Array.from(scenarioBundle.outcome_tiers.values()).map((tier) => tier.id))
+export function selectOutcomeTier(scoreAverage: number, scenarioBundle: ScenarioBundle): OutcomeTier | null {
+  const ranked = Array.from(scenarioBundle.outcome_tiers.values())
+    .filter((tier) => tier.min_average !== undefined)
+    .sort((a, b) => (b.min_average as number) - (a.min_average as number))
 
-  if (scoreAverage >= 75 && existingTierIds.has('triumph')) {
-    return 'triumph'
-  }
-
-  if (scoreAverage >= 60 && existingTierIds.has('success')) {
-    return 'success'
-  }
-
-  if (scoreAverage >= 45 && existingTierIds.has('survival')) {
-    return 'survival'
-  }
-
-  if (scoreAverage >= 30 && existingTierIds.has('struggle')) {
-    return 'struggle'
-  }
-
-  if (existingTierIds.has('collapse')) {
-    return 'collapse'
-  }
-
-  return null
+  return ranked.find((tier) => scoreAverage >= (tier.min_average as number)) ?? ranked[ranked.length - 1] ?? null
 }
 
 /**
@@ -113,6 +102,7 @@ export function classifyRunOutcome(
   const scoreAverage = computeScoreAverage(gameState, scenarioBundle)
   const completionReason: RunCompletionReason = hasFailure ? 'failure_condition_met' : 'max_turns_reached'
   const runStatus = hasFailure ? 'completed_failure' : 'completed_max_turns'
+  const tier = selectOutcomeTier(scoreAverage, scenarioBundle)
 
   return {
     has_outcome: true,
@@ -123,7 +113,8 @@ export function classifyRunOutcome(
     turns_completed: gameState.run_analytics.turns_completed,
     max_turns: gameState.progress.max_turns,
     matched_failure_conditions: matchedFailureConditions,
-    selected_tier_id: classifyTierId(scoreAverage, scenarioBundle),
+    selected_tier_id: tier?.id ?? null,
+    selected_tier_result: tier?.result ?? null,
     selected_archetype_id: selectArchetypeId(gameState, scenarioBundle),
     score_average: scoreAverage,
     analytics_snapshot: {

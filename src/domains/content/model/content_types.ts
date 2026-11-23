@@ -156,12 +156,28 @@ export interface Stakeholder extends ContentMetadata {
  * Outcome Tier
  * 
  * Defines success/failure tiers for run endings.
+ *
+ * A run lands in the tier with the highest `min_average` at or below its
+ * score average; below every threshold, it lands in the lowest tier. The
+ * tier's `result` is the coarse result that exports and shares record.
+ * Tiers without `min_average` are never picked (the tutorial's, until its
+ * own fix). See CONTENT_SCHEMA.md "Outcome Tiers" and journal M3.4.
  */
 export interface OutcomeTier extends ContentMetadata {
   name: string
   description: string
   rank: number
+  /** Lowest score average that reaches this tier. Set with `result`. */
+  min_average?: number
+  /** The coarse result a run in this tier counts as. Set with `min_average`. */
+  result?: OutcomeResult
 }
+
+/**
+ * Coarse run result: what the simulator counts as a win, and what exports
+ * and share links record next to the tier.
+ */
+export type OutcomeResult = 'success' | 'partial_success' | 'failure'
 
 /**
  * Outcome Archetype

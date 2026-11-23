@@ -267,6 +267,22 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
     }
   }
   
+  // Two tiers with the same threshold: only one could ever be picked (journal M3.4)
+  const tierByThreshold = new Map<number, string>()
+  for (const tier of bundle.outcome_tiers.values()) {
+    if (tier.min_average === undefined) continue
+    const other = tierByThreshold.get(tier.min_average)
+    if (other) {
+      errors.push({
+        type: 'duplicate_tier_threshold',
+        message: `Outcome tiers ${other} and ${tier.id} both start at min_average ${tier.min_average}; only one of them could ever be reached`,
+        details: { tier_ids: [other, tier.id], min_average: tier.min_average }
+      })
+    } else {
+      tierByThreshold.set(tier.min_average, tier.id)
+    }
+  }
+
   // Validate outcome archetype refs if present
   if (bundle.scenario.outcome_archetype_refs) {
     for (const archetypeRef of bundle.scenario.outcome_archetype_refs) {

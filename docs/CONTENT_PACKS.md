@@ -273,7 +273,7 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
 | ~~Whose pack does `depends_on` mean?~~ | **Resolved (M2.8):** community packs may depend only on first-party packs, whose ids we control ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)). Community-on-community dependencies would need key-based references in a new schema version. | Done |
 | ~~Community hall look~~ | **Resolved (M2.12):** warm canvas, a thin awning stripe, and a stitched border as the external mark ([ADR 0015](adr/0015-community-packs-in-their-own-place.md)). | Done |
-| Player-facing run download | **Ready in code, not used.** The exact-run export (seed, scenario, pack identity and content hash, every turn's choice, history, outcome) can replay a run exactly, but nothing in the game creates or reads one; only tests do. Possible uses: a player sends a pack author a run that felt broken, or a facilitator collects a workshop's runs. Add a button when one of those is wanted (M2.13). | When needed |
+| Player-facing run download | **Ready in code, not used.** The exact-run export (seed, scenario, pack identity and content hash, every turn's choice, history, outcome) can replay a run exactly, but nothing in the game creates or reads one; only tests do. Possible uses: a player sends a pack author a run that felt broken, or a facilitator collects a workshop's runs. Add a button when one of those is wanted (M2.13). Before wiring it up: its outcome snapshot still computes the coarse result with the old fixed cutoffs over every score, because it has no bundle. It should take the result from the run's tiers (M3.4). | When needed |
 | ~~Exact-run replay of retired remote packs~~ | **Resolved (M2.13): no promise.** If a pack is taken down, it's gone. Saved runs continue only while their exact pack is imported in that browser; players aren't led to expect more. Same stance as retired base scenarios in CONTENT_VERSIONING.md. | Done |
 
 ---
@@ -1404,6 +1404,50 @@ The demo pack **published** at `gilded_ledger-v1.0.0` in DDDnD-packs has no `cou
 
 The fix is a `gilded_ledger-v1.1.0` release in DDDnD-packs with the same three lines, and the docs pointed at the new tag. That needs a push and a tag on the public packs repository, so it waits for the owner's go-ahead. It could go out together with the SRE pack (slice 9), or sooner.
 
+*Update (2026-11-23):* the owner approved a new release. `gilded_ledger` 1.1.0 is committed in DDDnD-packs on a local branch, validated and audited with this branch's validator (no findings). It can't be published yet: the packs repository checks every push with `pack-validator-v1`, which still points at the validator from before M3, and that validator's strict schemas refuse `coupling_rule_refs`. Order: merge PR #37, move `pack-validator-v1` forward (adding a field is a compatible change), then push and tag `gilded_ledger-v1.1.0`. The owner noted that nobody could have loaded 1.0.0 yet, since community packs are switched off in production; a new tag was still chosen, so a tag never changes what it points at.
+
 **DDD note (talk material)**
 
 "Someone added the tutorial's score ids to the engine's rule list" is the smell in one line. When a second domain shows up and the fix is to edit the engine's constants, the knowledge is in the wrong place. After this slice, the tutorial's coupling lives in the tutorial, the base game's in the base game, and a new pack writes its own. The engine only knows *how* coupling works, not *what* is coupled.
+
+### M3.4 (slice 3): Tiers declare their thresholds and results (2026-11-23)
+
+**What changed**
+
+- **`OutcomeTier` gains `min_average` and `result`** (optional, set together). A run lands in the tier with the highest `min_average` at or below its score average. Below every threshold, the lowest tier is the floor. `result` is the coarse result (`success`, `partial_success`, `failure`) that the simulator, exports and share links use.
+- **The engine has no tier ids.** `classifyTierId` checked for `triumph`, `success`, `survival`, `struggle` and `collapse` by name, at 75/60/45/30. `selectOutcomeTier` reads the thresholds from whatever tiers the scenario lists, so a pack's own tiers are picked too. Before, they never were.
+- **The base tier files gained the two fields in place:** triumph 75 success, success 60 success, survival 45 partial, struggle 30 partial, collapse 0 failure.
+- **The validator** refuses a threshold without a result and the reverse, and two tiers in one scenario with the same threshold.
+- **Docs for authors:** CONTENT_SCHEMA.md "Outcome Tiers", and "Endings: tiers and their thresholds" in both authoring guides.
+
+**Decision: one concept instead of two (option A, owner's call)**
+
+The game used two sets of cutoffs: tier ids (75/60/45/30) and a separate coarse result (success at 60 or more, failure below 35). They didn't line up: Struggle (30–45) was partial from 35 and failure below it. Keeping both as content would have kept behaviour identical, but authors would have had to learn two overlapping systems. The owner chose a single concept: each tier says what it counts as.
+
+Struggle counts as **partial**. That moves the narrower band (averages 30–35) and fits its description, "barely holding on". What stays the same:
+
+- a run that ended on a failure condition is always `failure`;
+- with no thresholded tiers (the tutorial today), the old cutoffs still apply, so the tutorial is unchanged until its own fix.
+
+**Player-visible change (documented, approved)**
+
+Runs that end at the turn limit with an average between 30 and 35 now record `partial_success` instead of `failure`. What players see is unchanged: every base and demo scenario has tiers, so the results screen and share card show the tier name ("Struggle"), not the coarse result. Win rates don't change either, because only `success` counts as a win. The coarse result shows up in the share payload's `tier` field, the audit report's outcome distribution, and the (unused) exact-run export.
+
+The tier files were edited in place, not given new versions. The tier a run lands in, its ending, its scores and its turns are all the same as before. The only change is a reporting field the content didn't define until now.
+
+**Verification**
+
+- **Golden replays:** 9 of 432 recorded runs changed, all of them Struggle runs moving from `failure` to `partial_success`. Their tier id, ending, scores and turns are identical. The telemetry hash changed only because the telemetry includes the coarse result. The fixture was regenerated (`npm run test:golden:update`).
+- **Fixed-seed audit vs `main`:** the only differences are `outcome_distribution` counts, failure → partial: microservice_sprawl 2 runs, compliance_gauntlet 2, startup_hypergrowth 2 (oracle), merger_of_minor_chaos 1 (oracle). Findings, warnings, statuses and win rates are identical.
+- **Equivalence test:** the old hard-coded selection is kept in the test. It is compared with the new one at every tenth from -20 to 120 and just around each boundary, with all five base tiers and with four subsets. Every average picks the same tier.
+- **New tests** (+12, 1107 total): pack-owned tiers and the floor; thresholdless tiers never picked; Struggle counting as partial at 32 and 40; every other band unchanged; failure conditions still failing; the old cutoffs without tiers; schema both-or-neither; unknown results; duplicate thresholds.
+- `content:validate` passes for base, tutorial and the demo fixture.
+
+**Not done here**
+
+- The published JSON Schema can't express "set both or neither", so editors don't flag a lone `min_average`; the validator does.
+- The exact-run export still uses the old cutoffs (see the open question).
+
+**DDD note (talk material)**
+
+The old code had *two* ubiquitous-language terms for "how did it go", maintained in two places with numbers that almost agreed. A domain expert asked "is a Struggle a failure?" would have got "it depends on the decimal". Moving tiers into content forced the question, and the answer became one sentence the content states: Struggle counts as partial. Making knowledge explicit often surfaces an inconsistency nobody chose.

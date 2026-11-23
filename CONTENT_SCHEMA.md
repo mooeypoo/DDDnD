@@ -289,8 +289,40 @@ A coupling rule (`coupling-rules/<id>-v<version>.json`) says that while one scor
 
 Outcome definitions include:
 
-- success tiers
+- outcome tiers (below)
 - legacy archetype criteria (used by current content definitions)
+
+## Outcome Tiers
+
+`outcome-tiers/<id>-v<version>.json`, listed by a scenario in `outcome_tier_refs`.
+
+```json
+{
+  "id": "struggle",
+  "version": 1,
+  "name": "Struggle",
+  "description": "Barely holding on with significant problems remaining",
+  "rank": 2,
+  "min_average": 30,
+  "result": "partial_success"
+}
+```
+
+- `min_average`: the lowest average of the scenario's scores that reaches this tier. Any number from -1000 to 1000; decimals are allowed.
+- `result`: what a run in this tier counts as: `success`, `partial_success` or `failure`. The balance simulator counts `success` as a win; exports and share links record it next to the tier.
+- Set `min_average` and `result` together, or leave both out. A tier without them is never picked.
+
+How a run's tier is picked:
+
+1. Average the scenario's scores at the end of the run. Higher is better.
+2. Pick the tier with the highest `min_average` at or below that average.
+3. If the average is below every threshold, pick the lowest tier. The lowest tier is the floor, so its `min_average` only matters for display.
+
+A run that ends on a failure condition still gets a tier from its average, but its result is always `failure`.
+
+Two tiers in one scenario can't share a `min_average` (the validator refuses it). With no thresholded tiers at all, a run has no tier and its result uses fixed cutoffs: 60 or more is success, below 35 is failure.
+
+The base tiers: triumph 75 (success), success 60 (success), survival 45 (partial), struggle 30 (partial), collapse 0 (failure, the floor).
 
 Outcomes are determined based on final state and run analytics.
 

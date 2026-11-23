@@ -165,7 +165,13 @@ export const outcomeTierSchema: z.ZodMiniType<OutcomeTier> = z.strictObject({
   name: nameSchema,
   description: descriptionSchema,
   rank: boundedInt(numbers.rank),
-})
+  min_average: z.optional(z.number().check(z.gte(numbers.tier_min_average.min), z.lte(numbers.tier_min_average.max))),
+  result: z.optional(z.enum(['success', 'partial_success', 'failure'])),
+}).check(
+  z.refine((tier) => (tier.min_average === undefined) === (tier.result === undefined), {
+    message: 'min_average and result go together: set both, or neither',
+  }),
+)
 
 export const outcomeArchetypeSchema: z.ZodMiniType<OutcomeArchetype> = z.strictObject({
   ...metadataShape,
