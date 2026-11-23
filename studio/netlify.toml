@@ -1,0 +1,31 @@
+# DDDnD Pack Studio ("The Forge"): its own Netlify site (ADR 0005).
+#
+# The site builds from the repository root, because the Studio shares the
+# game's domain code (src/domains). In Netlify: Base directory = (empty, the
+# repository root), Package directory = studio. Netlify then reads this file
+# instead of the game's netlify.toml. Steps: docs/PACK_STUDIO.md §12.
+
+[build]
+  command = "npm run studio:build"
+  publish = "studio/dist"
+  # Skip a deploy when nothing the Studio is built from has changed.
+  # (git diff exits 0 when there's no difference, which tells Netlify to skip.)
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- studio src/domains package.json package-lock.json"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# The Studio fetches nothing from other sites (examples will come later and
+# widen connect-src then, deliberately). Same strict script policy as the game.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Robots-Tag = "noindex"

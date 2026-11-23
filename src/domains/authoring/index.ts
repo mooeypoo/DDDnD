@@ -1,0 +1,10 @@
+/**
+ * Authoring domain (ADR 0005, docs/PACK_STUDIO.md).
+ *
+ * The Pack Studio's editing model: draft packs, editing operations, the
+ * version-bump assistant, balance hints, import and export. Pure, like the
+ * other domains: it never imports Vue, the DOM or storage. The Studio app
+ * calls it the way the game UI calls the engine.
+ */
+
+export * from './content_ids'

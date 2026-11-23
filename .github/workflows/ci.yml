@@ -26,6 +26,10 @@ jobs:
       - name: Run tests
         run: npm test -- --run
 
+      # DDDnD Pack Studio: a separate app sharing the domain code (ADR 0005)
+      - name: Build the Studio
+        run: npx vite build --config studio/vite.config.ts
+
       # 50 runs leaves a +/-14 point margin on a win rate, which is wider than
       # the bands being checked. 400 costs about ten seconds and makes the
       # scenario_difficulty findings mean something.
