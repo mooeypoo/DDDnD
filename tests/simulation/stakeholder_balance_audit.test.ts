@@ -4,6 +4,7 @@ import { simulate_runs } from '@/domains/simulation/services/simulation_runner'
 import { auditStakeholderBalance } from '@/domains/simulation/services/audit/stakeholder_balance_audit'
 import { createMockContentProvider } from '../content/test_helpers'
 import type { SimulationReport } from '@/domains/simulation/services/simulation_runner'
+import { BASE_BALANCE_TARGETS } from '../support/base_balance_targets'
 
 async function createTestBundle() {
   return buildScenarioBundle('test_scenario', 1, createMockContentProvider())
@@ -220,8 +221,11 @@ describe('auditStakeholderBalance', () => {
       },
     }
 
-    const findings = auditStakeholderBalance(report)
+    // microservice_sprawl's own content sets the CTO floor at 35 (journal M3.8)
+    const findings = auditStakeholderBalance(report, BASE_BALANCE_TARGETS.microservice_sprawl)
     expect(findings.some(f => f.id === 'stakeholder_balance.low_satisfaction.warning.cto')).toBe(false)
+    // Without the scenario's targets, the default floor (45) applies
+    expect(auditStakeholderBalance(report).some(f => f.id === 'stakeholder_balance.low_satisfaction.warning.cto')).toBe(true)
   })
 
   it('still emits low-satisfaction warning when below scenario-specific floor', () => {

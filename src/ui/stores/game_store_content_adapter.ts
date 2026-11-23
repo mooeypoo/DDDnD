@@ -20,6 +20,7 @@ type ContentPackRegistryLike = Pick<
   | 'getAvailableTutorials'
   | 'createGameWideProvider'
   | 'createScopedProvider'
+  | 'getTableClasses'
 >
 
 interface ValueRef<T> {

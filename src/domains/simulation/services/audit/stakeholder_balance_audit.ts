@@ -1,6 +1,6 @@
 import type { SimulationReport } from '../simulation_runner'
 import type { AuditFinding } from '../content_audit_contract'
-import { SCENARIO_BALANCE_TARGETS } from './scenario_balance_targets_audit'
+import type { BalanceTargets } from '@/domains/content/model'
 
 // ── Thresholds ──────────────────────────────────────────────────
 // These can be tightened as baseline data accumulates.
@@ -23,13 +23,8 @@ const LOW_SATISFACTION_WARNING = 45
 /** Average final satisfaction below this value is flagged as critical. */
 const LOW_SATISFACTION_CRITICAL = 30
 
-function getLowSatisfactionWarningThreshold(scenarioId: string, stakeholderId: string): number {
-  const scenarioTarget = SCENARIO_BALANCE_TARGETS[scenarioId]
-  if (!scenarioTarget) {
-    return LOW_SATISFACTION_WARNING
-  }
-
-  return scenarioTarget.min_avg_stakeholder_satisfaction[stakeholderId] ?? LOW_SATISFACTION_WARNING
+function getLowSatisfactionWarningThreshold(targets: BalanceTargets | undefined, stakeholderId: string): number {
+  return targets?.min_avg_stakeholder_satisfaction?.[stakeholderId] ?? LOW_SATISFACTION_WARNING
 }
 
 // ── Synthesis ───────────────────────────────────────────────────
@@ -37,7 +32,7 @@ function getLowSatisfactionWarningThreshold(scenarioId: string, stakeholderId: s
 /**
  * Audits stakeholder trajectory telemetry for sustained decline or imbalance.
  */
-export function auditStakeholderBalance(report: SimulationReport): AuditFinding[] {
+export function auditStakeholderBalance(report: SimulationReport, targets?: BalanceTargets): AuditFinding[] {
   const findings: AuditFinding[] = []
   const agg = report.aggregate
 
@@ -55,7 +50,7 @@ export function auditStakeholderBalance(report: SimulationReport): AuditFinding[
     const recovery = recoveryRates[sid] ?? 0
     const decline = declineRates[sid] ?? 0
     const satisfaction = avgSatisfaction[sid] ?? 100
-    const lowSatisfactionWarningThreshold = getLowSatisfactionWarningThreshold(report.scenario_id, sid)
+    const lowSatisfactionWarningThreshold = getLowSatisfactionWarningThreshold(targets, sid)
 
     // High decline rate
     if (decline >= DECLINE_RATE_CRITICAL) {

@@ -335,6 +335,8 @@ const playerClassId = computed(() => gameStore.gameState?.player_profile.selecte
 const playerClassName = computed(() => {
   const classRef = gameStore.gameState?.player_profile.selected_class_ref
   if (!classRef) return undefined
+  // Loaded from the run's own pack, so a pack's class shows its name (journal M3.10)
+  if (gameStore.runPlayerClass && gameStore.runPlayerClass.id === classRef.id) return gameStore.runPlayerClass.name
   const exact = gameStore.availableClasses.find(
     (playerClass) => playerClass.id === classRef.id && playerClass.version === classRef.version,
   )?.name
@@ -347,6 +349,7 @@ const playerClassName = computed(() => {
 const activeChallengeModifier = computed(() => {
   const modifierRef = gameStore.gameState?.player_profile.challenge_modifier_ref
   if (!modifierRef) return null
+  if (gameStore.runChallengeModifier?.id === modifierRef.id) return gameStore.runChallengeModifier
   return gameStore.availableChallengeModifiers.find(
     (modifier) => modifier.id === modifierRef.id && modifier.version === modifierRef.version,
   ) ?? null

@@ -3,5 +3,12 @@
   "version": 1,
   "name": "The Boundary Builder",
   "description": "You excelled at defining clear domain boundaries",
-  "flavor_text": "Every line you drew made the system clearer"
+  "flavor_text": "Every line you drew made the system clearer",
+  "criteria": {
+    "priority": 50,
+    "when": [
+      { "measure": "score_change", "score_ids": ["domain_clarity", "maintainability"], "operator": ">=", "value": 20 },
+      { "measure": "final_score", "score_id": "delivery_confidence", "operator": ">=", "value": 30 }
+    ]
+  }
 }

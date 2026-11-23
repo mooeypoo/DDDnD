@@ -98,7 +98,7 @@ export function resolveAction(
   assertActionAvailability(actionRef, card, gameState, conditionState)
 
   const scoreChanges = toScoreChanges(card.score_changes)
-  const stakeholderChanges = toStakeholderChanges(card.stakeholder_changes)
+  const stakeholderChanges = toStakeholderChanges(card.stakeholder_changes, scenarioBundle)
 
   const queuedDelayedEffects = card.delayed_effect_refs
     .map((effectRef) => {

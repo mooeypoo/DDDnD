@@ -71,7 +71,7 @@ export function resolveEvent(
   }
 
   const scoreChanges = toScoreChanges(selected.event.score_changes)
-  const stakeholderChanges = toStakeholderChanges(selected.event.stakeholder_changes)
+  const stakeholderChanges = toStakeholderChanges(selected.event.stakeholder_changes, scenarioBundle)
   const queuedDelayedEffects = buildQueuedDelayedEffects(selected, gameState, scenarioBundle)
 
   return {

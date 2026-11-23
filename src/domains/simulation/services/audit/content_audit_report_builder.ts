@@ -84,7 +84,8 @@ function toStructuralChecks(structuralFindings: AuditFinding[]): StructuralAudit
 
   return structuralFindings.map((finding) => ({
     id: finding.id,
-    status: finding.severity === 'critical' ? 'critical' : 'warning',
+    // An info finding is a note, not a failed check (journal M3.9)
+    status: finding.severity === 'critical' ? 'critical' : finding.severity === 'warning' ? 'warning' : 'pass',
     description: finding.description,
     evidence: finding.evidence,
   }))
@@ -95,7 +96,8 @@ function toStructuralChecks(structuralFindings: AuditFinding[]): StructuralAudit
  */
 export function buildContentAuditReport(input: BuildContentAuditReportInput): ContentAuditReport {
   const structuralFindings = auditStructuralContent(input.scenario_bundle)
-  const dynamicFindings = auditStakeholderBalance(input.simulation_report)
+  const targets = input.scenario_bundle.scenario.balance_targets
+  const dynamicFindings = auditStakeholderBalance(input.simulation_report, targets)
   const catalogRecoveryFindings = input.oracle_simulation_report
     ? auditCatalogOnlyRecovery(input.simulation_report, input.oracle_simulation_report)
     : []
@@ -103,6 +105,7 @@ export function buildContentAuditReport(input: BuildContentAuditReportInput): Co
   const scenarioTargetFindings = auditScenarioBalanceTargets(
     input.simulation_report,
     preliminaryFindings,
+    targets,
   )
 
   const findings = sortFindings([

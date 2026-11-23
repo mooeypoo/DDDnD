@@ -3,5 +3,15 @@
   "version": 1,
   "name": "The Pragmatist",
   "description": "You balanced short-term fixes with long-term investments, never going to extremes",
-  "flavor_text": "Not glamorous, but everything still works"
+  "flavor_text": "Not glamorous, but everything still works",
+  "criteria": {
+    "priority": 10,
+    "when": [
+      { "measure": "score_change", "score_ids": ["domain_clarity", "maintainability"], "operator": ">=", "value": 5 },
+      { "measure": "score_change", "score_ids": ["domain_clarity", "maintainability"], "operator": "<", "value": 20 },
+      { "measure": "score_change", "score_ids": ["delivery_confidence", "budget"], "operator": ">=", "value": -5 },
+      { "measure": "score_change", "score_ids": ["user_trust", "team_morale"], "operator": ">=", "value": -5 },
+      { "measure": "stakeholder_change", "operator": ">=", "value": 0 }
+    ]
+  }
 }

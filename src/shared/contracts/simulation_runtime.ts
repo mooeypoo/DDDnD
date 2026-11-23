@@ -45,16 +45,8 @@ export interface StakeholderChangeRecord {
 }
 
 /**
- * Supported legacy outcome archetype ids used across simulation/reporting/UI.
+ * An ending's content id (an outcome archetype). Any validated content id: a
+ * pack defines its own endings (journal M3.7). The base game's ten are just
+ * content; the UI gives them icons and falls back for others.
  */
-export type OutcomeArchetypeId =
-  | 'boundary_builder'
-  | 'stakeholder_whisperer'
-  | 'runaway_refactorer'
-  | 'firefighter'
-  | 'system_stabilizer'
-  | 'the_diplomat'
-  | 'budget_hawk'
-  | 'the_pragmatist'
-  | 'the_visionary'
-  | 'burnout_machine'
+export type OutcomeArchetypeId = string

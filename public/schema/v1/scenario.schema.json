@@ -294,6 +294,44 @@
         "version"
       ],
       "additionalProperties": false
+    },
+    "balance_targets": {
+      "type": "object",
+      "properties": {
+        "win_rate_min": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "win_rate_max": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "max_critical_findings": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "min_avg_stakeholder_satisfaction": {
+          "type": "object",
+          "propertyNames": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}$"
+          },
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      },
+      "required": [
+        "win_rate_min",
+        "win_rate_max",
+        "max_critical_findings"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [

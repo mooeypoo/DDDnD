@@ -38,6 +38,8 @@ export interface QuestDisplayModel {
   councilNames?: string[]
   /** Authored scenario starting_scores. Weather mapping happens in the UI. */
   startingScores?: Record<string, number>
+  /** Scores the scenario tracks (score_refs): which classes and modifiers fit it (journal M3.10). */
+  trackedScoreIds?: string[]
   /** Pack short_name for each starting score id. Presentation only. */
   startingScoreShortNames?: Record<string, string>
 
@@ -51,6 +53,12 @@ export interface QuestDisplayModel {
     /** Who published it, from where it was loaded (ADR 0013). */
     publisher: string
   }
+
+  /**
+   * The scenario's expected win-rate band, from its `balance_targets`
+   * (journal M3.8). The lobby's difficulty mark comes from it.
+   */
+  winRateTarget?: { min: number; max: number }
 
   // Tutorial metadata (only present for tutorial quests)
   isTutorial?: boolean

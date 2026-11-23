@@ -16,10 +16,13 @@
  */
 
 import type {
+  BalanceTargets,
   CouplingRule,
   Card,
   ChallengeModifier,
   DelayedEffect,
+  EndingCondition,
+  EndingCriteria,
   Event,
   NumericCondition,
   OutcomeArchetype,
@@ -173,11 +176,37 @@ export const outcomeTierSchema: z.ZodMiniType<OutcomeTier> = z.strictObject({
   }),
 )
 
+const endingOperatorSchema = z.enum(['<', '<=', '>', '>='])
+const endingValueSchema = z.number().check(z.gte(numbers.ending_condition_value.min), z.lte(numbers.ending_condition_value.max))
+
+const endingConditionSchema: z.ZodMiniType<EndingCondition> = z.discriminatedUnion('measure', [
+  z.strictObject({
+    measure: z.literal('score_change'),
+    score_ids: boundedArray(idSchema, counts.score_refs).check(z.minLength(1)),
+    operator: endingOperatorSchema,
+    value: endingValueSchema,
+  }),
+  z.strictObject({ measure: z.literal('final_score'), score_id: idSchema, operator: endingOperatorSchema, value: endingValueSchema }),
+  z.strictObject({
+    measure: z.literal('stakeholder_change'),
+    stakeholder_ids: z.optional(boundedArray(idSchema, counts.stakeholder_refs).check(z.minLength(1))),
+    operator: endingOperatorSchema,
+    value: endingValueSchema,
+  }),
+  z.strictObject({ measure: z.literal('pressure_per_turn'), operator: endingOperatorSchema, value: endingValueSchema }),
+])
+
+const endingCriteriaSchema: z.ZodMiniType<EndingCriteria> = z.strictObject({
+  priority: boundedInt(numbers.ending_priority),
+  when: boundedArray(endingConditionSchema, counts.ending_conditions),
+})
+
 export const outcomeArchetypeSchema: z.ZodMiniType<OutcomeArchetype> = z.strictObject({
   ...metadataShape,
   name: nameSchema,
   description: descriptionSchema,
   flavor_text: z.optional(flavorTextSchema),
+  criteria: z.optional(endingCriteriaSchema),
 })
 
 export const couplingRuleSchema: z.ZodMiniType<CouplingRule> = z.strictObject({
@@ -189,6 +218,19 @@ export const couplingRuleSchema: z.ZodMiniType<CouplingRule> = z.strictObject({
   affected_score_ids: boundedArray(idSchema, counts.score_refs).check(z.minLength(1)),
   gain_multiplier: z.number().check(z.gte(numbers.gain_multiplier.min), z.lte(numbers.gain_multiplier.max)),
 })
+
+const winRateSchema = z.number().check(z.gte(numbers.win_rate.min), z.lte(numbers.win_rate.max))
+
+const balanceTargetsSchema: z.ZodMiniType<BalanceTargets> = z.strictObject({
+  win_rate_min: winRateSchema,
+  win_rate_max: winRateSchema,
+  max_critical_findings: boundedInt(numbers.max_critical_findings),
+  min_avg_stakeholder_satisfaction: z.optional(idRecord(boundedInt(numbers.satisfaction), counts.stakeholder_refs)),
+}).check(
+  z.refine((targets) => targets.win_rate_min <= targets.win_rate_max, {
+    message: 'win_rate_min must not be above win_rate_max',
+  }),
+)
 
 export const scenarioSchema: z.ZodMiniType<Scenario> = z.strictObject({
   ...metadataShape,
@@ -211,6 +253,7 @@ export const scenarioSchema: z.ZodMiniType<Scenario> = z.strictObject({
   is_tutorial: z.optional(z.boolean()),
   tutorial_order: z.optional(boundedInt(numbers.tutorial_order)),
   tutorial_script_ref: z.optional(versionRefSchema),
+  balance_targets: z.optional(balanceTargetsSchema),
 })
 
 export const playerClassSchema: z.ZodMiniType<PlayerClass> = z.strictObject({

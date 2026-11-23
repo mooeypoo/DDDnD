@@ -244,7 +244,7 @@ Community packs can't add player classes or challenge modifiers yet, so leave `c
 
 ### Reusing base content
 
-An `extension` pack can reference base cards, events, aftershocks, stakeholders, outcome tiers, and endings by `{ id, version }`, without copying them. Check which stakeholders a reused card or event affects (its `stakeholder_changes`): if your scenario doesn't include that stakeholder, the game currently creates an invisible "phantom" stakeholder that still counts toward end-of-run classification. Either include the stakeholder or pick other content. The validator will reject this in a later version.
+An `extension` pack can reference base cards, events, aftershocks, stakeholders, outcome tiers, and endings by `{ id, version }`, without copying them. A reused card or event may affect a stakeholder your scenario doesn't include (its `stakeholder_changes`). That part of it simply does nothing in your scenario; the rest of the card still works. The balance audit lists each case as an info note ("affects vp_product, who isn't in this scenario"), so you can check it was intended.
 
 ## Dependency model
 
@@ -307,6 +307,57 @@ A run's **tier** (Triumph, Struggle, …) is picked from the scenario's own tier
 At the end of a run, the game averages the scenario's scores and picks the tier with the highest `min_average` at or below that average. The lowest tier catches everything below. `result` is `success`, `partial_success` or `failure`; the balance check counts `success` as a win. Set both fields or neither, and don't give two tiers the same threshold.
 
 Higher scores are better, for every score (a "lower is better" option may come later). An extension pack can reuse the base tiers (`triumph`, `success`, `survival`, `struggle`, `collapse`) by listing them in `outcome_tier_refs`. A pack with its own scores can write its own. See [CONTENT_SCHEMA.md](https://github.com/mooeypoo/DDDnD/blob/main/CONTENT_SCHEMA.md#outcome-tiers).
+
+## Endings: what kind of leader the player was
+
+Alongside the tier, a run gets an **ending** ("The Boundary Builder", "The Firefighter"). Each ending file says when it is chosen:
+
+```json
+"criteria": {
+  "priority": 50,
+  "when": [
+    { "measure": "score_change", "score_ids": ["domain_clarity", "maintainability"], "operator": ">=", "value": 20 },
+    { "measure": "final_score", "score_id": "delivery_confidence", "operator": ">=", "value": 30 }
+  ]
+}
+```
+
+The game tries endings from the highest `priority` down and picks the first whose conditions all hold. Give one ending an empty `when` and the lowest priority: it catches every run the others don't. Conditions can read a score's total change (`score_change`, summed over the scores you list), a score's final value (`final_score`), stakeholder satisfaction change (`stakeholder_change`, all stakeholders or the ones you list), and events plus aftershocks per turn (`pressure_per_turn`).
+
+Tips:
+
+- Put the most specific endings first. "Architecture up a lot" (priority 70) has to come before "architecture up somewhat" (50), or the first would never be chosen.
+- Every run must end somewhere: the validator refuses a scenario without a fallback ending.
+- Extension packs can list the base endings in `outcome_archetype_refs` and get the base game's endings unchanged. A pack with its own scores writes its own.
+
+See [CONTENT_SCHEMA.md](https://github.com/mooeypoo/DDDnD/blob/main/CONTENT_SCHEMA.md#ending-criteria) for every measure and check.
+
+## Balance targets: how hard your adventure should be
+
+A scenario can say how often a player-like bot should win it. The balance audit checks it, and the lobby shows a difficulty mark (Easy, Normal or Hard) from it:
+
+```json
+"balance_targets": {
+  "win_rate_min": 0.35,
+  "win_rate_max": 0.6,
+  "max_critical_findings": 0,
+  "min_avg_stakeholder_satisfaction": { "cto": 45, "cfo": 40 }
+}
+```
+
+- `win_rate_min` and `win_rate_max` are shares (0 to 1) of simulated player-like runs that reach a `success` tier. The audit warns when the observed rate falls outside the band.
+- The lobby's mark uses the middle of the band: 0.6 or more is Easy, 0.45 or more is Normal, below that is Hard. Easier adventures are listed first.
+- `max_critical_findings` is how many critical audit findings you accept (usually 0).
+- `min_avg_stakeholder_satisfaction` (optional) sets a floor per stakeholder. Without one, the audit warns below an average of 45.
+
+Leave `balance_targets` out and your adventure gets no difficulty mark and no target checks; the other audit checks still run. To see how your pack plays, audit its folder:
+
+```bash
+npm run audit:gate -- --content-root ../my-packs/packs/my_pack
+npx tsx scripts/generate-audit-report.ts --content-root ../my-packs/packs/my_pack --out my-audit.json
+```
+
+See [CONTENT_SCHEMA.md](https://github.com/mooeypoo/DDDnD/blob/main/CONTENT_SCHEMA.md#balance-targets).
 
 ## Single-file packs (`.dddnd-pack.json`)
 

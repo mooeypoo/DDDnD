@@ -109,11 +109,12 @@ describe('community packs can only build on packs whose identity we control (ADR
     }
   })
 
-  it('refuses game-wide choices: player classes and challenge modifiers (ADR 0014)', () => {
-    expect(communityManifestIssues({ ...manifest('gilded_ledger', 'base'), classes: [{ id: 'sneaky', version: 1 }] }))
-      .toEqual([{ file: 'manifest.json', message: expect.stringMatching(/^classes: community packs can't add player classes/) }])
-    expect(communityManifestIssues({ ...manifest('gilded_ledger', 'base'), challenge_modifiers: [{ id: 'sneaky', version: 1 }] }))
-      .toEqual([{ file: 'manifest.json', message: expect.stringMatching(/^challenge_modifiers: community packs can't add challenge modifiers/) }])
+  it('accepts classes and challenge modifiers: they are offered only at the pack\'s own table (journal M3.10)', () => {
+    expect(communityManifestIssues({
+      ...manifest('gilded_ledger', 'base'),
+      classes: [{ id: 'pager_paladin', version: 1 }],
+      challenge_modifiers: [{ id: 'sev1_storm', version: 1 }],
+    })).toEqual([])
   })
 
   it('is enforced when any community pack is read, before its content is used', async () => {

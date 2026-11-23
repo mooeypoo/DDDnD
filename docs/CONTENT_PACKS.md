@@ -273,7 +273,7 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
 | ~~Whose pack does `depends_on` mean?~~ | **Resolved (M2.8):** community packs may depend only on first-party packs, whose ids we control ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)). Community-on-community dependencies would need key-based references in a new schema version. | Done |
 | ~~Community hall look~~ | **Resolved (M2.12):** warm canvas, a thin awning stripe, and a stitched border as the external mark ([ADR 0015](adr/0015-community-packs-in-their-own-place.md)). | Done |
-| Player-facing run download | **Ready in code, not used.** The exact-run export (seed, scenario, pack identity and content hash, every turn's choice, history, outcome) can replay a run exactly, but nothing in the game creates or reads one; only tests do. Possible uses: a player sends a pack author a run that felt broken, or a facilitator collects a workshop's runs. Add a button when one of those is wanted (M2.13). Before wiring it up: its outcome snapshot still computes the coarse result with the old fixed cutoffs over every score, because it has no bundle. It should take the result from the run's tiers (M3.4). | When needed |
+| Player-facing run download | **Ready in code, not used.** The exact-run export (seed, scenario, pack identity and content hash, every turn's choice, history, outcome) can replay a run exactly, but nothing in the game creates or reads one; only tests do. Possible uses: a player sends a pack author a run that felt broken, or a facilitator collects a workshop's runs. Add a button when one of those is wanted (M2.13). Before wiring it up: its outcome snapshot still computes the coarse result with the old fixed cutoffs over every score, because it has no bundle. It should take the result from the run's tiers (M3.4), and its ending from the scenario's endings (M3.5); today it uses the built-in classifier. | When needed |
 | ~~Exact-run replay of retired remote packs~~ | **Resolved (M2.13): no promise.** If a pack is taken down, it's gone. Saved runs continue only while their exact pack is imported in that browser; players aren't led to expect more. Same stance as retired base scenarios in CONTENT_VERSIONING.md. | Done |
 
 ---
@@ -1460,3 +1460,257 @@ The tier files were edited in place, not given new versions. The tier a run land
 **DDD note (talk material)**
 
 The old code had *two* ubiquitous-language terms for "how did it go", maintained in two places with numbers that almost agreed. A domain expert asked "is a Struggle a failure?" would have got "it depends on the decimal". Moving tiers into content forced the question, and the answer became one sentence the content states: Struggle counts as partial. Making knowledge explicit often surfaces an inconsistency nobody chose.
+
+### M3.5 (slice 4): Endings declare when they are chosen (2026-11-23)
+
+**What changed**
+
+- **Endings gain `criteria`**: a `priority` and a list of `when` conditions. Endings are tried from the highest priority down, and the first whose conditions all hold wins. An empty `when` is the fallback. Conditions use four measures:
+  - `score_change`: summed over listed scores;
+  - `final_score`;
+  - `stakeholder_change`: all stakeholders, or listed ones;
+  - `pressure_per_turn`: events plus aftershocks per turn.
+
+  The comparison is `<`, `<=`, `>` or `>=` against a number.
+- **The engine chooses endings from content.** `selectEnding` (new, `simulation/rules/select_ending.ts`) measures the run and compares. It doesn't know any ending, score or stakeholder by name.
+- **The ten base ending files gained criteria in place.** Each one is a line-by-line translation of the old TypeScript predicate, with the old evaluation order as the priorities (firefighter 90 down to system_stabilizer 0).
+- **The validator checks the ending set:**
+  - no two endings share a priority;
+  - there is a fallback, and nothing sits below it;
+  - every score and stakeholder a condition names is in the scenario.
+- **Docs:** CONTENT_SCHEMA.md "Ending Criteria", and "Endings: what kind of leader the player was" in both authoring guides.
+
+**What still uses the old classifier, and why**
+
+- **The tutorials.** Their scenarios list `tutorial_learner`, which has no criteria, so they still get base endings from the built-in classifier. That's the bug the tutorial fix addresses. The fallback in `selectArchetypeId` goes away with it.
+- **The (unused) exact-run export.** It has no bundle; see the open question.
+
+**Decision: a small fixed vocabulary of measures**
+
+The old predicates used a handful of derived numbers ("architecture delta" = clarity + maintainability, "stability delta" = trust + morale, and "volatility" = events plus aftershocks per turn). Rather than naming those base-game concepts in the schema, a condition says which scores it sums. So "architecture" is something the *content* defines (`score_ids: ["domain_clarity", "maintainability"]`), and an SRE pack can sum `["uptime", "latency"]` without the engine knowing either word. Only measures every pack has are built in: scores, stakeholders, and how eventful the run was.
+
+The alternative was a general expression language (`"architecture_delta >= 20 && ..."`). It was rejected because it would need a parser, would be harder to validate and explain, and is more than any ending needs today. A flat list of conditions, all of which must hold, covered all ten base endings without strain. "Or" is expressed as two endings.
+
+**Verification**
+
+- **Golden replays unchanged**, and the fixed-seed audit report is identical to `main`.
+- **Equivalence sweep:** the old classifier is kept and compared with the content criteria on 40,000 generated runs. The values cluster around every threshold the endings use. Every run gets the same ending, and every one of the ten endings is reached over 100 times, including the three the golden replays never reach (boundary_builder, budget_hawk, the_pragmatist).
+- **The sweep is sensitive:** moving Budget Hawk's budget threshold from 65 to 66 fails it at once. Changing the Pragmatist's `< 20` to `<= 20` doesn't, and shouldn't: at exactly 20, Boundary Builder or Runaway Refactorer always wins first, so the two rules behave the same. That condition is redundant in the original code too, and is kept for readability.
+- **New tests** (+8, 1115 total):
+  - a pack's own endings by priority;
+  - named stakeholders;
+  - a missing final score never satisfies a condition;
+  - no criteria means no content ending;
+  - every validator check;
+  - schema refusals: unknown measure, `==`, stray fields, empty score list.
+- `content:validate` passes for base, tutorial and the demo fixture.
+
+**DDD note (talk material)**
+
+The predicates *were* domain knowledge: "a Boundary Builder improved the architecture and kept delivery viable". It lived as code only an engineer could read. As content, the definition is next to the ending's name and flavor text, in terms a facilitator can argue with ("shouldn't a Boundary Builder also keep morale up?"). The interesting design move was refusing to put "architecture" in the schema. It's a word from *this* game's ubiquitous language, not from the engine's, so the content defines it by listing scores.
+
+### M3.6: The tutorial gets its own tiers and ending (2026-11-23)
+
+**The bug**
+
+The tutorials list their own tiers ("Tutorial Complete", "Tutorial Finished") and their own ending ("The Learner"), but neither was ever used:
+
+- **Tiers:** the engine only knew the five base tier ids, so a tutorial run got no tier at all. The results screen showed the generic result ("Partial Success").
+- **Endings:** the built-in classifier read base score ids the tutorial doesn't have. It fell back to a default value of 50 for each of them and almost always landed on "System Stabilizer" (sometimes "Stakeholder Whisperer"), described in base-game terms: "You prioritized reliability and user trust above all else."
+
+**The fix: new versions, not edits**
+
+Results change, so per CONTENT_VERSIONING.md the content gets new versions. The v1 files stay, so a tutorial saved before the deploy still loads and finishes as it would have.
+
+- `tutorial_success` v2: from an average of 60, counts as success. It keeps the cutoff the game already used for success.
+- `tutorial_done` v2: the floor, counts as **partial**, never failure. It matches its own description, "Every ending is a learning experience", and the tutorials have no failure conditions.
+- Both tiers' `rank` was also flipped (v1 had Finished above Complete). Nothing reads `rank` today, but it should read correctly.
+- `tutorial_learner` v2: the fallback ending (`priority: 0`, empty `when`). The tutorial has one ending on purpose: it teaches the mechanics, not play styles.
+- `tutorial_basics` and `tutorial_systems_under_pressure` v2: identical to v1 except for the version and these three references. The manifest offers v2.
+
+**What players see (approved by the owner as "fix, but watch for regressions")**
+
+Almost nothing, and that was a surprise worth recording. A headless playthrough showed that a tutorial never reaches the results screen: "View results" opens the "Tutorial Complete" splash ("Continue your training" / "Choose a quest"). So the wrong tier and ending were never on screen; they were only in the recorded outcome (and would have shown on a share card, if a tutorial could be shared). What changes:
+
+- the recorded outcome: tier "Tutorial Complete"/"Tutorial Finished" and ending "The Learner";
+- low-scoring runs of "Systems under pressure" (average below 35) are recorded as partial instead of failure;
+- gameplay is untouched: same cards, events, scores and turns.
+
+The fix still matters, because the content now says what it means, and because the next slices (string ending ids, packs with their own endings) need every first-party scenario to choose endings from content.
+
+**Found on the way: a phantom score from the class bonus**
+
+The same playthrough showed "🧭 Domain Clarity 2 +1" in the tutorial's score bar. The tutorial doesn't track that score. A class's favored score gets +1 every turn, and the engine applied it whether or not the scenario tracks that score. So a Boundary Mage added Domain Clarity to the tutorial. Any pack with its own scores would get the same stray score; the SRE pack (slice 9) would have shown it.
+
+The fix is in `play_turn.ts`: the bonus applies only to a score in the scenario's `score_refs`. It's the same family as slice 7's phantom stakeholders: the engine applying base-game knowledge to content that doesn't have it.
+
+- **Regression check:** every base scenario and the demo track all six base scores, so their bonus is unchanged. The golden replays (which include every class affinity across the base scenarios) and the fixed-seed audit are identical.
+- **Tests:** the tutorial with a Domain Clarity class ends with only its own four scores, and a base scenario still gets the bonus. The first test fails without the fix.
+
+**Verification**
+
+- **Golden replays:** the four tutorial cases moved from v1 to v2. Run by run (240 runs), the scores, turns and status are identical. Every run's tier and ending changed as intended. In the pressure tutorial, 8 runs changed from failure to partial. No other case in the fixture changed.
+- **Playthrough** in headless Chrome to the results screen; see the PR.
+- `content:validate` passes for the tutorial pack: v1 and v2 of both scenarios.
+
+**Still open**
+
+The built-in classifier now applies only to content whose endings have no criteria: the v1 tutorials (old saves) and the internal test scenarios. Slice 5, which turns ending ids into plain strings, decides whether it can go entirely.
+
+### M3.7 (slice 5): Ending ids are content ids (2026-11-23)
+
+**What changed**
+
+- **`OutcomeArchetypeId` is a string.** It was a union of the ten base ids, so a pack's ending could exist in content but not in the type. The engine now records whatever ending the scenario's criteria choose (M3.5), under its own id.
+- **One icon helper, `endingIcon`** (`ui/play/ending_icons.ts`), replaces three copies of the same ten-entry map:
+  - the results screen;
+  - the outcome panel, which returned `undefined` for an unknown id;
+  - the share card.
+
+  Base endings keep their icons, and any other ending gets 🎯. Icons stay in the UI (ADR 0002). The lookup checks own properties, so an id like `constructor` can't return an object internal.
+- **Share links accept a pack's ending.** The share view used to refuse any ending id missing from the *viewer's* loaded packs ("Unknown archetype"). Once packs have their own endings, that would break every shared community run for anyone who hadn't imported that pack. Decoding now checks the id's shape (the content id pattern) instead. The ending's display name already travels in the link (`an`, M3.2), so nothing needs the pack. `get_available_outcome_archetype_ids` had no other caller and was removed.
+
+**What still knows the base ids**
+
+- **The icon map:** presentation, by design.
+- **The old built-in classifier.** It is reachable only for content whose endings have no criteria. After M3.5 and M3.6, that's the v1 tutorials, kept for saved runs, and the internal test scenarios. Base, demo and v2 tutorial content never reach it. It can be deleted once the v1 tutorials are retired. Keeping it costs nothing and protects old saves.
+
+**Verification**
+
+- **Golden replays unchanged,** and the fixed-seed audit is identical to `main`.
+- **New tests** (1128 total):
+  - icons for base, pack, tutorial and prototype-name ids;
+  - a share link with a pack ending decodes, and a malformed id is refused;
+  - `getRunOutcome` records a pack's ending id.
+- **Headless Chrome:** a share link for a pack run opens with its tier ("Calm Nights"), its ending ("The Pager Whisperer") and 🎯, plus the community-pack line, with no errors. One pre-existing gap: the quest shows as "Sre Pager Storm", a title-cased id, because share links don't carry the scenario's name. That is worth fixing with slice 9, when a real pack's runs are shared.
+
+### M3.8 (slice 6): Balance targets are content; the audit takes any pack folder (2026-11-23)
+
+**What changed**
+
+- **Scenarios gain optional `balance_targets`:**
+  - `win_rate_min` and `win_rate_max`;
+  - `max_critical_findings`;
+  - `min_avg_stakeholder_satisfaction`.
+
+  These are the same fields as the old `SCENARIO_BALANCE_TARGETS` table in `scenario_balance_targets_audit.ts`. The table is gone. The five current base scenarios carry their old values, copied exactly, added in place because they are never read during play.
+- **The audit reads the scenario's own targets** (`auditScenarioBalanceTargets` and `auditStakeholderBalance` take them from the bundle).
+- **The lobby's difficulty mark and ordering read them too.** `QuestDisplayModel` gains `winRateTarget`, filled by the quest loader from the scenario. `questDifficulty` and `sortQuestsByDifficulty` take the quest, not its id.
+- **The validator** refuses a band with min above max, and a satisfaction floor for a stakeholder the scenario doesn't have.
+- **Audit scripts take a pack folder.** The pack-loading code moved from `validate-content-pack.ts` into `scripts/lib/pack_loader.ts`; it loads the pack plus its first-party dependencies, as the game does. `audit:gate` and `generate-audit-report.ts` gained `--content-root` (and the report `--out`). With no flags, both behave exactly as before.
+- **Docs:** CONTENT_SCHEMA.md "Balance Targets", and "Balance targets: how hard your adventure should be" in both authoring guides.
+
+**Why it mattered: two more id-keyed leaks**
+
+Both the audit and the lobby looked targets up by **scenario id alone**. A community scenario that reused an id like `microservice_sprawl` (allowed since ADR 0014) would have been:
+
+- marked "Hard" in its bazaar table;
+- sorted by the base game's band;
+- audited against the base game's expectations.
+
+This is the same class of bug ADR 0014 fixed for scenes and bundles, in two places that review missed. Reading the targets from the scenario's own content closes it. A new test pins it: a quest with a base id and no targets gets no mark.
+
+**Found on the way**
+
+- **The gate printed ✗ for warnings.** `audit-gate.ts` compared the status to `'warn'`, but the status is `'warning'`, so every scenario with a warning printed a failure icon (the gate's exit code was right). It's fixed. This is the only intended change to the gate's output.
+- **Unused imports.** The scripts aren't covered by the project typecheck (`tsconfig.json` includes `src` and `tests` only). A one-off check found unused imports in `validate-content-pack.ts`. They're harmless and left alone, and the new `pack_loader.ts` is clean. Adding `scripts/` to the typecheck is a small follow-up.
+
+**Verification**
+
+- **Golden replays unchanged.** The fixed-seed audit report is identical to `main` (the targets reproduce the table exactly). The gate's output is identical before and after the script change, apart from the icon fix.
+- **The demo pack folder** passes `audit:gate --content-root`, `generate-audit-report.ts --content-root` and `content:validate:audit` with no findings.
+- **Tests** (1131 total):
+  - The existing audit, difficulty, lobby and store tests now read targets from the scenario files, through `tests/support/base_balance_targets.ts`. That proves the content matches the old table.
+  - New tests cover a scenario's own targets winning over its id, the default floor without targets, the validator refusals, and a reused base id with no targets getting no mark.
+
+### M3.9 (slice 7): Changes to absent stakeholders do nothing (2026-11-23)
+
+**The problem (logged in M2.4)**
+
+`applyStakeholderChanges` created an entry for *any* stakeholder id a card, event, aftershock or reaction rule named, even one not at the scenario's table. That "phantom" then counted toward the endings' stakeholder totals and showed up in audit reports. The known case: the base card `automate_deployment_pipeline` raises `vp_product`, and `microservice_sprawl` uses it without a VP Product. Every audit of that scenario reported a VP Product satisfaction.
+
+**The plan changed, on evidence**
+
+The M3.0 plan was to refuse such content in the validator and release a new `microservice_sprawl` version without it. Measuring first changed that:
+
+- **Refusing it would block reuse.** A base card naming a stakeholder that some scenarios lack is normal: cards are shared across adventures, and reusing base content is what extension packs are for. A validator error would reject the demo-style pack that reuses a card for its own cast.
+- **A new scenario version wouldn't help.** The fix is an engine rule, not a content change, so versioning the scenario preserves nothing.
+- **The impact is nil.** With the rule, 10 golden runs changed (all Microservice Sprawl) and only in their telemetry hash. Tier, ending, scores, turns and status are identical. In the fixed-seed audit, the only differences are that the phantom VP Product disappears from Microservice Sprawl's report and the new info note appears.
+
+So the rule became: **a change to a stakeholder who isn't at the table does nothing.** It's implemented once, in `toStakeholderChanges`, which every resolver already used (card, event, aftershock, reaction rule). The converter now takes the scenario bundle as a required argument, so a new caller can't forget it. Filtering at the source means the state, the run's totals (endings), the turn history and the UI all see the same clean changes.
+
+**Telling authors instead of refusing them**
+
+The structural audit adds an **info** finding per case: "card automate_deployment_pipeline affects vp_product, who isn't in this scenario". Info doesn't change a scenario's status or warning count. Its entry in the report's structural checks list is now `pass` (with the note), not `warning`. Info findings used to be listed as warnings there; no base scenario had one until now, so nobody had seen it.
+
+**Verification**
+
+- **Golden replays:** 10 Microservice Sprawl runs changed, in their telemetry hash only. The fixture was regenerated.
+- **Fixed-seed audit vs `main`:** the phantom `vp_product` aggregates are gone from Microservice Sprawl, and its report has one info finding. Nothing else changed.
+- **Tests** (+4, 1135 total):
+  - the converter drops absent stakeholders;
+  - Microservice Sprawl's simulated aggregates list only its own stakeholders (fails on `main`);
+  - the info finding is reported for Microservice Sprawl, and no other base scenario has such content.
+
+  A structural-audit fixture that added a stakeholder without seating it in its scenario now seats it.
+
+**DDD note (talk material)**
+
+"Who is at the table" is part of the scenario's model, and the old engine let any content add people to it. The phantom VP Product is a small invariant violation: an aggregate (the run) accepting a change to an entity that isn't part of it. The fix enforces the invariant at the boundary where content becomes runtime changes, and keeps the content valid: the card isn't wrong, it just has no one to affect here.
+
+
+### M3.10 (slice 8): A pack's table offers its own classes and modifiers (2026-11-23)
+
+**The problem**
+
+Player classes and challenge modifiers were "game-wide": the lobby offered the five base classes and four modifiers with every scenario, and a community pack listing its own was refused (ADR 0014 decision 5). That was right while every scenario used the base scores. A pack with its own scores breaks it: the SRE pack's scenarios won't track `domain_clarity`, so the Boundary Mage's +1 does nothing there, and "Hard Mode: -7 to six scores" would quietly change nothing.
+
+**The decision (option A from ADR 0015)**
+
+- **A pack's table offers its own classes and modifiers first, then those of the first-party packs it depends on.** The owner asked for the second half explicitly: an author making a "DDDnD-like" pack that only adds scenarios or cards shouldn't have to redo everything. The Gilded Ledger demo declares no classes and still offers all five base ones, unchanged.
+- **Each is offered only where it fits the selected scenario:**
+  - a class fits when the scenario tracks its favored score, or when it has no favored score (identity only);
+  - a modifier fits only when the scenario tracks **every** score it changes. "Some of it applies" would leave a card describing an effect that silently doesn't happen.
+- **Switching quest swaps out what no longer fits:** the class moves to the first one that fits, and the modifier goes back to none.
+- **A pack's own choices that never work are refused,** at import (the playability check) and by the validator CLI:
+  - a class of its own that fits none of its scenarios;
+  - a modifier of its own that fits none of its scenarios;
+  - a scenario no class at its table fits.
+
+  Dependencies' classes are never refused for not fitting: they belong to another pack, so they are only filtered out.
+
+**What changed**
+
+- **Domain:** `table_choices.ts` holds the two fit rules and `tableChoiceIssues`. The registry gained `getTableClasses(packKey)` and `getTableChallengeModifiers(packKey)`, which walk the pack's scope in order (the pack first).
+- **Boundary:** the community-manifest refusal is gone. `checkPackPlayable` runs the table check after building the scenarios, and `validate-content-pack` prints a "Table choices" section and fails on issues.
+- **Run start:** the class and modifier now load through the run's own pack scope, like the bundle, so a pack's class is found in that pack. They're kept on the store as `runPlayerClass` and `runChallengeModifier`, and reloaded from the run's pack when a saved run is restored.
+- **Play screen:** it shows the run's class name from the run's own class, so a resumed pack run shows "Ledger Auditor" and not a title-cased id. Before, it looked in the lobby's list, which might not even be loaded after a reload.
+- **Base lobby:** unchanged. Every base scenario tracks all six scores, so all five classes and four modifiers fit everywhere.
+
+**Verification**
+
+- **Engine untouched:** golden replays pass unchanged, and the fixed-seed audit is identical to slice 7.
+- **Validator:** base, tutorial and the Gilded Ledger pass the new check. A copy of the demo pack with a class on `uptime` is refused (exit 1) with a message naming the file.
+- **Headless Chrome**, with a copy of the demo pack that adds a "Ledger Auditor" class (budget) and an "Audit Season" modifier (budget -10):
+  - the base lobby shows the same five classes and four modifiers;
+  - the pack's table shows Ledger Auditor first, then the five base classes, and Audit Season first, then the four base modifiers;
+  - a run started with both shows them in the opening briefing and next to the player;
+  - after a reload, the player still shows Ledger Auditor.
+- **Tests** (+10, 1145 total):
+  - the fit rules;
+  - the demo pack offers the base classes and modifiers with nothing declared;
+  - a pack's own choices come first, and the base lobby is unaffected;
+  - the three refusals, and dependencies' classes never being refused;
+  - the lobby filters per quest and swaps a choice that stops fitting;
+  - the run's class loads from the run's pack.
+
+**Known gaps**
+
+- A pack's class has no portrait (the seat shows its initial), and its accent colour is the default one. Presentation stays keyed by id (ADR 0002), so a pack class reusing a base id would get the base art.
+- Share links carry only the class id, so a shared pack run names its class as a title-cased id, like the scenario name (noted for slice 9).
+- The modifier's name appears only in the opening briefing, which a resumed run doesn't reopen. That's unchanged.
+- The `pack-validator-v1` workflow in DDDnD-packs still refuses classes until its tag moves to a commit with this slice.
+
+**DDD note (talk material)**
+
+"Game-wide" was an assumption hiding in the model: it held only because there was one score vocabulary. Once a pack can bring its own scores, a class is meaningful only inside the context that defines its favored score. The table (a pack and what it builds on) is that context, and the fit rules are the translation at its edge. The other half of the decision is about the published language: base content stays reusable by default, so an extension pack inherits the base classes the way it inherits base cards.

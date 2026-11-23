@@ -63,7 +63,7 @@ export function resolveArchitecturalAftershocks(
     }
 
     const effectScoreChanges = toScoreChanges(delayedEffect.score_changes)
-    const effectStakeholderChanges = toStakeholderChanges(delayedEffect.stakeholder_changes)
+    const effectStakeholderChanges = toStakeholderChanges(delayedEffect.stakeholder_changes, scenarioBundle)
 
     scoreChanges.push(...effectScoreChanges)
     stakeholderChanges.push(...effectStakeholderChanges)

@@ -79,6 +79,14 @@ export const CONTENT_LIMITS = {
     coupling_threshold: { min: -1000, max: 1000 },
     /** Outcome tier score average threshold (not an integer). Base: 0–75. */
     tier_min_average: { min: -1000, max: 1000 },
+    /** Ending priority. Base: 0–90. */
+    ending_priority: { min: 0, max: 1000 },
+    /** Ending condition value (not an integer). Base: -10 to 65. */
+    ending_condition_value: { min: -1000, max: 1000 },
+    /** Balance target win rate (a share, 0–1). */
+    win_rate: { min: 0, max: 1 },
+    /** Balance target tolerated critical findings. Base: 0. */
+    max_critical_findings: { min: 0, max: 100 },
     /** Coupling gain multiplier (not an integer). Base: 0.7–0.75. */
     gain_multiplier: { min: 0.1, max: 1 },
   },
@@ -99,6 +107,8 @@ export const CONTENT_LIMITS = {
     outcome_refs: 30,
     /** Coupling rules per scenario. Base max: 3. */
     coupling_rule_refs: 12,
+    /** Conditions on one ending. Base max: 5. */
+    ending_conditions: 12,
     /** Opening hand pins. Base max: 6. */
     opening_hand_card_ids: 12,
     /** Score or stakeholder changes on one entity. Base max: 6. */

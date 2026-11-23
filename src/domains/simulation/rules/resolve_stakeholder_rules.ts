@@ -55,7 +55,7 @@ export function resolveStakeholderRules(
       matchedRules.push({
         rule_ref: { id: rule.id, version: rule.version },
         score_changes: toScoreChanges(rule.score_changes),
-        stakeholder_changes: toStakeholderChanges(rule.stakeholder_changes),
+        stakeholder_changes: toStakeholderChanges(rule.stakeholder_changes, scenarioBundle),
         priority: rule.priority ?? 100,
         name: rule.name,
         description: rule.description

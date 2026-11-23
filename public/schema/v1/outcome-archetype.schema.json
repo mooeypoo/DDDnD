@@ -29,6 +29,169 @@
     "flavor_text": {
       "type": "string",
       "maxLength": 400
+    },
+    "criteria": {
+      "type": "object",
+      "properties": {
+        "priority": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "when": {
+          "maxItems": 12,
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "measure": {
+                    "type": "string",
+                    "const": "score_change"
+                  },
+                  "score_ids": {
+                    "minItems": 1,
+                    "maxItems": 12,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9_]{1,64}$"
+                    }
+                  },
+                  "operator": {
+                    "type": "string",
+                    "enum": [
+                      "<",
+                      "<=",
+                      ">",
+                      ">="
+                    ]
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": -1000,
+                    "maximum": 1000
+                  }
+                },
+                "required": [
+                  "measure",
+                  "score_ids",
+                  "operator",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "measure": {
+                    "type": "string",
+                    "const": "final_score"
+                  },
+                  "score_id": {
+                    "type": "string",
+                    "pattern": "^[a-z0-9_]{1,64}$"
+                  },
+                  "operator": {
+                    "type": "string",
+                    "enum": [
+                      "<",
+                      "<=",
+                      ">",
+                      ">="
+                    ]
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": -1000,
+                    "maximum": 1000
+                  }
+                },
+                "required": [
+                  "measure",
+                  "score_id",
+                  "operator",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "measure": {
+                    "type": "string",
+                    "const": "stakeholder_change"
+                  },
+                  "stakeholder_ids": {
+                    "minItems": 1,
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9_]{1,64}$"
+                    }
+                  },
+                  "operator": {
+                    "type": "string",
+                    "enum": [
+                      "<",
+                      "<=",
+                      ">",
+                      ">="
+                    ]
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": -1000,
+                    "maximum": 1000
+                  }
+                },
+                "required": [
+                  "measure",
+                  "operator",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "measure": {
+                    "type": "string",
+                    "const": "pressure_per_turn"
+                  },
+                  "operator": {
+                    "type": "string",
+                    "enum": [
+                      "<",
+                      "<=",
+                      ">",
+                      ">="
+                    ]
+                  },
+                  "value": {
+                    "type": "number",
+                    "minimum": -1000,
+                    "maximum": 1000
+                  }
+                },
+                "required": [
+                  "measure",
+                  "operator",
+                  "value"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        }
+      },
+      "required": [
+        "priority",
+        "when"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [

@@ -15,13 +15,20 @@ import { versionRefKey } from '../model/version_ref'
 import { buildScenarioBundle } from './bundle_builder'
 import { validateScenarioBundle } from './bundle_validator'
 import type { ContentPackRegistry } from './content_pack_registry'
+import type { ContentProvider } from './content_provider'
 import type { PackIssue } from './pack_snapshot_builder'
+import { tableChoiceIssues } from './table_choices'
+
+type PlayabilityRegistry = Pick<
+  ContentPackRegistry,
+  'getPack' | 'createScopedProvider' | 'getTableClasses'
+>
 
 /**
  * Returns every reason the pack can't be played, or an empty list.
  */
 export async function checkPackPlayable(
-  registry: Pick<ContentPackRegistry, 'getPack' | 'createScopedProvider'>,
+  registry: PlayabilityRegistry,
   packKey: string,
 ): Promise<PackIssue[]> {
   const manifest = registry.getPack(packKey)?.manifest
@@ -42,6 +49,7 @@ export async function checkPackPlayable(
   }
 
   const issues: PackIssue[] = []
+  const tracked: Array<{ ref: (typeof scenarioRefs)[number]; tracked_score_ids: string[] }> = []
   for (const ref of scenarioRefs) {
     const file = `scenarios/${versionRefKey(ref)}.json`
     try {
@@ -49,9 +57,43 @@ export async function checkPackPlayable(
       for (const error of validateScenarioBundle(bundle).errors) {
         issues.push({ file, message: error.message })
       }
+      if (manifest.scenarios.includes(ref)) {
+        tracked.push({ ref, tracked_score_ids: bundle.scenario.score_refs.map((scoreRef) => scoreRef.id) })
+      }
     } catch (error) {
       issues.push({ file, message: (error as Error).message })
     }
   }
+  issues.push(...await checkTableChoices(registry, packKey, provider, tracked))
   return issues
+}
+
+/**
+ * The pack's classes and modifiers fit its scenarios, and every scenario has
+ * a class to sit down with (journal M3.10). Tutorials skip the class choice,
+ * so only adventures count.
+ */
+export async function checkTableChoices(
+  registry: Pick<ContentPackRegistry, 'getPack' | 'getTableClasses'>,
+  packKey: string,
+  provider: ContentProvider,
+  scenarios: Array<{ ref: { id: string; version: number }; tracked_score_ids: string[] }>,
+): Promise<PackIssue[]> {
+  const manifest = registry.getPack(packKey)?.manifest
+  if (!manifest) return []
+  try {
+    const [ownClasses, ownModifiers, tableClasses] = await Promise.all([
+      Promise.all(manifest.classes.map((ref) => provider.loadPlayerClass(ref))),
+      Promise.all((manifest.challenge_modifiers ?? []).map((ref) => provider.loadChallengeModifier(ref))),
+      Promise.all(registry.getTableClasses(packKey).map((ref) => provider.loadPlayerClass(ref))),
+    ])
+    return tableChoiceIssues({
+      own_classes: ownClasses,
+      own_modifiers: ownModifiers,
+      table_classes: tableClasses,
+      scenarios,
+    })
+  } catch (error) {
+    return [{ file: 'manifest.json', message: (error as Error).message }]
+  }
 }

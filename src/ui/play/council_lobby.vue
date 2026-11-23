@@ -385,7 +385,7 @@ function sceneFor(quest: QuestDisplayModel): string {
 }
 
 function difficultyFor(quest: QuestDisplayModel) {
-  return questDifficulty(quest.id)
+  return questDifficulty(quest)
 }
 
 function questHook(quest: QuestDisplayModel): string {

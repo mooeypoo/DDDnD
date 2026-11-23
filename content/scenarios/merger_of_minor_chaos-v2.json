@@ -283,5 +283,17 @@
     { "id": "delivery_collapse", "version": 1 },
     { "id": "morale_collapse", "version": 1 },
     { "id": "trust_collapse", "version": 1 }
-  ]
+  ],
+  "balance_targets": {
+    "win_rate_min": 0.5,
+    "win_rate_max": 0.8,
+    "max_critical_findings": 0,
+    "min_avg_stakeholder_satisfaction": {
+      "cto": 40,
+      "vp_product": 45,
+      "lead_developer": 50,
+      "operations_manager": 60,
+      "integration_program_manager": 40
+    }
+  }
 }

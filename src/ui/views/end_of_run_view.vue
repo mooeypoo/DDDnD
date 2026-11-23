@@ -14,7 +14,7 @@
             alt=""
             aria-hidden="true"
           />
-          <div v-else class="celebration-icon">{{ outcome ? getArchetypeIcon(outcome.archetype) : '🎊' }}</div>
+          <div v-else class="celebration-icon">{{ outcome ? endingIcon(outcome.archetype) : '🎊' }}</div>
         </div>
         
         <h1 class="outcome-title">Journey Complete</h1>
@@ -55,7 +55,7 @@
             aria-hidden="true"
           />
           <div v-else class="archetype-icon-wrapper">
-            <span class="archetype-icon">{{ getArchetypeIcon(outcome.archetype) }}</span>
+            <span class="archetype-icon">{{ endingIcon(outcome.archetype) }}</span>
           </div>
         </div>
         
@@ -213,7 +213,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/ui/stores/game_store'
 import { useScoreLabels } from '@/ui/composables/use_score_labels'
-import type { OutcomeArchetypeId } from '@/shared/contracts'
+import { endingIcon } from '@/ui/play/ending_icons'
 import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import ShareResultCard from '@/ui/components/results/share_result_card.vue'
@@ -334,21 +334,6 @@ function getTierClass(tier: string): string {
 }
 
 
-function getArchetypeIcon(archetype: OutcomeArchetypeId): string {
-  const icons: Record<OutcomeArchetypeId, string> = {
-    'boundary_builder': '🏗️',
-    'firefighter': '🧯',
-    'runaway_refactorer': '♻️',
-    'stakeholder_whisperer': '🗣️',
-    'system_stabilizer': '⚖️',
-    'the_diplomat': '🤝',
-    'budget_hawk': '🦅',
-    'the_pragmatist': '🔧',
-    'the_visionary': '🔭',
-    'burnout_machine': '🔥'
-  }
-  return icons[archetype] || '🎯'
-}
 
 
 function formatCompletionReason(reason?: string): string {

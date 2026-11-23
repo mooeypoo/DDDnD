@@ -24,6 +24,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { OutcomeArchetypeId } from '@/shared/contracts'
+import { endingIcon } from '@/ui/play/ending_icons'
 
 /**
  * Presentational result panel for a resolved outcome archetype.
@@ -47,21 +48,7 @@ const props = withDefaults(
 /**
  * Emoji fallback map used until a portrait URL is supplied for an archetype.
  */
-const archetypeIcon = computed(() => {
-  const icons: Record<OutcomeArchetypeId, string> = {
-    boundary_builder:     '🏗️',
-    firefighter:          '🧯',
-    runaway_refactorer:   '♻️',
-    stakeholder_whisperer: '🗣️',
-    system_stabilizer:    '⚖️',
-    the_diplomat:         '🤝',
-    budget_hawk:          '🦅',
-    the_pragmatist:       '🔧',
-    the_visionary:        '🔭',
-    burnout_machine:      '🔥'
-  }
-  return icons[props.archetype]
-})
+const archetypeIcon = computed(() => endingIcon(props.archetype))
 
 /**
  * Lightweight tier badge copy used by result summaries.

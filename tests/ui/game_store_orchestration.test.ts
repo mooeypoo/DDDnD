@@ -6,6 +6,8 @@ vi.mock('@/ui/services/quest_loader', async () => {
   const actual = await vi.importActual<typeof import('@/ui/services/quest_loader')>(
     '@/ui/services/quest_loader'
   )
+  // Quests carry their scenario's win-rate band, as the real loader reads it (journal M3.8)
+  const { baseQuest } = await import('../support/base_balance_targets')
   return {
     ...actual,
     loadQuestDisplayModels: vi.fn(async (scenarioRefs: Array<{ id: string; version: number }>, _provider: unknown, packKey: string) =>
@@ -19,7 +21,8 @@ vi.mock('@/ui/services/quest_loader', async () => {
         flavorText: `${ref.id} flavor`,
         turnCount: 8,
         stakeholderCount: 4,
-        actionCardCount: 10
+        actionCardCount: 10,
+        winRateTarget: baseQuest(ref.id).winRateTarget,
       }))
     )
   }

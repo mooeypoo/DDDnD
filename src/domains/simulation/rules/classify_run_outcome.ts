@@ -3,6 +3,7 @@ import type { OutcomeArchetypeId } from '@/shared/contracts'
 import { GameState, RunAnalytics } from '../model'
 import { evaluateNumericCondition } from './condition_evaluator'
 import { classifyOutcomeArchetype } from './classify_outcome_archetype'
+import { selectEnding } from './select_ending'
 
 /**
  * Terminal reason for run completion classification.
@@ -59,9 +60,17 @@ export function selectOutcomeTier(scoreAverage: number, scenarioBundle: Scenario
 }
 
 /**
- * Selects legacy archetype classification from current game state.
+ * The run's ending, from the scenario's own endings (journal M3.5).
+ *
+ * Scenarios whose endings declare no criteria (the tutorials, until their
+ * own fix) still get the old built-in classification. That fallback goes
+ * away with the tutorial fix.
  */
-function selectArchetypeId(gameState: GameState, _scenarioBundle: ScenarioBundle): OutcomeArchetypeId {
+function selectArchetypeId(gameState: GameState, scenarioBundle: ScenarioBundle): OutcomeArchetypeId {
+  const ending = selectEnding(gameState, scenarioBundle)
+  if (ending) {
+    return ending.id
+  }
   return classifyOutcomeArchetype({ game_state: gameState })
 }
 

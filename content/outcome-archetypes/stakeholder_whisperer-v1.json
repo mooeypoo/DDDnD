@@ -3,5 +3,13 @@
   "version": 1,
   "name": "The Stakeholder Whisperer",
   "description": "You kept stakeholders engaged and satisfied throughout",
-  "flavor_text": "Happy stakeholders enable better outcomes"
+  "flavor_text": "Happy stakeholders enable better outcomes",
+  "criteria": {
+    "priority": 40,
+    "when": [
+      { "measure": "stakeholder_change", "operator": ">=", "value": 10 },
+      { "measure": "score_change", "score_ids": ["user_trust", "team_morale"], "operator": ">=", "value": 0 },
+      { "measure": "final_score", "score_id": "delivery_confidence", "operator": ">=", "value": 25 }
+    ]
+  }
 }

@@ -1,0 +1,9 @@
+{
+  "id": "tutorial_success",
+  "version": 2,
+  "name": "Tutorial Complete",
+  "description": "You completed the tutorial successfully. Well done, adventurer!",
+  "rank": 2,
+  "min_average": 60,
+  "result": "success"
+}

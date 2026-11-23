@@ -3,6 +3,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 import type { PlayerClass } from '@/domains/content/model'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import RunSetupView from '@/ui/views/run_setup_view.vue'
+import { baseQuest } from '../support/base_balance_targets'
 
 const pushSpy = vi.fn()
 const routeQuery: Record<string, string> = {}
@@ -30,6 +31,8 @@ function makeQuest(id: string, name: string, extras: Partial<QuestDisplayModel> 
     turnCount: 8,
     stakeholderCount: 4,
     actionCardCount: 10,
+    // Base scenario ids carry their content's win-rate band, as the loader gives them
+    ...(baseQuest(id).winRateTarget ? { winRateTarget: baseQuest(id).winRateTarget } : {}),
     ...extras
   }
 }
@@ -83,6 +86,7 @@ describe('run_setup_view quest integration', () => {
       warm_scenario_bundle: vi.fn().mockResolvedValue(undefined),
       load_available_challenge_modifiers: vi.fn().mockResolvedValue(undefined),
       availableChallengeModifiers: [],
+      load_table_choices: vi.fn(async () => ({ classes: storeMock.availableClasses, modifiers: storeMock.availableChallengeModifiers })),
       isDungeonMasterModalOpen: false,
       openDungeonMasterModal: vi.fn(),
       closeDungeonMasterModal: vi.fn(),
@@ -157,6 +161,47 @@ describe('run_setup_view quest integration', () => {
       is_tutorial: false
     })
     expect(pushSpy).toHaveBeenCalledWith('/game')
+  })
+
+  it("offers only the classes and modifiers that fit the selected quest's scores (journal M3.10)", async () => {
+    storeMock.availableQuests = [
+      makeQuest('monolith_of_mild_despair', 'Monolith', { trackedScoreIds: ['domain_clarity', 'budget'] }),
+      makeQuest('microservice_sprawl', 'Sprawl', { trackedScoreIds: ['uptime'] }),
+    ]
+    storeMock.availableClasses = [
+      { ...makeClass('boundary_mage', 'Boundary Mage'), score_affinity: 'domain_clarity' },
+      { ...makeClass('pager_paladin', 'Pager Paladin'), score_affinity: 'uptime' },
+      makeClass('wanderer', 'Wanderer'),
+    ]
+    storeMock.availableChallengeModifiers = [
+      { id: 'budget_crisis', version: 1, name: 'Budget Crisis', description: 'd', score_adjustments: { budget: -20 } },
+      { id: 'speed_run', version: 1, name: 'Speed Run', description: 'd', turn_adjustment: -2 },
+    ]
+    const wrapper = mount(RunSetupView)
+    await flushPromises()
+
+    const seats = () => wrapper.findAll('.class-seat').map((seat) => seat.text())
+    const chips = () => wrapper.findAll('.modifier-chip').map((chip) => chip.text())
+    expect(seats().join('|')).toMatch(/Boundary Mage.*\|.*Wanderer/)
+    expect(seats().join('|')).not.toContain('Pager Paladin')
+    expect(chips().join('|')).toContain('Budget Crisis')
+
+    // Pick the modifier, then switch to a quest without that score
+    await wrapper.findAll('.modifier-chip').find((chip) => chip.text().includes('Budget Crisis'))!.trigger('click')
+    await wrapper.findAll('.table-quest')[1].trigger('click')
+    await flushPromises()
+    expect(seats().join('|')).toContain('Pager Paladin')
+    expect(seats().join('|')).not.toContain('Boundary Mage')
+    expect(chips().join('|')).not.toContain('Budget Crisis')
+    expect(chips().join('|')).toContain('Speed Run')
+
+    await wrapper.find('.sit-btn').trigger('click')
+    // The class moved to one that fits; the modifier that no longer fits was dropped
+    expect(storeMock.start_new_run).toHaveBeenCalledWith(expect.objectContaining({
+      scenario_id: 'microservice_sprawl',
+      selected_class_ref: { id: 'pager_paladin', version: 1 },
+    }))
+    expect(storeMock.start_new_run.mock.calls[0][0]).not.toHaveProperty('selected_challenge_modifier_ref')
   })
 
   it('selects a lobby tutorial and joins through start_new_run', async () => {
