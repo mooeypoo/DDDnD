@@ -175,6 +175,10 @@ This means **moving a pack makes it a new pack** to the game. Renaming the repos
 
 Your content ids (cards, scenarios, events…) belong to your pack: another pack using the same ids doesn't affect yours. They must not reuse an id the packs you build on (`base`, `tutorial`) already use, because your scenarios couldn't tell which one they meant. A short prefix keeps that easy and makes your files easy to recognize. The demo pack uses `ledger_` (`ledger_split_refunds_context`).
 
+## How many stakeholders fit at the table
+
+A scenario can have up to 8 stakeholders. Everyone counts in play, endings and the results screen, but the table on the play screen has a limited number of seats: 6 on wide screens, 5 at mid-width, 4 on wide phones and small tablets, and 3 on narrow phones. With more stakeholders than seats, the seats go to whoever was most recently active (their satisfaction changed or they reacted), and a "+N council" button lists the rest with their mood. Someone who reacts is always seated while their reaction plays. Four or five stakeholders is the base game's size; six or more is fine, but players on small screens will see them take turns at the table.
+
 ## Classes and challenge modifiers
 
 **You don't have to add any.** Your pack's table offers DDDnD's own classes and challenge modifiers (from `base`, which your pack depends on). A pack that only adds scenarios, cards or events on the base scores plays with the usual five classes and four modifiers without listing anything.

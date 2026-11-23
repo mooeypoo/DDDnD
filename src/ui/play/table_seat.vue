@@ -50,7 +50,7 @@
 import { computed, ref, watch } from 'vue'
 
 import { requestAvatarRoleImage } from '@/ui/composables/presentation_asset_lookup'
-import type { GameplayStageActor } from '@/ui/composables/gameplay_stage_presentation'
+import { stakeholderMoodLabel, type GameplayStageActor } from '@/ui/composables/gameplay_stage_presentation'
 import type { AvatarMood, AvatarRoleId } from '@/ui/config/presentation_asset_types'
 import type { SceneActorSlot } from '@/ui/composables/scene_avatar_positioning'
 
@@ -98,20 +98,7 @@ const portraitUrl = computed(() => {
   })
 })
 
-const moodLabel = computed(() => {
-  switch (props.mood) {
-    case 'happy':
-      return 'Allied'
-    case 'neutral':
-      return 'Watching'
-    case 'concerned':
-      return 'Uneasy'
-    case 'angry':
-      return 'Opposed'
-    default:
-      return 'Present'
-  }
-})
+const moodLabel = computed(() => stakeholderMoodLabel(props.mood))
 
 function onEnter() {
   nameRevealed.value = true

@@ -12,10 +12,11 @@
     aria-label="War table"
   >
     <div class="table-quake-root" :class="{ 'is-shaking': fxKind === 'aftershock' }">
-    <div class="seat-ring" data-play-highlight="stakeholders" aria-label="Council">
+    <div class="seat-ring" :class="`count-${actors.length}`" data-play-highlight="stakeholders" aria-label="Council">
       <TableSeat
         v-for="actor in actors"
         :key="actor.id"
+        :class="`seat-pos-${actor.seat ?? 0}`"
         :displayName="actor.displayName"
         :avatarRole="actor.avatarRole"
         :mood="actor.mood"
@@ -23,6 +24,25 @@
         :speechBubble="actor.speechBubble"
         :voicing="voicingStakeholderId === actor.id"
       />
+    </div>
+
+    <!-- Council members without a seat on this screen: the most recently active sit (council_seating.ts) -->
+    <div v-if="others.length > 0" class="council-others">
+      <button
+        type="button"
+        class="others-chip"
+        :aria-expanded="othersOpen"
+        aria-controls="council-others-list"
+        @click="othersOpen = !othersOpen"
+      >
+        +{{ others.length }} council
+      </button>
+      <ul v-if="othersOpen" id="council-others-list" class="others-list" aria-label="Other council members">
+        <li v-for="member in others" :key="member.id" :class="`mood-${member.mood}`">
+          <span class="others-name">{{ member.displayName }}</span>
+          <span class="others-mood">{{ stakeholderMoodLabel(member.mood) }}</span>
+        </li>
+      </ul>
     </div>
 
     <div
@@ -153,9 +173,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-import type { GameplayStageActor } from '@/ui/composables/gameplay_stage_presentation'
+import { stakeholderMoodLabel, type GameplayStageActor } from '@/ui/composables/gameplay_stage_presentation'
 import { requestEventScene, requestSceneBackground } from '@/ui/composables/presentation_asset_lookup'
 import type { SceneBackgroundId } from '@/ui/config/presentation_asset_types'
 import TableSeat from '@/ui/play/table_seat.vue'
@@ -165,6 +185,8 @@ import type { ImpactTone } from '@/ui/play/table_moment'
 
 const props = defineProps<{
   actors: GameplayStageActor[]
+  /** Council members without a seat right now (more stakeholders than seats). */
+  otherCouncil?: Array<{ id: string; displayName: string; mood: string }>
   sceneId: SceneBackgroundId
   currentBeat: TurnBeat | null
   highlight?: string | null
@@ -187,6 +209,11 @@ defineEmits<{
 }>()
 
 const sceneUrl = computed(() => requestSceneBackground(props.sceneId))
+const others = computed(() => props.otherCouncil ?? [])
+const othersOpen = ref(false)
+watch(() => others.value.length, (count) => {
+  if (count === 0) othersOpen.value = false
+})
 const isCollapsing = computed(() => Boolean(props.isCollapsing))
 const collapseCount = computed(() => props.collapseCount ?? 0)
 
@@ -903,6 +930,100 @@ const eventSceneUrl = computed(() => {
 .seat-ring :deep(.seat-center) { position: absolute; left: 18%; top: 4%; }
 .seat-ring :deep(.seat-right) { position: absolute; right: 18%; top: 4%; }
 .seat-ring :deep(.seat-far) { position: absolute; right: 0; top: 38%; }
+
+/*
+ * Councils of 5 or 6 on wider screens (council_seating.ts gives phones 4
+ * seats, mid-width 5, wide 6). Seats shrink a little so the arc never crowds.
+ */
+/* Three seats (narrow phones): a symmetric arc with room for each name */
+.seat-ring.count-3 { --seat-w: min(26vw, 104px); }
+.seat-ring.count-3 :deep(.table-seat) { width: var(--seat-w); left: auto; right: auto; }
+.seat-ring.count-3 :deep(.seat-pos-0) { left: 0; top: 30%; }
+.seat-ring.count-3 :deep(.seat-pos-1) { left: calc(50% - var(--seat-w) / 2); top: 0; }
+.seat-ring.count-3 :deep(.seat-pos-2) { right: 0; top: 30%; }
+
+.seat-ring.count-5 { --seat-w: min(15vw, 118px); }
+.seat-ring.count-6 { --seat-w: min(13vw, 108px); }
+.seat-ring.count-5 :deep(.table-seat),
+.seat-ring.count-6 :deep(.table-seat) {
+  width: var(--seat-w);
+  left: auto;
+  right: auto;
+}
+.seat-ring.count-5 :deep(.seat-pos-0) { left: 0; top: 40%; }
+.seat-ring.count-5 :deep(.seat-pos-1) { left: 15%; top: 7%; }
+.seat-ring.count-5 :deep(.seat-pos-2) { left: calc(50% - var(--seat-w) / 2); top: -3%; }
+.seat-ring.count-5 :deep(.seat-pos-3) { right: 15%; top: 7%; }
+.seat-ring.count-5 :deep(.seat-pos-4) { right: 0; top: 40%; }
+.seat-ring.count-6 :deep(.seat-pos-0) { left: 0; top: 42%; }
+.seat-ring.count-6 :deep(.seat-pos-1) { left: 12%; top: 10%; }
+.seat-ring.count-6 :deep(.seat-pos-2) { left: 31%; top: -3%; }
+.seat-ring.count-6 :deep(.seat-pos-3) { right: 31%; top: -3%; }
+.seat-ring.count-6 :deep(.seat-pos-4) { right: 12%; top: 10%; }
+.seat-ring.count-6 :deep(.seat-pos-5) { right: 0; top: 42%; }
+
+.council-others {
+  position: absolute;
+  top: 0.4rem;
+  left: 0.5rem;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  max-width: min(15rem, 60%);
+  /* The table's animation layer ignores pointers; the list must not */
+  pointer-events: auto;
+}
+
+.others-chip {
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid rgba(232, 196, 96, 0.45);
+  background: rgba(12, 9, 5, 0.82);
+  color: var(--dng-title-gold);
+  font-family: var(--font-heading);
+  font-size: var(--text-kicker);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.others-chip:focus-visible {
+  outline: 2px solid rgba(232, 196, 96, 0.75);
+  outline-offset: 2px;
+}
+
+.others-list {
+  margin: 0;
+  padding: 0.4rem 0.6rem;
+  list-style: none;
+  border-radius: 10px;
+  border: 1px solid rgba(232, 196, 96, 0.3);
+  background: rgba(12, 9, 5, 0.9);
+  display: grid;
+  gap: 0.25rem;
+}
+
+.others-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: var(--text-sm);
+  color: var(--text-bright);
+}
+
+.others-mood {
+  color: var(--text-secondary);
+  font-size: var(--text-kicker);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.others-list .mood-happy .others-mood { color: #8fd18f; }
+.others-list .mood-concerned .others-mood { color: #e8c460; }
+.others-list .mood-angry .others-mood { color: #ef8a6a; }
 
 /*
  * Theater plaques cannot live inside .war-table. The table isolates a stacking
