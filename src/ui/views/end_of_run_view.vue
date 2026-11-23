@@ -237,7 +237,7 @@ import {
 } from '@/ui/composables/stakeholder_presentation'
 import { buildSharePayload } from '@/domains/reporting/services/build_share_payload'
 import { describeRunCommunityPack } from '@/ui/play/community_pack_review'
-import { describeOutcome } from '@/ui/play/outcome_presentation'
+import { describeOutcome, titleCaseId } from '@/ui/play/outcome_presentation'
 import { lobbyRouteFor } from '@/ui/community/community_routes'
 import { buildShareUrl, type SharePayload } from '@/domains/reporting/services'
 
@@ -313,7 +313,12 @@ onMounted(() => {
       game_state: gameStore.gameState,
       community_pack: runCommunityPack.value,
       names: { archetype: outcomeText.value.archetypeName, tier: outcomeText.value.tierName },
-      run_names: { scenario: scenarioName.value, player_class: gameStore.runPlayerClass?.name },
+      run_names: {
+        scenario: scenarioName.value,
+        player_class: gameStore.runPlayerClass?.name,
+        stakeholders: stakeholderNames.value,
+        scores: Object.fromEntries([...(gameStore.scenarioBundle?.scores.values() ?? [])].map((score) => [score.id, score.short_name])),
+      },
     })
   }
 })
@@ -463,7 +468,7 @@ async function nativeShare() {
     await navigator.share({
       title: 'My DDDnD Quest Result',
       text: sharePayload.value
-        ? `I completed a DDDnD quest as the ${sharePayload.value.arch.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}!`
+        ? `I completed a DDDnD quest as ${sharePayload.value.an ?? titleCaseId(sharePayload.value.arch)}!`
         : 'Check out my DDDnD quest result!',
       url
     })

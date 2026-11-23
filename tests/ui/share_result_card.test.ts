@@ -131,4 +131,13 @@ describe('share_result_card names (journal M3.11)', () => {
     expect(text).toContain('Monolith Of Mild Despair')
     expect(text).toContain('Boundary Mage')
   })
+
+  it("shows the council's and scores' names a link carries, not their ids", () => {
+    const text = mount(ShareResultCard, {
+      props: { payload: makePayload({ stakeholders: { sre_vp_engineering: 60 }, scores: { sre_availability: 70 }, stn: { sre_vp_engineering: 'VP of Engineering' }, scn: { sre_availability: 'Uptime' } }) },
+    }).text()
+    expect(text).toContain('VP of Engineering')
+    expect(text).toContain('Uptime')
+    expect(text).not.toMatch(/Sre /)
+  })
 })

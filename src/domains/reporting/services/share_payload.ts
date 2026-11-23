@@ -103,6 +103,15 @@ export interface SharePayload {
    */
   sn?: string
   cn?: string
+
+  /**
+   * Display names of the council (`stn`, by stakeholder id) and the scores'
+   * short names (`scn`, by score id), from the run's content. Like the other
+   * names, they let a link opened without the pack show what the player saw.
+   * Older links fall back to title-cased ids.
+   */
+  stn?: Record<string, string>
+  scn?: Record<string, string>
 }
 
 /**

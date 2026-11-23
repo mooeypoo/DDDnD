@@ -181,6 +181,19 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     }
   }
 
+  // Optional council and score names: one short plain-text name per id the link already carries
+  for (const [field, ids, label] of [['stn', obj.stakeholders, 'council'], ['scn', obj.scores, 'score']] as const) {
+    const names = obj[field]
+    if (names === undefined) continue
+    if (typeof names !== 'object' || names === null || Array.isArray(names)) return { ok: false, error: `Invalid ${label} names` }
+    const known = new Set(Object.keys((ids as Record<string, unknown> | undefined) ?? {}))
+    for (const [id, name] of Object.entries(names as Record<string, unknown>)) {
+      if (!known.has(id) || typeof name !== 'string' || name.length === 0 || name.length > MAX_OUTCOME_NAME_LENGTH) {
+        return { ok: false, error: `Invalid ${label} names` }
+      }
+    }
+  }
+
   const payload: SharePayload = {
     v: obj.v as number,
     sid: obj.sid as string,
@@ -201,6 +214,8 @@ function validateSharePayload(raw: unknown): SharePayloadParseResult {
     ...(obj.tn !== undefined ? { tn: obj.tn as string } : {}),
     ...(obj.sn !== undefined ? { sn: obj.sn as string } : {}),
     ...(obj.cn !== undefined ? { cn: obj.cn as string } : {}),
+    ...(obj.stn !== undefined ? { stn: { ...(obj.stn as Record<string, string>) } } : {}),
+    ...(obj.scn !== undefined ? { scn: { ...(obj.scn as Record<string, string>) } } : {}),
     ...(obj.cp !== undefined
       ? { cp: { n: (obj.cp as { n: string }).n, p: (obj.cp as { p: string }).p } }
       : {})

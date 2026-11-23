@@ -228,7 +228,7 @@ const completionLabel = computed(() => {
 })
 
 function formatScoreName(scoreId: string): string {
-  return scoreLabels.short(scoreId)
+  return props.payload.scn?.[scoreId] ?? scoreLabels.short(scoreId)
 }
 
 function scoreClass(value: number): string {
@@ -263,7 +263,7 @@ const stakeholderEntries = computed<StakeholderEntry[]>(() => {
 
     return {
       id: stakeholderId,
-      displayName: formatStakeholderName(stakeholderId),
+      displayName: props.payload.stn?.[stakeholderId] ?? formatStakeholderName(stakeholderId),
       satisfaction: roundedSatisfaction,
       stateClass: stakeholderStateClass(roundedSatisfaction),
       stateLabel: stakeholderStateLabel(roundedSatisfaction),

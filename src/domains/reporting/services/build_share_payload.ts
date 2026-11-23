@@ -21,7 +21,25 @@ export interface BuildSharePayloadInput {
   /** Display names of the ending and tier, from the run's content. */
   names?: { archetype: string; tier: string }
   /** Display names of the scenario and class, from the run's content (journal M3.11). */
-  run_names?: { scenario?: string; player_class?: string }
+  run_names?: {
+    scenario?: string
+    player_class?: string
+    /** Stakeholder display names, by id. */
+    stakeholders?: Record<string, string>
+    /** Score short names, by id. */
+    scores?: Record<string, string>
+  }
+}
+
+/** Names for the ids the payload carries, or nothing when there are none. */
+function namesFor<K extends 'stn' | 'scn'>(
+  field: K,
+  carried: Record<string, number>,
+  names: Record<string, string> | undefined,
+): Partial<Record<K, Record<string, string>>> {
+  if (!names) return {}
+  const picked = Object.fromEntries(Object.keys(carried).filter((id) => names[id]).map((id) => [id, names[id]]))
+  return Object.keys(picked).length > 0 ? ({ [field]: picked } as Partial<Record<K, Record<string, string>>>) : {}
 }
 
 /**
@@ -61,6 +79,8 @@ export function buildSharePayload(input: BuildSharePayloadInput): SharePayload {
     ...(community_pack ? { cp: { n: community_pack.name, p: community_pack.publisher } } : {}),
     ...(names ? { an: names.archetype, tn: names.tier } : {}),
     ...(run_names?.scenario ? { sn: run_names.scenario } : {}),
-    ...(run_names?.player_class ? { cn: run_names.player_class } : {})
+    ...(run_names?.player_class ? { cn: run_names.player_class } : {}),
+    ...namesFor('stn', roundedStakeholders, run_names?.stakeholders),
+    ...namesFor('scn', roundedScores, run_names?.scores)
   }
 }

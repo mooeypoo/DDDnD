@@ -1748,8 +1748,11 @@ The playthrough showed "Sre Pager Paladin" under the player on the results scree
 - The results screen derived the class name from the id. It now uses the run's own class, loaded from the run's pack since slice 8.
 - The share card can't look up a pack's scenario or class where the link is opened. So, like the ending and tier names in slice 1, the names now travel in the link:
   - `sn` is the scenario name and `cn` the class name;
-  - both are optional plain text, validated like `an` and `tn`;
+  - `stn` holds the council's names and `scn` the scores' short names, each keyed by an id the link already carries. Without them, a link opened on a device without the pack showed "Sre Vp Engineering" and "Sre Availability". Even base links showed "Domain Clarity" where the game says "Clarity";
+  - all are optional plain text, validated like `an` and `tn`, and a name for an id the link doesn't carry is refused;
   - older links keep the title-cased fallback.
+
+  The owner's rule from this: **always show the human-readable name, never the id.** Ids are only a fallback for links made before the names travelled with them. The native share text now uses the ending's name too.
 
 This is presentation, not engine, so the acceptance test stands. It was also the same lesson for the third time (endings, tiers, now scenario and class): any screen that may show a pack's content must take names from the content, never from ids.
 
@@ -1782,9 +1785,9 @@ Final numbers:
 **Verification**
 
 - `content:validate --audit` and `audit:gate --content-root` pass for the pack.
-- Headless Chrome: import, table choices, a full run, the results screen and the share card (names correct after the fix).
-- Tests (+4, 1149 total):
-  - payload round-trip of `sn` and `cn`, refusing empty or long ones;
+- Headless Chrome: import, table choices, a full run, the results screen and the share card. The copied share link, opened in a fresh browser that never imported the pack, shows every name: class, scenario, scores and council.
+- Tests (+7, 1152 total):
+  - payload round-trip of `sn`, `cn`, `stn` and `scn`, refusing empty, long or unknown-id ones;
   - the payload builder carries them;
   - the share card shows them, and falls back for older links.
 - Engine untouched: golden replays pass, and the fixed-seed audit is identical to `main`.
