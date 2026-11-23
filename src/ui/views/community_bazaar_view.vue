@@ -86,10 +86,24 @@
     </section>
 
     <p v-if="stalls.length === 0" class="bazaar-empty">
-      No packs here yet. Try the demo,
-      <button type="button" class="note-action" @click="openDemo">The Gilded Ledger</button>,
-      to see how it works.
+      No packs here yet. Try one of the example packs below, or import one someone shared with you.
     </p>
+
+    <section v-if="examples.length > 0" class="example-shelf" aria-labelledby="example-shelf-title">
+      <h2 id="example-shelf-title" class="shelf-title">Example packs</h2>
+      <p class="shelf-lede">
+        Made by DDDnD's author to show what a pack can do. They're community packs like any other:
+        you'll see what's in them, and where they come from, before anything is imported.
+      </p>
+      <ul class="shelf-list">
+        <li v-for="example in examples" :key="example.manifestUrl" class="example-card">
+          <span class="example-kind" :class="`kind-${example.kind}`">{{ example.kindLabel }}</span>
+          <h3 class="example-name">{{ example.name }}</h3>
+          <p class="example-blurb">{{ example.blurb }}</p>
+          <button type="button" class="stall-btn primary example-try" @click="tryExample(example)">Try it</button>
+        </li>
+      </ul>
+    </section>
 
     <section class="import-slot" aria-label="Import a pack">
       <button type="button" class="import-btn" @click="isAddOpen = true">
@@ -115,10 +129,10 @@ import { RouterLink, useRoute } from 'vue-router'
 import GameLogo from '@/ui/components/branding/game_logo.vue'
 import CommunityPacksDialog from '@/ui/components/community/community_packs_dialog.vue'
 import { packTableRoute } from '@/ui/community/community_routes'
+import { EXAMPLE_PACKS, examplePackKey, type ExamplePack } from '@/ui/community/example_packs'
 import { useCommunityPacks, type ImportedPack } from '@/ui/composables/use_community_packs'
 import { useGameStore } from '@/ui/stores/game_store'
 
-const DEMO_PACK_URL = 'https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.1.0/packs/gilded_ledger/manifest.json'
 
 const route = useRoute()
 const gameStore = useGameStore()
@@ -155,8 +169,15 @@ const stalls = computed(() => flow.loadedPacks.value.map(({ key, review }) => {
   }
 }))
 
-function openDemo() {
-  packLinkFromQuery.value = DEMO_PACK_URL
+/** Example packs not imported here yet. */
+const examples = computed(() => {
+  const imported = new Set(flow.loadedPacks.value.map((pack) => pack.key))
+  return EXAMPLE_PACKS.filter((example) => !imported.has(examplePackKey(example) ?? ''))
+})
+
+/** Opens the import dialog with the example's link filled in: the player still reviews it first. */
+function tryExample(example: ExamplePack) {
+  packLinkFromQuery.value = example.manifestUrl
   isAddOpen.value = true
 }
 
@@ -469,5 +490,79 @@ onMounted(async () => {
   text-align: center;
   font-size: var(--text-base);
   color: var(--bazaar-muted);
+}
+
+/* Example packs: suggestions, set apart from the stalls of imported packs */
+.example-shelf {
+  position: relative;
+  z-index: 1;
+  max-width: 68rem;
+  margin: 2rem auto 0;
+}
+
+.shelf-title {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  color: var(--bazaar-ink);
+}
+
+.shelf-lede {
+  margin: 0 0 0.9rem;
+  max-width: 44rem;
+  font-size: var(--text-sm);
+  color: var(--bazaar-muted);
+}
+
+.shelf-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 0.9rem;
+}
+
+.example-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  padding: 0.9rem 1rem 1rem;
+  border: 1px dashed var(--bazaar-stripe-b);
+  border-radius: 12px;
+  background: var(--bazaar-panel);
+}
+
+.example-kind {
+  padding: 0.12rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+}
+
+.example-kind.kind-new_setting { color: #e8c460; }
+.example-kind.kind-new_topic { color: var(--bazaar-accent); }
+
+.example-name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  color: var(--bazaar-ink);
+}
+
+.example-blurb {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--bazaar-muted);
+  flex: 1;
+}
+
+.example-try {
+  margin-top: 0.2rem;
 }
 </style>

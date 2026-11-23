@@ -13,6 +13,7 @@ import { packKeyOf } from '@/domains/content/services/pack_identity'
 import type { QuestDisplayModel } from '@/ui/types/quest_display_model'
 import RunSetupView from '@/ui/views/run_setup_view.vue'
 import CommunityBazaarView from '@/ui/views/community_bazaar_view.vue'
+import CommunityPacksDialog from '@/ui/components/community/community_packs_dialog.vue'
 import { demoPackSnapshot } from '../content/support/demo_pack'
 
 const pushSpy = vi.fn()
@@ -196,11 +197,34 @@ describe('the bazaar (journal M2.12)', () => {
     expect(wrapper.find('.import-slot .import-btn').text()).toContain('Import a pack')
   })
 
-  it('offers the demo when nothing is imported', async () => {
+  it('suggests the example packs, saying what kind each is (a new setting, or a different topic)', async () => {
     storeMock.communityPacks = []
     const wrapper = mount(CommunityBazaarView)
     await flushPromises()
     expect(wrapper.findAll('.stall')).toHaveLength(0)
-    expect(wrapper.find('.bazaar-empty').text()).toContain('The Gilded Ledger')
+    expect(wrapper.find('.bazaar-empty').text()).toContain('example packs')
+    const cards = wrapper.findAll('.example-card')
+    expect(cards.map((card) => card.find('.example-name').text())).toEqual(['Demo: The Gilded Ledger', 'SRE: The Pager Storm'])
+    expect(cards.map((card) => card.find('.example-kind').text())).toEqual(['Same game, new setting', 'A different topic'])
+  })
+
+  it('opens the import dialog with the example\'s pinned link: the player still reviews it first', async () => {
+    storeMock.communityPacks = []
+    const wrapper = mount(CommunityBazaarView)
+    await flushPromises()
+    await wrapper.findAll('.example-try')[1].trigger('click')
+    const dialog = wrapper.findComponent(CommunityPacksDialog)
+    expect(dialog.props('isOpen')).toBe(true)
+    expect(dialog.props('initialUrl')).toBe('https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/sre_on_call-v1.0.0/packs/sre_on_call/manifest.json')
+  })
+
+  it('stops suggesting an example once it is imported', async () => {
+    storeMock.communityPacks = [{
+      ...pack,
+      origin: { kind: 'remote', manifest_url: 'https://raw.githubusercontent.com/mooeypoo/DDDnD-packs/gilded_ledger-v1.1.0/packs/gilded_ledger/manifest.json', pinning: 'release_tag' },
+    }]
+    const wrapper = mount(CommunityBazaarView)
+    await flushPromises()
+    expect(wrapper.findAll('.example-name').map((name) => name.text())).toEqual(['SRE: The Pager Storm'])
   })
 })
