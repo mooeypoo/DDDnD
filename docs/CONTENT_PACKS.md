@@ -1530,9 +1530,22 @@ Results change, so per CONTENT_VERSIONING.md the content gets new versions. The 
 
 **What players see (approved by the owner as "fix, but watch for regressions")**
 
-- Results screen: "Tutorial Complete" or "Tutorial Finished" with "The Learner", instead of "Success"/"Partial Success" with "The System Stabilizer".
-- Low-scoring runs of "Systems under pressure" (average below 35) now count as partial instead of failure.
-- Gameplay is untouched: same cards, events, scores and turns.
+Almost nothing, and that was a surprise worth recording. A headless playthrough showed that a tutorial never reaches the results screen: "View results" opens the "Tutorial Complete" splash ("Continue your training" / "Choose a quest"). So the wrong tier and ending were never on screen; they were only in the recorded outcome (and would have shown on a share card, if a tutorial could be shared). What changes:
+
+- the recorded outcome: tier "Tutorial Complete"/"Tutorial Finished" and ending "The Learner";
+- low-scoring runs of "Systems under pressure" (average below 35) are recorded as partial instead of failure;
+- gameplay is untouched: same cards, events, scores and turns.
+
+The fix still matters, because the content now says what it means, and because the next slices (string ending ids, packs with their own endings) need every first-party scenario to choose endings from content.
+
+**Found on the way: a phantom score from the class bonus**
+
+The same playthrough showed "🧭 Domain Clarity 2 +1" in the tutorial's score bar. The tutorial doesn't track that score. A class's favored score gets +1 every turn, and the engine applied it whether or not the scenario tracks that score. So a Boundary Mage added Domain Clarity to the tutorial. Any pack with its own scores would get the same stray score; the SRE pack (slice 9) would have shown it.
+
+The fix is in `play_turn.ts`: the bonus applies only to a score in the scenario's `score_refs`. It's the same family as slice 7's phantom stakeholders: the engine applying base-game knowledge to content that doesn't have it.
+
+- **Regression check:** every base scenario and the demo track all six base scores, so their bonus is unchanged. The golden replays (which include every class affinity across the base scenarios) and the fixed-seed audit are identical.
+- **Tests:** the tutorial with a Domain Clarity class ends with only its own four scores, and a base scenario still gets the bonus. The first test fails without the fix.
 
 **Verification**
 

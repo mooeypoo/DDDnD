@@ -86,10 +86,14 @@ export function playTurn(
     stakeholders: nextStakeholders
   })
 
+  // The class's favored score gets +1 per turn, but only if this scenario
+  // tracks it: otherwise a base class would add a stray score to a pack (or
+  // the tutorial) that doesn't have it (journal M3.6).
   const classAffinityBonus: ScoreChangeRecord[] = []
-  if (gameState.player_profile.class_score_affinity) {
+  const affinity = gameState.player_profile.class_score_affinity
+  if (affinity && scenarioBundle.scenario.score_refs.some((ref) => ref.id === affinity)) {
     classAffinityBonus.push({
-      score_id: gameState.player_profile.class_score_affinity,
+      score_id: affinity,
       delta: 1
     })
   }
