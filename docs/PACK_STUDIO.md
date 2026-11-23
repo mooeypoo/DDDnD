@@ -36,6 +36,10 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D14 | **Examples come from DDDnD-packs,** the owner's official extension repository, pinned to release tags. A small list in the Studio names which ones are shown, and which one the guided round draws its worked examples from. | One source of truth for examples: the packs already published and validated. Today the round would draw from the Gilded Ledger (a retelling) and the SRE pack (a new topic). |
 | D15 | **"Play it" stores nothing** (answers Q9). The Studio opens the game's preview route in a new tab and sends the bundle over `postMessage`. The game checks the sender's exact origin, validates the bundle like any import, and plays it with no-op save and pack-store adapters. Nothing reaches disk or a server, and closing the tab ends it; to play again, press "Play it" again. | The game already writes runs and packs through two adapters (`persistGameState` and the pack store), so a preview mode swaps both. No backend is needed (D4), and a preview can never overwrite a real saved run. |
 | D16 | **Accessibility is a requirement, not a polish item,** including **text size** (§10). | The Studio is all forms and reading. People with low vision, keyboard users and people on long sessions are all authors. |
+| D17 | **The preview accepts a pack from the Studio only, and from nowhere else unless approved** (§11). The trusted origin is a constant in the game's code. Adding another needs a reviewed code change and an ADR, never a setting or a URL. | An in-memory pack skips the bazaar's review screen, so whoever can send one decides what the player sees. Only DDDnD's own Studio may; a pack from anywhere else still goes through the bazaar and its review. |
+| D18 | **A preview run shows the results screen, with no share link** (answers Q12). | The author needs to see which ending and tier their scenario produced. A share link would point at a pack nobody else can load. |
+| D19 | **The Forge's mark is the anvil with sparks** (option B on the mockup). | It reads as "forge" rather than just "metal", and still works at header size. |
+| D20 | **The guided round has an ember-tinted header** with a "Guided round" pill. | You always know you're in a lesson, and how to leave it ("your work is kept"). |
 
 ---
 
@@ -149,11 +153,11 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 
 ## 7. Open questions (for discussion)
 
-Q1–Q8 from the first round are settled: Q1 → D6, Q2 → D3, Q3 → D12, Q4 → D10, Q5 → D7, Q6 → D8, Q7 → D9, Q8 → D11. Q9 → D15, Q10 → D14, Q11 → D16.
+Q1–Q8 from the first round are settled: Q1 → D6, Q2 → D3, Q3 → D12, Q4 → D10, Q5 → D7, Q6 → D8, Q7 → D9, Q8 → D11. Q9 → D15 and D17, Q10 → D14, Q11 → D16, Q12 → D18.
 
 | # | Question | Options and notes |
 |---|---|---|
-| Q12 | **Does a preview run show the results screen?** | Yes, so the author sees their endings; but no share link, because a preview isn't a published pack. |
+| Q14 | **A simpler start screen** | The mockup's start screen offers a lot at once: two kinds of pack, five base scenarios, example packs, import, and drafts. A simpler flow might be "Start from the core pack", then choose a scenario, with the rest one step further in. To iterate on later (owner, 2026-11-24). |
 | Q13 | **Text size in the game too?** | The Studio's text-size setting (§10) could later come to the game, which has the same reading load on cards and briefings. |
 
 ## 8. Not doing (and why)
@@ -200,7 +204,7 @@ If packs ever need more visual identity, the safe form is **choosing from the ga
 - Three columns in the workspace: the pack's contents, the editor, and the Checks rail with balance hints. Below about 1100 px the Checks rail moves under the editor; on a tablet the contents become a drawer.
 - Editors are stacked sections: "What players read", "When played", limits, a plain-language preview, and "Used in".
 
-**Open on the look:** the Forge's mark (three options on the mockup's "mark options" board: an anvil, an anvil with sparks, a hammer over an anvil), and whether the ember accent should also tint the header on the guided round, to make "you're in a lesson" more obvious.
+**Settled:** the mark is the anvil with sparks (D19), and the guided round's header is ember-tinted (D20). The start screen's layout will be simplified later (Q14).
 
 ---
 
@@ -219,3 +223,34 @@ Requirements, checked like the game's (automated checks plus a keyboard and scre
 - **Not by colour alone:** score changes show `+`/`−` as well as green and coral, and checks say "must fix" or "worth a look" in words, not just colour.
 - **Announced changes:** the Checks rail and balance hints update in a polite live region, so screen-reader users hear "2 problems" without losing their place.
 - **Motion:** none needed, and `prefers-reduced-motion` respected wherever any is added.
+
+---
+
+## 11. The preview's trust boundary (D15, D17)
+
+"Play it" hands a pack to the game in memory, which skips the bazaar's review screen. So the preview must only ever accept a pack from DDDnD's own Studio.
+
+**How the game makes sure:**
+
+1. **One trusted origin, in code:**
+   - the preview route accepts messages only from `https://studio.dddnd.app`, a constant in the game's source;
+   - a development build may also accept the local Studio dev server; a production build never does;
+   - there is no setting, query parameter or stored value that adds an origin. Approving another means a code change, reviewed, with an ADR.
+2. **Only from the tab that opened it.**
+   - The preview runs only when it was opened by another tab (`window.opener`).
+   - It accepts a message only if `event.source` is that opener and `event.origin` is the trusted origin. Both are checked, every time.
+3. **A handshake, then one message:**
+   - the preview tells its opener it's ready, with a fresh random nonce;
+   - the Studio's reply must carry the same nonce;
+   - the first valid pack is played, and every later or invalid message is ignored.
+4. **Same validation as any import:** the bundle goes through the full snapshot builder, schemas and playability check. A preview pack gets no shortcuts, and a failure shows the same errors the bazaar would.
+5. **Nothing stored (D15):** no-op adapters for runs and packs. Closing the tab ends it.
+6. **Clearly marked:** the preview shows a "Preview from DDDnD Pack Studio" banner, and its results screen has no share link (D18).
+7. **No other way in:** no URL parameter, fragment, `localStorage` handoff or file path can load a preview. `frame-ancestors 'none'` (already in the CSP) stops the game being framed by another site.
+
+**Tests to write with it:**
+- messages from any other origin, or from a window other than the opener, are ignored;
+- a wrong or reused nonce is ignored;
+- a second pack after the first is ignored;
+- a pack failing validation shows errors and doesn't play;
+- a preview run writes nothing.
