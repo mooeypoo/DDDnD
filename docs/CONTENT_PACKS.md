@@ -569,10 +569,10 @@ The entry point is a small "Community packs" control in the lobby. Its final des
 **What this changed in the code:** `src/ui/config/feature_flags.ts` (`isCommunityPacksEnabled()`, true only for the exact string `"true"`), typed `import.meta.env`, `.env.example` documentation, and a test.
 
 **Launch checklist** (kept here so turning the feature on is one reviewable change):
-- [ ] Set `VITE_ENABLE_COMMUNITY_PACKS=true` in Netlify production
-- [ ] Add `https://raw.githubusercontent.com` and `https://*.github.io` to `connect-src` in `netlify.toml`
-- [ ] Re-run the headless CSP check (M1.6) with a remote pack loaded
-- [ ] Public docs-site pages for players and authors are live
+- [x] ~~Set `VITE_ENABLE_COMMUNITY_PACKS=true` in Netlify production~~ The flag was removed instead ([ADR 0016](adr/0016-community-packs-launched.md))
+- [x] Add `https://raw.githubusercontent.com` and `https://*.github.io` to `connect-src` in `netlify.toml`
+- [x] Re-run the headless CSP check (M1.6) with a remote pack loaded
+- [x] Public docs-site pages for players and authors are live (the "not switched on yet" notice is removed)
 - [x] Demo pack published and pinned to a tag (`gilded_ledger-v1.0.0`)
 
 ### M2.1: The packs repository, the demo pack, and where trust lives (2026-11-21)
@@ -1800,3 +1800,34 @@ Final numbers:
 **DDD note (talk material)**
 
 The interesting failure wasn't in the engine; it was in the ubiquitous language. "Firefighter" in the base game means "many things happened to you", and the base measure for it was right *there*. Carried into SRE, the same word means "you saved the day personally", and the measure pointed the wrong way. The ending had to be redefined in the new context's terms. That's the bounded-context lesson in miniature: the same word, two models, and a translation that can't be mechanical.
+
+### Launch (2026-11-24)
+
+Community packs are live: the flag is gone, the CSP allows the pack hosts, and the docs say so ([ADR 0016](adr/0016-community-packs-launched.md), superseding ADR 0009).
+
+**What changed**
+
+- **The flag is removed, not flipped.** Removing it deletes a check that every new entry point would otherwise have to remember. It also makes the launch a reviewed commit, not a setting in Netlify's dashboard. Always on now:
+  - the bazaar and pack-table routes;
+  - the lobby's "Community bazaar" link;
+  - `?pack=` links and saved-run notices;
+  - the browser's pack store.
+- **CSP:** `connect-src 'self' https://raw.githubusercontent.com https://*.github.io`, exactly the source allowlist's hosts (ADR 0003).
+- **Docs:**
+  - the player page loses its "not switched on yet" notice;
+  - the security table's T3 row records the CSP as done;
+  - the launch checklist above is complete;
+  - the packs repository's README status line is updated in its own PR.
+
+**Verification**
+
+- **CSP check (the M1.6 check, now with a remote pack)** on a production build, with no flag set, served with the real CSP:
+  - the lobby offers the bazaar;
+  - the SRE pack imports from `sre_on_call-v1.0.0` with no CSP violations;
+  - its table starts a run with the full council;
+  - a deliberate fetch to `example.com` is blocked by `connect-src`.
+- **Tests:** 1161 pass. The flag's own tests went with it, and a lobby test now checks that the bazaar link is always offered.
+
+**DDD note (talk material)**
+
+A feature flag is a temporary seam between two models: "the game as shipped" and "the game we're building". Removing it is the moment the two become one model again. Leaving it on would have kept a seam nobody needed: a concept in the code ("is this enabled?") with no counterpart in the domain.

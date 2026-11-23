@@ -11,7 +11,7 @@ const routeQuery: Record<string, string> = {}
 let storeMock: any
 
 vi.mock('vue-router', () => ({
-  useRouter: () => ({ push: pushSpy }),
+  useRouter: () => ({ push: pushSpy, replace: vi.fn() }),
   useRoute: () => ({ query: routeQuery })
 }))
 
@@ -83,6 +83,9 @@ describe('run_setup_view quest integration', () => {
       availableTutorials: [],
       isLoadingTutorials: false,
       start_new_run: vi.fn().mockResolvedValue(undefined),
+      refresh_saved_run_pack_notice: vi.fn().mockResolvedValue(undefined),
+      savedRunPackNotice: null,
+      find_community_pack: vi.fn().mockReturnValue(null),
       warm_scenario_bundle: vi.fn().mockResolvedValue(undefined),
       load_available_challenge_modifiers: vi.fn().mockResolvedValue(undefined),
       availableChallengeModifiers: [],
@@ -202,6 +205,12 @@ describe('run_setup_view quest integration', () => {
       selected_class_ref: { id: 'pager_paladin', version: 1 },
     }))
     expect(storeMock.start_new_run.mock.calls[0][0]).not.toHaveProperty('selected_challenge_modifier_ref')
+  })
+
+  it('always offers the Community bazaar from the lobby: packs are launched, no flag (journal: launch)', async () => {
+    const wrapper = mount(RunSetupView)
+    await flushPromises()
+    expect(wrapper.findAll('button').some((button) => button.text().includes('Community bazaar'))).toBe(true)
   })
 
   it('selects a lobby tutorial and joins through start_new_run', async () => {
