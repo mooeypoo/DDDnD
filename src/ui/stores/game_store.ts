@@ -33,7 +33,6 @@ import { ContentPackRegistry } from '@/domains/content/services/content_pack_reg
 import { create_engine } from '@/domains/simulation'
 import { createLocalStorageSaveAdapter, openCommunityPackStore } from '@/domains/persistence/adapters'
 import type { RunContentPack } from '@/domains/simulation/model'
-import { isCommunityPacksEnabled } from '@/ui/config/feature_flags'
 
 /** Why a saved community-pack run can't be continued right now (M2.6). */
 export interface SavedRunPackNotice {
@@ -138,8 +137,7 @@ export const useGameStore = defineStore('game', () => {
       externalManifestUrls,
       communityPacks,
     },
-    // ADR 0009: with community packs off, nothing is read from or written to the pack store.
-    isCommunityPacksEnabled() ? { openPackStore: () => openCommunityPackStore() } : {},
+    { openPackStore: () => openCommunityPackStore() },
   )
   /**
    * Set when a saved run can't be continued because the community pack it

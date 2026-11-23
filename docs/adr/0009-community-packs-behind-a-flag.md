@@ -1,6 +1,6 @@
 # ADR 0009: Community packs ship behind a build-time flag until we choose to launch
 
-Status: Accepted  
+Status: Superseded by [ADR 0016](0016-community-packs-launched.md)  
 Date: 2026-11-21  
 Feature journal: [docs/CONTENT_PACKS.md](../CONTENT_PACKS.md)
 

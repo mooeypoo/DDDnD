@@ -1,9 +1,5 @@
 # Community packs
 
-::: warning Not switched on yet
-Community packs are being tested and aren't available at [dddnd.app](https://dddnd.app) yet. This page describes how they will work.
-:::
-
 A **community pack** is a set of adventures made by someone other than DDDnD: a workshop facilitator, a team retelling the game for their own company, a fan exploring a different kind of system. Each pack is its own world, with its own scenarios, stakeholders and events.
 
 DDDnD doesn't review community packs. You decide which ones to import.

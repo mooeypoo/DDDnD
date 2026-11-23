@@ -13,7 +13,6 @@
       :selectedModifier="selectedModifier"
       :characterName="characterName"
       :isLoading="isPreparing"
-      :communityPacksEnabled="communityPacksEnabled"
       :bazaarPack="bazaarPack"
       @selectQuest="selectQuest"
       @selectClass="selectClass"
@@ -44,7 +43,6 @@ import AboutModal from '@/ui/components/common/about_modal.vue'
 import RulesModal from '@/ui/components/common/rules_modal.vue'
 import DungeonMasterModal from '@/ui/components/common/dungeon_master_modal.vue'
 import CouncilLobby from '@/ui/play/council_lobby.vue'
-import { isCommunityPacksEnabled } from '@/ui/config/feature_flags'
 import { isFirstPartyPackKey } from '@/domains/content/services/pack_identity'
 import { describePackPublisher } from '@/ui/play/community_pack_review'
 import { BAZAAR_PATH, packKeyFromParam } from '@/ui/community/community_routes'
@@ -70,9 +68,7 @@ const tableClasses = ref<PlayerClass[]>([])
 const tableModifiers = ref<ChallengeModifier[]>([])
 const characterName = ref('')
 
-/** Community packs (ADR 0009): nothing here renders or runs unless the build flag is on. */
-const communityPacksEnabled = isCommunityPacksEnabled()
-const tablePackKey = computed(() => (communityPacksEnabled ? packKeyFromParam(props.packKey) : undefined))
+const tablePackKey = computed(() => packKeyFromParam(props.packKey))
 
 /** Quests at this table: the pack's own at a pack table, first-party ones in the lobby. */
 function belongsHere(quest: QuestDisplayModel): boolean {
@@ -93,15 +89,13 @@ const bazaarPack = computed(() => {
   }
 })
 
-if (communityPacksEnabled) {
-  // Pack links and saved-run notices belong to the bazaar now (journal M2.11).
-  if (typeof route.query.pack === 'string') {
-    void router.replace({ path: BAZAAR_PATH, query: { pack: route.query.pack } })
-  } else if (!tablePackKey.value) {
-    void gameStore.refresh_saved_run_pack_notice().then(() => {
-      if (gameStore.savedRunPackNotice) void router.replace(BAZAAR_PATH)
-    })
-  }
+// Pack links and saved-run notices belong to the bazaar now (journal M2.11).
+if (typeof route.query.pack === 'string') {
+  void router.replace({ path: BAZAAR_PATH, query: { pack: route.query.pack } })
+} else if (!tablePackKey.value) {
+  void gameStore.refresh_saved_run_pack_notice().then(() => {
+    if (gameStore.savedRunPackNotice) void router.replace(BAZAAR_PATH)
+  })
 }
 
 /** Classes and modifiers that fit the selected scenario's scores (journal M3.10). */

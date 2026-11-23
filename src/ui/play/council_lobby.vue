@@ -16,7 +16,7 @@
         <button type="button" class="plaque-link" @click="$emit('showRules')">How to play</button>
         <button type="button" class="plaque-link" @click="$emit('showDungeonMaster')">Dungeon Master</button>
         <button
-          v-if="communityPacksEnabled && !bazaarPack"
+          v-if="!bazaarPack"
           type="button"
           class="plaque-link"
           @click="$emit('showCommunityPacks')"
@@ -265,8 +265,6 @@ const props = defineProps<{
   selectedModifier: ChallengeModifier | null
   characterName: string
   isLoading?: boolean
-  /** Shows the community packs entry (ADR 0009 flag, decided by the parent view). */
-  communityPacksEnabled?: boolean
   /**
    * Set at a community pack's table (journal M2.11): shows the pack's banner
    * and the bazaar's look instead of the council chamber.

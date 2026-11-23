@@ -2,8 +2,8 @@
  * Community packs flow (M2.5): load → check → review → confirm.
  *
  * UI orchestration only. Loading and validation are content-domain services;
- * registration goes through the game store. Gated by ADR 0009: callers render
- * the entry point only when `isCommunityPacksEnabled()`.
+ * registration goes through the game store. Launched (journal: launch): no
+ * flag gates it any more (ADR 0009 is superseded).
  *
  * Nothing is added to the game until the player confirms the review. Loading
  * a URL happens only on an explicit player action, because fetching tells the

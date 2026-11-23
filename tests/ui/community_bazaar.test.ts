@@ -30,7 +30,6 @@ vi.mock('vue-router', () => ({
     },
   }),
 }))
-vi.mock('@/ui/config/feature_flags', () => ({ isCommunityPacksEnabled: () => true }))
 vi.mock('@/ui/stores/game_store', () => ({ useGameStore: () => storeMock }))
 
 let pack: PackSnapshot
