@@ -18,6 +18,8 @@ export interface BuildSharePayloadInput {
   game_state: GameState
   /** Set for runs played with a community pack: its name and publisher, as the UI shows them. */
   community_pack?: { name: string; publisher: string } | null
+  /** Display names of the ending and tier, from the run's content. */
+  names?: { archetype: string; tier: string }
 }
 
 /**
@@ -26,7 +28,7 @@ export interface BuildSharePayloadInput {
  * Scores are rounded to integers for compactness.
  */
 export function buildSharePayload(input: BuildSharePayloadInput): SharePayload {
-  const { run_outcome, game_state, community_pack } = input
+  const { run_outcome, game_state, community_pack, names } = input
 
   const roundedScores: Record<string, number> = {}
   for (const [scoreId, value] of Object.entries(game_state.scores)) {
@@ -54,6 +56,7 @@ export function buildSharePayload(input: BuildSharePayloadInput): SharePayload {
     stakeholders: roundedStakeholders,
     cr: run_outcome.completion_reason,
     sd: game_state.meta.seed || undefined,
-    ...(community_pack ? { cp: { n: community_pack.name, p: community_pack.publisher } } : {})
+    ...(community_pack ? { cp: { n: community_pack.name, p: community_pack.publisher } } : {}),
+    ...(names ? { an: names.archetype, tn: names.tier } : {})
   }
 }

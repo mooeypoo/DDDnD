@@ -267,6 +267,22 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
     }
   }
   
+  // Two tiers with the same threshold: only one could ever be picked (journal M3.4)
+  const tierByThreshold = new Map<number, string>()
+  for (const tier of bundle.outcome_tiers.values()) {
+    if (tier.min_average === undefined) continue
+    const other = tierByThreshold.get(tier.min_average)
+    if (other) {
+      errors.push({
+        type: 'duplicate_tier_threshold',
+        message: `Outcome tiers ${other} and ${tier.id} both start at min_average ${tier.min_average}; only one of them could ever be reached`,
+        details: { tier_ids: [other, tier.id], min_average: tier.min_average }
+      })
+    } else {
+      tierByThreshold.set(tier.min_average, tier.id)
+    }
+  }
+
   // Validate outcome archetype refs if present
   if (bundle.scenario.outcome_archetype_refs) {
     for (const archetypeRef of bundle.scenario.outcome_archetype_refs) {
@@ -281,6 +297,30 @@ export function validateScenarioBundle(bundle: ScenarioBundle): ValidationResult
     }
   }
   
+  // Coupling rules (M3): present, and only about scores this scenario tracks
+  const couplingScoreIds = new Set(bundle.scenario.score_refs.map((ref) => ref.id))
+  for (const ruleRef of bundle.scenario.coupling_rule_refs ?? []) {
+    const key = versionRefKey(ruleRef)
+    const rule = bundle.coupling_rules.get(key)
+    if (!rule) {
+      errors.push({
+        type: 'missing_coupling_rule',
+        message: `Scenario references missing coupling rule: ${key}`,
+        details: { ruleRef }
+      })
+      continue
+    }
+    for (const scoreId of [rule.trigger_score_id, ...rule.affected_score_ids]) {
+      if (!couplingScoreIds.has(scoreId)) {
+        errors.push({
+          type: 'untracked_coupling_score',
+          message: `Coupling rule ${key} uses score "${scoreId}", which this scenario doesn't track (add it to score_refs or use another rule)`,
+          details: { ruleRef, scoreId }
+        })
+      }
+    }
+  }
+
   return {
     valid: errors.length === 0,
     errors

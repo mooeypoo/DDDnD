@@ -16,6 +16,7 @@ export {
   stakeholderSchema,
   outcomeTierSchema,
   outcomeArchetypeSchema,
+  couplingRuleSchema,
   scenarioSchema,
   playerClassSchema,
   challengeModifierSchema,

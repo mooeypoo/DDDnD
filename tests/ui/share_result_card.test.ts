@@ -100,3 +100,18 @@ describe('share_result_card community pack marker (journal M2.12)', () => {
     expect(mount(ShareResultCard, { props: { payload: makePayload() } }).find('.community-pack-line').exists()).toBe(false)
   })
 })
+
+describe('share_result_card names (M3 slice 1)', () => {
+  it("shows the ending and tier names the link carries, from the run's content", () => {
+    const wrapper = mount(ShareResultCard, { props: { payload: makePayload({ an: 'The Toil Slayer', tn: 'Five Nines' }) } })
+    expect(wrapper.find('.archetype-name').text()).toBe('The Toil Slayer')
+    expect(wrapper.find('.tier-label').text()).toBe('Five Nines')
+  })
+
+  it('falls back to title-cased ids for links made before names were carried', () => {
+    const wrapper = mount(ShareResultCard, { props: { payload: makePayload() } })
+    expect(wrapper.find('.archetype-name').text()).toBe('Boundary Builder')
+    expect(wrapper.find('.tier-label').text()).toBe('Failure')
+  })
+})
+

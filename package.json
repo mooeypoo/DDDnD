@@ -19,6 +19,7 @@
     "build-storybook": "storybook build",
     "test": "vitest",
     "test:ui": "vitest --ui",
+    "test:golden:update": "UPDATE_GOLDEN=1 vitest run tests/simulation/golden_replays.test.ts",
     "generate-og": "node scripts/generate-og-image.mjs",
     "simulate": "npx tsx scripts/run-simulation.ts",
     "audit:gate": "npx tsx scripts/audit-gate.ts",

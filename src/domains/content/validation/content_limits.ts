@@ -75,6 +75,12 @@ export const CONTENT_LIMITS = {
     satisfaction: { min: 0, max: 100 },
     /** Challenge-modifier turn change. Base: -2. */
     turn_adjustment: { min: -20, max: 20 },
+    /** Coupling threshold: compared with a score. Base: 25. */
+    coupling_threshold: { min: -1000, max: 1000 },
+    /** Outcome tier score average threshold (not an integer). Base: 0–75. */
+    tier_min_average: { min: -1000, max: 1000 },
+    /** Coupling gain multiplier (not an integer). Base: 0.7–0.75. */
+    gain_multiplier: { min: 0.1, max: 1 },
   },
 
   counts: {
@@ -91,6 +97,8 @@ export const CONTENT_LIMITS = {
     event_refs: 100,
     /** Outcome tiers or archetypes per scenario. Base max: 10. */
     outcome_refs: 30,
+    /** Coupling rules per scenario. Base max: 3. */
+    coupling_rule_refs: 12,
     /** Opening hand pins. Base max: 6. */
     opening_hand_card_ids: 12,
     /** Score or stakeholder changes on one entity. Base max: 6. */

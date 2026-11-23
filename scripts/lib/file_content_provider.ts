@@ -60,6 +60,7 @@ export function createFileContentProvider(contentRoot: string): ContentProvider 
     loadDelayedEffect: (ref) => loadEntity(contentRoot, 'delayed-effects', ref),
     loadOutcomeTier: (ref) => loadEntity(contentRoot, 'outcome-tiers', ref),
     loadOutcomeArchetype: (ref) => loadEntity(contentRoot, 'outcome-archetypes', ref),
+    loadCouplingRule: (ref) => loadEntity(contentRoot, 'coupling-rules', ref),
     loadPlayerClass: (ref) => loadEntity(contentRoot, 'classes', ref),
     loadChallengeModifier: (ref) => loadEntity(contentRoot, 'challenge-modifiers', ref),
   }

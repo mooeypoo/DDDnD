@@ -266,13 +266,14 @@ Each milestone stays inside the existing working rules: one domain boundary at a
 | ~~Exact limits~~ | **Resolved.** Per-file limits in M1.1 (table in [CONTENT_SCHEMA.md](../CONTENT_SCHEMA.md#validation-and-limits)). 2000 files per pack in M1.2. | Done |
 | ~~Demo pack topic~~ | **Resolved (M2.1):** "The Gilded Ledger", the monolith story retold for a fictional payments company. | Done |
 | ~~Demo pack repository name~~ | **Resolved (M2.1):** [mooeypoo/DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs), one folder per pack (ADR 0008). | Done |
-| SRE pack design | Scores, stakeholders, failure modes, and what "winning" means need a brainstorm | M3 |
+| SRE pack design | Strawman agreed in M3.0: scores (all higher-is-better), council, cards, events, endings. Details settle while building it. | M3 |
+| "Lower is better" scores | **Deferred (M3.0).** For now every score is higher-is-better, and packs phrase scores positively ("Rested on-call", not "Pager fatigue"). Supporting lower-is-better later touches: the tier average (invert or normalize per score), coupling triggers (fall *below* vs rise *above*), ending criteria (already explicit comparisons, so mostly fine), the balance audit's low-score telemetry, and the UI meters and deltas (a rising number shown as bad). It would be a `direction` field on the score, defaulting to higher-is-better, so existing content is unaffected. | When a pack needs it |
 | Studio subdomain and repo folder names | Working names: `studio.dddnd.app`, `studio/` | M4 |
 | License rule review | Sanity check of ADR 0004 by someone qualified | Before M4 ships |
 | Phantom stakeholders | `stakeholder_changes` aimed at a stakeholder not in the scenario silently create one (found in M2.1; `microservice_sprawl-v2` does it today). The fix changes behavior, so it needs a new scenario version plus a validator error. | M3 |
 | ~~Whose pack does `depends_on` mean?~~ | **Resolved (M2.8):** community packs may depend only on first-party packs, whose ids we control ([ADR 0013](adr/0013-community-packs-depend-only-on-first-party.md)). Community-on-community dependencies would need key-based references in a new schema version. | Done |
 | ~~Community hall look~~ | **Resolved (M2.12):** warm canvas, a thin awning stripe, and a stitched border as the external mark ([ADR 0015](adr/0015-community-packs-in-their-own-place.md)). | Done |
-| Player-facing run download | **Ready in code, not used.** The exact-run export (seed, scenario, pack identity and content hash, every turn's choice, history, outcome) can replay a run exactly, but nothing in the game creates or reads one; only tests do. Possible uses: a player sends a pack author a run that felt broken, or a facilitator collects a workshop's runs. Add a button when one of those is wanted (M2.13). | When needed |
+| Player-facing run download | **Ready in code, not used.** The exact-run export (seed, scenario, pack identity and content hash, every turn's choice, history, outcome) can replay a run exactly, but nothing in the game creates or reads one; only tests do. Possible uses: a player sends a pack author a run that felt broken, or a facilitator collects a workshop's runs. Add a button when one of those is wanted (M2.13). Before wiring it up: its outcome snapshot still computes the coarse result with the old fixed cutoffs over every score, because it has no bundle. It should take the result from the run's tiers (M3.4). | When needed |
 | ~~Exact-run replay of retired remote packs~~ | **Resolved (M2.13): no promise.** If a pack is taken down, it's gone. Saved runs continue only while their exact pack is imported in that browser; players aren't led to expect more. Same stance as retired base scenarios in CONTENT_VERSIONING.md. | Done |
 
 ---
@@ -1232,3 +1233,221 @@ The routes say the model out loud. `/play` is the game's own context. `/communit
 - **Launch waits.** The CSP change and the production flag come after MVP 1 and more local testing by the owner.
 - **Checked by the owner:** removing a pack while its run is saved, and leaving to `/play` or `/game` afterwards, behave as described.
 
+### M3.0 (design): Moving the engine's DDD knowledge into content (2026-11-22)
+
+The start of milestone M3. Before writing code, we listed every place where the engine, the balance audit, or the UI still hard-codes knowledge of the base game, and the project owner made the decisions below.
+
+**The inventory**
+
+None of it crashes. A pack whose scores differ from the base game's quietly gets wrong results:
+
+| Concept | Where it lived | What a different-domain pack got |
+|---|---|---|
+| Final tier | Literal ids and thresholds in `classify_run_outcome.ts` (≥75 triumph, ≥60 success, ≥45 survival, ≥30 struggle, else collapse). Tier JSON had only name, description and rank. | No tier unless it reused the base ids, and then the base thresholds |
+| Coarse result (success / partial / failure) | ≥60 / <35, written twice (`get_run_outcome.ts`, `serialize_exact_run.ts`). The simulator's "win" uses it. | The base game's idea of winning |
+| Ending (archetype) | Nine predicates over fixed score groups in `classify_outcome_archetype.ts`, with missing scores read as 50. The scenario's `outcome_archetype_refs` were ignored. | Almost always "Pragmatist" or "System Stabilizer", with the base game's icon, text and art |
+| Coupling | Five rules in `apply_score_changes.ts` (three base, two tutorial). Fixed text in the UI warnings and the rules modal. | No coupling at all, silently |
+| Archetype ids | A closed TypeScript union of 10, used by saves, exports and share links | A type error as soon as a pack names its own ending |
+| Results screen | Ending and tier names title-cased from the id; descriptions, icons and art from code maps | Base text, or generic fallbacks |
+| Balance audit | Targets keyed by base scenario ids; scripts scan only `content/` | Audits that find nothing |
+
+Stakeholder reaction rules were already fully driven by content (structured conditions since M1).
+
+**The surprise:** the tutorial is already a small standalone pack, and it is already affected. It has its own scores, tiers (`tutorial_done`, `tutorial_success`) and ending (`tutorial_learner`), and the engine never selects any of them. It works only because two of the hard-coded coupling rules were written for it.
+
+**The names question.** The owner asked why endings are shown as title-cased ids when every ending file has a human-written `name`. There is no good reason. The bundle loads the ending files, but the engine reports only an id, and the screens never looked the id up. The share card had a real constraint: a shared link opens on another device without the pack, so it only had the id. The fix is to use the content's names and descriptions on the results screen, and to carry the display name in share links.
+
+**Decisions**
+
+1. **Scores stay higher-is-better for now.** "Lower is better" is documented as a future option (open questions, §9), including everything it would touch.
+2. **Endings get declarative criteria in content,** replacing the TypeScript predicates. There must be no regressions in current packs: the base game's endings are re-expressed as content and proven identical by golden replays. Pack authors get clear documentation of the criteria.
+3. **The tutorial's endings and coupling get fixed,** through new tutorial content versions. Watch for regressions, and flag any risk.
+4. **The SRE pack is a community pack,** living in [DDDnD-packs](https://github.com/mooeypoo/DDDnD-packs) alongside the demo, not in this repository. That collection is the owner's own "extras" (demos and additional packs). A separate "sanctioned community packs" list can come later (ADR 0010).
+5. **Pack-owned classes and challenge modifiers are part of M3** (option A from ADR 0015): a pack's table offers its own, plus those of the first-party packs it depends on, filtered to the scenario's scores. The SRE pack needs this, because the base classes favour scores it doesn't have.
+6. **SRE and incident response is the second domain,** with the strawman below.
+
+**The slices**
+
+0. **Golden replays.** Record fixed seeds × every first-party scenario × the simulator's play policies, capturing full history and outcome. Every later slice must reproduce them exactly for the base pack. Tutorial changes are deliberate, versioned, and called out.
+1. **Names from content:** ending and tier names and descriptions on the results screen and share card.
+2. **Coupling rules as content,** including the warning text the UI shows.
+3. **Tiers with thresholds and a result** (success, partial or failure), replacing both copies of the 60/35 rule.
+4. **Declarative ending criteria,** over generic measures:
+   - each score's final value and how much it changed;
+   - sums over score groups the pack defines;
+   - stakeholder average and minimum;
+   - volatility and event pressure.
+
+   Each ending has a priority, and the first match wins. The scenario names a fallback ending.
+5. **Ending ids become validated strings.** Icons and art fall back as they do for scores (ADR 0002).
+6. **Balance audit targets as content,** and audit scripts that accept a pack folder.
+7. **Phantom stakeholders refused** by the validator, with a new `microservice_sprawl` version.
+8. **Pack-owned classes and modifiers.**
+9. **The SRE pack** in DDDnD-packs: the acceptance test, needing no TypeScript changes.
+
+**The SRE strawman**
+
+- **What it teaches:**
+  - reliability is a budget you spend, not a virtue;
+  - heroics feel good and burn people out;
+  - blameless learning beats blame;
+  - toil compounds.
+- **Scores:** Availability (against the SLO), Error budget, Rested on-call, Customer trust, Change velocity, Observability.
+- **The council:** VP of Engineering, Product lead, Customer support lead, Finance, Security, the on-call engineer.
+- **Cards:** SLOs with an error-budget policy, runbooks, blameless postmortems, alert tuning, feature freeze, automated rollback, chaos drills, paying down toil.
+- **Events:** a 3 a.m. outage, cascading failure, a cloud region down, an alert storm, "root cause by noon", an expired certificate.
+- **Endings:** Reliability Architect, Error-Budget Accountant, Toil Slayer, Hero Firefighter (burnout), Pager-Haunted.
+
+**DDD note (talk material)**
+
+The tutorial was the first "second domain" all along, and nobody noticed. It had its own scores, tiers and ending, and the engine ignored them. Its coupling only worked because someone added tutorial score ids to the engine's own rule list. That is what implicit knowledge looks like up close: the system works because the code quietly knows things the model never said. The test for M3 is that both the tutorial and the SRE pack get their endings from their own content, with nothing about either in TypeScript.
+
+
+### M3.1 (slice 0): Golden replays, the safety net for M3 (2026-11-22)
+
+**What changed**
+
+- **`tests/simulation/golden_replays.test.ts`** replays fixed seeds (`golden-v1`) through:
+  - every first-party scenario, 12 runs each, with both simulator policies (`player_true`, `full_pool_oracle`);
+  - each base scenario once more with a class affinity and a challenge modifier, rotated so all five classes and all four modifiers are covered;
+  - both tutorials, 60 runs each, with both policies;
+  - the demo pack fixture.
+
+  Each run is recorded as a readable summary (coarse tier, tier id, ending, status, turns, final scores) plus a SHA-256 of its full telemetry: every turn's cards, events, reactions, scores and stakeholders. The fixture is `tests/simulation/golden/first_party_runs.json`. The test never rewrites it; `npm run test:golden:update` does, and should only be used when content deliberately changes.
+- **The simulation runner** accepts an optional `class_score_affinity` and `challenge_modifier`, applied the way the game applies a player's picks, so the replays cover those paths. Its per-run telemetry gained `selected_tier_id`. The fixed-seed audit report is still identical to `main`.
+
+**Checking the net catches things**
+
+A golden test that never fails is worth nothing, so each coupling rule was perturbed in turn:
+
+- **A tiny change** (0.7 → 0.71) did *not* fail. Scores are whole numbers, so it was absorbed by rounding.
+- **A real change** (→ 0.31) failed for all three base rules and the tutorial's `team_capacity` rule. It did **not** fail for the tutorial's `system_health` rule: twelve gentle tutorial runs never pushed system health below 25.
+- **The fix** was 60 tutorial runs, with the oracle policy too. After that, all five rules fail the replay when changed.
+
+**What the net does not cover**
+
+- **Three endings never occur** in the replays: Boundary Builder, Budget Hawk and Pragmatist. All five base tiers and seven of the ten endings do occur.
+- **The plan for slice 4:** when endings move into content, an equivalence test will compare the old TypeScript classifier with the new content-driven one on many synthetic run summaries, covering every rule and the priority order. The golden replays alone can't prove those three.
+
+**Risk flagged for the owner**
+
+The tutorial currently ends with **no tier** and with base endings (Stakeholder Whisperer, System Stabilizer), because the engine ignores its own tiers and ending. Fixing that (decision 3) will deliberately change the tutorial's golden results. It will be done with new tutorial content versions and a re-recorded fixture, called out in that slice's entry.
+
+**DDD note (talk material)**
+
+Characterization tests ("golden master") are how you change a model you don't fully trust yet. They don't say what the behavior *should* be, only what it *is*. The perturbation check is the part people skip: we found a rule the net couldn't see before relying on it.
+
+### M3.2 (slice 1): Endings and tiers are named by their content (2026-11-22)
+
+**How it came up**
+
+The owner asked why the results screen showed endings as title-cased ids ("the_visionary" → "The Visionary") when every ending file has a human-written name. There was no good reason. The scenario bundle already loaded the tier and ending files, but the engine reports only ids, and the screens never looked them up. They used title-casing plus descriptions hard-coded in the UI. That meant a pack's own endings could never be named properly, even before M3's engine work.
+
+**What changed**
+
+- **`describeOutcome(bundle, tierId, archetypeId)`** (`ui/play/outcome_presentation.ts`) returns the tier name, ending name, ending description and **flavor text** from the run's own content. Title-cased ids and a generic description remain only as fallbacks.
+- **The results screen** uses it, and now also shows each ending's flavor line, which was in the content all along but never displayed.
+- **Share links** carry the display names (`an`, `tn`), because a shared link opens without the pack. They are validated as plain text of at most 80 characters. Older links fall back to title-cased ids.
+
+**Player-visible differences**
+
+The text players see now comes from the content files, which differ slightly from the strings that were hard-coded in the UI:
+
+- Ending names gain their article where the content has one: "The Boundary Builder", "The Firefighter", "The System Stabilizer" (previously "Boundary Builder" and so on).
+- Five descriptions are worded as in the content. For example, Firefighter now reads "You spent your time managing crises and emergencies", where the screen used to say "You responded swiftly to immediate crises…". The other four are Boundary Builder, Runaway Refactorer, Stakeholder Whisperer and System Stabilizer.
+- Every ending now shows its flavor line ("Perfect code ships never").
+
+If any content wording reads worse than the old UI strings, the fix belongs in the content files, where pack authors can see and copy it.
+
+**Verification**
+
+- **Tests** (+8, 1089 total): naming from content, the coarse-tier fallback, title-case fallbacks, share-link names round-tripping and refused when too long or empty, and the share card using the carried names and falling back for old links.
+- **Golden replays and the fixed-seed audit are unchanged:** presentation only.
+- **Headless Chrome:** a full base run ended in "Triumph", "The Visionary", with the content's description and flavor line, the same names on the share card, and the same after a reload. No console errors.
+
+### M3.3 (slice 2): Coupling rules are content (2026-11-22)
+
+**What changed**
+
+- **A new content type, `CouplingRule`** (`coupling-rules/<id>-v<version>.json`). It has:
+  - `trigger_score_id` and `threshold` (the rule is active while the score is strictly below it);
+  - `affected_score_ids`;
+  - `gain_multiplier` (0.1–1, applied to gains only);
+  - `name` and `description`, the warning players see.
+
+  It is wired through every place a content type lives: the schema with limits, the published JSON Schema, the manifest inventory (`content.coupling_rules`, optional, so packs written before M3 stay valid), all four content providers, the scenario bundle, and the bundle validator.
+- **Scenarios opt in** with `coupling_rule_refs`. The validator refuses a rule that names a score the scenario doesn't track, and a missing rule.
+- **The engine has no coupling of its own.** `computeCouplingMultiplier` and `getActiveCouplingEffects` take the rules as an argument, and `applyScoreChanges` reads them from the bundle. `SYSTEM_COUPLING_RULES` is gone, including the two tutorial rules someone had added to it.
+- **Five rule files:**
+  - `delivery_collapse`, `morale_collapse`, `trust_collapse` in the base pack;
+  - `capacity_collapse`, `system_health_collapse` in the tutorial.
+
+  Each has the old numbers, and the title and description the UI used to hard-code.
+- **The references were added in place** to every scenario file whose scores include a trigger: the five playable base scenarios, their retired v1 files, both test scenarios, both tutorials, and the demo fixture. They were added in the order the engine used to apply the rules. This follows CONTENT_VERSIONING.md: a new version is needed when gameplay could change, and here it doesn't, which the golden replays prove. The insertion was done textually, so each diff shows only the added lines.
+- **The UI** reads the active scenario's rules, set by the game store like the score order. Warnings show each rule's own title and description. Icons stay in the UI (ADR 0002): base triggers keep theirs, and other rules get ⚠️. During a run, the rules screen lists that adventure's collapses. Outside a run it keeps the base list, introduced as "In DDDnD's own adventures". `getScoreModifiers`, which had three base score ids as field names, became `getGainMultipliers`, keyed by whatever the rules affect.
+
+**Verification**
+
+- **Golden replays unchanged** for every first-party scenario, both tutorials and the demo fixture, and the fixed-seed audit report is identical to `main`. This is the key result: the engine now gets all of its coupling from content and plays exactly as before.
+- **The existing coupling tests** (base multipliers, stacking, thresholds, negatives untouched) now load the real rule files, so they also prove the content reproduces the old numbers.
+- **New tests** (+5, 1095 total):
+  - no coupling for a scenario that lists no rules, even with base score ids;
+  - a pack's own rule on its own scores;
+  - warnings using a rule's own text, with the generic icon for pack rules;
+  - no warnings outside a run;
+  - validation of untracked scores and missing rules.
+- `content:validate` passes for base, tutorial and the demo fixture.
+
+**Risk flagged for the owner**
+
+The demo pack **published** at `gilded_ledger-v1.0.0` in DDDnD-packs has no `coupling_rule_refs`. Once this merges, anyone loading that tag plays the Gilded Ledger with **no coupling**. Before, it silently inherited the base game's rules through the engine. The in-repo fixture already has the references.
+
+The fix is a `gilded_ledger-v1.1.0` release in DDDnD-packs with the same three lines, and the docs pointed at the new tag. That needs a push and a tag on the public packs repository, so it waits for the owner's go-ahead. It could go out together with the SRE pack (slice 9), or sooner.
+
+*Update (2026-11-23):* the owner approved a new release. `gilded_ledger` 1.1.0 is committed in DDDnD-packs on a local branch, validated and audited with this branch's validator (no findings). It can't be published yet: the packs repository checks every push with `pack-validator-v1`, which still points at the validator from before M3, and that validator's strict schemas refuse `coupling_rule_refs`. Order: merge PR #37, move `pack-validator-v1` forward (adding a field is a compatible change), then push and tag `gilded_ledger-v1.1.0`. The owner noted that nobody could have loaded 1.0.0 yet, since community packs are switched off in production; a new tag was still chosen, so a tag never changes what it points at.
+
+**DDD note (talk material)**
+
+"Someone added the tutorial's score ids to the engine's rule list" is the smell in one line. When a second domain shows up and the fix is to edit the engine's constants, the knowledge is in the wrong place. After this slice, the tutorial's coupling lives in the tutorial, the base game's in the base game, and a new pack writes its own. The engine only knows *how* coupling works, not *what* is coupled.
+
+### M3.4 (slice 3): Tiers declare their thresholds and results (2026-11-23)
+
+**What changed**
+
+- **`OutcomeTier` gains `min_average` and `result`** (optional, set together). A run lands in the tier with the highest `min_average` at or below its score average. Below every threshold, the lowest tier is the floor. `result` is the coarse result (`success`, `partial_success`, `failure`) that the simulator, exports and share links use.
+- **The engine has no tier ids.** `classifyTierId` checked for `triumph`, `success`, `survival`, `struggle` and `collapse` by name, at 75/60/45/30. `selectOutcomeTier` reads the thresholds from whatever tiers the scenario lists, so a pack's own tiers are picked too. Before, they never were.
+- **The base tier files gained the two fields in place:** triumph 75 success, success 60 success, survival 45 partial, struggle 30 partial, collapse 0 failure.
+- **The validator** refuses a threshold without a result and the reverse, and two tiers in one scenario with the same threshold.
+- **Docs for authors:** CONTENT_SCHEMA.md "Outcome Tiers", and "Endings: tiers and their thresholds" in both authoring guides.
+
+**Decision: one concept instead of two (option A, owner's call)**
+
+The game used two sets of cutoffs: tier ids (75/60/45/30) and a separate coarse result (success at 60 or more, failure below 35). They didn't line up: Struggle (30–45) was partial from 35 and failure below it. Keeping both as content would have kept behaviour identical, but authors would have had to learn two overlapping systems. The owner chose a single concept: each tier says what it counts as.
+
+Struggle counts as **partial**. That moves the narrower band (averages 30–35) and fits its description, "barely holding on". What stays the same:
+
+- a run that ended on a failure condition is always `failure`;
+- with no thresholded tiers (the tutorial today), the old cutoffs still apply, so the tutorial is unchanged until its own fix.
+
+**Player-visible change (documented, approved)**
+
+Runs that end at the turn limit with an average between 30 and 35 now record `partial_success` instead of `failure`. What players see is unchanged: every base and demo scenario has tiers, so the results screen and share card show the tier name ("Struggle"), not the coarse result. Win rates don't change either, because only `success` counts as a win. The coarse result shows up in the share payload's `tier` field, the audit report's outcome distribution, and the (unused) exact-run export.
+
+The tier files were edited in place, not given new versions. The tier a run lands in, its ending, its scores and its turns are all the same as before. The only change is a reporting field the content didn't define until now.
+
+**Verification**
+
+- **Golden replays:** 9 of 432 recorded runs changed, all of them Struggle runs moving from `failure` to `partial_success`. Their tier id, ending, scores and turns are identical. The telemetry hash changed only because the telemetry includes the coarse result. The fixture was regenerated (`npm run test:golden:update`).
+- **Fixed-seed audit vs `main`:** the only differences are `outcome_distribution` counts, failure → partial: microservice_sprawl 2 runs, compliance_gauntlet 2, startup_hypergrowth 2 (oracle), merger_of_minor_chaos 1 (oracle). Findings, warnings, statuses and win rates are identical.
+- **Equivalence test:** the old hard-coded selection is kept in the test. It is compared with the new one at every tenth from -20 to 120 and just around each boundary, with all five base tiers and with four subsets. Every average picks the same tier.
+- **New tests** (+12, 1107 total): pack-owned tiers and the floor; thresholdless tiers never picked; Struggle counting as partial at 32 and 40; every other band unchanged; failure conditions still failing; the old cutoffs without tiers; schema both-or-neither; unknown results; duplicate thresholds.
+- `content:validate` passes for base, tutorial and the demo fixture.
+
+**Not done here**
+
+- The published JSON Schema can't express "set both or neither", so editors don't flag a lone `min_average`; the validator does.
+- The exact-run export still uses the old cutoffs (see the open question).
+
+**DDD note (talk material)**
+
+The old code had *two* ubiquitous-language terms for "how did it go", maintained in two places with numbers that almost agreed. A domain expert asked "is a Struggle a failure?" would have got "it depends on the decimal". Moving tiers into content forced the question, and the answer became one sentence the content states: Struggle counts as partial. Making knowledge explicit often surfaces an inconsistency nobody chose.

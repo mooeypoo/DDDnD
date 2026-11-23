@@ -33,6 +33,7 @@ export const CONTENT_TYPE_BY_SECTION: Record<ContentInventoryKey, ContentType> =
   delayed_effects: 'delayed-effects',
   outcome_tiers: 'outcome-tiers',
   outcome_archetypes: 'outcome-archetypes',
+  coupling_rules: 'coupling-rules',
   classes: 'classes',
   challenge_modifiers: 'challenge-modifiers',
 }
@@ -76,7 +77,7 @@ function byteLength(text: string): number {
  */
 export function inventoryPaths(manifest: ContentPackManifest): string[] {
   return (Object.keys(CONTENT_TYPE_BY_SECTION) as ContentInventoryKey[]).flatMap((section) =>
-    manifest.content[section].map((filename) => `${CONTENT_TYPE_BY_SECTION[section]}/${filename}`),
+    (manifest.content[section] ?? []).map((filename) => `${CONTENT_TYPE_BY_SECTION[section]}/${filename}`),
   )
 }
 
@@ -252,6 +253,7 @@ export function createSnapshotContentProvider(snapshot: PackSnapshot): ContentPr
     loadDelayedEffect: (ref) => load('delayed-effects', ref),
     loadOutcomeTier: (ref) => load('outcome-tiers', ref),
     loadOutcomeArchetype: (ref) => load('outcome-archetypes', ref),
+    loadCouplingRule: (ref) => load('coupling-rules', ref),
     loadPlayerClass: (ref) => load('classes', ref),
     loadChallengeModifier: (ref) => load('challenge-modifiers', ref),
   }

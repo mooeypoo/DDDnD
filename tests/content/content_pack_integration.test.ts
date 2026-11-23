@@ -6,7 +6,7 @@ import type {
   ContentPackManifest,
   DelayedEffect,
   Event,
-  OutcomeArchetype,
+  OutcomeArchetype, CouplingRule,
   OutcomeTier,
   Scenario,
   Score,
@@ -58,6 +58,7 @@ function createFileContentProvider(contentRoot: string): ContentProvider {
     loadDelayedEffect: (ref: VersionRef) => loadJson<DelayedEffect>(contentRoot, 'delayed-effects', ref),
     loadOutcomeTier: (ref: VersionRef) => loadJson<OutcomeTier>(contentRoot, 'outcome-tiers', ref),
     loadOutcomeArchetype: (ref: VersionRef) => loadJson<OutcomeArchetype>(contentRoot, 'outcome-archetypes', ref),
+    loadCouplingRule: (ref: VersionRef) => loadJson<CouplingRule>(contentRoot, 'coupling-rules', ref),
     loadPlayerClass: (ref: VersionRef) => loadJson<PlayerClass>(contentRoot, 'classes', ref),
     loadChallengeModifier: (ref: VersionRef) => loadJson<ChallengeModifier>(contentRoot, 'challenge-modifiers', ref),
   }

@@ -269,6 +269,45 @@ For the same reason, a community pack can't use the id `base` or `tutorial`.
 
 Best practice: include only files your pack truly owns in `content.*` inventory.
 
+## Coupling: when one score drags others down
+
+A **coupling rule** makes a collapsing score hurt others: "while delivery confidence is below 25, gains to domain clarity and maintainability shrink to 70%". The engine has no coupling of its own; a scenario lists the rules that apply in `coupling_rule_refs`:
+
+```json
+"coupling_rule_refs": [
+  { "id": "delivery_collapse", "version": 1 }
+]
+```
+
+A rule file (`coupling-rules/<id>-v<version>.json`, listed under `content.coupling_rules` in the manifest) has:
+
+- `trigger_score_id` and `threshold`: the rule is active while that score is strictly below the threshold;
+- `affected_score_ids`: the scores whose gains shrink;
+- `gain_multiplier`: between 0.1 and 1, applied to gains only, never to losses;
+- `name` and `description`: the warning players see while it is active.
+
+All the scores a rule names must be in the scenario's `score_refs`. An extension pack can reuse the base game's rules (`delivery_collapse`, `morale_collapse`, `trust_collapse`). A pack with its own scores writes its own. See [CONTENT_SCHEMA.md](https://github.com/mooeypoo/DDDnD/blob/main/CONTENT_SCHEMA.md#coupling-rules).
+
+## Endings: tiers and their thresholds
+
+A run's **tier** (Triumph, Struggle, …) is picked from the scenario's own tiers. Each tier file says where it starts and what it counts as:
+
+```json
+{
+  "id": "pager_peace",
+  "version": 1,
+  "name": "Pager Peace",
+  "description": "The pager stays quiet at night",
+  "rank": 3,
+  "min_average": 70,
+  "result": "success"
+}
+```
+
+At the end of a run, the game averages the scenario's scores and picks the tier with the highest `min_average` at or below that average. The lowest tier catches everything below. `result` is `success`, `partial_success` or `failure`; the balance check counts `success` as a win. Set both fields or neither, and don't give two tiers the same threshold.
+
+Higher scores are better, for every score (a "lower is better" option may come later). An extension pack can reuse the base tiers (`triumph`, `success`, `survival`, `struggle`, `collapse`) by listing them in `outcome_tier_refs`. A pack with its own scores can write its own. See [CONTENT_SCHEMA.md](https://github.com/mooeypoo/DDDnD/blob/main/CONTENT_SCHEMA.md#outcome-tiers).
+
 ## Single-file packs (`.dddnd-pack.json`)
 
 A pack can also travel as one file, for workshops where hosting isn't practical: a player loads it into the game from their computer. Create one from a pack folder:

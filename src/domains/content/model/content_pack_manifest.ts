@@ -33,6 +33,8 @@ export interface ContentPackInventory {
   delayed_effects: string[]
   outcome_tiers: string[]
   outcome_archetypes: string[]
+  /** Optional (added in M3): packs written before coupling rules existed omit it. */
+  coupling_rules?: string[]
   classes: string[]
   challenge_modifiers: string[]
 }

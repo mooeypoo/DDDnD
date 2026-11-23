@@ -78,6 +78,7 @@ function makeMinimalBundle(overrides: Partial<ScenarioBundle> = {}): ScenarioBun
     delayed_effects: new Map(),
     outcome_tiers: new Map(),
     outcome_archetypes: new Map(),
+    coupling_rules: new Map(),
     ...overrides,
   }
 }

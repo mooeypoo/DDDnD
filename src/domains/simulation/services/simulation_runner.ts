@@ -14,7 +14,7 @@
  * - Returns a structured telemetry report, never writes to disk
  */
 
-import { ScenarioBundle } from '@/domains/content/model'
+import { ChallengeModifier, ScenarioBundle } from '@/domains/content/model'
 import { createSeededRandom } from '@/shared/random/seeded_random'
 import { createEngine, SimulationEngine } from './engine'
 import { RunOutcome, RunOutcomeTier } from './get_run_outcome'
@@ -47,6 +47,10 @@ export interface SimulationRunnerInput {
    * `full_pool_oracle` is a diagnostic catalog bot, not the pass gate.
    */
   play_policy?: SimulationPlayPolicy
+  /** Optional challenge modifier applied to every run (as the player would pick it). */
+  challenge_modifier?: ChallengeModifier
+  /** Optional class score affinity applied to every run (as picking a class does). */
+  class_score_affinity?: string
 }
 
 /**
@@ -87,6 +91,8 @@ export interface PerRunTelemetry {
   run_index: number
   seed: string
   outcome_tier: RunOutcomeTier | null
+  /** The content tier the run ended in (`triumph`, `survival`, …), if the scenario has one that matched. */
+  selected_tier_id: string | null
   archetype: string | null
   run_status: string
   turns_completed: number
@@ -312,6 +318,7 @@ function buildPerRunTelemetry(
     run_index: runIndex,
     seed: runSeed,
     outcome_tier: outcome?.tier ?? null,
+    selected_tier_id: outcome?.selected_tier_id ?? null,
     archetype: outcome?.archetype ?? null,
     run_status: gameState.progress.run_status,
     turns_completed: gameState.run_analytics.turns_completed,
@@ -335,12 +342,19 @@ function executeRun(
   scenarioBundle: ScenarioBundle,
   runIndex: number,
   runSeed: string,
-  playPolicy: SimulationPlayPolicy
+  playPolicy: SimulationPlayPolicy,
+  choices: Pick<SimulationRunnerInput, 'challenge_modifier' | 'class_score_affinity'> = {}
 ): PerRunTelemetry {
   const legalHandSize = legalHandSizeForPolicy(playPolicy)
-  let gameState = engine.create_run(
-    legalHandSize != null ? { legal_hand_size: legalHandSize } : undefined
-  )
+  const runOptions = {
+    ...(legalHandSize != null ? { legal_hand_size: legalHandSize } : {}),
+    ...(choices.challenge_modifier ? { challenge_modifier: choices.challenge_modifier } : {}),
+  }
+  let gameState = engine.create_run(Object.keys(runOptions).length > 0 ? runOptions : undefined)
+  if (choices.class_score_affinity) {
+    // Same as the run lifecycle coordinator does when a player picks a class
+    gameState.player_profile.class_score_affinity = choices.class_score_affinity
+  }
   const maxTurns = gameState.progress.max_turns
   const executionState = createRunExecutionState()
   const chooseTurn = createTurnChooser(engine, scenarioBundle, runSeed, playPolicy)
@@ -391,7 +405,7 @@ export function simulate_runs(input: SimulationRunnerInput): SimulationReport {
   for (let i = 0; i < runs; i++) {
     const runSeed = deriveRunSeed(seed, i)
     const engine = createEngine(scenario_bundle, runSeed)
-    const telemetry = executeRun(engine, scenario_bundle, i, runSeed, playPolicy)
+    const telemetry = executeRun(engine, scenario_bundle, i, runSeed, playPolicy, input)
     perRun.push(telemetry)
   }
 

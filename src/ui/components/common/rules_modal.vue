@@ -53,11 +53,18 @@
         <p>
           When a core score falls too far, coupling binds the table:
         </p>
-        <ul>
-          <li><strong>Delivery collapse</strong> — Gains to domain clarity and maintainability weaken.</li>
-          <li><strong>Morale collapse</strong> — Maintainability gains shrink.</li>
-          <li><strong>Trust collapse</strong> — Delivery gains shrink.</li>
+        <!-- The current adventure's own rules (M3: coupling is content) -->
+        <ul v-if="couplingRules.length > 0">
+          <li v-for="rule in couplingRules" :key="rule.id"><strong>{{ rule.name }}</strong> — {{ rule.description }}</li>
         </ul>
+        <template v-else>
+          <p>Each adventure decides which scores are bound together. In DDDnD's own adventures:</p>
+          <ul>
+            <li><strong>Delivery collapse</strong> — Gains to domain clarity and maintainability weaken.</li>
+            <li><strong>Morale collapse</strong> — Maintainability gains shrink.</li>
+            <li><strong>Trust collapse</strong> — Delivery gains shrink.</li>
+          </ul>
+        </template>
         <p>
           Card glances show the reduced values. Stabilize the collapsed score first, or the
           rest of your work is fighting a system that will not hold.
@@ -85,8 +92,11 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import SurfaceModalPanel from '@/ui/components/surfaces/surface_modal_panel.vue'
 import AppButton from '@/ui/components/common/AppButton.vue'
+import { activeCouplingRuleList } from '@/ui/composables/system_coupling'
 
 /**
  * Game rules modal with static instructional content and close action.
@@ -102,6 +112,9 @@ const emit = defineEmits<{
 function close() {
   emit('close')
 }
+
+/** During a run, the adventure's own coupling rules, with their names and descriptions. */
+const couplingRules = computed(() => activeCouplingRuleList())
 </script>
 
 <style scoped>

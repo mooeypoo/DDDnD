@@ -1,0 +1,13 @@
+{
+  "id": "capacity_collapse",
+  "version": 1,
+  "name": "Capacity Collapse",
+  "description": "Code and system improvements are less effective.",
+  "trigger_score_id": "team_capacity",
+  "threshold": 25,
+  "affected_score_ids": [
+    "code_clarity",
+    "system_health"
+  ],
+  "gain_multiplier": 0.7
+}

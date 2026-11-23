@@ -69,6 +69,7 @@ function buildRunTelemetry(overrides: Partial<PerRunTelemetry>): PerRunTelemetry
     run_index: 0,
     seed: 'seed',
     outcome_tier: 'success',
+    selected_tier_id: 'success',
     archetype: 'system_stabilizer',
     run_status: 'completed',
     turns_completed: 2,

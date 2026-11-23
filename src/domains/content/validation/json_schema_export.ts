@@ -22,6 +22,7 @@ import {
   delayedEffectSchema,
   eventSchema,
   outcomeArchetypeSchema,
+  couplingRuleSchema,
   outcomeTierSchema,
   playerClassSchema,
   scenarioSchema,
@@ -45,6 +46,7 @@ const PUBLISHED_SCHEMAS: Array<{ name: string; title: string; schema: z.ZodMiniT
   { name: 'stakeholder-reaction-rule', title: 'DDDnD stakeholder reaction rule', schema: stakeholderReactionRuleSchema },
   { name: 'outcome-tier', title: 'DDDnD outcome tier', schema: outcomeTierSchema },
   { name: 'outcome-archetype', title: 'DDDnD outcome archetype', schema: outcomeArchetypeSchema },
+  { name: 'coupling-rule', title: 'DDDnD coupling rule', schema: couplingRuleSchema },
   { name: 'class', title: 'DDDnD player class', schema: playerClassSchema },
   { name: 'challenge-modifier', title: 'DDDnD challenge modifier', schema: challengeModifierSchema },
 ]

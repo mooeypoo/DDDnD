@@ -37,5 +37,8 @@
       "id": "production_incident",
       "version": 1
     }
+  ],
+  "coupling_rule_refs": [
+    { "id": "morale_collapse", "version": 1 }
   ]
 }

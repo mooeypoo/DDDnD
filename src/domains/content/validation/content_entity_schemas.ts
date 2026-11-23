@@ -16,6 +16,7 @@
  */
 
 import type {
+  CouplingRule,
   Card,
   ChallengeModifier,
   DelayedEffect,
@@ -164,13 +165,29 @@ export const outcomeTierSchema: z.ZodMiniType<OutcomeTier> = z.strictObject({
   name: nameSchema,
   description: descriptionSchema,
   rank: boundedInt(numbers.rank),
-})
+  min_average: z.optional(z.number().check(z.gte(numbers.tier_min_average.min), z.lte(numbers.tier_min_average.max))),
+  result: z.optional(z.enum(['success', 'partial_success', 'failure'])),
+}).check(
+  z.refine((tier) => (tier.min_average === undefined) === (tier.result === undefined), {
+    message: 'min_average and result go together: set both, or neither',
+  }),
+)
 
 export const outcomeArchetypeSchema: z.ZodMiniType<OutcomeArchetype> = z.strictObject({
   ...metadataShape,
   name: nameSchema,
   description: descriptionSchema,
   flavor_text: z.optional(flavorTextSchema),
+})
+
+export const couplingRuleSchema: z.ZodMiniType<CouplingRule> = z.strictObject({
+  ...metadataShape,
+  name: nameSchema,
+  description: descriptionSchema,
+  trigger_score_id: idSchema,
+  threshold: boundedInt(numbers.coupling_threshold),
+  affected_score_ids: boundedArray(idSchema, counts.score_refs).check(z.minLength(1)),
+  gain_multiplier: z.number().check(z.gte(numbers.gain_multiplier.min), z.lte(numbers.gain_multiplier.max)),
 })
 
 export const scenarioSchema: z.ZodMiniType<Scenario> = z.strictObject({
@@ -187,6 +204,7 @@ export const scenarioSchema: z.ZodMiniType<Scenario> = z.strictObject({
   event_refs: boundedArray(versionRefSchema, counts.event_refs),
   outcome_tier_refs: z.optional(boundedArray(versionRefSchema, counts.outcome_refs)),
   outcome_archetype_refs: z.optional(boundedArray(versionRefSchema, counts.outcome_refs)),
+  coupling_rule_refs: z.optional(boundedArray(versionRefSchema, counts.coupling_rule_refs)),
   failure_conditions: z.optional(boundedArray(numericConditionSchema, counts.conditions)),
   opening_hand_card_ids: z.optional(boundedArray(idSchema, counts.opening_hand_card_ids)),
   score_variance: z.optional(boundedInt(numbers.score_variance)),

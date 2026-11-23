@@ -9,6 +9,9 @@
  * - getActiveCouplingEffects() from simulation engine for active collapse detection
  */
 
+import { shallowRef } from 'vue'
+
+import type { CouplingRule } from '@/domains/content/model'
 import {
   computeCouplingMultiplier,
   getActiveCouplingEffects
@@ -16,6 +19,7 @@ import {
 
 /** Display model for a system collapse warning */
 export interface CollapseWarning {
+  ruleId: string
   triggerScoreId: string
   title: string
   description: string
@@ -34,86 +38,74 @@ export interface AdjustedScoreChange {
   is_modified: boolean
 }
 
-/** Multiplier state for all affected scores */
-export interface ScoreModifiers {
-  domain_clarity_gain_multiplier: number
-  maintainability_gain_multiplier: number
-  delivery_confidence_gain_multiplier: number
+/**
+ * The active scenario's coupling rules (M3: they are content). Set by the
+ * game store when a scenario bundle becomes active, like the score order in
+ * metric_presentation.ts, so every score component sees the same rules
+ * without threading them through props.
+ */
+const activeCouplingRules = shallowRef<readonly CouplingRule[]>([])
+
+export function setActiveCouplingRules(rules: readonly CouplingRule[]): void {
+  activeCouplingRules.value = [...rules]
 }
 
-// Presentation mapping — describes how to display each collapse type
-const COLLAPSE_DISPLAY: Record<string, { title: string; description: string; icon: string }> = {
-  delivery_confidence: {
-    title: 'Delivery Collapse',
-    description: 'Architecture improvements are less effective.',
-    icon: '🚚'
-  },
-  team_morale: {
-    title: 'Morale Collapse',
-    description: 'Maintainability improvements reduced.',
-    icon: '😌'
-  },
-  user_trust: {
-    title: 'Trust Collapse',
-    description: 'Delivery improvements reduced.',
-    icon: '🤝'
-  },
-  // Tutorial collapse states
-  team_capacity: {
-    title: 'Capacity Collapse',
-    description: 'Code and system improvements are less effective.',
-    icon: '🫠'
-  },
-  system_health: {
-    title: 'System Collapse',
-    description: 'Team recovery improvements reduced.',
-    icon: '🏚️'
-  }
+/** The active scenario's coupling rules (empty outside a run), for display. */
+export function activeCouplingRuleList(): readonly CouplingRule[] {
+  return activeCouplingRules.value
 }
 
 /**
- * Get active collapse warnings for the current scores.
- * Delegates threshold checks to the engine via getActiveCouplingEffects.
+ * Icons for the base game's collapses. Presentation only (ADR 0002): a pack's
+ * rules carry their own title and description, and get the generic icon.
  */
-export function getCollapseWarnings(scores: Record<string, number>): CollapseWarning[] {
-  const active = getActiveCouplingEffects(scores)
-
-  return active.map(effect => {
-    const display = COLLAPSE_DISPLAY[effect.trigger_score_id] ?? {
-      title: 'System Collapse',
-      description: 'Some improvements are less effective.',
-      icon: '⚠️'
-    }
-
-    return {
-      triggerScoreId: effect.trigger_score_id,
-      title: display.title,
-      description: display.description,
-      icon: display.icon,
-      currentValue: effect.current_value,
-      threshold: effect.threshold,
-      affectedScoreIds: [...effect.affected_score_ids],
-    }
-  })
+const COLLAPSE_ICON_BY_TRIGGER: Record<string, string> = {
+  delivery_confidence: '🚚',
+  team_morale: '😌',
+  user_trust: '🤝',
+  team_capacity: '🫠',
+  system_health: '🏚️',
 }
 
 /**
- * Get current score gain multipliers from engine state.
- * Uses computeCouplingMultiplier for each affected score.
+ * Get active collapse warnings for the current scores. Title and description
+ * come from the rule's content.
  */
-export function getScoreModifiers(scores: Record<string, number>): ScoreModifiers {
-  return {
-    domain_clarity_gain_multiplier: computeCouplingMultiplier('domain_clarity', scores),
-    maintainability_gain_multiplier: computeCouplingMultiplier('maintainability', scores),
-    delivery_confidence_gain_multiplier: computeCouplingMultiplier('delivery_confidence', scores)
-  }
+export function getCollapseWarnings(
+  scores: Record<string, number>,
+  rules: readonly CouplingRule[] = activeCouplingRules.value
+): CollapseWarning[] {
+  return getActiveCouplingEffects(scores, rules).map(effect => ({
+    ruleId: effect.rule_id,
+    triggerScoreId: effect.trigger_score_id,
+    title: effect.name,
+    description: effect.description,
+    icon: COLLAPSE_ICON_BY_TRIGGER[effect.trigger_score_id] ?? '⚠️',
+    currentValue: effect.current_value,
+    threshold: effect.threshold,
+    affectedScoreIds: [...effect.affected_score_ids],
+  }))
+}
+
+/**
+ * Current gain multiplier for every score a coupling rule can affect.
+ */
+export function getGainMultipliers(
+  scores: Record<string, number>,
+  rules: readonly CouplingRule[] = activeCouplingRules.value
+): Record<string, number> {
+  const affected = new Set(rules.flatMap(rule => rule.affected_score_ids))
+  return Object.fromEntries([...affected].map(scoreId => [scoreId, computeCouplingMultiplier(scoreId, scores, rules)]))
 }
 
 /**
  * Whether any coupling modifiers are currently active.
  */
-export function hasActiveCoupling(scores: Record<string, number>): boolean {
-  return getActiveCouplingEffects(scores).length > 0
+export function hasActiveCoupling(
+  scores: Record<string, number>,
+  rules: readonly CouplingRule[] = activeCouplingRules.value
+): boolean {
+  return getActiveCouplingEffects(scores, rules).length > 0
 }
 
 /**
@@ -123,10 +115,11 @@ export function hasActiveCoupling(scores: Record<string, number>): boolean {
  */
 export function getAdjustedScoreChanges(
   scoreChanges: Array<{ score_id: string; delta: number }>,
-  scores: Record<string, number>
+  scores: Record<string, number>,
+  rules: readonly CouplingRule[] = activeCouplingRules.value
 ): AdjustedScoreChange[] {
   return scoreChanges.map(change => {
-    const multiplier = computeCouplingMultiplier(change.score_id, scores)
+    const multiplier = computeCouplingMultiplier(change.score_id, scores, rules)
     const adjustedDelta = change.delta > 0
       ? Math.round(change.delta * multiplier)
       : change.delta

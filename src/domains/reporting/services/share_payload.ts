@@ -86,6 +86,14 @@ export interface SharePayload {
    * first-party runs. Shown as plain text only.
    */
   cp?: { n: string; p: string }
+
+  /**
+   * Display names of the ending (`an`) and tier (`tn`), from the run's
+   * content (M3 slice 1). A shared link opens without the pack, so the names
+   * travel with it. Older links fall back to title-cased ids.
+   */
+  an?: string
+  tn?: string
 }
 
 /**

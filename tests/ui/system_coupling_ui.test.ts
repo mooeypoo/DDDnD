@@ -1,10 +1,15 @@
-import { describe, it, expect } from 'vitest'
+import { beforeEach, describe, it, expect } from 'vitest'
 import {
   getCollapseWarnings,
   getAdjustedScoreChanges,
-  getScoreModifiers,
-  hasActiveCoupling
+  getGainMultipliers,
+  hasActiveCoupling,
+  setActiveCouplingRules
 } from '@/ui/composables/system_coupling'
+import { BASE_COUPLING_RULES } from '../support/base_coupling_rules'
+
+// The active scenario's rules, as the game store sets them (M3 slice 2)
+beforeEach(() => setActiveCouplingRules(BASE_COUPLING_RULES))
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -102,39 +107,48 @@ describe('hasActiveCoupling', () => {
 })
 
 // ---------------------------------------------------------------------------
-// getScoreModifiers
+// getGainMultipliers
 // ---------------------------------------------------------------------------
 
-describe('getScoreModifiers', () => {
+describe('getGainMultipliers', () => {
   it('returns 1.0 multipliers when system is healthy', () => {
-    const modifiers = getScoreModifiers(healthyScores())
-    expect(modifiers.domain_clarity_gain_multiplier).toBe(1.0)
-    expect(modifiers.maintainability_gain_multiplier).toBe(1.0)
-    expect(modifiers.delivery_confidence_gain_multiplier).toBe(1.0)
+    expect(getGainMultipliers(healthyScores())).toEqual({ domain_clarity: 1, maintainability: 1, delivery_confidence: 1 })
   })
 
   it('returns reduced multipliers under delivery collapse', () => {
-    const modifiers = getScoreModifiers(collapsedScores({ delivery_confidence: 20 }))
-    expect(modifiers.domain_clarity_gain_multiplier).toBe(0.7)
-    expect(modifiers.maintainability_gain_multiplier).toBe(0.7)
-    expect(modifiers.delivery_confidence_gain_multiplier).toBe(1.0)
+    expect(getGainMultipliers(collapsedScores({ delivery_confidence: 20 }))).toEqual({ domain_clarity: 0.7, maintainability: 0.7, delivery_confidence: 1 })
   })
 
   it('returns reduced maintainability multiplier under morale collapse', () => {
-    const modifiers = getScoreModifiers(collapsedScores({ team_morale: 10 }))
-    expect(modifiers.domain_clarity_gain_multiplier).toBe(1.0)
-    expect(modifiers.maintainability_gain_multiplier).toBe(0.75)
-    expect(modifiers.delivery_confidence_gain_multiplier).toBe(1.0)
+    expect(getGainMultipliers(collapsedScores({ team_morale: 10 }))).toEqual({ domain_clarity: 1, maintainability: 0.75, delivery_confidence: 1 })
   })
 
   it('stacks multipliers when delivery and morale both collapse', () => {
-    const modifiers = getScoreModifiers(collapsedScores({
-      delivery_confidence: 20,
-      team_morale: 10
-    }))
+    const multipliers = getGainMultipliers(collapsedScores({ delivery_confidence: 20, team_morale: 10 }))
     // maintainability: 0.7 * 0.75 = 0.525
-    expect(modifiers.maintainability_gain_multiplier).toBeCloseTo(0.525)
-    expect(modifiers.domain_clarity_gain_multiplier).toBe(0.7)
+    expect(multipliers.maintainability).toBeCloseTo(0.525)
+    expect(multipliers.domain_clarity).toBe(0.7)
+  })
+})
+
+describe('warnings come from the rules (M3 slice 2)', () => {
+  it("shows the rule's own title and description", () => {
+    const [warning] = getCollapseWarnings(collapsedScores({ delivery_confidence: 20 }))
+    expect(warning).toMatchObject({ ruleId: 'delivery_collapse', title: 'Delivery Collapse', description: 'Architecture improvements are less effective.', icon: '🚚' })
+  })
+
+  it("shows a pack's rule with its own text and the generic icon", () => {
+    setActiveCouplingRules([{
+      id: 'pager_overload', version: 1, name: 'Pager Overload', description: 'Exhausted on-call slows everything.',
+      trigger_score_id: 'rested_on_call', threshold: 30, affected_score_ids: ['change_velocity'], gain_multiplier: 0.5,
+    }])
+    const [warning] = getCollapseWarnings({ rested_on_call: 20 })
+    expect(warning).toMatchObject({ title: 'Pager Overload', description: 'Exhausted on-call slows everything.', icon: '⚠️' })
+  })
+
+  it('warns about nothing when no scenario is active', () => {
+    setActiveCouplingRules([])
+    expect(getCollapseWarnings(collapsedScores({ delivery_confidence: 0, team_morale: 0, user_trust: 0 }))).toEqual([])
   })
 })
 

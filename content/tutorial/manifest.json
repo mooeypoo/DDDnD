@@ -81,6 +81,10 @@
     "outcome_archetypes": [
       "tutorial_learner-v1.json"
     ],
+    "coupling_rules": [
+      "capacity_collapse-v1.json",
+      "system_health_collapse-v1.json"
+    ],
     "classes": [],
     "challenge_modifiers": []
   }

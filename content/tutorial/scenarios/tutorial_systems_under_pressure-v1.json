@@ -50,5 +50,9 @@
   ],
   "outcome_archetype_refs": [
     { "id": "tutorial_learner", "version": 1 }
+  ],
+  "coupling_rule_refs": [
+    { "id": "capacity_collapse", "version": 1 },
+    { "id": "system_health_collapse", "version": 1 }
   ]
 }

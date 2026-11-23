@@ -13,7 +13,7 @@ import {
   Event,
   DelayedEffect,
   OutcomeTier,
-  OutcomeArchetype
+  OutcomeArchetype, CouplingRule
 } from '@/domains/content/model'
 import { ContentProvider } from '@/domains/content/services/content_provider'
 
@@ -53,6 +53,7 @@ function createFileContentProvider(contentRoot: string): ContentProvider {
     loadDelayedEffect: (ref: VersionRef) => loadJson<DelayedEffect>('delayed-effects', ref),
     loadOutcomeTier: (ref: VersionRef) => loadJson<OutcomeTier>('outcome-tiers', ref),
     loadOutcomeArchetype: (ref: VersionRef) => loadJson<OutcomeArchetype>('outcome-archetypes', ref),
+    loadCouplingRule: (ref: VersionRef) => loadJson<CouplingRule>('coupling-rules', ref),
     loadPlayerClass: async () => {
       throw new Error('Player class loading is not required for scenario bundle construction')
     },

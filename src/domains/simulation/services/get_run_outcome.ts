@@ -18,12 +18,12 @@
  * This is called when a run ends (victory, failure, or max turns reached).
  */
 
-import { ScenarioBundle } from '@/domains/content/model'
+import type { OutcomeResult, ScenarioBundle } from '@/domains/content/model'
 import type { OutcomeArchetypeId } from '@/shared/contracts'
 import { GameState } from '../model'
 import { classifyRunOutcome, RunCompletionReason } from '../rules'
 
-export type RunOutcomeTier = 'success' | 'partial_success' | 'failure'
+export type RunOutcomeTier = OutcomeResult
 
 /**
  * Stable outcome snapshot suitable for persistence and reporting.
@@ -60,14 +60,21 @@ export interface RunOutcome {
 }
 
 /**
- * Maps run status and average score into coarse outcome tier.
+ * The coarse result: a failure condition always fails the run; otherwise the
+ * selected tier says what it counts as (journal M3.4). With no tier (the
+ * tutorial today), the fixed cutoffs from before tiers were content apply.
  */
 function classifyRunOutcomeTier(
   runStatus: RunOutcomeSnapshot['run_status'],
-  scoreAverage: number
+  scoreAverage: number,
+  tierResult: OutcomeResult | null
 ): RunOutcomeTier {
   if (runStatus === 'completed_failure') {
     return 'failure'
+  }
+
+  if (tierResult) {
+    return tierResult
   }
 
   if (scoreAverage >= 60) {
@@ -93,7 +100,7 @@ export function getRunOutcome(
     return null
   }
 
-  const tier = classifyRunOutcomeTier(classified.run_status, classified.score_average)
+  const tier = classifyRunOutcomeTier(classified.run_status, classified.score_average, classified.selected_tier_result)
   const archetype = classified.selected_archetype_id
   const outcomeSnapshot: RunOutcomeSnapshot = {
     tier,

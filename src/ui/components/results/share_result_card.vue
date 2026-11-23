@@ -137,6 +137,7 @@ import {
 } from '@/ui/composables/gameplay_stage_presentation'
 import { formatStakeholderName } from '@/ui/composables/stakeholder_presentation'
 import { useScoreLabels } from '@/ui/composables/use_score_labels'
+import { describeOutcome, titleCaseId } from '@/ui/play/outcome_presentation'
 
 const props = defineProps<{
   payload: SharePayload
@@ -165,17 +166,9 @@ const siteDomain = computed(() => {
  * Tier label formatting for compact share cards.
  */
 const tierDisplayName = computed(() => {
+  // The run's own tier name travels in the link; older links only had the id
   const tier = props.payload.tid ?? props.payload.tier
-  const labels: Record<string, string> = {
-    triumph: 'Triumph',
-    success: 'Success',
-    survival: 'Survival',
-    struggle: 'Struggle',
-    collapse: 'Collapse',
-    partial_success: 'Partial Success',
-    failure: 'Failure'
-  }
-  return labels[tier] ?? tier.charAt(0).toUpperCase() + tier.slice(1)
+  return props.payload.tn ?? describeOutcome(null, tier, props.payload.arch).tierName
 })
 
 /**
@@ -222,12 +215,7 @@ const archetypeIcon = computed(() => {
   return icons[props.payload.arch] ?? '🎯'
 })
 
-const archetypeDisplayName = computed(() => {
-  return props.payload.arch
-    .split('_')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ')
-})
+const archetypeDisplayName = computed(() => props.payload.an ?? titleCaseId(props.payload.arch))
 
 const classDisplayName = computed(() => {
   return props.payload.cls

@@ -1,0 +1,12 @@
+{
+  "id": "trust_collapse",
+  "version": 1,
+  "name": "Trust Collapse",
+  "description": "Delivery improvements reduced.",
+  "trigger_score_id": "user_trust",
+  "threshold": 25,
+  "affected_score_ids": [
+    "delivery_confidence"
+  ],
+  "gain_multiplier": 0.7
+}

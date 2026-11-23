@@ -263,6 +263,14 @@
             "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
           }
         },
+        "coupling_rules": {
+          "maxItems": 500,
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9_]{1,64}-v[1-9]\\d{0,2}\\.json$"
+          }
+        },
         "classes": {
           "maxItems": 500,
           "type": "array",

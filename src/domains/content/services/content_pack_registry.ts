@@ -29,6 +29,7 @@ const contentKeyByType: Record<ContentType, ContentInventoryKey> = {
   'delayed-effects': 'delayed_effects',
   'outcome-tiers': 'outcome_tiers',
   'outcome-archetypes': 'outcome_archetypes',
+  'coupling-rules': 'coupling_rules',
   classes: 'classes',
   'challenge-modifiers': 'challenge_modifiers',
 }
@@ -181,7 +182,7 @@ export class ContentPackRegistry {
 
     const files = new Set<string>()
     for (const section of Object.keys(manifest.content) as ContentInventoryKey[]) {
-      for (const filename of manifest.content[section]) {
+      for (const filename of manifest.content[section] ?? []) {
         files.add(ownershipKey(section, filename))
       }
     }
@@ -377,6 +378,8 @@ export class ContentPackRegistry {
       loadOutcomeTier: (ref) => load('outcome-tiers', ref, (provider, currentRef) => provider.loadOutcomeTier(currentRef)),
       loadOutcomeArchetype: (ref) =>
         load('outcome-archetypes', ref, (provider, currentRef) => provider.loadOutcomeArchetype(currentRef)),
+      loadCouplingRule: (ref) =>
+        load('coupling-rules', ref, (provider, currentRef) => provider.loadCouplingRule(currentRef)),
       loadPlayerClass: (ref) => load('classes', ref, (provider, currentRef) => provider.loadPlayerClass(currentRef)),
       loadChallengeModifier: (ref) =>
         load('challenge-modifiers', ref, (provider, currentRef) => provider.loadChallengeModifier(currentRef)),

@@ -15,6 +15,7 @@ import type {
   DelayedEffect,
   Event,
   OutcomeArchetype,
+  CouplingRule,
   OutcomeTier,
   PlayerClass,
   Scenario,
@@ -28,6 +29,7 @@ import {
   delayedEffectSchema,
   eventSchema,
   outcomeArchetypeSchema,
+  couplingRuleSchema,
   outcomeTierSchema,
   playerClassSchema,
   scenarioSchema,
@@ -50,6 +52,7 @@ export interface ContentEntityByType {
   'delayed-effects': DelayedEffect
   'outcome-tiers': OutcomeTier
   'outcome-archetypes': OutcomeArchetype
+  'coupling-rules': CouplingRule
   classes: PlayerClass
   'challenge-modifiers': ChallengeModifier
 }
@@ -64,6 +67,7 @@ const SCHEMA_BY_TYPE: { [K in ContentType]: z.ZodMiniType<ContentEntityByType[K]
   'delayed-effects': delayedEffectSchema,
   'outcome-tiers': outcomeTierSchema,
   'outcome-archetypes': outcomeArchetypeSchema,
+  'coupling-rules': couplingRuleSchema,
   classes: playerClassSchema,
   'challenge-modifiers': challengeModifierSchema,
 }
