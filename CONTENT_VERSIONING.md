@@ -79,7 +79,13 @@ Community packs refer to base content by `id + version` and declare the base pac
 - never changes how a shipped file plays (wording may change),
 - raises its version when it adds content, so a pack that uses the new content declares a base that has it.
 
-`scripts/base-content-lock.json` records what the base has shipped, and a test checks the rules above. After changing base content, run `npm run content:lock` and commit the lock. Breaking the promise on purpose means a new major base version (2.0.0), which starts a new lock.
+`scripts/base-content-lock.json` records what the base has shipped. You don't normally touch it:
+
+- **Locally**, `npm install` installs a pre-commit hook (`.githooks/pre-commit`). When a commit includes base content, it records the lock and adds it to the commit, or stops the commit and says which rule it breaks. It also stops if base content has unstaged changes, because the lock is recorded from the files on disk.
+- **In CI**, `npm run content:lock:check` runs as its own step ("Base content keeps its promise to published packs"), and the test suite checks it too.
+- **By hand:** `npm run content:lock` records it, and `npm run content:lock:check` checks without writing.
+
+Breaking the promise on purpose means a new major base version (2.0.0), which starts a new lock. The one allowed exception, behaviour made explicit in a new field with a test proving it plays identically, is recorded with `npm run content:lock -- --accept cards/<file>`.
 
 ---
 
