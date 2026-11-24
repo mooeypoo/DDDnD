@@ -46,6 +46,7 @@
 </template>
 
 <script setup lang="ts">
+import { withOptionalText } from '@/domains/authoring'
 import type { Scenario } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 
@@ -64,10 +65,7 @@ function set(fields: Partial<Scenario>) {
 
 /** Optional text: an empty field removes it, so the file stays tidy. */
 function setOptional(field: 'short_description' | 'flavor_text', value: string) {
-  const next = { ...props.scenario }
-  if (value.trim()) next[field] = value
-  else delete next[field]
-  emit('change', next)
+  emit('change', withOptionalText(props.scenario, field, value))
 }
 
 function wholeNumber(event: Event, min: number, max: number): number | null {

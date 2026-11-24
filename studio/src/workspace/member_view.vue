@@ -128,6 +128,8 @@ import {
   setReactionCondition,
   settleNewMemberId,
   settleNewReactionId,
+  withEffects,
+  withOptionalText,
   type DraftPack,
 } from '@/domains/authoring'
 import type { NumericCondition, ScoreChange, Stakeholder, StakeholderChange, StakeholderReactionRule, VersionRef } from '@/domains/content/model'
@@ -202,11 +204,7 @@ function setMember(fields: Partial<Stakeholder>) {
 }
 
 function setSummary(value: string) {
-  if (!member.value) return
-  const next = { ...member.value }
-  if (value.trim()) next.short_description = value
-  else delete next.short_description
-  emit('change', putContent(props.draft, 'stakeholders', next))
+  if (member.value) emit('change', putContent(props.draft, 'stakeholders', withOptionalText(member.value, 'short_description', value)))
 }
 
 /** Once a new member is named, they get the id of their name (ids show in the pack's files). */
@@ -232,10 +230,7 @@ function setConditionValue(rule: StakeholderReactionRule, event: Event) {
 }
 
 function setRuleEffects(rule: StakeholderReactionRule, effects: { score_changes: ScoreChange[]; stakeholder_changes: StakeholderChange[] }) {
-  const next: StakeholderReactionRule = { ...rule, score_changes: effects.score_changes }
-  if (effects.stakeholder_changes.length) next.stakeholder_changes = effects.stakeholder_changes
-  else delete next.stakeholder_changes
-  emit('change', putContent(props.draft, 'stakeholder_reaction_rules', next))
+  emit('change', putContent(props.draft, 'stakeholder_reaction_rules', withEffects(rule, effects)))
 }
 
 function settleRule(ruleId: string) {

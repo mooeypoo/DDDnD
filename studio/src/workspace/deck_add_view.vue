@@ -27,9 +27,9 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import { addToDeck, type DeckSection, type DraftPack } from '@/domains/authoring'
+import { addToDeck, isReferenced, type DeckSection, type DraftPack } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
-import { loadFirstParty } from '@studio/content/first_party'
+import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 
 const props = defineProps<{ section: DeckSection; draft: DraftPack }>()
 const emit = defineEmits<{ change: [draft: DraftPack] }>()
@@ -41,12 +41,7 @@ const all = ref<Choice[] | null>(null)
 
 watch(() => props.section, async (section) => {
   all.value = null
-  const { packs, base } = await loadFirstParty()
-  const manifest = packs.find((pack) => pack.manifest.id === 'base')?.manifest
-  const refs = (manifest?.content[section] ?? [])
-    .map((file) => file.match(/^([a-z0-9_]+)-v(\d+)\.json$/))
-    .filter((match): match is RegExpMatchArray => match !== null)
-    .map((match) => ({ id: match[1], version: Number(match[2]) }))
+  const [{ base }, refs] = await Promise.all([loadFirstParty(), listBaseRefs(section)])
   const loaded = await Promise.all(refs.map(async (ref) => {
     const entity = section === 'cards' ? await base.loadCard(ref) : await base.loadEvent(ref)
     return { ref, name: entity.name, summary: entity.description }
@@ -54,11 +49,7 @@ watch(() => props.section, async (section) => {
   all.value = loaded.sort((a, b) => a.name.localeCompare(b.name))
 }, { immediate: true })
 
-const inDeck = computed(() => {
-  const field = props.section === 'cards' ? 'card_refs' : 'event_refs'
-  return new Set(Object.values(props.draft.content.scenarios).flatMap((scenario) => scenario[field].map((ref) => `${ref.id}-v${ref.version}`)))
-})
-const choices = computed(() => all.value?.filter((choice) => !inDeck.value.has(`${choice.ref.id}-v${choice.ref.version}`)) ?? null)
+const choices = computed(() => all.value?.filter((choice) => !isReferenced(props.draft, props.section === 'cards' ? 'card_refs' : 'event_refs', choice.ref)) ?? null)
 const shown = computed(() => {
   const needle = filter.value.trim().toLowerCase()
   return (choices.value ?? []).filter((choice) => !needle || choice.name.toLowerCase().includes(needle))

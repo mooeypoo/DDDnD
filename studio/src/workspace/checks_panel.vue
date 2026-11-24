@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import type { PackIssue } from '@/domains/content/services/pack_snapshot_builder'
+import { issueSubject, type DraftSection, type PackIssue } from '@/domains/authoring'
 import type { CheckState } from '@studio/state/studio_state'
 
 const props = defineProps<{ state: CheckState; issues: PackIssue[] }>()
@@ -40,15 +40,17 @@ export type IssueTarget =
   | { kind: 'member'; ref: { id: string; version: number } }
   | { kind: 'reaction'; id: string }
 
+/** The Studio's editor for what an issue is about, if it has one. */
 function target(file: string): IssueTarget | null {
-  if (file === 'manifest.json') return { kind: 'details' }
-  const match = file.match(/^(scenarios|cards|events|stakeholders|stakeholder-reaction-rules)\/([a-z0-9_]+)-v(\d+)\.json$/)
-  if (!match) return null
-  const [, folder, id, version] = match
-  if (folder === 'scenarios') return { kind: 'scenario', id }
-  if (folder === 'stakeholders') return { kind: 'member', ref: { id, version: Number(version) } }
-  if (folder === 'stakeholder-reaction-rules') return { kind: 'reaction', id }
-  return { kind: 'item', section: folder as 'cards' | 'events', ref: { id, version: Number(version) } }
+  const subject = issueSubject(file)
+  if (!subject) return null
+  if (subject.kind === 'manifest') return { kind: 'details' }
+  const { section, ref } = subject
+  if (section === 'scenarios') return { kind: 'scenario', id: ref.id }
+  if (section === 'stakeholders') return { kind: 'member', ref }
+  if (section === 'stakeholder_reaction_rules') return { kind: 'reaction', id: ref.id }
+  if (section === 'cards' || section === 'events') return { kind: 'item', section, ref }
+  return null
 }
 
 const statusKind = computed(() => {
@@ -64,17 +66,17 @@ const statusText = computed(() => {
 
 /** Where the problem is, in the Studio's words. */
 function where(file: string): string {
-  if (file === 'manifest.json') return 'Pack details'
-  const folder = file.split('/')[0]
-  const names: Record<string, string> = {
+  const subject = issueSubject(file)
+  if (subject?.kind === 'manifest') return 'Pack details'
+  const names: Partial<Record<DraftSection, string>> = {
     scenarios: 'Scenario',
     cards: 'Card',
     events: 'Event',
     stakeholders: 'Council member',
-    'stakeholder-reaction-rules': 'Reaction',
-    'delayed-effects': 'Aftershock',
+    stakeholder_reaction_rules: 'Reaction',
+    delayed_effects: 'Aftershock',
   }
-  return names[folder] ?? 'Pack'
+  return (subject?.kind === 'content' && names[subject.section]) || 'Pack'
 }
 
 /** The validator's wording for the commonest problems, said plainly. */

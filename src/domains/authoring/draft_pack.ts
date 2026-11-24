@@ -19,7 +19,9 @@ import type {
   PlayerClass,
   Scenario,
   Score,
+  ScoreChange,
   Stakeholder,
+  StakeholderChange,
   StakeholderReactionRule,
 } from '../content/model/content_types'
 import type { ContentInventoryKey } from '../content/model/content_pack_manifest'
@@ -123,6 +125,35 @@ export function putContent<S extends DraftSection>(draft: DraftPack, section: S,
     ...draft,
     content: { ...draft.content, [section]: { ...draft.content[section], [entity.id]: entity } },
   }
+}
+
+/**
+ * Sets an optional text field. An empty one is left out of the file rather
+ * than stored empty, as the game's own content does.
+ */
+export function withOptionalText<T extends object, K extends keyof T & string>(entity: T, field: K, value: string): T {
+  const next = { ...entity }
+  if (value.trim()) (next as Record<string, unknown>)[field] = value
+  else delete next[field]
+  return next
+}
+
+/** What something does to the scores and the council. */
+export interface Effects {
+  score_changes: ScoreChange[]
+  stakeholder_changes?: StakeholderChange[]
+}
+
+/**
+ * Sets what a card, event, aftershock or reaction does. Score changes are
+ * always written; council changes only when there are some (the field is
+ * optional in the game's content).
+ */
+export function withEffects<T extends Effects>(item: T, effects: { score_changes: ScoreChange[]; stakeholder_changes: StakeholderChange[] }): T {
+  const next: T = { ...item, score_changes: effects.score_changes }
+  if (effects.stakeholder_changes.length) next.stakeholder_changes = effects.stakeholder_changes
+  else delete next.stakeholder_changes
+  return next
 }
 
 /** Removes one piece of the draft's own content. References to it are left for validation to report. */

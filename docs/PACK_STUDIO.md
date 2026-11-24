@@ -41,6 +41,8 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D19 | **The Forge's mark is the anvil with sparks** (option B on the mockup). | It reads as "forge" rather than just "metal", and still works at header size. |
 | D20 | **The guided round has an ember-tinted header** with a "Guided round" pill. | You always know you're in a lesson, and how to leave it ("your work is kept"). |
 | D21 | **The base game's council members can't be edited.** Authors take them out, create new members, or copy a base member to a new member and edit the copy (with its reactions). The base game's cards don't affect new members; the author changes how a card treats the council by making their own version of the card (D7). | The game's cards and events refer to council members by id. An edited member in place would have to be a new id, which those cards don't refer to (M3.9), so the Studio says plainly that a copy is a new member. Only the members a scenario seats take part, so leaving one out is harmless. |
+| D22 | **The Studio's screens hold no content rules** (M4.5b). A screen shows a draft and turns the author's input into a domain call. Anything that is true about content, wherever it is shown, is answered by the authoring domain: what a reference names, whose it is, what's in the deck, how an optional field is written, and what a check's issue is about. A test enforces it. | The game keeps its rules out of its UI, and the Studio is the same codebase's second client. When a rule lived in a screen it was copied, and the copies drifted: one screen took the draft's own content regardless of version, another required the exact version. |
+| D23 | **A full UI/UX audit comes after the Studio's important functionality, before launch.** Until then, slices may add screens without polishing the whole. The audit looks at the start screen, the workspace's layout and the editing flows together. | The owner finds parts confusing now, mainly the start screen and some editing. Fixing those one slice at a time would mean redoing them as features land; one audit over the finished set can make it consistent. |
 
 ---
 
@@ -143,6 +145,16 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 - Balance hints (D3), copy-to-edit (D7), several drafts (D8).
 - The minimal playtest: "Play it" opens the draft in a sandboxed game preview (D6).
 - Export (bundle file and zip) and import.
+
+**Order for the rest of M4** (after M4.5b; D23):
+1. Aftershocks and event conditions: finish editing cards and events.
+2. The version-bump assistant.
+3. Zip export and import.
+4. "Play it" (D15, D17).
+5. New-topic authoring (scores, endings, classes) and the guided round.
+6. Balance hints, and the smaller items: sidebar collapse or filter, "Go to it" focusing the exact field.
+7. **The UI/UX audit (D23):** the start screen, the workspace and the editing flows, reviewed together and made consistent.
+8. Launch: remove `noindex`, and add the Studio's origin to the game's preview allowlist.
 
 **Later:**
 - **M5:** balance lab (D3).
@@ -529,3 +541,49 @@ The notes run alongside each check; the game's content loader caches, so they're
 7. Export works with notes present. Zero CSP violations, no console errors.
 
 Tests: 1215 in total (+4 for notes: an untouched Monolith has none; the game's content is listed by person; own content is marked and fixable; re-seating clears them).
+
+### M4.5b: The Studio, checked for domain separation (2026-11-24)
+
+The owner asked, after M4.5 merged, to make sure the Studio's code follows DDD and keeps the domain separate. They also set the UI/UX audit for after the important functionality (D23).
+
+**How it was checked.** The import boundaries were already enforced by a test (ADR 0005): the Studio never imports the game's UI, the game never imports the Studio, and the authoring domain imports no Vue, DOM or storage. That held. So the audit read every screen's script for the other kind of leak: **a rule about content written inside a screen.** The test for one: would the same question be answered somewhere else, and must the answers agree?
+
+**What was found, and where it went:**
+
+| Rule found in a screen | Where it was | Now |
+|---|---|---|
+| Reading a pack's manifest file names (`cto-v1.json`) into references | three screens, each with its own regular expression | `manifestRefs` (domain, using the content model's `parseFilename`), behind `listBaseRefs` in the Studio's content adapter |
+| "The draft's own content first, then the game's" | five places: the notes, the sidebar names, the aftershock names, the council and the member page | `resolveRef`, `resolveNames`, `ownEntity` and `isOwnRef` in `draft_reading.ts`. **The copies had drifted:** the sidebar treated an own item as the draft's at any version, while the notes required the exact version. The domain's answer is the exact version, the same as `isOwn`. |
+| Everything a draft's scenarios refer to, once each | the sidebar, and a second version in "From the game" | `scenarioRefs` and `isReferenced` |
+| An empty optional field is left out of the file, not saved empty | four editors, by hand | `withOptionalText` |
+| Council changes are written only when there are some | the card editor, the reaction editor and the notes | `withEffects` |
+| Reading a check's file path (`stakeholder-reaction-rules/…-v1.json`) back into what it's about | the Checks rail, with the folder names typed out | `issueSubject`, using the same file-layout table the export writes with |
+| Which member a reaction belongs to | the workspace's "Go to it" | `memberOfReaction` |
+| What still names a member once they're removed | the removal confirmation | `ownItemsNamingAfterRemoval` |
+
+The notes' resolver (M4.5a) now uses `resolveRef` too, and `BaseContentReader` moved to `draft_reading.ts`, since every query uses it. `PackIssue` is exported from the authoring domain, so the screens don't reach into the content domain's services.
+
+**What stays in the screens, on purpose:**
+- Turning input into numbers and clamping them to `CONTENT_LIMITS` as the author types. The limits are the domain's; holding a field inside them while typing is input handling, and the game's checks still decide.
+- Focus, selection, load guards, and every word the author reads. Wording is presentation; the plain words for *content* (`describeEffects`, `describeCondition`) were already in the domain.
+
+**Guards.** Two new boundary tests:
+- only the Studio's content adapter (`studio/src/content`) imports the content domain's services; screens ask the authoring domain;
+- no Studio file parses content file names itself.
+
+The second test fails on the code before this change, which is how we know it catches the leak.
+
+**For the talk: the second client is the test of a domain.** The game's UI kept its rules out because the engine was built first and the UI came later. The Studio was built screen by screen, and each screen needed "whose is this?", so each answered it locally. Nothing was wrong on any one screen. The bug was that there were five answers, and two of them disagreed about versions. In DDD terms, the draft is an aggregate seen through a lens: "our content shadows the game's, by id *and* version". A lens like that belongs in the model, once, with a name. The audit's value wasn't moving code; it was naming the rules ("own first, then the game's", "empty optional fields are left out") so that there's one place to change them.
+
+**Verification** (headless Chrome, production build, Studio CSP), with every screen the change touched:
+1. Copy the Monolith. The sidebar names everything. "Go to it" opens Pack details; with an author, the pack is ready to export.
+2. The council shows 4 of 8 seats and the game's four unseated members.
+3. "+ From the game" lists 17 cards and 19 events, none already in the deck. Adding one removes it from the list and adds it to the sidebar.
+4. Make your own version of Define Bounded Context; set its flavour text, then clear it. The pack still checks clean.
+5. A new member with a reaction. "Go to it" on the reaction's issue opens its member.
+6. The whole M4.5a notes flow (take out the CTO; 5 cards and 2 events; seat from the note; remove the change on your own copy; 4 cards and 2 events; export) gives the same results as before.
+7. Zero CSP violations, no console errors.
+
+Tests: 1225 in total (+10: reading a draft over the game, issue subjects, the editing helpers, and the two boundary guards). No engine change, so the fixed-seed audit is unaffected.
+
+**Next:** aftershocks and event conditions (see §6 for the rest of M4's order, ending with the UI/UX audit).

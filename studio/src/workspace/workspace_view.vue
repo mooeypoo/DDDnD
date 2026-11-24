@@ -134,7 +134,7 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { addToCouncil, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, PLACEHOLDER_NAMES, putContent, removeChangesTo, type DeckSection } from '@/domains/authoring'
+import { addToCouncil, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { loadFirstParty } from '@studio/content/first_party'
 import { exportCurrentDraft, studio, updateDraft } from '@studio/state/studio_state'
@@ -171,7 +171,7 @@ function select(next: Selection) {
 async function goTo(target: IssueTarget) {
   if (target.kind === 'reaction') {
     // A reaction is edited on its member's page
-    const owner = Object.values(draft.value?.content.stakeholders ?? {}).find((member) => member.reaction_rule_refs.some((ref) => ref.id === target.id))
+    const owner = draft.value ? memberOfReaction(draft.value, target.id) : null
     select(owner ? { kind: 'member', ref: { id: owner.id, version: owner.version } } : { kind: 'council' })
   } else {
     select(target)
@@ -253,21 +253,11 @@ async function resolveNames() {
   const current = draft.value
   if (!current) return
   const { base } = await loadFirstParty()
-  const refsOf = (field: 'score_refs' | 'stakeholder_refs' | 'card_refs' | 'event_refs') =>
-    scenarios.value.flatMap((scenario) => scenario[field])
-  const jobs: Array<[NameSection, VersionRef[], (ref: VersionRef) => Promise<{ name: string }>, Record<string, { name: string }>]> = [
-    ['scores', refsOf('score_refs'), (ref) => base.loadScore(ref), current.content.scores],
-    ['stakeholders', refsOf('stakeholder_refs'), (ref) => base.loadStakeholder(ref), current.content.stakeholders],
-    ['cards', refsOf('card_refs'), (ref) => base.loadCard(ref), current.content.cards],
-    ['events', refsOf('event_refs'), (ref) => base.loadEvent(ref), current.content.events],
-  ]
-  for (const [key, refs, load, own] of jobs) {
-    const resolved: Record<string, string> = {}
-    await Promise.all(refs.map(async (ref) => {
-      const entity = own[ref.id] ?? (await load(ref).catch(() => null))
-      if (entity) resolved[ref.id] = entity.name
-    }))
-    names[key] = resolved
+  const fields: Record<NameSection, 'score_refs' | 'stakeholder_refs' | 'card_refs' | 'event_refs'> = {
+    scores: 'score_refs', stakeholders: 'stakeholder_refs', cards: 'card_refs', events: 'event_refs',
+  }
+  for (const section of Object.keys(fields) as NameSection[]) {
+    names[section] = await resolveRefNames(current, section, scenarioRefs(current, fields[section]), base)
   }
 }
 
@@ -275,13 +265,7 @@ watch(() => scenarios.value.map((scenario) => [scenario.score_refs, scenario.sta
 
 /** The scenarios' council, cards and events, in deck order. */
 function refsOf(field: 'stakeholder_refs' | 'card_refs' | 'event_refs'): VersionRef[] {
-  const seen = new Set<string>()
-  return scenarios.value.flatMap((scenario) => scenario[field]).filter((ref) => {
-    const key = `${ref.id}-v${ref.version}`
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
+  return draft.value ? scenarioRefs(draft.value, field) : []
 }
 const councilRefs = computed(() => refsOf('stakeholder_refs'))
 const decks = computed(() => [

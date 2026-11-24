@@ -9,10 +9,10 @@
 
 import { reactive, toRaw } from 'vue'
 
-import { checkDraft, draftFromBaseScenario, exportDraftBundle, unseatedNotes, type DraftPack, type UnseatedNote } from '@/domains/authoring'
+import { checkDraft, draftFromBaseScenario, exportDraftBundle, newestRef, unseatedNotes, type BaseContentReader, type DraftPack, type UnseatedNote } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
-import type { PackIssue } from '@/domains/content/services/pack_snapshot_builder'
-import { loadFirstParty, type BaseScenarioChoice } from '@studio/content/first_party'
+import type { PackIssue } from '@/domains/authoring'
+import { listBaseRefs, loadFirstParty, type BaseScenarioChoice } from '@studio/content/first_party'
 import { newDraftId, openDraftStore, type DraftStore, type StoredDraft } from '@studio/drafts/draft_store'
 
 const SAVE_DELAY_MS = 400
@@ -97,7 +97,7 @@ async function checkNow() {
   try {
     const { packs, base } = await loadFirstParty()
     const draft = plainDraft(state.current.draft)
-    const [result, notes] = await Promise.all([checkDraft(draft, packs), councilNotes(draft, packs, base)])
+    const [result, notes] = await Promise.all([checkDraft(draft, packs), councilNotes(draft, base)])
     if (run !== checkRun) return
     state.check = { state: 'done', issues: result.issues }
     state.notes = notes
@@ -108,17 +108,14 @@ async function checkNow() {
 }
 
 /** Council notes, named: the game's members by their base version, the draft's own by theirs. */
-async function councilNotes(draft: DraftPack, packs: Awaited<ReturnType<typeof loadFirstParty>>['packs'], base: Awaited<ReturnType<typeof loadFirstParty>>['base']): Promise<CouncilNote[]> {
+async function councilNotes(draft: DraftPack, base: BaseContentReader): Promise<CouncilNote[]> {
   const notes = await unseatedNotes(draft, base)
-  const baseMembers = (packs.find((pack) => pack.manifest.id === 'base')?.manifest.content.stakeholders ?? [])
-    .map((file) => file.match(/^([a-z0-9_]+)-v(\d+)\.json$/))
-    .filter((match): match is RegExpMatchArray => match !== null)
+  const baseMembers = await listBaseRefs('stakeholders')
   return Promise.all(notes.map(async (note) => {
     const own = draft.content.stakeholders[note.stakeholder_id]
     if (own) return { ...note, name: own.name || 'Unnamed council member', seat: { id: own.id, version: own.version } }
-    const match = baseMembers.filter((found) => found[1] === note.stakeholder_id).sort((a, b) => Number(b[2]) - Number(a[2]))[0]
-    if (!match) return { ...note, name: note.stakeholder_id, seat: null }
-    const seat = { id: match[1], version: Number(match[2]) }
+    const seat = newestRef(baseMembers, note.stakeholder_id)
+    if (!seat) return { ...note, name: note.stakeholder_id, seat: null }
     const name = await base.loadStakeholder(seat).then((member) => member.name, () => note.stakeholder_id)
     return { ...note, name, seat }
   }))

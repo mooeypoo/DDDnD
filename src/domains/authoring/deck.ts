@@ -7,8 +7,9 @@
  * version" copies it, D7).
  */
 
-import type { Card, Event, ScoreChange, StakeholderChange, VersionRef } from '../content/model'
-import { addContent, putContent, removeContent, type DraftPack } from './draft_pack'
+import type { Card, Event, VersionRef } from '../content/model'
+import { addContent, putContent, removeContent, type DraftPack, type Effects } from './draft_pack'
+import { isOwnRef } from './draft_reading'
 import { hasPlaceholderIdFor, settlePlaceholderId } from './placeholder_ids'
 
 export type DeckSection = 'cards' | 'events'
@@ -46,8 +47,7 @@ export function removeFromDeck(draft: DraftPack, section: DeckSection, ref: Vers
 
 /** True when the card or event is the draft's own (editable), not the game's. */
 export function isOwn(draft: DraftPack, section: DeckSection, ref: VersionRef): boolean {
-  const own = draft.content[section][ref.id]
-  return own !== undefined && own.version === ref.version
+  return isOwnRef(draft, section, ref)
 }
 
 /** A new card of the draft's own, already in the deck. The author fills it in. */
@@ -93,10 +93,6 @@ export function settleNewItemId(draft: DraftPack, section: DeckSection, id: stri
   })
 }
 
-interface Effects {
-  score_changes: ScoreChange[]
-  stakeholder_changes?: StakeholderChange[]
-}
 
 /** The sum of a card's or event's immediate score changes (aftershocks not included). */
 export function netScoreChange(effects: Effects): number {
