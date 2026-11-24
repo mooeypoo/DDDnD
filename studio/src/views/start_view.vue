@@ -8,34 +8,78 @@
       </p>
     </section>
 
-    <p class="status-note" role="status">
-      <strong>The Studio is being built.</strong>
-      This is its first piece. Creating, editing and playing packs arrive over the next releases.
-      Until then, packs are written as files: see the
-      <a href="https://mooeypoo.github.io/DDDnD/guide/content-authoring" target="_blank" rel="noopener noreferrer">author guide</a>.
+    <p v-if="!studio.persistent" class="note note-warning" role="status">
+      <strong>This browser isn't letting the Studio keep anything,</strong> so drafts last only until you close the page.
+      Export your pack to keep a copy.
     </p>
 
-    <section class="kinds" aria-labelledby="kinds-title">
-      <h2 id="kinds-title" class="section-label">What you'll be able to make</h2>
-      <div class="kind-grid">
-        <article class="kind-card">
-          <span class="kind-pill pill-setting">Same game, new setting</span>
-          <h3 class="kind-title">Retell DDDnD for your organization</h3>
-          <p>
-            Your system, your stakeholders, your politics. Keeps the base game's scores and endings,
-            so you write a scenario, a council, and the cards your team actually argues about.
-          </p>
-        </article>
-        <article class="kind-card">
+    <div class="columns">
+      <section class="start-column" aria-labelledby="retell-title">
+        <span class="kind-pill pill-setting">Same game, new setting</span>
+        <h2 id="retell-title" class="column-title">Retell DDDnD for your organization</h2>
+        <p class="column-lede">
+          Copy one of the game's own adventures, with its council, cards and events, then make it yours.
+          The original stays as it is.
+        </p>
+
+        <p v-if="scenarioError" class="note note-warning" role="alert">
+          The game's scenarios couldn't be loaded: {{ scenarioError }}
+        </p>
+        <p v-else-if="!scenarios" class="loading" role="status">Loading the game's scenarios…</p>
+        <ul v-else class="scenario-list" aria-label="DDDnD scenarios">
+          <li v-for="scenario in scenarios" :key="scenario.ref.id" class="scenario-row">
+            <span class="scenario-text">
+              <span class="scenario-name">{{ scenario.name }}</span>
+              <span class="scenario-summary">{{ scenario.summary }}</span>
+            </span>
+            <button
+              type="button"
+              class="button button-quiet"
+              :disabled="starting !== null"
+              :aria-label="`Copy and adapt ${scenario.name}`"
+              @click="start(scenario)"
+            >{{ starting === scenario.ref.id ? 'Copying…' : 'Copy and adapt' }}</button>
+          </li>
+        </ul>
+
+        <div class="topic-later">
           <span class="kind-pill pill-topic">A different topic</span>
-          <h3 class="kind-title">Teach a different topic</h3>
           <p>
-            Reliability, security, product discovery: anything with trade-offs. You define what's measured,
-            who sits at the table, and what kinds of leader a player can become.
+            <strong>Teaching a different topic</strong> (your own scores, council and endings) arrives in a later release.
+            The <a href="https://github.com/mooeypoo/DDDnD-packs/tree/main/packs/sre_on_call" target="_blank" rel="noopener noreferrer">SRE pack</a>
+            shows what one looks like.
           </p>
-        </article>
-      </div>
-    </section>
+        </div>
+      </section>
+
+      <section class="start-column drafts-column" aria-labelledby="drafts-title">
+        <h2 id="drafts-title" class="section-label">Your drafts</h2>
+        <p v-if="!studio.ready" class="loading" role="status">Loading your drafts…</p>
+        <p v-else-if="studio.drafts.length === 0" class="empty">No drafts yet. Start one from a scenario.</p>
+        <ul v-else class="draft-list">
+          <li v-for="entry in studio.drafts" :key="entry.draft_id" class="draft-row">
+            <template v-if="pendingRemoval === entry.draft_id">
+              <span class="draft-confirm">Delete “{{ entry.draft.name }}”? This can't be undone.</span>
+              <span class="draft-actions">
+                <button type="button" class="button button-quiet" @click="pendingRemoval = null">Keep it</button>
+                <button type="button" class="button button-danger" @click="confirmRemove(entry.draft_id)">Delete</button>
+              </span>
+            </template>
+            <template v-else>
+              <span class="draft-text">
+                <span class="draft-name">{{ entry.draft.name }}</span>
+                <span class="draft-meta">{{ kindLabel(entry.draft.kind) }} · edited {{ formatWhen(entry.updated_at) }}</span>
+              </span>
+              <span class="draft-actions">
+                <button type="button" class="button button-quiet" :aria-label="`Delete ${entry.draft.name}`" @click="pendingRemoval = entry.draft_id">Delete</button>
+                <button type="button" class="button button-primary" @click="$emit('openDraft', entry.draft_id)">Open</button>
+              </span>
+            </template>
+          </li>
+        </ul>
+        <p class="note"><strong>Kept in this browser only.</strong> Export your pack to keep a copy of your own.</p>
+      </section>
+    </div>
   </main>
 
   <footer class="start-footer">
@@ -43,6 +87,51 @@
     <span>Packs are text and numbers only: no code, no images.</span>
   </footer>
 </template>
+
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+
+import type { DraftKind } from '@/domains/authoring'
+import { listBaseScenarios, type BaseScenarioChoice } from '@studio/content/first_party'
+import { removeDraft, startFromBaseScenario, studio } from '@studio/state/studio_state'
+
+const emit = defineEmits<{ openDraft: [draftId: string] }>()
+
+const scenarios = ref<BaseScenarioChoice[] | null>(null)
+const scenarioError = ref<string | null>(null)
+const starting = ref<string | null>(null)
+const pendingRemoval = ref<string | null>(null)
+
+onMounted(async () => {
+  try {
+    scenarios.value = await listBaseScenarios()
+  } catch (error) {
+    scenarioError.value = (error as Error).message
+  }
+})
+
+async function start(choice: BaseScenarioChoice) {
+  starting.value = choice.ref.id
+  try {
+    emit('openDraft', await startFromBaseScenario(choice))
+  } finally {
+    starting.value = null
+  }
+}
+
+async function confirmRemove(draftId: string) {
+  pendingRemoval.value = null
+  await removeDraft(draftId)
+}
+
+function kindLabel(kind: DraftKind): string {
+  return kind === 'retelling' ? 'Retelling' : 'New topic'
+}
+
+function formatWhen(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+}
+</script>
 
 <style scoped>
 .start-view {
@@ -53,7 +142,7 @@
   padding: 2.75rem 2.5rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 2.25rem;
+  gap: 2rem;
 }
 
 .start-view:focus {
@@ -79,36 +168,16 @@
   font-size: 1.0625rem;
 }
 
-.status-note {
-  margin: 0;
-  max-width: 47.5rem;
-  padding: 0.875rem 1.125rem;
-  border-radius: 0.625rem;
-  border: 1px solid var(--forge-hairline-strong);
-  background: var(--forge-panel);
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.75rem;
+  align-items: flex-start;
 }
 
-.status-note strong {
-  color: var(--forge-text-bright);
-}
-
-.section-label {
-  margin-bottom: 0.875rem;
-  font-family: var(--forge-font-body);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--forge-text-secondary);
-}
-
-.kind-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
-  gap: 1.25rem;
-}
-
-.kind-card {
+.start-column {
+  flex: 999 1 34rem;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.875rem;
@@ -118,7 +187,17 @@
   border: 1px solid var(--forge-hairline);
 }
 
-.kind-card p {
+.drafts-column {
+  flex: 1 1 20rem;
+}
+
+.column-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--forge-text-bright);
+}
+
+.column-lede {
   margin: 0;
 }
 
@@ -136,10 +215,104 @@
 .pill-setting { color: var(--forge-gold); }
 .pill-topic { color: var(--forge-teal); }
 
-.kind-title {
-  font-size: 1.5rem;
+.section-label {
+  font-family: var(--forge-font-body);
+  font-size: 0.8125rem;
   font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--forge-text-secondary);
+}
+
+.scenario-list,
+.draft-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  border-radius: 0.625rem;
+  border: 1px solid var(--forge-hairline);
+  background: var(--forge-ground);
+}
+
+.scenario-row,
+.draft-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border-bottom: 1px solid rgba(160, 112, 24, 0.2);
+}
+
+.scenario-row:last-child,
+.draft-row:last-child {
+  border-bottom: none;
+}
+
+.scenario-text,
+.draft-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+  flex: 1 1 14rem;
+}
+
+.scenario-name,
+.draft-name {
   color: var(--forge-text-bright);
+  font-weight: 500;
+}
+
+.scenario-summary,
+.draft-meta {
+  font-size: 0.875rem;
+  color: var(--forge-text-secondary);
+}
+
+.draft-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.draft-confirm {
+  flex: 1 1 14rem;
+  color: var(--forge-text-bright);
+}
+
+.topic-later {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--forge-hairline);
+}
+
+.topic-later p,
+.note,
+.empty,
+.loading {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.note {
+  color: var(--forge-text-secondary);
+}
+
+.note strong {
+  color: var(--forge-text);
+}
+
+.note-warning {
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  color: var(--forge-text);
 }
 
 .start-footer {
