@@ -254,3 +254,68 @@ Requirements, checked like the game's (automated checks plus a keyboard and scre
 - a second pack after the first is ignored;
 - a pack failing validation shows errors and doesn't play;
 - a preview run writes nothing.
+
+---
+
+## 12. Deploying the Studio (Netlify)
+
+The Studio is its own Netlify site, built from this repository. Its settings live in [`studio/netlify.toml`](../studio/netlify.toml).
+
+**Creating the site** (once):
+
+1. In Netlify: **Add new site → Import an existing project → GitHub → `mooeypoo/DDDnD`**.
+2. Build settings:
+   - **Branch to deploy:** `main`
+   - **Base directory:** `studio`. This is the important one: Netlify then reads `studio/netlify.toml` and never the game's `netlify.toml`, whose settings would otherwise build the game.
+   - **Build command** and **Publish directory:** leave them as Netlify fills them, or empty. `studio/netlify.toml` sets both, and a file's settings override the UI: the build is `cd .. && npm ci && npm run studio:build` (the Studio shares the game's domain code, so it installs and builds from the repository root), and the publish directory is `dist` (relative to `studio/`).
+   - **Functions directory:** leave empty.
+3. Site name: something like `dddnd-studio`, giving `dddnd-studio.netlify.app` until the domain is attached.
+4. No environment variables are needed (Node 24 is set in `studio/netlify.toml`).
+
+After the first deploy, **Site configuration → Build & deploy → Build settings** should show Base directory `studio`. The deploy log should show the build command above, and `vite build --config studio/vite.config.ts`.
+
+**When to do it:**
+- **Create the site now** (with the first Studio PR), so every Studio PR gets a deploy preview.
+- **Attach `studio.dddnd.app` when the Studio is ready for authors** (end of M4). Until then, the site carries `noindex` and the start screen says it's being built.
+
+**Attaching the domain:**
+
+1. In the Studio site: **Domain management → Add a domain → `studio.dddnd.app`**.
+2. DNS:
+   - if `dddnd.app`'s DNS is managed by Netlify, Netlify adds the record itself;
+   - otherwise, add a `CNAME` record `studio` → `<site-name>.netlify.app` at the DNS provider.
+3. Wait for Netlify's HTTPS certificate (automatic).
+4. At launch: remove `noindex` (`studio/index.html` and `X-Robots-Tag` in `studio/netlify.toml`), and add the Studio's origin to the game's preview allowlist (§11) in the same PR.
+
+**What the game's site needs:** nothing until "Play it" (§11). The game's `netlify.toml` and site are unaffected, because the Studio site reads only `studio/netlify.toml`. The Studio site skips deploys when nothing under `studio/`, `src/domains/` or the package files changed. That was checked locally: the scaffold commit builds, and the launch PR, which touches neither, is skipped.
+
+---
+
+## 13. Implementation log
+
+### M4.1: The Studio's scaffold (2026-11-24)
+
+The first piece: an app that builds, deploys on its own, and keeps its boundaries. No editing yet.
+
+- **The app:** `studio/` is a Vite + Vue app with its own config (`npm run studio:dev`, `studio:build`, `studio:preview`).
+  - It uses the `@studio` alias for its own code and `@/domains/*` for the shared domain code.
+  - It's type-checked with the rest of the repository, and CI builds it.
+- **The shell (D10–D12, D16, D19):**
+  - the header: "DDDnD Pack Studio" with "The Forge" under it, the anvil-with-sparks mark (also the favicon), and the text-size control;
+  - the start screen, saying plainly that the Studio is being built, with no buttons that lead nowhere;
+  - the desktop-primary note.
+- **Accessibility from the first commit (§10):**
+  - **Text size:** Standard, Large and Largest scale the root font size, and everything is in `rem`. The setting is remembered in this browser when storage works, and the Studio works without it.
+  - **Navigation:** a skip link, visible focus, and labelled controls.
+  - **Readability:** secondary text at `#a89a78`, and reduced motion respected.
+- **The authoring domain** starts with `contentIdFromName`: "Tune the Noisy Alerts" in a pack prefixed `sre` becomes `sre_tune_the_noisy_alerts`. It follows the content id grammar, avoids reserved ids, stays within 64 characters, and adds `_2`, `_3`… on a clash. Authors never type an id (§4.1).
+- **Boundaries, enforced:** a test fails if the Studio imports the game's UI, if the game imports the Studio, or if the authoring domain touches Vue, the DOM or storage. It was checked by planting a violating import, which failed the test.
+- **Deploying:** `studio/netlify.toml` (with Base directory `studio`) sets the build, a strict CSP (`connect-src 'self'`: the Studio fetches nothing yet), `noindex`, and skipping deploys when nothing the Studio is built from changed. The Netlify steps are in §12.
+
+**Verification**
+- Headless Chrome against the production build, served with the Studio's CSP:
+  - desktop (1440), tablet (834) and phone (390) all render with no horizontal scroll;
+  - zero CSP violations and no console errors;
+  - Largest text sets the root to 20px and survives a reload;
+  - the first Tab reaches "Skip to the content".
+- Tests: +15 (id generation, the shell and text size, the boundaries).
