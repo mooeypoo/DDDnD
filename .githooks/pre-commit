@@ -1,0 +1,20 @@
+#!/bin/sh
+# Records the base-content lock whenever base content is committed, so it is
+# never forgotten (CONTENT_VERSIONING.md, "The Base Pack's Promise").
+# Installed by `npm install` (the "prepare" script sets core.hooksPath).
+# The tutorial pack is first-party but has no lock: packs can't depend on it.
+
+staged=$(git diff --cached --name-only -- content ':!content/tutorial')
+[ -z "$staged" ] && exit 0
+
+# The lock is recorded from the files on disk, so they must be what's committed
+if [ -n "$(git diff --name-only -- content ':!content/tutorial')" ]; then
+  echo "Base content has changes that aren't staged. Stage or stash them, so the base-content lock records what you commit."
+  exit 1
+fi
+
+if ! npx tsx scripts/update-base-content-lock.ts; then
+  echo "Commit stopped: the base content breaks its promise to published packs (see above)."
+  exit 1
+fi
+git add scripts/base-content-lock.json
