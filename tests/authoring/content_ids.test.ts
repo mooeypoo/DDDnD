@@ -14,7 +14,9 @@ describe('content ids from names (docs/PACK_STUDIO.md §4.1)', () => {
   })
 
   it('makes a prefix from a pack name', () => {
-    expect(contentPrefix('The Gilded Ledger')).toBe('the_gilded')
+    expect(contentPrefix('The Gilded Ledger')).toBe('gilded_ledger')
+    expect(contentPrefix('The Monolith of Mild Despair, retold')).toBe('monolith_of_mild')
+    expect(contentPrefix('The')).toBe('the')
     expect(contentPrefix('Payments Platform Quest')).toBe('payments')
     expect(contentPrefix('Supercalifragilisticexpialidocious')).toBe('supercalifragili')
     expect(contentPrefix('SRE')).toBe('sre')

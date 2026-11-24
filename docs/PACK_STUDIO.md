@@ -392,3 +392,50 @@ The retelling path works end to end, for the scenario and the pack's details. Co
 - Tests: +2 (plain drafts, the draft store); 1191 in total, with #47 and #48 included.
 
 **Next (M4.4):** editing cards, events and the council, including "make my own version" of a base card (D7). Smaller follow-up: "Go to it" focusing the exact field at fault.
+
+### M4.4: Cards and events: your own, the game's, and your own versions of the game's (2026-11-24)
+
+The deck becomes editable. The sidebar lists every card and event by name, marks the author's own with "yours", and offers **+ New** and **+ From the game** in each group.
+
+**What an author can do now**
+- **Look at one of the game's cards or events.** It's read-only and described in plain words ("playing this raises Delivery Confidence by 7 and User Trust by 2; lowers Maintainability by 6 and Domain Clarity by 2"), with its aftershocks and, for events, when it can happen.
+- **Make my own version (D7):** an editable copy replaces it in the deck, under a new id. The game's original is untouched.
+- **Create a new card or event.** It opens with its name selected, ready to type. The Checks rail then asks for its description ("Card: Add a description: what it does, in a sentence.") with "Go to it".
+- **Edit their own:**
+  - name, description and flavor;
+  - **what it changes**: score and council changes as picker + amount rows. The pickers offer only the scenario's own scores and council, and changes show as up/down in words as well as colour;
+  - for cards, times per game and rest turns; for events, how often (weight, with the base game's range as a guide).
+- **See it in plain words with its net** ("It nets +4"), plus:
+  - **the "only helps" nudge (§5):** a card that only raises scores says so, and why a cost matters;
+  - **a calibration hint:** base cards net about +11 to +12, with at least one score going down.
+- **Add the game's cards or events** from a filterable list of those not in the deck, and **take any out**. Taking out one of the author's own deletes it, after a confirmation.
+
+**Domain** (`deck.ts`):
+- `addToDeck`, `removeFromDeck`, `isOwn`, `createOwnCard` and `createOwnEvent`;
+- `describeEffects`, `netScoreChange` and `onlyHelps`;
+- `settleNewItemId` (below).
+
+Deck changes apply to every scenario in the draft.
+
+**Found on the way**
+- **"Make my own version" did nothing.** It was the M4.3 proxy problem again, one layer down: the base card lives in Vue state, and the domain's copy used `structuredClone`. The domain now copies content with a JSON round trip (content is plain JSON), so it no longer depends on its callers unwrapping UI state. A test hands it a card wrapped in Vue's `reactive`.
+- **New cards were stuck with `…_new_card` ids,** which show in the pack's files. Now, while a card or event still has its placeholder id, naming it settles its id from the name: when the name field loses focus, so typing doesn't lose focus. After that, an id never changes.
+- **Prefixes drop a leading "the", "a" or "an":** "The Monolith of Mild Despair, retold" gives `monolith_of_mild`, not `the_monolith_of`.
+- **Plain words separate clauses with semicolons,** so a card that raises two scores and lowers two doesn't read "… and … and lowers … and …".
+- **The Checks rail's plain wording depends on where the problem is,** so a card's missing description doesn't read "Add a description of the pack."
+
+**Verification** (headless Chrome, production build, Studio CSP):
+1. Copy the Monolith and add an author.
+2. Open the game's "Ship Quick Fix": it's read-only, in plain words. "Make my own version" opens the copy, marked yours; rename it and change an amount.
+3. **+ New card**: its name is selected for typing. Name it; the id settles and focus stays.
+4. The checks ask for a description. With only a score going up, the nudge appears; adding a cost and a council reaction clears it.
+5. Add an event from the game, and take a base card out. The checks are clean; export.
+6. **Through the game's own import:** no playability issues, five runs played through, and both of the author's cards are in the file with their edits (`…_ship_quick_fix`, `…_split_the_refunds_context`).
+7. Zero CSP violations, no console errors.
+
+Tests: 1201 in total (+10 for the deck, id settling, prefixes, and copying from reactive state).
+
+**Next:** the council (stakeholders and their reactions), which needs the design question from M4.2 answered: what a copy of a council member means when base cards still name the original. Smaller follow-ups:
+- the sidebar gets long with a full deck (collapse or filter);
+- "Go to it" could focus the exact field;
+- aftershocks and event conditions aren't editable yet.

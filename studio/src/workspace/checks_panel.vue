@@ -11,7 +11,7 @@
     <ul v-if="issues.length > 0" class="issue-list">
       <li v-for="(issue, index) in issues" :key="index" class="issue">
         <span class="issue-where">{{ where(issue.file) }}</span>
-        <span class="issue-text">{{ friendly(issue.message) }}</span>
+        <span class="issue-text">{{ friendly(issue) }}</span>
         <button v-if="target(issue.file)" type="button" class="issue-go" @click="$emit('goTo', target(issue.file)!)">Go to it ›</button>
       </li>
     </ul>
@@ -33,12 +33,18 @@ const props = defineProps<{ state: CheckState; issues: PackIssue[] }>()
 defineEmits<{ goTo: [target: IssueTarget] }>()
 
 /** Where a problem can be fixed in the Studio, when there's an editor for it. */
-export type IssueTarget = { kind: 'details' } | { kind: 'scenario'; id: string }
+export type IssueTarget =
+  | { kind: 'details' }
+  | { kind: 'scenario'; id: string }
+  | { kind: 'item'; section: 'cards' | 'events'; ref: { id: string; version: number } }
 
 function target(file: string): IssueTarget | null {
   if (file === 'manifest.json') return { kind: 'details' }
-  const scenario = file.match(/^scenarios\/([a-z0-9_]+)-v\d+\.json$/)
-  return scenario ? { kind: 'scenario', id: scenario[1] } : null
+  const match = file.match(/^(scenarios|cards|events)\/([a-z0-9_]+)-v(\d+)\.json$/)
+  if (!match) return null
+  const [, folder, id, version] = match
+  if (folder === 'scenarios') return { kind: 'scenario', id }
+  return { kind: 'item', section: folder as 'cards' | 'events', ref: { id, version: Number(version) } }
 }
 
 const statusKind = computed(() => {
@@ -68,10 +74,12 @@ function where(file: string): string {
 }
 
 /** The validator's wording for the commonest problems, said plainly. */
-function friendly(message: string): string {
+function friendly(issue: PackIssue): string {
+  const { file, message } = issue
+  const pack = file === 'manifest.json'
   if (/^authors: must be at least 1/.test(message)) return 'Add your name as the author.'
-  if (/^description: must not be blank/.test(message)) return 'Add a description of the pack.'
-  if (/^name: must not be blank/.test(message)) return 'Give the pack a name.'
+  if (/^description: must not be blank/.test(message)) return pack ? 'Add a description of the pack.' : 'Add a description: what it does, in a sentence.'
+  if (/^name: must not be blank/.test(message)) return pack ? 'Give the pack a name.' : 'Give it a name.'
   return message
 }
 </script>

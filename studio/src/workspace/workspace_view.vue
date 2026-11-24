@@ -31,14 +31,33 @@
           :aria-current="isSelected('scenario', scenario.id) ? 'page' : undefined"
           @click="select({ kind: 'scenario', id: scenario.id })"
         >{{ scenario.name || 'Untitled scenario' }}</button>
-        <template v-for="group in listGroups" :key="group.section">
+        <button
+          type="button"
+          class="contents-item"
+          :aria-current="isSelected('council') ? 'page' : undefined"
+          @click="select({ kind: 'council' })"
+        ><span>Council</span><span class="count">{{ councilIds.length }}</span></button>
+        <template v-for="deck in decks" :key="deck.section">
+          <span class="contents-group">{{ deck.title }} <span class="count">{{ deck.refs.length }}</span></span>
+          <div class="deck-actions">
+            <button type="button" class="deck-new" @click="createNew(deck.section)">+ New {{ deck.singular }}</button>
+            <button
+              type="button"
+              class="deck-new"
+              :aria-current="isSelected('add', deck.section) ? 'page' : undefined"
+              @click="select({ kind: 'add', section: deck.section })"
+            >+ From the game</button>
+          </div>
           <button
+            v-for="itemRef in deck.refs"
+            :key="`${itemRef.id}-v${itemRef.version}`"
             type="button"
-            class="contents-item"
-            :aria-current="isSelected('list', group.section) ? 'page' : undefined"
-            @click="select({ kind: 'list', id: group.section })"
+            class="contents-item contents-sub"
+            :aria-current="isSelectedItem(deck.section, itemRef) ? 'page' : undefined"
+            @click="select({ kind: 'item', section: deck.section, ref: itemRef })"
           >
-            <span>{{ group.title }}</span><span class="count">{{ group.ids.length }}</span>
+            <span class="item-name">{{ itemName(deck.section, itemRef) }}</span>
+            <span v-if="isOwn(draft, deck.section, itemRef)" class="own-mark">yours</span>
           </button>
         </template>
       </nav>
@@ -51,17 +70,29 @@
           :scoreNames="names.scores"
           @change="(scenario) => updateDraft(putContent(draft!, 'scenarios', scenario))"
         />
-        <section v-else-if="selection.kind === 'list' && selectedGroup" class="list-view" :aria-labelledby="`list-${selectedGroup.section}`">
+        <section v-else-if="selection.kind === 'council'" class="list-view" aria-labelledby="list-council">
           <span class="editor-kicker">In your scenario</span>
-          <h1 :id="`list-${selectedGroup.section}`" class="editor-title">{{ selectedGroup.title }}</h1>
+          <h1 id="list-council" class="editor-title">Council</h1>
           <p class="list-note">
-            These come from the game, so your scenario plays like the original. Editing them, or making your own versions,
-            arrives in the next release.
+            These come from the game, so your scenario plays like the original. Editing the council, or bringing your own
+            people to the table, arrives in a later release.
           </p>
           <ul class="name-list">
-            <li v-for="id in selectedGroup.ids" :key="id">{{ selectedGroup.names[id] ?? id }}</li>
+            <li v-for="id in councilIds" :key="id">{{ names.stakeholders[id] ?? id }}</li>
           </ul>
         </section>
+        <DeckItemView
+          v-else-if="selection.kind === 'item'"
+          :key="`${selection.section}-${selection.ref.id}-v${selection.ref.version}`"
+          :section="selection.section"
+          :itemRef="selection.ref"
+          :draft="draft"
+          :scoreOptions="scoreOptions"
+          :stakeholderOptions="stakeholderOptions"
+          @change="updateDraft"
+          @select="afterItemChange"
+        />
+        <DeckAddView v-else-if="selection.kind === 'add'" :section="selection.section" :draft="draft" @change="updateDraft" />
       </main>
 
       <div class="rail">
@@ -74,18 +105,25 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { putContent } from '@/domains/authoring'
+import { createOwnCard, createOwnEvent, isOwn, PLACEHOLDER_NAMES, putContent, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { loadFirstParty } from '@studio/content/first_party'
 import { exportCurrentDraft, studio, updateDraft } from '@studio/state/studio_state'
-import ChecksPanel from '@studio/workspace/checks_panel.vue'
+import ChecksPanel, { type IssueTarget } from '@studio/workspace/checks_panel.vue'
+import DeckAddView from '@studio/workspace/deck_add_view.vue'
+import DeckItemView from '@studio/workspace/deck_item_view.vue'
 import PackDetailsEditor from '@studio/workspace/pack_details_editor.vue'
 import ScenarioEditor from '@studio/workspace/scenario_editor.vue'
 
 defineEmits<{ leave: [] }>()
 
-type Selection = { kind: 'details' } | { kind: 'scenario'; id: string } | { kind: 'list'; id: ListSection }
-type ListSection = 'stakeholders' | 'cards' | 'events'
+type Selection =
+  | { kind: 'details' }
+  | { kind: 'scenario'; id: string }
+  | { kind: 'council' }
+  | { kind: 'item'; section: DeckSection; ref: VersionRef }
+  | { kind: 'add'; section: DeckSection }
+type NameSection = 'scores' | 'stakeholders' | 'cards' | 'events'
 
 const draft = computed(() => studio.current?.draft ?? null)
 const scenarios = computed(() => Object.values(draft.value?.content.scenarios ?? {}))
@@ -97,18 +135,54 @@ function select(next: Selection) {
 }
 
 /** "Go to it" from the Checks rail: open the editor, then move focus into it. */
-async function goTo(target: Selection) {
-  select(target)
-  await nextTick()
-  document.querySelector<HTMLElement>('.editor-area input, .editor-area textarea')?.focus()
+async function goTo(target: IssueTarget) {
+  select(target.kind === 'item' ? { kind: 'item', section: target.section, ref: target.ref } : target)
+  await focusEditor()
 }
 
-function isSelected(kind: Selection['kind'], id?: string) {
-  return selection.value.kind === kind && (id === undefined || ('id' in selection.value && selection.value.id === id))
+function isSelected(kind: Selection['kind'], key?: string) {
+  const current = selection.value
+  if (current.kind !== kind) return false
+  if (key === undefined) return true
+  return ('id' in current && current.id === key) || ('section' in current && current.section === key)
+}
+
+function isSelectedItem(section: DeckSection, ref: VersionRef) {
+  const current = selection.value
+  return current.kind === 'item' && current.section === section && current.ref.id === ref.id && current.ref.version === ref.version
+}
+
+/** A card's or event's name: the draft's own (live as it's edited), else the game's. */
+function itemName(section: DeckSection, ref: VersionRef): string {
+  const fallback = section === 'cards' ? 'Untitled card' : 'Untitled event'
+  if (draft.value && isOwn(draft.value, section, ref)) return draft.value.content[section][ref.id].name || fallback
+  return names[section][ref.id] ?? ref.id
+}
+
+async function focusEditor(selector = '.editor-area input, .editor-area textarea') {
+  await nextTick()
+  document.querySelector<HTMLElement>(selector)?.focus()
+}
+
+/** "+ New card" / "+ New event": made, added to the deck, and opened with its name ready to type. */
+async function createNew(section: DeckSection) {
+  if (!draft.value) return
+  const made = section === 'cards' ? createOwnCard(draft.value, PLACEHOLDER_NAMES.cards) : createOwnEvent(draft.value, PLACEHOLDER_NAMES.events)
+  updateDraft(made.draft)
+  select({ kind: 'item', section, ref: { id: made.id, version: 1 } })
+  await focusEditor()
+  ;(document.activeElement as HTMLInputElement | null)?.select?.()
+}
+
+/** After "make my own version" (open the copy) or taking an item out (back to its group). */
+function afterItemChange(ref: VersionRef | null) {
+  const current = selection.value
+  if (current.kind !== 'item') return
+  select(ref ? { kind: 'item', section: current.section, ref } : { kind: 'add', section: current.section })
 }
 
 /** Display names for what the scenarios reference: the draft's own content first, then the game's. */
-const names = reactive<Record<'scores' | ListSection, Record<string, string>>>({ scores: {}, stakeholders: {}, cards: {}, events: {} })
+const names = reactive<Record<NameSection, Record<string, string>>>({ scores: {}, stakeholders: {}, cards: {}, events: {} })
 
 async function resolveNames() {
   const current = draft.value
@@ -116,7 +190,7 @@ async function resolveNames() {
   const { base } = await loadFirstParty()
   const refsOf = (field: 'score_refs' | 'stakeholder_refs' | 'card_refs' | 'event_refs') =>
     scenarios.value.flatMap((scenario) => scenario[field])
-  const jobs: Array<[keyof typeof names, VersionRef[], (ref: VersionRef) => Promise<{ name: string }>, Record<string, { name: string }>]> = [
+  const jobs: Array<[NameSection, VersionRef[], (ref: VersionRef) => Promise<{ name: string }>, Record<string, { name: string }>]> = [
     ['scores', refsOf('score_refs'), (ref) => base.loadScore(ref), current.content.scores],
     ['stakeholders', refsOf('stakeholder_refs'), (ref) => base.loadStakeholder(ref), current.content.stakeholders],
     ['cards', refsOf('card_refs'), (ref) => base.loadCard(ref), current.content.cards],
@@ -134,18 +208,24 @@ async function resolveNames() {
 
 watch(() => scenarios.value.map((scenario) => [scenario.score_refs, scenario.stakeholder_refs, scenario.card_refs, scenario.event_refs]), () => void resolveNames(), { immediate: true, deep: true })
 
-const listGroups = computed(() => {
-  const ids = (field: 'stakeholder_refs' | 'card_refs' | 'event_refs') => [...new Set(scenarios.value.flatMap((scenario) => scenario[field].map((ref) => ref.id)))]
-  return [
-    { section: 'stakeholders' as const, title: 'Council', ids: ids('stakeholder_refs'), names: names.stakeholders },
-    { section: 'cards' as const, title: 'Cards', ids: ids('card_refs'), names: names.cards },
-    { section: 'events' as const, title: 'Events', ids: ids('event_refs'), names: names.events },
-  ]
-})
-const selectedGroup = computed(() => {
-  const current = selection.value
-  return current.kind === 'list' ? listGroups.value.find((group) => group.section === current.id) : undefined
-})
+/** The scenarios' council, cards and events, in deck order. */
+function refsOf(field: 'stakeholder_refs' | 'card_refs' | 'event_refs'): VersionRef[] {
+  const seen = new Set<string>()
+  return scenarios.value.flatMap((scenario) => scenario[field]).filter((ref) => {
+    const key = `${ref.id}-v${ref.version}`
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+const councilIds = computed(() => refsOf('stakeholder_refs').map((ref) => ref.id))
+const decks = computed(() => [
+  { section: 'cards' as const, title: 'Cards', singular: 'card', refs: refsOf('card_refs') },
+  { section: 'events' as const, title: 'Events', singular: 'event', refs: refsOf('event_refs') },
+])
+const scoreOptions = computed(() => [...new Set(scenarios.value.flatMap((scenario) => scenario.score_refs.map((ref) => ref.id)))]
+  .map((id) => ({ id, name: names.scores[id] ?? id })))
+const stakeholderOptions = computed(() => councilIds.value.map((id) => ({ id, name: names.stakeholders[id] ?? id })))
 
 const saveText = computed(() => {
   if (!studio.persistent) return 'Not kept: export to save'
@@ -263,6 +343,50 @@ async function exportPack() {
 
 .count {
   color: var(--forge-text-secondary);
+}
+
+.contents {
+  overflow-y: auto;
+}
+
+.deck-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0 0.5rem 0.25rem 1.25rem;
+}
+
+.deck-new {
+  min-height: 2rem;
+  padding: 0 0.625rem;
+  border-radius: 0.375rem;
+  border: 1px dashed rgba(224, 128, 58, 0.6);
+  background: transparent;
+  color: var(--forge-ember-soft);
+  font-family: var(--forge-font-body);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.deck-new[aria-current='page'] {
+  border-style: solid;
+}
+
+.item-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.own-mark {
+  flex: none;
+  align-self: center;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--forge-ember-soft);
+  color: var(--forge-ember-soft);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .editor-area {

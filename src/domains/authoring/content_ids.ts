@@ -24,14 +24,19 @@ function words(text: string): string[] {
 }
 
 const MAX_PREFIX_LENGTH = 16
+const LEADING_ARTICLES = ['the', 'a', 'an']
 
 /**
  * A pack prefix from the pack's name or a short word the author picks:
  * lower case, whole words joined by `_`, at most 16 characters (a single
- * longer word is cut). Empty when nothing usable is left.
+ * longer word is cut), without a leading "the", "a" or "an". Empty when
+ * nothing usable is left.
  */
 export function contentPrefix(text: string): string {
-  const [first, ...rest] = words(text)
+  const all = words(text)
+  // "The Gilded Ledger" → gilded_ledger: a leading article says nothing
+  const meaningful = all.length > 1 && LEADING_ARTICLES.includes(all[0]) ? all.slice(1) : all
+  const [first, ...rest] = meaningful
   if (!first) return ''
   let prefix = first.slice(0, MAX_PREFIX_LENGTH)
   for (const word of rest) {

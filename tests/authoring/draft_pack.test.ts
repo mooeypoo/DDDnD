@@ -138,3 +138,17 @@ describe('checking a draft the way the game checks an import', () => {
     expect(check.issues.map((issue) => issue.message).join('\n')).toMatch(/authors: must be at least 1/)
   })
 })
+
+describe('copying content held in a UI\'s reactive state', () => {
+  it('copies a base card even when it arrives wrapped in Vue proxies', async () => {
+    const { reactive } = await import('vue')
+    const { provider } = baseProvider()
+    const started = await draftFromBaseScenario(provider, MONOLITH, { name: 'Ours', prefix: 'ours', authors: AUTHOR })
+    const baseCard = await provider.loadCard(started.draft.content.scenarios[started.scenarioId].card_refs[0])
+    const held = reactive({ card: baseCard })
+    expect(() => structuredClone(held.card)).toThrow()
+    const copied = copyToEdit(started.draft, 'cards', held.card)
+    expect(copied.draft.content.cards[copied.id].name).toBe(baseCard.name)
+    expect(() => structuredClone(copied.draft)).not.toThrow()
+  })
+})
