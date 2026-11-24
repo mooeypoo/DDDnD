@@ -52,5 +52,11 @@ jobs:
       - name: Validate content pack structure
         run: npm run content:validate
 
+      # Published packs depend on what base 1.x has shipped (CONTENT_VERSIONING.md,
+      # "The Base Pack's Promise"). Also covered by the test suite; named here so
+      # a failure says what it is.
+      - name: Base content keeps its promise to published packs
+        run: npm run content:lock:check
+
       - name: Validate content pack audit criticals
         run: npm run content:validate:audit

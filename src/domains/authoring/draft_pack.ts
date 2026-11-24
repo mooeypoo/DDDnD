@@ -67,10 +67,21 @@ export interface DraftPack {
   version: string
   authors: Array<{ name: string; url?: string }>
   content: DraftContent
+  /** What it last exported, for the version-bump assistant (M4.7). Absent before the first export. */
+  released?: DraftRelease
 }
 
-/** The base pack every Studio draft builds on, and the license that requires (ADR 0004). */
-export const DRAFT_DEPENDENCY = { pack_id: 'base', version: '1.0.0' } as const
+/** What a draft last exported: its pack version and a copy of its content then. */
+export interface DraftRelease {
+  version: string
+  content: DraftContent
+}
+
+/**
+ * The license every Studio draft carries: drafts build on the base pack,
+ * which requires it (ADR 0004). Which base version they depend on comes from
+ * the base pack the draft is checked against (`gameTarget`).
+ */
 export const DRAFT_LICENSE = 'GPL-3.0-only'
 
 function emptyContent(): DraftContent {

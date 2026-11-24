@@ -10,11 +10,9 @@
       <button
         type="button"
         class="button button-primary"
-        :disabled="!canExport || exporting"
-        :aria-describedby="canExport ? undefined : 'export-why'"
-        @click="exportPack"
-      >{{ exporting ? 'Exporting…' : 'Export pack file' }}</button>
-      <span v-if="!canExport" id="export-why" class="visually-hidden">Fix the problems listed under Checks first.</span>
+        :aria-current="selection.kind === 'release' ? 'page' : undefined"
+        @click="select({ kind: 'release' })"
+      >Export pack file</button>
     </div>
 
     <div class="workspace-body">
@@ -115,6 +113,7 @@
           @select="afterItemChange"
         />
         <DeckAddView v-else-if="selection.kind === 'add'" :section="selection.section" :draft="draft" @change="updateDraft" />
+        <ReleaseView v-else-if="selection.kind === 'release'" :draft="draft" :checksClean="canExport" @export="exportPack" />
       </main>
 
       <div class="rail">
@@ -145,6 +144,7 @@ import DeckAddView from '@studio/workspace/deck_add_view.vue'
 import DeckItemView from '@studio/workspace/deck_item_view.vue'
 import MemberView from '@studio/workspace/member_view.vue'
 import PackDetailsEditor from '@studio/workspace/pack_details_editor.vue'
+import ReleaseView from '@studio/workspace/release_view.vue'
 import ScenarioEditor from '@studio/workspace/scenario_editor.vue'
 
 defineEmits<{ leave: [] }>()
@@ -156,6 +156,7 @@ type Selection =
   | { kind: 'member'; ref: VersionRef }
   | { kind: 'item'; section: DeckSection; ref: VersionRef }
   | { kind: 'add'; section: DeckSection }
+  | { kind: 'release' }
 type NameSection = 'scores' | 'stakeholders' | 'cards' | 'events'
 
 const draft = computed(() => studio.current?.draft ?? null)
@@ -166,6 +167,14 @@ const selectedScenario = computed(() => (selection.value.kind === 'scenario' ? d
 function select(next: Selection) {
   selection.value = next
 }
+
+/** A release can give the open card, event or member a new version (M4.7): stay on it. */
+watch(() => draft.value?.content, (content) => {
+  const current = selection.value
+  if (!content || (current.kind !== 'item' && current.kind !== 'member')) return
+  const own = (current.kind === 'item' ? content[current.section] : content.stakeholders)[current.ref.id]
+  if (own && own.version !== current.ref.version) select({ ...current, ref: { id: own.id, version: own.version } })
+})
 
 /** "Go to it" from the Checks rail: open the editor, then move focus into it. */
 async function goTo(target: IssueTarget) {
@@ -289,14 +298,13 @@ const saveText = computed(() => {
 })
 
 const canExport = computed(() => studio.check.state === 'done' && studio.check.issues.length === 0)
-const exporting = ref(false)
 
-async function exportPack() {
-  exporting.value = true
+/** Download a release (M4.7); the release page says how it went. */
+async function exportPack(version: string, done: (ok: boolean) => void) {
   try {
-    await exportCurrentDraft()
-  } finally {
-    exporting.value = false
+    done((await exportCurrentDraft(version)).length === 0)
+  } catch {
+    done(false)
   }
 }
 

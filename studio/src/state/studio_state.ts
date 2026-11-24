@@ -9,7 +9,7 @@
 
 import { reactive, toRaw } from 'vue'
 
-import { checkDraft, draftFromBaseScenario, exportDraftBundle, newestRef, unseatedNotes, type BaseContentReader, type DraftPack, type UnseatedNote } from '@/domains/authoring'
+import { checkDraft, draftFromBaseScenario, exportDraftBundle, newestRef, releaseDraft, unseatedNotes, type BaseContentReader, type DraftPack, type UnseatedNote } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import type { PackIssue } from '@/domains/authoring'
 import { listBaseRefs, loadFirstParty, type BaseScenarioChoice } from '@studio/content/first_party'
@@ -183,17 +183,24 @@ export async function removeDraft(draftId: string): Promise<void> {
 }
 
 /**
- * Exports the open draft as a `.dddnd-pack.json` download (D4), only when the
- * game would import it. Returns the issues otherwise.
+ * Exports the open draft as a release at `version` (M4.7): content whose play
+ * changed since the last export gets its next version first. The released
+ * draft is kept, and saved at once, only if the game would import it.
+ * Returns the issues otherwise.
  */
-export async function exportCurrentDraft(): Promise<PackIssue[]> {
+export async function exportCurrentDraft(version: string): Promise<PackIssue[]> {
   if (!state.current) return []
   const { packs } = await loadFirstParty()
-  const result = await exportDraftBundle(plainDraft(state.current.draft), packs)
+  const released = releaseDraft(plainDraft(state.current.draft), version)
+  const result = await exportDraftBundle(released, packs)
   if (!result.ok) {
     state.check = { state: 'done', issues: result.issues }
     return result.issues
   }
+  state.current = { draft_id: state.current.draft_id, draft: released }
+  if (saveTimer) clearTimeout(saveTimer)
+  await saveNow()
+  void checkNow()
   const url = URL.createObjectURL(new Blob([result.text], { type: 'application/json' }))
   const link = document.createElement('a')
   link.href = url

@@ -24,8 +24,9 @@ import {
   type PackIssue,
   type RawPackFiles,
 } from '../content/services/pack_snapshot_builder'
+import { BASE_PACK_ID, CURRENT_PACK_SCHEMA_VERSION } from '../content/validation/pack_policy'
 import { contentPrefix } from './content_ids'
-import { DRAFT_DEPENDENCY, DRAFT_LICENSE, DRAFT_SECTIONS, type DraftPack, type DraftSection } from './draft_pack'
+import { DRAFT_LICENSE, DRAFT_SECTIONS, type DraftPack, type DraftSection } from './draft_pack'
 
 /** Pack ids the game reserves for its own packs. */
 const FIRST_PARTY_IDS = ['base', 'tutorial']
@@ -44,18 +45,44 @@ function sortedEntities<S extends DraftSection>(draft: DraftPack, section: S) {
   return Object.values(draft.content[section]).sort((a, b) => a.id.localeCompare(b.id) || a.version - b.version)
 }
 
-/** The manifest a draft exports with. */
-export function draftManifest(draft: DraftPack): ContentPackManifest {
+/**
+ * The game a draft is exported for: the pack format this build of the game
+ * reads, and the version of the base pack the draft was checked against.
+ * Both come from the game's own code and content in this repository, so the
+ * Studio can't fall behind the game it ships with.
+ */
+export interface GameTarget {
+  schema_version: number
+  base_version: string
+}
+
+/** The game the first-party packs describe. Every draft check and export runs against them. */
+export function gameTarget(firstParty: readonly FirstPartyPack[]): GameTarget {
+  const base = firstParty.find((pack) => pack.manifest.id === BASE_PACK_ID)
+  if (!base) throw new Error('The base game is not loaded, so the Studio cannot tell which game a pack is for.')
+  return { schema_version: CURRENT_PACK_SCHEMA_VERSION, base_version: base.manifest.version }
+}
+
+/**
+ * Which base games accept a pack made for this target: the game resolves a
+ * dependency with caret semantics, so the same major version, from this one on.
+ */
+export function compatibleBaseGames(target: GameTarget): { from: string; series: string } {
+  return { from: target.base_version, series: `${target.base_version.split('.')[0]}.x` }
+}
+
+/** The manifest a draft exports with, for the game it was checked against. */
+export function draftManifest(draft: DraftPack, target: GameTarget): ContentPackManifest {
   const refs = (section: 'scenarios' | 'classes' | 'challenge_modifiers') =>
     sortedEntities(draft, section).map(({ id, version }) => ({ id, version }))
   return {
-    schema_version: 1,
+    schema_version: target.schema_version,
     kind: 'extension',
     id: draftPackId(draft),
     version: draft.version,
     name: draft.name,
     description: draft.description,
-    depends_on: [{ ...DRAFT_DEPENDENCY }],
+    depends_on: [{ pack_id: BASE_PACK_ID, version: target.base_version }],
     base_url: '.',
     license: DRAFT_LICENSE,
     authors: draft.authors,
@@ -68,14 +95,14 @@ export function draftManifest(draft: DraftPack): ContentPackManifest {
 }
 
 /** The draft as a pack folder's files: `manifest.json` and one file per entity, at its path. */
-export function draftToRawPack(draft: DraftPack): RawPackFiles {
+export function draftToRawPack(draft: DraftPack, target: GameTarget): RawPackFiles {
   const files: Record<string, string> = {}
   for (const section of DRAFT_SECTIONS) {
     for (const entity of sortedEntities(draft, section)) {
       files[`${CONTENT_TYPE_BY_SECTION[section]}/${fileName(entity)}`] = `${JSON.stringify(entity, null, 2)}\n`
     }
   }
-  return { manifest_text: `${JSON.stringify(draftManifest(draft), null, 2)}\n`, files }
+  return { manifest_text: `${JSON.stringify(draftManifest(draft, target), null, 2)}\n`, files }
 }
 
 /** A first-party pack the draft is checked against: its manifest and where its files come from. */
@@ -98,7 +125,7 @@ export interface DraftCheck {
 export async function checkDraft(draft: DraftPack, firstParty: readonly FirstPartyPack[]): Promise<DraftCheck> {
   let snapshot: PackSnapshot
   try {
-    snapshot = await buildPackSnapshot(draftToRawPack(draft), { kind: 'file', file_name: draftFileName(draft) })
+    snapshot = await buildPackSnapshot(draftToRawPack(draft, gameTarget(firstParty)), { kind: 'file', file_name: draftFileName(draft) })
   } catch (error) {
     if (error instanceof PackLoadError) return { issues: error.issues }
     throw error
