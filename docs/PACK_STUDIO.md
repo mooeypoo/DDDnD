@@ -147,7 +147,7 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 - Export (bundle file and zip) and import.
 
 **Order for the rest of M4** (after M4.5b; D23):
-1. Aftershocks and event conditions: finish editing cards and events.
+1. ~~Aftershocks and event conditions~~ (M4.6).
 2. The version-bump assistant.
 3. Zip export and import.
 4. "Play it" (D15, D17).
@@ -587,3 +587,43 @@ The second test fails on the code before this change, which is how we know it ca
 Tests: 1225 in total (+10: reading a draft over the game, issue subjects, the editing helpers, and the two boundary guards). No engine change, so the fixed-seed audit is unaffected.
 
 **Next:** aftershocks and event conditions (see §6 for the rest of M4's order, ending with the UI/UX audit).
+
+### M4.6: Aftershocks and when events can happen (2026-11-24)
+
+This finishes editing cards and events. Until now, aftershocks and event conditions were shown with "arrives in a later release".
+
+**What an author can do now** on their own card or event:
+- **See its aftershocks** ("2 of 8"), each marked "yours" or "from the game", in plain words: "2 turns later, this raises Domain Clarity by 7 and Maintainability by 3."
+- **Make their own version of one of the game's aftershocks.** Only this card switches to the copy; the game's other cards keep the original.
+- **Write a new aftershock:** name (the id settles from it, as with cards), what players read when it lands, how many turns later (1–20; the game's use 1–3), and its score and council changes in the same rows as cards.
+- **Add one of the game's aftershocks** from a list, or **take one off.** Taking off the draft's own aftershock deletes it once nothing else uses it; one shared by two of the author's cards says "Also on …".
+- **See the net with aftershocks:** "It nets 0, or +10 with its aftershocks". The calibration hint ("the base game's cards net about +11 to +12, aftershocks included") was already counting aftershocks, but the number beside it wasn't, so the two couldn't be compared until now.
+- **Choose when an event can happen:** "Any turn" or "Only while [score] [is below / is at most / is above / is at least] [value]", in plain words. As with reactions, the text the game stores (`trigger_condition_description`) is written from the condition.
+- **"Go to it" on an aftershock's issue** opens the card or event it's on, with focus in the aftershock.
+
+The game's cards and events (read-only) now list their aftershocks and conditions in plain words, too.
+
+**Domain:**
+- `aftershocks.ts`: `addNewAftershock`, `attachAftershock`, `detachAftershock`, `copyAftershockToEdit`, `settleNewAftershockId`, `aftershockUsers` and `netWithAftershocks`.
+- `setEventCondition` in `deck.ts`.
+- The condition vocabulary moved out of `council.ts` into `conditions.ts`, since reactions and events share it: `CONDITION_WORDS`, `describeCondition`, `conditionText`, `startingCondition`, and `PLAY_RANGE` (0–100, replacing two hard-coded 100s in screens).
+- The Studio has one `ConditionEditor` and one `AftershockEditor`, and the member page uses the same condition editor as events.
+
+**A wording fix found on the way.** Conditions said "drops below" and "rises above". That describes a *crossing*. The game checks conditions every turn, so a reaction fires on *every* turn its condition holds, not once when the score crosses the line. "Drops below" taught authors the wrong model, and "it can only happen while Budget drops below 40" read badly. The words now describe a state: "is below", "is above".
+
+**For the talk: shared content forces the copy question again, one level down.** Cards (D7), then council members (D21), now aftershocks: "Refactoring Payoff" follows nine of the game's cards. Editing it in place would change nine cards the author never opened. Each time the answer is the same: the shared thing belongs to its owner, and the author gets their own version, with a new identity, scoped to where they asked for it. Because the domain already said this twice, this slice was mostly reuse: the same id settling, the same "yours / from the game" marks, and the same plain words.
+
+**Verification** (headless Chrome, production build, Studio CSP):
+1. The game's Define Bounded Context shows "Aftershock, 2 turns later: Boundaries Clarify Over Time: raises Domain Clarity by 7 and Maintainability by 3."
+2. Make your own version: 1 of 8 aftershocks, "from the game". It nets 0, or +10 with its aftershocks.
+3. Make your own version of the aftershock and set it to 3 turns: "3 turns later, this …". The checks stay clean.
+4. **+ New aftershock:** type "Knowledge Spreads", then Tab. Focus moves to "What players read when it lands". The checks ask for its description; "Go to it" opens the card with focus in the aftershock. Fill it in and the checks are clean.
+5. Add the game's Team Energized: 3 rows, and the net rises to +23. Take it off: 2 rows.
+6. **+ New event "Audit Season":** "Only while" Domain Clarity is above 60, in plain words. Switching to "Any turn" removes the condition, and switching back restores it. The checks stay clean, and the pack exports.
+7. The game's events read "Only when: Team Morale is below 30". The CTO's reactions read "When Domain Clarity is below 35"; a copy's condition can be changed with the shared editor.
+8. Zero CSP violations, no console errors.
+
+Tests: 1232 in total (+7 for aftershocks and event conditions). One exports a draft with its own aftershock and two own events, one that can always happen and one that never can, imports it through the game's own code and plays five runs: the first event happens, the second never does, and the aftershock is in the scenario bundle.
+
+**Next:** the version-bump assistant.
+

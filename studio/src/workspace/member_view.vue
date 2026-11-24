@@ -71,25 +71,7 @@
             <input :value="rule.description" :maxlength="limits.text.description" @input="setRule(rule, { description: text($event) })" />
           </label>
 
-          <fieldset class="condition">
-            <legend class="condition-legend">When</legend>
-            <label class="effect-field">
-              <span class="visually-hidden">Score</span>
-              <select :value="rule.condition.target_id" @change="setCondition(rule, { target_id: selectValue($event), target_type: 'score' })">
-                <option v-for="option in scoreOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
-              </select>
-            </label>
-            <label class="effect-field">
-              <span class="visually-hidden">Comparison</span>
-              <select :value="rule.condition.operator" @change="setCondition(rule, { operator: selectValue($event) as never })">
-                <option v-for="(words, operator) in CONDITION_WORDS" :key="operator" :value="operator">{{ words }}</option>
-              </select>
-            </label>
-            <label class="effect-field effect-amount">
-              <span class="visually-hidden">Value, 0 to 100</span>
-              <input type="number" min="0" max="100" step="1" :value="rule.condition.value" @change="setConditionValue(rule, $event)" />
-            </label>
-          </fieldset>
+          <ConditionEditor :condition="rule.condition" :scoreOptions="scoreOptions" @change="(patch) => setCondition(rule, patch)" />
 
           <EffectsEditor
             :scoreChanges="rule.score_changes"
@@ -116,7 +98,6 @@ import { computed, nextTick, ref, watch } from 'vue'
 
 import {
   addReaction,
-  CONDITION_WORDS,
   copyMember,
   COUNCIL_SEATS,
   describeCondition,
@@ -135,6 +116,7 @@ import {
 import type { NumericCondition, ScoreChange, Stakeholder, StakeholderChange, StakeholderReactionRule, VersionRef } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 import { loadFirstParty } from '@studio/content/first_party'
+import ConditionEditor from '@studio/workspace/condition_editor.vue'
 import EffectsEditor from '@studio/workspace/effects_editor.vue'
 import RemoveMember from '@studio/workspace/remove_member.vue'
 
@@ -195,10 +177,6 @@ function text(event: Event): string {
   return (event.target as HTMLInputElement | HTMLTextAreaElement).value
 }
 
-function selectValue(event: Event): string {
-  return (event.target as HTMLSelectElement).value
-}
-
 function setMember(fields: Partial<Stakeholder>) {
   if (member.value) emit('change', putContent(props.draft, 'stakeholders', { ...member.value, ...fields }))
 }
@@ -222,11 +200,6 @@ function setRule(rule: StakeholderReactionRule, fields: Partial<StakeholderReact
 function setCondition(rule: StakeholderReactionRule, patch: Partial<NumericCondition>) {
   const condition = { ...rule.condition, ...patch }
   emit('change', setReactionCondition(props.draft, rule.id, condition, targetName(condition)))
-}
-
-function setConditionValue(rule: StakeholderReactionRule, event: Event) {
-  const parsed = Number.parseInt((event.target as HTMLInputElement).value, 10)
-  if (Number.isFinite(parsed)) setCondition(rule, { value: Math.min(100, Math.max(0, parsed)) })
 }
 
 function setRuleEffects(rule: StakeholderReactionRule, effects: { score_changes: ScoreChange[]; stakeholder_changes: StakeholderChange[] }) {
@@ -351,39 +324,6 @@ function remove() {
   font-size: 1.0625rem;
   font-weight: 600;
   color: var(--forge-text-bright);
-}
-
-.condition {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.625rem;
-  margin: 0;
-  padding: 0;
-  border: none;
-}
-
-.condition-legend {
-  float: left;
-  margin-right: 0.25rem;
-  font-size: 0.875rem;
-  color: var(--forge-text-secondary);
-}
-
-.effect-field select,
-.effect-field input {
-  min-height: 2.5rem;
-  padding: 0 0.625rem;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(160, 112, 24, 0.5);
-  background: var(--forge-panel);
-  color: var(--forge-text-bright);
-  font-family: var(--forge-font-body);
-  font-size: 1rem;
-}
-
-.effect-amount input {
-  width: 5.5rem;
 }
 
 .effect-remove {

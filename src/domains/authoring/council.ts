@@ -17,6 +17,7 @@ import { CONTENT_LIMITS } from '../content/validation/content_limits'
 import { addContent, putContent, removeContent, type DraftPack } from './draft_pack'
 import { removeChangesTo } from './council_notes'
 import { isOwnRef } from './draft_reading'
+import { conditionText, startingCondition } from './conditions'
 import { settlePlaceholderId } from './placeholder_ids'
 
 /** The most council members a scenario seats (the game's own limit). */
@@ -168,27 +169,8 @@ export function settleNewMemberId(draft: DraftPack, id: string): { draft: DraftP
   })
 }
 
-/** Comparisons a reaction can wait for, in words (§4.1). Equality is left out: scores rarely land on one number. */
-export const CONDITION_WORDS: Record<'<' | '<=' | '>' | '>=', string> = {
-  '<': 'drops below',
-  '<=': 'is at most',
-  '>': 'rises above',
-  '>=': 'is at least',
-}
-
-/** A condition in plain words: "Budget drops below 25". Any of the game's comparisons. */
-export function describeCondition(condition: NumericCondition, targetName: string): string {
-  const words: Record<NumericCondition['operator'], string> = { ...CONDITION_WORDS, '=': 'is exactly', '==': 'is exactly' }
-  return `${targetName} ${words[condition.operator]} ${condition.value}`
-}
-
-/** The condition in people's words, as the game's own reactions write it ("Budget < 25"). */
-export function conditionText(condition: NumericCondition, targetName: string): string {
-  return `${targetName} ${condition.operator} ${condition.value}`
-}
-
 /**
- * A new reaction for one of the draft's own members: when a score drops below
+ * A new reaction for one of the draft's own members: when a score is below
  * 40, they get unhappier. A starting point the author changes.
  */
 export function addReaction(
@@ -198,7 +180,7 @@ export function addReaction(
 ): { draft: DraftPack; id: string } {
   const member = draft.content.stakeholders[memberId]
   if (!member) throw new Error(`Not the draft's own council member: ${memberId}`)
-  const condition: NumericCondition = { target_type: 'score', target_id: score.id, operator: '<', value: 40 }
+  const condition = startingCondition(score.id)
   const added = addContent(draft, 'stakeholder_reaction_rules', {
     name: COUNCIL_PLACEHOLDERS.reaction,
     description: '',
