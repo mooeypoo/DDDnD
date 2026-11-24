@@ -287,7 +287,7 @@ After the first deploy, **Site configuration → Build & deploy → Build settin
 3. Wait for Netlify's HTTPS certificate (automatic).
 4. At launch: remove `noindex` (`studio/index.html` and `X-Robots-Tag` in `studio/netlify.toml`), and add the Studio's origin to the game's preview allowlist (§11) in the same PR.
 
-**What the game's site needs:** nothing until "Play it" (§11). The game's `netlify.toml` and site are unaffected, because the Studio site reads only `studio/netlify.toml`. The Studio site skips deploys when nothing under `studio/`, `src/domains/` or the package files changed. That was checked locally: the scaffold commit builds, and the launch PR, which touches neither, is skipped.
+**What the game's site needs:** nothing until "Play it" (§11). The game's `netlify.toml` and site are unaffected, because the Studio site reads only `studio/netlify.toml`. The Studio site skips deploys when nothing under `studio/`, `src/domains/`, `content/` (it ships the first-party packs, M4.3) or the package files changed. That was checked locally: the scaffold commit builds, and the launch PR, which touches neither, is skipped.
 
 ---
 
@@ -359,3 +359,36 @@ The Studio's core, in the pure `authoring` domain. No editors yet: this is what 
 - **Copy-to-edit:** the scenario points at the copy, the base card is untouched, and the edited draft still checks clean.
 - **Refusals, worded by the game's validator:** a draft referencing a missing card is refused, naming the card; a draft without an author is refused; a blank description is refused (found by the first test run).
 - Tests: +14 in `tests/authoring`, 1185 total.
+
+### M4.3: The first working Studio: start from a scenario, edit, check, export (2026-11-24)
+
+The retelling path works end to end, for the scenario and the pack's details. Council, cards and events are listed but not yet editable (M4.4).
+
+**What an author can do now**
+1. **Start from a DDDnD scenario (D13):** the start screen lists the base game's five adventures, and "Copy and adapt" makes a draft and opens it.
+2. **Edit the pack's details:** name, description, author, and the prefix for new content.
+3. **Edit the scenario:** name, one-line summary, situation, flavor, turns, and starting health. Each field's limits come from the game's `CONTENT_LIMITS`, so the form and the validator agree.
+4. **See the Checks rail update as they type:** it runs the game's own checks a moment after each change. The commonest messages are reworded plainly ("Add your name as the author."), and "Go to it" opens the right editor.
+5. **Export:** the button unlocks only when the checks pass, and downloads `<prefix>-v<version>.dddnd-pack.json`.
+6. **Come back later:** drafts save automatically to this browser (IndexedDB, D8), and "Your drafts" lists them, with delete behind a confirmation. Each draft has its own address (`#/draft/<id>`), so a reload stays on it. Without storage, the Studio says drafts last only until the page closes.
+
+**How**
+- **First-party content:** a small Vite plugin serves the game's content folder at `/content` in development and copies it into the Studio's build. The Studio reads base and tutorial content from its own site, with the game's own `loadManifest` and content provider, so its CSP stays `connect-src 'self'`. The Netlify skip check now includes `content/`.
+- **State:** one module (`studio/src/state/studio_state.ts`) holds the drafts, the open draft, saving (400 ms after the last change) and checking (700 ms).
+- **New topics:** still "arrives in a later release" on the start screen, with a link to the SRE pack as an example.
+
+**Found on the way**
+- **Vue's proxies break saving and checking.** Editors build the next draft from Vue's reactive state, which wraps every nested object in a proxy. `toRaw` only unwraps the top level, and `structuredClone` (which IndexedDB uses too) refuses proxies: the first edit after "Copy and adapt" showed "Couldn't save" and a failed check. A draft is plain JSON data, so `plainDraft` copies it with a JSON round trip. A test builds an edited draft from reactive state, shows `structuredClone` refusing it, and shows `plainDraft` fixing it.
+- **The disabled Export button** showed a "busy" cursor; it's now "not allowed".
+
+**Verification** (headless Chrome, production build, Studio CSP):
+- The five scenarios are listed. "Copy and adapt" opens the Monolith draft.
+- The checks report the missing author and Export is disabled. "Go to it" opens Pack details with focus in its first field.
+- With an author added, the checks say "Ready to export" and the draft saves.
+- Renaming the scenario and setting 12 turns keeps it clean. The card list shows the 26 Monolith cards by name.
+- Export downloads the pack. After a reload, the draft is still open, and it appears under "Your drafts".
+- Zero CSP violations and no console errors.
+- **The downloaded file through the game's own import:** `readPackBundle`, registered next to base, with no playability issues. It carries the author, the new name and 12 turns, and five simulated runs each played all 12 turns.
+- Tests: +2 (plain drafts, the draft store); 1188 in total.
+
+**Next (M4.4):** editing cards, events and the council, including "make my own version" of a base card (D7). Smaller follow-up: "Go to it" focusing the exact field at fault.
