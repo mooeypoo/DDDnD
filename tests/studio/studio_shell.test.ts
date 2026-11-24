@@ -3,9 +3,10 @@
  * text-size setting (§10), which works with or without storage.
  */
 
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
 
+import DisplayMenu from '@studio/components/display_menu.vue'
 import StudioHeader from '@studio/components/studio_header.vue'
 import { applyTextSize, readTextSize, writeTextSize } from '@studio/preferences/text_size'
 
@@ -16,13 +17,53 @@ describe('Studio header', () => {
     expect(wrapper.find('.brand-subtitle').text()).toBe('The Forge')
   })
 
-  it('offers three labelled text sizes, marking the current one', async () => {
-    const wrapper = mount(StudioHeader, { props: { textSize: 'large' } })
-    const buttons = wrapper.findAll('.text-size-option')
-    expect(buttons.map((button) => button.attributes('aria-label'))).toEqual(['Standard text size', 'Large text size', 'Largest text size'])
-    expect(buttons.map((button) => button.attributes('aria-pressed'))).toEqual(['false', 'true', 'false'])
-    await buttons[2].trigger('click')
+  it('keeps display settings behind one button', () => {
+    const wrapper = mount(StudioHeader, { props: { textSize: 'standard' } })
+    const toggle = wrapper.find('.display-toggle')
+    expect(toggle.attributes('aria-label')).toBe('Display settings')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+    expect(wrapper.find('.display-panel').exists()).toBe(false)
+  })
+})
+
+describe('display menu (§10)', () => {
+  it('opens a labelled text-size group with the current size checked, and focuses it', async () => {
+    const wrapper = mount(DisplayMenu, { props: { textSize: 'large' }, attachTo: document.body })
+    await wrapper.find('.display-toggle').trigger('click')
+    await flushPromises()
+    expect(wrapper.find('.display-toggle').attributes('aria-expanded')).toBe('true')
+    expect(wrapper.find('legend').text()).toBe('Text size')
+    const radios = wrapper.findAll<HTMLInputElement>('input[type="radio"]')
+    expect(radios.map((radio) => radio.element.closest('label')?.textContent?.replace('A', '').trim())).toEqual(['Standard', 'Large', 'Largest'])
+    expect(radios.map((radio) => radio.element.checked)).toEqual([false, true, false])
+    expect(document.activeElement).toBe(radios[1].element)
+    wrapper.unmount()
+  })
+
+  it('emits the chosen size', async () => {
+    const wrapper = mount(DisplayMenu, { props: { textSize: 'standard' } })
+    await wrapper.find('.display-toggle').trigger('click')
+    await wrapper.findAll('input[type="radio"]')[2].trigger('change')
     expect(wrapper.emitted('update:textSize')).toEqual([['largest']])
+  })
+
+  it('closes on Escape and returns focus to the button', async () => {
+    const wrapper = mount(DisplayMenu, { props: { textSize: 'standard' }, attachTo: document.body })
+    await wrapper.find('.display-toggle').trigger('click')
+    await flushPromises()
+    await wrapper.find('.display-panel').trigger('keydown', { key: 'Escape' })
+    expect(wrapper.find('.display-panel').exists()).toBe(false)
+    expect(document.activeElement).toBe(wrapper.find('.display-toggle').element)
+    wrapper.unmount()
+  })
+
+  it('closes on a click outside', async () => {
+    const wrapper = mount(DisplayMenu, { props: { textSize: 'standard' }, attachTo: document.body })
+    await wrapper.find('.display-toggle').trigger('click')
+    document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    await flushPromises()
+    expect(wrapper.find('.display-panel').exists()).toBe(false)
+    wrapper.unmount()
   })
 })
 
