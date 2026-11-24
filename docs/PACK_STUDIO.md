@@ -319,3 +319,34 @@ The first piece: an app that builds, deploys on its own, and keeps its boundarie
   - Largest text sets the root to 20px and survives a reload;
   - the first Tab reaches "Skip to the content".
 - Tests: +15 (id generation, the shell and text size, the boundaries).
+
+### M4.2: The draft model, checked and exported by the game's own code (2026-11-24)
+
+The Studio's core, in the pure `authoring` domain. No editors yet: this is what they will edit.
+
+**The draft** (`draft_pack.ts`):
+- **What it holds:** the pack's details (name, description, prefix, version, authors) and its own content by section, already in the game's content shapes.
+- **How it points at base content:** by `{ id, version }`, exactly as a published pack does.
+- **Operations:** `createDraft`, `addContent` (the id comes from the name), `putContent`, `removeContent` and `updateDraftDetails`. Each returns a new draft, so the Studio can keep undo history and save drafts without the domain knowing how.
+
+**Export and check** (`draft_export.ts`):
+- **No Studio validator:** a draft becomes the same raw files a pack folder holds, and the game's own code takes over. `buildPackSnapshot` checks schemas, limits and the community identity rules; `checkPackPlayable` checks that the scenarios build next to the base pack and that classes and modifiers fit. "The Studio says it's fine" and "the game imports it" are one statement.
+- **Export only what imports:** `exportDraftBundle` refuses a draft with any issue, and otherwise returns the `.dddnd-pack.json` text (D4).
+- **The manifest:** both kinds of draft export as `extension` packs of the base pack, with `GPL-3.0-only`. A `standalone` pack may not depend on anything, and both kinds use base content (new topics use its outcome tiers). "Retelling" and "new topic" stay a Studio distinction.
+- **The pack's id** is its prefix, kept off `base` and `tutorial`.
+
+**Starting from base content** (`draft_from_base.ts`):
+- **"Copy and adapt" a base scenario (D13):** the draft gets its own copy (a new id), still pointing at the base council, cards, events and endings. It starts with a description the author can change ("A DDDnD retelling of …"), because a pack needs one.
+- **"Make my own version" of a base card or event (D7):** a copy under a new id, and the draft's scenarios switch to it.
+- **Stakeholders aren't copyable yet:** base cards that affect the original stakeholder wouldn't reach a copy (that change would be ignored, M3.9), so copying a council member needs its own design.
+
+**Prefixes stop at a word boundary.** "Payments Platform Quest" first came out as `payments_platfor`, which every id in the pack would carry; it's now `payments`. A single long word is still cut at 16.
+
+**Verification**
+- **The proof:**
+  1. a draft started from the Monolith is exported, then read back through the game's import (`readPackBundle`);
+  2. it's registered next to the base pack, then built and simulated;
+  3. over 20 runs on the same seed, the copy and the original end with identical scores, endings and tiers.
+- **Copy-to-edit:** the scenario points at the copy, the base card is untouched, and the edited draft still checks clean.
+- **Refusals, worded by the game's validator:** a draft referencing a missing card is refused, naming the card; a draft without an author is refused; a blank description is refused (found by the first test run).
+- Tests: +14 in `tests/authoring`, 1185 total.

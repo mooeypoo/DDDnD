@@ -23,12 +23,22 @@ function words(text: string): string[] {
     .filter(Boolean)
 }
 
+const MAX_PREFIX_LENGTH = 16
+
 /**
  * A pack prefix from the pack's name or a short word the author picks:
- * lower case, words joined by `_`, at most 16 characters. Empty when nothing usable is left.
+ * lower case, whole words joined by `_`, at most 16 characters (a single
+ * longer word is cut). Empty when nothing usable is left.
  */
 export function contentPrefix(text: string): string {
-  return words(text).join('_').slice(0, 16).replace(/_+$/, '')
+  const [first, ...rest] = words(text)
+  if (!first) return ''
+  let prefix = first.slice(0, MAX_PREFIX_LENGTH)
+  for (const word of rest) {
+    if (prefix.length + 1 + word.length > MAX_PREFIX_LENGTH) break
+    prefix = `${prefix}_${word}`
+  }
+  return prefix
 }
 
 /**
