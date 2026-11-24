@@ -3,7 +3,10 @@
  *
  * - the Studio (studio/src) may import the domains, never the game's UI;
  * - the game (src) never imports the Studio;
- * - the authoring domain is pure: no Vue, DOM or storage.
+ * - the authoring domain is pure: no Vue, DOM or storage;
+ * - only the Studio's content adapter (studio/src/content) reaches the content
+ *   domain's services; screens ask the authoring domain (M4.5b);
+ * - the Studio doesn't read content file names itself: the domain does.
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs'
@@ -48,6 +51,17 @@ describe('Pack Studio boundaries (ADR 0005)', () => {
     expect(violations(authoring, (specifier) => specifier === 'vue' || specifier.startsWith('@/ui') || specifier.startsWith('@studio'))).toEqual([])
     for (const file of authoring) {
       expect(readFileSync(file, 'utf8'), file).not.toMatch(/\b(window|document|localStorage|indexedDB)\./)
+    }
+  })
+
+  it('only the content adapter reaches the content services (M4.5b)', () => {
+    const screens = sourceFiles('studio/src').filter((file) => !file.includes(`${path.sep}content${path.sep}`))
+    expect(violations(screens, (specifier) => specifier.startsWith('@/domains/content/services'))).toEqual([])
+  })
+
+  it('the Studio leaves content file names to the domain (M4.5b)', () => {
+    for (const file of sourceFiles('studio/src')) {
+      expect(readFileSync(file, 'utf8'), file).not.toMatch(/-v\(\\d\+\)/)
     }
   })
 })

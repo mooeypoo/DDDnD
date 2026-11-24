@@ -53,9 +53,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-import { addToCouncil, COUNCIL_SEATS, isOwnMember, type DraftPack } from '@/domains/authoring'
+import { addToCouncil, COUNCIL_SEATS, ownEntity, type DraftPack } from '@/domains/authoring'
 import type { Stakeholder, VersionRef } from '@/domains/content/model'
-import { loadFirstParty } from '@studio/content/first_party'
+import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 
 const props = defineProps<{ draft: DraftPack; councilRefs: VersionRef[]; names: Record<string, string> }>()
 const emit = defineEmits<{ change: [draft: DraftPack]; open: [ref: VersionRef]; createMember: [] }>()
@@ -64,19 +64,15 @@ interface Choice { ref: VersionRef; name: string; summary: string }
 
 const gameMembers = ref<Stakeholder[] | null>(null)
 void (async () => {
-  const { packs, base } = await loadFirstParty()
-  const manifest = packs.find((pack) => pack.manifest.id === 'base')?.manifest
-  const refs = (manifest?.content.stakeholders ?? [])
-    .map((file) => file.match(/^([a-z0-9_]+)-v(\d+)\.json$/))
-    .filter((match): match is RegExpMatchArray => match !== null)
-    .map((match) => ({ id: match[1], version: Number(match[2]) }))
+  const [{ base }, refs] = await Promise.all([loadFirstParty(), listBaseRefs('stakeholders')])
   const loaded = await Promise.all(refs.map((ref) => base.loadStakeholder(ref)))
   gameMembers.value = loaded.sort((a, b) => a.name.localeCompare(b.name))
 })()
 
 const seated = computed(() => props.councilRefs.map((ref) => {
-  const own = isOwnMember(props.draft, ref)
-  const entity = own ? props.draft.content.stakeholders[ref.id] : gameMembers.value?.find((member) => member.id === ref.id)
+  const ownMember = ownEntity(props.draft, 'stakeholders', ref)
+  const own = ownMember !== null
+  const entity = ownMember ?? gameMembers.value?.find((member) => member.id === ref.id)
   return {
     ref,
     own,

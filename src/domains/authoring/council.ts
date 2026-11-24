@@ -5,17 +5,18 @@
  * changes aimed at them do nothing (journal M3.9), so the game's council
  * members a draft doesn't want can just be left out.
  *
- * The game's council members can't be copied to edit (D21): the game's cards
- * and events name them by id, and a copy has a new id, so the deck would stop
- * reaching it. Authors seat their own members instead, with their own
- * reactions, and change how a game card treats the council by making their
- * own version of the card.
+ * The game's council members can't be edited (D21): the game's cards and
+ * events name them by id. A copy (`copyMember`) is a new member with a new
+ * id, which the game's content doesn't reach. Authors seat their own members,
+ * with their own reactions, and change how a game card treats the council by
+ * making their own version of the card.
  */
 
 import type { NumericCondition, Scenario, Stakeholder, StakeholderChange, StakeholderReactionRule, VersionRef } from '../content/model'
 import { CONTENT_LIMITS } from '../content/validation/content_limits'
 import { addContent, putContent, removeContent, type DraftPack } from './draft_pack'
 import { removeChangesTo } from './council_notes'
+import { isOwnRef } from './draft_reading'
 import { settlePlaceholderId } from './placeholder_ids'
 
 /** The most council members a scenario seats (the game's own limit). */
@@ -26,8 +27,12 @@ export const COUNCIL_PLACEHOLDERS = { member: 'New council member', reaction: 'N
 
 /** True when the member is the draft's own (editable), not the game's. */
 export function isOwnMember(draft: DraftPack, ref: VersionRef): boolean {
-  const own = draft.content.stakeholders[ref.id]
-  return own !== undefined && own.version === ref.version
+  return isOwnRef(draft, 'stakeholders', ref)
+}
+
+/** The draft's own member a reaction belongs to, or null. */
+export function memberOfReaction(draft: DraftPack, ruleId: string): Stakeholder | null {
+  return Object.values(draft.content.stakeholders).find((member) => member.reaction_rule_refs.some((ref) => ref.id === ruleId)) ?? null
 }
 
 function mapScenarios(draft: DraftPack, change: (scenario: Scenario) => Scenario | null): DraftPack {
@@ -56,6 +61,16 @@ export function ownReactionsTo(draft: DraftPack, stakeholderId: string): Array<{
     Object.values(draft.content[section] as Record<string, WithPeople & { id: string; name: string }>)
       .filter((item) => item.stakeholder_changes?.some((change) => change.stakeholder_id === stakeholderId))
       .map((item) => ({ section, id: item.id, name: item.name })))
+}
+
+/**
+ * The draft's own content that names a member and stays when they're
+ * removed: for the draft's own member, everything but their own reactions
+ * (which go with them).
+ */
+export function ownItemsNamingAfterRemoval(draft: DraftPack, ref: VersionRef): ReturnType<typeof ownReactionsTo> {
+  const theirs = new Set(isOwnMember(draft, ref) ? draft.content.stakeholders[ref.id].reaction_rule_refs.map((rule) => rule.id) : [])
+  return ownReactionsTo(draft, ref.id).filter((item) => !(item.section === 'stakeholder_reaction_rules' && theirs.has(item.id)))
 }
 
 /**

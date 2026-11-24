@@ -10,6 +10,7 @@
 
 import type { ContentPackManifest } from '../content/model/content_pack_manifest'
 import type { PackSnapshot } from '../content/model/pack_snapshot'
+import { parseFilename } from '../content/model/version_ref'
 import { ContentPackRegistry } from '../content/services/content_pack_registry'
 import type { ContentProvider } from '../content/services/content_provider'
 import { writePackBundle, PACK_BUNDLE_EXTENSION } from '../content/services/pack_bundle_file'
@@ -131,3 +132,26 @@ export async function exportDraftBundle(
   if (check.issues.length > 0 || !check.snapshot) return { ok: false, issues: check.issues }
   return { ok: true, text: writePackBundle(check.snapshot), file_name: draftFileName(draft) }
 }
+
+/** What a check's issue is about: the pack's details, or one piece of content. */
+export type IssueSubject =
+  | { kind: 'manifest' }
+  | { kind: 'content'; section: DraftSection; ref: { id: string; version: number } }
+
+/**
+ * Reads an issue's file path (as the game's checks report it) back into what
+ * it's about, using the same file layout the export writes. Null for issues
+ * about the pack as a whole.
+ */
+export function issueSubject(file: string): IssueSubject | null {
+  if (file === 'manifest.json') return { kind: 'manifest' }
+  const slash = file.indexOf('/')
+  if (slash < 0) return null
+  const folder = file.slice(0, slash)
+  const section = DRAFT_SECTIONS.find((candidate) => CONTENT_TYPE_BY_SECTION[candidate] === folder)
+  const ref = parseFilename(file.slice(slash + 1))
+  return section && ref ? { kind: 'content', section, ref } : null
+}
+
+/** One reason the game would refuse the pack, as its checks report it. */
+export type { PackIssue }

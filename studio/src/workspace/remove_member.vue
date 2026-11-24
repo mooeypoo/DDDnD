@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import { ownReactionsTo, type DraftPack } from '@/domains/authoring'
+import { ownItemsNamingAfterRemoval, type DraftPack } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 
 const props = defineProps<{ draft: DraftPack; memberRef: VersionRef; name: string; own: boolean; lastSeat: boolean }>()
@@ -36,11 +36,8 @@ watch(() => props.memberRef.id, () => {
   confirming.value = false
 })
 
-/** The draft's own cards, events and reactions that name them, except their own reactions (those go too). */
-const affected = computed(() => {
-  const ownRules = new Set(props.own ? props.draft.content.stakeholders[props.memberRef.id]?.reaction_rule_refs.map((ref) => ref.id) : [])
-  return ownReactionsTo(props.draft, props.memberRef.id).filter((item) => !(item.section === 'stakeholder_reaction_rules' && ownRules.has(item.id)))
-})
+/** The draft's own cards, events and reactions that name them and stay. */
+const affected = computed(() => ownItemsNamingAfterRemoval(props.draft, props.memberRef))
 </script>
 
 <style scoped>

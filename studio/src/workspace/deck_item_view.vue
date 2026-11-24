@@ -97,7 +97,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import { copyToEdit, describeEffects, isOwn, netScoreChange, onlyHelps, putContent, removeFromDeck, settleNewItemId, type DeckSection, type DraftPack } from '@/domains/authoring'
+import { copyToEdit, describeEffects, isOwn, netScoreChange, onlyHelps, putContent, removeFromDeck, resolveRef, settleNewItemId, withEffects, withOptionalText, type DeckSection, type DraftPack } from '@/domains/authoring'
 import type { Card, Event, ScoreChange, StakeholderChange, VersionRef } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 import { loadFirstParty } from '@studio/content/first_party'
@@ -144,8 +144,7 @@ watch(() => item.value?.delayed_effect_refs, async (refs) => {
     return
   }
   const { base } = await loadFirstParty()
-  const loaded = await Promise.all(refs.map(async (ref) =>
-    props.draft.content.delayed_effects[ref.id]?.name ?? (await base.loadDelayedEffect(ref).then((effect) => effect.name, () => ref.id))))
+  const loaded = await Promise.all(refs.map(async (ref) => (await resolveRef(props.draft, 'delayed_effects', ref, base))?.entity.name ?? ref.id))
   if (load === aftershockLoad) aftershockNames.value = loaded
 }, { immediate: true })
 
@@ -175,19 +174,11 @@ function set(fields: Partial<Card & Event>) {
 }
 
 function setFlavor(value: string) {
-  if (!item.value) return
-  const next = { ...item.value }
-  if (value.trim()) next.flavor_text = value
-  else delete next.flavor_text
-  save(next)
+  if (item.value) save(withOptionalText(item.value, 'flavor_text', value))
 }
 
 function setEffects(effects: { score_changes: ScoreChange[]; stakeholder_changes: StakeholderChange[] }) {
-  if (!item.value) return
-  const next = { ...item.value, score_changes: effects.score_changes } as Card | Event
-  if (effects.stakeholder_changes.length) next.stakeholder_changes = effects.stakeholder_changes
-  else delete next.stakeholder_changes
-  save(next)
+  if (item.value) save(withEffects(item.value, effects))
 }
 
 function wholeNumber(event: globalThis.Event): number | null {
@@ -199,6 +190,7 @@ function setUsage(event: globalThis.Event) {
   if (!card.value) return
   const value = wholeNumber(event)
   const next: Card = { ...card.value }
+  // No limit is written as no field, as in the game's own cards
   if (value === null) delete next.usage_limit
   else next.usage_limit = Math.min(limits.numbers.usage_limit.max, Math.max(limits.numbers.usage_limit.min, value))
   save(next)
