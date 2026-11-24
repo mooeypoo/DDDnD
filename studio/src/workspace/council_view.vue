@@ -11,8 +11,9 @@
         the game's cards that would move them do nothing here, so there's no harm in leaving people out.
       </p>
       <p>
-        The game's council members can't be edited, because the game's cards are written for them. Seat your own members
-        to bring your organisation's people to the table, each with their own reactions.
+        You can't edit the game's council members. Many of the game's cards change how a particular member feels
+        ("makes the CTO happier"). An edited CTO would be a new person to the game, so those cards would no longer
+        affect them. Instead, leave out anyone who doesn't fit and seat your own members, each with their own reactions.
       </p>
     </div>
 

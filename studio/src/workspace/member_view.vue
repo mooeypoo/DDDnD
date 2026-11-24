@@ -23,7 +23,7 @@
         <p class="field-hint">Every reaction whose condition holds happens once a turn, after the card and any event.</p>
       </section>
       <div class="why" role="note">
-        <p><strong>The game's council members can't be edited.</strong> The game's cards and events are written for them, so a changed copy would stop being moved by those cards.</p>
+        <p><strong>You can't edit the game's council members.</strong> Many of the game's cards and events change how {{ member.name }} feels. An edited version would be a new person to the game, so those cards would no longer affect them.</p>
         <p>To change who's at the table, take them out and seat your own member in their place. To change how a card treats them, make your own version of the card.</p>
       </div>
       <RemoveMember :draft="draft" :memberRef="memberRef" :name="member.name" :own="false" :lastSeat="lastSeat" @remove="remove" />
