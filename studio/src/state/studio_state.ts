@@ -9,7 +9,8 @@
 
 import { reactive, toRaw } from 'vue'
 
-import { checkDraft, draftFromBaseScenario, exportDraftBundle, type DraftPack } from '@/domains/authoring'
+import { checkDraft, draftFromBaseScenario, exportDraftBundle, unseatedNotes, type DraftPack, type UnseatedNote } from '@/domains/authoring'
+import type { VersionRef } from '@/domains/content/model'
 import type { PackIssue } from '@/domains/content/services/pack_snapshot_builder'
 import { loadFirstParty, type BaseScenarioChoice } from '@studio/content/first_party'
 import { newDraftId, openDraftStore, type DraftStore, type StoredDraft } from '@studio/drafts/draft_store'
@@ -20,6 +21,12 @@ const CHECK_DELAY_MS = 700
 export type SaveState = 'saved' | 'saving' | 'unsaved' | 'failed'
 export type CheckState = 'idle' | 'checking' | 'done' | 'failed'
 
+/** A council note (M4.5a), with the person's name and, when they can be seated, who to seat. */
+export interface CouncilNote extends UnseatedNote {
+  name: string
+  seat: VersionRef | null
+}
+
 interface StudioState {
   ready: boolean
   /** False when drafts only live until the page is closed. */
@@ -28,6 +35,8 @@ interface StudioState {
   current: { draft_id: string; draft: DraftPack } | null
   save: SaveState
   check: { state: CheckState; issues: PackIssue[] }
+  /** Things worth knowing that don't block export (M4.5a). */
+  notes: CouncilNote[]
   error: string | null
 }
 
@@ -38,6 +47,7 @@ const state = reactive<StudioState>({
   current: null,
   save: 'saved',
   check: { state: 'idle', issues: [] },
+  notes: [],
   error: null,
 })
 
@@ -85,14 +95,33 @@ async function checkNow() {
   const run = ++checkRun
   state.check.state = 'checking'
   try {
-    const { packs } = await loadFirstParty()
-    const result = await checkDraft(plainDraft(state.current.draft), packs)
+    const { packs, base } = await loadFirstParty()
+    const draft = plainDraft(state.current.draft)
+    const [result, notes] = await Promise.all([checkDraft(draft, packs), councilNotes(draft, packs, base)])
     if (run !== checkRun) return
     state.check = { state: 'done', issues: result.issues }
+    state.notes = notes
   } catch (error) {
     if (run !== checkRun) return
     state.check = { state: 'failed', issues: [{ file: 'pack', message: (error as Error).message }] }
   }
+}
+
+/** Council notes, named: the game's members by their base version, the draft's own by theirs. */
+async function councilNotes(draft: DraftPack, packs: Awaited<ReturnType<typeof loadFirstParty>>['packs'], base: Awaited<ReturnType<typeof loadFirstParty>>['base']): Promise<CouncilNote[]> {
+  const notes = await unseatedNotes(draft, base)
+  const baseMembers = (packs.find((pack) => pack.manifest.id === 'base')?.manifest.content.stakeholders ?? [])
+    .map((file) => file.match(/^([a-z0-9_]+)-v(\d+)\.json$/))
+    .filter((match): match is RegExpMatchArray => match !== null)
+  return Promise.all(notes.map(async (note) => {
+    const own = draft.content.stakeholders[note.stakeholder_id]
+    if (own) return { ...note, name: own.name || 'Unnamed council member', seat: { id: own.id, version: own.version } }
+    const match = baseMembers.filter((found) => found[1] === note.stakeholder_id).sort((a, b) => Number(b[2]) - Number(a[2]))[0]
+    if (!match) return { ...note, name: note.stakeholder_id, seat: null }
+    const seat = { id: match[1], version: Number(match[2]) }
+    const name = await base.loadStakeholder(seat).then((member) => member.name, () => note.stakeholder_id)
+    return { ...note, name, seat }
+  }))
 }
 
 function scheduleSaveAndCheck() {
@@ -116,6 +145,8 @@ export async function startFromBaseScenario(choice: BaseScenarioChoice): Promise
   const { draft } = await draftFromBaseScenario(base, choice.ref, { name: `${choice.name}, retold` })
   const draftId = newDraftId()
   state.current = { draft_id: draftId, draft }
+  state.check = { state: 'idle', issues: [] }
+  state.notes = []
   await saveNow()
   void checkNow()
   return draftId
@@ -131,6 +162,7 @@ export async function openDraft(draftId: string): Promise<boolean> {
   state.current = { draft_id: entry.draft_id, draft: entry.draft }
   state.save = 'saved'
   state.check = { state: 'idle', issues: [] }
+  state.notes = []
   void checkNow()
   return true
 }
@@ -144,6 +176,7 @@ export async function closeDraft(): Promise<void> {
   }
   if (checkTimer) clearTimeout(checkTimer)
   state.current = null
+  state.notes = []
 }
 
 export async function removeDraft(draftId: string): Promise<void> {

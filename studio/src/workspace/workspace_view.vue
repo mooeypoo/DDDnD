@@ -119,6 +119,13 @@
 
       <div class="rail">
         <ChecksPanel :state="studio.check.state" :issues="studio.check.issues" @goTo="goTo" />
+        <CouncilNotesPanel
+          :notes="studio.notes"
+          :full="councilRefs.length >= COUNCIL_SEATS"
+          @seat="(memberRef) => updateDraft(addToCouncil(draft!, memberRef))"
+          @removeChange="(change) => updateDraft(removeChangesTo(draft!, change.section, change.id, change.stakeholderId))"
+          @goTo="goTo"
+        />
       </div>
     </div>
   </div>
@@ -127,11 +134,12 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, PLACEHOLDER_NAMES, putContent, type DeckSection } from '@/domains/authoring'
+import { addToCouncil, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, PLACEHOLDER_NAMES, putContent, removeChangesTo, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { loadFirstParty } from '@studio/content/first_party'
 import { exportCurrentDraft, studio, updateDraft } from '@studio/state/studio_state'
 import ChecksPanel, { type IssueTarget } from '@studio/workspace/checks_panel.vue'
+import CouncilNotesPanel from '@studio/workspace/council_notes_panel.vue'
 import CouncilView from '@studio/workspace/council_view.vue'
 import DeckAddView from '@studio/workspace/deck_add_view.vue'
 import DeckItemView from '@studio/workspace/deck_item_view.vue'

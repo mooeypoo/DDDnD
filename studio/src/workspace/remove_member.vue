@@ -11,8 +11,8 @@
     <div v-else class="confirm" role="group" aria-label="Confirm">
       <p class="confirm-text">
         <template v-if="own">Delete “{{ name || 'this member' }}”? Their reactions go with them.</template>
-        <template v-else>Take “{{ name }}” out? They won't take part, and the game's cards that move them will do nothing here. The game itself is unchanged.</template>
-        <template v-if="affected.length"> {{ affected.length === 1 ? 'One of your own items' : `${affected.length} of your own items` }} ({{ affected.map((item) => item.name).join(', ') }}) will stop moving them.</template>
+        <template v-else>Take “{{ name }}” out? They won't take part. Any cards, events or reactions that change how they feel will do nothing; Notes, under Checks, will list them. The base game itself is unchanged.</template>
+        <template v-if="affected.length && own"> {{ affected.length === 1 ? 'One of your own items' : `${affected.length} of your own items` }} ({{ affected.map((item) => item.name).join(', ') }}) will stop changing how they feel.</template>
       </p>
       <div class="confirm-buttons">
         <button type="button" class="button button-quiet" @click="confirming = false">{{ own ? 'Keep them' : 'Keep them seated' }}</button>

@@ -448,7 +448,7 @@ Decision **D21** (option c of the M4.4 question): the base game's council member
 **What an author can do now**
 - **See the council:** "4 of 8 seats", each member marked "yours" or "from the game", with the game's unseated members listed under it.
 - **Open one of the game's members.** It's read-only, with their reactions in plain words ("CTO Wants Clarity. When Domain Clarity drops below 35: lowers Budget by 3 and Team Morale by 2; makes Chief Technology Officer unhappier (-5).") and a note saying why it can't be edited and what to do instead.
-- **Take any member out.** A confirmation says what follows: for one of the game's members, "they won't take part … the game itself is unchanged"; for the author's own, their reactions go with them. Either way it lists the author's own cards or events that will stop moving them. The last seat can't be emptied.
+- **Take any member out.** A confirmation says what follows: for one of the game's members, "they won't take part … the game itself is unchanged"; for the author's own, their reactions go with them. For the author's own member, it lists their cards or events that will stop moving them; for one of the game's, it says Notes will list what still names them (M4.5a). The last seat can't be emptied.
 - **Seat one of the game's members**, up to the game's limit of 8.
 - **Copy one of the game's members to a new member** ("Copy to a new member"): it starts as "Chief Technology Officer (copy)" with the same description and all reactions as the author's own, editable. Reactions that moved the original move the copy. It sits next to the original, who can then be taken out.
 - **Seat their own member** ("+ New member" or "+ Seat your own member"):
@@ -466,7 +466,7 @@ Id settling for cards, events, members and reactions now shares one helper (`pla
 
 `removeFromCouncil` also:
 - drops the member's satisfaction floor from the scenario's balance targets. Every base v2 scenario sets one for each member, and the game's checks refuse a floor for someone not at the table;
-- strips the author's own content's changes aimed at them, since those would do nothing (M3.9).
+- for the author's own member (who is deleted), strips the draft's own changes aimed at them. For one of the game's members it leaves them, and the Checks rail notes them instead (M4.5a).
 
 **For the talk: an id is a promise.** The council question is the D7 question one level down. Content in other packs refers to a council member by id, so an "edited copy" isn't the same member, however alike it looks: it's a new identity that nothing else knows. The Studio doesn't pretend otherwise. It offers what the model really supports: seat or unseat the shared member (the scenario owns who's at its table), or bring a new member with a new identity. The scenario is the aggregate that decides membership; the council member is shared content it refers to, and only its owner, the game, can change it.
 
@@ -491,3 +491,41 @@ Tests: 1211 in total (+10 for the council). One of them exports a Monolith witho
 **Next:** aftershocks and event conditions; then the version-bump assistant, zip export and import, and "Play it" (D15/D17). Smaller follow-ups:
 - the sidebar gets long with a full deck (collapse or filter);
 - "Go to it" could focus the exact field.
+
+### M4.5a: Notes about council members who aren't seated (2026-11-24)
+
+The owner asked for a check that warns, but doesn't refuse, when a card, event, aftershock or reaction changes how someone feels who isn't seated, and offers to seat them or change the content. The game allows this and ignores those changes (M3.9). That's right for shared content, but in a draft it usually means the author forgot something.
+
+**What an author sees.** A **Notes** list under Checks, marked "These don't block export", with one note per person:
+
+> **Chief Technology Officer isn't seated.** 5 cards and 2 events change how they feel. The game ignores changes to people who aren't at the table, so they do nothing. Seat them, or change those so they don't name them.
+
+Each note has:
+- **Seat [name]**;
+- **Show what changes them**: every card, event, aftershock ("Aftershock of …") and reaction ("…'s reaction"), with the amount, marked yours or from the game, and **Go to it**. An aftershock goes to its card, and a reaction to its member;
+- **Remove the change** on the author's own items. On the game's items, a hint says to make your own version.
+
+The card and event editors show such a change as "Chief Technology Officer (not seated)" with "does nothing: not seated", instead of an empty picker.
+
+**A change of behaviour.** M4.5 removed the draft's own changes to a game member the author took out of the scenario. Now those changes stay and are noted, so nothing is edited without the author asking. The confirmation says so. Deleting the author's *own* member still strips changes aimed at them, because that member no longer exists and can't be seated again.
+
+**Domain** (`council_notes.ts`):
+- `unseatedNotes(draft, base)` walks each scenario: its deck, each card's and event's aftershocks, and the seated members' reactions. It resolves the draft's own content first, then the game's, and groups the changes by person;
+- `removeChangesTo` takes one person's changes out of one of the draft's own items.
+
+The notes run alongside each check; the game's content loader caches, so they're cheap.
+
+**Base scenarios, untouched:** none has notes except Microservice Sprawl. There, "Automate Deployment Pipeline" names the VP of Product, who isn't seated: the case M3.9 found. The note is accurate, so it shows.
+
+**For the talk:** this is the "warn, don't refuse" side of the trust boundary. Refusing is for what could hurt a player (ADR 0014). Something that's merely surprising gets a note, with the fixes next to it.
+
+**Verification** (headless Chrome, production build, Studio CSP):
+1. Copy the Monolith: no notes.
+2. Take the CTO out. The confirmation mentions Notes. Checks still says "Ready to export", and export stays enabled.
+3. The note reads "5 cards and 2 events". The list shows each with its amount.
+4. **Seat Chief Technology Officer** from the note: the note goes away and the CTO is back in the sidebar.
+5. Take them out again. **Go to it** on Define Bounded Context opens it; "Make my own version" shows "Chief Technology Officer (not seated) … does nothing: not seated".
+6. **Remove the change** on the now-yours card: the note drops to "4 cards and 2 events" and the card's council row is gone.
+7. Export works with notes present. Zero CSP violations, no console errors.
+
+Tests: 1215 in total (+4 for notes: an untouched Monolith has none; the game's content is listed by person; own content is marked and fixable; re-seating clears them).

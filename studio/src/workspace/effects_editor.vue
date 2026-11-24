@@ -34,13 +34,14 @@
           <span class="visually-hidden">Council member</span>
           <select :value="change.stakeholder_id" @change="updateStakeholder(index, { stakeholder_id: selectValue($event) })">
             <option v-for="option in stakeholderOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
+            <option v-if="!seated(change.stakeholder_id)" :value="change.stakeholder_id">{{ unseatedName(change.stakeholder_id) }} (not seated)</option>
           </select>
         </label>
         <label class="effect-field effect-amount">
           <span class="visually-hidden">Change to {{ nameOf(stakeholderOptions, change.stakeholder_id) }}'s satisfaction</span>
           <input type="number" :min="delta.min" :max="delta.max" step="1" :value="change.delta" @change="updateStakeholder(index, { delta: numberValue($event, change.delta) })" />
         </label>
-        <span class="effect-word" aria-hidden="true">{{ change.delta > 0 ? 'happier' : change.delta < 0 ? 'unhappier' : 'no change' }}</span>
+        <span class="effect-word" aria-hidden="true">{{ !seated(change.stakeholder_id) ? 'does nothing: not seated' : change.delta > 0 ? 'happier' : change.delta < 0 ? 'unhappier' : 'no change' }}</span>
         <button type="button" class="effect-remove" :aria-label="`Remove the change to ${nameOf(stakeholderOptions, change.stakeholder_id)}`" @click="removeStakeholder(index)">Remove</button>
       </div>
       <button v-if="unusedStakeholders.length > 0" type="button" class="button button-quiet effect-add" @click="addStakeholder">+ Add a council reaction</button>
@@ -53,6 +54,7 @@ import { computed } from 'vue'
 
 import type { ScoreChange, StakeholderChange } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
+import { studio } from '@studio/state/studio_state'
 
 interface Option { id: string; name: string }
 
@@ -68,8 +70,17 @@ const delta = CONTENT_LIMITS.numbers.delta
 const unusedScores = computed(() => props.scoreOptions.filter((option) => !props.scoreChanges.some((change) => change.score_id === option.id)))
 const unusedStakeholders = computed(() => props.stakeholderOptions.filter((option) => !props.stakeholderChanges.some((change) => change.stakeholder_id === option.id)))
 
+function seated(id: string): boolean {
+  return props.stakeholderOptions.some((option) => option.id === id)
+}
+
+/** Someone not at the table keeps their name, from the council notes (M4.5a). */
+function unseatedName(id: string): string {
+  return studio.notes.find((note) => note.stakeholder_id === id)?.name ?? id
+}
+
 function nameOf(options: Option[], id: string): string {
-  return options.find((option) => option.id === id)?.name ?? id
+  return options.find((option) => option.id === id)?.name ?? unseatedName(id)
 }
 
 function tone(value: number): string {

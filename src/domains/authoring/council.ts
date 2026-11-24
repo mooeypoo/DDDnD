@@ -15,6 +15,7 @@
 import type { NumericCondition, Scenario, Stakeholder, StakeholderChange, StakeholderReactionRule, VersionRef } from '../content/model'
 import { CONTENT_LIMITS } from '../content/validation/content_limits'
 import { addContent, putContent, removeContent, type DraftPack } from './draft_pack'
+import { removeChangesTo } from './council_notes'
 import { settlePlaceholderId } from './placeholder_ids'
 
 /** The most council members a scenario seats (the game's own limit). */
@@ -57,20 +58,12 @@ export function ownReactionsTo(draft: DraftPack, stakeholderId: string): Array<{
       .map((item) => ({ section, id: item.id, name: item.name })))
 }
 
-function withoutPerson<T extends WithPeople>(item: T, stakeholderId: string): T {
-  const kept = (item.stakeholder_changes ?? []).filter((change) => change.stakeholder_id !== stakeholderId)
-  const next = { ...item }
-  if (kept.length) next.stakeholder_changes = kept
-  else delete next.stakeholder_changes
-  return next
-}
-
 /**
  * Takes a member out of every scenario: they no longer take part. Their
- * satisfaction floor goes too (it can only name someone at the table), and
- * the draft's own content stops naming them (those changes would do nothing).
- * The draft's own member is deleted with their reactions; the game's is only
- * unseated, so taking them out can't affect anything outside this pack.
+ * satisfaction floor goes too (it can only name someone at the table). The
+ * draft's own member is deleted with their reactions, and the draft's own
+ * content stops naming them. The game's member is only unseated: content that
+ * still names them is left as it is, and noted (M4.5a).
  */
 export function removeFromCouncil(draft: DraftPack, ref: VersionRef): DraftPack {
   const own = isOwnMember(draft, ref)
@@ -92,8 +85,11 @@ export function removeFromCouncil(draft: DraftPack, ref: VersionRef): DraftPack 
     }
     next = removeContent(next, 'stakeholders', ref.id)
   }
-  for (const { section, id } of ownReactionsTo(next, ref.id)) {
-    next = putContent(next, section, withoutPerson(next.content[section][id] as never, ref.id))
+  // A deleted member can't be seated again, so the draft's own changes to them go too.
+  // One of the game's members stays named: the Checks rail notes it (council_notes.ts)
+  // and offers to seat them or change the content, rather than editing it unasked.
+  if (own) {
+    for (const { section, id } of ownReactionsTo(next, ref.id)) next = removeChangesTo(next, section, id, ref.id)
   }
   return next
 }

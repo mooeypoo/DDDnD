@@ -20,7 +20,9 @@ import {
   ownReactionsTo,
   putContent,
   removeFromCouncil,
+  removeChangesTo,
   removeReaction,
+  unseatedNotes,
   setReactionCondition,
   settleNewMemberId,
   settleNewReactionId,
@@ -72,7 +74,7 @@ describe('the game\'s council members', () => {
     expect((await checkDraft(without, firstParty())).issues).toEqual([])
   })
 
-  it('stop being named by the draft\'s own cards when left out', async () => {
+  it('are left out without editing the draft\'s own cards that name them (M4.5a: those are noted instead)', async () => {
     const { provider } = baseRegistry()
     const { draft } = await monolith()
     const cardRef = scenarioOf(draft).card_refs.find((ref) => ref.id === 'define_bounded_context')!
@@ -84,8 +86,7 @@ describe('the game\'s council members', () => {
     expect(ownReactionsTo(withCto, 'cto').map((item) => item.id)).toEqual([copied.id])
 
     const without = removeFromCouncil(withCto, CTO)
-    expect(without.content.cards[copied.id].stakeholder_changes).toEqual([{ stakeholder_id: 'vp_product', delta: -2 }])
-    expect(ownReactionsTo(without, 'cto')).toEqual([])
+    expect(without.content.cards[copied.id].stakeholder_changes).toEqual([{ stakeholder_id: 'cto', delta: 4 }, { stakeholder_id: 'vp_product', delta: -2 }])
   })
 
   it('can be seated again, once', async () => {
@@ -209,5 +210,52 @@ describe('copying one of the game\'s members to a new member', () => {
     // The game's CTO is untouched
     expect((await provider.loadStakeholder(CTO)).name).toBe('Chief Technology Officer')
     expect((await checkDraft(copied.draft, firstParty())).issues).toEqual([])
+  })
+})
+
+describe('notes about council members who aren\'t seated (M4.5a)', () => {
+  it('has nothing to say about an untouched Monolith', async () => {
+    const { draft } = await monolith()
+    expect(await unseatedNotes(draft, baseRegistry().provider)).toEqual([])
+  })
+
+  it('lists, per person, the game\'s cards, events, aftershocks and reactions that still change them', async () => {
+    const { provider } = baseRegistry()
+    const without = removeFromCouncil((await monolith()).draft, CTO)
+    const notes = await unseatedNotes(without, provider)
+    expect(notes.map((note) => note.stakeholder_id)).toEqual(['cto'])
+    const sources = notes[0].sources
+    expect(sources.length).toBeGreaterThan(3)
+    expect(sources.every((source) => !source.own)).toBe(true)
+    expect(new Set(sources.map((source) => source.section))).toContain('cards')
+    // Every source really does name the CTO
+    for (const source of sources.filter((source) => source.section === 'cards')) {
+      expect((await provider.loadCard(source.ref)).stakeholder_changes?.some((change) => change.stakeholder_id === 'cto')).toBe(true)
+    }
+    // Aftershocks say which card they come from
+    for (const source of sources.filter((source) => source.section === 'delayed_effects')) expect(source.via?.section).toMatch(/cards|events/)
+  })
+
+  it('marks the draft\'s own content, which can lose the change in one step', async () => {
+    const { provider } = baseRegistry()
+    const { draft } = await monolith()
+    const cardRef = scenarioOf(draft).card_refs.find((ref) => ref.id === 'define_bounded_context')!
+    const copied = copyToEdit(draft, 'cards', await provider.loadCard(cardRef))
+    const withCfo = putContent(copied.draft, 'cards', {
+      ...(copied.draft.content.cards[copied.id] as Card),
+      stakeholder_changes: [{ stakeholder_id: 'cfo', delta: 3 }],
+    })
+    const notes = await unseatedNotes(withCfo, provider)
+    expect(notes).toEqual([{ scenario_id: expect.any(String), stakeholder_id: 'cfo', sources: [expect.objectContaining({ section: 'cards', own: true, delta: 3, ref: { id: copied.id, version: 1 } })] }])
+
+    const fixed = removeChangesTo(withCfo, 'cards', copied.id, 'cfo')
+    expect(fixed.content.cards[copied.id]).not.toHaveProperty('stakeholder_changes')
+    expect(await unseatedNotes(fixed, provider)).toEqual([])
+  })
+
+  it('goes away when they\'re seated again', async () => {
+    const { draft } = await monolith()
+    const back = addToCouncil(removeFromCouncil(draft, CTO), CTO)
+    expect(await unseatedNotes(back, baseRegistry().provider)).toEqual([])
   })
 })
