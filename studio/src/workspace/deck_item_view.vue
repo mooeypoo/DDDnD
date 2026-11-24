@@ -126,21 +126,27 @@ const card = computed(() => (props.section === 'cards' ? (item.value as Card | n
 const event = computed(() => (props.section === 'events' ? (item.value as Event | null) : null))
 
 watch(() => [props.section, props.itemRef.id, props.itemRef.version, own.value], async () => {
+  const wanted = `${props.section}/${props.itemRef.id}-v${props.itemRef.version}`
   confirmingRemoval.value = false
   baseItem.value = null
   if (own.value) return
   const { base } = await loadFirstParty()
-  baseItem.value = props.section === 'cards' ? await base.loadCard(props.itemRef) : await base.loadEvent(props.itemRef)
+  const loaded = props.section === 'cards' ? await base.loadCard(props.itemRef) : await base.loadEvent(props.itemRef)
+  // The view is reused across items (so naming one keeps focus): a slow load for the last one mustn't land on this one
+  if (`${props.section}/${props.itemRef.id}-v${props.itemRef.version}` === wanted) baseItem.value = loaded
 }, { immediate: true })
 
+let aftershockLoad = 0
 watch(() => item.value?.delayed_effect_refs, async (refs) => {
+  const load = ++aftershockLoad
   if (!refs?.length) {
     aftershockNames.value = []
     return
   }
   const { base } = await loadFirstParty()
-  aftershockNames.value = await Promise.all(refs.map(async (ref) =>
+  const loaded = await Promise.all(refs.map(async (ref) =>
     props.draft.content.delayed_effects[ref.id]?.name ?? (await base.loadDelayedEffect(ref).then((effect) => effect.name, () => ref.id))))
+  if (load === aftershockLoad) aftershockNames.value = loaded
 }, { immediate: true })
 
 const names = computed(() => ({

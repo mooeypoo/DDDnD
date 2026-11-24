@@ -40,6 +40,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D18 | **A preview run shows the results screen, with no share link** (answers Q12). | The author needs to see which ending and tier their scenario produced. A share link would point at a pack nobody else can load. |
 | D19 | **The Forge's mark is the anvil with sparks** (option B on the mockup). | It reads as "forge" rather than just "metal", and still works at header size. |
 | D20 | **The guided round has an ember-tinted header** with a "Guided round" pill. | You always know you're in a lesson, and how to leave it ("your work is kept"). |
+| D21 | **The base game's council members can't be edited.** Authors take them out, create new members, or copy a base member to a new member and edit the copy (with its reactions). The base game's cards don't affect new members; the author changes how a card treats the council by making their own version of the card (D7). | The game's cards and events refer to council members by id. An edited member in place would have to be a new id, which those cards don't refer to (M3.9), so the Studio says plainly that a copy is a new member. Only the members a scenario seats take part, so leaving one out is harmless. |
 
 ---
 
@@ -439,3 +440,92 @@ Tests: 1201 in total (+10 for the deck, id settling, prefixes, and copying from 
 - the sidebar gets long with a full deck (collapse or filter);
 - "Go to it" could focus the exact field;
 - aftershocks and event conditions aren't editable yet.
+
+### M4.5: The council: who sits at the table, and your own members (2026-11-24)
+
+Decision **D21** (option c of the M4.4 question): the base game's council members can't be edited. They can be left out, and a copy of one is a new member. The council screen says it plainly: "You can't edit the base game's council members, because the game's cards and events refer to them. You can create new members, or copy a base member and edit the copy. The base game's cards and events don't affect your new members; only your own cards and events do. Only the members seated here take part in the game. If you don't want one of the base game's members, take them out of the scenario." The first wording ("because the game's cards are written for them") was too indirect; the owner asked for this plain version.
+
+**What an author can do now**
+- **See the council:** "4 of 8 seats", each member marked "yours" or "from the game", with the game's unseated members listed under it.
+- **Open one of the game's members.** It's read-only, with their reactions in plain words ("CTO Wants Clarity. When Domain Clarity drops below 35: lowers Budget by 3 and Team Morale by 2; makes Chief Technology Officer unhappier (-5).") and a note saying why it can't be edited and what to do instead.
+- **Take any member out.** A confirmation says what follows: for one of the game's members, "they won't take part … the game itself is unchanged"; for the author's own, their reactions go with them. For the author's own member, it lists their cards or events that will stop moving them; for one of the game's, it says Notes will list what still names them (M4.5a). The last seat can't be emptied.
+- **Seat one of the game's members**, up to the game's limit of 8.
+- **Copy one of the game's members to a new member** ("Copy to a new member"): it starts as "Chief Technology Officer (copy)" with the same description and all reactions as the author's own, editable. Reactions that moved the original move the copy. It sits next to the original, who can then be taken out.
+- **Seat their own member** ("+ New member" or "+ Seat your own member"):
+  - name, description and optional summary; the id settles from the name, like cards;
+  - **reactions:** a name, a sentence, a condition ("When [Budget] [drops below / is at most / rises above / is at least] [40]") and what changes, with the same score and council rows as cards, in plain words. Every reaction whose condition holds happens once a turn, as in the game. The condition's text in the file (`condition_description`) is written from the condition, so it can't disagree with it.
+- **Pick their own members on cards and events:** the card editor's council picker offers whoever is seated.
+- **"Go to it"** from the Checks rail now reaches council members and reactions (a reaction opens its member's page).
+
+**Domain** (`council.ts`):
+- `addToCouncil`, `removeFromCouncil`, `isOwnMember`, `createOwnMember`, `copyMember` and `ownReactionsTo`;
+- `addReaction`, `setReactionCondition`, `removeReaction`, `describeCondition` and `conditionText`;
+- `settleNewMemberId` and `settleNewReactionId`.
+
+Id settling for cards, events, members and reactions now shares one helper (`placeholder_ids.ts`).
+
+`removeFromCouncil` also:
+- drops the member's satisfaction floor from the scenario's balance targets. Every base v2 scenario sets one for each member, and the game's checks refuse a floor for someone not at the table;
+- for the author's own member (who is deleted), strips the draft's own changes aimed at them. For one of the game's members it leaves them, and the Checks rail notes them instead (M4.5a).
+
+**For the talk: an id is a promise.** The council question is the D7 question one level down. Content in other packs refers to a council member by id, so an "edited copy" isn't the same member, however alike it looks: it's a new identity that nothing else knows. The Studio doesn't pretend otherwise. It offers what the model really supports: seat or unseat the shared member (the scenario owns who's at its table), or bring a new member with a new identity. The scenario is the aggregate that decides membership; the council member is shared content it refers to, and only its owner, the game, can change it.
+
+**Found on the way**
+- **Naming something new lost focus after all.** M4.4 settled a card's id when its name field lost focus, so that typing wasn't interrupted. But the editor was keyed on the id, so when the id settled, Vue rebuilt it and Tab landed nowhere: the next keystrokes went nowhere. The editors are now keyed by kind, not id, and a slow load for the previous item can't land on the next one. This was verified in the browser for cards, members and reactions (focus moves on to the description).
+- **The Checks rail asks council members for "who they are and what they care about",** not "what it does".
+
+**Verification** (headless Chrome, production build, Studio CSP):
+1. Copy the Monolith and add an author. Open the council: 4 of 8 seats, the explanation, and the four unseated game members.
+2. Open the CTO: read-only, 5 reactions in plain words. Take them out: 3 of 8 seats, and the checks stay clean.
+3. **+ New member:** type "Head of Payments", then Tab. The id settles to `…_head_of_payments` and focus moves to the description. The checks ask for the description until it's written.
+4. Add a reaction: name it (focus moves on), give it a sentence, and set the condition to "is at most 30". The plain words read "when Domain Clarity is at most 30, this makes Head of Payments unhappier (-3)". The checks are clean.
+5. A new card's council picker offers Head of Payments. Seat the CTO again: 5 of 8. Export.
+6. **Through the game's own import:**
+   - no playability issues;
+   - the council is VP of Product, Lead Developer, Operations Manager, Head of Payments and CTO;
+   - five runs played, and in one of them Head of Payments' reaction fired (44 at the end).
+7. Zero CSP violations, no console errors.
+
+Tests: 1211 in total (+10 for the council). One of them exports a Monolith without the CTO and with an own member whose reaction fires every turn, then plays it through the game's import: the member finishes above 50 and the CTO is absent.
+
+**Next:** aftershocks and event conditions; then the version-bump assistant, zip export and import, and "Play it" (D15/D17). Smaller follow-ups:
+- the sidebar gets long with a full deck (collapse or filter);
+- "Go to it" could focus the exact field.
+
+### M4.5a: Notes about council members who aren't seated (2026-11-24)
+
+The owner asked for a check that warns, but doesn't refuse, when a card, event, aftershock or reaction changes how someone feels who isn't seated, and offers to seat them or change the content. The game allows this and ignores those changes (M3.9). That's right for shared content, but in a draft it usually means the author forgot something.
+
+**What an author sees.** A **Notes** list under Checks, marked "These don't block export", with one note per person:
+
+> **Chief Technology Officer isn't seated.** 5 cards and 2 events change how they feel. The game ignores changes to people who aren't at the table, so they do nothing. Seat them, or change those so they don't name them.
+
+Each note has:
+- **Seat [name]**;
+- **Show what changes them**: every card, event, aftershock ("Aftershock of …") and reaction ("…'s reaction"), with the amount, marked yours or from the game, and **Go to it**. An aftershock goes to its card, and a reaction to its member;
+- **Remove the change** on the author's own items. On the game's items, a hint says to make your own version.
+
+The card and event editors show such a change as "Chief Technology Officer (not seated)" with "does nothing: not seated", instead of an empty picker.
+
+**A change of behaviour.** M4.5 removed the draft's own changes to a game member the author took out of the scenario. Now those changes stay and are noted, so nothing is edited without the author asking. The confirmation says so. Deleting the author's *own* member still strips changes aimed at them, because that member no longer exists and can't be seated again.
+
+**Domain** (`council_notes.ts`):
+- `unseatedNotes(draft, base)` walks each scenario: its deck, each card's and event's aftershocks, and the seated members' reactions. It resolves the draft's own content first, then the game's, and groups the changes by person;
+- `removeChangesTo` takes one person's changes out of one of the draft's own items.
+
+The notes run alongside each check; the game's content loader caches, so they're cheap.
+
+**Base scenarios, untouched:** none has notes except Microservice Sprawl. There, "Automate Deployment Pipeline" names the VP of Product, who isn't seated: the case M3.9 found. The note is accurate, so it shows.
+
+**For the talk:** this is the "warn, don't refuse" side of the trust boundary. Refusing is for what could hurt a player (ADR 0014). Something that's merely surprising gets a note, with the fixes next to it.
+
+**Verification** (headless Chrome, production build, Studio CSP):
+1. Copy the Monolith: no notes.
+2. Take the CTO out. The confirmation mentions Notes. Checks still says "Ready to export", and export stays enabled.
+3. The note reads "5 cards and 2 events". The list shows each with its amount.
+4. **Seat Chief Technology Officer** from the note: the note goes away and the CTO is back in the sidebar.
+5. Take them out again. **Go to it** on Define Bounded Context opens it; "Make my own version" shows "Chief Technology Officer (not seated) … does nothing: not seated".
+6. **Remove the change** on the now-yours card: the note drops to "4 cards and 2 events" and the card's council row is gone.
+7. Export works with notes present. Zero CSP violations, no console errors.
+
+Tests: 1215 in total (+4 for notes: an untouched Monolith has none; the game's content is listed by person; own content is marked and fixable; re-seating clears them).

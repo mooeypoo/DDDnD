@@ -8,8 +8,8 @@
  */
 
 import type { Card, Event, ScoreChange, StakeholderChange, VersionRef } from '../content/model'
-import { contentIdFromName } from './content_ids'
-import { addContent, draftIds, putContent, removeContent, type DraftPack } from './draft_pack'
+import { addContent, putContent, removeContent, type DraftPack } from './draft_pack'
+import { hasPlaceholderIdFor, settlePlaceholderId } from './placeholder_ids'
 
 export type DeckSection = 'cards' | 'events'
 const REF_FIELD = { cards: 'card_refs', events: 'event_refs' } as const
@@ -69,8 +69,7 @@ export const PLACEHOLDER_NAMES = { cards: 'New card', events: 'New event' } as c
 
 /** True while an item still has the id it got from its placeholder name. */
 export function hasPlaceholderId(draft: DraftPack, section: DeckSection, id: string): boolean {
-  const base = contentIdFromName(PLACEHOLDER_NAMES[section], draft.prefix)
-  return id === base || new RegExp(`^${base}_\\d+$`).test(id)
+  return hasPlaceholderIdFor(draft, PLACEHOLDER_NAMES[section], id)
 }
 
 /**
@@ -80,25 +79,18 @@ export function hasPlaceholderId(draft: DraftPack, section: DeckSection, id: str
  * after that. The deck follows it. Returns the (possibly unchanged) id.
  */
 export function settleNewItemId(draft: DraftPack, section: DeckSection, id: string): { draft: DraftPack; id: string } {
-  const item = draft.content[section][id]
-  if (!item || !hasPlaceholderId(draft, section, id) || item.name.trim() === '' || item.name === PLACEHOLDER_NAMES[section]) {
-    return { draft, id }
-  }
-  const taken = draftIds(draft)
-  taken.delete(id)
-  const newId = contentIdFromName(item.name, draft.prefix, taken)
-  if (newId === id) return { draft, id }
-
   const field = REF_FIELD[section]
-  let next = putContent(removeContent(draft, section, id), section, { ...item, id: newId } as never)
-  for (const scenario of Object.values(next.content.scenarios)) {
-    if (!scenario[field].some((ref) => ref.id === id && ref.version === item.version)) continue
-    next = putContent(next, 'scenarios', {
-      ...scenario,
-      [field]: scenario[field].map((ref) => (ref.id === id && ref.version === item.version ? { id: newId, version: item.version } : ref)),
-    })
-  }
-  return { draft: next, id: newId }
+  return settlePlaceholderId(draft, section, id, PLACEHOLDER_NAMES[section], (moved, oldId, newId) => {
+    let next = moved
+    for (const scenario of Object.values(next.content.scenarios)) {
+      if (!scenario[field].some((ref) => ref.id === oldId)) continue
+      next = putContent(next, 'scenarios', {
+        ...scenario,
+        [field]: scenario[field].map((ref) => (ref.id === oldId ? { id: newId, version: ref.version } : ref)),
+      })
+    }
+    return next
+  })
 }
 
 interface Effects {
