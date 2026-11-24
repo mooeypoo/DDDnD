@@ -71,6 +71,18 @@ define_bounded_context-v2.json
 
 ---
 
+# The Base Pack's Promise
+
+Community packs refer to base content by `id + version` and declare the base pack version they were made with. The game accepts them on any later base of the same major version. So, within a major version, the base pack:
+
+- never removes a versioned file it has shipped,
+- never changes how a shipped file plays (wording may change),
+- raises its version when it adds content, so a pack that uses the new content declares a base that has it.
+
+`scripts/base-content-lock.json` records what the base has shipped, and a test checks the rules above. After changing base content, run `npm run content:lock` and commit the lock. Breaking the promise on purpose means a new major base version (2.0.0), which starts a new lock.
+
+---
+
 # Scenario Compatibility
 
 Runs reference content by:

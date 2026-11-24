@@ -30,6 +30,7 @@
     "content:validate:audit": "npx tsx scripts/validate-content-pack.ts --audit --runs 50 --fail-on-audit-critical",
     "content:schemas": "npx tsx scripts/generate-json-schemas.ts",
     "content:bundle": "npx tsx scripts/bundle-pack.ts",
+    "content:lock": "npx tsx scripts/update-base-content-lock.ts",
     "docs:dev": "vitepress dev docs-site",
     "docs:build": "vitepress build docs-site",
     "docs:preview": "vitepress preview docs-site",

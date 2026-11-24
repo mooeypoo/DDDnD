@@ -77,8 +77,11 @@ export interface DraftRelease {
   content: DraftContent
 }
 
-/** The base pack every Studio draft builds on, and the license that requires (ADR 0004). */
-export const DRAFT_DEPENDENCY = { pack_id: 'base', version: '1.0.0' } as const
+/**
+ * The license every Studio draft carries: drafts build on the base pack,
+ * which requires it (ADR 0004). Which base version they depend on comes from
+ * the base pack the draft is checked against (`gameTarget`).
+ */
 export const DRAFT_LICENSE = 'GPL-3.0-only'
 
 function emptyContent(): DraftContent {

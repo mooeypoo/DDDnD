@@ -51,8 +51,8 @@ describe('a draft pack', () => {
   it('starts empty, with a prefix from its name and the base pack as its dependency', () => {
     const draft = createDraft({ kind: 'retelling', name: 'Payments Platform Quest', authors: AUTHOR })
     expect(draft.prefix).toBe('payments')
-    const manifest = draftManifest(draft)
-    expect(manifest).toMatchObject({ kind: 'extension', depends_on: [{ pack_id: 'base', version: '1.0.0' }], license: 'GPL-3.0-only', base_url: '.' })
+    const manifest = draftManifest(draft, { schema_version: 1, base_version: '1.4.0' })
+    expect(manifest).toMatchObject({ schema_version: 1, kind: 'extension', depends_on: [{ pack_id: 'base', version: '1.4.0' }], license: 'GPL-3.0-only', base_url: '.' })
   })
 
   it('gives new content prefixed, unique ids from names, at version 1', () => {

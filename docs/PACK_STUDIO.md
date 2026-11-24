@@ -43,7 +43,8 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D21 | **The base game's council members can't be edited.** Authors take them out, create new members, or copy a base member to a new member and edit the copy (with its reactions). The base game's cards don't affect new members; the author changes how a card treats the council by making their own version of the card (D7). | The game's cards and events refer to council members by id. An edited member in place would have to be a new id, which those cards don't refer to (M3.9), so the Studio says plainly that a copy is a new member. Only the members a scenario seats take part, so leaving one out is harmless. |
 | D22 | **The Studio's screens hold no content rules** (M4.5b). A screen shows a draft and turns the author's input into a domain call. Anything that is true about content, wherever it is shown, is answered by the authoring domain: what a reference names, whose it is, what's in the deck, how an optional field is written, and what a check's issue is about. A test enforces it. | The game keeps its rules out of its UI, and the Studio is the same codebase's second client. When a rule lived in a screen it was copied, and the copies drifted: one screen took the draft's own content regardless of version, another required the exact version. |
 | D23 | **A full UI/UX audit comes after the Studio's important functionality, before launch.** Until then, slices may add screens without polishing the whole. The audit looks at the start screen, the workspace's layout and the editing flows together. | The owner finds parts confusing now, mainly the start screen and some editing. Fixing those one slice at a time would mean redoing them as features land; one audit over the finished set can make it consistent. |
-| D24 | **Exporting is a release, and a version names one behaviour.** The Studio remembers what each draft last exported. Content whose *play* changed since then gets the next version on export (`-v1` → `-v2`), and everything in the pack that points to it follows, cascading up to the scenario. Wording-only changes keep their version. The pack version is suggested (a new minor version for play, a patch for wording) and must be later than the last export. Old entity versions are **not** shipped inside the new pack file. | CONTENT_VERSIONING.md: "a version never changes meaning". Non-developers can't be expected to know which fields count, so the Studio decides, from a list of wording fields; unknown fields count as play (the safe default). Old versions stay out of the new file because the game resumes a saved run only with the exact content it was played with (journal M2.6), so shipping them would help no player; the previous pack file is where `-v1` lives. |
+| D24 | **Exporting is a release. A pack has three kinds of version, and each has one owner.** (1) **The pack's version** (1.0.0, 1.1.0) belongs to the author: the Studio suggests one (a new minor for play, a patch for wording) and only refuses a version that isn't later than the last export. (2) **Each piece of content's version** (`card-v1` → `-v2`) belongs to the Studio: content whose *play* changed since the last export gets the next version, and everything in the pack that points to it follows, up to the scenario. Wording-only changes keep their version. The new pack file holds only the current version of each piece; the earlier file keeps `-v1`. (3) **Which game the pack is for** belongs to the game itself (D25). | CONTENT_VERSIONING.md: "a version never changes meaning". Authors never see ids, and a forgotten bump would quietly change a saved run under a player, so content versions are the model's job, decided from a short list of wording fields; unknown fields count as play (the safe default). Old versions stay out of the new file because the game resumes a saved run only with the exact content it was played with (journal M2.6), so shipping them would help no player. Two files with the same pack id and version would mean different things to different players, so the pack version only moves forward. |
+| D25 | **The Studio exports for the game in the same repository, and CI keeps them in step.** A pack declares the pack format (`schema_version`) and the base pack version it was checked against (`depends_on`), both read from the game's own code and content, never a copy. The game accepts it on any later base of the same major version. In return the base pack keeps a promise within a major version: what it has shipped stays shipped and plays the same, and new content comes with a later base version. `scripts/base-content-lock.json` records that promise and a test checks it (`npm run content:lock` after changing base content). | The game, its content and the Studio live in one monorepo and deploy from the same commit, so the rule can be a check rather than a habit. The Studio had declared a fixed base 1.0.0: right today, but a pack using content added in 1.1.0 would have claimed to work on 1.0.0. A pack names base content by exact version, so a base that changed or dropped `card-v1` within 1.x would break packs already out there. |
 
 ---
 
@@ -673,4 +674,39 @@ Tests: 1242 in total (+10 in `releases.test.ts`, including an export of a releas
 - **Imported packs** (the zip and bundle import, next) should start with their imported content as the "last export".
 
 **Next:** zip export and import.
+
+### M4.7b: Which game a pack is for (D25) (2026-11-24)
+
+Reviewing #55, the owner asked the right question: authors should manage their versions, and the Studio should manage which *game* version a pack is tied to. Was that the case? Half of it was. D24 now names the three kinds of version and who owns each.
+
+**The pack's version belongs to the author.** The Studio suggests and refuses only going backwards. Nothing changes there.
+
+**Content versions belong to the Studio.** Authors never see ids, and a forgotten bump would change a saved run under a player. Nothing changes there either, but D24 now says why in those words.
+
+**Which game a pack is for belongs to the game, and that's what was missing.** A pack declares two things:
+- `schema_version`: the file format. A game that's too old refuses a newer format instead of misreading it.
+- `depends_on: base <version>`: the base content it builds on. The game accepts any later base of the same major version (caret).
+
+The Studio wrote both as constants: format 1 and base 1.0.0. Both were right today. The risk was tomorrow: base 1.1.0 adds a card, an author uses it, the pack says it works on 1.0.0, and a player on 1.0.0 installs it and meets missing content.
+
+**What changed:**
+- **Domain:** `gameTarget(firstParty)` reads the format from the game's `CURRENT_PACK_SCHEMA_VERSION` and the base version from the base pack the draft is checked against. `draftManifest` and `draftToRawPack` now take that target; `checkDraft` and the export compute it. The `DRAFT_DEPENDENCY` constant is gone. Without a base pack loaded, the Studio refuses to guess.
+- **Export page:** "Made for DDDnD's base game 1.0.0. It works in any 1.x version from 1.0.0 on." (`compatibleBaseGames`, from the same caret rule the game uses.)
+- **The base pack's promise, enforced** (`scripts/lib/base_content_lock.ts`, `scripts/base-content-lock.json`). Within a major version:
+  - every `<id>-v<n>` the base has shipped stays shipped;
+  - it plays the same: the lock stores a short hash of each file's *play* (`playSignature`, the same wording/play split the Studio uses for drafts), so rewording passes and a changed number fails;
+  - new content comes with a later base version.
+
+  A new major version starts a new lock. A test in CI fails if the lock is broken or out of date, and `npm run content:lock` records it after a deliberate change. CONTENT_VERSIONING.md allows one exception: making behaviour explicit in a new structured field when a test proves it plays identically (M1.4). That goes through `--accept <section>/<file>`, so it's always named on purpose.
+
+**Why a check, not a habit:** the game, its content and the Studio live in one repository and both sites deploy from `main` (a `content/` change rebuilds both). So "the Studio is up to date with the game" doesn't need a release process: the Studio reads the game's own files, and the lock makes the base keep its word to packs already out there.
+
+**For the talk: a published language needs a contract, and in a monorepo the contract can be a test.** The base pack is upstream of every community pack (a customer/supplier relationship, in context-mapping terms). The game's ids and versions are the published language. Writing the supplier's promise down as a lock file turned "be careful with base content" into a failing build with a sentence that says what to do.
+
+**Verification:**
+- Tests: 1250 in total. `game_studio_sync.test.ts` exports a real draft and checks it declares this repository's format and base version. Lock cases: removed, changed play, reworded, new content without a version bump, an earlier version, a new major, and a named exception.
+- By hand: changing a base card's score change makes `npm run content:lock` refuse, naming the file and what to do. Changing only its name passes. The card was restored.
+- Headless Chrome (production build, Studio CSP): the export page shows the base-game line. All three downloaded files declare `depends_on: base 1.0.0` and format 1. Zero CSP violations, no console errors.
+
+**Risk noted:** the game and the Studio are two Netlify sites building the same commit, so for a few minutes one can be ahead of the other. If the Studio deploys a base version bump first, a pack exported in that window declares a base the live game doesn't have yet, and the game refuses it with its "needs a newer DDDnD" kind of message. This fails safe and is short-lived; launch (step 8) could order the deploys if it matters.
 

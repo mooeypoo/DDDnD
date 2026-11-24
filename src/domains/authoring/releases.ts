@@ -92,6 +92,17 @@ export function changedFields(before: object, after: object): { play: string[]; 
   return { play: changed.filter((field) => !WORDING_FIELDS.has(field)), wording: changed.filter((field) => WORDING_FIELDS.has(field)) }
 }
 
+/**
+ * How a piece of content plays, as one comparable string: every field except
+ * its identity and its wording. Two versions with the same signature play
+ * the same. The base-content lock uses it to hold the game's own content to
+ * the rule the Studio holds drafts to.
+ */
+export function playSignature(entity: object): string {
+  const play = Object.fromEntries(Object.entries(entity).filter(([field]) => field !== 'id' && field !== 'version' && !WORDING_FIELDS.has(field)))
+  return stable(play)
+}
+
 function entities(content: DraftContent, section: DraftSection): Entity[] {
   return Object.values(content[section] as Record<string, Entity>)
 }

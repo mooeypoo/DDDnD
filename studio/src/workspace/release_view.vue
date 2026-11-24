@@ -61,6 +61,9 @@
         <input v-model.trim="version" :aria-invalid="problem ? 'true' : undefined" aria-describedby="version-hint" />
       </label>
       <p id="version-hint" class="field-hint" :class="{ 'field-problem': problem }">{{ problem ?? suggestionText }}</p>
+      <p v-if="worksWith" class="works-with">
+        Made for DDDnD's base game {{ worksWith.from }}. It works in any {{ worksWith.series }} version from {{ worksWith.from }} on.
+      </p>
     </section>
 
     <div class="actions">
@@ -77,12 +80,19 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import { fieldWords, planRelease, releaseVersionProblem, type DraftPack, type DraftSection } from '@/domains/authoring'
+import { compatibleBaseGames, fieldWords, gameTarget, planRelease, releaseVersionProblem, type DraftPack, type DraftSection } from '@/domains/authoring'
+import { loadFirstParty } from '@studio/content/first_party'
 
 const props = defineProps<{ draft: DraftPack; checksClean: boolean }>()
 const emit = defineEmits<{ export: [version: string, done: (ok: boolean) => void] }>()
 
 const plan = computed(() => planRelease(props.draft))
+
+// The game this export is for: the base pack the Studio checks against (D25)
+const worksWith = ref<{ from: string; series: string } | null>(null)
+void loadFirstParty().then(({ packs }) => {
+  worksWith.value = compatibleBaseGames(gameTarget(packs))
+}).catch(() => {})
 const version = ref(plan.value.suggested)
 // A new suggestion (the draft changed) replaces one the author hasn't touched
 watch(() => plan.value.suggested, (next, previous) => {
@@ -221,6 +231,12 @@ function download() {
 
 .why strong {
   color: var(--forge-text-bright);
+}
+
+.works-with {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--forge-text-secondary);
 }
 
 .field-short {
