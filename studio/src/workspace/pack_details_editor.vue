@@ -30,8 +30,10 @@
         </span>
       </label>
       <p class="facts">
-        Exports as <strong>{{ draft.prefix }}</strong>, version <strong>{{ draft.version }}</strong>,
-        an extension of DDDnD's base game, licensed GPL-3.0 like the game.
+        Exports as <strong>{{ draft.prefix }}</strong>, an extension of DDDnD's base game, licensed GPL-3.0 like the game.
+        <template v-if="draft.released">Last exported as version <strong>{{ draft.released.version }}</strong>.</template>
+        <template v-else>Not exported yet.</template>
+        You choose the version when you export.
       </p>
     </section>
   </div>
