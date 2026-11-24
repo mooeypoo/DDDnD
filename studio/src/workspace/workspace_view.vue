@@ -36,7 +36,21 @@
           class="contents-item"
           :aria-current="isSelected('council') ? 'page' : undefined"
           @click="select({ kind: 'council' })"
-        ><span>Council</span><span class="count">{{ councilIds.length }}</span></button>
+        ><span>Council</span><span class="count">{{ councilRefs.length }}</span></button>
+        <div class="deck-actions">
+          <button type="button" class="deck-new" :disabled="councilRefs.length >= COUNCIL_SEATS" @click="createMember">+ New member</button>
+        </div>
+        <button
+          v-for="memberRef in councilRefs"
+          :key="memberRef.id"
+          type="button"
+          class="contents-item contents-sub"
+          :aria-current="isSelectedMember(memberRef) ? 'page' : undefined"
+          @click="select({ kind: 'member', ref: memberRef })"
+        >
+          <span class="item-name">{{ memberName(memberRef) }}</span>
+          <span v-if="isOwnMember(draft, memberRef)" class="own-mark">yours</span>
+        </button>
         <template v-for="deck in decks" :key="deck.section">
           <span class="contents-group">{{ deck.title }} <span class="count">{{ deck.refs.length }}</span></span>
           <div class="deck-actions">
@@ -70,20 +84,28 @@
           :scoreNames="names.scores"
           @change="(scenario) => updateDraft(putContent(draft!, 'scenarios', scenario))"
         />
-        <section v-else-if="selection.kind === 'council'" class="list-view" aria-labelledby="list-council">
-          <span class="editor-kicker">In your scenario</span>
-          <h1 id="list-council" class="editor-title">Council</h1>
-          <p class="list-note">
-            These come from the game, so your scenario plays like the original. Editing the council, or bringing your own
-            people to the table, arrives in a later release.
-          </p>
-          <ul class="name-list">
-            <li v-for="id in councilIds" :key="id">{{ names.stakeholders[id] ?? id }}</li>
-          </ul>
-        </section>
+        <CouncilView
+          v-else-if="selection.kind === 'council'"
+          :draft="draft"
+          :councilRefs="councilRefs"
+          :names="names.stakeholders"
+          @change="updateDraft"
+          @open="(memberRef) => select({ kind: 'member', ref: memberRef })"
+          @createMember="createMember"
+        />
+        <MemberView
+          v-else-if="selection.kind === 'member'"
+          :key="'member'"
+          :memberRef="selection.ref"
+          :draft="draft"
+          :scoreOptions="scoreOptions"
+          :stakeholderOptions="stakeholderOptions"
+          @change="updateDraft"
+          @select="afterMemberChange"
+        />
         <DeckItemView
           v-else-if="selection.kind === 'item'"
-          :key="`${selection.section}-${selection.ref.id}-v${selection.ref.version}`"
+          :key="selection.section"
           :section="selection.section"
           :itemRef="selection.ref"
           :draft="draft"
@@ -105,13 +127,15 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { createOwnCard, createOwnEvent, isOwn, PLACEHOLDER_NAMES, putContent, type DeckSection } from '@/domains/authoring'
+import { COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, PLACEHOLDER_NAMES, putContent, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { loadFirstParty } from '@studio/content/first_party'
 import { exportCurrentDraft, studio, updateDraft } from '@studio/state/studio_state'
 import ChecksPanel, { type IssueTarget } from '@studio/workspace/checks_panel.vue'
+import CouncilView from '@studio/workspace/council_view.vue'
 import DeckAddView from '@studio/workspace/deck_add_view.vue'
 import DeckItemView from '@studio/workspace/deck_item_view.vue'
+import MemberView from '@studio/workspace/member_view.vue'
 import PackDetailsEditor from '@studio/workspace/pack_details_editor.vue'
 import ScenarioEditor from '@studio/workspace/scenario_editor.vue'
 
@@ -121,6 +145,7 @@ type Selection =
   | { kind: 'details' }
   | { kind: 'scenario'; id: string }
   | { kind: 'council' }
+  | { kind: 'member'; ref: VersionRef }
   | { kind: 'item'; section: DeckSection; ref: VersionRef }
   | { kind: 'add'; section: DeckSection }
 type NameSection = 'scores' | 'stakeholders' | 'cards' | 'events'
@@ -136,7 +161,13 @@ function select(next: Selection) {
 
 /** "Go to it" from the Checks rail: open the editor, then move focus into it. */
 async function goTo(target: IssueTarget) {
-  select(target.kind === 'item' ? { kind: 'item', section: target.section, ref: target.ref } : target)
+  if (target.kind === 'reaction') {
+    // A reaction is edited on its member's page
+    const owner = Object.values(draft.value?.content.stakeholders ?? {}).find((member) => member.reaction_rule_refs.some((ref) => ref.id === target.id))
+    select(owner ? { kind: 'member', ref: { id: owner.id, version: owner.version } } : { kind: 'council' })
+  } else {
+    select(target)
+  }
   await focusEditor()
 }
 
@@ -150,6 +181,32 @@ function isSelected(kind: Selection['kind'], key?: string) {
 function isSelectedItem(section: DeckSection, ref: VersionRef) {
   const current = selection.value
   return current.kind === 'item' && current.section === section && current.ref.id === ref.id && current.ref.version === ref.version
+}
+
+function isSelectedMember(ref: VersionRef) {
+  const current = selection.value
+  return current.kind === 'member' && current.ref.id === ref.id
+}
+
+/** A council member's name: the draft's own (live as it's edited), else the game's. */
+function memberName(ref: VersionRef): string {
+  if (draft.value && isOwnMember(draft.value, ref)) return draft.value.content.stakeholders[ref.id].name || 'Unnamed council member'
+  return names.stakeholders[ref.id] ?? ref.id
+}
+
+/** "+ New member": made, seated, and opened with its name ready to type. */
+async function createMember() {
+  if (!draft.value) return
+  const made = createOwnMember(draft.value)
+  updateDraft(made.draft)
+  select({ kind: 'member', ref: { id: made.id, version: 1 } })
+  await focusEditor()
+  ;(document.activeElement as HTMLInputElement | null)?.select?.()
+}
+
+/** After a new member's id settles (stay on them) or they leave the table (back to the council). */
+function afterMemberChange(ref: VersionRef | null) {
+  select(ref ? { kind: 'member', ref } : { kind: 'council' })
 }
 
 /** A card's or event's name: the draft's own (live as it's edited), else the game's. */
@@ -218,14 +275,14 @@ function refsOf(field: 'stakeholder_refs' | 'card_refs' | 'event_refs'): Version
     return true
   })
 }
-const councilIds = computed(() => refsOf('stakeholder_refs').map((ref) => ref.id))
+const councilRefs = computed(() => refsOf('stakeholder_refs'))
 const decks = computed(() => [
   { section: 'cards' as const, title: 'Cards', singular: 'card', refs: refsOf('card_refs') },
   { section: 'events' as const, title: 'Events', singular: 'event', refs: refsOf('event_refs') },
 ])
 const scoreOptions = computed(() => [...new Set(scenarios.value.flatMap((scenario) => scenario.score_refs.map((ref) => ref.id)))]
   .map((id) => ({ id, name: names.scores[id] ?? id })))
-const stakeholderOptions = computed(() => councilIds.value.map((id) => ({ id, name: names.stakeholders[id] ?? id })))
+const stakeholderOptions = computed(() => councilRefs.value.map((ref) => ({ id: ref.id, name: memberName(ref) })))
 
 const saveText = computed(() => {
   if (!studio.persistent) return 'Not kept: export to save'
@@ -413,47 +470,5 @@ async function exportPack() {
     border-left: none;
     border-top: 1px solid var(--forge-hairline);
   }
-}
-
-.list-view {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.editor-kicker {
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--forge-text-secondary);
-}
-
-.editor-title {
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: var(--forge-gold);
-}
-
-.list-note {
-  margin: 0;
-  max-width: 40rem;
-  color: var(--forge-text-secondary);
-}
-
-.name-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-  gap: 0.5rem;
-}
-
-.name-list li {
-  padding: 0.625rem 0.875rem;
-  border-radius: 0.5rem;
-  background: var(--forge-panel);
-  border: 1px solid var(--forge-hairline);
-  color: var(--forge-text-bright);
 }
 </style>

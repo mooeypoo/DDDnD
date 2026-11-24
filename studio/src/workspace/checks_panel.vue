@@ -37,13 +37,17 @@ export type IssueTarget =
   | { kind: 'details' }
   | { kind: 'scenario'; id: string }
   | { kind: 'item'; section: 'cards' | 'events'; ref: { id: string; version: number } }
+  | { kind: 'member'; ref: { id: string; version: number } }
+  | { kind: 'reaction'; id: string }
 
 function target(file: string): IssueTarget | null {
   if (file === 'manifest.json') return { kind: 'details' }
-  const match = file.match(/^(scenarios|cards|events)\/([a-z0-9_]+)-v(\d+)\.json$/)
+  const match = file.match(/^(scenarios|cards|events|stakeholders|stakeholder-reaction-rules)\/([a-z0-9_]+)-v(\d+)\.json$/)
   if (!match) return null
   const [, folder, id, version] = match
   if (folder === 'scenarios') return { kind: 'scenario', id }
+  if (folder === 'stakeholders') return { kind: 'member', ref: { id, version: Number(version) } }
+  if (folder === 'stakeholder-reaction-rules') return { kind: 'reaction', id }
   return { kind: 'item', section: folder as 'cards' | 'events', ref: { id, version: Number(version) } }
 }
 
@@ -78,7 +82,11 @@ function friendly(issue: PackIssue): string {
   const { file, message } = issue
   const pack = file === 'manifest.json'
   if (/^authors: must be at least 1/.test(message)) return 'Add your name as the author.'
-  if (/^description: must not be blank/.test(message)) return pack ? 'Add a description of the pack.' : 'Add a description: what it does, in a sentence.'
+  if (/^description: must not be blank/.test(message)) {
+    if (pack) return 'Add a description of the pack.'
+    if (file.startsWith('stakeholders/')) return 'Add a description: who they are and what they care about.'
+    return 'Add a description: what it does, in a sentence.'
+  }
   if (/^name: must not be blank/.test(message)) return pack ? 'Give the pack a name.' : 'Give it a name.'
   return message
 }
