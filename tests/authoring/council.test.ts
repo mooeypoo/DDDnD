@@ -184,3 +184,30 @@ describe('conditions in plain words', () => {
     ])
   })
 })
+
+describe('copying one of the game\'s members to a new member', () => {
+  it('copies the description and reactions as the draft\'s own, aimed at the copy, seated beside the original', async () => {
+    const { copyMember } = await import('@/domains/authoring')
+    const { provider } = baseRegistry()
+    const { draft } = await monolith()
+    const cto = await provider.loadStakeholder(CTO)
+    const rules = await Promise.all(cto.reaction_rule_refs.map((ref) => provider.loadStakeholderReactionRule(ref)))
+    const copied = copyMember(draft, cto, rules)
+
+    expect(copied.id).toBe('ours_chief_technology_officer')
+    const member = copied.draft.content.stakeholders[copied.id]
+    expect(member).toMatchObject({ name: 'Chief Technology Officer (copy)', description: cto.description, version: 1 })
+    expect(member.reaction_rule_refs).toHaveLength(rules.length)
+    for (const ref of member.reaction_rule_refs) {
+      const rule = copied.draft.content.stakeholder_reaction_rules[ref.id]
+      expect(rule.id.startsWith('ours_')).toBe(true)
+      expect(JSON.stringify(rule.stakeholder_changes ?? [])).not.toContain('"cto"')
+    }
+    expect(copied.draft.content.stakeholder_reaction_rules[member.reaction_rule_refs[0].id].stakeholder_changes)
+      .toContainEqual({ stakeholder_id: copied.id, delta: -5 })
+    expect(scenarioOf(copied.draft).stakeholder_refs).toEqual(expect.arrayContaining([CTO, { id: copied.id, version: 1 }]))
+    // The game's CTO is untouched
+    expect((await provider.loadStakeholder(CTO)).name).toBe('Chief Technology Officer')
+    expect((await checkDraft(copied.draft, firstParty())).issues).toEqual([])
+  })
+})

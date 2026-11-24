@@ -23,8 +23,16 @@
         <p class="field-hint">Every reaction whose condition holds happens once a turn, after the card and any event.</p>
       </section>
       <div class="why" role="note">
-        <p><strong>You can't edit the game's council members.</strong> Many of the game's cards and events change how {{ member.name }} feels. An edited version would be a new person to the game, so those cards would no longer affect them.</p>
-        <p>To change who's at the table, take them out and seat your own member in their place. To change how a card treats them, make your own version of the card.</p>
+        <p><strong>You can't edit the base game's council members,</strong> because the game's cards and events refer to them.</p>
+        <p>
+          To change {{ member.name }}, copy them to a new member: the copy starts with the same description and reactions,
+          and you can edit all of it. The base game's cards and events don't affect the copy; only your own do.
+        </p>
+        <p>If you don't want {{ member.name }} in your scenario, take them out.</p>
+      </div>
+      <div class="copy-actions">
+        <button type="button" class="button button-primary" :disabled="councilFull" @click="copyToNewMember">Copy to a new member</button>
+        <span v-if="councilFull" class="field-hint">Every seat is taken: take someone out to make room for the copy.</span>
       </div>
       <RemoveMember :draft="draft" :memberRef="memberRef" :name="member.name" :own="false" :lastSeat="lastSeat" @remove="remove" />
     </template>
@@ -109,6 +117,8 @@ import { computed, nextTick, ref, watch } from 'vue'
 import {
   addReaction,
   CONDITION_WORDS,
+  copyMember,
+  COUNCIL_SEATS,
   describeCondition,
   describeEffects,
   isOwnMember,
@@ -146,6 +156,7 @@ const ownReactions = computed(() => (own.value && member.value
   : []))
 const reactions = computed(() => (own.value ? ownReactions.value : baseReactions.value))
 const lastSeat = computed(() => props.stakeholderOptions.length <= 1)
+const councilFull = computed(() => props.stakeholderOptions.length >= COUNCIL_SEATS)
 
 watch(() => [props.memberRef.id, props.memberRef.version, own.value], async () => {
   const wanted = props.memberRef.id
@@ -246,6 +257,14 @@ function dropReaction(ruleId: string) {
   emit('change', removeReaction(props.draft, props.memberRef.id, ruleId))
 }
 
+/** A new member of the draft's own, started from this one (D21): opened, ready to edit. */
+function copyToNewMember() {
+  if (!baseMember.value) return
+  const copied = copyMember(props.draft, baseMember.value, baseReactions.value)
+  emit('change', copied.draft)
+  emit('select', { id: copied.id, version: 1 })
+}
+
 function remove() {
   emit('change', removeFromCouncil(props.draft, props.memberRef))
   emit('select', null)
@@ -306,6 +325,13 @@ function remove() {
   border-radius: 0.5rem;
   border: 1px solid rgba(108, 199, 187, 0.45);
   background: rgba(108, 199, 187, 0.06);
+}
+
+.copy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .why p {

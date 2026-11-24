@@ -7,13 +7,13 @@
 
     <div class="explain">
       <p>
-        <strong>Your scenario decides who sits at the table.</strong> Anyone who isn't seated simply doesn't take part:
-        the game's cards that would move them do nothing here, so there's no harm in leaving people out.
+        <strong>You can't edit the base game's council members,</strong> because the game's cards and events refer to them.
+        You can create new members, or copy a base member and edit the copy. The base game's cards and events don't
+        affect your new members; only your own cards and events do.
       </p>
       <p>
-        You can't edit the game's council members. Many of the game's cards change how a particular member feels
-        ("makes the CTO happier"). An edited CTO would be a new person to the game, so those cards would no longer
-        affect them. Instead, leave out anyone who doesn't fit and seat your own members, each with their own reactions.
+        Only the members seated here take part in the game. If you don't want one of the base game's members, take them
+        out of the scenario.
       </p>
     </div>
 

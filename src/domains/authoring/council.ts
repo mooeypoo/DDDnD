@@ -12,7 +12,7 @@
  * own version of the card.
  */
 
-import type { NumericCondition, Scenario, StakeholderChange, VersionRef } from '../content/model'
+import type { NumericCondition, Scenario, Stakeholder, StakeholderChange, StakeholderReactionRule, VersionRef } from '../content/model'
 import { CONTENT_LIMITS } from '../content/validation/content_limits'
 import { addContent, putContent, removeContent, type DraftPack } from './draft_pack'
 import { settlePlaceholderId } from './placeholder_ids'
@@ -102,6 +102,41 @@ export function removeFromCouncil(draft: DraftPack, ref: VersionRef): DraftPack 
 export function createOwnMember(draft: DraftPack, name: string = COUNCIL_PLACEHOLDERS.member): { draft: DraftPack; id: string } {
   const added = addContent(draft, 'stakeholders', { name, description: '', reaction_rule_refs: [] })
   return { draft: addToCouncil(added.draft, { id: added.id, version: 1 }), id: added.id }
+}
+
+/**
+ * A new member of the draft's own, started as a copy of one of the game's:
+ * same description and reactions, all editable, seated next to the original.
+ * It's a new member (D21): the game's cards that move the original don't move
+ * the copy. Its reactions that moved the original move the copy instead.
+ */
+export function copyMember(
+  draft: DraftPack,
+  original: Stakeholder,
+  reactions: StakeholderReactionRule[],
+): { draft: DraftPack; id: string } {
+  const { id: originalId, version: _version, reaction_rule_refs: _refs, ...fields } = JSON.parse(JSON.stringify(original)) as Stakeholder
+  const added = addContent(draft, 'stakeholders', { ...fields, reaction_rule_refs: [] })
+  const copyId = added.id
+  let next = putContent(added.draft, 'stakeholders', { ...added.draft.content.stakeholders[copyId], name: `${original.name} (copy)` })
+  const ruleRefs: VersionRef[] = []
+  for (const rule of reactions) {
+    const { id: _ruleId, version: _ruleVersion, ...ruleFields } = JSON.parse(JSON.stringify(rule)) as StakeholderReactionRule
+    const retargeted = {
+      ...ruleFields,
+      condition: ruleFields.condition.target_type === 'stakeholder' && ruleFields.condition.target_id === originalId
+        ? { ...ruleFields.condition, target_id: copyId }
+        : ruleFields.condition,
+      ...(ruleFields.stakeholder_changes
+        ? { stakeholder_changes: ruleFields.stakeholder_changes.map((change) => (change.stakeholder_id === originalId ? { ...change, stakeholder_id: copyId } : change)) }
+        : {}),
+    }
+    const copied = addContent(next, 'stakeholder_reaction_rules', retargeted)
+    next = copied.draft
+    ruleRefs.push({ id: copied.id, version: 1 })
+  }
+  next = putContent(next, 'stakeholders', { ...next.content.stakeholders[copyId], reaction_rule_refs: ruleRefs })
+  return { draft: addToCouncil(next, { id: copyId, version: 1 }), id: copyId }
 }
 
 /** Gives a new member the id of their name, once named (see placeholder_ids). */

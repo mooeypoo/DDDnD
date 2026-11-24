@@ -40,7 +40,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D18 | **A preview run shows the results screen, with no share link** (answers Q12). | The author needs to see which ending and tier their scenario produced. A share link would point at a pack nobody else can load. |
 | D19 | **The Forge's mark is the anvil with sparks** (option B on the mockup). | It reads as "forge" rather than just "metal", and still works at header size. |
 | D20 | **The guided round has an ember-tinted header** with a "Guided round" pill. | You always know you're in a lesson, and how to leave it ("your work is kept"). |
-| D21 | **The game's council members are seated or left out, never copied.** Authors seat their own members, each with their own reactions, and change how a game card treats the council by making their own version of the card (D7). | The game's cards and events name council members by id; a copy has a new id, so the deck would stop reaching it (M3.9). Copying every card that names the original too would balloon the pack. The scenario decides who takes part, so leaving one of the game's members out is harmless: cards that name them do nothing. |
+| D21 | **The base game's council members can't be edited.** Authors take them out, create new members, or copy a base member to a new member and edit the copy (with its reactions). The base game's cards don't affect new members; the author changes how a card treats the council by making their own version of the card (D7). | The game's cards and events refer to council members by id. An edited member in place would have to be a new id, which those cards don't refer to (M3.9), so the Studio says plainly that a copy is a new member. Only the members a scenario seats take part, so leaving one out is harmless. |
 
 ---
 
@@ -443,13 +443,14 @@ Tests: 1201 in total (+10 for the deck, id settling, prefixes, and copying from 
 
 ### M4.5: The council: who sits at the table, and your own members (2026-11-24)
 
-Decision **D21** (option c of the M4.4 question): the game's council members are seated or left out, never copied. The council screen says so in words, so authors know why: "Your scenario decides who sits at the table. Anyone who isn't seated simply doesn't take part: the game's cards that would move them do nothing here, so there's no harm in leaving people out."
+Decision **D21** (option c of the M4.4 question): the base game's council members can't be edited. They can be left out, and a copy of one is a new member. The council screen says it plainly: "You can't edit the base game's council members, because the game's cards and events refer to them. You can create new members, or copy a base member and edit the copy. The base game's cards and events don't affect your new members; only your own cards and events do. Only the members seated here take part in the game. If you don't want one of the base game's members, take them out of the scenario." The first wording ("because the game's cards are written for them") was too indirect; the owner asked for this plain version.
 
 **What an author can do now**
 - **See the council:** "4 of 8 seats", each member marked "yours" or "from the game", with the game's unseated members listed under it.
 - **Open one of the game's members.** It's read-only, with their reactions in plain words ("CTO Wants Clarity. When Domain Clarity drops below 35: lowers Budget by 3 and Team Morale by 2; makes Chief Technology Officer unhappier (-5).") and a note saying why it can't be edited and what to do instead.
 - **Take any member out.** A confirmation says what follows: for one of the game's members, "they won't take part … the game itself is unchanged"; for the author's own, their reactions go with them. Either way it lists the author's own cards or events that will stop moving them. The last seat can't be emptied.
 - **Seat one of the game's members**, up to the game's limit of 8.
+- **Copy one of the game's members to a new member** ("Copy to a new member"): it starts as "Chief Technology Officer (copy)" with the same description and all reactions as the author's own, editable. Reactions that moved the original move the copy. It sits next to the original, who can then be taken out.
 - **Seat their own member** ("+ New member" or "+ Seat your own member"):
   - name, description and optional summary; the id settles from the name, like cards;
   - **reactions:** a name, a sentence, a condition ("When [Budget] [drops below / is at most / rises above / is at least] [40]") and what changes, with the same score and council rows as cards, in plain words. Every reaction whose condition holds happens once a turn, as in the game. The condition's text in the file (`condition_description`) is written from the condition, so it can't disagree with it.
@@ -457,7 +458,7 @@ Decision **D21** (option c of the M4.4 question): the game's council members are
 - **"Go to it"** from the Checks rail now reaches council members and reactions (a reaction opens its member's page).
 
 **Domain** (`council.ts`):
-- `addToCouncil`, `removeFromCouncil`, `isOwnMember`, `createOwnMember` and `ownReactionsTo`;
+- `addToCouncil`, `removeFromCouncil`, `isOwnMember`, `createOwnMember`, `copyMember` and `ownReactionsTo`;
 - `addReaction`, `setReactionCondition`, `removeReaction`, `describeCondition` and `conditionText`;
 - `settleNewMemberId` and `settleNewReactionId`.
 
@@ -485,7 +486,7 @@ Id settling for cards, events, members and reactions now shares one helper (`pla
    - five runs played, and in one of them Head of Payments' reaction fired (44 at the end).
 7. Zero CSP violations, no console errors.
 
-Tests: 1210 in total (+9 for the council). One of them exports a Monolith without the CTO and with an own member whose reaction fires every turn, then plays it through the game's import: the member finishes above 50 and the CTO is absent.
+Tests: 1211 in total (+10 for the council). One of them exports a Monolith without the CTO and with an own member whose reaction fires every turn, then plays it through the game's import: the member finishes above 50 and the CTO is absent.
 
 **Next:** aftershocks and event conditions; then the version-bump assistant, zip export and import, and "Play it" (D15/D17). Smaller follow-ups:
 - the sidebar gets long with a full deck (collapse or filter);
