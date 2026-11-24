@@ -12,7 +12,7 @@
         class="button button-primary"
         :aria-current="selection.kind === 'release' ? 'page' : undefined"
         @click="select({ kind: 'release' })"
-      >Export pack file</button>
+      >Export pack</button>
     </div>
 
     <div class="workspace-body">
@@ -136,7 +136,7 @@ import { computed, nextTick, reactive, ref, watch } from 'vue'
 import { addToCouncil, aftershockUsers, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { loadFirstParty } from '@studio/content/first_party'
-import { exportCurrentDraft, studio, updateDraft } from '@studio/state/studio_state'
+import { exportCurrentDraft, studio, updateDraft, type ExportFormat } from '@studio/state/studio_state'
 import ChecksPanel, { type IssueTarget } from '@studio/workspace/checks_panel.vue'
 import CouncilNotesPanel from '@studio/workspace/council_notes_panel.vue'
 import CouncilView from '@studio/workspace/council_view.vue'
@@ -300,9 +300,9 @@ const saveText = computed(() => {
 const canExport = computed(() => studio.check.state === 'done' && studio.check.issues.length === 0)
 
 /** Download a release (M4.7); the release page says how it went. */
-async function exportPack(version: string, done: (ok: boolean) => void) {
+async function exportPack(version: string, format: ExportFormat, done: (ok: boolean) => void) {
   try {
-    done((await exportCurrentDraft(version)).length === 0)
+    done((await exportCurrentDraft(version, format)).length === 0)
   } catch {
     done(false)
   }

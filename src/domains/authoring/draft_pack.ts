@@ -67,6 +67,10 @@ export interface DraftPack {
   version: string
   authors: Array<{ name: string; url?: string }>
   content: DraftContent
+  /** Set only for an imported pack whose license isn't the Studio's default, so its export keeps it (D26). */
+  license?: string
+  /** An imported pack's homepage, kept for its export (D26). */
+  homepage_url?: string
   /** What it last exported, for the version-bump assistant (M4.7). Absent before the first export. */
   released?: DraftRelease
 }

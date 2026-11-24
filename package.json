@@ -40,6 +40,7 @@
     "docs:build:full": "npm run docs:generate-data && npm run docs:build"
   },
   "dependencies": {
+    "fflate": "0.8.2",
     "pinia": "^2.1.0",
     "spdx-expression-validate": "^2.0.0",
     "vue": "^3.4.0",

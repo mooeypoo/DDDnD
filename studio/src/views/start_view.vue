@@ -55,7 +55,7 @@
       <section class="start-column drafts-column" aria-labelledby="drafts-title">
         <h2 id="drafts-title" class="section-label">Your drafts</h2>
         <p v-if="!studio.ready" class="loading" role="status">Loading your drafts…</p>
-        <p v-else-if="studio.drafts.length === 0" class="empty">No drafts yet. Start one from a scenario.</p>
+        <p v-else-if="studio.drafts.length === 0" class="empty">No drafts yet. Start one from a scenario, or import a pack.</p>
         <ul v-else class="draft-list">
           <li v-for="entry in studio.drafts" :key="entry.draft_id" class="draft-row">
             <template v-if="pendingRemoval === entry.draft_id">
@@ -68,7 +68,7 @@
             <template v-else>
               <span class="draft-text">
                 <span class="draft-name">{{ entry.draft.name }}</span>
-                <span class="draft-meta">{{ kindLabel(entry.draft.kind) }} · edited {{ formatWhen(entry.updated_at) }}</span>
+                <span class="draft-meta">{{ kindLabel(entry.draft.kind) }} · version {{ entry.draft.version }} · edited {{ formatWhen(entry.updated_at) }}</span>
               </span>
               <span class="draft-actions">
                 <button type="button" class="button button-quiet" :aria-label="`Delete ${entry.draft.name}`" @click="pendingRemoval = entry.draft_id">Delete</button>
@@ -78,6 +78,21 @@
           </li>
         </ul>
         <p class="note"><strong>Kept in this browser only.</strong> Export your pack to keep a copy of your own.</p>
+
+        <section class="import" aria-labelledby="import-title">
+          <h3 id="import-title" class="import-title">Keep editing a pack</h3>
+          <p class="import-lede">Import a pack file (<code>.dddnd-pack.json</code>) or a zip of a pack's folder, such as one the Studio exported.</p>
+          <input ref="fileInput" type="file" class="visually-hidden" tabindex="-1" aria-hidden="true" accept=".json,.zip,application/json,application/zip" @change="importFile" />
+          <button type="button" class="button button-quiet import-button" :disabled="importing" @click="fileInput?.click()">
+            {{ importing ? 'Importing…' : 'Import a pack' }}
+          </button>
+          <div v-if="importFailure" class="note note-warning" role="alert">
+            <strong>{{ importFailure.name }} couldn't be imported.</strong>
+            <ul class="import-problems">
+              <li v-for="(problem, index) in importFailure.problems" :key="index">{{ problem }}</li>
+            </ul>
+          </div>
+        </section>
       </section>
     </div>
   </main>
@@ -93,7 +108,7 @@ import { onMounted, ref } from 'vue'
 
 import type { DraftKind } from '@/domains/authoring'
 import { listBaseScenarios, type BaseScenarioChoice } from '@studio/content/first_party'
-import { removeDraft, startFromBaseScenario, studio } from '@studio/state/studio_state'
+import { importPack, removeDraft, startFromBaseScenario, studio } from '@studio/state/studio_state'
 
 const emit = defineEmits<{ openDraft: [draftId: string] }>()
 
@@ -101,6 +116,26 @@ const scenarios = ref<BaseScenarioChoice[] | null>(null)
 const scenarioError = ref<string | null>(null)
 const starting = ref<string | null>(null)
 const pendingRemoval = ref<string | null>(null)
+const fileInput = ref<HTMLInputElement | null>(null)
+const importing = ref(false)
+const importFailure = ref<{ name: string; problems: string[] } | null>(null)
+
+/** "Import a pack" (M4.8): opens it as a new draft, or says every reason it can't. */
+async function importFile(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+  importing.value = true
+  importFailure.value = null
+  try {
+    const result = await importPack(file)
+    if (result.ok) emit('openDraft', result.draft_id)
+    else importFailure.value = { name: file.name, problems: result.problems }
+  } finally {
+    importing.value = false
+  }
+}
 
 onMounted(async () => {
   try {
@@ -134,6 +169,32 @@ function formatWhen(iso: string): string {
 </script>
 
 <style scoped>
+.import {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--forge-hairline);
+}
+
+.import-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--forge-text-bright);
+}
+
+.import-lede {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--forge-text-secondary);
+}
+
+.import-problems {
+  margin: 0.375rem 0 0;
+  padding-left: 1.125rem;
+}
+
 .start-view {
   flex: 1;
   width: 100%;

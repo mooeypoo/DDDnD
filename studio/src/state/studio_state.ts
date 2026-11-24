@@ -9,10 +9,23 @@
 
 import { reactive, toRaw } from 'vue'
 
-import { checkDraft, draftFromBaseScenario, exportDraftBundle, newestRef, releaseDraft, unseatedNotes, type BaseContentReader, type DraftPack, type UnseatedNote } from '@/domains/authoring'
+import {
+  checkDraft,
+  draftFromBaseScenario,
+  draftFromPack,
+  exportDraftArchive,
+  exportDraftBundle,
+  newestRef,
+  releaseDraft,
+  unseatedNotes,
+  type BaseContentReader,
+  type DraftPack,
+  type UnseatedNote,
+} from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import type { PackIssue } from '@/domains/authoring'
 import { listBaseRefs, loadFirstParty, type BaseScenarioChoice } from '@studio/content/first_party'
+import { ImportError, readImportedPack, zipPackFiles } from '@studio/content/pack_files'
 import { newDraftId, openDraftStore, type DraftStore, type StoredDraft } from '@studio/drafts/draft_store'
 
 const SAVE_DELAY_MS = 400
@@ -149,6 +162,30 @@ export async function startFromBaseScenario(choice: BaseScenarioChoice): Promise
   return draftId
 }
 
+/**
+ * "Import a pack" (M4.8): a pack file or a zip becomes a new draft, if the
+ * game would import it and the draft can hold all of it (D26). Returns the
+ * new draft's id, or every reason it was refused.
+ */
+export async function importPack(file: File): Promise<{ ok: true; draft_id: string } | { ok: false; problems: string[] }> {
+  let draft: DraftPack
+  try {
+    const result = draftFromPack(await readImportedPack(file))
+    if (!result.ok) return { ok: false, problems: result.problems }
+    draft = result.draft
+  } catch (error) {
+    if (error instanceof ImportError) return { ok: false, problems: error.problems }
+    return { ok: false, problems: [`${file.name} couldn't be read: ${(error as Error).message}`] }
+  }
+  const draftId = newDraftId()
+  state.current = { draft_id: draftId, draft }
+  state.check = { state: 'idle', issues: [] }
+  state.notes = []
+  await saveNow()
+  void checkNow()
+  return { ok: true, draft_id: draftId }
+}
+
 export async function openDraft(draftId: string): Promise<boolean> {
   if (!store) await initStudio()
   const entry = await store?.get(draftId)
@@ -182,17 +219,26 @@ export async function removeDraft(draftId: string): Promise<void> {
   await refreshList()
 }
 
+/** What an export downloads: the pack file the bazaar imports, or a zip for GitHub (D4). */
+export type ExportFormat = 'pack_file' | 'zip'
+
 /**
  * Exports the open draft as a release at `version` (M4.7): content whose play
  * changed since the last export gets its next version first. The released
  * draft is kept, and saved at once, only if the game would import it.
  * Returns the issues otherwise.
  */
-export async function exportCurrentDraft(version: string): Promise<PackIssue[]> {
+export async function exportCurrentDraft(version: string, format: ExportFormat = 'pack_file'): Promise<PackIssue[]> {
   if (!state.current) return []
   const { packs } = await loadFirstParty()
   const released = releaseDraft(plainDraft(state.current.draft), version)
-  const result = await exportDraftBundle(released, packs)
+  const result = format === 'zip'
+    ? await exportDraftArchive(released, packs).then((archive) => (archive.ok
+      ? { ok: true as const, blob: new Blob([zipPackFiles(archive.files) as BlobPart], { type: 'application/zip' }), file_name: archive.file_name }
+      : archive))
+    : await exportDraftBundle(released, packs).then((bundle) => (bundle.ok
+      ? { ok: true as const, blob: new Blob([bundle.text], { type: 'application/json' }), file_name: bundle.file_name }
+      : bundle))
   if (!result.ok) {
     state.check = { state: 'done', issues: result.issues }
     return result.issues
@@ -201,7 +247,7 @@ export async function exportCurrentDraft(version: string): Promise<PackIssue[]> 
   if (saveTimer) clearTimeout(saveTimer)
   await saveNow()
   void checkNow()
-  const url = URL.createObjectURL(new Blob([result.text], { type: 'application/json' }))
+  const url = URL.createObjectURL(result.blob)
   const link = document.createElement('a')
   link.href = url
   link.download = result.file_name

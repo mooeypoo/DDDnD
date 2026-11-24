@@ -67,12 +67,18 @@
     </section>
 
     <div class="actions">
-      <button type="button" class="button button-primary" :disabled="!canDownload" @click="download">
-        {{ state === 'exporting' ? 'Exporting…' : `Download version ${version || '…'}` }}
+      <button type="button" class="button button-primary" :disabled="!canDownload" @click="download('pack_file')">
+        {{ exporting === 'pack_file' ? 'Exporting…' : `Download version ${version || '…'}` }}
+      </button>
+      <button type="button" class="button button-quiet" :disabled="!canDownload" @click="download('zip')">
+        {{ exporting === 'zip' ? 'Exporting…' : 'Download as a zip for GitHub' }}
       </button>
       <span v-if="!checksClean" class="field-hint">Fix the problems listed under Checks first.</span>
     </div>
-    <p v-if="state === 'done'" class="done" role="status">Exported version {{ exportedVersion }}. The Studio will compare your next export with it.</p>
+    <p class="field-hint formats">
+      The pack file is what players import in the game's Community bazaar. The zip holds the same pack as a folder, with a README, to publish on GitHub.
+    </p>
+    <p v-if="state === 'done'" class="done" role="status">Exported version {{ exportedVersion }}{{ exportedFormat === 'zip' ? ' as a zip' : '' }}. The Studio will compare your next export with it.</p>
     <p v-if="state === 'failed'" class="field-problem" role="alert">The game's checks refused this export: see Checks.</p>
   </section>
 </template>
@@ -82,9 +88,10 @@ import { computed, ref, watch } from 'vue'
 
 import { compatibleBaseGames, fieldWords, gameTarget, planRelease, releaseVersionProblem, type DraftPack, type DraftSection } from '@/domains/authoring'
 import { loadFirstParty } from '@studio/content/first_party'
+import type { ExportFormat } from '@studio/state/studio_state'
 
 const props = defineProps<{ draft: DraftPack; checksClean: boolean }>()
-const emit = defineEmits<{ export: [version: string, done: (ok: boolean) => void] }>()
+const emit = defineEmits<{ export: [version: string, format: ExportFormat, done: (ok: boolean) => void] }>()
 
 const plan = computed(() => planRelease(props.draft))
 
@@ -116,6 +123,8 @@ const suggestionText = computed(() => {
 
 const state = ref<'idle' | 'exporting' | 'done' | 'failed'>('idle')
 const exportedVersion = ref('')
+const exportedFormat = ref<ExportFormat>('pack_file')
+const exporting = ref<ExportFormat | null>(null)
 const canDownload = computed(() => props.checksClean && !problem.value && state.value !== 'exporting')
 
 const KIND: Partial<Record<DraftSection, string>> = {
@@ -137,12 +146,17 @@ function fieldList(fields: string[]): string {
   return listed.charAt(0).toUpperCase() + listed.slice(1)
 }
 
-function download() {
+function download(format: ExportFormat) {
   const chosen = version.value
   state.value = 'exporting'
-  emit('export', chosen, (ok) => {
+  exporting.value = format
+  emit('export', chosen, format, (ok) => {
     state.value = ok ? 'done' : 'failed'
-    if (ok) exportedVersion.value = chosen
+    exporting.value = null
+    if (ok) {
+      exportedVersion.value = chosen
+      exportedFormat.value = format
+    }
   })
 }
 </script>
@@ -252,6 +266,11 @@ function download() {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
+}
+
+.formats {
+  margin: 0;
+  max-width: 44rem;
 }
 
 .done {
