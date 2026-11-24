@@ -389,6 +389,6 @@ The retelling path works end to end, for the scenario and the pack's details. Co
 - Export downloads the pack. After a reload, the draft is still open, and it appears under "Your drafts".
 - Zero CSP violations and no console errors.
 - **The downloaded file through the game's own import:** `readPackBundle`, registered next to base, with no playability issues. It carries the author, the new name and 12 turns, and five simulated runs each played all 12 turns.
-- Tests: +2 (plain drafts, the draft store); 1188 in total.
+- Tests: +2 (plain drafts, the draft store); 1191 in total, with #47 and #48 included.
 
 **Next (M4.4):** editing cards, events and the council, including "make my own version" of a base card (D7). Smaller follow-up: "Go to it" focusing the exact field at fault.
