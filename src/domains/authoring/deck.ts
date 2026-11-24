@@ -7,7 +7,8 @@
  * version" copies it, D7).
  */
 
-import type { Card, Event, VersionRef } from '../content/model'
+import type { Card, Event, NumericCondition, VersionRef } from '../content/model'
+import { conditionText } from './conditions'
 import { addContent, putContent, removeContent, type DraftPack, type Effects } from './draft_pack'
 import { isOwnRef } from './draft_reading'
 import { hasPlaceholderIdFor, settlePlaceholderId } from './placeholder_ids'
@@ -136,4 +137,24 @@ export function describeEffects(
   ]
   // Clauses are separated by semicolons, so lists inside them can use "and"
   return clauses.length ? clauses.join('; ') : 'changes nothing yet'
+}
+
+/**
+ * Sets when one of the draft's own events can happen: only while a condition
+ * holds, or (null) any turn. The words beside it are written from the
+ * condition, so they always agree with it; the game requires the condition
+ * whenever there are words.
+ */
+export function setEventCondition(draft: DraftPack, eventId: string, condition: NumericCondition | null, targetName: string): DraftPack {
+  const event = draft.content.events[eventId]
+  if (!event) return draft
+  const next: Event = { ...event }
+  if (condition) {
+    next.trigger_condition = { ...condition }
+    next.trigger_condition_description = conditionText(condition, targetName)
+  } else {
+    delete next.trigger_condition
+    delete next.trigger_condition_description
+  }
+  return putContent(draft, 'events', next)
 }

@@ -15,8 +15,11 @@
       <section class="editor-section" aria-labelledby="item-effects-read">
         <h2 id="item-effects-read" class="editor-section-title">{{ section === 'cards' ? 'When played' : 'When it happens' }}</h2>
         <p class="plain"><span class="plain-lead">In plain words:</span> {{ section === 'cards' ? 'playing this' : 'this' }} {{ plainWords }}.</p>
-        <p v-if="aftershockNames.length" class="plain">Later (aftershock): {{ aftershockNames.join(', ') }}.</p>
-        <p v-if="triggerText" class="plain">Only when: {{ triggerText }}.</p>
+        <p v-for="(entry, index) in aftershocks" :key="index" class="plain">
+          <span class="plain-lead">Aftershock{{ entry.entity ? `, ${landing(entry.entity)}` : '' }}:</span>
+          {{ entry.entity ? `${entry.entity.name}: ${describeEffects(entry.entity, names)}` : '…' }}.
+        </p>
+        <p v-if="conditionWords" class="plain"><span class="plain-lead">Only when:</span> {{ conditionWords }}.</p>
       </section>
       <div class="actions">
         <button type="button" class="button button-primary" @click="makeOwnVersion">Make my own version</button>
@@ -50,14 +53,38 @@
           :stakeholderOptions="stakeholderOptions"
           @change="setEffects"
         />
-        <p class="plain"><span class="plain-lead">In plain words:</span> {{ section === 'cards' ? 'playing this' : 'this' }} {{ plainWords }}. It nets <strong>{{ signed(net) }}</strong>.</p>
+        <p class="plain">
+          <span class="plain-lead">In plain words:</span> {{ section === 'cards' ? 'playing this' : 'this' }} {{ plainWords }}.
+          It nets <strong>{{ signed(net) }}</strong><template v-if="aftershocks.length">, or <strong>{{ signed(netAll) }}</strong> with its aftershocks</template>.
+        </p>
         <p v-if="section === 'cards' && helpsOnly" class="nudge" role="note">
           <strong>This card only helps.</strong> Every move in DDDnD trades something away. What does it cost: some budget,
           a tired team, slower delivery for a while? Without a cost, players will play nothing else.
         </p>
         <p v-if="section === 'cards'" class="field-hint">For calibration: the base game's cards net about +11 to +12 on average, aftershocks included, with at least one score going down.</p>
-        <p v-if="aftershockNames.length" class="field-hint">Later (aftershock): {{ aftershockNames.join(', ') }}. Editing aftershocks arrives in a later release.</p>
-        <p v-if="triggerText" class="field-hint">Only when: {{ triggerText }}. Editing conditions arrives in a later release.</p>
+      </section>
+
+      <AftershockEditor
+        :draft="draft"
+        :section="section"
+        :itemId="itemRef.id"
+        :aftershocks="aftershocks"
+        :scoreOptions="scoreOptions"
+        :stakeholderOptions="stakeholderOptions"
+        @change="(next) => emit('change', next)"
+      />
+
+      <section v-if="section === 'events' && event" class="editor-section" aria-labelledby="item-when">
+        <h2 id="item-when" class="editor-section-title">When it can happen</h2>
+        <div class="choice-pair" role="radiogroup" aria-labelledby="item-when">
+          <label class="choice"><input type="radio" name="when" :checked="!event.trigger_condition" @change="setWhen(false)" /> Any turn</label>
+          <label class="choice"><input type="radio" name="when" :checked="!!event.trigger_condition" :disabled="scoreOptions.length === 0" @change="setWhen(true)" /> Only while a score is past a line</label>
+        </div>
+        <template v-if="event.trigger_condition">
+          <ConditionEditor :condition="event.trigger_condition" :scoreOptions="scoreOptions" legend="Only while" @change="setCondition" />
+          <p class="plain"><span class="plain-lead">In plain words:</span> it can only happen while {{ conditionWords }}.</p>
+        </template>
+        <p class="field-hint">The game's events use this for pressure that builds: an outage only once trust is low, a reorg only when things go well.</p>
       </section>
 
       <section v-if="section === 'cards'" class="editor-section" aria-labelledby="item-limits">
@@ -95,12 +122,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
-import { copyToEdit, describeEffects, isOwn, netScoreChange, onlyHelps, putContent, removeFromDeck, resolveRef, settleNewItemId, withEffects, withOptionalText, type DeckSection, type DraftPack } from '@/domains/authoring'
-import type { Card, Event, ScoreChange, StakeholderChange, VersionRef } from '@/domains/content/model'
+import {
+  copyToEdit,
+  describeCondition,
+  describeEffects,
+  isOwn,
+  netScoreChange,
+  netWithAftershocks,
+  onlyHelps,
+  ownEntity,
+  putContent,
+  removeFromDeck,
+  resolveRef,
+  setEventCondition,
+  settleNewItemId,
+  startingCondition,
+  withEffects,
+  withOptionalText,
+  type DeckSection,
+  type DraftPack,
+} from '@/domains/authoring'
+import type { Card, DelayedEffect, Event, NumericCondition, ScoreChange, StakeholderChange, VersionRef } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 import { loadFirstParty } from '@studio/content/first_party'
+import AftershockEditor, { type AftershockEntry } from '@studio/workspace/aftershock_editor.vue'
+import ConditionEditor from '@studio/workspace/condition_editor.vue'
 import EffectsEditor from '@studio/workspace/effects_editor.vue'
 
 interface Option { id: string; name: string }
@@ -118,7 +166,6 @@ const limits = CONTENT_LIMITS
 const confirmingRemoval = ref(false)
 const own = computed(() => isOwn(props.draft, props.section, props.itemRef))
 const baseItem = ref<Card | Event | null>(null)
-const aftershockNames = ref<string[]>([])
 
 const item = computed<Card | Event | null>(() =>
   own.value ? (props.draft.content[props.section][props.itemRef.id] as Card | Event) : baseItem.value)
@@ -136,17 +183,23 @@ watch(() => [props.section, props.itemRef.id, props.itemRef.version, own.value],
   if (`${props.section}/${props.itemRef.id}-v${props.itemRef.version}` === wanted) baseItem.value = loaded
 }, { immediate: true })
 
-let aftershockLoad = 0
+/** The game's aftershocks this item names, loaded once each; the draft's own are read live. */
+const gameAftershocks = reactive(new Map<string, DelayedEffect>())
+const refKey = (ref: VersionRef) => `${ref.id}-v${ref.version}`
 watch(() => item.value?.delayed_effect_refs, async (refs) => {
-  const load = ++aftershockLoad
-  if (!refs?.length) {
-    aftershockNames.value = []
-    return
-  }
+  const missing = (refs ?? []).filter((ref) => !ownEntity(props.draft, 'delayed_effects', ref) && !gameAftershocks.has(refKey(ref)))
+  if (!missing.length) return
   const { base } = await loadFirstParty()
-  const loaded = await Promise.all(refs.map(async (ref) => (await resolveRef(props.draft, 'delayed_effects', ref, base))?.entity.name ?? ref.id))
-  if (load === aftershockLoad) aftershockNames.value = loaded
+  for (const ref of missing) {
+    const found = await resolveRef(props.draft, 'delayed_effects', ref, base)
+    if (found && !found.own) gameAftershocks.set(refKey(ref), found.entity)
+  }
 }, { immediate: true })
+
+const aftershocks = computed<AftershockEntry[]>(() => (item.value?.delayed_effect_refs ?? []).map((ref) => {
+  const own = ownEntity(props.draft, 'delayed_effects', ref)
+  return { ref, own: own !== null, entity: own ?? gameAftershocks.get(refKey(ref)) ?? null }
+}))
 
 const names = computed(() => ({
   scores: Object.fromEntries(props.scoreOptions.map((option) => [option.id, option.name])),
@@ -154,8 +207,30 @@ const names = computed(() => ({
 }))
 const plainWords = computed(() => (item.value ? describeEffects(item.value, names.value) : ''))
 const net = computed(() => (item.value ? netScoreChange(item.value) : 0))
+const netAll = computed(() => (item.value ? netWithAftershocks(item.value, aftershocks.value.flatMap((entry) => (entry.entity ? [entry.entity] : []))) : 0))
 const helpsOnly = computed(() => (item.value ? onlyHelps(item.value) : false))
-const triggerText = computed(() => (props.section === 'events' ? (item.value as Event | null)?.trigger_condition_description ?? '' : ''))
+/** When the event can happen, in plain words, from its condition (not its stored text). */
+const conditionWords = computed(() => {
+  const condition = props.section === 'events' ? (item.value as Event | null)?.trigger_condition : undefined
+  return condition ? describeCondition(condition, names.value.scores[condition.target_id] ?? condition.target_id) : ''
+})
+
+function landing(effect: DelayedEffect): string {
+  return effect.turns_until_resolution === 1 ? 'the next turn' : `${effect.turns_until_resolution} turns later`
+}
+
+function setWhen(onlyWhen: boolean) {
+  const score = props.scoreOptions[0]
+  if (onlyWhen && !score) return
+  emit('change', setEventCondition(props.draft, props.itemRef.id, onlyWhen ? startingCondition(score.id) : null, score?.name ?? ''))
+}
+
+function setCondition(patch: Partial<NumericCondition>) {
+  const current = (item.value as Event | null)?.trigger_condition
+  if (!current) return
+  const condition = { ...current, ...patch }
+  emit('change', setEventCondition(props.draft, props.itemRef.id, condition, names.value.scores[condition.target_id] ?? condition.target_id))
+}
 
 function signed(value: number): string {
   return value > 0 ? `+${value}` : String(value)
@@ -230,6 +305,27 @@ function takeOut() {
 </script>
 
 <style scoped>
+.choice-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+}
+
+.choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  color: var(--forge-text-bright);
+  cursor: pointer;
+}
+
+.choice input {
+  width: 1.125rem;
+  height: 1.125rem;
+  accent-color: var(--forge-gold);
+}
+
 .editor {
   display: flex;
   flex-direction: column;

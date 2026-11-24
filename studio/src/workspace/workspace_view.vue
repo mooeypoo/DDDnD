@@ -134,7 +134,7 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { addToCouncil, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
+import { addToCouncil, aftershockUsers, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { loadFirstParty } from '@studio/content/first_party'
 import { exportCurrentDraft, studio, updateDraft } from '@studio/state/studio_state'
@@ -173,6 +173,13 @@ async function goTo(target: IssueTarget) {
     // A reaction is edited on its member's page
     const owner = draft.value ? memberOfReaction(draft.value, target.id) : null
     select(owner ? { kind: 'member', ref: { id: owner.id, version: owner.version } } : { kind: 'council' })
+  } else if (target.kind === 'aftershock') {
+    // An aftershock is edited on a card or event that has it
+    const user = draft.value ? aftershockUsers(draft.value, target.ref)[0] : undefined
+    if (!user) return
+    select({ kind: 'item', section: user.section, ref: { id: user.id, version: draft.value!.content[user.section][user.id].version } })
+    await focusEditor('.aftershock input')
+    return
   } else {
     select(target)
   }

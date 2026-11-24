@@ -39,6 +39,7 @@ export type IssueTarget =
   | { kind: 'item'; section: 'cards' | 'events'; ref: { id: string; version: number } }
   | { kind: 'member'; ref: { id: string; version: number } }
   | { kind: 'reaction'; id: string }
+  | { kind: 'aftershock'; ref: { id: string; version: number } }
 
 /** The Studio's editor for what an issue is about, if it has one. */
 function target(file: string): IssueTarget | null {
@@ -50,6 +51,7 @@ function target(file: string): IssueTarget | null {
   if (section === 'stakeholders') return { kind: 'member', ref }
   if (section === 'stakeholder_reaction_rules') return { kind: 'reaction', id: ref.id }
   if (section === 'cards' || section === 'events') return { kind: 'item', section, ref }
+  if (section === 'delayed_effects') return { kind: 'aftershock', ref }
   return null
 }
 

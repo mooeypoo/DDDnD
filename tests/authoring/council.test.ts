@@ -181,7 +181,7 @@ describe('conditions in plain words', () => {
     const { describeCondition } = await import('@/domains/authoring')
     const at = (operator: '<' | '<=' | '>' | '>=' | '=' | '==') => describeCondition({ target_type: 'score', target_id: 'budget', operator, value: 25 }, 'Budget')
     expect(['<', '<=', '>', '>=', '='].map((op) => at(op as never))).toEqual([
-      'Budget drops below 25', 'Budget is at most 25', 'Budget rises above 25', 'Budget is at least 25', 'Budget is exactly 25',
+      'Budget is below 25', 'Budget is at most 25', 'Budget is above 25', 'Budget is at least 25', 'Budget is exactly 25',
     ])
   })
 })
