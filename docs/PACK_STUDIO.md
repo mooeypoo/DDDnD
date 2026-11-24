@@ -212,7 +212,7 @@ If packs ever need more visual identity, the safe form is **choosing from the ga
 
 Requirements, checked like the game's (automated checks plus a keyboard and screen-reader pass per milestone):
 
-- **Text size setting:** Standard, Large and Largest in the header, remembered in this browser (a per-viewer convenience, like the bazaar's notices). Everything is sized in `rem`, so browser zoom and the system font size work too. Layouts reflow at Largest instead of truncating.
+- **Text size setting:** Standard, Large and Largest, behind a **Display** button in the header (a small panel with a radio group; Escape or a click outside closes it), remembered in this browser (a per-viewer convenience, like the bazaar's notices). Everything is sized in `rem`, so browser zoom and the system font size work too. Layouts reflow at Largest instead of truncating.
 - **Readable by default:** body text at least 16 px at Standard, long text in the body font (Inter), Cinzel only for headings. Text contrast at least 4.5:1, including secondary text (the reason for `#a89a78`, §9).
 - **Keyboard first:**
   - every editor and picker works without a mouse;
@@ -320,6 +320,15 @@ The first piece: an app that builds, deploys on its own, and keeps its boundarie
   - the first Tab reaches "Skip to the content".
 - Tests: +15 (id generation, the shell and text size, the boundaries).
 
+### M4.1a: Display settings behind one button (2026-11-24)
+
+The three text-size buttons took too much of the header (owner's review). They now sit behind one **Display** button with an "Aa" icon:
+- The button opens a small panel with a "Text size" radio group (Standard, Large, Largest), each shown at its own size.
+- Radio buttons give keyboard and screen-reader behaviour for free: arrow keys change the size, and the choice is announced.
+- Opening the panel focuses the current size. Escape closes it and returns focus to the button; a click outside closes it.
+- The panel leaves room for future display settings.
+
+Verified in headless Chrome at desktop and phone widths: the keyboard path from open to arrow to Escape works, with no console errors. That check caught a bug the unit tests missed: focus didn't move into the panel. Tests: the shell tests now cover opening, the radio choice, Escape returning focus, and a click outside.
 ### M4.2: The draft model, checked and exported by the game's own code (2026-11-24)
 
 The Studio's core, in the pure `authoring` domain. No editors yet: this is what they will edit.
