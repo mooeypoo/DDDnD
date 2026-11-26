@@ -5,8 +5,10 @@
   -->
   <section class="editor" aria-labelledby="release-title">
     <div class="editor-head">
-      <span class="editor-kicker">Export</span>
-      <h1 id="release-title" class="editor-title">Export your pack</h1>
+      <div class="editor-head-text">
+        <span class="editor-kicker">Export</span>
+        <h1 id="release-title" class="editor-title">Export your pack</h1>
+      </div>
     </div>
 
     <section class="editor-section" aria-labelledby="release-changes">
@@ -77,13 +79,13 @@
       <button type="button" class="button button-quiet" :disabled="!canDownload" @click="download('zip')">
         {{ exporting === 'zip' ? 'Exporting…' : 'Download as a zip for GitHub' }}
       </button>
-      <span v-if="!checksClean" class="field-hint">Fix the problems listed under Checks first.</span>
+      <span v-if="!checksClean" class="field-hint">Fix what the checks list first: the "to fix" button at the top.</span>
     </div>
     <p class="field-hint formats">
       The pack file is what players import in the game's Community bazaar. The zip holds the same pack as a folder, with a README, to publish on GitHub.
     </p>
     <p v-if="state === 'done'" class="done" role="status">Exported version {{ exportedVersion }}{{ exportedFormat === 'zip' ? ' as a zip' : '' }}. The Studio will compare your next export with it.</p>
-    <p v-if="state === 'failed'" class="field-problem" role="alert">The game's checks refused this export: see Checks.</p>
+    <p v-if="state === 'failed'" class="field-problem" role="alert">The game's checks refused this export: see the "to fix" button at the top.</p>
   </section>
 </template>
 
@@ -166,24 +168,8 @@ function download(format: ExportFormat) {
 </script>
 
 <style scoped>
-.editor {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
 
-.editor-kicker {
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--forge-text-secondary);
-}
 
-.editor-title {
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: var(--forge-gold);
-}
 
 .editor-section p {
   margin: 0;

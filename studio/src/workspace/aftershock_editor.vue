@@ -56,7 +56,7 @@
 
         <div class="aftershock-actions">
           <button v-if="!entry.own" type="button" class="button button-quiet" @click="makeOwn(entry.entity)">Make my own version</button>
-          <button type="button" class="link-button" @click="takeOff(entry.ref)">Take it off this {{ section === 'cards' ? 'card' : 'event' }}</button>
+          <button type="button" class="link-button" @click="takeOff(entry.ref)">Remove from this {{ section === 'cards' ? 'card' : 'event' }}</button>
         </div>
       </template>
       <p v-else class="loading" role="status">Loading…</p>

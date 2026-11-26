@@ -1,12 +1,34 @@
 <template>
   <div v-if="item" class="editor">
     <div class="editor-head">
-      <span class="editor-kicker">{{ section === 'cards' ? 'Card' : 'Event' }} · {{ own ? 'yours' : 'from the game' }}</span>
-      <h1 class="editor-title">{{ item.name || (section === 'cards' ? 'Untitled card' : 'Untitled event') }}</h1>
+      <div class="editor-head-text">
+        <span class="editor-kicker">{{ section === 'cards' ? 'Card' : 'Event' }} · {{ own ? 'yours' : 'from the game' }}</span>
+        <h1 class="editor-title">{{ item.name || (section === 'cards' ? 'Untitled card' : 'Untitled event') }}</h1>
+      </div>
+      <!-- The editor's actions, in the same place on every editor: change it, take it out, delete it -->
+      <div v-if="!own" class="head-actions">
+        <button type="button" class="button button-quiet" @click="makeOwnVersion">Make my own version</button>
+        <button type="button" class="button button-quiet" @click="takeOut">Take out of this pack</button>
+      </div>
+      <div v-else class="head-actions">
+        <button v-if="!confirmingRemoval" type="button" class="button button-danger" @click="confirmingRemoval = true">Delete</button>
+      </div>
+      <div v-if="own && confirmingRemoval" class="head-confirm confirm" role="group" aria-label="Confirm">
+        <span class="confirm-text">Delete “{{ item.name || 'this' }}”? It's gone from your pack.</span>
+        <button type="button" class="button button-quiet" @click="confirmingRemoval = false">Keep it</button>
+        <button type="button" class="button button-danger" @click="takeOut">Delete</button>
+      </div>
     </div>
 
     <!-- The game's own: read-only, with "make my own version" (D7) -->
     <template v-if="!own">
+      <div class="locked-note" role="note">
+        <p>It plays exactly as in DDDnD. To change it, make your own version.</p>
+        <details class="why-more">
+          <summary>Why?</summary>
+          <p>The game's cards and events are shared by every pack, so they can't be edited here. Your version replaces this one in your scenario, under a new name only your pack uses. The game's original stays as it is.</p>
+        </details>
+      </div>
       <section class="editor-section" aria-labelledby="item-summary">
         <h2 id="item-summary" class="editor-section-title">What players read</h2>
         <p class="read-text">{{ item.description }}</p>
@@ -21,11 +43,16 @@
         </p>
         <p v-if="conditionWords" class="plain"><span class="plain-lead">Only when:</span> {{ conditionWords }}.</p>
       </section>
-      <div class="actions">
-        <button type="button" class="button button-primary" @click="makeOwnVersion">Make my own version</button>
-        <button type="button" class="button button-quiet" @click="takeOut">Take it out of the deck</button>
-      </div>
-      <p class="field-hint">Your version replaces it in your scenario, under a new name only your pack uses. The game's original stays as it is.</p>
+      <section class="editor-section" :aria-labelledby="section === 'cards' ? 'item-limits-read' : 'item-weight-read'">
+        <template v-if="section === 'cards'">
+          <h2 id="item-limits-read" class="editor-section-title">How often it can be played</h2>
+          <p class="read-text">{{ card?.usage_limit ? `${card.usage_limit} times a game` : 'No limit' }} · {{ card?.cooldown_turns ? `rests ${card.cooldown_turns} ${card.cooldown_turns === 1 ? 'turn' : 'turns'} after playing` : 'no rest after playing' }}</p>
+        </template>
+        <template v-else>
+          <h2 id="item-weight-read" class="editor-section-title">How often it happens</h2>
+          <p class="read-text">Weight {{ event?.occurrence_weight ?? 3 }}, on the game's scale of 1 to 6.</p>
+        </template>
+      </section>
     </template>
 
     <!-- The draft's own: the editor -->
@@ -91,8 +118,7 @@
         <h2 id="item-limits" class="editor-section-title">How often it can be played</h2>
         <div class="inline-fields">
           <label class="field field-short">Times per game
-            <input type="number" :min="limits.numbers.usage_limit.min" :max="limits.numbers.usage_limit.max" placeholder="Any" :value="card?.usage_limit ?? ''" @change="setUsage($event)" />
-            <span class="field-hint">Empty: no limit.</span>
+            <input type="number" :min="limits.numbers.usage_limit.min" :max="limits.numbers.usage_limit.max" placeholder="No limit" :value="card?.usage_limit ?? ''" @change="setUsage($event)" />
           </label>
           <label class="field field-short">Rest turns after playing
             <input type="number" :min="limits.numbers.cooldown_turns.min" :max="limits.numbers.cooldown_turns.max" :value="card?.cooldown_turns ?? 0" @change="setCooldown($event)" />
@@ -103,19 +129,11 @@
       <section v-else class="editor-section" aria-labelledby="item-weight">
         <h2 id="item-weight" class="editor-section-title">How often it happens</h2>
         <label class="field field-short">Weight
-          <input type="number" min="1" :max="limits.numbers.occurrence_weight.max" :value="event?.occurrence_weight ?? 3" @change="setWeight($event)" />
-          <span class="field-hint">Compared with the other events: 6 comes up twice as often as 3. The game's events use 1 to 6.</span>
+          <input type="number" min="1" :max="limits.numbers.occurrence_weight.max" :value="event?.occurrence_weight ?? 3" aria-describedby="weight-hint" @change="setWeight($event)" />
         </label>
+        <p id="weight-hint" class="field-hint">Compared with the other events: 6 comes up twice as often as 3. The game's events use 1 to 6.</p>
       </section>
 
-      <div class="actions">
-        <button v-if="!confirmingRemoval" type="button" class="button button-quiet" @click="confirmingRemoval = true">Delete it</button>
-        <template v-else>
-          <span class="confirm-text">Delete “{{ item.name || 'this' }}”? It leaves your deck.</span>
-          <button type="button" class="button button-quiet" @click="confirmingRemoval = false">Keep it</button>
-          <button type="button" class="button button-danger" @click="takeOut">Delete</button>
-        </template>
-      </div>
     </template>
   </div>
   <p v-else class="loading" role="status">Loading…</p>
@@ -326,24 +344,8 @@ function takeOut() {
   accent-color: var(--forge-gold);
 }
 
-.editor {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
 
-.editor-kicker {
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--forge-text-secondary);
-}
 
-.editor-title {
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: var(--forge-gold);
-}
 
 .read-text {
   margin: 0;
@@ -387,17 +389,6 @@ function takeOut() {
 
 .field-short {
   max-width: 13rem;
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.confirm-text {
-  color: var(--forge-text-bright);
 }
 
 .loading {

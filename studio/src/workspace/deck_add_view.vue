@@ -1,8 +1,10 @@
 <template>
   <section class="editor" :aria-labelledby="`add-${section}`">
     <div class="editor-head">
-      <span class="editor-kicker">From the game</span>
-      <h1 :id="`add-${section}`" class="editor-title">Add {{ section === 'cards' ? 'cards' : 'events' }} from DDDnD</h1>
+      <div class="editor-head-text">
+        <span class="editor-kicker">From the game</span>
+        <h1 :id="`add-${section}`" class="editor-title">Add {{ section === 'cards' ? 'cards' : 'events' }} from DDDnD</h1>
+      </div>
     </div>
     <p class="field-hint">The base game's {{ section }} that aren't in your deck yet. Adding one is a reference: it plays exactly as in the game.</p>
 
@@ -61,24 +63,8 @@ function add(ref: VersionRef) {
 </script>
 
 <style scoped>
-.editor {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
 
-.editor-kicker {
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--forge-text-secondary);
-}
 
-.editor-title {
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: var(--forge-gold);
-}
 
 .filter {
   max-width: 24rem;

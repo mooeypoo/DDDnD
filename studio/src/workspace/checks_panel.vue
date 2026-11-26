@@ -1,6 +1,6 @@
 <template>
   <!--
-    The Checks rail (§4.1): what the game would say if this pack were imported
+    The checks (§4.1), in the toolbar's checks panel: what the game would say if this pack were imported
     now. The status is a polite live region, so screen-reader users hear
     changes without losing their place (§10).
   -->
