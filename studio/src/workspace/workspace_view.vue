@@ -55,8 +55,12 @@
         :scores="ownScores"
         :showScores="draft.kind === 'new_topic' || ownScores.length > 0"
         :maxScores="SCORES_PER_SCENARIO"
+        :endings="ownEndings"
+        :showEndings="!usesGameContent(draft) || ownEndings.length > 0"
+        :canAddEnding="ownEndings.length < ENDINGS_PER_SCENARIO"
         @select="select"
         @createScore="createScore"
+        @createEnding="createEnding"
         @createMember="createMember"
         @createNew="createNew"
       />
@@ -73,8 +77,28 @@
           @createNew="createNew"
           @createMember="createMember"
           @createScore="createScore"
+          @createEnding="createEnding"
         />
         <PackDetailsEditor v-else-if="selection.kind === 'details'" :draft="draft" @change="updateDraft" />
+        <EndingsView
+          v-else-if="selection.kind === 'endings'"
+          :draft="draft"
+          :names="{ scores: names.scores, stakeholders: Object.fromEntries(stakeholderOptions.map((option) => [option.id, option.name])) }"
+          :canAdd="ownEndings.length < ENDINGS_PER_SCENARIO"
+          @change="updateDraft"
+          @open="select"
+          @createEnding="createEnding"
+        />
+        <EndingEditor
+          v-else-if="selection.kind === 'ending'"
+          :draft="draft"
+          :endingId="selection.id"
+          :scoreOptions="scoreOptions"
+          :memberOptions="stakeholderOptions"
+          @change="updateDraft"
+          @open="select"
+          @removed="select({ kind: 'endings' })"
+        />
         <ScoreEditor
           v-else-if="selection.kind === 'score'"
           :draft="draft"
@@ -137,7 +161,7 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { addToCouncil, aftershockUsers, createOwnScore, usesGameContent, newestRef, SCORES_PER_SCENARIO, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
+import { addToCouncil, aftershockUsers, createOwnEnding, createOwnScore, endingsInOrder, ENDINGS_PER_SCENARIO, isFallback, usesGameContent, newestRef, SCORES_PER_SCENARIO, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 import { PLAY_IT_LIVE, type PlayStatus } from '@studio/content/game_preview'
@@ -155,6 +179,8 @@ import ScenarioEditor from '@studio/workspace/scenario_editor.vue'
 import type { Selection } from '@studio/workspace/selection'
 import SummaryView from '@studio/workspace/summary_view.vue'
 import ScoreEditor from '@studio/workspace/score_editor.vue'
+import EndingEditor from '@studio/workspace/ending_editor.vue'
+import EndingsView from '@studio/workspace/endings_view.vue'
 
 defineEmits<{ leave: [] }>()
 
@@ -244,6 +270,20 @@ async function focusEditor(selector = '.editor-area input, .editor-area textarea
 
 /** The pack's own scores, in the first scenario's order (M4.17). */
 const ownScores = computed(() => (draft.value ? scenarioRefs(draft.value, 'score_refs').filter((ref) => draft.value!.content.scores[ref.id]).map((ref) => ({ id: ref.id, name: draft.value!.content.scores[ref.id].name })) : []))
+
+/** The pack's own endings, in the order the game tries them (M4.18). */
+const ownEndings = computed(() => (draft.value ? endingsInOrder(draft.value).map((ending) => ({ id: ending.id, name: ending.name, fallback: isFallback(ending) })) : []))
+
+/** "+ New ending": made first in the order, with a condition to start from, and opened with its name ready to type. */
+async function createEnding() {
+  if (!draft.value) return
+  const made = createOwnEnding(draft.value)
+  if (!made) return
+  updateDraft(made.draft)
+  select({ kind: 'ending', id: made.id })
+  await focusEditor()
+  ;(document.activeElement as HTMLInputElement | null)?.select?.()
+}
 
 /** "+ New score": made, tracked by every scenario, and opened with its name ready to type. */
 async function createScore() {

@@ -5,6 +5,7 @@
  */
 
 import { toFillIn } from './connections'
+import { endingsInOrder, isFallback } from './endings'
 import { isOwnMember } from './council'
 import { isOwn } from './deck'
 import { draftPackId } from './draft_export'
@@ -29,7 +30,7 @@ export function releaseState(draft: DraftPack): ReleaseState {
 }
 
 /** The steps from a copied scenario to a pack players can import, in order. */
-export type NextStep = 'name_scores' | 'write_a_card' | 'bring_your_people' | 'fill_in' | 'add_author' | 'export'
+export type NextStep = 'name_scores' | 'write_endings' | 'write_a_card' | 'bring_your_people' | 'fill_in' | 'add_author' | 'export'
 
 /** A topic's scores should trade off: three to six of them (§5). Done from three. */
 export const TOPIC_SCORES_ENOUGH = 3
@@ -46,9 +47,14 @@ export function nextSteps(draft: DraftPack): Array<{ step: NextStep; done: boole
   const topic: Array<{ step: NextStep; done: boolean }> = draft.kind === 'new_topic'
     ? [{ step: 'name_scores', done: Object.keys(draft.content.scores).length >= TOPIC_SCORES_ENOUGH }]
     : []
+  // …and what kind of leader a player can become: at least one ending besides the fallback
+  const endings: Array<{ step: NextStep; done: boolean }> = draft.kind === 'new_topic'
+    ? [{ step: 'write_endings', done: endingsInOrder(draft).some((ending) => !isFallback(ending)) }]
+    : []
   return [
     ...topic,
     { step: 'write_a_card', done: own('cards', 'card_refs') + own('events', 'event_refs') > 0 },
+    ...endings,
     { step: 'bring_your_people', done: scenarioRefs(draft, 'stakeholder_refs').some((ref) => isOwnMember(draft, ref)) },
     { step: 'fill_in', done: toFillIn(draft).length === 0 },
     { step: 'add_author', done: draft.authors.some((author) => author.name.trim() !== '') },

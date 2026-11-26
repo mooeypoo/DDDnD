@@ -91,10 +91,11 @@ import type { CheckState } from '@studio/state/studio_state'
 import type { Selection } from '@studio/workspace/selection'
 
 const props = defineProps<{ draft: DraftPack; seats: number; checkState: CheckState; issues: PackIssue[]; notes: number }>()
-const emit = defineEmits<{ select: [selection: Selection]; createNew: [section: 'cards']; createMember: []; createScore: [] }>()
+const emit = defineEmits<{ select: [selection: Selection]; createNew: [section: 'cards']; createMember: []; createScore: []; createEnding: [] }>()
 
 /** The Studio's words for each step; which are done is the domain's (nextSteps). */
 const STEP_WORDS: Record<NextStep, { title: string; text: string; action?: string }> = {
+  write_endings: { title: 'Write the endings.', text: 'What kind of leader can a player become in your topic? Each ending is chosen by how the run went.', action: '+ New ending' },
   name_scores: { title: 'Name what your topic trades off.', text: 'Three to six scores that pull against each other, each named so more is better ("Rest", not "Fatigue").', action: '+ New score' },
   write_a_card: { title: 'Write a card of your own.', text: 'A move your team actually argues about, with what it costs.', action: '+ New card' },
   bring_your_people: { title: 'Bring your people to the table.', text: 'Add them from a card ("+ Add a change", then a new name), or here.', action: '+ New member' },
@@ -117,6 +118,7 @@ const releaseWords = computed(() => {
 
 function act(step: NextStep) {
   if (step === 'name_scores') emit('createScore')
+  else if (step === 'write_endings') emit('createEnding')
   if (step === 'write_a_card') emit('createNew', 'cards')
   else if (step === 'bring_your_people') emit('createMember')
   else if (step === 'add_author') emit('select', { kind: 'details' })
@@ -125,6 +127,7 @@ function act(step: NextStep) {
 
 function openFillIn(item: ToFillIn) {
   if (item.section === 'scores') emit('select', { kind: 'score', id: item.ref.id })
+  else if (item.section === 'outcome_archetypes') emit('select', { kind: 'ending', id: item.ref.id })
   else if (item.section === 'stakeholders') emit('select', { kind: 'member', ref: item.ref })
   else if (item.section === 'cards' || item.section === 'events') emit('select', { kind: 'item', section: item.section, ref: item.ref })
 }

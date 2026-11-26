@@ -10,6 +10,8 @@ export type Selection =
   | { kind: 'details' }
   | { kind: 'scenario'; id: string }
   | { kind: 'score'; id: string }
+  | { kind: 'endings' }
+  | { kind: 'ending'; id: string }
   | { kind: 'council' }
   | { kind: 'member'; ref: VersionRef }
   | { kind: 'item'; section: DeckSection; ref: VersionRef }
@@ -22,6 +24,7 @@ export function isSelected(selection: Selection, target: Selection): boolean {
   switch (target.kind) {
     case 'scenario':
     case 'score':
+    case 'ending':
       return (selection as typeof target).id === target.id
     case 'member':
       return (selection as typeof target).ref.id === target.ref.id
