@@ -851,6 +851,59 @@ The first slice of the audit (D23), after the owner chose Direction A with a sum
 
 **Next:** slice 2, consistent actions and wording (two verbs for removing, one ember action, explanations said once, a game card shown like your own but locked), then the connections and the summary.
 
+
+### M4.10: Actions and wording, the same everywhere (UI/UX audit, slice 2) (2026-11-26)
+
+The second slice of the audit (D23, D28): every editor does the same things in the same place, with the same words.
+
+**What an author sees:**
+- **Every editor's actions are in its head,** to the right of its title: "Make my own version" and "Take out of this pack" on the game's cards and events, "Copy to a new member" and "Take out of this pack" on the game's members, "Delete" on your own. Before, they sat at the bottom of long pages, under the fold.
+- **Removing has a verb per scope:**
+  - **Take out of this pack**: one of the game's cards, events or members leaves your pack. The game's original stays.
+  - **Delete**: something of your own is gone.
+  - **Remove**: a row or a link inside an editor goes (a score change, an aftershock from this card).
+
+  Before, there were six phrasings: "Take it out of the deck", "Take them out of the scenario", "Delete it", "Delete this member", "Take it off this card", "Remove this reaction". Each removal still asks first, in one shared confirmation under the head that says what goes.
+- **The game's content is shown locked, with one line and a "Why?":**
+  - Cards and events: "It plays exactly as in DDDnD. To change it, make your own version."
+  - Members: "They react exactly as in DDDnD. To change them, copy them to a new member."
+
+  The reasons (D7, D21) are behind "Why?", said once. Before, the council's explanation was repeated in full on the council page and on every member's page. A game card also shows its limits, and a game event its weight, read-only.
+- **One ember button per screen:** "Export pack". The council's "+ Seat your own member" is now a quiet "+ New member" (the same words as the sidebar). The start screen's "Open" buttons are quiet. On the export page, the toolbar's Export goes quiet and the download is the one action.
+- **A disabled button looks disabled:** the export page's "Download" was a dim ember that still looked pressable.
+- **Only your own members are marked** on the council page ("yours"); "from the game" on every other card was noise.
+- **Small fixes:**
+  - "Times per game" says "No limit" when empty.
+  - The weight's hint is no longer squeezed into the field's width.
+  - "Fix the problems listed under Checks" now points at the toolbar's "to fix" button.
+
+**Domain:** nothing new. Every word that changed is about the Studio's own actions, not about content. Whose an item is still comes from `isOwn` and `isOwnMember`. The confirmation's list of what stops working when a member goes is still `ownItemsNamingAfterRemoval`.
+
+**Decisions:**
+- **Three verbs, not two.** The canvas proposed two ("Take out" and "Delete"). Walking the editors showed a third scope: removing a row or a link inside an editor, which deletes nothing. "Remove" keeps that apart from the other two.
+- **The editor frame is shared.** Every editor had its own copy of the same head styles (`.editor`, `.editor-kicker`, `.editor-title`). They now live once in `studio.css`, with the new head row, the locked note, the "Why?" disclosure and the confirmation, so the screens still to come (Play it, new-topic authoring, the guided round) get them for free. This is the start of the pattern guide (slice 5).
+- **The removal component is only the confirmation now.** The member page owns the button in its head; `RemoveMember` is what opens under it. That's the same shape as the card editor's.
+
+**For the talk: consistency is a vocabulary problem.** The six phrasings for removing weren't careless: each was written on the day its editor was built, and each was locally right. What was missing was a shared vocabulary of scopes: leaves your pack, gone for good, unlinked here. That's the same move as DDD's ubiquitous language, applied to the UI. Name the concepts once, and every screen that needs one uses the word.
+
+**Verification:**
+- Tests: 1284 in total (+4, `tests/studio/editor_actions.test.ts`):
+  - a game card shows its actions in the head, its locked note and "Why?", its limits, and no ember button;
+  - your own card is deleted from the head after a confirmation, which "Keep it" cancels;
+  - a game member offers "Copy to a new member" and "Take out of this pack", and the confirmation says what taking them out does;
+  - the council page marks only your own members, with a quiet "+ New member".
+
+  The editors load the game's content from the repository in these tests, through a mocked content adapter.
+- Headless Chrome (production build, Studio CSP):
+  1. Define Bounded Context from the game: actions in the head, the locked note, and "Why?" opening the reasons.
+  2. "Make my own version" opens yours with "Delete" in the head; the confirmation reads "Delete “Define Bounded Context”? It's gone from your pack."
+  3. VP of Product: "Copy to a new member" and "Take out of this pack".
+  4. A new event's weight hint spans the section.
+  5. On the export page the only ember is the download, and it's disabled until the checks pass.
+  6. Zero CSP violations, no console errors.
+
+**Next:** slice 3, connections. Pickers that create what they pick, placeholders the summary tracks, "what changes their satisfaction" on a member, and the generic effect words ("Head of Payments +2 satisfaction").
+
 ---
 
 ## 14. Picking up the work
@@ -861,7 +914,7 @@ What a new session needs to continue without the conversation that built M4.1–
 
 - **On `main`:** M4.1–M4.7b. The Studio creates and edits retellings of base scenarios (details, scenario, council, cards, events, aftershocks, event conditions), checks them with the game's own validator, and exports them as releases (D24, D25).
 - **On `main` since:** M4.8 zip export and import (D26), M4.8a (the zip carries `LICENSE`), the relicense to GPL-3.0-or-later (D27, ADR 0017) and M4.8b (authors choose the license).
-- **The UI/UX audit's slices** (D23, D28): 1. the workspace shell (M4.9); 2. consistent actions and wording; 3. connections (create from a picker, placeholders, "what affects them", generic effect words); 4. the summary view and the start screen; 5. a written pattern guide for the screens still to come.
+- **The UI/UX audit's slices** (D23, D28): 1. the workspace shell (M4.9); 2. consistent actions and wording (M4.10); 3. connections (create from a picker, placeholders, "what affects them", generic effect words); 4. the summary view and the start screen; 5. a written pattern guide for the screens still to come.
 - **The UI/UX audit's direction is chosen (2026-11-26):** Direction A (a library sidebar and a document editor) for editing, with Direction C's pack summary as a second view, and maybe a graph view later. The confusing part is connecting items (a card's effect on a member or score). See the canvas https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ. Wording rule from the owner: say what changes generically ("Head of Payments: +2 satisfaction", "Domain Clarity: +6"), not with verbs guessed from a score's name.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **Next:** the UI/UX audit (D23), brought forward by the owner. "Play it", new-topic authoring, the guided round and balance hints follow (§6). Those later screens should follow the patterns the audit sets, so the audit's result should include a short written pattern guide (for example, a §9 addition), not only fixes.
@@ -899,7 +952,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1280 tests at M4.9). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1284 tests at M4.10). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).

@@ -1,20 +1,18 @@
 <template>
   <section class="editor" aria-labelledby="council-title">
     <div class="editor-head">
-      <span class="editor-kicker">In your scenario</span>
-      <h1 id="council-title" class="editor-title">Council</h1>
+      <div class="editor-head-text">
+        <span class="editor-kicker">In your scenario</span>
+        <h1 id="council-title" class="editor-title">Council</h1>
+      </div>
     </div>
 
-    <div class="explain">
-      <p>
-        <strong>You can't edit the base game's council members,</strong> because the game's cards and events refer to them.
-        You can create new members, or copy a base member and edit the copy. The base game's cards and events don't
-        affect your new members; only your own cards and events do.
-      </p>
-      <p>
-        Only the members seated here take part in the game. If you don't want one of the base game's members, take them
-        out of the scenario.
-      </p>
+    <div class="locked-note" role="note">
+      <p>Only the members seated here take part. Seat the game's, or make your own.</p>
+      <details class="why-more">
+        <summary>Why can't I edit the game's members?</summary>
+        <p>The game's cards and events refer to its council members, so they can't be edited here. Copy one to a new member to change them: the copy starts with the same description and reactions. The game's cards and events don't affect new members; only your own cards and events do. If you don't want one of the game's members, take them out.</p>
+      </details>
     </div>
 
     <section class="editor-section" aria-labelledby="council-seated">
@@ -24,11 +22,11 @@
           <button type="button" class="member" @click="$emit('open', member.ref)">
             <span class="member-name">{{ member.name }}</span>
             <span class="member-summary">{{ member.summary }}</span>
-            <span class="member-mark" :class="member.own ? 'mark-own' : 'mark-game'">{{ member.own ? 'yours' : 'from the game' }}</span>
+            <span v-if="member.own" class="member-mark mark-own">yours</span>
           </button>
         </li>
       </ul>
-      <button type="button" class="button button-primary seat-own" :disabled="full" @click="$emit('createMember')">+ Seat your own member</button>
+      <button type="button" class="button button-quiet seat-own" :disabled="full" @click="$emit('createMember')">+ New member</button>
       <p v-if="full" class="field-hint">Every seat is taken: the game seats at most {{ COUNCIL_SEATS }}. Take someone out to make room.</p>
     </section>
 
@@ -97,43 +95,11 @@ function seat(ref: VersionRef) {
 </script>
 
 <style scoped>
-.editor {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
 
-.editor-kicker {
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--forge-text-secondary);
-}
 
-.editor-title {
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: var(--forge-gold);
-}
 
-.explain {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: 46rem;
-  padding: 0.875rem 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(108, 199, 187, 0.45);
-  background: rgba(108, 199, 187, 0.06);
-}
 
-.explain p {
-  margin: 0;
-}
 
-.explain strong {
-  color: var(--forge-text-bright);
-}
 
 .seats {
   margin-left: 0.5rem;
@@ -194,7 +160,6 @@ function seat(ref: VersionRef) {
 }
 
 .mark-own { color: var(--forge-ember-soft); }
-.mark-game { color: var(--forge-text-secondary); }
 
 .seat-own {
   align-self: flex-start;

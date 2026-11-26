@@ -17,9 +17,11 @@
           @seat="(memberRef) => updateDraft(addToCouncil(draft!, memberRef))"
           @removeChange="(change) => updateDraft(removeChangesTo(draft!, change.section, change.id, change.stakeholderId))"
         />
+        <!-- The one ember action (§9); on the export page itself, the download is -->
         <button
           type="button"
-          class="button button-primary"
+          class="button"
+          :class="selection.kind === 'release' ? 'button-quiet' : 'button-primary'"
           :aria-current="selection.kind === 'release' ? 'page' : undefined"
           @click="select({ kind: 'release' })"
         >Export pack</button>
@@ -129,7 +131,7 @@ watch(() => draft.value?.content, (content) => {
   if (own && own.version !== current.ref.version) select({ ...current, ref: { id: own.id, version: own.version } })
 })
 
-/** "Go to it" from the Checks rail: open the editor, then move focus into it. */
+/** "Go to it" from the checks: open the editor, then move focus into it. */
 async function goTo(target: IssueTarget) {
   if (target.kind === 'reaction') {
     // A reaction is edited on its member's page

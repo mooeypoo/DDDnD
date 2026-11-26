@@ -1,12 +1,44 @@
 <template>
   <div v-if="member" class="editor">
     <div class="editor-head">
-      <span class="editor-kicker">Council member · {{ own ? 'yours' : 'from the game' }}</span>
-      <h1 class="editor-title">{{ member.name || 'Unnamed council member' }}</h1>
+      <div class="editor-head-text">
+        <span class="editor-kicker">Council member · {{ own ? 'yours' : 'from the game' }}</span>
+        <h1 class="editor-title">{{ member.name || 'Unnamed council member' }}</h1>
+      </div>
+      <div class="head-actions">
+        <button v-if="!own" type="button" class="button button-quiet" :disabled="councilFull" @click="copyToNewMember">Copy to a new member</button>
+        <button
+          v-if="!confirmingRemoval"
+          type="button"
+          class="button"
+          :class="own ? 'button-danger' : 'button-quiet'"
+          :disabled="lastSeat"
+          @click="confirmingRemoval = true"
+        >{{ own ? 'Delete' : 'Take out of this pack' }}</button>
+      </div>
+      <p v-if="lastSeat" class="field-hint head-confirm">A council needs at least one member: seat someone else before taking {{ member.name || 'them' }} out.</p>
+      <p v-else-if="!own && councilFull" class="field-hint head-confirm">Every seat is taken: take someone out to make room for a copy.</p>
+      <RemoveMember
+        v-if="confirmingRemoval"
+        class="head-confirm"
+        :draft="draft"
+        :memberRef="memberRef"
+        :name="member.name"
+        :own="own"
+        @cancel="confirmingRemoval = false"
+        @remove="remove"
+      />
     </div>
 
     <!-- The game's own: read-only. Why, and what to do instead (D21) -->
     <template v-if="!own">
+      <div class="locked-note" role="note">
+        <p>They react exactly as in DDDnD. To change them, copy them to a new member.</p>
+        <details class="why-more">
+          <summary>Why?</summary>
+          <p>The game's cards and events refer to its council members, so they can't be edited here. A copy starts with the same description and reactions, and you can edit all of it. The game's cards and events don't affect the copy; only your own do. If you don't want {{ member.name }} at your table, take them out.</p>
+        </details>
+      </div>
       <section class="editor-section" aria-labelledby="member-about">
         <h2 id="member-about" class="editor-section-title">Who they are</h2>
         <p class="read-text">{{ member.description }}</p>
@@ -22,19 +54,6 @@
         </ul>
         <p class="field-hint">Every reaction whose condition holds happens once a turn, after the card and any event.</p>
       </section>
-      <div class="why" role="note">
-        <p><strong>You can't edit the base game's council members,</strong> because the game's cards and events refer to them.</p>
-        <p>
-          To change {{ member.name }}, copy them to a new member: the copy starts with the same description and reactions,
-          and you can edit all of it. The base game's cards and events don't affect the copy; only your own do.
-        </p>
-        <p>If you don't want {{ member.name }} in your scenario, take them out.</p>
-      </div>
-      <div class="copy-actions">
-        <button type="button" class="button button-primary" :disabled="councilFull" @click="copyToNewMember">Copy to a new member</button>
-        <span v-if="councilFull" class="field-hint">Every seat is taken: take someone out to make room for the copy.</span>
-      </div>
-      <RemoveMember :draft="draft" :memberRef="memberRef" :name="member.name" :own="false" :lastSeat="lastSeat" @remove="remove" />
     </template>
 
     <!-- The draft's own: the editor -->
@@ -81,13 +100,12 @@
             @change="(effects) => setRuleEffects(rule, effects)"
           />
           <p class="plain"><span class="plain-lead">In plain words:</span> when {{ conditionWords(rule) }}, this {{ effectWords(rule) }}.</p>
-          <button type="button" class="effect-remove" @click="dropReaction(rule.id)">Remove this reaction</button>
+          <button type="button" class="effect-remove" @click="dropReaction(rule.id)">Delete this reaction</button>
         </article>
 
         <button type="button" class="button button-quiet add-reaction" :disabled="scoreOptions.length === 0" @click="newReaction">+ Add a reaction</button>
       </section>
 
-      <RemoveMember :draft="draft" :memberRef="memberRef" :name="member.name" :own="true" :lastSeat="lastSeat" @remove="remove" />
     </template>
   </div>
   <p v-else class="loading" role="status">Loading…</p>
@@ -141,6 +159,12 @@ const ownReactions = computed(() => (own.value && member.value
 const reactions = computed(() => (own.value ? ownReactions.value : baseReactions.value))
 const lastSeat = computed(() => props.stakeholderOptions.length <= 1)
 const councilFull = computed(() => props.stakeholderOptions.length >= COUNCIL_SEATS)
+
+/** Taking them out or deleting them asks first, under the head. */
+const confirmingRemoval = ref(false)
+watch(() => props.memberRef.id, () => {
+  confirmingRemoval.value = false
+})
 
 watch(() => [props.memberRef.id, props.memberRef.version, own.value], async () => {
   const wanted = props.memberRef.id
@@ -240,24 +264,8 @@ function remove() {
 </script>
 
 <style scoped>
-.editor {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
 
-.editor-kicker {
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--forge-text-secondary);
-}
 
-.editor-title {
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: var(--forge-gold);
-}
 
 .read-text {
   margin: 0;
@@ -282,32 +290,6 @@ function remove() {
 
 .plain-lead {
   color: var(--forge-text-secondary);
-}
-
-.why {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  max-width: 44rem;
-  padding: 0.875rem 1rem;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(108, 199, 187, 0.45);
-  background: rgba(108, 199, 187, 0.06);
-}
-
-.copy-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.why p {
-  margin: 0;
-}
-
-.why strong {
-  color: var(--forge-text-bright);
 }
 
 .reaction {

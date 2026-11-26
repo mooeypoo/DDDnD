@@ -72,7 +72,7 @@
               </span>
               <span class="draft-actions">
                 <button type="button" class="button button-quiet" :aria-label="`Delete ${entry.draft.name}`" @click="pendingRemoval = entry.draft_id">Delete</button>
-                <button type="button" class="button button-primary" @click="$emit('openDraft', entry.draft_id)">Open</button>
+                <button type="button" class="button button-quiet" @click="$emit('openDraft', entry.draft_id)">Open</button>
               </span>
             </template>
           </li>

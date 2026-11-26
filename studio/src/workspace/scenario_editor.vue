@@ -1,8 +1,10 @@
 <template>
   <div class="editor">
     <div class="editor-head">
-      <span class="editor-kicker">Scenario</span>
-      <h1 class="editor-title">{{ scenario.name || 'Untitled scenario' }}</h1>
+      <div class="editor-head-text">
+        <span class="editor-kicker">Scenario</span>
+        <h1 class="editor-title">{{ scenario.name || 'Untitled scenario' }}</h1>
+      </div>
     </div>
 
     <section class="editor-section" aria-labelledby="scenario-story">
@@ -85,24 +87,8 @@ function setScore(scoreId: string, event: Event) {
 </script>
 
 <style scoped>
-.editor {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
 
-.editor-kicker {
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--forge-text-secondary);
-}
 
-.editor-title {
-  font-size: 1.875rem;
-  font-weight: 600;
-  color: var(--forge-gold);
-}
 
 .field-short {
   max-width: 8rem;
