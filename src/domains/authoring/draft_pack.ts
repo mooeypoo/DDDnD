@@ -25,6 +25,7 @@ import type {
   StakeholderReactionRule,
 } from '../content/model/content_types'
 import type { ContentInventoryKey } from '../content/model/content_pack_manifest'
+import { GPL_COMPATIBLE_LICENSES } from '../content/validation/pack_policy'
 import { contentIdFromName, contentPrefix } from './content_ids'
 
 /** What the author is making (D1). Both export as `extension` packs of the base pack. */
@@ -79,6 +80,8 @@ export interface DraftPack {
 export interface DraftRelease {
   version: string
   content: DraftContent
+  /** The license it was exported under. Absent on drafts released before the Studio recorded it. */
+  license?: string
 }
 
 /**
@@ -92,6 +95,31 @@ export const DRAFT_LICENSE = 'GPL-3.0-or-later'
 export function draftLicense(draft: Pick<DraftPack, 'license'>): { id: string; same_as_game: boolean } {
   const id = draft.license ?? DRAFT_LICENSE
   return { id, same_as_game: id === DRAFT_LICENSE }
+}
+
+/** What each license a Studio pack may use means, in plain words. */
+const LICENSE_WORDS: Readonly<Record<string, string>> = {
+  'GPL-3.0-or-later': 'Version 3 of the GNU General Public License, or any later version.',
+  'GPL-3.0-only': 'Version 3 of the GNU General Public License, and no later version.',
+}
+
+/**
+ * The licenses an author may choose: a Studio pack builds on the base pack,
+ * so it uses one the game accepts for that (ADR 0004). The game's own first.
+ */
+export function licenseChoices(): Array<{ id: string; same_as_game: boolean; words: string }> {
+  const ids = [DRAFT_LICENSE, ...GPL_COMPATIBLE_LICENSES.filter((id) => id !== DRAFT_LICENSE)]
+  return ids.map((id) => ({ id, same_as_game: id === DRAFT_LICENSE, words: LICENSE_WORDS[id] ?? id }))
+}
+
+/**
+ * The draft under `license`, one of `licenseChoices()`. The Studio's own
+ * license isn't stored, so a draft carries one only when it differs (D26).
+ */
+export function withLicense(draft: DraftPack, license: string): DraftPack {
+  if (!GPL_COMPATIBLE_LICENSES.includes(license)) throw new Error(`Not a license a Studio pack can use: ${license}`)
+  const { license: _previous, ...rest } = draft
+  return license === DRAFT_LICENSE ? rest : { ...rest, license }
 }
 
 /**

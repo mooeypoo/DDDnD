@@ -18,7 +18,7 @@
  */
 
 import type { VersionRef } from '../content/model'
-import { DRAFT_SECTIONS, putContent, type DraftContent, type DraftPack, type DraftSection } from './draft_pack'
+import { DRAFT_SECTIONS, draftLicense, putContent, type DraftContent, type DraftPack, type DraftSection } from './draft_pack'
 
 /**
  * Fields that never change how the game plays: the words people read, and
@@ -157,6 +157,8 @@ export interface ReleasePlan {
   changed: ContentChange[]
   added: Array<{ section: DraftSection; id: string; name: string }>
   removed: Array<{ section: DraftSection; id: string; name: string }>
+  /** The license, when it changed since the last export: different terms are a new release. */
+  license: { from: string; to: string } | null
   /** What kind of release this is, from what changed. */
   kind: 'first' | 'unchanged' | 'wording' | 'play'
   /** The pack version the assistant suggests. */
@@ -212,7 +214,7 @@ export function nextPackVersion(previous: string, kind: 'wording' | 'play'): str
 /** What this export would release, compared with the last one. */
 export function planRelease(draft: DraftPack): ReleasePlan {
   const released = draft.released
-  if (!released) return { since: null, changed: [], added: [], removed: [], kind: 'first', suggested: draft.version }
+  if (!released) return { since: null, changed: [], added: [], removed: [], license: null, kind: 'first', suggested: draft.version }
 
   const { bumped } = applyVersionBumps(draft)
   const changed: ContentChange[] = []
@@ -247,10 +249,15 @@ export function planRelease(draft: DraftPack): ReleasePlan {
     }
   }
 
+  // A release from before the Studio recorded its license can't be compared
+  const now = draftLicense(draft).id
+  const license = released.license !== undefined && released.license !== now ? { from: released.license, to: now } : null
+
   const playChanged = added.length > 0 || removed.length > 0 || changed.some((change) => change.play.length > 0 || change.to !== change.from)
-  const kind = playChanged ? 'play' : changed.length > 0 ? 'wording' : 'unchanged'
+  // New terms change no play: a patch, like wording
+  const kind = playChanged ? 'play' : changed.length > 0 || license ? 'wording' : 'unchanged'
   const suggested = kind === 'unchanged' ? released.version : nextPackVersion(released.version, kind)
-  return { since: released.version, changed, added, removed, kind, suggested }
+  return { since: released.version, changed, added, removed, license, kind, suggested }
 }
 
 /**
@@ -261,7 +268,7 @@ export function planRelease(draft: DraftPack): ReleasePlan {
 export function releaseDraft(draft: DraftPack, version: string): DraftPack {
   const bumped = applyVersionBumps(draft).draft
   const content = JSON.parse(JSON.stringify(bumped.content)) as DraftContent
-  return { ...bumped, version, released: { version, content } }
+  return { ...bumped, version, released: { version, content, license: draftLicense(bumped).id } }
 }
 
 /** Whether `version` can be the next release: later than the last export, or the same when nothing changed. */

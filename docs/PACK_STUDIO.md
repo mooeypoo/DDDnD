@@ -778,6 +778,39 @@ The owner settled M4.8's open question: the zip carries a `LICENSE` file.
 - Headless Chrome (production build, Studio CSP): copy the Monolith, add an author, and download the zip. Python's `zipfile` reads it cleanly. Its `LICENSE` is byte-identical to the repository's, and `scripts/validate-content-pack.ts` passes it. The zip imports back unchanged ("Nothing has changed since you exported version 1.0.0"). Zero CSP violations, no console errors.
 - The Studio's bundle grew from 92.3 to 105.0 kB gzipped. The game's bundle is unchanged.
 
+
+### M4.8b: Authors choose their pack's license (2026-11-26)
+
+After the relicense (D27), the owner asked to let pack authors pick a compatible license, so an imported GPL-3.0-only pack can move to GPL-3.0-or-later, or the other way.
+
+**What an author sees:**
+- **Pack details** has a **License** section with two choices: "GPL-3.0-or-later, like the game" and "GPL-3.0-only". Each has one plain line on what it means. A note says players see the license before they import, and that changing it after an export makes the next export a new version.
+- **The export page** lists a license change under its own heading: "GPL-3.0-only → GPL-3.0-or-later. Players who have version 1.1.0 keep it under GPL-3.0-only." It suggests a patch ("1.1.1, because the license changed") and refuses the same version.
+
+**Domain:**
+- `licenseChoices()` lists what a Studio pack may use: the game's validator's GPL list (ADR 0004), the game's own first, each with its plain words.
+- `withLicense(draft, id)` sets one and keeps the existing rule: the Studio's own license isn't stored. It refuses anything else.
+- A release now records its license (`DraftRelease.license`), from the export or, for an import, the manifest. `planRelease` reports `license: { from, to }` when it changed, and counts it like wording: no play changed, so a patch.
+
+**Decisions:**
+- **A license change is a new release.** Same pack id and version must mean the same thing (D24), and different terms are a different thing, even when every card plays the same.
+- **A patch, not a minor:** nothing plays differently.
+- **A release from before the Studio recorded its license compares nothing.** Only drafts exported between M4.7 and now lack it, and the Studio hasn't launched.
+
+**For the talk: the release is the aggregate's memory.** The version-bump assistant already compared content with "what you last exported". A license is just another fact a release must remember, so the change was one field on `DraftRelease` and one comparison in `planRelease`. The screen didn't learn anything about versions. When the model owns "what changed since the last release", a new kind of change is a one-line addition to the model, and every screen that shows a release gets it.
+
+**Verification:**
+- Tests: 1273 in total (+4): the choices and their order; storing only a non-default license and refusing others; a license change as a patch release that the same version can't reuse, and changing back is no change; an older release without a recorded license compares nothing. Imports record the released license.
+- Headless Chrome (production build, Studio CSP):
+  1. Import the Gilded Ledger zip. Pack details shows GPL-3.0-only checked.
+  2. An arrow key moves the choice to GPL-3.0-or-later.
+  3. The export page shows the License change and suggests 1.1.1.
+  4. The zip's manifest and README say GPL-3.0-or-later, "like DDDnD's base game", with `LICENSE`.
+  5. After the download: "Nothing has changed since you exported version 1.1.1".
+  6. Zero CSP violations, no console errors.
+
+**Left open:** ADR 0017 lists this control as a follow-up; it is now done.
+
 ---
 
 ## 14. Picking up the work
@@ -787,7 +820,7 @@ What a new session needs to continue without the conversation that built M4.1–
 ### Where things stand (2026-11-26)
 
 - **On `main`:** M4.1–M4.7b. The Studio creates and edits retellings of base scenarios (details, scenario, council, cards, events, aftershocks, event conditions), checks them with the game's own validator, and exports them as releases (D24, D25).
-- **M4.8 (zip export and import, D26) merged** (#56). M4.8a (the zip carries `LICENSE`) is in its own PR.
+- **M4.8 (zip export and import, D26) merged** (#56). M4.8a (the zip carries `LICENSE`) and M4.8b (authors choose the license) are in their own PRs.
 - **The UI/UX audit's direction is chosen (2026-11-26):** Direction A (a library sidebar and a document editor) for editing, with Direction C's pack summary as a second view, and maybe a graph view later. The confusing part is connecting items (a card's effect on a member or score). See the canvas https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ. Wording rule from the owner: say what changes generically ("Head of Payments: +2 satisfaction", "Domain Clarity: +6"), not with verbs guessed from a score's name.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **Next:** the UI/UX audit (D23), brought forward by the owner. "Play it", new-topic authoring, the guided round and balance hints follow (§6). Those later screens should follow the patterns the audit sets, so the audit's result should include a short written pattern guide (for example, a §9 addition), not only fixes.
@@ -825,7 +858,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1269 tests at M4.8a). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1273 tests at M4.8b). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).

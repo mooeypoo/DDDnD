@@ -130,7 +130,7 @@ export function draftFromPack(snapshot: PackSnapshot): DraftImport {
     version: manifest.version,
     authors: manifest.authors.map((author) => (author.url ? { name: author.name, url: author.url } : { name: author.name })),
     content,
-    released: { version: manifest.version, content: JSON.parse(JSON.stringify(content)) as DraftContent },
+    released: { version: manifest.version, content: JSON.parse(JSON.stringify(content)) as DraftContent, license: manifest.license },
   }
   if (manifest.license !== DRAFT_LICENSE) draft.license = manifest.license
   if (manifest.pack_homepage_url) draft.homepage_url = manifest.pack_homepage_url

@@ -39,6 +39,10 @@
             </li>
           </ul>
         </div>
+        <div v-if="plan.license" class="group">
+          <h3 class="group-title">License</h3>
+          <p class="change-detail">{{ plan.license.from }} → {{ plan.license.to }}. Players who have version {{ plan.since }} keep it under {{ plan.license.from }}.</p>
+        </div>
         <div v-if="wordingChanges.length" class="group">
           <h3 class="group-title">Wording only</h3>
           <ul class="change-list">
@@ -116,9 +120,9 @@ const suggestionText = computed(() => {
   const { kind, suggested } = plan.value
   if (kind === 'first') return 'Three numbers. 1.0.0 is a good start.'
   if (kind === 'unchanged') return `The same version as before: nothing changed.`
-  return kind === 'play'
-    ? `Suggested: ${suggested}, because something plays differently.`
-    : `Suggested: ${suggested}, because only wording changed.`
+  if (kind === 'play') return `Suggested: ${suggested}, because something plays differently.`
+  if (plan.value.changed.length === 0 && plan.value.license) return `Suggested: ${suggested}, because the license changed.`
+  return `Suggested: ${suggested}, because only wording${plan.value.license ? ' and the license' : ''} changed.`
 })
 
 const state = ref<'idle' | 'exporting' | 'done' | 'failed'>('idle')

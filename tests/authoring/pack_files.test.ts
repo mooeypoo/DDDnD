@@ -110,6 +110,7 @@ describe('a pack as a draft', () => {
     expect(draft.homepage_url).toBe(snapshot.manifest.pack_homepage_url)
     // Released GPL-3.0-only; the Studio's own is GPL-3.0-or-later (ADR 0017), so the draft keeps it
     expect(draft.license).toBe('GPL-3.0-only')
+    expect(draft.released?.license).toBe('GPL-3.0-only')
     expect(Object.keys(draft.content.scenarios)).toEqual(['ledger_payments_monolith'])
     expect(planRelease(draft)).toMatchObject({ since: '1.0.0', kind: 'unchanged' })
   })
