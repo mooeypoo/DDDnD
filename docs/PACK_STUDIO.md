@@ -50,6 +50,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D28 | **The workspace is an editor, not a set of pages** (the UI/UX audit, owner's choice of Direction A on the [canvas](https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ)): a fixed toolbar, a sidebar with everything in the pack (grouped, collapsible, filterable, the author's own items first), one editor, and the checks as a toolbar button. A summary view of the pack comes next; a map of cards and their impact may follow. | The sidebar shows where the pack stands without switching tabs (the owner's reason for A over a board). The checks rail disappeared below 1100 px, and a page that scrolled as one hid the editor and the checks behind a long contents list. |
 | D29 | **Effects are written generically:** each name with its signed change, then the council's satisfaction ("Domain Clarity +6, Budget −5; Head of Payments +2 satisfaction"). | Packs name their own scores, so a verb guessed from a score's name ("raises", "makes happier") can be wrong for a score like "Nerdiness" (the owner's rule, 2026-11-26). A name and a number read right for any pack. |
 | D30 | **You never leave what you're editing to connect it.** Every "what it changes" picker can create or seat a council member, and a member's page can give a card or event a change to them, making your own version of the game's first (D7). Placeholders are fine while you work; the checks only stop the export. | The owner found connecting content the most confusing part of editing: make the member first, or the card? With this, either order works, from either side. |
+| D31 | **Changing someone who isn't seated is a feature, and the Studio explains it, never blocks it.** A note says why it's there: the game shares a card (nothing to do), you took them out, or your own content changes them (fine for a card shared with another scenario). The author guide explains sharing cards between scenarios. | The owner (2026-11-26): pack authors may share cards between scenarios with different councils on purpose, as the base game does (Automate Deployment Pipeline in Microservice Sprawl). The note should alert and explain, so it can be done on purpose. |
 
 ---
 
@@ -1044,9 +1045,38 @@ Plus:
   5. Zero CSP violations, no console errors.
 - `scripts/dev/browser-check.example.mjs` now starts at `#/new`.
 
-**Left open:** a fresh copy of Microservice Sprawl opens with "1 note", because the game's own content changes a member that scenario doesn't seat. The audit's finding #13 suggested telling notes about the game's own content apart from the author's; it's still to do.
+**Left open:** a fresh copy of Microservice Sprawl opens with "1 note", because the game's own content changes a member that scenario doesn't seat. Settled in M4.14: the note now says why.
 
 **Next:** slice 5, a written pattern guide for the screens still to come.
+
+
+### M4.14: Notes that say why (2026-11-26)
+
+A fresh copy of *Microservice Sprawl* opened with "1 note: VP of Product isn't seated". The game's shared card *Automate Deployment Pipeline* also makes the VP happier, and Microservice Sprawl doesn't seat the VP, so in that scenario the change does nothing. That's how the game shares one card between scenarios with different councils (M3.9). The note had no way to tell this apart from a change the author caused. The owner's call (D31): authors may share cards this way on purpose, so the note should explain and alert, never block, and the author guide should explain it too.
+
+**What an author sees.** Each note says why it's there:
+- **The game shares a card:** "The game's card “Automate Deployment Pipeline” changes how they feel. DDDnD shares cards between scenarios and ignores a change to someone who isn't seated, so this is how the game plays here. Nothing to do, unless you want them at the table."
+- **You took someone out:** "You took Chief Technology Officer out. 6 cards and 3 events still change how they feel, and the game ignores those changes now. Leaving them out is fine. To have them react again, seat them."
+- **Your own content:** "Card “Freeze the Ledger” changes how they feel, and the game ignores that in this scenario. That's fine on purpose, for a card you share with another scenario where they sit. If you meant them to react here, seat them; if not, remove the change."
+
+Every note has a **"Why does the game ignore it?"** that explains shared cards, and a single source is named rather than counted. The author guide has a new section, "Sharing cards between scenarios", with the same three cases.
+
+**Domain:**
+- `UnseatedNote.reason` (`taken_out`, `yours`, `shared`), decided in `unseatedNotesFrom(draft, tables)`. Taken out first, then the author's own, then the game's sharing.
+- To tell "taken out" from "shared", a draft now remembers where each scenario came from: `DraftPack.origins`, the game's scenario and who it seated, set by `draftFromBaseScenario`. It's the Studio's memory only, never exported; a test checks it isn't in the pack files.
+
+**Decisions:**
+- **Explain, don't hide.** The first idea was to stop showing notes about the game's own sharing. The owner preferred to keep them and explain, because a pack author can share cards the same way and should know it happens.
+- **Drafts without an origin** (imported, or made before this change) read a game-only note as "shared". That wording still offers to seat them, so nothing is lost if it was really a take-out.
+
+**Found on the way:** the game's checks verify the scores a card changes, but not the council members, so a misspelled member id is skipped silently, like an unseated one. The guide says so for authors writing JSON by hand; in the Studio people are picked by name, so it can't happen. Whether the validator should check member ids is a separate question for the game, not changed here.
+
+**For the talk: the model knew *what*, not *why*.** The notes were right about the facts and wrong about the meaning: the same fact (a change to someone not seated) is a mistake in one draft and a design choice in another. Telling them apart needed one fact the model had thrown away: where the scenario came from. Keeping it (`origins`) turned a warning into an explanation.
+
+**Verification:**
+- Tests: 1317 in total (+5, `tests/authoring/connections.test.ts`): origins are recorded and never exported; Microservice Sprawl's note is "shared" (from Automate Deployment Pipeline); taking the CTO out is "taken_out"; the author's own card is "yours"; no origin reads as "shared".
+- Headless Chrome (production build, Studio CSP): a fresh copy of Microservice Sprawl shows the shared-card note with its "Why?"; taking the CTO out adds "You took Chief Technology Officer out". Zero CSP violations, no console errors.
+- The docs site builds.
 
 ---
 
@@ -1096,7 +1126,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1312 tests at M4.13). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1317 tests at M4.14). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).

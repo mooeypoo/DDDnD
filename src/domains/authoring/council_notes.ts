@@ -18,9 +18,23 @@ export type NoteSection = ChangeSection
 /** Something that changes how a person who isn't seated feels. */
 export type UnseatedSource = ChangeSource
 
+/**
+ * Why someone who isn't seated is still changed, which decides what the
+ * Studio says (M4.14). None of them blocks export: the game ignores a
+ * change to someone who isn't at the table.
+ * - `taken_out`: the game's scenario seats them, and the author took them out.
+ * - `yours`: the author's own content changes them. Fine on purpose, for a
+ *   card shared with another scenario where they sit.
+ * - `shared`: only the game's own content changes them, and the game's
+ *   scenario doesn't seat them either: cards are shared between scenarios,
+ *   and this is how DDDnD plays.
+ */
+export type NoteReason = 'taken_out' | 'yours' | 'shared'
+
 export interface UnseatedNote {
   scenario_id: string
   stakeholder_id: string
+  reason: NoteReason
   sources: UnseatedSource[]
 }
 
@@ -30,18 +44,32 @@ export interface UnseatedNote {
  * `scenarioChanges` (connections.ts) about people missing from the table.
  */
 export async function unseatedNotes(draft: DraftPack, base: BaseContentReader): Promise<UnseatedNote[]> {
-  return unseatedNotesFrom(await scenarioChanges(draft, base))
+  return unseatedNotesFrom(draft, await scenarioChanges(draft, base))
 }
 
 /** `unseatedNotes`, from a walk already made (the Studio walks once per check). */
-export function unseatedNotesFrom(tables: readonly ScenarioChanges[]): UnseatedNote[] {
+export function unseatedNotesFrom(draft: DraftPack, tables: readonly ScenarioChanges[]): UnseatedNote[] {
   const notes: UnseatedNote[] = []
   for (const table of tables) {
+    const origin = draft.origins?.[table.scenario_id]
     for (const [stakeholderId, sources] of table.by_person) {
-      if (!table.seated.has(stakeholderId)) notes.push({ scenario_id: table.scenario_id, stakeholder_id: stakeholderId, sources })
+      if (table.seated.has(stakeholderId)) continue
+      notes.push({ scenario_id: table.scenario_id, stakeholder_id: stakeholderId, reason: noteReason(origin?.seated, stakeholderId, sources), sources })
     }
   }
   return notes
+}
+
+/**
+ * Taken out first (the author did it), then the author's own content, then
+ * the game's own sharing. A draft without a recorded origin (imported, or
+ * made before M4.14) can't tell "taken out" from "shared"; its game-only
+ * notes read as shared, which still says how to seat them.
+ */
+function noteReason(originallySeated: readonly string[] | undefined, stakeholderId: string, sources: readonly UnseatedSource[]): NoteReason {
+  if (originallySeated?.includes(stakeholderId)) return 'taken_out'
+  if (sources.some((source) => source.own)) return 'yours'
+  return 'shared'
 }
 
 /** Removes the changes to one person from one of the draft's own cards, events, aftershocks or reactions. */

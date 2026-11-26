@@ -246,7 +246,7 @@ describe('notes about council members who aren\'t seated (M4.5a)', () => {
       stakeholder_changes: [{ stakeholder_id: 'cfo', delta: 3 }],
     })
     const notes = await unseatedNotes(withCfo, provider)
-    expect(notes).toEqual([{ scenario_id: expect.any(String), stakeholder_id: 'cfo', sources: [expect.objectContaining({ section: 'cards', own: true, delta: 3, ref: { id: copied.id, version: 1 } })] }])
+    expect(notes).toEqual([{ scenario_id: expect.any(String), stakeholder_id: 'cfo', reason: 'yours', sources: [expect.objectContaining({ section: 'cards', own: true, delta: 3, ref: { id: copied.id, version: 1 } })] }])
 
     const fixed = removeChangesTo(withCfo, 'cards', copied.id, 'cfo')
     expect(fixed.content.cards[copied.id]).not.toHaveProperty('stakeholder_changes')

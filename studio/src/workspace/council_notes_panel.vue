@@ -7,12 +7,28 @@
   <section v-if="notes.length > 0" class="notes" aria-labelledby="notes-title">
     <h2 id="notes-title" class="notes-title">Notes <span class="notes-sub">These don't block export</span></h2>
     <article v-for="note in notes" :key="`${note.scenario_id}/${note.stakeholder_id}`" class="note">
-      <h3 class="note-head">{{ note.name }} isn't seated</h3>
-      <p class="note-text">
-        {{ summary(note) }} change how they feel. The game ignores changes to people who aren't at the table, so
-        {{ note.sources.length === 1 ? 'it does' : 'they do' }} nothing.
+      <h3 class="note-head">{{ note.reason === 'taken_out' ? `You took ${note.name} out` : `${note.name} isn't at this table` }}</h3>
+      <!-- Why the note exists decides what it says (the domain's NoteReason, M4.14). None of them blocks export. -->
+      <p v-if="note.reason === 'shared'" class="note-text">
+        The game's {{ what(note, true) }} {{ plural(note) ? 'change' : 'changes' }} how they feel. DDDnD shares cards between
+        scenarios and ignores a change to someone who isn't seated, so this is how the game plays here. Nothing to do, unless you want them at the table.
       </p>
-      <p class="note-text">Seat them, or change {{ note.sources.length === 1 ? 'it' : 'those' }} so {{ note.sources.length === 1 ? 'it doesn\'t' : 'they don\'t' }} name them.</p>
+      <p v-else-if="note.reason === 'taken_out'" class="note-text">
+        {{ what(note) }} still {{ plural(note) ? 'change' : 'changes' }} how they feel, and the game ignores {{ plural(note) ? 'those changes' : 'that change' }} now.
+        Leaving them out is fine. To have them react again, seat them.
+      </p>
+      <p v-else class="note-text">
+        {{ what(note) }} {{ plural(note) ? 'change' : 'changes' }} how they feel, and the game ignores that in this scenario.
+        That's fine on purpose, for a card you share with another scenario where they sit. If you meant them to react here, seat them; if not, remove the change.
+      </p>
+      <details class="why-more">
+        <summary>Why does the game ignore it?</summary>
+        <p>
+          A card, event or reaction can name anyone on the game's council, but a scenario seats only some of them. When a card is played,
+          the game changes how the people at this table feel and skips everyone else. That's how one card can serve several scenarios with
+          different councils, and your pack can share cards the same way.
+        </p>
+      </details>
       <div class="note-actions">
         <button v-if="note.seat" type="button" class="button button-quiet" :disabled="full" @click="$emit('seat', note.seat)">Seat {{ note.name }}</button>
         <button type="button" class="note-toggle" :aria-expanded="isOpen(note)" @click="toggle(note)">
@@ -66,6 +82,20 @@ const WORDS: Record<NoteSection, [string, string]> = {
   delayed_effects: ['aftershock', 'aftershocks'],
   stakeholder_reaction_rules: ['reaction', 'reactions'],
 }
+
+/** What changes them: one named ("card “Ship Quick Fix”"), or counted ("9 cards and 2 events"). */
+function what(note: CouncilNote, lower = false): string {
+  if (note.sources.length === 1) {
+    const [source] = note.sources
+    const word = WORDS[source.section][0]
+    return `${lower ? word : word.charAt(0).toUpperCase() + word.slice(1)} “${source.name}”`
+  }
+  const counted = summary(note)
+  return lower ? counted.charAt(0).toLowerCase() + counted.slice(1) : counted
+}
+
+/** More than one card, event or reaction: "change", not "changes". */
+const plural = (note: CouncilNote) => note.sources.length !== 1
 
 /** "9 cards, 2 events and 1 aftershock" */
 function summary(note: CouncilNote): string {

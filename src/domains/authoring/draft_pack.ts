@@ -25,6 +25,7 @@ import type {
   StakeholderReactionRule,
 } from '../content/model/content_types'
 import type { ContentInventoryKey } from '../content/model/content_pack_manifest'
+import type { VersionRef } from '../content/model'
 import { GPL_COMPATIBLE_LICENSES } from '../content/validation/pack_policy'
 import { contentIdFromName, contentPrefix } from './content_ids'
 
@@ -74,6 +75,18 @@ export interface DraftPack {
   homepage_url?: string
   /** What it last exported, for the version-bump assistant (M4.7). Absent before the first export. */
   released?: DraftRelease
+  /**
+   * The game's scenario each of the draft's scenarios was copied from, and
+   * who it seated, by the draft's scenario id. The Studio's own memory: never
+   * exported. Absent for imported scenarios and for drafts made before M4.14.
+   */
+  origins?: Record<string, ScenarioOrigin>
+}
+
+/** Where a draft's scenario came from: one of the game's, and the council it seated. */
+export interface ScenarioOrigin {
+  scenario: VersionRef
+  seated: string[]
 }
 
 /** What a draft last exported: its pack version and a copy of its content then. */

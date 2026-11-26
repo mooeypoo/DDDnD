@@ -133,7 +133,7 @@ async function checkNow() {
 
 /** Council notes, named: the game's members by their base version, the draft's own by theirs. */
 async function councilNotes(draft: DraftPack, tables: readonly ScenarioChanges[], base: BaseContentReader): Promise<CouncilNote[]> {
-  const notes = unseatedNotesFrom(tables)
+  const notes = unseatedNotesFrom(draft, tables)
   const baseMembers = await listBaseRefs('stakeholders')
   return Promise.all(notes.map(async (note) => {
     const own = draft.content.stakeholders[note.stakeholder_id]

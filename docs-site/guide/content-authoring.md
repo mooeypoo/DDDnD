@@ -179,6 +179,22 @@ Your content ids (cards, scenarios, events…) belong to your pack: another pack
 
 A scenario can have up to 8 stakeholders. Everyone counts in play, endings and the results screen, but the table on the play screen has a limited number of seats: 6 on wide screens, 5 at mid-width, 4 on wide phones and small tablets, and 3 on narrow phones. With more stakeholders than seats, the seats go to whoever was most recently active (their satisfaction changed or they reacted), and a "+N council" button lists the rest with their mood. Someone who reacts is always seated while their reaction plays. Four or five stakeholders is the base game's size; six or more is fine, but players on small screens will see them take turns at the table.
 
+## Sharing cards between scenarios
+
+A card, event, aftershock or reaction can change the satisfaction of anyone on the council, not only the people its scenario seats. When it's played, the game changes how the people at **this** table feel and skips everyone else. Nothing fails, and the player never sees the skipped change.
+
+That's how one card can serve several scenarios with different councils, and the base game does it: in *Microservice Sprawl*, the shared card *Automate Deployment Pipeline* also makes the VP of Product happier, but that scenario doesn't seat the VP, so in that scenario the change does nothing.
+
+You can do the same on purpose. For example, give a card a change to your Head of Payments, and use it both in a scenario where they sit and in one where they don't. The game doesn't check that the person exists anywhere, so a misspelled id is skipped silently too. When you write JSON by hand, check the ids against your pack's and the base game's councils; in the Pack Studio you pick people by name, so it can't happen.
+
+The Pack Studio notes every such change, so you know when it happens, and says why it's there:
+
+- **The game shares a card:** only the game's own content changes someone the game's scenario doesn't seat. This is how DDDnD plays; there's nothing to do unless you want them at the table.
+- **You took someone out:** the game's scenario seats them and you removed them, so the game's cards that change them now do nothing. Leaving them out is fine.
+- **Your own content changes them:** fine if you share that card with another scenario where they sit. Otherwise, seat them or remove the change.
+
+None of these notes stops an export.
+
 ## Classes and challenge modifiers
 
 **You don't have to add any.** Your pack's table offers DDDnD's own classes and challenge modifiers (from `base`, which your pack depends on). A pack that only adds scenarios, cards or events on the base scores plays with the usual five classes and four modifiers without listing anything.
