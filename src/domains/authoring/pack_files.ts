@@ -15,7 +15,8 @@
 
 import type { ContentPackManifest } from '../content/model/content_pack_manifest'
 import type { PackSnapshot } from '../content/model/pack_snapshot'
-import { buildPackSnapshot, CONTENT_TYPE_BY_SECTION, inventoryPaths, parseManifestText, PackLoadError } from '../content/services/pack_snapshot_builder'
+import { parseFilename } from '../content/model/version_ref'
+import { buildPackSnapshot, CONTENT_TYPE_BY_SECTION, inventoryPaths, parseManifestText, PackLoadError, type RawPackFiles } from '../content/services/pack_snapshot_builder'
 import { CONTENT_LIMITS } from '../content/validation/content_limits'
 import { BASE_PACK_ID, MAX_FILES_PER_PACK } from '../content/validation/pack_policy'
 import { contentPrefix } from './content_ids'
@@ -63,6 +64,15 @@ export function packRoot(names: readonly string[], archiveName: string): string 
  * the folder (a README, a licence) is left alone. Throws PackLoadError.
  */
 export async function readPackArchive(archive: PackArchive, archiveName: string): Promise<PackSnapshot> {
+  return buildPackSnapshot(await readPackArchiveFiles(archive, archiveName), { kind: 'file', file_name: archiveName })
+}
+
+/**
+ * The pack's own files from an archive, as written: the manifest and the
+ * files its inventory lists. `readPackArchive` checks them the game's way;
+ * `draftFromPack` reads them again to keep how they were written (N4).
+ */
+export async function readPackArchiveFiles(archive: PackArchive, archiveName: string): Promise<RawPackFiles> {
   const root = packRoot(archive.names, archiveName)
   const present = new Set(archive.names)
   const manifestPath = `${root}manifest.json`
@@ -72,7 +82,75 @@ export async function readPackArchive(archive: PackArchive, archiveName: string)
   const listed = inventoryPaths(manifest).filter((path) => present.has(`${root}${path}`))
   const read = await archive.read(listed.map((path) => `${root}${path}`), CONTENT_LIMITS.max_file_bytes)
   const files = Object.fromEntries(listed.map((path) => [path, read[`${root}${path}`]]))
-  return buildPackSnapshot({ manifest_text: manifestText, files }, { kind: 'file', file_name: archiveName })
+  return { manifest_text: manifestText, files }
+}
+
+/** The most of a pack's own README the Studio keeps (a larger one is left behind, and the Studio writes its own). */
+export const PACK_README_MAX_BYTES = 64 * 1024
+
+/**
+ * A pack's own README, beside its manifest, as written: kept so its next zip
+ * carries it back (N4). Nothing when there's none, or it's too large.
+ */
+export async function readPackReadme(archive: PackArchive, archiveName: string): Promise<string | undefined> {
+  const path = `${packRoot(archive.names, archiveName)}README.md`
+  if (!archive.names.includes(path)) return undefined
+  try {
+    return (await archive.read([path], PACK_README_MAX_BYTES))[path]
+  } catch {
+    return undefined
+  }
+}
+
+/** Whose README a draft's zip carries: the author's own (imported), or one the Studio writes. */
+export function zipReadme(draft: DraftPack): 'yours' | 'written' {
+  return draft.readme !== undefined ? 'yours' : 'written'
+}
+
+/**
+ * The game's checked entity, with its keys in the order the author's file
+ * wrote them (nested ones too). The game's parser builds objects in its own
+ * order; keeping the author's means an export changes only what they changed.
+ * Values always come from the checked entity.
+ */
+function inSourceOrder(checked: unknown, source: unknown): unknown {
+  if (Array.isArray(checked)) {
+    return checked.map((item, index) => inSourceOrder(item, Array.isArray(source) ? source[index] : undefined))
+  }
+  if (!isRecord(checked)) return checked
+  const written = isRecord(source) ? Object.keys(source).filter((key) => key in checked) : []
+  const result: Record<string, unknown> = {}
+  for (const key of [...written, ...Object.keys(checked).filter((key) => !written.includes(key))]) {
+    result[key] = inSourceOrder(checked[key], isRecord(source) ? source[key] : undefined)
+  }
+  return result
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/** The content sections a manifest lists, in its order: as written when the files are at hand. */
+function listedSections(snapshot: PackSnapshot, sources: RawPackFiles | undefined): DraftSection[] {
+  let written: unknown
+  try {
+    written = sources ? (JSON.parse(sources.manifest_text) as { content?: unknown }).content : undefined
+  } catch {
+    written = undefined
+  }
+  const keys = Object.keys(isRecord(written) ? written : snapshot.manifest.content)
+  return keys.filter((key): key is DraftSection => (DRAFT_SECTIONS as readonly string[]).includes(key))
+}
+
+/** A source file's JSON, or nothing when it isn't there or doesn't parse (the snapshot already said it's fine). */
+function sourceOf(sources: RawPackFiles | undefined, path: string): unknown {
+  const text = sources?.files[path]
+  if (text === undefined) return undefined
+  try {
+    return JSON.parse(text) as unknown
+  } catch {
+    return undefined
+  }
 }
 
 export type DraftImport = { ok: true; draft: DraftPack } | { ok: false; problems: string[] }
@@ -84,7 +162,8 @@ const ENTRY_POINTS = ['scenarios', 'classes', 'challenge_modifiers'] as const
  * version (the version-bump assistant compares the next export with it). Or
  * every reason the Studio can't keep the whole pack.
  */
-export function draftFromPack(snapshot: PackSnapshot): DraftImport {
+export function draftFromPack(snapshot: PackSnapshot, from: { sources?: RawPackFiles; readme?: string } = {}): DraftImport {
+  const { sources } = from
   const { manifest } = snapshot
   const problems: string[] = []
 
@@ -104,7 +183,9 @@ export function draftFromPack(snapshot: PackSnapshot): DraftImport {
   for (const section of DRAFT_SECTIONS) {
     const own = content[section] as Record<string, { id: string; version: number }>
     for (const filename of manifest.content[section] ?? []) {
-      const entity = snapshot.entities[`${CONTENT_TYPE_BY_SECTION[section]}/${filename}`] as unknown as { id: string; version: number } | undefined
+      const path = `${CONTENT_TYPE_BY_SECTION[section]}/${filename}`
+      const checked = snapshot.entities[path] as unknown as { id: string; version: number } | undefined
+      const entity = checked && (inSourceOrder(checked, sourceOf(sources, path)) as typeof checked)
       if (!entity) continue
       if (own[entity.id]) {
         problems.push(`It has two versions of "${entity.id}" (${section.replace(/_/g, ' ')}). A Studio draft holds one version of each piece of content.`)
@@ -132,6 +213,11 @@ export function draftFromPack(snapshot: PackSnapshot): DraftImport {
     content,
     released: { version: manifest.version, content: JSON.parse(JSON.stringify(content)) as DraftContent, license: manifest.license, imported: true },
   }
+  draft.layout = {
+    content: Object.fromEntries(listedSections(snapshot, sources).map((section) => [section, (manifest.content[section] ?? []).map((filename) => parseFilename(filename)?.id ?? filename)])),
+    entries: Object.fromEntries(ENTRY_POINTS.map((section) => [section, manifest[section].map((ref) => ref.id)])),
+  }
+  if (from.readme !== undefined) draft.readme = from.readme
   if (manifest.license !== DRAFT_LICENSE) draft.license = manifest.license
   if (manifest.pack_homepage_url) draft.homepage_url = manifest.pack_homepage_url
   return { ok: true, draft }
@@ -216,7 +302,7 @@ export async function exportDraftArchive(
   const folder = draftPackId(draft)
   const licenseText = licenseTexts[draftLicense(draft).id]
   const files: Record<string, string> = {
-    [`${folder}/README.md`]: packReadme(draft, check.snapshot.manifest, target.base_version, licenseText !== undefined),
+    [`${folder}/README.md`]: draft.readme ?? packReadme(draft, check.snapshot.manifest, target.base_version, licenseText !== undefined),
     [`${folder}/manifest.json`]: raw.manifest_text,
   }
   if (licenseText !== undefined) files[`${folder}/LICENSE`] = licenseText

@@ -18,7 +18,7 @@
       <div class="summary-main">
         <section class="editor-section" aria-labelledby="summary-next">
           <h2 id="summary-next" class="editor-section-title">Where to go next</h2>
-          <p class="field-hint">Any order works. Your copy of the scenario already plays, so each step is about making it yours.</p>
+          <p class="field-hint">{{ draft.kind === 'new_topic' ? 'Any order works. Your topic plays once it has scores, so each step adds to what players can do.' : 'Any order works. Your copy of the scenario already plays, so each step is about making it yours.' }}</p>
           <ol class="steps">
             <li class="step step-done">
               <span class="step-mark" aria-hidden="true">✓</span>

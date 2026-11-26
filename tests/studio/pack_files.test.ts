@@ -45,17 +45,19 @@ describe('importing a zip', () => {
   it('reads a pack folder zipped by the Studio, or found deeper in a repository', async () => {
     for (const prefix of ['gilded_ledger/', 'DDDnD-packs-main/packs/gilded_ledger/']) {
       const zip = zipPackFiles({ ...folderFiles(LEDGER, prefix), 'DDDnD-packs-main/LICENSE': 'GPL' })
-      const snapshot = await readImportedPack(fileOf(zip, 'ledger.zip'))
+      const { snapshot, sources } = await readImportedPack(fileOf(zip, 'ledger.zip'))
       expect(snapshot.manifest.id).toBe('gilded_ledger')
-      expect(draftFromPack(snapshot).ok).toBe(true)
+      expect(sources?.files).toHaveProperty(['cards/ledger_freeze_payment_changes-v1.json'])
+      expect(draftFromPack(snapshot, { sources }).ok).toBe(true)
     }
   })
 
   it('reads a pack file too', async () => {
-    const zip = await readImportedPack(fileOf(zipPackFiles(folderFiles(LEDGER, '')), 'ledger.zip'))
+    const { snapshot: zip } = await readImportedPack(fileOf(zipPackFiles(folderFiles(LEDGER, '')), 'ledger.zip'))
     const { writePackBundle } = await import('@/domains/content/services/pack_bundle_file')
     const again = await readImportedPack(fileOf(writePackBundle(zip), 'ledger.dddnd-pack.json'))
-    expect(again.entities).toEqual(zip.entities)
+    expect(again.snapshot.entities).toEqual(zip.entities)
+    expect(again.sources).toBeUndefined()
   })
 
   it('refuses unsafe entry names before reading anything', () => {

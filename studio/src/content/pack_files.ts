@@ -21,10 +21,10 @@
 
 import { strToU8, Unzip, UnzipInflate, zipSync, type UnzipFile } from 'fflate'
 
-import { PACK_ARCHIVE_LIMITS, readPackArchive, type PackArchive } from '@/domains/authoring'
+import { PACK_ARCHIVE_LIMITS, readPackArchiveFiles, readPackReadme, type PackArchive } from '@/domains/authoring'
 import type { PackSnapshot } from '@/domains/content/model'
 import { readPackBundle } from '@/domains/content/services/pack_bundle_file'
-import { PackLoadError } from '@/domains/content/services/pack_snapshot_builder'
+import { buildPackSnapshot, PackLoadError, type RawPackFiles } from '@/domains/content/services/pack_snapshot_builder'
 
 /** A reason an imported file was refused, in words. */
 export class ImportError extends Error {
@@ -133,12 +133,18 @@ const ZIP_MAGIC = [0x50, 0x4b, 0x03, 0x04]
  * A pack file (`.dddnd-pack.json`) or a zip, read the way the game reads an
  * import. Throws ImportError with every reason it was refused.
  */
-export async function readImportedPack(file: File): Promise<PackSnapshot> {
+export async function readImportedPack(file: File): Promise<{ snapshot: PackSnapshot; sources?: RawPackFiles; readme?: string }> {
   const limit = PACK_ARCHIVE_LIMITS.archiveBytes
   if (file.size > limit) throw new ImportError([`${file.name} is larger than ${limit} bytes.`])
   const bytes = new Uint8Array(await file.arrayBuffer())
   try {
-    if (ZIP_MAGIC.every((byte, index) => bytes[index] === byte)) return await readPackArchive(openPackZip(bytes, file.name), file.name)
+    if (ZIP_MAGIC.every((byte, index) => bytes[index] === byte)) {
+      // The files as written travel with the snapshot, so the draft keeps how they were written (N4)
+      const archive = openPackZip(bytes, file.name)
+      const sources = await readPackArchiveFiles(archive, file.name)
+      const snapshot = await buildPackSnapshot(sources, { kind: 'file', file_name: file.name })
+      return { snapshot, sources, readme: await readPackReadme(archive, file.name) }
+    }
     let text: string
     try {
       text = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
@@ -146,7 +152,7 @@ export async function readImportedPack(file: File): Promise<PackSnapshot> {
       throw new ImportError([`${file.name} is neither a DDDnD pack file nor a zip.`])
     }
     if (!text.trimStart().startsWith('{')) throw new ImportError([`${file.name} is neither a DDDnD pack file nor a zip.`])
-    return await readPackBundle(text, file.name)
+    return { snapshot: await readPackBundle(text, file.name) }
   } catch (error) {
     if (error instanceof PackLoadError) throw new ImportError(error.issues.map((issue) => `${issue.file}: ${issue.message}`))
     throw error
