@@ -760,8 +760,8 @@ D4 promised two downloads: the pack file the bazaar imports, and a zip in the re
 The owner settled M4.8's open question: the zip carries a `LICENSE` file.
 
 **What an author sees:**
-- The zip for GitHub now holds `LICENSE`, the GPL's full text, next to the README. The README says "GPL-3.0-only, like DDDnD's base game. The full text is in `LICENSE`."
-- Pack details names the pack's actual license. An imported pack under GPL-3.0-or-later now reads "licensed GPL-3.0-or-later", where it used to say "GPL-3.0 like the game".
+- The zip for GitHub now holds `LICENSE`, the GPL's full text, next to the README. The README says "GPL-3.0-or-later, like DDDnD's base game. The full text is in `LICENSE`."
+- Pack details names the pack's actual license. Since D27 the game and new packs are GPL-3.0-or-later, so an imported GPL-3.0-only pack (both published packs are) reads "licensed GPL-3.0-only", where it used to say "GPL-3.0 like the game".
 
 **Domain:**
 - `draftLicense(draft)` answers which license a draft has (its own, kept from an import by D26, or the Studio's) and whether it is the game's. The README and Pack details both ask it. Before, the README said "like DDDnD's base game" for every pack, and Pack details had "GPL-3.0" typed into it.
@@ -771,7 +771,7 @@ The owner settled M4.8's open question: the zip carries a `LICENSE` file.
 
 **Decision:** the domain chooses the license and the app supplies the words. The domain reads no files, and a license text is 35 kB of data, not a rule, so it lives at the edge like the zip format.
 
-**For the talk: a fact typed into a screen is a rule in disguise.** "Licensed GPL-3.0 like the game" looked like copy, but it stated a fact about the draft. It became false the day imports could keep their own license (D26). Copy that states a fact about content needs a domain answer behind it, which is what D22 says, applied to a sentence.
+**For the talk: a fact typed into a screen is a rule in disguise.** "Licensed GPL-3.0 like the game" looked like copy, but it stated a fact about the draft. It became false the day imports could keep their own license (D26), and false for every published pack the day the game moved to GPL-3.0-or-later (D27), which happened while this slice was in review. Copy that states a fact about content needs a domain answer behind it, which is what D22 says, applied to a sentence.
 
 **Verification:**
 - Tests: 1269 in total (+2). The zip carries the text it's given, and still imports back as the same draft. A pack's own license is named without "like the game", and the README says when the text is missing.
