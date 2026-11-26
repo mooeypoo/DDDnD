@@ -52,7 +52,7 @@ describe('a draft pack', () => {
     const draft = createDraft({ kind: 'retelling', name: 'Payments Platform Quest', authors: AUTHOR })
     expect(draft.prefix).toBe('payments')
     const manifest = draftManifest(draft, { schema_version: 1, base_version: '1.4.0' })
-    expect(manifest).toMatchObject({ schema_version: 1, kind: 'extension', depends_on: [{ pack_id: 'base', version: '1.4.0' }], license: 'GPL-3.0-only', base_url: '.' })
+    expect(manifest).toMatchObject({ schema_version: 1, kind: 'extension', depends_on: [{ pack_id: 'base', version: '1.4.0' }], license: 'GPL-3.0-or-later', base_url: '.' })
   })
 
   it('gives new content prefixed, unique ids from names, at version 1', () => {

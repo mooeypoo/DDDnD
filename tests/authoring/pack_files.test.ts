@@ -106,7 +106,8 @@ describe('a pack as a draft', () => {
     const { draft } = result
     expect(draft).toMatchObject({ kind: 'retelling', name: snapshot.manifest.name, prefix: 'gilded_ledger', version: '1.0.0' })
     expect(draft.homepage_url).toBe(snapshot.manifest.pack_homepage_url)
-    expect(draft.license).toBeUndefined()
+    // Released GPL-3.0-only; the Studio's own is GPL-3.0-or-later (ADR 0017), so the draft keeps it
+    expect(draft.license).toBe('GPL-3.0-only')
     expect(Object.keys(draft.content.scenarios)).toEqual(['ledger_payments_monolith'])
     expect(planRelease(draft)).toMatchObject({ since: '1.0.0', kind: 'unchanged' })
   })
@@ -136,12 +137,12 @@ describe('a pack as a draft', () => {
 
   it('keeps a license other than the Studio\'s own', async () => {
     const snapshot = await ledger()
-    const result = draftFromPack({ ...snapshot, manifest: { ...snapshot.manifest, license: 'GPL-3.0-or-later' } })
+    const result = draftFromPack({ ...snapshot, manifest: { ...snapshot.manifest, license: 'GPL-3.0-only' } })
     if (!result.ok) throw new Error(result.problems.join('\n'))
-    expect(result.draft.license).toBe('GPL-3.0-or-later')
+    expect(result.draft.license).toBe('GPL-3.0-only')
     const exported = await exportDraftBundle(result.draft, firstParty())
     if (!exported.ok) throw new Error(JSON.stringify(exported.issues))
-    expect((await readPackBundle(exported.text, exported.file_name)).manifest.license).toBe('GPL-3.0-or-later')
+    expect((await readPackBundle(exported.text, exported.file_name)).manifest.license).toBe('GPL-3.0-only')
   })
 
   it('refuses what a draft can\'t hold, saying why', async () => {

@@ -88,7 +88,7 @@ The `manifest.json` is the entry point for your pack.
     { "pack_id": "base", "version": "1.0.0" }
   ],
   "base_url": "/content/my-pack",
-  "license": "GPL-3.0-only",
+  "license": "GPL-3.0-or-later",
   "authors": [
     { "name": "Example Author", "url": "https://example.com" }
   ],

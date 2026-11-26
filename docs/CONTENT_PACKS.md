@@ -91,7 +91,7 @@ Decision ([ADR 0003](adr/0003-remote-pack-source-allowlist.md)): start with GitH
 
 ### 3.6 Licensing
 
-The base pack is GPL-3.0-only. Packs derived from it (copied and edited base cards, or Studio templates seeded from base) are very likely derivative works. Decision ([ADR 0004](adr/0004-pack-license-compatibility.md)): packs that depend on or derive from base must use a GPL-3.0-compatible license. That is the safest, simplest rule, and it is easy to relax later. To be confirmed with someone qualified before the Studio ships.
+The base pack is GPL-3.0-or-later (GPL-3.0-only until [ADR 0017](adr/0017-gpl-3-or-later.md)). Packs derived from it (copied and edited base cards, or Studio templates seeded from base) are very likely derivative works. Decision ([ADR 0004](adr/0004-pack-license-compatibility.md)): packs that depend on or derive from base must use a GPL-3.0-compatible license. That is the safest, simplest rule, and it is easy to relax later. To be confirmed with someone qualified before the Studio ships.
 
 ### 3.7 Which comes first: loading or Studio?
 

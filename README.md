@@ -85,4 +85,6 @@ Moriel Schottlender ([GitHub](https://github.com/mooeypoo)) ([Website](https://m
 
 ## License
 
-GPL-3.0-only
+GPL-3.0-or-later: the GNU General Public License, version 3 or (at your option) any later version. The full text is in [LICENSE](./LICENSE).
+
+Content packs that build on DDDnD's base game must use a GPL-3.0 license too ([ADR 0004](docs/adr/0004-pack-license-compatibility.md)).

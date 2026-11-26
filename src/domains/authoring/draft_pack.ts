@@ -86,7 +86,7 @@ export interface DraftRelease {
  * which requires it (ADR 0004). Which base version they depend on comes from
  * the base pack the draft is checked against (`gameTarget`).
  */
-export const DRAFT_LICENSE = 'GPL-3.0-only'
+export const DRAFT_LICENSE = 'GPL-3.0-or-later'
 
 function emptyContent(): DraftContent {
   return Object.fromEntries(DRAFT_SECTIONS.map((section) => [section, {}])) as unknown as DraftContent

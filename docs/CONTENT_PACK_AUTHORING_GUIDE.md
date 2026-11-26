@@ -54,7 +54,7 @@ Manifest type lives in `src/domains/content/model/content_pack_manifest.ts`.
     { "pack_id": "base", "version": "1.0.0" }
   ],
   "base_url": "/content/my-pack",
-  "license": "GPL-3.0-only",
+  "license": "GPL-3.0-or-later",
   "authors": [
     { "name": "Example Author", "url": "https://example.com" }
   ],
@@ -92,7 +92,7 @@ Manifest type lives in `src/domains/content/model/content_pack_manifest.ts`.
 - `name`, `description`: non-blank text
 - `depends_on`: array of `{ pack_id, version }`
 - `base_url`: a root-relative path such as `/content` (first-party) or an `https://` URL (hosted packs). `..` segments are rejected.
-- `license`: valid SPDX expression. **Packs that depend on `base` must use `GPL-3.0-only` or `GPL-3.0-or-later`**, because the base pack is GPL-3.0-only (see [ADR 0004](adr/0004-pack-license-compatibility.md)). Standalone packs may use any SPDX license.
+- `license`: valid SPDX expression. **Packs that depend on `base` must use `GPL-3.0-only` or `GPL-3.0-or-later`**, because the base pack is GPL-3.0-or-later (see [ADR 0004](adr/0004-pack-license-compatibility.md)). Standalone packs may use any SPDX license.
 - `authors`: 1–20 entries, each with a non-blank `name`
 - `scenarios`, `classes`, `challenge_modifiers`, `tutorials`: arrays of `{ id, version }`. Every entry point must also be listed in the matching `content` inventory section (tutorials in `content.scenarios`).
 - `content`: object with all inventory arrays present. Entries must be versioned filenames (`<id>-v<version>.json`). A pack may list at most 2000 files.

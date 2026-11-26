@@ -29,7 +29,7 @@ export const FIRST_PARTY_PACK_IDS: readonly string[] = [BASE_PACK_ID, 'tutorial'
 
 /**
  * Licenses accepted for packs that depend on the base pack (ADR 0004).
- * The base pack is GPL-3.0-only, so derived packs must stay GPL-3.0-compatible.
+ * The base pack is GPL-3.0-or-later (ADR 0017), so derived packs must stay GPL-3.0-compatible.
  */
 export const GPL_COMPATIBLE_LICENSES: readonly string[] = ['GPL-3.0-only', 'GPL-3.0-or-later']
 

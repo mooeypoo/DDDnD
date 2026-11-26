@@ -1,6 +1,6 @@
 # ADR 0004: Packs that build on the base pack must use a GPL-3.0-compatible license
 
-Status: Accepted (pending a legal sanity check; see Consequences)  
+Status: Accepted (pending a legal sanity check; see Consequences). The base pack's own license changed to GPL-3.0-or-later in [ADR 0017](0017-gpl-3-or-later.md); this rule is unchanged.  
 Date: 2026-11-21  
 Feature journal: [docs/CONTENT_PACKS.md](../CONTENT_PACKS.md)
 
