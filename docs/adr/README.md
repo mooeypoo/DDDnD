@@ -31,3 +31,4 @@ An ADR captures one decision: the context that forced it, what we chose, what we
 | [0014](0014-pack-keys-everywhere.md) | The game identifies packs and their content only by pack key, and a pack's worst case is unwanted text | Accepted | 2026-11-22 |
 | [0015](0015-community-packs-in-their-own-place.md) | Community packs live in their own place, grouped by pack | Accepted | 2026-11-22 |
 | [0016](0016-community-packs-launched.md) | Community packs are launched; the flag is removed | Accepted | 2026-11-24 |
+| [0017](0017-gpl-3-or-later.md) | DDDnD is licensed GPL-3.0-or-later, and so are new Studio packs | Accepted | 2026-11-26 |

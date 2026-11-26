@@ -7,7 +7,7 @@
   "description": "Core scenarios, cards, stakeholders, events, and outcomes for DDDnD.",
   "depends_on": [],
   "base_url": "/content",
-  "license": "GPL-3.0-only",
+  "license": "GPL-3.0-or-later",
   "authors": [
     {
       "name": "Moriel Schottlender",

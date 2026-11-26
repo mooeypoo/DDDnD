@@ -120,7 +120,7 @@ export default defineConfig({
 
     footer: {
       message: 'Made with care by Moriel Schottlender.',
-      copyright: 'GPL-3.0-only © 2024-present Moriel Schottlender',
+      copyright: 'GPL-3.0-or-later © 2024-present Moriel Schottlender',
     },
   },
 })
