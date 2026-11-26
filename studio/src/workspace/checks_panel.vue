@@ -4,9 +4,9 @@
     now. The status is a polite live region, so screen-reader users hear
     changes without losing their place (§10).
   -->
-  <aside class="checks" aria-labelledby="checks-title">
+  <section class="checks" aria-labelledby="checks-title">
     <h2 id="checks-title" class="checks-title">Checks</h2>
-    <p class="checks-status" :class="`status-${statusKind}`" role="status" aria-live="polite">{{ statusText }}</p>
+    <p class="checks-status" :class="`status-${statusKind}`" :role="live ? 'status' : undefined" :aria-live="live ? 'polite' : undefined">{{ statusText }}</p>
 
     <ul v-if="issues.length > 0" class="issue-list">
       <li v-for="(issue, index) in issues" :key="index" class="issue">
@@ -20,7 +20,7 @@
       These are the game's own checks, the same ones a player's import runs.
       A pack exports only when they all pass.
     </p>
-  </aside>
+  </section>
 </template>
 
 <script setup lang="ts">
@@ -29,7 +29,8 @@ import { computed } from 'vue'
 import { issueSubject, type DraftSection, type PackIssue } from '@/domains/authoring'
 import type { CheckState } from '@studio/state/studio_state'
 
-const props = defineProps<{ state: CheckState; issues: PackIssue[] }>()
+/** `live: false` when something else announces the status (the toolbar's checks button). */
+const props = withDefaults(defineProps<{ state: CheckState; issues: PackIssue[]; live?: boolean }>(), { live: true })
 defineEmits<{ goTo: [target: IssueTarget] }>()
 
 /** Where a problem can be fixed in the Studio, when there's an editor for it. */

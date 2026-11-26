@@ -19,13 +19,13 @@ const errors = []
 page.on('pageerror', (e) => errors.push(e.message))
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()) })
 const flat = (text) => text.replace(/\s+/g, ' ').trim()
-// The checks panel settles after each edit
-const settle = async () => { await page.waitForTimeout(1300); await page.locator('.status-ok, .status-problems').waitFor({ timeout: 20000 }) }
+// The checks settle after each edit: the toolbar's checks button leaves "Checking…"
+const settle = async () => { await page.waitForTimeout(1300); await page.locator('.checks-toggle.status-ok, .checks-toggle.status-problems').waitFor({ timeout: 20000 }) }
 
 await page.goto('http://localhost:4319/', { waitUntil: 'load' })
 await page.getByRole('button', { name: 'Copy and adapt The Monolith of Mild Despair' }).click()
 await settle()
-console.log('checks:', flat(await page.locator('.checks-status').innerText()))
+console.log('checks:', flat(await page.locator('.checks-menu [role="status"]').innerText()))
 await page.screenshot({ path: 'studio-workspace.png', fullPage: true })
 
 console.log('CSP violations:', await page.evaluate(() => window.__csp), '| errors:', errors)

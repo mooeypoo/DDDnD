@@ -47,6 +47,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D25 | **The Studio exports for the game in the same repository, and CI keeps them in step.** A pack declares the pack format (`schema_version`) and the base pack version it was checked against (`depends_on`), both read from the game's own code and content, never a copy. The game accepts it on any later base of the same major version. In return the base pack keeps a promise within a major version: what it has shipped stays shipped and plays the same, and new content comes with a later base version. `scripts/base-content-lock.json` records that promise. A pre-commit hook records it when base content is committed, and CI checks it (`content:lock:check`). | The game, its content and the Studio live in one monorepo and deploy from the same commit, so the rule can be a check rather than a habit. The Studio had declared a fixed base 1.0.0: right today, but a pack using content added in 1.1.0 would have claimed to work on 1.0.0. A pack names base content by exact version, so a base that changed or dropped `card-v1` within 1.x would break packs already out there. |
 | D26 | **An import is lossless or refused.** A pack file or zip becomes a draft only if the draft can hold all of it, so its next export is the same pack with the author's changes. The Studio refuses, saying why: standalone packs, packs that build on anything but the base game, tutorials, an id the Studio couldn't keep, two versions of one id, and scenarios (or classes, modifiers) not all offered to players. It keeps the license and homepage, and counts the imported content as the last export. | A quietly smaller pack is worse than a refusal: the author would publish it as the next version and players would lose content. The refusals are all rare (both real packs import), and each can be lifted later by teaching the draft the missing piece. |
 | D27 | **DDDnD and new Studio packs are `GPL-3.0-or-later`** ([ADR 0017](adr/0017-gpl-3-or-later.md)). Imported packs keep their license (D26); a pack may still be `GPL-3.0-only` (ADR 0004). | A pack ecosystem on "only" could never move to a later GPL together: every author would have to relicense. The owner is the game's only author, so the game could switch at once. |
+| D28 | **The workspace is an editor, not a set of pages** (the UI/UX audit, owner's choice of Direction A on the [canvas](https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ)): a fixed toolbar, a sidebar with everything in the pack (grouped, collapsible, filterable, the author's own items first), one editor, and the checks as a toolbar button. A summary view of the pack comes next; a map of cards and their impact may follow. | The sidebar shows where the pack stands without switching tabs (the owner's reason for A over a board). The checks rail disappeared below 1100 px, and a page that scrolled as one hid the editor and the checks behind a long contents list. |
 
 ---
 
@@ -218,7 +219,7 @@ If packs ever need more visual identity, the safe form is **choosing from the ga
 **Layout**
 
 - A header with the name and subtitle, the draft's name and kind, save state, "Play it" and "Export".
-- Three columns in the workspace: the pack's contents, the editor, and the Checks rail with balance hints. Below about 1100 px the Checks rail moves under the editor; on a tablet the contents become a drawer.
+- The workspace (D28, replacing the first layout's three columns): the contents sidebar and the editor, each scrolling on its own under a fixed toolbar. The checks are a toolbar button that opens a panel, at every width. In a narrow window the contents sit above the editor.
 - Editors are stacked sections: "What players read", "When played", limits, a plain-language preview, and "Used in".
 
 **Settled:** the mark is the anvil with sparks (D19), and the guided round's header is ember-tinted (D20). The start screen's layout will be simplified later (Q14).
@@ -811,6 +812,45 @@ After the relicense (D27), the owner asked to let pack authors pick a compatible
 
 **Left open:** ADR 0017 lists this control as a follow-up; it is now done.
 
+
+### M4.9: The workspace shell (UI/UX audit, slice 1) (2026-11-26)
+
+The first slice of the audit (D23), after the owner chose Direction A with a summary view (D28). It changes the frame around the editors; the editors themselves come in later slices.
+
+**What an author sees:**
+- **The workspace fills the window.** The header and the toolbar stay put, and the contents sidebar and the editor each scroll on their own. Before, the whole page scrolled as one: scrolling down a 26-card list left an empty editor, and the Checks rail went with it.
+- **The sidebar groups everything:** Pack (details, scenario), Council ("4 of 8"), Cards and Events. Each group collapses.
+  - Your own members, cards and events come first.
+  - The game's cards and events sit under a closed "From the game · 26".
+  - "+ New …" and "+ From the game" sit inside each group. "All seats" opens the council page.
+- **A filter finds anything by name,** and says what each match is ("card", "council", "scenario").
+- **Whatever opens is shown:** a new card, a check's "Go to it" or a link opens the right group and scrolls the item into view.
+- **The checks are a toolbar button** ("1 to fix · 1 note", "Ready to export") at every width. It opens a panel with the game's checks and the council notes. Escape or a click outside closes it, and "Go to it" closes it and opens the editor.
+- **No gold frame around the start screen.** The Studio moves focus to the page's main landmark on every route change, and Chrome drew the focus ring around it. A landmark isn't a control, so it no longer gets one.
+
+**Domain:** nothing new. The sidebar asks the domain whose each item is (`isOwn`, `isOwnMember`), as the old sidebar did. Putting "yours first" is ordering on that answer, not a new rule. Filtering by the names the workspace already shows is input handling.
+
+**Decisions:**
+- **The checks button owns the live region.** The panel's own status no longer announces when it's inside the panel, so a screen reader hears "2 things to fix before export. 1 note." once, without opening anything. It stays silent while checking, so typing isn't interrupted.
+- **The game's items start closed, your own open.** An author's work is what they came to edit; the game's 26 cards are one click away and open by themselves when something points to one.
+- **Undo/redo and "Find anything" (search with a shortcut) wait** for their own slices, and the summary view comes with the connection work.
+
+**For the talk: layout is where a model's shape shows.** The old sidebar was a flat list because the screen read the draft as a flat list of references. The new one shows the aggregate as it is: one pack, with the author's own content and references to the game's. Every sidebar decision mapped onto a distinction the domain already made (`isOwn`), so the redesign needed no new rule. That's what you hope for when the model is right: the UI can change shape without the model changing.
+
+**Verification:**
+- Tests: 1280 in total (+7, `tests/studio/workspace_shell.test.ts`): your own cards first and the game's under a closed "From the game · 26"; the selected item's group opens; the filter, its kinds and its empty message; "+ New member" off when the council is full; the checks button's text and single live region; Escape and "Go to it".
+- Headless Chrome (production build, Studio CSP):
+  1. The start screen has no frame.
+  2. A new card shows, selected, in the sidebar; scrolling the editor keeps the toolbar in view.
+  3. The checks panel's "Go to it" opens Pack details; Escape returns focus to the button.
+  4. The filter finds "Harden Operational Runbooks".
+  5. At 1024 px with Largest text and at 700 px, the toolbar wraps and the checks button stays.
+  6. Regression, M4.5a's notes flow: take out the CTO; the button reads "1 to fix · 1 note"; the note lists 7 sources (5 cards, 2 events, as in M4.5b); seating from the note clears it.
+  7. Zero CSP violations, no console errors.
+- `scripts/dev/browser-check.example.mjs` now waits on the checks button (the rail it read is gone).
+
+**Next:** slice 2, consistent actions and wording (two verbs for removing, one ember action, explanations said once, a game card shown like your own but locked), then the connections and the summary.
+
 ---
 
 ## 14. Picking up the work
@@ -820,7 +860,8 @@ What a new session needs to continue without the conversation that built M4.1–
 ### Where things stand (2026-11-26)
 
 - **On `main`:** M4.1–M4.7b. The Studio creates and edits retellings of base scenarios (details, scenario, council, cards, events, aftershocks, event conditions), checks them with the game's own validator, and exports them as releases (D24, D25).
-- **M4.8 (zip export and import, D26) merged** (#56). M4.8a (the zip carries `LICENSE`) and M4.8b (authors choose the license) are in their own PRs.
+- **On `main` since:** M4.8 zip export and import (D26), M4.8a (the zip carries `LICENSE`), the relicense to GPL-3.0-or-later (D27, ADR 0017) and M4.8b (authors choose the license).
+- **The UI/UX audit's slices** (D23, D28): 1. the workspace shell (M4.9); 2. consistent actions and wording; 3. connections (create from a picker, placeholders, "what affects them", generic effect words); 4. the summary view and the start screen; 5. a written pattern guide for the screens still to come.
 - **The UI/UX audit's direction is chosen (2026-11-26):** Direction A (a library sidebar and a document editor) for editing, with Direction C's pack summary as a second view, and maybe a graph view later. The confusing part is connecting items (a card's effect on a member or score). See the canvas https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ. Wording rule from the owner: say what changes generically ("Head of Payments: +2 satisfaction", "Domain Clarity: +6"), not with verbs guessed from a score's name.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **Next:** the UI/UX audit (D23), brought forward by the owner. "Play it", new-topic authoring, the guided round and balance hints follow (§6). Those later screens should follow the patterns the audit sets, so the audit's result should include a short written pattern guide (for example, a §9 addition), not only fixes.
@@ -858,7 +899,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1273 tests at M4.8b). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1280 tests at M4.9). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).

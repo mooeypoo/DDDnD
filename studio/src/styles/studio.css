@@ -79,6 +79,14 @@ a:hover { color: var(--forge-text-bright); }
   border-radius: 0.25rem;
 }
 
+/*
+ * A landmark the Studio moves focus to (the skip link's target, and #main on
+ * every route change) is not a control: no ring around the whole page.
+ */
+[tabindex='-1']:focus-visible {
+  box-shadow: none;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;
