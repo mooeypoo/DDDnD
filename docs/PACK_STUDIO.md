@@ -887,10 +887,11 @@ The second slice of the audit (D23, D28): every editor does the same things in t
 **For the talk: consistency is a vocabulary problem.** The six phrasings for removing weren't careless: each was written on the day its editor was built, and each was locally right. What was missing was a shared vocabulary of scopes: leaves your pack, gone for good, unlinked here. That's the same move as DDD's ubiquitous language, applied to the UI. Name the concepts once, and every screen that needs one uses the word.
 
 **Verification:**
-- Tests: 1284 in total (+4, `tests/studio/editor_actions.test.ts`):
+- Tests: 1285 in total (+5, `tests/studio/editor_actions.test.ts`):
   - a game card shows its actions in the head, its locked note and "Why?", its limits, and no ember button;
   - your own card is deleted from the head after a confirmation, which "Keep it" cancels;
   - a game member offers "Copy to a new member" and "Take out of this pack", and the confirmation says what taking them out does;
+  - the last council member can't be taken out, and the hint says why;
   - the council page marks only your own members, with a quiet "+ New member".
 
   The editors load the game's content from the repository in these tests, through a mocked content adapter.
@@ -952,7 +953,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1284 tests at M4.10). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1285 tests at M4.10). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).

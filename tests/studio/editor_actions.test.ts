@@ -111,6 +111,18 @@ describe('a council member from the game', () => {
   })
 })
 
+describe('the last council member', () => {
+  it('can\'t be taken out: the button is off, and the hint says why', async () => {
+    const { draft } = await monolith()
+    const cto = scenarioRefs(draft, 'stakeholder_refs').find((ref) => ref.id === 'cto')!
+    const wrapper = mount(MemberView, { props: { memberRef: cto, draft, scoreOptions: [], stakeholderOptions: [{ id: 'cto', name: 'Chief Technology Officer' }] } })
+    await loaded(wrapper)
+    const takeOut = wrapper.findAll('.head-actions button').find((button) => button.text() === 'Take out of this pack')!
+    expect(takeOut.attributes('disabled')).toBeDefined()
+    expect(wrapper.find('.editor-head .field-hint').text()).toBe('A council needs at least one member: seat someone else before taking Chief Technology Officer out.')
+  })
+})
+
 describe('the council page', () => {
   it('marks only your own members, and makes new ones with a quiet "+ New member"', async () => {
     const { draft } = await monolith()
