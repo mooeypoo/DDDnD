@@ -1605,7 +1605,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Next: balance hints and the smaller items (§6, item 6), then the new-topic round; then balance hints (§6). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Next: balance hints and the smaller items (§6, item 6), then the new-topic round. Each follows §9.1.
 - **Left open from the audit:**
   - undo/redo;
   - "Find anything" (search with a shortcut);
