@@ -36,7 +36,9 @@ export async function draftFromBaseScenario(
   // A pack needs a description; start with one the author can change
   const description = input.description?.trim() || `A DDDnD retelling of "${base.name}".`
   const { draft, id } = addContent(createDraft({ ...input, description, kind: 'retelling' }), 'scenarios', copyOf(fields))
-  return { draft, scenarioId: id }
+  // Remember who the game seats here: a note can then tell "you took them out" from the game's own sharing (M4.14)
+  const origins = { [id]: { scenario: { id: scenarioRef.id, version: scenarioRef.version }, seated: base.stakeholder_refs.map((ref) => ref.id) } }
+  return { draft: { ...draft, origins }, scenarioId: id }
 }
 
 type CopyableSection = 'cards' | 'events'

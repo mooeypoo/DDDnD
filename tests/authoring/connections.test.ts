@@ -19,6 +19,7 @@ import {
   createOwnCard,
   createOwnMember,
   draftFromBaseScenario,
+  draftToRawPack,
   putContent,
   removeFromCouncil,
   toFillIn,
@@ -132,5 +133,42 @@ describe('connecting from where you are (slice 3b)', () => {
     expect(scenarioRefs(connected.draft, 'card_refs')).toContainEqual(connected.item)
     expect(scenarioRefs(connected.draft, 'card_refs').map((ref) => ref.id)).not.toContain('define_bounded_context')
     expect((await changesByMember(connected.draft, base())).get(made.id)).toEqual([expect.objectContaining({ ref: connected.item, own: true, delta: -2 })])
+  })
+})
+
+describe('why a note exists (M4.14)', () => {
+  const SPRAWL = { id: 'microservice_sprawl', version: 2 }
+
+  it('remembers which game scenario a copy came from, and who it seated, without exporting it', async () => {
+    const draft = await monolith()
+    const [scenarioId] = Object.keys(draft.content.scenarios)
+    expect(draft.origins?.[scenarioId]).toEqual({ scenario: { id: 'monolith_of_mild_despair', version: 2 }, seated: ['cto', 'vp_product', 'lead_developer', 'operations_manager'] })
+    const raw = draftToRawPack(draft, { schema_version: 1, base_version: '1.0.0' })
+    expect(raw.manifest_text).not.toContain('origins')
+    expect(Object.values(raw.files).join('')).not.toContain('origins')
+  })
+
+  it('says the game shares a card when only the game\'s content changes someone its own scenario doesn\'t seat', async () => {
+    const sprawl = (await draftFromBaseScenario(base(), SPRAWL, { name: 'Ours', prefix: 'ours', authors: [] })).draft
+    const notes = await unseatedNotes(sprawl, base())
+    expect(notes.map((note) => [note.stakeholder_id, note.reason, note.sources.map((source) => source.name)])).toEqual([
+      ['vp_product', 'shared', ['Automate Deployment Pipeline']],
+    ])
+  })
+
+  it('says the author took them out when the game\'s scenario seats them', async () => {
+    const without = removeFromCouncil(await monolith(), { id: 'cto', version: 1 })
+    expect((await unseatedNotes(without, base())).map((note) => note.reason)).toEqual(['taken_out'])
+  })
+
+  it('says it is the author\'s own content when any of theirs changes someone who isn\'t seated', async () => {
+    const card = createOwnCard(await monolith(), 'Freeze the Ledger')
+    const draft = putContent(card.draft, 'cards', { ...(card.draft.content.cards[card.id] as Card), stakeholder_changes: [{ stakeholder_id: 'cfo', delta: 2 }] })
+    expect((await unseatedNotes(draft, base())).map((note) => [note.stakeholder_id, note.reason])).toEqual([['cfo', 'yours']])
+  })
+
+  it('reads a game-only note as shared when the draft has no recorded origin (imported, or older)', async () => {
+    const { origins: _none, ...older } = removeFromCouncil(await monolith(), { id: 'cto', version: 1 })
+    expect((await unseatedNotes(older, base())).map((note) => note.reason)).toEqual(['shared'])
   })
 })
