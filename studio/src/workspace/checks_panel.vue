@@ -39,6 +39,9 @@ export type IssueTarget =
   | { kind: 'scenario'; id: string }
   | { kind: 'score'; id: string }
   | { kind: 'ending'; id: string }
+  | { kind: 'class'; id: string }
+  | { kind: 'challenge'; id: string }
+  | { kind: 'coupling'; id: string }
   | { kind: 'item'; section: 'cards' | 'events'; ref: { id: string; version: number } }
   | { kind: 'member'; ref: { id: string; version: number } }
   | { kind: 'reaction'; id: string }
@@ -57,6 +60,9 @@ function target(file: string): IssueTarget | null {
   if (section === 'delayed_effects') return { kind: 'aftershock', ref }
   if (section === 'scores') return { kind: 'score', id: ref.id }
   if (section === 'outcome_archetypes') return { kind: 'ending', id: ref.id }
+  if (section === 'classes') return { kind: 'class', id: ref.id }
+  if (section === 'challenge_modifiers') return { kind: 'challenge', id: ref.id }
+  if (section === 'coupling_rules') return { kind: 'coupling', id: ref.id }
   return null
 }
 

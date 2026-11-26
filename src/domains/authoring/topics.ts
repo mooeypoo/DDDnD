@@ -14,6 +14,7 @@ import type { Card, OutcomeArchetype, PlayerClass, Scenario, Score, StakeholderC
 import { CONTENT_LIMITS } from '../content/validation/content_limits'
 import { type ChangeHolder } from './connections'
 import { addContent, createDraft, putContent, withEffects, type DraftPack } from './draft_pack'
+import { withoutScoreInPlayRules } from './play_rules'
 
 /** The most scores one scenario can track (the game's limit). */
 export const SCORES_PER_SCENARIO = CONTENT_LIMITS.counts.score_refs
@@ -144,6 +145,8 @@ export function removeOwnScore(draft: DraftPack, scoreId: string): DraftPack {
     const item = next.content[section][id] as Card & { stakeholder_changes?: StakeholderChange[] }
     next = putContent(next, section, withEffects(item, { score_changes: item.score_changes.filter((change) => change.score_id !== scoreId), stakeholder_changes: item.stakeholder_changes ?? [] }) as never)
   }
+  // Classes lose a bonus on it, challenges and coupling rules stop changing it
+  next = withoutScoreInPlayRules(next, scoreId)
   const { [scoreId]: _score, ...scores } = next.content.scores
   return { ...next, content: { ...next.content, scores } }
 }

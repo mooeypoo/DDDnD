@@ -80,6 +80,28 @@
         </template>
       </div>
 
+      <!-- A topic's rules of play (M4.19): who you can be, the challenges you can choose, how scores drag each other down -->
+      <div v-if="showRules" class="group">
+        <button type="button" class="group-toggle" :aria-expanded="open.rules" @click="open.rules = !open.rules">
+          <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5" /></svg>Rules of play <span class="count">{{ rules?.length ?? 0 }}</span>
+        </button>
+        <template v-if="open.rules">
+          <div class="actions">
+            <button type="button" class="action" @click="$emit('createRule', 'class')">+ Class</button>
+            <button type="button" class="action" @click="$emit('createRule', 'challenge')">+ Challenge</button>
+            <button type="button" class="action" :disabled="!canAddCoupling" @click="$emit('createRule', 'coupling')">+ Coupling rule</button>
+          </div>
+          <ul class="items">
+            <li v-for="rule in rules ?? []" :key="`${rule.kind}/${rule.id}`">
+              <button type="button" class="item" :aria-current="current({ kind: rule.kind, id: rule.id }) ? 'page' : undefined" @click="$emit('select', { kind: rule.kind, id: rule.id })">
+                <span class="item-name"><span v-if="toFillIn.has(`${RULE_SECTIONS[rule.kind]}/${rule.id}`)" class="fill-dot" title="To fill in"><span class="visually-hidden">To fill in: </span></span>{{ rule.name || RULE_WORDS[rule.kind].unnamed }}</span>
+                <span class="item-kind">{{ RULE_WORDS[rule.kind].kind }}</span>
+              </button>
+            </li>
+          </ul>
+        </template>
+      </div>
+
       <div class="group">
         <button type="button" class="group-toggle" :aria-expanded="open.council" @click="open.council = !open.council">
           <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5" /></svg>Council <span class="count">{{ councilRefs.length }} of {{ seats }}</span>
@@ -167,13 +189,25 @@ const props = defineProps<{
   endings?: Array<{ id: string; name: string; fallback: boolean }>
   showEndings?: boolean
   canAddEnding?: boolean
+  /** A topic's own classes, challenges and coupling rules (M4.19), and whether to show the group. */
+  rules?: Array<{ kind: RuleKind; id: string; name: string }>
+  showRules?: boolean
+  canAddCoupling?: boolean
 }>()
 
+type RuleKind = 'class' | 'challenge' | 'coupling'
+const RULE_SECTIONS: Record<RuleKind, string> = { class: 'classes', challenge: 'challenge_modifiers', coupling: 'coupling_rules' }
+const RULE_WORDS: Record<RuleKind, { kind: string; unnamed: string }> = {
+  class: { kind: 'class', unnamed: 'Unnamed class' },
+  challenge: { kind: 'challenge', unnamed: 'Unnamed challenge' },
+  coupling: { kind: 'coupling', unnamed: 'Unnamed coupling rule' },
+}
+
 const pending = (section: string, ref: VersionRef) => props.toFillIn.has(`${section}/${ref.id}`)
-defineEmits<{ select: [selection: Selection]; createMember: []; createNew: [section: DeckSection]; createScore: []; createEnding: [] }>()
+defineEmits<{ select: [selection: Selection]; createMember: []; createNew: [section: DeckSection]; createScore: []; createEnding: []; createRule: [kind: RuleKind] }>()
 
 const root = ref<HTMLElement | null>(null)
-const open = reactive({ pack: true, scores: true, endings: true, council: true, cards: true, events: true })
+const open = reactive({ pack: true, scores: true, endings: true, rules: true, council: true, cards: true, events: true })
 const openGame = reactive<Record<DeckSection, boolean>>({ cards: false, events: false })
 const filter = ref('')
 const query = computed(() => filter.value.trim().toLocaleLowerCase())
@@ -205,6 +239,10 @@ const matches = computed(() => {
     const name = ending.name || 'Unnamed ending'
     if (hit(name)) found.push({ key: `ending/${ending.id}`, name, kind: 'ending', target: { kind: 'ending', id: ending.id } })
   }
+  for (const rule of props.rules ?? []) {
+    const name = rule.name || RULE_WORDS[rule.kind].unnamed
+    if (hit(name)) found.push({ key: `${rule.kind}/${rule.id}`, name, kind: RULE_WORDS[rule.kind].kind, target: { kind: rule.kind, id: rule.id } })
+  }
   for (const memberRef of councilOrdered.value) {
     const name = props.nameOf('stakeholders', memberRef)
     if (hit(name)) found.push({ key: `member/${memberRef.id}`, name, kind: 'council', target: { kind: 'member', ref: memberRef } })
@@ -223,6 +261,7 @@ watch(() => props.selection, async (selection) => {
   if (selection.kind === 'details' || selection.kind === 'scenario') open.pack = true
   if (selection.kind === 'score') open.scores = true
   if (selection.kind === 'ending' || selection.kind === 'endings') open.endings = true
+  if (selection.kind === 'class' || selection.kind === 'challenge' || selection.kind === 'coupling') open.rules = true
   if (selection.kind === 'council' || selection.kind === 'member') open.council = true
   if (selection.kind === 'item' || selection.kind === 'add') open[selection.section] = true
   if (selection.kind === 'item' && !isOwn(props.draft, selection.section, selection.ref)) openGame[selection.section] = true

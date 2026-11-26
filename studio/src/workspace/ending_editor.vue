@@ -177,17 +177,6 @@ function remove() {
 </script>
 
 <style scoped>
-.plain {
-  margin: 0;
-  padding: 0.75rem 0.875rem;
-  border-radius: 0.5rem;
-  background: var(--forge-ground);
-}
-
-.plain-lead {
-  color: var(--forge-text-secondary);
-}
-
 .add {
   align-self: flex-start;
 }

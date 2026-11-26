@@ -119,7 +119,7 @@ const releaseWords = computed(() => {
 function act(step: NextStep) {
   if (step === 'name_scores') emit('createScore')
   else if (step === 'write_endings') emit('createEnding')
-  if (step === 'write_a_card') emit('createNew', 'cards')
+  else if (step === 'write_a_card') emit('createNew', 'cards')
   else if (step === 'bring_your_people') emit('createMember')
   else if (step === 'add_author') emit('select', { kind: 'details' })
   else if (step === 'export') emit('select', { kind: 'release' })
@@ -128,6 +128,9 @@ function act(step: NextStep) {
 function openFillIn(item: ToFillIn) {
   if (item.section === 'scores') emit('select', { kind: 'score', id: item.ref.id })
   else if (item.section === 'outcome_archetypes') emit('select', { kind: 'ending', id: item.ref.id })
+  else if (item.section === 'classes') emit('select', { kind: 'class', id: item.ref.id })
+  else if (item.section === 'challenge_modifiers') emit('select', { kind: 'challenge', id: item.ref.id })
+  else if (item.section === 'coupling_rules') emit('select', { kind: 'coupling', id: item.ref.id })
   else if (item.section === 'stakeholders') emit('select', { kind: 'member', ref: item.ref })
   else if (item.section === 'cards' || item.section === 'events') emit('select', { kind: 'item', section: item.section, ref: item.ref })
 }
