@@ -1342,13 +1342,13 @@ N2 of new-topic authoring (§5: "Endings should be reachable, and mean something
   - **When it's tried:** "Try it earlier" and "Try it later", and "tried 1 of 3" in its kicker.
 - **The Order page** lists every ending, numbered, with its plain words and Earlier or Later buttons. The fallback sits last as "every run".
 - **A new ending is tried first,** with a condition to start from (the first score ends at or above 70), since a new ending is usually a particular one.
-- **The fallback can't be deleted** while it's the only one, and the page says why. An ending whose conditions are all removed becomes a fallback and moves last.
+- **Exactly one fallback, always last.** It can't be deleted, and it takes no conditions. An ending with conditions keeps at least one: its last condition has no Remove, and a line says the fallback already catches every other run.
 - **For topics, "Where to go next" adds "Write the endings":** done once there's an ending besides the fallback.
 
 **Domain (`endings.ts`, new):**
 - order: `endingsInOrder`, `isFallback`, `moveEnding`;
 - making and removing: `createOwnEnding` (first in order, listed by every scenario), `endingDeletion` and `removeOwnEnding`;
-- conditions: `setEndingConditions` (an ending left with none moves last), `startingEndingCondition` and `endingConditionOf`;
+- conditions: `setEndingConditions` (keeps exactly one fallback), `startingEndingCondition` and `endingConditionOf`;
 - words: `describeEndingCondition`, `describeEnding`, `endingOperatorChoices` and `ENDING_MEASURES`;
 - limits: `ENDINGS_PER_SCENARIO` and `CONDITIONS_PER_ENDING`.
 
@@ -1357,6 +1357,7 @@ Priorities are written evenly spaced (…, 20, 10, 0), so the pack's files stay 
 **Decisions:**
 - **Order, not numbers (D34).** The game's two ending errors (two endings at one priority, an ending that can never be reached because it's below the fallback) can't be made in the Studio.
 - **A new ending goes first, not just above the fallback.** Particular endings belong first, and the one being written is usually the particular one.
+- **Exactly one fallback, enforced by the model.** The first version let an ending lose all its conditions and become a second fallback, which can never be reached. A probe showed the game's checks don't flag two fallbacks, so the model now refuses it: an ending with conditions keeps at least one, and the fallback takes none.
 - **The game's "reachable" is the only reachability the Studio promises.** Whether an ending's conditions can actually be met in play is a balance question, which belongs to the balance hints and, later, the balance lab (D3).
 
 **For the talk: an invariant the model keeps so the author doesn't have to.** The game's rule is "highest priority first, unique priorities, a fallback at the bottom". As data, that's three things an author can get wrong. As an operation on an ordered list ("try it earlier"), none of them can go wrong. The domain turns a format's constraints into the shape of its operations: the same move as the council's seats (M4.5) and the release's versions (M4.7).
@@ -1364,7 +1365,7 @@ Priorities are written evenly spaced (…, 20, 10, 0), so the pack's files stay 
 **Verification:**
 - Tests: 1358 in total (+10, `tests/authoring/endings.test.ts`):
   - order: new first, moving, renumbering, the fallback staying last;
-  - an ending without conditions becoming the fallback;
+  - exactly one fallback (an ending keeps a condition; the fallback takes none);
   - deleting, and keeping the last fallback;
   - every kind of condition in words, including several scores, named members and decimals;
   - comparisons that fit the measure;

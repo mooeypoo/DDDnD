@@ -42,9 +42,9 @@
       <template v-if="fallback">
         <p class="plain"><span class="plain-lead">In plain words:</span> {{ words }}.</p>
         <p class="field-hint">
-          This ending has no conditions, so it's tried last and every run that no other ending fits ends here. Every scenario needs one.
+          This is the fallback: it has no conditions, so it's tried last and every run that no other ending fits ends here.
+          Every scenario needs exactly one. To end particular runs somewhere else, make another ending with conditions.
         </p>
-        <button v-if="(ending.criteria?.when.length ?? 0) < maxConditions" type="button" class="button button-quiet" @click="addCondition">+ Add a condition</button>
       </template>
       <template v-else>
         <p class="field-hint">All of these must hold at the end of the run.</p>
@@ -56,9 +56,11 @@
           :draft="draft"
           :scoreOptions="scoreOptions"
           :memberOptions="memberOptions"
+          :removable="ending.criteria!.when.length > 1"
           @change="(next) => setCondition(index, next)"
           @remove="removeCondition(index)"
         />
+        <p v-if="ending.criteria!.when.length === 1" class="field-hint">An ending needs at least one condition; the fallback already catches every other run.</p>
         <button v-if="ending.criteria!.when.length < maxConditions" type="button" class="button button-quiet add" @click="addCondition">+ Add a condition</button>
         <p class="plain"><span class="plain-lead">In plain words:</span> chosen {{ words }}.</p>
       </template>

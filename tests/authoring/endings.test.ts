@@ -17,7 +17,6 @@ import {
   endingDeletion,
   endingOperatorChoices,
   endingsInOrder,
-  isFallback,
   manifestRefs,
   moveEnding,
   nextSteps,
@@ -74,12 +73,13 @@ describe('the order endings are tried in', () => {
     expect(order(moveEnding(draft, fallback, 'earlier'))).toEqual(['Second', 'First', 'Held It Together'])
   })
 
-  it('makes an ending whose conditions are all removed a fallback, tried last', () => {
-    let { draft } = topic()
-    const made = createOwnEnding(draft, 'Pager Haunted')!
-    draft = setEndingConditions(made.draft, made.id, [])
-    expect(isFallback(draft.content.outcome_archetypes[made.id])).toBe(true)
-    expect(order(draft)[1]).toBe('Pager Haunted')
+  it('keeps exactly one fallback: an ending with conditions keeps one, and the fallback takes none', () => {
+    const made = createOwnEnding(topic().draft, 'Pager Haunted')!
+    expect(setEndingConditions(made.draft, made.id, [])).toBe(made.draft)
+    const fallback = endingsInOrder(made.draft)[1]
+    expect(setEndingConditions(made.draft, fallback.id, [{ measure: 'pressure_per_turn', operator: '>', value: 1 }])).toBe(made.draft)
+    const changed = setEndingConditions(made.draft, made.id, [{ measure: 'pressure_per_turn', operator: '>', value: 1 }])
+    expect(changed.content.outcome_archetypes[made.id].criteria?.when).toEqual([{ measure: 'pressure_per_turn', operator: '>', value: 1 }])
   })
 })
 

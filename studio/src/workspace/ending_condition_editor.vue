@@ -30,7 +30,7 @@
         <input type="number" :step="condition.measure === 'pressure_per_turn' ? 0.1 : 1" :min="-1000" :max="1000" :value="condition.value" @change="setValue($event)" />
       </label>
 
-      <button type="button" class="link-button remove" :aria-label="`Remove condition ${index + 1}`" @click="$emit('remove')">Remove</button>
+      <button v-if="removable" type="button" class="link-button remove" :aria-label="`Remove condition ${index + 1}`" @click="$emit('remove')">Remove</button>
     </div>
 
     <div v-if="condition.measure === 'score_change'" class="choice-list" role="group" aria-label="Which scores, added together">
@@ -56,7 +56,7 @@ import type { EndingCondition, EndingOperator } from '@/domains/content/model'
 
 interface Option { id: string; name: string }
 
-const props = defineProps<{ condition: EndingCondition; index: number; draft: DraftPack; scoreOptions: Option[]; memberOptions: Option[] }>()
+const props = withDefaults(defineProps<{ condition: EndingCondition; index: number; draft: DraftPack; scoreOptions: Option[]; memberOptions: Option[]; removable?: boolean }>(), { removable: true })
 const emit = defineEmits<{ change: [condition: EndingCondition]; remove: [] }>()
 
 /** The comparison, in the words that fit what's measured (the domain's endingOperatorChoices). */

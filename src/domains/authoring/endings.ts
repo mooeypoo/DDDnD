@@ -6,7 +6,8 @@
  * picks the first whose conditions all hold. Authors never see a priority:
  * the Studio keeps endings as an ordered list, "tried first" to "tried
  * last", and the fallback (no conditions, so every run fits it) is always
- * last. The game requires one, and anything after it could never be reached.
+ * last. The game requires one, and anything after it could never be reached,
+ * so the Studio keeps exactly one (M4.18).
  */
 
 import type { EndingCondition, EndingOperator, OutcomeArchetype, VersionRef } from '../content/model'
@@ -110,17 +111,16 @@ export function removeOwnEnding(draft: DraftPack, id: string): DraftPack {
 }
 
 /**
- * An ending's conditions, replaced. An ending left with none becomes a
- * fallback and moves last (only one fallback is useful: anything after it
- * is never reached).
+ * An ending's conditions, replaced, keeping exactly one fallback: an ending
+ * with conditions keeps at least one, and the fallback takes none. Two
+ * fallbacks would leave one that can never be reached (and the game's
+ * checks don't catch that), and none would leave runs with no ending.
+ * Unchanged when the change would break that.
  */
 export function setEndingConditions(draft: DraftPack, id: string, when: EndingCondition[]): DraftPack {
   const ending = draft.content.outcome_archetypes[id]
-  if (!ending) return draft
-  const next = putContent(draft, 'outcome_archetypes', { ...ending, criteria: { priority: ending.criteria?.priority ?? 0, when } })
-  const ordered = endingsInOrder(next)
-  const updated = next.content.outcome_archetypes[id]
-  return withOrder(next, isFallback(updated) ? [...ordered.filter((other) => other.id !== id), updated] : ordered)
+  if (!ending || isFallback(ending) !== (when.length === 0)) return draft
+  return putContent(draft, 'outcome_archetypes', { ...ending, criteria: { priority: ending.criteria?.priority ?? 0, when } })
 }
 
 /** The four things an ending can measure, in the Studio's words. */
