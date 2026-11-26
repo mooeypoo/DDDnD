@@ -28,6 +28,7 @@ import type { ContentInventoryKey } from '../content/model/content_pack_manifest
 import type { VersionRef } from '../content/model'
 import { GPL_COMPATIBLE_LICENSES } from '../content/validation/pack_policy'
 import { contentIdFromName, contentPrefix } from './content_ids'
+import type { RoundState } from './guided_round'
 
 /** What the author is making (D1). Both export as `extension` packs of the base pack. */
 export type DraftKind = 'retelling' | 'new_topic'
@@ -94,6 +95,8 @@ export interface DraftPack {
    * Studio stores and exports, never shows.
    */
   readme?: string
+  /** Where the author is in the guided round (§5), while they're in one. The Studio's own memory: never exported. */
+  round?: RoundState
 }
 
 /** An imported pack's lists, in its own order (ids). */

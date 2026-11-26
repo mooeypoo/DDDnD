@@ -72,7 +72,7 @@
         <template v-else>
           <p class="to-fix">{{ issues.length === 1 ? '1 thing to fix' : `${issues.length} things to fix` }}, from the game's own checks:</p>
           <ul class="issue-list">
-            <li v-for="(issue, index) in issues.slice(0, 5)" :key="index"><span class="issue-where">{{ describeIssue(issue).where }}:</span> {{ describeIssue(issue).text }}</li>
+            <li v-for="(issue, index) in issues.slice(0, 5)" :key="index"><span class="issue-where">{{ describeIssue(issue, draft).where }}:</span> {{ describeIssue(issue, draft).text }}</li>
           </ul>
           <p v-if="issues.length > 5" class="field-hint">And {{ issues.length - 5 }} more: open the “to fix” button at the top.</p>
         </template>

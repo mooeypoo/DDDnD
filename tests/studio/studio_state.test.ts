@@ -3,7 +3,7 @@
  * data, even when they come from Vue's reactive state.
  */
 
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { reactive } from 'vue'
 
 import { addContent, createDraft, updateDraftDetails } from '@/domains/authoring'
@@ -36,5 +36,21 @@ describe('draft store', () => {
     await store.remove('old')
     expect((await store.list()).map((entry) => entry.draft_id)).toEqual(['new'])
     expect(store.persistent).toBe(false)
+  })
+})
+
+describe('opening the draft that is already open', () => {
+  it('keeps it, with an edit not yet saved, instead of reading an older copy back (the round and the workspace are two views of one draft)', async () => {
+    vi.resetModules()
+    vi.doMock('@studio/content/first_party', () => ({
+      listBaseRefs: async () => [],
+      loadFirstParty: async () => ({ packs: [], base: {} }),
+    }))
+    const { openDraft, startNewTopic, studio, updateDraft } = await import('@studio/state/studio_state')
+    const id = await startNewTopic('Incident Response', 'On call.')
+    updateDraft({ ...studio.current!.draft, name: 'Edited, not saved yet' })
+    expect(await openDraft(id)).toBe(true)
+    expect(studio.current?.draft.name).toBe('Edited, not saved yet')
+    vi.doUnmock('@studio/content/first_party')
   })
 })

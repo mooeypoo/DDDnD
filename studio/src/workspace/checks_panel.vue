@@ -26,11 +26,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { describeIssue, issueSubject, type PackIssue } from '@/domains/authoring'
+import { describeIssue, issueSubject, type DraftPack, type PackIssue } from '@/domains/authoring'
 import type { CheckState } from '@studio/state/studio_state'
 
 /** `live: false` when something else announces the status (the toolbar's checks button). */
-const props = withDefaults(defineProps<{ state: CheckState; issues: PackIssue[]; live?: boolean }>(), { live: true })
+const props = withDefaults(defineProps<{ state: CheckState; issues: PackIssue[]; live?: boolean; draft?: DraftPack }>(), { live: true, draft: undefined })
 defineEmits<{ goTo: [target: IssueTarget] }>()
 
 /** Where a problem can be fixed in the Studio, when there's an editor for it. */
@@ -78,8 +78,8 @@ const statusText = computed(() => {
 })
 
 /** Where the problem is and what to do, in the Studio's words (the domain's describeIssue). */
-const where = (issue: PackIssue) => describeIssue(issue).where
-const friendly = (issue: PackIssue) => describeIssue(issue).text
+const where = (issue: PackIssue) => describeIssue(issue, props.draft).where
+const friendly = (issue: PackIssue) => describeIssue(issue, props.draft).text
 </script>
 
 <style scoped>

@@ -14,6 +14,7 @@ import {
   draftFromBaseScenario,
   draftFromPack,
   draftForNewTopic,
+  startRound,
   exportDraftArchive,
   previewBundle,
   exportDraftBundle,
@@ -164,9 +165,11 @@ export function updateDraft(next: DraftPack): void {
 }
 
 /** "Start from a DDDnD scenario" (D13): a new retelling holding a copy of the scenario. */
-export async function startFromBaseScenario(choice: BaseScenarioChoice): Promise<string> {
+export async function startFromBaseScenario(choice: BaseScenarioChoice, options: { guided?: boolean } = {}): Promise<string> {
   const { base } = await loadFirstParty()
-  const { draft } = await draftFromBaseScenario(base, choice.ref, { name: `${choice.name}, retold` })
+  const copied = (await draftFromBaseScenario(base, choice.ref, { name: `${choice.name}, retold` })).draft
+  // The guided round (§5) starts on the same copy, with the round's place kept beside it
+  const draft = options.guided ? startRound(copied) : copied
   const draftId = newDraftId()
   state.current = { draft_id: draftId, draft }
   state.check = { state: 'idle', issues: [] }
@@ -218,6 +221,9 @@ export async function importPack(file: File): Promise<{ ok: true; draft_id: stri
 }
 
 export async function openDraft(draftId: string): Promise<boolean> {
+  // Already open (the guided round and the workspace are two views of one draft): keep it,
+  // and any edit still waiting to be saved, rather than reading an older copy back
+  if (state.current?.draft_id === draftId) return true
   if (!store) await initStudio()
   const entry = await store?.get(draftId)
   if (!entry) {

@@ -3,13 +3,20 @@
   <StudioHeader :textSize="textSize" @update:textSize="setTextSize" />
   <!-- The header stays put; below it, the start screen scrolls as a page and the workspace's columns scroll on their own -->
   <div class="route">
-    <WorkspaceView v-if="route.kind === 'draft' && studio.current" @leave="go('#/')" />
-    <p v-else-if="route.kind === 'draft' && route.missing" class="missing" role="alert">
+    <WorkspaceView
+      v-if="(route.kind === 'draft' || route.kind === 'guided') && studio.current"
+      :guided="route.kind === 'guided'"
+      @leave="go('#/')"
+      @leaveRound="go(`#/draft/${route.draftId}`)"
+      @resumeRound="go(`#/guided/${route.draftId}`)"
+    />
+    <p v-else-if="(route.kind === 'draft' || route.kind === 'guided') && route.missing" class="missing" role="alert">
       That draft isn't in this browser. <a href="#/">See your drafts</a>.
     </p>
     <NewPackView v-else-if="route.kind === 'new'" @openDraft="(id) => go(`#/draft/${id}`)" @back="go('#/')" />
+    <NewPackView v-else-if="route.kind === 'guided-start'" guided @openDraft="(id) => go(`#/guided/${id}`)" @back="go('#/')" />
     <NewTopicView v-else-if="route.kind === 'new-topic'" @openDraft="(id) => go(`#/draft/${id}`)" @back="go('#/')" />
-    <StartView v-else-if="route.kind === 'start'" @openDraft="(id) => go(`#/draft/${id}`)" @newPack="go('#/new')" @newTopic="go('#/new-topic')" />
+    <StartView v-else-if="route.kind === 'start'" @openDraft="(id) => go(`#/draft/${id}`)" @newPack="go('#/new')" @newTopic="go('#/new-topic')" @guidedRound="go('#/guided')" />
   </div>
 </template>
 
@@ -33,17 +40,25 @@ function setTextSize(size: TextSize) {
   writeTextSize(size)
 }
 
-/** Where the Studio is: the start screen, choosing a scenario (`#/new`), or one draft (`#/draft/<id>`), so a reload stays put. */
-const route = reactive<{ kind: 'start' | 'new' | 'new-topic' | 'draft'; missing: boolean }>({ kind: 'start', missing: false })
+/**
+ * Where the Studio is, so a reload stays put: the start screen, choosing a
+ * scenario (`#/new`), starting a topic (`#/new-topic`), one draft
+ * (`#/draft/<id>`), or the guided round (`#/guided` to choose its scenario,
+ * `#/guided/<id>` for its draft).
+ */
+const route = reactive<{ kind: 'start' | 'new' | 'new-topic' | 'guided-start' | 'draft' | 'guided'; missing: boolean; draftId: string }>({ kind: 'start', missing: false, draftId: '' })
+
+const STARTS: Record<string, 'new' | 'new-topic' | 'guided-start'> = { '#/new': 'new', '#/new-topic': 'new-topic', '#/guided': 'guided-start' }
 
 async function follow() {
-  const match = window.location.hash.match(/^#\/draft\/([\w-]+)$/)
+  const match = window.location.hash.match(/^#\/(draft|guided)\/([\w-]+)$/)
   if (match) {
-    route.kind = 'draft'
-    route.missing = !(await openDraft(match[1]))
-  } else if (window.location.hash === '#/new' || window.location.hash === '#/new-topic') {
+    route.kind = match[1] as 'draft' | 'guided'
+    route.draftId = match[2]
+    route.missing = !(await openDraft(match[2]))
+  } else if (STARTS[window.location.hash]) {
     await closeDraft()
-    route.kind = window.location.hash === '#/new' ? 'new' : 'new-topic'
+    route.kind = STARTS[window.location.hash]
     route.missing = false
   } else {
     await closeDraft()

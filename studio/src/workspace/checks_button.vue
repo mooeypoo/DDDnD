@@ -24,7 +24,7 @@
     <span class="visually-hidden" role="status" aria-live="polite">{{ announced }}</span>
 
     <div v-if="open" id="checks-panel" ref="panel" class="checks-popover" role="region" aria-label="Checks and notes">
-      <ChecksPanel :state="state" :issues="issues" :live="false" @goTo="goTo" />
+      <ChecksPanel :state="state" :issues="issues" :live="false" :draft="draft" @goTo="goTo" />
       <CouncilNotesPanel
         :notes="notes"
         :full="full"
@@ -39,13 +39,13 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
 
-import type { NoteSection, PackIssue } from '@/domains/authoring'
+import type { DraftPack, NoteSection, PackIssue } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import type { CheckState, CouncilNote } from '@studio/state/studio_state'
 import ChecksPanel, { type IssueTarget } from '@studio/workspace/checks_panel.vue'
 import CouncilNotesPanel from '@studio/workspace/council_notes_panel.vue'
 
-const props = defineProps<{ state: CheckState; issues: PackIssue[]; notes: CouncilNote[]; full: boolean }>()
+const props = defineProps<{ state: CheckState; issues: PackIssue[]; notes: CouncilNote[]; full: boolean; draft?: DraftPack }>()
 const emit = defineEmits<{
   goTo: [target: IssueTarget]
   seat: [ref: VersionRef]

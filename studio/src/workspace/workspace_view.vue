@@ -1,6 +1,14 @@
 <template>
   <div v-if="draft" class="workspace">
-    <div class="workspace-bar">
+    <GuidedBar
+      v-if="guided && draft.round"
+      :draft="draft"
+      :saveText="saveText"
+      :checksClean="canExport"
+      @leave="$emit('leaveRound')"
+      @goTo="(step) => updateDraft(goToRoundStep(draft!, step))"
+    />
+    <div v-else class="workspace-bar">
       <button type="button" class="button button-quiet" @click="$emit('leave')">‹ Your packs</button>
       <span class="bar-name">{{ draft.name || 'Untitled pack' }}</span>
       <span class="kind-pill" :class="draft.kind === 'retelling' ? 'pill-setting' : 'pill-topic'">
@@ -12,9 +20,12 @@
         <button type="button" class="view-option" :aria-pressed="selection.kind !== 'summary'" @click="select(lastEdit)">Edit</button>
       </div>
       <div class="bar-tools">
+        <!-- A draft with a guided round in progress can go back to it (§5) -->
+        <button v-if="inRound(draft)" type="button" class="button button-quiet" @click="$emit('resumeRound')">Back to the guided round</button>
         <ChecksButton
           :state="studio.check.state"
           :issues="studio.check.issues"
+          :draft="draft"
           :notes="studio.notes"
           :full="councilRefs.length >= COUNCIL_SEATS"
           @goTo="goTo"
@@ -42,7 +53,22 @@
     </div>
 
     <div class="workspace-body">
+      <GuidedGuide
+        v-if="guided && draft.round"
+        class="contents contents-guide"
+        :draft="draft"
+        :step="draft.round.step"
+        :selection="selection"
+        :nameOf="itemName"
+        @select="select"
+        @createMember="createMember"
+        @createNew="createNew"
+        @back="updateDraft(previousRoundStep(draft!))"
+        @next="updateDraft(nextRoundStep(draft!))"
+        @finish="finishTheRound"
+      />
       <ContentsNav
+        v-else
         class="contents"
         :draft="draft"
         :selection="selection"
@@ -70,8 +96,23 @@
       />
 
       <main id="main" ref="editorArea" class="editor-area" tabindex="-1">
+        <GuidedPanel
+          v-if="selection.kind === 'round'"
+          :draft="draft"
+          :step="selection.step"
+          :checkState="studio.check.state"
+          :issues="studio.check.issues"
+          :checksClean="canExport"
+          :playLive="PLAY_IT_LIVE"
+          :playing="playing"
+          :playText="playText"
+          @createNew="createNew"
+          @goTo="goTo"
+          @play="playIt"
+          @export="select({ kind: 'release' })"
+        />
         <SummaryView
-          v-if="selection.kind === 'summary'"
+          v-else-if="selection.kind === 'summary'"
           :draft="draft"
           :seats="COUNCIL_SEATS"
           :checkState="studio.check.state"
@@ -189,7 +230,7 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { addToCouncil, aftershockUsers, COUPLING_PER_SCENARIO, couplingInOrder, createOwnChallenge, createOwnClass, createOwnCoupling, createOwnEnding, createOwnScore, endingsInOrder, ENDINGS_PER_SCENARIO, isFallback, usesGameContent, newestRef, SCORES_PER_SCENARIO, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
+import { addToCouncil, aftershockUsers, finishRound, goToRoundStep, inRound, nextRoundStep, previousRoundStep, type RoundStep, isOwn as isOwnItem, COUPLING_PER_SCENARIO, couplingInOrder, createOwnChallenge, createOwnClass, createOwnCoupling, createOwnEnding, createOwnScore, endingsInOrder, ENDINGS_PER_SCENARIO, isFallback, usesGameContent, newestRef, SCORES_PER_SCENARIO, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 import { PLAY_IT_LIVE, type PlayStatus } from '@studio/content/game_preview'
@@ -210,10 +251,14 @@ import ScoreEditor from '@studio/workspace/score_editor.vue'
 import EndingEditor from '@studio/workspace/ending_editor.vue'
 import EndingsView from '@studio/workspace/endings_view.vue'
 import ChallengeEditor from '@studio/workspace/challenge_editor.vue'
+import GuidedBar from '@studio/guided/guided_bar.vue'
+import GuidedGuide from '@studio/guided/guided_guide.vue'
+import GuidedPanel from '@studio/guided/guided_panel.vue'
 import ClassEditor from '@studio/workspace/class_editor.vue'
 import CouplingEditor from '@studio/workspace/coupling_editor.vue'
 
-defineEmits<{ leave: [] }>()
+const props = withDefaults(defineProps<{ guided?: boolean }>(), { guided: false })
+const emit = defineEmits<{ leave: []; leaveRound: []; resumeRound: [] }>()
 
 type NameSection = 'scores' | 'stakeholders' | 'cards' | 'events'
 
@@ -338,6 +383,57 @@ async function createRule(kind: 'class' | 'challenge' | 'coupling') {
   select({ kind, id: made.id })
   await focusEditor()
   ;(document.activeElement as HTMLInputElement | null)?.select?.()
+}
+
+/**
+ * The guided round (§5): each step opens the editor it's about, or the
+ * round's own panel. Its first own member, card or event, when it has one.
+ */
+function roundSelection(step: RoundStep): Selection {
+  const current = draft.value!
+  const own = (section: DeckSection, field: 'card_refs' | 'event_refs') => scenarioRefs(current, field).find((ref) => isOwnItem(current, section, ref))
+  switch (step) {
+    case 'world':
+      return { kind: 'details' }
+    case 'scenario':
+      return scenarios.value[0] ? { kind: 'scenario', id: scenarios.value[0].id } : { kind: 'details' }
+    case 'council': {
+      const member = scenarioRefs(current, 'stakeholder_refs').find((ref) => isOwnMember(current, ref))
+      return member ? { kind: 'member', ref: member } : { kind: 'council' }
+    }
+    case 'cards': {
+      const card = own('cards', 'card_refs')
+      return card ? { kind: 'item', section: 'cards', ref: card } : { kind: 'round', step }
+    }
+    case 'surprises': {
+      const event = own('events', 'event_refs')
+      return event ? { kind: 'item', section: 'events', ref: event } : { kind: 'round', step }
+    }
+    case 'deck':
+      return { kind: 'add', section: 'cards' }
+    default:
+      return { kind: 'round', step }
+  }
+}
+
+/** A step opened (from the strip, Next or Back, or on arriving): show what it's about. A topic has no retelling round. */
+// Watched as one string: a new array each time would fire on every edit, and reopen the step's default
+watch(() => `${props.guided ? 'guided' : ''}:${draft.value?.round?.step ?? ''}`, () => {
+  const step = draft.value?.round?.step
+  if (!props.guided || !draft.value) return
+  if (draft.value.kind !== 'retelling' || !step) {
+    emit('leaveRound')
+    return
+  }
+  select(roundSelection(step))
+}, { immediate: true })
+
+/** "Finish the round": an ordinary draft again, opened on its summary. */
+function finishTheRound() {
+  if (!draft.value) return
+  updateDraft(finishRound(draft.value))
+  select({ kind: 'summary' })
+  emit('leaveRound')
 }
 
 /** "+ New score": made, tracked by every scenario, and opened with its name ready to type. */
@@ -561,6 +657,11 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
   background: var(--forge-rail);
 }
 
+.contents-guide {
+  /* The round's guide reads as prose beside the editor (§5's mockup), so it's wider than the sidebar */
+  flex-basis: 26rem;
+}
+
 .editor-area {
   flex: 1;
   min-width: 0;
@@ -584,6 +685,10 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
     max-height: 18rem;
     border-right: none;
     border-bottom: 1px solid var(--forge-hairline);
+  }
+
+  .contents-guide {
+    max-height: none;
   }
 
   .editor-area {

@@ -2,7 +2,7 @@
  * What the workspace has open: one editor at a time, chosen from the
  * contents sidebar, a check's "Go to it", or an editor's own links.
  */
-import type { DeckSection } from '@/domains/authoring'
+import type { DeckSection, RoundStep } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 
 export type Selection =
@@ -20,6 +20,8 @@ export type Selection =
   | { kind: 'item'; section: DeckSection; ref: VersionRef }
   | { kind: 'add'; section: DeckSection }
   | { kind: 'release' }
+  /** The guided round's own panel for a step (§5): a first card or event, the checks, playing. */
+  | { kind: 'round'; step: RoundStep }
 
 /** True when `selection` is the given scenario, council page, member, item or "add from the game" page. */
 export function isSelected(selection: Selection, target: Selection): boolean {
@@ -40,6 +42,8 @@ export function isSelected(selection: Selection, target: Selection): boolean {
     }
     case 'add':
       return (selection as typeof target).section === target.section
+    case 'round':
+      return (selection as typeof target).step === target.step
     default:
       return true
   }
