@@ -22,7 +22,8 @@ const flat = (text) => text.replace(/\s+/g, ' ').trim()
 // The checks settle after each edit: the toolbar's checks button leaves "Checking…"
 const settle = async () => { await page.waitForTimeout(1300); await page.locator('.checks-toggle.status-ok, .checks-toggle.status-problems').waitFor({ timeout: 20000 }) }
 
-await page.goto('http://localhost:4319/', { waitUntil: 'load' })
+// The scenarios are one step in from the start screen (#/new)
+await page.goto('http://localhost:4319/#/new', { waitUntil: 'load' })
 await page.getByRole('button', { name: 'Copy and adapt The Monolith of Mild Despair' }).click()
 await settle()
 console.log('checks:', flat(await page.locator('.checks-menu [role="status"]').innerText()))

@@ -50,7 +50,7 @@
       </label>
       <p class="facts">
         Exports as <strong>{{ draft.prefix }}</strong>, an extension of DDDnD's base game.
-        <template v-if="draft.released">Last exported as version <strong>{{ draft.released.version }}</strong>.</template>
+        <template v-if="release.state !== 'never'">{{ release.imported ? 'Imported' : 'Last exported' }} as version <strong>{{ release.version }}</strong>.</template>
         <template v-else>Not exported yet.</template>
         You choose the version when you export.
       </p>
@@ -61,11 +61,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { draftLicense, licenseChoices, updateDraftDetails, withLicense, type DraftPack } from '@/domains/authoring'
+import { draftLicense, licenseChoices, releaseState, updateDraftDetails, withLicense, type DraftPack } from '@/domains/authoring'
 
 const props = defineProps<{ draft: DraftPack }>()
 const emit = defineEmits<{ change: [draft: DraftPack] }>()
 const license = computed(() => draftLicense(props.draft))
+const release = computed(() => releaseState(props.draft))
 const licenses = licenseChoices()
 
 function value(event: Event): string {

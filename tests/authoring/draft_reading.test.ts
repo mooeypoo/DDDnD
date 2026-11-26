@@ -14,6 +14,7 @@ import {
   draftFromBaseScenario,
   isOwnRef,
   isReferenced,
+  describeIssue,
   issueSubject,
   manifestRefs,
   memberOfReaction,
@@ -127,5 +128,15 @@ describe('editing helpers', () => {
     const card = { id: 'ours_card', version: 1, name: 'Card', description: '', score_changes: [], delayed_effect_refs: [], stakeholder_changes: [{ stakeholder_id: made.id, delta: 2 }] } as Card
     const named = putContent(reacted.draft, 'cards', card)
     expect(ownItemsNamingAfterRemoval(named, { id: made.id, version: 1 })).toEqual([{ section: 'cards', id: 'ours_card', name: 'Card' }])
+  })
+})
+
+describe('a check\'s issue, in the Studio\'s words', () => {
+  it('says where it is and what to do for the commonest problems, and keeps the game\'s message otherwise', () => {
+    expect(describeIssue({ file: 'manifest.json', message: 'authors: must be at least 1 item' })).toEqual({ where: 'Pack details', text: 'Add your name as the author.' })
+    expect(describeIssue({ file: 'stakeholders/ours_head-v1.json', message: 'description: must not be blank' })).toEqual({ where: 'Council member', text: 'Add a description: who they are and what they care about.' })
+    expect(describeIssue({ file: 'cards/ours_a-v1.json', message: 'description: must not be blank' })).toEqual({ where: 'Card', text: 'Add a description: what it does, in a sentence.' })
+    expect(describeIssue({ file: 'cards/ours_a-v1.json', message: 'name: must not be blank' })).toEqual({ where: 'Card', text: 'Give it a name.' })
+    expect(describeIssue({ file: 'pack', message: 'Something else broke' })).toEqual({ where: 'Pack', text: 'Something else broke' })
   })
 })

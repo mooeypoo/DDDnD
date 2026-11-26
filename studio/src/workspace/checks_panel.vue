@@ -10,7 +10,7 @@
 
     <ul v-if="issues.length > 0" class="issue-list">
       <li v-for="(issue, index) in issues" :key="index" class="issue">
-        <span class="issue-where">{{ where(issue.file) }}</span>
+        <span class="issue-where">{{ where(issue) }}</span>
         <span class="issue-text">{{ friendly(issue) }}</span>
         <button v-if="target(issue.file)" type="button" class="issue-go" @click="$emit('goTo', target(issue.file)!)">Go to it ›</button>
       </li>
@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { issueSubject, type DraftSection, type PackIssue } from '@/domains/authoring'
+import { describeIssue, issueSubject, type PackIssue } from '@/domains/authoring'
 import type { CheckState } from '@studio/state/studio_state'
 
 /** `live: false` when something else announces the status (the toolbar's checks button). */
@@ -67,34 +67,9 @@ const statusText = computed(() => {
   return props.issues.length === 1 ? '1 thing to fix before export' : `${props.issues.length} things to fix before export`
 })
 
-/** Where the problem is, in the Studio's words. */
-function where(file: string): string {
-  const subject = issueSubject(file)
-  if (subject?.kind === 'manifest') return 'Pack details'
-  const names: Partial<Record<DraftSection, string>> = {
-    scenarios: 'Scenario',
-    cards: 'Card',
-    events: 'Event',
-    stakeholders: 'Council member',
-    stakeholder_reaction_rules: 'Reaction',
-    delayed_effects: 'Aftershock',
-  }
-  return (subject?.kind === 'content' && names[subject.section]) || 'Pack'
-}
-
-/** The validator's wording for the commonest problems, said plainly. */
-function friendly(issue: PackIssue): string {
-  const { file, message } = issue
-  const pack = file === 'manifest.json'
-  if (/^authors: must be at least 1/.test(message)) return 'Add your name as the author.'
-  if (/^description: must not be blank/.test(message)) {
-    if (pack) return 'Add a description of the pack.'
-    if (file.startsWith('stakeholders/')) return 'Add a description: who they are and what they care about.'
-    return 'Add a description: what it does, in a sentence.'
-  }
-  if (/^name: must not be blank/.test(message)) return pack ? 'Give the pack a name.' : 'Give it a name.'
-  return message
-}
+/** Where the problem is and what to do, in the Studio's words (the domain's describeIssue). */
+const where = (issue: PackIssue) => describeIssue(issue).where
+const friendly = (issue: PackIssue) => describeIssue(issue).text
 </script>
 
 <style scoped>
