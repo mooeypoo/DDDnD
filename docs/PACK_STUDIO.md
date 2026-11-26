@@ -52,6 +52,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D30 | **You never leave what you're editing to connect it.** Every "what it changes" picker can create or seat a council member, and a member's page can give a card or event a change to them, making your own version of the game's first (D7). Placeholders are fine while you work; the checks only stop the export. | The owner found connecting content the most confusing part of editing: make the member first, or the card? With this, either order works, from either side. |
 | D31 | **Changing someone who isn't seated is a feature, and the Studio explains it, never blocks it.** A note says why it's there: the game shares a card (nothing to do), you took them out, or your own content changes them (fine for a card shared with another scenario). The author guide explains sharing cards between scenarios. | The owner (2026-11-26): pack authors may share cards between scenarios with different councils on purpose, as the base game does (Automate Deployment Pipeline in Microservice Sprawl). The note should alert and explain, so it can be done on purpose. |
 | D32 | **"Play it" is trusted in production only from the launch.** Until then the game trusts only the local Studio, in development builds; the launch PR adds `https://studio.dddnd.app` and switches the Studio's button on together (a test keeps them in step). Deploy previews are never trusted (D17). | The owner's call (2026-11-26), keeping the plan in §12: a pack sent by "Play it" skips the bazaar's review, so the live game starts trusting the Studio when the Studio is announced, not before. |
+| D33 | **A new topic is an extension of the base game with everything else its own:** its own scores, council, cards, events and endings, the game's five outcome tiers (the owner's call), and none of the game's cards, events or council members, whose changes and conditions name the game's scores. It starts as a skeleton (a scenario, a fallback ending, a class with no score bonus) that the summary's steps walk through. | Matches the SRE pack, the one real topic. Reusing the tiers keeps the first topic short (§5); the game's content would only fail the checks in a topic; the skeleton means a fresh topic already plays once it has scores. |
 
 ---
 
@@ -1254,6 +1255,73 @@ D6, D15 and D17, with §11's trust boundary. The Studio's toolbar has **▶ Play
   3. An ordinary game tab has no banner.
   4. Zero CSP violations, no console errors.
 
+
+### M4.17: Teaching another subject: starting a topic, and its scores (2026-11-26)
+
+The first slice of new-topic authoring (§3, D1). The owner's calls: a topic reuses the game's five outcome tiers, and starts from a skeleton (D33). Next: endings, then classes, modifiers and coupling rules, then importing the SRE pack and the guided round.
+
+**What an author sees:**
+- **"Teach another subject"** on the start screen is live. It asks what the pack teaches and a sentence for players, then opens the summary.
+- **The skeleton** is a scenario named after the topic, the game's outcome tiers, an ending every run can reach ("Held It Together", no conditions), and a class with no score bonus ("Generalist"), so the table always has someone to play as. Its only failing check is the one only the author can fix: the scenario's story.
+- **"Where to go next" starts with "Name what your topic trades off":** three to six scores that pull against each other, named so more is better. Then the usual steps.
+- **A Scores group in the sidebar** (first, since everything else changes scores), with "+ New score".
+- **A score editor:**
+  - what players read: the name; a short name for tight spots, which follows the name until you write your own; and what it measures;
+  - where it starts (0–100; the game's weakest scores start around 30);
+  - what changes it, each linked.
+
+  Delete says which of your items stop changing it, and anything still checking it shows under the checks.
+- **From any card's picker, "+ “Uptime” as a new score"** (D30), offered before "+ … as a new council member".
+- **A topic doesn't offer the game's cards, events or council members** ("+ From the game", "The game's council members", the picker's unseated game members). They change and check the game's scores, which a topic doesn't track.
+- **The checks name the new kinds:** "Score: Add a description: what it measures, in a sentence", "Ending: …", "Class: …". "Go to it" opens a score.
+
+**Domain (`topics.ts`, new):**
+- `draftForNewTopic`, `createOwnScore` and `connectNewScore` (D30);
+- `removeOwnScore` and `ownChangesToScore`;
+- `shortNameFor`, `withScoreName`, `canAddScore` and `usesGameContent`;
+- `SCORES_PER_SCENARIO` (the game's 12).
+
+Elsewhere:
+- `toFillIn` includes scores;
+- `nextSteps` starts a topic with `name_scores` (done from three, `TOPIC_SCORES_ENOUGH`);
+- `packCounts` counts scores;
+- `describeIssue` names scores, endings, tiers, classes, modifiers and coupling rules;
+- `manifestRefs` reads any inventory section, so the Studio can list the game's tiers.
+
+**Decisions:**
+- **A score's id comes from the name it's made with** and doesn't change when renamed. Authors never see ids, and a fixed id means nothing that refers to the score needs repointing.
+- **Deleting a score removes your own changes to it, but not conditions that check it.** Only the author knows what should replace a condition, so the checks point at it instead.
+- **No minimum number of scores is enforced.** The game's checks don't require one, so the summary's first step asks for three, and the pack can't be played meaningfully before then.
+
+**For the talk: a second kind of aggregate root.** A retelling is "the game's scenario, with my changes": almost every rule asks "is this mine or the game's?". A topic is "everything is mine", and the same rules mostly fall away: `usesGameContent` is false, so nothing offers the game's content. One flag on the aggregate (its kind) decides which rules apply, and the screens ask the domain rather than checking the kind themselves.
+
+**Verification:**
+- Tests: 1348 in total (+12, `tests/authoring/topics.test.ts`):
+  - the skeleton, which the game's checks accept except for the scenario's story;
+  - steps;
+  - scores (tracked, starting at 50, short names, placeholders, the limit of 12);
+  - a score made from a card;
+  - deleting one;
+  - who can add a score;
+  - renaming;
+  - game content in a topic.
+
+  Plus `describeIssue` for scores and endings.
+- Headless Chrome, production build with the Studio CSP:
+  1. Start "Incident Response".
+  2. Name Rest from the summary's step.
+  3. A card makes "Uptime" from its picker, and the plain words read "Uptime +1, Rest +1".
+  4. Deleting Uptime says the card stops changing it, and removes it.
+  5. Zero CSP violations, no console errors.
+- Headless Chrome, both dev servers: a complete small topic (three scores, a council member, two cards, one turn, an author) reads "Ready to export". Its zip passes the validator. "Play it" plays it in the game: the game shows Rest, Uptime and Learning, the On-Call Engineer and the Generalist class, and the run ends on the skeleton's "Held It Together".
+
+**A correction to this session's earlier checks.** M4.8a and M4.8b say their exported zips pass `scripts/validate-content-pack.ts`, but those runs passed the folder without `--content-root`, so the validator checked the base game instead. Re-run properly here (`--content-root <folder> --dependency-root content`, as the packs repository's CI does), a retelling's zip, a re-exported import and this topic all pass. §14 now gives the exact command.
+
+**Left open:**
+- **A topic's endings are only the fallback until N2's ending editor.**
+- **Classes, modifiers and coupling rules** come in N3.
+- **Retellings can't add their own scores yet** (§3 says a retelling can grow into a topic); `canAddScore` is where that would change.
+
 ---
 
 ## 14. Picking up the work
@@ -1281,7 +1349,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **Next:** new-topic authoring with the guided round, then balance hints (§6), each following §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Next: the endings editor (N2), then classes, modifiers and coupling rules (N3), then importing the SRE pack and the guided round (N4); then balance hints (§6). Each follows §9.1.
 - **Left open from the audit:**
   - undo/redo;
   - "Find anything" (search with a shortcut);
@@ -1323,13 +1391,14 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1338 tests at M4.16). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1348 tests at M4.17). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).
   3. Start from `scripts/dev/browser-check.example.mjs`. It uses playwright-core with `/usr/bin/google-chrome`, installed in a scratch folder, not in the project. Every check reports CSP violations and console errors, and both must be empty.
   4. Stop the server with `pkill -f serve-with-csp.mjs` in its own command (it exits 144, which is expected).
 - **"Play it" before launch works only between the two dev servers** (D32). Run `npm run dev -- --port 5173 --strictPort` (the game) and `npm run studio:dev` (the Studio, port 5318) side by side; each keeps its own Vite cache. Production builds show the "arrives with the launch" state, which is worth checking too.
+- **Validating an exported pack:** unzip it, then `npx tsx scripts/validate-content-pack.ts --content-root <unzipped>/<pack id> --dependency-root content`. Without `--content-root`, the script validates the base game instead.
 - **After any engine or base-content change,** run `scripts/dev/compare-audit.sh <scratch dir>`. It checks that the fixed-seed audit report is identical to `origin/main`'s, unless the change is meant to alter play.
 - **Before a merge,** also check the PR's Netlify deploy preview.
 - **Base content changes:** the pre-commit hook records `scripts/base-content-lock.json` and CI checks it (D25).

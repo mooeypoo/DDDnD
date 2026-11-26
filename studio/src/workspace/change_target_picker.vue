@@ -64,6 +64,7 @@ type Choice =
   | { kind: 'score'; key: string; label: string; hint?: string; id: string }
   | { kind: 'member'; key: string; label: string; hint?: string; id: string }
   | { kind: 'create'; key: string; label: string; hint?: string; name: string }
+  | { kind: 'createScore'; key: string; label: string; hint?: string; name: string }
   | { kind: 'seat'; key: string; label: string; hint?: string; ref: VersionRef }
 
 const props = defineProps<{
@@ -78,11 +79,14 @@ const props = defineProps<{
   /** False when every seat is taken. */
   canSeat: boolean
   seatsLeft: number
+  /** A topic can make a score from the typed name (M4.17). */
+  canCreateScore?: boolean
 }>()
 const emit = defineEmits<{
   score: [id: string]
   member: [id: string]
   create: [name: string]
+  createScore: [name: string]
   seat: [ref: VersionRef]
   cancel: []
 }>()
@@ -104,7 +108,8 @@ const groups = computed(() => {
     { title: 'Scores', options: props.scores.filter((option) => matches(option.name)).map((option) => ({ kind: 'score', key: `score/${option.id}`, label: option.name, id: option.id })) },
     { title: 'At the table', options: props.members.filter((option) => matches(option.name)).map((option) => ({ kind: 'member', key: `member/${option.id}`, label: option.name, hint: 'satisfaction', id: option.id })) },
     { title: "The game's, not seated", options: props.canSeat ? props.gameMembers.filter((option) => matches(option.name)).map((option) => ({ kind: 'seat', key: `seat/${option.ref.id}`, label: option.name, hint: seatHint, ref: option.ref })) : [] },
-    // Someone new comes last: what already exists is found first
+    // Something new comes last: what already exists is found first
+    { title: 'A new score', options: typed && props.canCreateScore && !props.scores.some((option) => option.name.toLocaleLowerCase() === typed.toLocaleLowerCase()) ? [{ kind: 'createScore', key: 'create-score', label: `+ “${typed}” as a new score`, hint: 'tracked by your scenario', name: typed }] : [] },
     { title: 'Someone new', options: typed && !exists && props.canSeat ? [{ kind: 'create', key: 'create', label: `+ “${typed}” as a new council member`, hint: seatHint, name: typed }] : [] },
   ]
   return out.filter((group) => group.options.length > 0)
@@ -131,6 +136,7 @@ function choose(option: Choice) {
   if (option.kind === 'score') emit('score', option.id)
   else if (option.kind === 'member') emit('member', option.id)
   else if (option.kind === 'create') emit('create', option.name)
+  else if (option.kind === 'createScore') emit('createScore', option.name)
   else emit('seat', option.ref)
 }
 

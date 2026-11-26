@@ -16,6 +16,7 @@ import { isOwn, PLACEHOLDER_NAMES, type DeckSection } from './deck'
 import { copyToEdit } from './draft_from_base'
 import { putContent, withEffects, type DraftPack } from './draft_pack'
 import { resolveRef, scenarioRefs, type BaseContentReader } from './draft_reading'
+import { TOPIC_PLACEHOLDERS } from './topics'
 
 /** Where a change to someone's satisfaction can come from. */
 export type ChangeSection = 'cards' | 'events' | 'delayed_effects' | 'stakeholder_reaction_rules'
@@ -124,7 +125,7 @@ export type MissingPart = 'name' | 'description'
 
 /** One of the draft's own items that is still a placeholder. */
 export interface ToFillIn {
-  section: 'stakeholders' | 'cards' | 'events' | 'delayed_effects'
+  section: 'scores' | 'stakeholders' | 'cards' | 'events' | 'delayed_effects'
   ref: VersionRef
   name: string
   missing: MissingPart[]
@@ -133,6 +134,7 @@ export interface ToFillIn {
 /** The Studio's placeholder name per section. Built on use: the modules that define them import this one. */
 function placeholders(): Record<ToFillIn['section'], string> {
   return {
+    scores: TOPIC_PLACEHOLDERS.score,
     stakeholders: COUNCIL_PLACEHOLDERS.member,
     cards: PLACEHOLDER_NAMES.cards,
     events: PLACEHOLDER_NAMES.events,
@@ -141,7 +143,7 @@ function placeholders(): Record<ToFillIn['section'], string> {
 }
 
 /**
- * The draft's own members, cards, events and aftershocks that are still
+ * The draft's own scores, members, cards, events and aftershocks that are still
  * placeholders: a name that is empty or still the Studio's ("New card"), or
  * no description. Fine while an author works; the summary lists them, and
  * the game's checks stop an export that still lacks a required part.

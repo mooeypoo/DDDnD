@@ -137,6 +137,8 @@ describe('a check\'s issue, in the Studio\'s words', () => {
     expect(describeIssue({ file: 'stakeholders/ours_head-v1.json', message: 'description: must not be blank' })).toEqual({ where: 'Council member', text: 'Add a description: who they are and what they care about.' })
     expect(describeIssue({ file: 'cards/ours_a-v1.json', message: 'description: must not be blank' })).toEqual({ where: 'Card', text: 'Add a description: what it does, in a sentence.' })
     expect(describeIssue({ file: 'cards/ours_a-v1.json', message: 'name: must not be blank' })).toEqual({ where: 'Card', text: 'Give it a name.' })
+    expect(describeIssue({ file: 'scores/ours_rest-v1.json', message: 'description: must not be blank' })).toEqual({ where: 'Score', text: 'Add a description: what it measures, in a sentence.' })
+    expect(describeIssue({ file: 'outcome-archetypes/ours_end-v1.json', message: 'name: must not be blank' })).toEqual({ where: 'Ending', text: 'Give it a name.' })
     expect(describeIssue({ file: 'pack', message: 'Something else broke' })).toEqual({ where: 'Pack', text: 'Something else broke' })
   })
 })

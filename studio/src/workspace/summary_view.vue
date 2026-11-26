@@ -10,7 +10,7 @@
       <div class="editor-head-text">
         <span class="editor-kicker">Pack summary</span>
         <h1 class="editor-title">{{ draft.name || 'Untitled pack' }}</h1>
-        <p class="summary-lede">{{ draft.kind === 'retelling' ? 'A retelling of DDDnD' : 'A different topic' }} · {{ releaseWords }}</p>
+        <p class="summary-lede">{{ draft.kind === 'retelling' ? 'A retelling of DDDnD' : 'A different topic, built on DDDnD' }} · {{ releaseWords }}</p>
       </div>
     </div>
 
@@ -22,7 +22,8 @@
           <ol class="steps">
             <li class="step step-done">
               <span class="step-mark" aria-hidden="true">✓</span>
-              <span class="step-text"><strong>Copied the game's scenario.</strong> Its council, cards and events play exactly as in DDDnD.</span>
+              <span v-if="draft.kind === 'new_topic'" class="step-text"><strong>Started your topic.</strong> A scenario, an ending every run can reach, and a class to play as. The game's outcome tiers come with it.</span>
+              <span v-else class="step-text"><strong>Copied the game's scenario.</strong> Its council, cards and events play exactly as in DDDnD.</span>
             </li>
             <li v-for="entry in steps" :key="entry.step" class="step" :class="{ 'step-done': entry.done }">
               <span class="step-mark" aria-hidden="true">{{ entry.done ? '✓' : '' }}</span>
@@ -41,6 +42,10 @@
         </section>
 
         <div class="parts">
+          <div v-if="draft.kind === 'new_topic'" class="part">
+            <span class="part-title">Scores</span>
+            <span class="part-line">{{ counts.scores === 0 ? 'None yet: name what your topic trades off' : `${counts.scores} tracked` }}</span>
+          </div>
           <button type="button" class="part" @click="$emit('select', { kind: 'council' })">
             <span class="part-title">Council</span>
             <span class="part-line">{{ counts.seated }} of {{ seats }} seats · {{ counts.own_members ? `${counts.own_members} of your own` : 'all from the game' }}</span>
@@ -86,10 +91,11 @@ import type { CheckState } from '@studio/state/studio_state'
 import type { Selection } from '@studio/workspace/selection'
 
 const props = defineProps<{ draft: DraftPack; seats: number; checkState: CheckState; issues: PackIssue[]; notes: number }>()
-const emit = defineEmits<{ select: [selection: Selection]; createNew: [section: 'cards']; createMember: [] }>()
+const emit = defineEmits<{ select: [selection: Selection]; createNew: [section: 'cards']; createMember: []; createScore: [] }>()
 
 /** The Studio's words for each step; which are done is the domain's (nextSteps). */
 const STEP_WORDS: Record<NextStep, { title: string; text: string; action?: string }> = {
+  name_scores: { title: 'Name what your topic trades off.', text: 'Three to six scores that pull against each other, each named so more is better ("Rest", not "Fatigue").', action: '+ New score' },
   write_a_card: { title: 'Write a card of your own.', text: 'A move your team actually argues about, with what it costs.', action: '+ New card' },
   bring_your_people: { title: 'Bring your people to the table.', text: 'Add them from a card ("+ Add a change", then a new name), or here.', action: '+ New member' },
   fill_in: { title: 'Fill in what you started.', text: 'Everything of your own has a name and a sentence about it.' },
@@ -110,6 +116,7 @@ const releaseWords = computed(() => {
 })
 
 function act(step: NextStep) {
+  if (step === 'name_scores') emit('createScore')
   if (step === 'write_a_card') emit('createNew', 'cards')
   else if (step === 'bring_your_people') emit('createMember')
   else if (step === 'add_author') emit('select', { kind: 'details' })
@@ -117,7 +124,8 @@ function act(step: NextStep) {
 }
 
 function openFillIn(item: ToFillIn) {
-  if (item.section === 'stakeholders') emit('select', { kind: 'member', ref: item.ref })
+  if (item.section === 'scores') emit('select', { kind: 'score', id: item.ref.id })
+  else if (item.section === 'stakeholders') emit('select', { kind: 'member', ref: item.ref })
   else if (item.section === 'cards' || item.section === 'events') emit('select', { kind: 'item', section: item.section, ref: item.ref })
 }
 </script>

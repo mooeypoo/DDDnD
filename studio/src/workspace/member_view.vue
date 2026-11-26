@@ -100,6 +100,8 @@
             :stakeholderOptions="stakeholderOptions"
             :gameMembers="gameMembers"
             :seatsLeft="seatsLeft"
+            :canCreateScore="canAddScore(draft)"
+            @createScore="(name) => connect(connectNewScore(draft, 'stakeholder_reaction_rules', rule.id, name)?.draft)"
             @change="(effects) => setRuleEffects(rule, effects)"
             @createMember="(name) => connect(connectNewMember(draft, 'stakeholder_reaction_rules', rule.id, name)?.draft)"
             @seatMember="(memberRef) => connect(connectGameMember(draft, 'stakeholder_reaction_rules', rule.id, memberRef))"
@@ -161,7 +163,9 @@ import { computed, nextTick, ref, watch } from 'vue'
 
 import {
   addReaction,
+  canAddScore,
   connectGameMember,
+  connectNewScore,
   connectItemToMember,
   resolveRef,
   type DeckSection,

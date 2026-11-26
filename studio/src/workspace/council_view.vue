@@ -7,7 +7,8 @@
       </div>
     </div>
 
-    <div class="locked-note" role="note">
+    <p v-if="!usesGameContent(draft)" class="field-hint">Only the members seated here take part. A topic's council is all your own: the people whose satisfaction your scores and cards move.</p>
+    <div v-else class="locked-note" role="note">
       <p>Only the members seated here take part. Seat the game's, or make your own.</p>
       <details class="why-more">
         <summary>Why can't I edit the game's members?</summary>
@@ -30,7 +31,7 @@
       <p v-if="full" class="field-hint">Every seat is taken: the game seats at most {{ COUNCIL_SEATS }}. Take someone out to make room.</p>
     </section>
 
-    <section class="editor-section" aria-labelledby="council-game">
+    <section v-if="usesGameContent(draft)" class="editor-section" aria-labelledby="council-game">
       <h2 id="council-game" class="editor-section-title">The game's council members</h2>
       <p class="field-hint">Seated as they are: they react exactly as in the game.</p>
       <p v-if="!available" class="loading" role="status">Loading the game's council…</p>
@@ -51,7 +52,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 
-import { addToCouncil, COUNCIL_SEATS, ownEntity, type DraftPack } from '@/domains/authoring'
+import { addToCouncil, COUNCIL_SEATS, ownEntity, usesGameContent, type DraftPack } from '@/domains/authoring'
 import type { Stakeholder, VersionRef } from '@/domains/content/model'
 import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 

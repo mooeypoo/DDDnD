@@ -13,6 +13,7 @@ import {
   checkDraft,
   draftFromBaseScenario,
   draftFromPack,
+  draftForNewTopic,
   exportDraftArchive,
   previewBundle,
   exportDraftBundle,
@@ -166,6 +167,20 @@ export function updateDraft(next: DraftPack): void {
 export async function startFromBaseScenario(choice: BaseScenarioChoice): Promise<string> {
   const { base } = await loadFirstParty()
   const { draft } = await draftFromBaseScenario(base, choice.ref, { name: `${choice.name}, retold` })
+  const draftId = newDraftId()
+  state.current = { draft_id: draftId, draft }
+  state.check = { state: 'idle', issues: [] }
+  state.notes = []
+  state.memberChanges = {}
+  await saveNow()
+  void checkNow()
+  return draftId
+}
+
+/** "Teach another subject" (M4.17): a new topic's skeleton, using the game's outcome tiers. Returns its draft id. */
+export async function startNewTopic(name: string, description: string): Promise<string> {
+  const tiers = await listBaseRefs('outcome_tiers')
+  const { draft } = draftForNewTopic({ name, description }, tiers)
   const draftId = newDraftId()
   state.current = { draft_id: draftId, draft }
   state.check = { state: 'idle', issues: [] }

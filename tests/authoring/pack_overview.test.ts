@@ -78,7 +78,7 @@ describe('where to go next', () => {
 describe('how much of a pack is the author\'s own', () => {
   it('counts the table, the deck, and what is the author\'s own', async () => {
     const card = createOwnCard(await copyOf(MONOLITH), 'Freeze the Ledger')
-    expect(packCounts(card.draft)).toEqual({ seated: 4, own_members: 0, cards: 27, own_cards: 1, events: 11, own_events: 0 })
+    expect(packCounts(card.draft)).toEqual({ scores: 6, own_scores: 0, seated: 4, own_members: 0, cards: 27, own_cards: 1, events: 11, own_events: 0 })
   })
 })
 
