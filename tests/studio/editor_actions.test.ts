@@ -56,7 +56,7 @@ async function loaded(wrapper: ReturnType<typeof mount>) {
 const headButtons = (wrapper: ReturnType<typeof mount>) => wrapper.findAll('.editor-head .head-actions button').map((button) => button.text())
 
 async function mountItem(draft: DraftPack, itemRef: { id: string; version: number }) {
-  const wrapper = mount(DeckItemView, { props: { section: 'cards', itemRef, draft, scoreOptions: [], stakeholderOptions: [] } })
+  const wrapper = mount(DeckItemView, { props: { section: 'cards', itemRef, draft, scoreOptions: [], stakeholderOptions: [], gameMembers: [], seatsLeft: 4 } })
   await loaded(wrapper)
   return wrapper
 }
@@ -100,7 +100,7 @@ describe('a council member from the game', () => {
     const { draft } = await monolith()
     const cto = scenarioRefs(draft, 'stakeholder_refs').find((ref) => ref.id === 'cto')!
     const options = scenarioRefs(draft, 'stakeholder_refs').map((ref) => ({ id: ref.id, name: ref.id }))
-    const wrapper = mount(MemberView, { props: { memberRef: cto, draft, scoreOptions: [], stakeholderOptions: options, changes: [] } })
+    const wrapper = mount(MemberView, { props: { memberRef: cto, draft, scoreOptions: [], stakeholderOptions: options, changes: [], gameMembers: [], seatsLeft: 4, deckChoices: [] } })
     await loaded(wrapper)
     expect(headButtons(wrapper)).toEqual(['Copy to a new member', 'Take out of this pack'])
     expect(wrapper.find('.locked-note > p').text()).toBe('They react exactly as in DDDnD. To change them, copy them to a new member.')
@@ -115,7 +115,7 @@ describe('the last council member', () => {
   it('can\'t be taken out: the button is off, and the hint says why', async () => {
     const { draft } = await monolith()
     const cto = scenarioRefs(draft, 'stakeholder_refs').find((ref) => ref.id === 'cto')!
-    const wrapper = mount(MemberView, { props: { memberRef: cto, draft, scoreOptions: [], stakeholderOptions: [{ id: 'cto', name: 'Chief Technology Officer' }], changes: [] } })
+    const wrapper = mount(MemberView, { props: { memberRef: cto, draft, scoreOptions: [], stakeholderOptions: [{ id: 'cto', name: 'Chief Technology Officer' }], changes: [], gameMembers: [], seatsLeft: 7, deckChoices: [] } })
     await loaded(wrapper)
     const takeOut = wrapper.findAll('.head-actions button').find((button) => button.text() === 'Take out of this pack')!
     expect(takeOut.attributes('disabled')).toBeDefined()

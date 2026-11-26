@@ -49,6 +49,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D27 | **DDDnD and new Studio packs are `GPL-3.0-or-later`** ([ADR 0017](adr/0017-gpl-3-or-later.md)). Imported packs keep their license (D26); a pack may still be `GPL-3.0-only` (ADR 0004). | A pack ecosystem on "only" could never move to a later GPL together: every author would have to relicense. The owner is the game's only author, so the game could switch at once. |
 | D28 | **The workspace is an editor, not a set of pages** (the UI/UX audit, owner's choice of Direction A on the [canvas](https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ)): a fixed toolbar, a sidebar with everything in the pack (grouped, collapsible, filterable, the author's own items first), one editor, and the checks as a toolbar button. A summary view of the pack comes next; a map of cards and their impact may follow. | The sidebar shows where the pack stands without switching tabs (the owner's reason for A over a board). The checks rail disappeared below 1100 px, and a page that scrolled as one hid the editor and the checks behind a long contents list. |
 | D29 | **Effects are written generically:** each name with its signed change, then the council's satisfaction ("Domain Clarity +6, Budget −5; Head of Payments +2 satisfaction"). | Packs name their own scores, so a verb guessed from a score's name ("raises", "makes happier") can be wrong for a score like "Nerdiness" (the owner's rule, 2026-11-26). A name and a number read right for any pack. |
+| D30 | **You never leave what you're editing to connect it.** Every "what it changes" picker can create or seat a council member, and a member's page can give a card or event a change to them, making your own version of the game's first (D7). Placeholders are fine while you work; the checks only stop the export. | The owner found connecting content the most confusing part of editing: make the member first, or the card? With this, either order works, from either side. |
 
 ---
 
@@ -948,6 +949,54 @@ The owner named the confusing part of editing: *where to start, and how to conne
 
 **Next (3b):** the picker that creates or seats a member from inside a card ("+ “Head of Payments” as a new council member"), and adding a card's or event's change from the member's page.
 
+
+### M4.12: Connecting from where you are (UI/UX audit, slice 3b) (2026-11-26)
+
+The second half of slice 3 (D30). An author can connect a card and a council member from either side, in any order, without leaving the editor they're in.
+
+**What an author sees:**
+- **"What it changes" is one list:** scores and council members together, each row naming what it changes ("Head of Payments · council") and its amount, with "satisfaction" beside a member's. Before, there were two blocks ("Scores" and "Council") of dropdowns.
+- **"+ Add a change" opens one picker:** "Who or what does it change?". It offers:
+  - the scores it doesn't change yet;
+  - the members at the table;
+  - the game's members who aren't seated ("Chief Financial Officer, seats them, 3 seats free");
+  - last, the typed name as someone new: **+ “Head of Payments” as a new council member**.
+
+  Choosing someone new makes them, seats them and adds the change, and the author stays on the card. Head of Payments then shows in the sidebar with the to-fill-in ring (M4.11).
+- **The picker is keyboard-first:** it's focused when it opens, arrows move, Enter picks, Escape closes and returns to "+ Add a change", and a new row's amount is focused, ready to type.
+- **From a member's page, "Make a card or event change how they feel":** choose any card or event in the deck and an amount, then **Add**. If it's one of the game's, the Studio makes your own version first, with the change on it, and it replaces the original in your deck: "Ship Quick Fix (now your own version) changes their satisfaction by −2."
+- The same picker works in aftershocks and in a member's reactions.
+
+**Domain (`connections.ts`):**
+- `addMemberChange`: sets one item's change to someone, or adds it.
+- `connectNewMember`: made, seated and connected in one step. Null with no free seat or no name.
+- `connectGameMember`: seated and connected.
+- `connectItemToMember`: from the member's side. Your own item gets the change; the game's is copied first (D7) and the copy replaces it in the deck.
+
+The screens turn the picker's choice into one of these calls. Picking each game member's newest version uses the domain's `newestRef`.
+
+**Decisions:**
+- **Someone new comes last in the picker.** Typing "chief" finds both chiefs before it offers "+ “chief” as a new member", and an exact existing name is never offered as new.
+- **A row's target isn't changed in place.** To point a change at someone else, remove it and add another. A row that could silently switch from a score to a person was harder to read than it was worth.
+- **New changes start at +1,** with the amount focused, as before.
+
+**For the talk: an operation named after the user's intent.** The author's sentence is "this card upsets the Head of Payments, who doesn't exist yet". Four steps in the old model (create a member, seat them, open the card, add a change) became one domain operation named for that intent, `connectNewMember`, and one picker option. The model had every piece already; what it lacked was the verb. In DDD terms, the aggregate's operations should be the things people say they're doing, not the steps the data needs.
+
+**A bug the browser check caught:** the workspace watched the council (with `immediate`) before declaring it, so a draft failed to open in the production build ("Cannot access … before initialization"). The component tests mount editors one at a time and never saw it. Moving the block below the declaration fixed it, and the walk in Chrome is why it didn't ship.
+
+**Verification:**
+- Tests: 1304 in total (+12).
+  - Domain, 5: a new member from a card; nobody made with no seat or no name; seating a game member; setting rather than duplicating a change; from a member's page, a game card copied first, replacing the original.
+  - `tests/studio/connection_pickers.test.ts`, 7: the combobox's label, focus and options; creating from a typed name with Enter; an existing name never offered as new, and the arrow keys; full seats; Escape; the unified rows; adding a score at +1 and passing a new member up.
+- Headless Chrome (production build, Studio CSP), keyboard only:
+  1. On a new card, "+ Add a change", type "Head of Pay", Enter: still on the card, a "Head of Pay · council" row, the council at 5 of 8 with a ring.
+  2. Add "trust": the amount is focused; type 8: "User Trust +8; Head of Pay +1 satisfaction".
+  3. "financial" offers the CFO with "seats them, 3 seats free"; Enter seats them (6 of 8).
+  4. On Head of Pay's page, "Ship Quick Fix" at −2: "(now your own version)", and both sources listed.
+  5. Zero CSP violations, no console errors.
+
+**Next:** slice 4, the summary view and the start screen.
+
 ---
 
 ## 14. Picking up the work
@@ -958,7 +1007,7 @@ What a new session needs to continue without the conversation that built M4.1–
 
 - **On `main`:** M4.1–M4.7b. The Studio creates and edits retellings of base scenarios (details, scenario, council, cards, events, aftershocks, event conditions), checks them with the game's own validator, and exports them as releases (D24, D25).
 - **On `main` since:** M4.8 zip export and import (D26), M4.8a (the zip carries `LICENSE`), the relicense to GPL-3.0-or-later (D27, ADR 0017) and M4.8b (authors choose the license).
-- **The UI/UX audit's slices** (D23, D28): 1. the workspace shell (M4.9); 2. consistent actions and wording (M4.10); 3. connections: 3a, both sides, placeholders and generic words (M4.11); 3b, pickers that create what they pick; 4. the summary view and the start screen; 5. a written pattern guide for the screens still to come.
+- **The UI/UX audit's slices** (D23, D28): 1. the workspace shell (M4.9); 2. consistent actions and wording (M4.10); 3. connections: 3a, both sides, placeholders and generic words (M4.11); 3b, pickers that create what they pick (M4.12); 4. the summary view and the start screen; 5. a written pattern guide for the screens still to come.
 - **The UI/UX audit's direction is chosen (2026-11-26):** Direction A (a library sidebar and a document editor) for editing, with Direction C's pack summary as a second view, and maybe a graph view later. The confusing part is connecting items (a card's effect on a member or score). See the canvas https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ. Wording rule from the owner: say what changes generically ("Head of Payments: +2 satisfaction", "Domain Clarity: +6"), not with verbs guessed from a score's name.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **Next:** the UI/UX audit (D23), brought forward by the owner. "Play it", new-topic authoring, the guided round and balance hints follow (§6). Those later screens should follow the patterns the audit sets, so the audit's result should include a short written pattern guide (for example, a §9 addition), not only fixes.
@@ -996,7 +1045,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1292 tests at M4.11). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1304 tests at M4.12). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).

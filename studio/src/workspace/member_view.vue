@@ -77,8 +77,8 @@
         <h2 id="member-reactions" class="editor-section-title">How they react</h2>
         <p class="field-hint">
           A reaction waits for a score to cross a line, then changes how they feel (and maybe the scores). Every reaction
-          whose condition holds happens once a turn, after the card and any event. Cards and events can move them too:
-          pick them under "Council" when editing your own cards.
+          whose condition holds happens once a turn, after the card and any event. Cards and events change them too:
+          see “What changes their satisfaction” below.
         </p>
 
         <!-- Keyed by place, not id: naming a reaction settles its id, and the fields must stay put (focus) -->
@@ -98,7 +98,11 @@
             :stakeholderChanges="rule.stakeholder_changes ?? []"
             :scoreOptions="scoreOptions"
             :stakeholderOptions="stakeholderOptions"
+            :gameMembers="gameMembers"
+            :seatsLeft="seatsLeft"
             @change="(effects) => setRuleEffects(rule, effects)"
+            @createMember="(name) => connect(connectNewMember(draft, 'stakeholder_reaction_rules', rule.id, name)?.draft)"
+            @seatMember="(memberRef) => connect(connectGameMember(draft, 'stakeholder_reaction_rules', rule.id, memberRef))"
           />
           <p class="plain"><span class="plain-lead">In plain words:</span> when {{ conditionWords(rule) }}: {{ effectWords(rule) }}.</p>
           <button type="button" class="effect-remove" @click="dropReaction(rule.id)">Delete this reaction</button>
@@ -125,7 +129,28 @@
           <span class="source-delta" :class="source.delta > 0 ? 'tone-up' : 'tone-down'">{{ signedDelta(source.delta) }} {{ SATISFACTION_WORD }}</span>
         </li>
       </ul>
-      <p v-if="own" class="field-hint">The game's own cards and events don't change members you create. To have one of them change {{ member.name || 'this member' }}, make your own version of it.</p>
+      <p v-if="own" class="field-hint">The game's own cards and events don't change members you create. Choose one below, and the Studio makes your own version of it with the change.</p>
+
+      <!-- Connect from this side (slice 3b): a card or event in the deck gets a change to them, without leaving -->
+      <div class="connect-more">
+        <h3 class="connect-title">Make a card or event change how they feel</h3>
+        <div class="connect-row">
+          <label class="field connect-pick">Card or event
+            <select v-model="connectKey">
+              <option value="" disabled>Choose one…</option>
+              <optgroup v-for="group in connectGroups" :key="group.label" :label="group.label">
+                <option v-for="choice in group.choices" :key="choice.key" :value="choice.key">{{ choice.name }}</option>
+              </optgroup>
+            </select>
+          </label>
+          <label class="field connect-amount">Change
+            <input v-model.number="connectDelta" type="number" :min="limits.numbers.delta.min" :max="limits.numbers.delta.max" step="1" />
+          </label>
+          <button type="button" class="button button-quiet" :disabled="!connectKey || connecting" @click="connectFromHere">Add</button>
+        </div>
+        <p class="field-hint">One of the game's is copied first: your version, with this change, replaces it in your deck. The game's original stays as it is.</p>
+        <p class="connect-done" role="status">{{ connectedText }}</p>
+      </div>
     </section>
   </div>
   <p v-else class="loading" role="status">Loading…</p>
@@ -136,6 +161,11 @@ import { computed, nextTick, ref, watch } from 'vue'
 
 import {
   addReaction,
+  connectGameMember,
+  connectItemToMember,
+  resolveRef,
+  type DeckSection,
+  connectNewMember,
   SATISFACTION_WORD,
   signedDelta,
   toFillIn,
@@ -172,7 +202,54 @@ const props = defineProps<{
   stakeholderOptions: Option[]
   /** What changes this member's satisfaction (the domain's walk, from the last check). */
   changes: ChangeSource[]
+  /** The game's members who aren't seated, and how many seats are free (slice 3b). */
+  gameMembers: Array<{ ref: VersionRef; name: string }>
+  seatsLeft: number
+  /** The deck's cards and events, by name, to connect from this page. */
+  deckChoices: Array<{ section: DeckSection; ref: VersionRef; name: string; own: boolean }>
 }>()
+
+const connectKey = ref('')
+const connectDelta = ref(1)
+const connecting = ref(false)
+const connectedText = ref('')
+const keyOf = (choice: { section: DeckSection; ref: VersionRef }) => `${choice.section}/${choice.ref.id}-v${choice.ref.version}`
+const connectGroups = computed(() => [
+  { label: 'Your cards', choices: props.deckChoices.filter((c) => c.section === 'cards' && c.own) },
+  { label: "The game's cards", choices: props.deckChoices.filter((c) => c.section === 'cards' && !c.own) },
+  { label: 'Your events', choices: props.deckChoices.filter((c) => c.section === 'events' && c.own) },
+  { label: "The game's events", choices: props.deckChoices.filter((c) => c.section === 'events' && !c.own) },
+].map((group) => ({ ...group, choices: group.choices.map((choice) => ({ ...choice, key: keyOf(choice) })) })).filter((group) => group.choices.length > 0))
+
+watch(() => props.memberRef.id, () => {
+  connectKey.value = ''
+  connectDelta.value = 1
+  connectedText.value = ''
+})
+
+/** The chosen card or event gets a change to them (connectItemToMember): one of the game's is copied first (D7). */
+async function connectFromHere() {
+  const choice = props.deckChoices.find((candidate) => keyOf(candidate) === connectKey.value)
+  if (!choice) return
+  connecting.value = true
+  try {
+    const { base } = await loadFirstParty()
+    const found = await resolveRef(props.draft, choice.section, choice.ref, base)
+    if (!found) return
+    const delta = Math.min(limits.numbers.delta.max, Math.max(limits.numbers.delta.min, Math.trunc(connectDelta.value) || 1))
+    const result = connectItemToMember(props.draft, choice.section, found.entity as never, props.memberRef.id, delta)
+    emit('change', result.draft)
+    connectedText.value = `${choice.name}${choice.own ? '' : ' (now your own version)'} changes their satisfaction by ${signedDelta(delta)}.`
+    connectKey.value = ''
+  } finally {
+    connecting.value = false
+  }
+}
+
+/** A connection made from a reaction's picker; null when there was no seat. */
+function connect(next: DraftPack | null | undefined) {
+  if (next) emit('change', next)
+}
 const emit = defineEmits<{ change: [draft: DraftPack]; select: [ref: VersionRef | null]; open: [selection: Selection] }>()
 
 /** Their sources, the author's own first. */
@@ -316,6 +393,53 @@ function remove() {
 </script>
 
 <style scoped>
+.connect-more {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.625rem;
+  border: 1px dashed var(--forge-hairline-strong);
+}
+
+.connect-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--forge-text-bright);
+}
+
+.connect-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.connect-pick {
+  flex: 1 1 16rem;
+}
+
+.connect-pick select {
+  min-height: 2.5rem;
+  padding: 0 0.625rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(160, 112, 24, 0.5);
+  background: var(--forge-ground);
+  color: var(--forge-text-bright);
+  font: inherit;
+}
+
+.connect-amount input {
+  width: 5.5rem;
+}
+
+.connect-done {
+  margin: 0;
+  min-height: 1.25rem;
+  font-size: 0.875rem;
+  color: var(--forge-up);
+}
+
 .source-list {
   margin: 0;
   padding: 0;

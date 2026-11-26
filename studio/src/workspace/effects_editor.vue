@@ -1,74 +1,80 @@
 <template>
   <!--
-    What a card or event changes (§4.1): score and council changes as rows of
-    picker + amount. Pickers offer only the scenario's own scores and council,
-    so a change can't point at something that isn't there. Up and down show as
+    What a card, event, aftershock or reaction changes (§4.1, slice 3b): one
+    list of scores and council members, each with its amount. A new change
+    starts in one picker that can also bring someone to the table, so the
+    author never leaves this editor to connect a member. Up and down show as
     +/− and in words, not by colour alone (§10).
   -->
-  <div class="effects">
-    <fieldset class="effect-group">
-      <legend class="effect-legend">Scores</legend>
-      <p v-if="scoreChanges.length === 0" class="effect-empty">No score changes yet.</p>
-      <div v-for="(change, index) in scoreChanges" :key="`s${index}`" class="effect-row" :class="tone(change.delta)">
-        <label class="effect-field">
-          <span class="visually-hidden">Score</span>
-          <select :value="change.score_id" @change="updateScore(index, { score_id: selectValue($event) })">
-            <option v-for="option in scoreOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
-          </select>
-        </label>
+  <div ref="root" class="effects">
+    <p v-if="rows.length === 0" class="effect-empty">It changes nothing yet.</p>
+    <ul v-else class="effect-list" aria-label="What it changes">
+      <li v-for="row in rows" :key="row.key" class="effect-row" :class="tone(row.delta)">
+        <span class="effect-target">
+          <span class="effect-name">{{ row.name }}</span>
+          <span class="effect-kind">{{ row.kind === 'score' ? 'score' : row.seated ? 'council' : 'council · not seated' }}</span>
+        </span>
         <label class="effect-field effect-amount">
-          <span class="visually-hidden">Change to {{ nameOf(scoreOptions, change.score_id) }}</span>
-          <input type="number" :min="delta.min" :max="delta.max" step="1" :value="change.delta" @change="updateScore(index, { delta: numberValue($event, change.delta) })" />
+          <span class="visually-hidden">{{ row.kind === 'score' ? `Change to ${row.name}` : `Change to ${row.name}'s satisfaction` }}</span>
+          <input type="number" :min="delta.min" :max="delta.max" step="1" :value="row.delta" @change="setDelta(row, numberValue($event, row.delta))" />
         </label>
-        <span class="effect-word" aria-hidden="true">{{ word(change.delta) }}</span>
-        <button type="button" class="effect-remove" :aria-label="`Remove the change to ${nameOf(scoreOptions, change.score_id)}`" @click="removeScore(index)">Remove</button>
-      </div>
-      <button v-if="unusedScores.length > 0" type="button" class="button button-quiet effect-add" @click="addScore">+ Add a score change</button>
-    </fieldset>
+        <span class="effect-word" aria-hidden="true">{{ row.kind === 'score' ? word(row.delta) : row.seated ? SATISFACTION_WORD : 'does nothing: not seated' }}</span>
+        <button type="button" class="effect-remove" :aria-label="`Remove the change to ${row.name}`" @click="remove(row)">Remove</button>
+      </li>
+    </ul>
 
-    <fieldset class="effect-group">
-      <legend class="effect-legend">Council</legend>
-      <p v-if="stakeholderChanges.length === 0" class="effect-empty">Nobody at the table reacts yet.</p>
-      <div v-for="(change, index) in stakeholderChanges" :key="`p${index}`" class="effect-row" :class="tone(change.delta)">
-        <label class="effect-field">
-          <span class="visually-hidden">Council member</span>
-          <select :value="change.stakeholder_id" @change="updateStakeholder(index, { stakeholder_id: selectValue($event) })">
-            <option v-for="option in stakeholderOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
-            <option v-if="!seated(change.stakeholder_id)" :value="change.stakeholder_id">{{ unseatedName(change.stakeholder_id) }} (not seated)</option>
-          </select>
-        </label>
-        <label class="effect-field effect-amount">
-          <span class="visually-hidden">Change to {{ nameOf(stakeholderOptions, change.stakeholder_id) }}'s satisfaction</span>
-          <input type="number" :min="delta.min" :max="delta.max" step="1" :value="change.delta" @change="updateStakeholder(index, { delta: numberValue($event, change.delta) })" />
-        </label>
-        <span class="effect-word" aria-hidden="true">{{ !seated(change.stakeholder_id) ? 'does nothing: not seated' : change.delta > 0 ? 'happier' : change.delta < 0 ? 'unhappier' : 'no change' }}</span>
-        <button type="button" class="effect-remove" :aria-label="`Remove the change to ${nameOf(stakeholderOptions, change.stakeholder_id)}`" @click="removeStakeholder(index)">Remove</button>
-      </div>
-      <button v-if="unusedStakeholders.length > 0" type="button" class="button button-quiet effect-add" @click="addStakeholder">+ Add a council reaction</button>
-    </fieldset>
+    <ChangeTargetPicker
+      v-if="picking"
+      :scores="unusedScores"
+      :members="unusedMembers"
+      :gameMembers="gameMembers"
+      :knownNames="knownNames"
+      :canSeat="seatsLeft > 0"
+      :seatsLeft="seatsLeft"
+      @score="addScore"
+      @member="addMember"
+      @create="(name) => { picking = false; emit('createMember', name) }"
+      @seat="(memberRef) => { picking = false; emit('seatMember', memberRef) }"
+      @cancel="closePicker"
+    />
+    <button v-else ref="addButton" type="button" class="button button-quiet effect-add" @click="picking = true">+ Add a change</button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 
-import type { ScoreChange, StakeholderChange } from '@/domains/content/model'
+import { SATISFACTION_WORD } from '@/domains/authoring'
+import type { ScoreChange, StakeholderChange, VersionRef } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 import { studio } from '@studio/state/studio_state'
+import ChangeTargetPicker from '@studio/workspace/change_target_picker.vue'
 
 interface Option { id: string; name: string }
+type Row = { key: string; kind: 'score' | 'member'; id: string; name: string; delta: number; seated: boolean }
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   scoreChanges: ScoreChange[]
   stakeholderChanges: StakeholderChange[]
   scoreOptions: Option[]
   stakeholderOptions: Option[]
+  /** The game's members who aren't seated, offered "seat them and add". */
+  gameMembers?: Array<{ ref: VersionRef; name: string }>
+  /** Free seats at the table: a new or game member needs one. */
+  seatsLeft?: number
+}>(), { gameMembers: () => [], seatsLeft: 0 })
+const emit = defineEmits<{
+  change: [effects: { score_changes: ScoreChange[]; stakeholder_changes: StakeholderChange[] }]
+  /** "+ “name” as a new council member": the parent makes, seats and connects them (connectNewMember). */
+  createMember: [name: string]
+  /** One of the game's members: the parent seats and connects them (connectGameMember). */
+  seatMember: [ref: VersionRef]
 }>()
-const emit = defineEmits<{ change: [effects: { score_changes: ScoreChange[]; stakeholder_changes: StakeholderChange[] }] }>()
 
 const delta = CONTENT_LIMITS.numbers.delta
-const unusedScores = computed(() => props.scoreOptions.filter((option) => !props.scoreChanges.some((change) => change.score_id === option.id)))
-const unusedStakeholders = computed(() => props.stakeholderOptions.filter((option) => !props.stakeholderChanges.some((change) => change.stakeholder_id === option.id)))
+const picking = ref(false)
+const addButton = ref<HTMLButtonElement | null>(null)
+const root = ref<HTMLElement | null>(null)
 
 function seated(id: string): boolean {
   return props.stakeholderOptions.some((option) => option.id === id)
@@ -76,12 +82,17 @@ function seated(id: string): boolean {
 
 /** Someone not at the table keeps their name, from the council notes (M4.5a). */
 function unseatedName(id: string): string {
-  return studio.notes.find((note) => note.stakeholder_id === id)?.name ?? id
+  return studio.notes.find((note) => note.stakeholder_id === id)?.name ?? props.gameMembers.find((member) => member.ref.id === id)?.name ?? id
 }
 
-function nameOf(options: Option[], id: string): string {
-  return options.find((option) => option.id === id)?.name ?? unseatedName(id)
-}
+const rows = computed<Row[]>(() => [
+  ...props.scoreChanges.map((change) => ({ key: `s/${change.score_id}`, kind: 'score' as const, id: change.score_id, name: props.scoreOptions.find((option) => option.id === change.score_id)?.name ?? change.score_id, delta: change.delta, seated: true })),
+  ...props.stakeholderChanges.map((change) => ({ key: `m/${change.stakeholder_id}`, kind: 'member' as const, id: change.stakeholder_id, name: props.stakeholderOptions.find((option) => option.id === change.stakeholder_id)?.name ?? unseatedName(change.stakeholder_id), delta: change.delta, seated: seated(change.stakeholder_id) })),
+])
+
+const unusedScores = computed(() => props.scoreOptions.filter((option) => !props.scoreChanges.some((change) => change.score_id === option.id)))
+const unusedMembers = computed(() => props.stakeholderOptions.filter((option) => !props.stakeholderChanges.some((change) => change.stakeholder_id === option.id)))
+const knownNames = computed(() => [...props.stakeholderOptions.map((option) => option.name), ...props.gameMembers.map((member) => member.name)])
 
 function tone(value: number): string {
   return value > 0 ? 'tone-up' : value < 0 ? 'tone-down' : 'tone-none'
@@ -89,10 +100,6 @@ function tone(value: number): string {
 
 function word(value: number): string {
   return value > 0 ? 'up' : value < 0 ? 'down' : 'no change'
-}
-
-function selectValue(event: Event): string {
-  return (event.target as HTMLSelectElement).value
 }
 
 function numberValue(event: Event, fallback: number): number {
@@ -104,28 +111,38 @@ function emitWith(scores: ScoreChange[], people: StakeholderChange[]) {
   emit('change', { score_changes: scores, stakeholder_changes: people })
 }
 
-function updateScore(index: number, patch: Partial<ScoreChange>) {
-  emitWith(props.scoreChanges.map((change, i) => (i === index ? { ...change, ...patch } : change)), props.stakeholderChanges)
+function setDelta(row: Row, value: number) {
+  if (row.kind === 'score') emitWith(props.scoreChanges.map((change) => (change.score_id === row.id ? { ...change, delta: value } : change)), props.stakeholderChanges)
+  else emitWith(props.scoreChanges, props.stakeholderChanges.map((change) => (change.stakeholder_id === row.id ? { ...change, delta: value } : change)))
 }
 
-function removeScore(index: number) {
-  emitWith(props.scoreChanges.filter((_, i) => i !== index), props.stakeholderChanges)
+function remove(row: Row) {
+  if (row.kind === 'score') emitWith(props.scoreChanges.filter((change) => change.score_id !== row.id), props.stakeholderChanges)
+  else emitWith(props.scoreChanges, props.stakeholderChanges.filter((change) => change.stakeholder_id !== row.id))
 }
 
-function addScore() {
-  emitWith([...props.scoreChanges, { score_id: unusedScores.value[0].id, delta: 1 }], props.stakeholderChanges)
+/** A new row starts at +1; its amount is focused, ready to type. */
+async function focusNewAmount(key: string) {
+  picking.value = false
+  await nextTick()
+  const index = rows.value.findIndex((row) => row.key === key)
+  root.value?.querySelectorAll<HTMLInputElement>('.effect-amount input')[index]?.focus()
 }
 
-function updateStakeholder(index: number, patch: Partial<StakeholderChange>) {
-  emitWith(props.scoreChanges, props.stakeholderChanges.map((change, i) => (i === index ? { ...change, ...patch } : change)))
+function addScore(id: string) {
+  emitWith([...props.scoreChanges, { score_id: id, delta: 1 }], props.stakeholderChanges)
+  void focusNewAmount(`s/${id}`)
 }
 
-function removeStakeholder(index: number) {
-  emitWith(props.scoreChanges, props.stakeholderChanges.filter((_, i) => i !== index))
+function addMember(id: string) {
+  emitWith(props.scoreChanges, [...props.stakeholderChanges, { stakeholder_id: id, delta: 1 }])
+  void focusNewAmount(`m/${id}`)
 }
 
-function addStakeholder() {
-  emitWith(props.scoreChanges, [...props.stakeholderChanges, { stakeholder_id: unusedStakeholders.value[0].id, delta: 1 }])
+async function closePicker() {
+  picking.value = false
+  await nextTick()
+  addButton.value?.focus()
 }
 </script>
 
@@ -136,18 +153,30 @@ function addStakeholder() {
   gap: 1rem;
 }
 
-.effect-group {
+.effect-list {
   margin: 0;
   padding: 0;
-  border: none;
+  list-style: none;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.effect-legend {
-  margin-bottom: 0.375rem;
-  font-size: 0.875rem;
+.effect-target {
+  flex: 1 1 13rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-left: 0.25rem;
+}
+
+.effect-name {
+  color: var(--forge-text-bright);
+  overflow-wrap: anywhere;
+}
+
+.effect-kind {
+  font-size: 0.75rem;
   color: var(--forge-text-secondary);
 }
 
@@ -170,7 +199,6 @@ function addStakeholder() {
 .tone-up { border-color: rgba(143, 209, 143, 0.5); }
 .tone-down { border-color: rgba(239, 138, 106, 0.55); }
 
-.effect-field select,
 .effect-field input {
   min-height: 2.5rem;
   padding: 0 0.625rem;
@@ -180,10 +208,6 @@ function addStakeholder() {
   color: var(--forge-text-bright);
   font-family: var(--forge-font-body);
   font-size: 1rem;
-}
-
-.effect-field select {
-  min-width: 13rem;
 }
 
 .effect-amount input {
