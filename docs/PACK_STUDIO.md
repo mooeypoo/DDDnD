@@ -177,7 +177,7 @@ Q1–Q8 from the first round are settled: Q1 → D6, Q2 → D3, Q3 → D12, Q4 �
 
 | # | Question | Options and notes |
 |---|---|---|
-| Q14 | **A simpler start screen** | The mockup's start screen offers a lot at once: two kinds of pack, five base scenarios, example packs, import, and drafts. A simpler flow might be "Start from the core pack", then choose a scenario, with the rest one step further in. Revisit once the Studio works end to end, to see which starting points authors actually use (owner, 2026-11-24). |
+| Q14 | **A simpler start screen** | **Settled in M4.13** (the UI/UX audit): the start screen leads with the author's packs; "+ New pack" opens the game's scenarios one step in (`#/new`). |
 | Q13 | **Text size in the game too?** | **On hold** (owner, 2026-11-24). The Studio's text-size setting (§10) could later come to the game, which has the same reading load on cards and briefings. |
 
 ## 8. Not doing (and why)
@@ -997,6 +997,57 @@ The screens turn the picker's choice into one of these calls. Picking each game 
 
 **Next:** slice 4, the summary view and the start screen.
 
+
+### M4.13: The pack summary and the start screen (UI/UX audit, slice 4) (2026-11-26)
+
+The owner's "where do I start?", answered in two places: the start screen leads with your packs, and every pack opens on a summary of where it stands and where to go next. This settles Q14.
+
+**What an author sees:**
+- **The start screen leads with "Your packs":** tiles with each pack's name, how much is your own ("4 cards, 4 events and 2 members of your own"), where it stands ("Not exported yet", "Imported as 1.1.0", "Changed since 1.0.0") and when it was last edited.
+  - **"+ New pack"** (the one ember button) and **"Import a pack"** sit beside the title.
+  - **"Start something new"** below offers "Retell a DDDnD scenario" and, marked as later, "Teach another subject".
+- **Choosing a scenario is one step in** (`#/new`), on its own page with a back button. Before, the start screen showed five scenarios, the drafts, import and two notes at once.
+- **Two drafts that would export as one pack are flagged.** "Another copy of this pack is in your packs" covers the same zip imported twice. "Exports under the same pack id as “…”" covers two drafts started from one scenario. Both say why it matters and how to keep both (change the prefix).
+- **A pack opens on its summary,** and a **Summary | Edit** switch in the toolbar moves between it and the last editor open. The sidebar stays visible in both. The summary shows:
+  - **"Where to go next":** copied ✓, write a card of your own, bring your people to the table, fill in what you started (with links to each placeholder), add your name, export it. Each open step has its button, and any order works.
+  - **"Before you export":** the game's checks in the Studio's words ("Pack details: Add your name as the author."), and the notes.
+  - **The pack's parts:** council, scenario, cards and events, with counts.
+- **An imported pack says it was imported:** "imported as 1.1.0" on its tile and summary, "Nothing has changed since you imported version 1.1.0" on the export page, "Imported as version 1.1.0" on Pack details. Before, all of these said "exported". After the Studio's first export of it, they say "exported".
+
+**Domain (`pack_overview.ts`, new):**
+- `releaseState(draft)`: never, unchanged or changed since a version, and whether that version came from an import.
+- `nextSteps(draft)`: each step done or not, from what the draft holds.
+- `packCounts(draft)`.
+- `sharedPackIds(drafts)`: for each draft, the others that export under its pack id.
+
+Plus:
+- `DraftRelease.imported`, set by `draftFromPack` and dropped by the next `releaseDraft`.
+- `describeIssue(issue)` moved from the checks panel into the domain (`draft_export.ts`), next to `issueSubject`. It's how a check's problem is said in words, so the checks panel and the summary now share one answer.
+
+**Decisions:**
+- **The summary is a view of the editor, not a separate page** (D28): the sidebar stays, so the summary never hides where things are.
+- **The steps are a list, not a wizard.** They tick themselves off from the draft, any order works, and the copy already plays: the guided round (§5) is where a step-by-step path belongs.
+- **The pack id clash is a warning, not a block.** Two drafts of one pack can be useful (a variant to compare); the author needs to know before exporting both.
+
+**For the talk: questions about the whole aggregate.** Until now, every domain question was about one item: whose is this card, what changes this member. The summary asks about the pack as a whole (where it stands, what's left, does it collide with another), and the start screen asks about all of an author's packs at once. They're still the domain's questions with names (`releaseState`, `nextSteps`, `sharedPackIds`), and that is why "imported, not exported" could be fixed once and show up correctly in four places.
+
+**Verification:**
+- Tests: 1312 in total (+8).
+  - `tests/authoring/pack_overview.test.ts`: release states, including imported then exported; next steps from a fresh copy to finished; counts; shared pack ids.
+  - `draft_reading.test.ts`: `describeIssue`.
+  - `tests/studio/summary_and_start.test.ts`: the summary's steps, fill-in links and issues; the start tiles' words and the shared-id warning.
+- Headless Chrome (production build, Studio CSP):
+  1. The start screen, empty, offers "+ New pack", which opens "Choose a scenario to retell".
+  2. Copying the Monolith opens on Summary, with the step buttons working ("+ New card" opens a new card). Edit returns to the last editor.
+  3. Importing the Gilded Ledger twice: both open on "imported as 1.1.0", the export page says "since you imported", and both tiles say "Another copy of this pack is in your packs".
+  4. The layout holds at 1024 px.
+  5. Zero CSP violations, no console errors.
+- `scripts/dev/browser-check.example.mjs` now starts at `#/new`.
+
+**Left open:** a fresh copy of Microservice Sprawl opens with "1 note", because the game's own content changes a member that scenario doesn't seat. The audit's finding #13 suggested telling notes about the game's own content apart from the author's; it's still to do.
+
+**Next:** slice 5, a written pattern guide for the screens still to come.
+
 ---
 
 ## 14. Picking up the work
@@ -1007,7 +1058,7 @@ What a new session needs to continue without the conversation that built M4.1–
 
 - **On `main`:** M4.1–M4.7b. The Studio creates and edits retellings of base scenarios (details, scenario, council, cards, events, aftershocks, event conditions), checks them with the game's own validator, and exports them as releases (D24, D25).
 - **On `main` since:** M4.8 zip export and import (D26), M4.8a (the zip carries `LICENSE`), the relicense to GPL-3.0-or-later (D27, ADR 0017) and M4.8b (authors choose the license).
-- **The UI/UX audit's slices** (D23, D28): 1. the workspace shell (M4.9); 2. consistent actions and wording (M4.10); 3. connections: 3a, both sides, placeholders and generic words (M4.11); 3b, pickers that create what they pick (M4.12); 4. the summary view and the start screen; 5. a written pattern guide for the screens still to come.
+- **The UI/UX audit's slices** (D23, D28): 1. the workspace shell (M4.9); 2. consistent actions and wording (M4.10); 3. connections: 3a, both sides, placeholders and generic words (M4.11); 3b, pickers that create what they pick (M4.12); 4. the summary view and the start screen (M4.13); 5. a written pattern guide for the screens still to come.
 - **The UI/UX audit's direction is chosen (2026-11-26):** Direction A (a library sidebar and a document editor) for editing, with Direction C's pack summary as a second view, and maybe a graph view later. The confusing part is connecting items (a card's effect on a member or score). See the canvas https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ. Wording rule from the owner: say what changes generically ("Head of Payments: +2 satisfaction", "Domain Clarity: +6"), not with verbs guessed from a score's name.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **Next:** the UI/UX audit (D23), brought forward by the owner. "Play it", new-topic authoring, the guided round and balance hints follow (§6). Those later screens should follow the patterns the audit sets, so the audit's result should include a short written pattern guide (for example, a §9 addition), not only fixes.
@@ -1045,7 +1096,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1304 tests at M4.12). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1312 tests at M4.13). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).

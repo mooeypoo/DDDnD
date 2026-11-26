@@ -7,6 +7,10 @@
         {{ draft.kind === 'retelling' ? 'Retelling' : 'New topic' }}
       </span>
       <span class="bar-save" role="status" aria-live="polite">{{ saveText }}</span>
+      <div class="view-switch" role="group" aria-label="View">
+        <button type="button" class="view-option" :aria-pressed="selection.kind === 'summary'" @click="select({ kind: 'summary' })">Summary</button>
+        <button type="button" class="view-option" :aria-pressed="selection.kind !== 'summary'" @click="select(lastEdit)">Edit</button>
+      </div>
       <div class="bar-tools">
         <ChecksButton
           :state="studio.check.state"
@@ -45,7 +49,18 @@
       />
 
       <main id="main" ref="editorArea" class="editor-area" tabindex="-1">
-        <PackDetailsEditor v-if="selection.kind === 'details'" :draft="draft" @change="updateDraft" />
+        <SummaryView
+          v-if="selection.kind === 'summary'"
+          :draft="draft"
+          :seats="COUNCIL_SEATS"
+          :checkState="studio.check.state"
+          :issues="studio.check.issues"
+          :notes="studio.notes.length"
+          @select="select"
+          @createNew="createNew"
+          @createMember="createMember"
+        />
+        <PackDetailsEditor v-else-if="selection.kind === 'details'" :draft="draft" @change="updateDraft" />
         <ScenarioEditor
           v-else-if="selection.kind === 'scenario' && selectedScenario"
           :scenario="selectedScenario"
@@ -114,6 +129,7 @@ import PackDetailsEditor from '@studio/workspace/pack_details_editor.vue'
 import ReleaseView from '@studio/workspace/release_view.vue'
 import ScenarioEditor from '@studio/workspace/scenario_editor.vue'
 import type { Selection } from '@studio/workspace/selection'
+import SummaryView from '@studio/workspace/summary_view.vue'
 
 defineEmits<{ leave: [] }>()
 
@@ -121,7 +137,10 @@ type NameSection = 'scores' | 'stakeholders' | 'cards' | 'events'
 
 const draft = computed(() => studio.current?.draft ?? null)
 const scenarios = computed(() => Object.values(draft.value?.content.scenarios ?? {}))
-const selection = ref<Selection>(scenarios.value[0] ? { kind: 'scenario', id: scenarios.value[0].id } : { kind: 'details' })
+/** A pack opens on its summary: where it stands and where to go next (slice 4). */
+const selection = ref<Selection>({ kind: 'summary' })
+/** What "Edit" goes back to: the last editor open, or the first scenario. */
+const lastEdit = ref<Selection>(scenarios.value[0] ? { kind: 'scenario', id: scenarios.value[0].id } : { kind: 'details' })
 const selectedScenario = computed(() => (selection.value.kind === 'scenario' ? draft.value?.content.scenarios[selection.value.id] : undefined))
 
 const editorArea = ref<HTMLElement | null>(null)
@@ -129,6 +148,7 @@ const editorArea = ref<HTMLElement | null>(null)
 /** Open an editor. Each opens at its top, since the editor column scrolls on its own. */
 function select(next: Selection) {
   selection.value = next
+  if (next.kind !== 'summary') lastEdit.value = next
   editorArea.value?.scrollTo?.({ top: 0 })
 }
 
@@ -317,6 +337,31 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
 .bar-save {
   font-size: 0.875rem;
   color: var(--forge-text-secondary);
+}
+
+.view-switch {
+  display: flex;
+  margin-left: 0.5rem;
+  border: 1px solid var(--forge-hairline-strong);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.view-option {
+  min-height: 2.25rem;
+  padding: 0 0.875rem;
+  border: none;
+  background: transparent;
+  color: var(--forge-text);
+  font-family: var(--forge-font-body);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.view-option[aria-pressed='true'] {
+  background: rgba(212, 184, 96, 0.18);
+  color: var(--forge-text-bright);
+  font-weight: 600;
 }
 
 .bar-tools {

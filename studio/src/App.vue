@@ -7,7 +7,8 @@
     <p v-else-if="route.kind === 'draft' && route.missing" class="missing" role="alert">
       That draft isn't in this browser. <a href="#/">See your drafts</a>.
     </p>
-    <StartView v-else-if="route.kind === 'start'" @openDraft="(id) => go(`#/draft/${id}`)" />
+    <NewPackView v-else-if="route.kind === 'new'" @openDraft="(id) => go(`#/draft/${id}`)" @back="go('#/')" />
+    <StartView v-else-if="route.kind === 'start'" @openDraft="(id) => go(`#/draft/${id}`)" @newPack="go('#/new')" />
   </div>
 </template>
 
@@ -15,6 +16,7 @@
 import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 
 import StudioHeader from '@studio/components/studio_header.vue'
+import NewPackView from '@studio/views/new_pack_view.vue'
 import StartView from '@studio/views/start_view.vue'
 import WorkspaceView from '@studio/workspace/workspace_view.vue'
 import { applyTextSize, readTextSize, writeTextSize, type TextSize } from '@studio/preferences/text_size'
@@ -29,14 +31,18 @@ function setTextSize(size: TextSize) {
   writeTextSize(size)
 }
 
-/** Where the Studio is: the start screen, or one draft (`#/draft/<id>`), so a reload stays put. */
-const route = reactive<{ kind: 'start' | 'draft'; missing: boolean }>({ kind: 'start', missing: false })
+/** Where the Studio is: the start screen, choosing a scenario (`#/new`), or one draft (`#/draft/<id>`), so a reload stays put. */
+const route = reactive<{ kind: 'start' | 'new' | 'draft'; missing: boolean }>({ kind: 'start', missing: false })
 
 async function follow() {
   const match = window.location.hash.match(/^#\/draft\/([\w-]+)$/)
   if (match) {
     route.kind = 'draft'
     route.missing = !(await openDraft(match[1]))
+  } else if (window.location.hash === '#/new') {
+    await closeDraft()
+    route.kind = 'new'
+    route.missing = false
   } else {
     await closeDraft()
     route.kind = 'start'

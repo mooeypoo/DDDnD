@@ -18,7 +18,7 @@
         This is the first export of “{{ draft.name || 'your pack' }}”. From now on the Studio remembers what you exported,
         so it can tell you what changed next time.
       </p>
-      <p v-else-if="plan.kind === 'unchanged'">Nothing has changed since you exported version {{ plan.since }}. You can download it again.</p>
+      <p v-else-if="plan.kind === 'unchanged'">Nothing has changed since you {{ imported ? 'imported' : 'exported' }} version {{ plan.since }}. You can download it again.</p>
 
       <template v-else>
         <div v-if="playChanges.length || plan.added.length || plan.removed.length" class="group">
@@ -92,7 +92,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import { compatibleBaseGames, fieldWords, gameTarget, planRelease, releaseVersionProblem, type DraftPack, type DraftSection } from '@/domains/authoring'
+import { compatibleBaseGames, fieldWords, gameTarget, planRelease, releaseState, releaseVersionProblem, type DraftPack, type DraftSection } from '@/domains/authoring'
 import { loadFirstParty } from '@studio/content/first_party'
 import type { ExportFormat } from '@studio/state/studio_state'
 
@@ -106,6 +106,11 @@ const worksWith = ref<{ from: string; series: string } | null>(null)
 void loadFirstParty().then(({ packs }) => {
   worksWith.value = compatibleBaseGames(gameTarget(packs))
 }).catch(() => {})
+/** Whether the last version is the pack the draft was imported from (the domain's releaseState). */
+const imported = computed(() => {
+  const state = releaseState(props.draft)
+  return state.state !== 'never' && state.imported
+})
 const version = ref(plan.value.suggested)
 // A new suggestion (the draft changed) replaces one the author hasn't touched
 watch(() => plan.value.suggested, (next, previous) => {

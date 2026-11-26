@@ -181,5 +181,35 @@ export function issueSubject(file: string): IssueSubject | null {
   return section && ref ? { kind: 'content', section, ref } : null
 }
 
+/** What the Studio calls each kind of content a check can be about. */
+const ISSUE_PLACES: Partial<Record<DraftSection, string>> = {
+  scenarios: 'Scenario',
+  cards: 'Card',
+  events: 'Event',
+  stakeholders: 'Council member',
+  stakeholder_reaction_rules: 'Reaction',
+  delayed_effects: 'Aftershock',
+}
+
+/**
+ * A check's issue in the Studio's words: where it is ("Pack details",
+ * "Card") and what to do, plainly, for the commonest problems. Anything
+ * else keeps the game's own message.
+ */
+export function describeIssue(issue: PackIssue): { where: string; text: string } {
+  const { file, message } = issue
+  const subject = issueSubject(file)
+  const where = subject?.kind === 'manifest' ? 'Pack details' : (subject?.kind === 'content' && ISSUE_PLACES[subject.section]) || 'Pack'
+  const pack = subject?.kind === 'manifest'
+  let text = message
+  if (/^authors: must be at least 1/.test(message)) text = 'Add your name as the author.'
+  else if (/^description: must not be blank/.test(message)) {
+    text = pack ? 'Add a description of the pack.'
+      : subject?.kind === 'content' && subject.section === 'stakeholders' ? 'Add a description: who they are and what they care about.'
+        : 'Add a description: what it does, in a sentence.'
+  } else if (/^name: must not be blank/.test(message)) text = pack ? 'Give the pack a name.' : 'Give it a name.'
+  return { where, text }
+}
+
 /** One reason the game would refuse the pack, as its checks report it. */
 export type { PackIssue }

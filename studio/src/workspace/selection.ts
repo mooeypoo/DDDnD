@@ -6,6 +6,7 @@ import type { DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 
 export type Selection =
+  | { kind: 'summary' }
   | { kind: 'details' }
   | { kind: 'scenario'; id: string }
   | { kind: 'council' }

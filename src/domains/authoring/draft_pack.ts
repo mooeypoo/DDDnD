@@ -82,6 +82,8 @@ export interface DraftRelease {
   content: DraftContent
   /** The license it was exported under. Absent on drafts released before the Studio recorded it. */
   license?: string
+  /** True when this "last export" is the pack the draft was imported from (D26), not one the Studio exported. */
+  imported?: true
 }
 
 /**

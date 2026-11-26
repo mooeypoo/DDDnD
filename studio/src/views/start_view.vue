@@ -1,100 +1,84 @@
 <template>
   <main id="main" class="start-view" tabindex="-1">
-    <section class="intro">
-      <h1 class="intro-title">Forge a pack</h1>
-      <p class="intro-lede">
-        Make your own DDDnD adventures, with no code and no files to write by hand.
-        Retell the game for your organization, or teach a different topic altogether.
-      </p>
-    </section>
-
     <p v-if="!studio.persistent" class="note note-warning" role="status">
       <strong>This browser isn't letting the Studio keep anything,</strong> so drafts last only until you close the page.
       Export your pack to keep a copy.
     </p>
 
-    <div class="columns">
-      <section class="start-column" aria-labelledby="retell-title">
-        <span class="kind-pill pill-setting">Same game, new setting</span>
-        <h2 id="retell-title" class="column-title">Retell DDDnD for your organization</h2>
-        <p class="column-lede">
-          Copy one of the game's own adventures, with its council, cards and events, then make it yours.
-          The original stays as it is.
-        </p>
-
-        <p v-if="scenarioError" class="note note-warning" role="alert">
-          The game's scenarios couldn't be loaded: {{ scenarioError }}
-        </p>
-        <p v-else-if="!scenarios" class="loading" role="status">Loading the game's scenarios…</p>
-        <ul v-else class="scenario-list" aria-label="DDDnD scenarios">
-          <li v-for="scenario in scenarios" :key="scenario.ref.id" class="scenario-row">
-            <span class="scenario-text">
-              <span class="scenario-name">{{ scenario.name }}</span>
-              <span class="scenario-summary">{{ scenario.summary }}</span>
-            </span>
-            <button
-              type="button"
-              class="button button-quiet"
-              :disabled="starting !== null"
-              :aria-label="`Copy and adapt ${scenario.name}`"
-              @click="start(scenario)"
-            >{{ starting === scenario.ref.id ? 'Copying…' : 'Copy and adapt' }}</button>
-          </li>
-        </ul>
-
-        <div class="topic-later">
-          <span class="kind-pill pill-topic">A different topic</span>
-          <p>
-            <strong>Teaching a different topic</strong> (your own scores, council and endings) arrives in a later release.
-            The <a href="https://github.com/mooeypoo/DDDnD-packs/tree/main/packs/sre_on_call" target="_blank" rel="noopener noreferrer">SRE pack</a>
-            shows what one looks like.
-          </p>
+    <!-- Your packs first (the UI/UX audit, slice 4): most visits are to keep working on one -->
+    <section class="packs" aria-labelledby="packs-title">
+      <div class="packs-head">
+        <div class="packs-title-block">
+          <h1 id="packs-title" class="intro-title">Your packs</h1>
+          <p class="packs-lede">Kept in this browser only. Export a pack to keep a copy of your own.</p>
         </div>
-      </section>
-
-      <section class="start-column drafts-column" aria-labelledby="drafts-title">
-        <h2 id="drafts-title" class="section-label">Your drafts</h2>
-        <p v-if="!studio.ready" class="loading" role="status">Loading your drafts…</p>
-        <p v-else-if="studio.drafts.length === 0" class="empty">No drafts yet. Start one from a scenario, or import a pack.</p>
-        <ul v-else class="draft-list">
-          <li v-for="entry in studio.drafts" :key="entry.draft_id" class="draft-row">
-            <template v-if="pendingRemoval === entry.draft_id">
-              <span class="draft-confirm">Delete “{{ entry.draft.name }}”? This can't be undone.</span>
-              <span class="draft-actions">
-                <button type="button" class="button button-quiet" @click="pendingRemoval = null">Keep it</button>
-                <button type="button" class="button button-danger" @click="confirmRemove(entry.draft_id)">Delete</button>
-              </span>
-            </template>
-            <template v-else>
-              <span class="draft-text">
-                <span class="draft-name">{{ entry.draft.name }}</span>
-                <span class="draft-meta">{{ kindLabel(entry.draft.kind) }} · version {{ entry.draft.version }} · edited {{ formatWhen(entry.updated_at) }}</span>
-              </span>
-              <span class="draft-actions">
-                <button type="button" class="button button-quiet" :aria-label="`Delete ${entry.draft.name}`" @click="pendingRemoval = entry.draft_id">Delete</button>
-                <button type="button" class="button button-quiet" @click="$emit('openDraft', entry.draft_id)">Open</button>
-              </span>
-            </template>
-          </li>
-        </ul>
-        <p class="note"><strong>Kept in this browser only.</strong> Export your pack to keep a copy of your own.</p>
-
-        <section class="import" aria-labelledby="import-title">
-          <h3 id="import-title" class="import-title">Keep editing a pack</h3>
-          <p class="import-lede">Import a pack file (<code>.dddnd-pack.json</code>) or a zip of a pack's folder, such as one the Studio exported.</p>
+        <div class="packs-actions">
           <input ref="fileInput" type="file" class="visually-hidden" tabindex="-1" aria-hidden="true" accept=".json,.zip,application/json,application/zip" @change="importFile" />
-          <button type="button" class="button button-quiet import-button" :disabled="importing" @click="fileInput?.click()">
-            {{ importing ? 'Importing…' : 'Import a pack' }}
-          </button>
-          <div v-if="importFailure" class="note note-warning" role="alert">
-            <strong>{{ importFailure.name }} couldn't be imported.</strong>
-            <ul class="import-problems">
-              <li v-for="(problem, index) in importFailure.problems" :key="index">{{ problem }}</li>
-            </ul>
-          </div>
-        </section>
-      </section>
-    </div>
+          <button type="button" class="button button-quiet" :disabled="importing" @click="fileInput?.click()">{{ importing ? 'Importing…' : 'Import a pack' }}</button>
+          <button type="button" class="button button-primary" @click="$emit('newPack')">+ New pack</button>
+        </div>
+      </div>
+
+      <div v-if="importFailure" class="note note-warning" role="alert">
+        <strong>{{ importFailure.name }} couldn't be imported.</strong>
+        <ul class="import-problems">
+          <li v-for="(problem, index) in importFailure.problems" :key="index">{{ problem }}</li>
+        </ul>
+      </div>
+
+      <p v-if="!studio.ready" class="loading" role="status">Loading your packs…</p>
+      <div v-else-if="studio.drafts.length === 0" class="empty-packs">
+        <p><strong>No packs yet.</strong> Start one from one of the game's scenarios, or import a pack file or zip to keep editing it.</p>
+      </div>
+      <ul v-else class="pack-tiles">
+        <li v-for="entry in studio.drafts" :key="entry.draft_id" class="pack-tile">
+          <template v-if="pendingRemoval === entry.draft_id">
+            <p class="tile-confirm">Delete “{{ entry.draft.name }}”? This can't be undone.</p>
+            <span class="tile-actions">
+              <button type="button" class="button button-quiet" @click="pendingRemoval = null">Keep it</button>
+              <button type="button" class="button button-danger" @click="confirmRemove(entry.draft_id)">Delete</button>
+            </span>
+          </template>
+          <template v-else>
+            <span class="kind-pill" :class="entry.draft.kind === 'retelling' ? 'pill-setting' : 'pill-topic'">{{ entry.draft.kind === 'retelling' ? 'Retelling' : 'New topic' }}</span>
+            <button type="button" class="tile-open" @click="$emit('openDraft', entry.draft_id)">
+              <span class="tile-name">{{ entry.draft.name || 'Untitled pack' }}</span>
+            </button>
+            <span class="tile-line">{{ ownWords(entry.draft) }}</span>
+            <span v-if="shared.get(entry.draft_id)" class="tile-shared" role="note">{{ sharedWords(entry.draft.name, shared.get(entry.draft_id)!) }}</span>
+            <span class="tile-foot">
+              <span :class="{ 'tile-changed': release(entry.draft).state === 'changed' }">{{ releaseWords(entry.draft) }}</span>
+              <span>Edited {{ formatWhen(entry.updated_at) }}</span>
+            </span>
+            <span class="tile-actions">
+              <button type="button" class="button button-quiet" @click="$emit('openDraft', entry.draft_id)">Open</button>
+              <button type="button" class="button button-quiet" :aria-label="`Delete ${entry.draft.name}`" @click="pendingRemoval = entry.draft_id">Delete</button>
+            </span>
+          </template>
+        </li>
+      </ul>
+    </section>
+
+    <section class="start-new" aria-labelledby="new-title">
+      <h2 id="new-title" class="section-label">Start something new</h2>
+      <div class="new-tiles">
+        <button type="button" class="new-tile" @click="$emit('newPack')">
+          <span class="kind-pill pill-setting">Same game, new setting</span>
+          <span class="new-title">Retell a DDDnD scenario</span>
+          <span class="new-text">Copy one of the game's adventures, with its council, cards and events, and make it about your team.</span>
+          <span class="new-go">Choose a scenario ›</span>
+        </button>
+        <div class="new-tile new-later">
+          <span class="kind-pill pill-topic">A different topic</span>
+          <span class="new-title">Teach another subject</span>
+          <span class="new-text">
+            Your own scores, council and endings arrive in a later release. The
+            <a href="https://github.com/mooeypoo/DDDnD-packs/tree/main/packs/sre_on_call" target="_blank" rel="noopener noreferrer">SRE pack</a>
+            shows what one looks like.
+          </span>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="start-footer">
@@ -104,21 +88,20 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 
-import type { DraftKind } from '@/domains/authoring'
-import { listBaseScenarios, type BaseScenarioChoice } from '@studio/content/first_party'
-import { importPack, removeDraft, startFromBaseScenario, studio } from '@studio/state/studio_state'
+import { packCounts, releaseState, sharedPackIds, type DraftPack } from '@/domains/authoring'
+import { importPack, removeDraft, studio } from '@studio/state/studio_state'
 
-const emit = defineEmits<{ openDraft: [draftId: string] }>()
+const emit = defineEmits<{ openDraft: [draftId: string]; newPack: [] }>()
 
-const scenarios = ref<BaseScenarioChoice[] | null>(null)
-const scenarioError = ref<string | null>(null)
-const starting = ref<string | null>(null)
 const pendingRemoval = ref<string | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 const importing = ref(false)
 const importFailure = ref<{ name: string; problems: string[] } | null>(null)
+
+/** Drafts that would export as the same pack (the domain's sharedPackIds). */
+const shared = computed(() => sharedPackIds(studio.drafts))
 
 /** "Import a pack" (M4.8): opens it as a new draft, or says every reason it can't. */
 async function importFile(event: Event) {
@@ -137,30 +120,38 @@ async function importFile(event: Event) {
   }
 }
 
-onMounted(async () => {
-  try {
-    scenarios.value = await listBaseScenarios()
-  } catch (error) {
-    scenarioError.value = (error as Error).message
-  }
-})
-
-async function start(choice: BaseScenarioChoice) {
-  starting.value = choice.ref.id
-  try {
-    emit('openDraft', await startFromBaseScenario(choice))
-  } finally {
-    starting.value = null
-  }
-}
-
 async function confirmRemove(draftId: string) {
   pendingRemoval.value = null
   await removeDraft(draftId)
 }
 
-function kindLabel(kind: DraftKind): string {
-  return kind === 'retelling' ? 'Retelling' : 'New topic'
+const release = (draft: DraftPack) => releaseState(draft)
+
+/** Where it stands as a release, in words (the domain's releaseState). */
+function releaseWords(draft: DraftPack): string {
+  const state = releaseState(draft)
+  if (state.state === 'never') return 'Not exported yet'
+  if (state.state === 'unchanged') return `${state.imported ? 'Imported' : 'Exported'} as ${state.version}`
+  return `Changed since ${state.version}${state.imported ? ' (imported)' : ''}`
+}
+
+/** Drafts that would export as one pack: another copy of the same, or another pack that took its id. */
+function sharedWords(name: string, others: string[]): string {
+  const fix = 'Exporting both would make one replace the other for players; change the prefix in Pack details to keep both.'
+  if (others.every((other) => other === name)) return `Another copy of this pack is in your packs. ${fix}`
+  return `Exports under the same pack id as ${others.map((other) => `“${other}”`).join(', ')}. ${fix}`
+}
+
+/** How much is the author's own (the domain's packCounts). */
+function ownWords(draft: DraftPack): string {
+  const counts = packCounts(draft)
+  const parts = [
+    counts.own_cards && `${counts.own_cards} ${counts.own_cards === 1 ? 'card' : 'cards'}`,
+    counts.own_events && `${counts.own_events} ${counts.own_events === 1 ? 'event' : 'events'}`,
+    counts.own_members && `${counts.own_members} ${counts.own_members === 1 ? 'member' : 'members'}`,
+  ].filter(Boolean) as string[]
+  if (parts.length === 0) return 'Nothing of your own yet: the game\'s scenario as it is.'
+  return `${parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}` : parts[0]} of your own.`
 }
 
 function formatWhen(iso: string): string {
@@ -169,25 +160,57 @@ function formatWhen(iso: string): string {
 </script>
 
 <style scoped>
-.import {
+.start-view {
+  flex: 1;
+  width: 100%;
+  max-width: 75rem;
+  margin: 0 auto;
+  padding: 2.5rem 2.5rem 2rem;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 0.5rem;
-  padding-top: 0.875rem;
-  border-top: 1px solid var(--forge-hairline);
+  gap: 2.5rem;
 }
 
-.import-title {
-  font-size: 1rem;
+.start-view:focus {
+  outline: none;
+}
+
+.packs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+}
+
+.packs-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.packs-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.intro-title {
+  font-size: 2.25rem;
   font-weight: 600;
-  color: var(--forge-text-bright);
+  letter-spacing: 0.02em;
+  color: var(--forge-gold);
 }
 
-.import-lede {
+.packs-lede {
   margin: 0;
-  font-size: 0.875rem;
   color: var(--forge-text-secondary);
+}
+
+.packs-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .import-problems {
@@ -195,76 +218,94 @@ function formatWhen(iso: string): string {
   padding-left: 1.125rem;
 }
 
-.start-view {
-  flex: 1;
-  width: 100%;
-  max-width: 75rem;
-  margin: 0 auto;
-  padding: 2.75rem 2.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+.empty-packs {
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--forge-radius);
+  border: 1px dashed var(--forge-hairline-strong);
 }
 
-.start-view:focus {
-  outline: none;
+.empty-packs p {
+  margin: 0;
 }
 
-.intro {
+.pack-tiles {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+  gap: 1rem;
+}
+
+.pack-tile {
   display: flex;
   flex-direction: column;
   gap: 0.625rem;
-  max-width: 47.5rem;
-}
-
-.intro-title {
-  font-size: 2.5rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--forge-gold);
-}
-
-.intro-lede {
-  margin: 0;
-  font-size: 1.0625rem;
-}
-
-.columns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.75rem;
-  align-items: flex-start;
-}
-
-.start-column {
-  flex: 999 1 34rem;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.875rem;
-  padding: 1.625rem 1.75rem;
+  padding: 1.125rem 1.25rem;
   border-radius: var(--forge-radius);
-  background: var(--forge-panel);
   border: 1px solid var(--forge-hairline);
+  background: var(--forge-panel);
 }
 
-.drafts-column {
-  flex: 1 1 20rem;
+.tile-open {
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
 }
 
-.column-title {
-  font-size: 1.5rem;
+.tile-name {
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--forge-text-bright);
+  overflow-wrap: anywhere;
 }
 
-.column-lede {
+.tile-open:hover .tile-name {
+  text-decoration: underline;
+}
+
+.tile-line {
+  font-size: 0.9375rem;
+}
+
+.tile-shared {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  font-size: 0.875rem;
+}
+
+.tile-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(160, 112, 24, 0.2);
+  font-size: 0.8125rem;
+  color: var(--forge-text-secondary);
+}
+
+.tile-changed {
+  color: var(--forge-warning);
+}
+
+.tile-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tile-confirm {
   margin: 0;
+  color: var(--forge-text-bright);
 }
 
 .kind-pill {
   align-self: flex-start;
-  padding: 0.2rem 0.625rem;
+  padding: 0.15rem 0.6rem;
   border-radius: 999px;
   border: 1px solid currentColor;
   font-size: 0.6875rem;
@@ -276,6 +317,12 @@ function formatWhen(iso: string): string {
 .pill-setting { color: var(--forge-gold); }
 .pill-topic { color: var(--forge-teal); }
 
+.start-new {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .section-label {
   font-family: var(--forge-font-body);
   font-size: 0.8125rem;
@@ -285,88 +332,48 @@ function formatWhen(iso: string): string {
   color: var(--forge-text-secondary);
 }
 
-.scenario-list,
-.draft-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.new-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: 1rem;
+}
+
+.new-tile {
   display: flex;
   flex-direction: column;
-  border-radius: 0.625rem;
-  border: 1px solid var(--forge-hairline);
-  background: var(--forge-ground);
+  gap: 0.625rem;
+  padding: 1.25rem 1.375rem;
+  border-radius: var(--forge-radius);
+  border: 1px solid var(--forge-hairline-strong);
+  background: var(--forge-panel);
+  color: var(--forge-text);
+  font: inherit;
+  text-align: left;
 }
 
-.scenario-row,
-.draft-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0.875rem;
-  border-bottom: 1px solid rgba(160, 112, 24, 0.2);
+button.new-tile {
+  cursor: pointer;
 }
 
-.scenario-row:last-child,
-.draft-row:last-child {
-  border-bottom: none;
+.new-later {
+  border-style: dashed;
 }
 
-.scenario-text,
-.draft-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  min-width: 0;
-  flex: 1 1 14rem;
-}
-
-.scenario-name,
-.draft-name {
-  color: var(--forge-text-bright);
-  font-weight: 500;
-}
-
-.scenario-summary,
-.draft-meta {
-  font-size: 0.875rem;
-  color: var(--forge-text-secondary);
-}
-
-.draft-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.draft-confirm {
-  flex: 1 1 14rem;
+.new-title {
+  font-family: var(--forge-font-heading);
+  font-size: 1.25rem;
   color: var(--forge-text-bright);
 }
 
-.topic-later {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--forge-hairline);
+.new-go {
+  font-weight: 600;
+  color: var(--forge-gold);
 }
 
-.topic-later p,
 .note,
-.empty,
 .loading {
   margin: 0;
   font-size: 0.9375rem;
-}
-
-.note {
-  color: var(--forge-text-secondary);
-}
-
-.note strong {
-  color: var(--forge-text);
 }
 
 .note-warning {
