@@ -30,7 +30,7 @@
         </span>
       </label>
       <p class="facts">
-        Exports as <strong>{{ draft.prefix }}</strong>, an extension of DDDnD's base game, licensed GPL-3.0 like the game.
+        Exports as <strong>{{ draft.prefix }}</strong>, an extension of DDDnD's base game, licensed {{ license.id }}{{ license.same_as_game ? ' like the game' : '' }}.
         <template v-if="draft.released">Last exported as version <strong>{{ draft.released.version }}</strong>.</template>
         <template v-else>Not exported yet.</template>
         You choose the version when you export.
@@ -40,10 +40,13 @@
 </template>
 
 <script setup lang="ts">
-import { updateDraftDetails, type DraftPack } from '@/domains/authoring'
+import { computed } from 'vue'
+
+import { draftLicense, updateDraftDetails, type DraftPack } from '@/domains/authoring'
 
 const props = defineProps<{ draft: DraftPack }>()
 const emit = defineEmits<{ change: [draft: DraftPack] }>()
+const license = computed(() => draftLicense(props.draft))
 
 function value(event: Event): string {
   return (event.target as HTMLInputElement | HTMLTextAreaElement).value

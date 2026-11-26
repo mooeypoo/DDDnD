@@ -25,6 +25,7 @@ import {
 import type { VersionRef } from '@/domains/content/model'
 import type { PackIssue } from '@/domains/authoring'
 import { listBaseRefs, loadFirstParty, type BaseScenarioChoice } from '@studio/content/first_party'
+import { LICENSE_TEXTS } from '@studio/content/license_texts'
 import { ImportError, readImportedPack, zipPackFiles } from '@studio/content/pack_files'
 import { newDraftId, openDraftStore, type DraftStore, type StoredDraft } from '@studio/drafts/draft_store'
 
@@ -233,7 +234,7 @@ export async function exportCurrentDraft(version: string, format: ExportFormat =
   const { packs } = await loadFirstParty()
   const released = releaseDraft(plainDraft(state.current.draft), version)
   const result = format === 'zip'
-    ? await exportDraftArchive(released, packs).then((archive) => (archive.ok
+    ? await exportDraftArchive(released, packs, LICENSE_TEXTS).then((archive) => (archive.ok
       ? { ok: true as const, blob: new Blob([zipPackFiles(archive.files) as BlobPart], { type: 'application/zip' }), file_name: archive.file_name }
       : archive))
     : await exportDraftBundle(released, packs).then((bundle) => (bundle.ok

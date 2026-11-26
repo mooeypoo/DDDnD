@@ -88,6 +88,18 @@ export interface DraftRelease {
  */
 export const DRAFT_LICENSE = 'GPL-3.0-or-later'
 
+/** A draft's license: its own (kept from an import, D26) or the Studio's, and whether it is the game's. */
+export function draftLicense(draft: Pick<DraftPack, 'license'>): { id: string; same_as_game: boolean } {
+  const id = draft.license ?? DRAFT_LICENSE
+  return { id, same_as_game: id === DRAFT_LICENSE }
+}
+
+/**
+ * Full license texts by SPDX id. The app supplies them (the domain reads no
+ * files); an export includes a pack's license text when it has it.
+ */
+export type LicenseTexts = Readonly<Record<string, string>>
+
 function emptyContent(): DraftContent {
   return Object.fromEntries(DRAFT_SECTIONS.map((section) => [section, {}])) as unknown as DraftContent
 }

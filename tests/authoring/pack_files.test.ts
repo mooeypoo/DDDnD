@@ -11,6 +11,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 import {
   createOwnCard,
+  DRAFT_LICENSE,
+  draftLicense,
   draftFromPack,
   exportDraftArchive,
   exportDraftBundle,
@@ -190,5 +192,37 @@ describe('the zip export', () => {
     const back = draftFromPack(await readPackArchive(archiveOf(exported.files), exported.file_name))
     if (!back.ok) throw new Error(back.problems.join('\n'))
     expect(back.draft.content).toEqual(draft.content)
+  })
+
+  it('carries the license text it is given, and the README says where it is (M4.8a)', async () => {
+    const result = draftFromPack(await ledger())
+    if (!result.ok) throw new Error(result.problems.join('\n'))
+    const exported = await exportDraftArchive(result.draft, firstParty(), { [DRAFT_LICENSE]: 'THE GPL TEXT' })
+    if (!exported.ok) throw new Error(JSON.stringify(exported.issues))
+    expect(exported.files['gilded_ledger/LICENSE']).toBe('THE GPL TEXT')
+    expect(exported.files['gilded_ledger/README.md']).toContain("**License:** GPL-3.0-only, like DDDnD's base game. The full text is in `LICENSE`.")
+
+    // The license file isn't part of the pack: the zip still imports as the same draft
+    const back = draftFromPack(await readPackArchive(archiveOf(exported.files), exported.file_name))
+    if (!back.ok) throw new Error(back.problems.join('\n'))
+    expect(back.draft.content).toEqual(result.draft.content)
+  })
+
+  it("names a pack's own license, and says when the zip has no text for it", async () => {
+    const result = draftFromPack(await ledger())
+    if (!result.ok) throw new Error(result.problems.join('\n'))
+    const draft = { ...result.draft, license: 'GPL-3.0-or-later' }
+    expect(draftLicense(draft)).toEqual({ id: 'GPL-3.0-or-later', same_as_game: false })
+    expect(draftLicense(result.draft)).toEqual({ id: DRAFT_LICENSE, same_as_game: true })
+
+    const withText = await exportDraftArchive(draft, firstParty(), { 'GPL-3.0-or-later': 'THE GPL TEXT' })
+    if (!withText.ok) throw new Error(JSON.stringify(withText.issues))
+    expect(withText.files['gilded_ledger/LICENSE']).toBe('THE GPL TEXT')
+    expect(withText.files['gilded_ledger/README.md']).toContain('**License:** GPL-3.0-or-later. The full text is in `LICENSE`.')
+
+    const withoutText = await exportDraftArchive(draft, firstParty())
+    if (!withoutText.ok) throw new Error(JSON.stringify(withoutText.issues))
+    expect(withoutText.files['gilded_ledger/LICENSE']).toBeUndefined()
+    expect(withoutText.files['gilded_ledger/README.md']).toContain("**License:** GPL-3.0-or-later. This zip doesn't include the license's text: add it as `LICENSE` before you publish.")
   })
 })

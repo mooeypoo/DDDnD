@@ -3,7 +3,7 @@
  *
  * Out: besides the `.dddnd-pack.json` file the bazaar imports, a zip in the
  * packs repository's layout (`<pack id>/manifest.json`, one folder per
- * content type, a README), to commit to GitHub.
+ * content type, a README and the license's text), to commit to GitHub.
  *
  * In: a pack file or such a zip becomes a draft again. The game's own
  * snapshot builder reads it, exactly as when a player imports it, so nothing
@@ -20,7 +20,7 @@ import { CONTENT_LIMITS } from '../content/validation/content_limits'
 import { BASE_PACK_ID, MAX_FILES_PER_PACK } from '../content/validation/pack_policy'
 import { contentPrefix } from './content_ids'
 import { checkDraft, compatibleBaseGames, draftFileName, draftPackId, draftToRawPack, gameTarget, type FirstPartyPack, type PackIssue } from './draft_export'
-import { DRAFT_LICENSE, DRAFT_SECTIONS, type DraftContent, type DraftPack, type DraftSection } from './draft_pack'
+import { DRAFT_LICENSE, DRAFT_SECTIONS, draftLicense, type DraftContent, type DraftPack, type DraftSection, type LicenseTexts } from './draft_pack'
 
 /** An archive opened for reading. The Studio's zip adapter provides one; this file knows only packs. */
 export interface PackArchive {
@@ -147,8 +147,11 @@ const SECTION_TITLES: Partial<Record<DraftSection, string>> = {
   challenge_modifiers: 'Challenge modifiers',
 }
 
-/** The README a zip export carries: what the pack is, what it's for, and how players get it. */
-export function packReadme(draft: DraftPack, manifest: ContentPackManifest, baseVersion: string): string {
+/**
+ * The README a zip export carries: what the pack is, what it's for, and how
+ * players get it. `withLicenseFile` says whether the zip holds the license's text.
+ */
+export function packReadme(draft: DraftPack, manifest: ContentPackManifest, baseVersion: string, withLicenseFile = false): string {
   const { from, series } = compatibleBaseGames({ schema_version: manifest.schema_version, base_version: baseVersion })
   const authors = draft.authors.map((author) => (author.url ? `[${author.name}](${author.url})` : author.name)).join(', ')
   const lines = [
@@ -161,7 +164,7 @@ export function packReadme(draft: DraftPack, manifest: ContentPackManifest, base
     `- **Version:** ${manifest.version}`,
     `- **Made for:** DDDnD's base game ${from} (it works in any ${series} version from ${from} on)`,
     `- **By:** ${authors}`,
-    `- **License:** ${manifest.license}, like DDDnD's base game (https://www.gnu.org/licenses/gpl-3.0.html)`,
+    `- **License:** ${licenseLine(draft, withLicenseFile)}`,
     '',
     '## Contents',
     '',
@@ -188,6 +191,15 @@ export function packReadme(draft: DraftPack, manifest: ContentPackManifest, base
   return lines.join('\n')
 }
 
+/** The README's license line: which license, whether it's the game's, and where its text is. */
+function licenseLine(draft: DraftPack, withLicenseFile: boolean): string {
+  const license = draftLicense(draft)
+  const which = license.same_as_game ? `${license.id}, like DDDnD's base game` : license.id
+  return withLicenseFile
+    ? `${which}. The full text is in \`LICENSE\`.`
+    : `${which}. This zip doesn't include the license's text: add it as \`LICENSE\` before you publish.`
+}
+
 /**
  * The zip's files, in the packs repository's layout under `<pack id>/`, or the
  * issues that stop the export. Only a pack the game would import is exported.
@@ -195,16 +207,19 @@ export function packReadme(draft: DraftPack, manifest: ContentPackManifest, base
 export async function exportDraftArchive(
   draft: DraftPack,
   firstParty: readonly FirstPartyPack[],
+  licenseTexts: LicenseTexts = {},
 ): Promise<{ ok: true; files: Record<string, string>; file_name: string } | { ok: false; issues: PackIssue[] }> {
   const check = await checkDraft(draft, firstParty)
   if (check.issues.length > 0 || !check.snapshot) return { ok: false, issues: check.issues }
   const target = gameTarget(firstParty)
   const raw = draftToRawPack(draft, target)
   const folder = draftPackId(draft)
+  const licenseText = licenseTexts[draftLicense(draft).id]
   const files: Record<string, string> = {
-    [`${folder}/README.md`]: packReadme(draft, check.snapshot.manifest, target.base_version),
+    [`${folder}/README.md`]: packReadme(draft, check.snapshot.manifest, target.base_version, licenseText !== undefined),
     [`${folder}/manifest.json`]: raw.manifest_text,
   }
+  if (licenseText !== undefined) files[`${folder}/LICENSE`] = licenseText
   for (const [path, text] of Object.entries(raw.files)) files[`${folder}/${path}`] = text
   return { ok: true, files, file_name: `${folder}-v${draft.version}.zip` }
 }

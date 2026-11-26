@@ -750,9 +750,33 @@ D4 promised two downloads: the pack file the bazaar imports, and a zip in the re
 - The exported zip, unpacked by Python (`testzip` clean), passes `scripts/validate-content-pack.ts`, the validator the packs repository's CI runs.
 - The Studio's bundle grew from 81.9 to 92.3 kB gzipped. The game's bundle is unchanged.
 
-**Left open:** the zip has no LICENSE file; the README names the license and links the GPL text. Bundling the full text would add about 35 kB to the Studio.
+**Left open:** the zip has no LICENSE file; the README names the license and links the GPL text. Bundling the full text would add about 35 kB to the Studio. (Settled in M4.8a: the zip carries it.)
 
 **Next:** "Play it" (D15, D17).
+
+
+### M4.8a: The zip carries the license (2026-11-26)
+
+The owner settled M4.8's open question: the zip carries a `LICENSE` file.
+
+**What an author sees:**
+- The zip for GitHub now holds `LICENSE`, the GPL's full text, next to the README. The README says "GPL-3.0-only, like DDDnD's base game. The full text is in `LICENSE`."
+- Pack details names the pack's actual license. An imported pack under GPL-3.0-or-later now reads "licensed GPL-3.0-or-later", where it used to say "GPL-3.0 like the game".
+
+**Domain:**
+- `draftLicense(draft)` answers which license a draft has (its own, kept from an import by D26, or the Studio's) and whether it is the game's. The README and Pack details both ask it. Before, the README said "like DDDnD's base game" for every pack, and Pack details had "GPL-3.0" typed into it.
+- `exportDraftArchive` takes `LicenseTexts` (full texts by SPDX id). It adds `LICENSE` when it has the pack's license text. Otherwise the README says the text isn't included and to add it before publishing.
+
+**The adapter** (`studio/src/content/license_texts.ts`) bundles the repository's own `LICENSE` at build time (`?raw`), so the text is exactly the game's. A pack that builds on the base game must be GPL-3.0-only or GPL-3.0-or-later (the game's validator), and both have this text, so every Studio zip carries it. The "not included" wording is only a fallback.
+
+**Decision:** the domain chooses the license and the app supplies the words. The domain reads no files, and a license text is 35 kB of data, not a rule, so it lives at the edge like the zip format.
+
+**For the talk: a fact typed into a screen is a rule in disguise.** "Licensed GPL-3.0 like the game" looked like copy, but it stated a fact about the draft. It became false the day imports could keep their own license (D26). Copy that states a fact about content needs a domain answer behind it, which is what D22 says, applied to a sentence.
+
+**Verification:**
+- Tests: 1269 in total (+2). The zip carries the text it's given, and still imports back as the same draft. A pack's own license is named without "like the game", and the README says when the text is missing.
+- Headless Chrome (production build, Studio CSP): copy the Monolith, add an author, and download the zip. Python's `zipfile` reads it cleanly. Its `LICENSE` is byte-identical to the repository's, and `scripts/validate-content-pack.ts` passes it. The zip imports back unchanged ("Nothing has changed since you exported version 1.0.0"). Zero CSP violations, no console errors.
+- The Studio's bundle grew from 92.3 to 105.0 kB gzipped. The game's bundle is unchanged.
 
 ---
 
@@ -760,10 +784,11 @@ D4 promised two downloads: the pack file the bazaar imports, and a zip in the re
 
 What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
 
-### Where things stand (2026-11-25)
+### Where things stand (2026-11-26)
 
 - **On `main`:** M4.1–M4.7b. The Studio creates and edits retellings of base scenarios (details, scenario, council, cards, events, aftershocks, event conditions), checks them with the game's own validator, and exports them as releases (D24, D25).
-- **Draft PR #56 (`feat/studio-zip`):** M4.8, zip export and import (D26). It waits for the owner's review and merge. One decision is open: whether the zip carries a LICENSE file (see the M4.8 entry).
+- **M4.8 (zip export and import, D26) merged** (#56). M4.8a (the zip carries `LICENSE`) is in its own PR.
+- **The UI/UX audit's direction is chosen (2026-11-26):** Direction A (a library sidebar and a document editor) for editing, with Direction C's pack summary as a second view, and maybe a graph view later. The confusing part is connecting items (a card's effect on a member or score). See the canvas https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ. Wording rule from the owner: say what changes generically ("Head of Payments: +2 satisfaction", "Domain Clarity: +6"), not with verbs guessed from a score's name.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **Next:** the UI/UX audit (D23), brought forward by the owner. "Play it", new-topic authoring, the guided round and balance hints follow (§6). Those later screens should follow the patterns the audit sets, so the audit's result should include a short written pattern guide (for example, a §9 addition), not only fixes.
 
@@ -800,7 +825,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1267 tests at M4.8). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1269 tests at M4.8a). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).
