@@ -121,3 +121,17 @@ export function create_local_storage_save_adapter(
 }
 
 export const createLocalStorageSaveAdapter = create_local_storage_save_adapter
+
+/**
+ * A save adapter that keeps nothing (docs/PACK_STUDIO.md D15): "Play it"
+ * plays a pack from the Pack Studio without touching the player's saved run.
+ * Saving succeeds and is forgotten, loading finds nothing, and clearing
+ * leaves the real save alone.
+ */
+export function createNoopSaveAdapter(): LocalStorageSaveAdapter {
+  return {
+    save_serialized_save_file: () => ok(undefined),
+    load_serialized_save_file: () => ok(null),
+    clear_saved_run: () => ok(undefined),
+  }
+}

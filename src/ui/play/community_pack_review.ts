@@ -7,6 +7,7 @@
  * text; links show their hostname so a player sees where they lead.
  */
 
+import { isPreviewSession } from '@/ui/preview/preview_session'
 import type { PackSnapshot, Scenario } from '@/domains/content/model'
 import { isFirstPartyPackKey } from '@/domains/content/services/pack_identity'
 import { checkPackSourceUrl } from '@/domains/content/services/pack_source_policy'
@@ -94,10 +95,16 @@ function describeOrigin(snapshot: PackSnapshot): PackReview['origin'] {
 
 /** Who published a pack, from where it was loaded (ADR 0013). Also used for bazaar and play labels. */
 export function describePackPublisher(snapshot: PackSnapshot): PackReview['publisher'] {
-  return snapshot.origin.kind === 'file' ? FILE_PUBLISHER : publisherFromManifestUrl(snapshot.origin.manifest_url)
+  return snapshot.origin.kind === 'file' ? filePublisher() : publisherFromManifestUrl(snapshot.origin.manifest_url)
 }
 
 const FILE_PUBLISHER: PackReview['publisher'] = { label: 'unknown (loaded from a file)', verified: false }
+/** In a preview tab, the only pack that can arrive is the one the Pack Studio sent (§11). */
+const PREVIEW_PUBLISHER: PackReview['publisher'] = { label: 'the DDDnD Pack Studio (a preview)', verified: false }
+
+function filePublisher(): PackReview['publisher'] {
+  return isPreviewSession() ? PREVIEW_PUBLISHER : FILE_PUBLISHER
+}
 
 /**
  * A community run's pack, as shown on the results screen, the share card and
@@ -112,7 +119,7 @@ export function describeRunCommunityPack(
   if (!contentPack || isFirstPartyPackKey(contentPack.key)) return null
   const publisher = contentPack.origin === 'remote' && contentPack.source_url
     ? publisherFromManifestUrl(contentPack.source_url)
-    : FILE_PUBLISHER
+    : filePublisher()
   return { name: loadedName ?? contentPack.id, publisher: publisher.label }
 }
 

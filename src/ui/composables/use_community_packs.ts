@@ -22,7 +22,8 @@ import { useGameStore } from '@/ui/stores/game_store'
 
 export type CommunityPackPhase = 'idle' | 'loading' | 'review' | 'adding' | 'error'
 
-const STAGE_TITLES: Record<PackLoadError['stage'], string> = {
+/** What each stage of loading a pack failed at, in the words the bazaar and the preview both use. */
+export const STAGE_TITLES: Record<PackLoadError['stage'], string> = {
   source: 'This link can\'t be used',
   fetch: 'The pack couldn\'t be downloaded',
   manifest: 'The pack\'s manifest has problems',

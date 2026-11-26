@@ -14,6 +14,7 @@ import {
   draftFromBaseScenario,
   draftFromPack,
   exportDraftArchive,
+  previewBundle,
   exportDraftBundle,
   newestRef,
   releaseDraft,
@@ -29,6 +30,7 @@ import {
 import type { VersionRef } from '@/domains/content/model'
 import type { PackIssue } from '@/domains/authoring'
 import { listBaseRefs, loadFirstParty, type BaseScenarioChoice } from '@studio/content/first_party'
+import { playInGame, type PlayStatus } from '@studio/content/game_preview'
 import { LICENSE_TEXTS } from '@studio/content/license_texts'
 import { ImportError, readImportedPack, zipPackFiles } from '@studio/content/pack_files'
 import { newDraftId, openDraftStore, type DraftStore, type StoredDraft } from '@studio/drafts/draft_store'
@@ -232,6 +234,19 @@ export async function removeDraft(draftId: string): Promise<void> {
   await store?.remove(draftId)
   if (state.current?.draft_id === draftId) state.current = null
   await refreshList()
+}
+
+/**
+ * "Play it" (D15): the open draft, as it is now, played in the game's preview
+ * tab. Returns the issues that stop it (the game's own checks), or none.
+ */
+export async function playCurrentDraft(onStatus: (status: PlayStatus) => void): Promise<PackIssue[]> {
+  if (!state.current) return []
+  const { packs } = await loadFirstParty()
+  const preview = await previewBundle(plainDraft(state.current.draft), packs)
+  if (!preview.ok) return preview.issues
+  playInGame(preview.text, onStatus)
+  return []
 }
 
 /** What an export downloads: the pack file the bazaar imports, or a zip for GitHub (D4). */

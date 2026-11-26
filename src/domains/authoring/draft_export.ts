@@ -161,6 +161,29 @@ export async function exportDraftBundle(
   return { ok: true, text: writePackBundle(check.snapshot), file_name: draftFileName(draft) }
 }
 
+/** Who a preview's pack is by, when the author hasn't added their name yet. */
+export const PREVIEW_AUTHOR = 'Played from the Pack Studio'
+
+/**
+ * The pack "Play it" sends to the game (D15): the draft as it is now, with
+ * the two things only an export needs filled in when missing (the author's
+ * name, the pack's description), so an author can play before they finish
+ * the details. Never exported: the draft itself doesn't change.
+ */
+export async function previewBundle(
+  draft: DraftPack,
+  firstParty: readonly FirstPartyPack[],
+): Promise<{ ok: true; text: string } | { ok: false; issues: PackIssue[] }> {
+  const named = draft.authors.some((author) => author.name.trim() !== '')
+  const preview: DraftPack = {
+    ...draft,
+    authors: named ? draft.authors : [{ name: PREVIEW_AUTHOR }],
+    description: draft.description.trim() || `A pack from the DDDnD Pack Studio: ${draft.name || 'untitled'}.`,
+  }
+  const exported = await exportDraftBundle(preview, firstParty)
+  return exported.ok ? { ok: true, text: exported.text } : { ok: false, issues: exported.issues }
+}
+
 /** What a check's issue is about: the pack's details, or one piece of content. */
 export type IssueSubject =
   | { kind: 'manifest' }

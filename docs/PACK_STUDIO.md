@@ -51,6 +51,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D29 | **Effects are written generically:** each name with its signed change, then the council's satisfaction ("Domain Clarity +6, Budget −5; Head of Payments +2 satisfaction"). | Packs name their own scores, so a verb guessed from a score's name ("raises", "makes happier") can be wrong for a score like "Nerdiness" (the owner's rule, 2026-11-26). A name and a number read right for any pack. |
 | D30 | **You never leave what you're editing to connect it.** Every "what it changes" picker can create or seat a council member, and a member's page can give a card or event a change to them, making your own version of the game's first (D7). Placeholders are fine while you work; the checks only stop the export. | The owner found connecting content the most confusing part of editing: make the member first, or the card? With this, either order works, from either side. |
 | D31 | **Changing someone who isn't seated is a feature, and the Studio explains it, never blocks it.** A note says why it's there: the game shares a card (nothing to do), you took them out, or your own content changes them (fine for a card shared with another scenario). The author guide explains sharing cards between scenarios. | The owner (2026-11-26): pack authors may share cards between scenarios with different councils on purpose, as the base game does (Automate Deployment Pipeline in Microservice Sprawl). The note should alert and explain, so it can be done on purpose. |
+| D32 | **"Play it" is trusted in production only from the launch.** Until then the game trusts only the local Studio, in development builds; the launch PR adds `https://studio.dddnd.app` and switches the Studio's button on together (a test keeps them in step). Deploy previews are never trusted (D17). | The owner's call (2026-11-26), keeping the plan in §12: a pack sent by "Play it" skips the bazaar's review, so the live game starts trusting the Studio when the Studio is announced, not before. |
 
 ---
 
@@ -158,7 +159,7 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 1. ~~Aftershocks and event conditions~~ (M4.6).
 2. ~~The version-bump assistant~~ (M4.7).
 3. ~~Zip export and import~~ (M4.8).
-4. "Play it" (D15, D17).
+4. ~~"Play it" (D15, D17)~~ (M4.16; live in production from the launch, D32).
 5. New-topic authoring (scores, endings, classes) and the guided round.
 6. Balance hints, and the smaller items: "Go to it" focusing the exact field, a warning when the prefix (the pack's id) changes after a release, undo/redo, and search. (The sidebar's collapse and filter came with the audit, M4.9.)
 7. ~~**The UI/UX audit (D23)**~~ (M4.9–M4.15, brought forward and done first). The patterns for every later screen are in §9.1.
@@ -358,13 +359,22 @@ Requirements, checked like the game's (automated checks plus a keyboard and scre
 6. **Clearly marked:** the preview shows a "Preview from DDDnD Pack Studio" banner, and its results screen has no share link (D18).
 7. **No other way in:** no URL parameter, fragment, `localStorage` handoff or file path can load a preview. `frame-ancestors 'none'` (already in the CSP) stops the game being framed by another site.
 
-**Tests to write with it:**
-- messages from any other origin, or from a window other than the opener, are ignored;
+**Built in M4.16.** Where each control lives:
+- the exchange is `src/domains/content/services/preview_handoff.ts` (both apps);
+- the game's side is `src/ui/views/preview_view.vue` and `src/ui/preview/`;
+- the Studio's side is `studio/src/content/game_preview.ts`.
+
+Its tests:
+- messages from any other origin (including a deploy preview of the Studio), or from a window other than the opener, are ignored;
 - a wrong or reused nonce is ignored;
 - a second pack after the first is ignored;
-- a pack failing validation shows errors and doesn't play;
-- a preview run writes nothing.
+- a pack failing validation says why and doesn't play;
+- a preview run writes, reads and clears no saved run, and stores no preference;
+- the game and the Studio agree on when production trusts the Studio.
 
+Where the build departs from the outline above:
+- **"Nothing stored" is decided when the page loads.** The Studio names the preview tab (`dddnd-studio-preview`), and a tab with that name, or one opened at `/preview`, runs the game with no-op storage from its first moment. The name only switches storage off; trust still takes the origin, the opener and the nonce. A reload asks the Studio again, so it isn't a way in.
+- **Production trusts no origin until launch** (D32). Until then "Play it" works with both apps running locally in development, and the live Studio's button says it arrives with the launch.
 ---
 
 ## 12. Deploying the Studio (Netlify)
@@ -395,7 +405,9 @@ After the first deploy, **Site configuration → Build & deploy → Build settin
    - if `dddnd.app`'s DNS is managed by Netlify, Netlify adds the record itself;
    - otherwise, add a `CNAME` record `studio` → `<site-name>.netlify.app` at the DNS provider.
 3. Wait for Netlify's HTTPS certificate (automatic).
-4. At launch: remove `noindex` (`studio/index.html` and `X-Robots-Tag` in `studio/netlify.toml`), and add the Studio's origin to the game's preview allowlist (§11) in the same PR.
+4. At launch, in one PR:
+   - remove `noindex` (`studio/index.html` and `X-Robots-Tag` in `studio/netlify.toml`);
+   - switch "Play it" on: add `https://studio.dddnd.app` to `PRODUCTION_PREVIEW_ORIGINS` (`src/ui/preview/preview_session.ts`) and set `PLAY_IT_IN_PRODUCTION = true` (`studio/src/content/game_preview.ts`). A test (`tests/architecture/game_studio_sync.test.ts`) fails if only one of them changes.
 
 **What the game's site needs:** nothing until "Play it" (§11). The game's `netlify.toml` and site are unaffected, because the Studio site reads only `studio/netlify.toml`. The Studio site skips deploys when nothing under `studio/`, `src/domains/`, `content/` (it ships the first-party packs, M4.3) or the package files changed. That was checked locally: the scaffold commit builds, and the launch PR, which touches neither, is skipped.
 
@@ -1192,6 +1204,56 @@ It ends with how each coming screen applies them. Each pattern names the file wh
 
 **The audit, in numbers:** seven PRs (#61–#66 and this one), seven journal entries (M4.9–M4.15), four decisions (D28–D31), and the tests from 1273 to 1318. Two bugs were caught in the browser before shipping: M4.12's initialization order, and M4.14's guide claim, corrected against the validator.
 
+
+### M4.16: "Play it" (2026-11-26)
+
+D6, D15 and D17, with §11's trust boundary. The Studio's toolbar has **▶ Play it**, which opens the draft in the game, in a tab of its own, with nothing saved.
+
+**What an author sees:**
+- **"▶ Play it"** (quiet, beside Export, §9.1) opens the game in a tab named for the preview. Its state shows beside it: "Opening the game…", "Playing in the game's tab", "Fix what the checks list first", "The game didn't answer", or "Your browser blocked the game's tab".
+- **The game's tab says "Preview from DDDnD Pack Studio. Nothing here is saved, and this run can't be shared. Close this tab to end it."** on every page.
+- **The tab opens the pack's own table:** the pack's banner says "Published by the DDDnD Pack Studio (a preview)", and there's no way back to the bazaar.
+- **A run plays as normal.** The results screen has no share card and no "Return Home" (D18). "Play again" goes back to the pack's table.
+- **Play it again replaces what the tab plays** (the same tab). A reload of the tab asks the Studio again.
+- **A pack can be played before its details are finished:** the preview fills in a placeholder author and description, never exported (`previewBundle`). Anything else the game would refuse is refused before sending, with the same checks.
+- **Until the launch (D32),** the live Studio's button is disabled ("Play it arrives with the launch"). It works with both apps running locally in development.
+
+**How it's kept safe** (§11, threat T12):
+- **The exchange is domain code both apps share** (`preview_handoff.ts`). The game accepts a pack only from the window that opened it, at a trusted origin, carrying the 128-bit nonce it made for this page, and only once. It says it's ready only to trusted origins, so another site never sees a nonce.
+- **The pack then goes through the same checks as any import** (the bundle reader, the schemas, the playability check), and a pack that fails shows the bazaar's own titles and problems.
+- **Nothing is stored.** A preview tab is decided when the page loads, before the game store builds its storage:
+  - the store gets a save adapter that keeps nothing, so `reset()`, which the play screens call, can't clear the player's real saved run;
+  - there's no pack store at all, the content adapter's existing no-op mode;
+  - preferences aren't written;
+  - the router sends every other page back to the preview, and never restores a saved run there.
+
+**Decisions:**
+- **The preview's storage is chosen by the tab, not by a later switch.** The store builds its storage once, and a preview that switched storage mid-visit could already have read the player's save. Deciding at page load means there's no moment where real storage is reachable.
+- **The tab's name selects only the safe direction.** Anyone can open the game under that name, and all they get is a game that saves nothing and accepts nothing.
+- **Production trusts nothing yet** (D32, the owner's call): `PRODUCTION_PREVIEW_ORIGINS` is empty, and a test ties it to the Studio's `PLAY_IT_IN_PRODUCTION`, so the launch PR can't switch on only half.
+- **The Studio has its own Vite cache** (`node_modules/.vite-studio`). With both dev servers running, which "Play it" needs, the shared cache made each re-optimize the other's dependencies ("504 Outdated Optimize Dep").
+
+**For the talk: a trust boundary is a domain too.** The handshake's rules (whose window, which origin, which nonce, how many times) are about as far from cards and councils as the code gets, and they still went in the domain, as pure functions both apps share, with the hostile cases as tests. The windows and events stay at the edges; the decisions are where they can be read and tested in one place. And the safest part isn't a check at all: a preview tab never has real storage to protect, because it never builds it.
+
+**Verification:**
+- Tests: 1338 in total (+16):
+  - the exchange, 9: origins, including a deploy preview and look-alike hosts; the opener; nonces; only the first pack; no trusted origin; the Studio's side;
+  - a preview tab writes, reads and clears no save and stores no preference, 4;
+  - a failing pack says why and isn't added, 3.
+
+  Also `previewBundle`, 2, and the game–Studio sync, 2.
+- Headless Chrome, both apps' dev servers:
+  1. Copy the Monolith (set to 1 turn), Play it: the game's tab opens on the pack's table with the banner. Join, play a card: the results show "by the DDDnD Pack Studio (a preview)", with no share card. The game's storage still holds only the player's real save (untouched), and no IndexedDB database was created.
+  2. Rename the pack and Play it again: the same tab plays "Monolith at Acme". Reloading the tab plays it again.
+  3. A card with no name: the Studio says to fix the checks first.
+  4. A page at another origin opens `/preview` and posts packs: it never receives "ready", and its blind post is ignored.
+  5. No console errors.
+- Headless Chrome, production builds with their real CSP:
+  1. The Studio's button is disabled until launch.
+  2. The game's `/preview` says it isn't switched on yet; opened directly, it says it only opens from Play it.
+  3. An ordinary game tab has no banner.
+  4. Zero CSP violations, no console errors.
+
 ---
 
 ## 14. Picking up the work
@@ -1218,7 +1280,8 @@ What a new session needs to continue without the conversation that built M4.1–
   - changing someone who isn't seated is a feature, so explain it and never block it;
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
-- **Next:** "Play it" (D15, D17, §11), then new-topic authoring with the guided round, then balance hints (§6), each following §9.1.
+- **"Play it" is built** (M4.16), trusted in production from the launch (D32).
+- **Next:** new-topic authoring with the guided round, then balance hints (§6), each following §9.1.
 - **Left open from the audit:**
   - undo/redo;
   - "Find anything" (search with a shortcut);
@@ -1260,12 +1323,13 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1318 tests at M4.15). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1338 tests at M4.16). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).
   3. Start from `scripts/dev/browser-check.example.mjs`. It uses playwright-core with `/usr/bin/google-chrome`, installed in a scratch folder, not in the project. Every check reports CSP violations and console errors, and both must be empty.
   4. Stop the server with `pkill -f serve-with-csp.mjs` in its own command (it exits 144, which is expected).
+- **"Play it" before launch works only between the two dev servers** (D32). Run `npm run dev -- --port 5173 --strictPort` (the game) and `npm run studio:dev` (the Studio, port 5318) side by side; each keeps its own Vite cache. Production builds show the "arrives with the launch" state, which is worth checking too.
 - **After any engine or base-content change,** run `scripts/dev/compare-audit.sh <scratch dir>`. It checks that the fixed-seed audit report is identical to `origin/main`'s, unless the change is meant to alter play.
 - **Before a merge,** also check the PR's Netlify deploy preview.
 - **Base content changes:** the pre-commit hook records `scripts/base-content-lock.json` and CI checks it (D25).

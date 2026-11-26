@@ -87,3 +87,19 @@ describe('the base pack keeps its promise to packs already out there', () => {
     expect(lockProblems(LOCK, { version: '2.0.0', files: { cards: { 'b-v2.json': 'ccc' } } })).toEqual([])
   })
 })
+
+describe('"Play it": the game and the Studio agree on who may send a pack (§11, D17)', () => {
+  it('the Studio offers Play it in production exactly when the production game trusts the Studio', async () => {
+    const { PRODUCTION_PREVIEW_ORIGINS } = await import('@/ui/preview/preview_session')
+    const { PLAY_IT_IN_PRODUCTION } = await import('../../studio/src/content/game_preview')
+    expect(PLAY_IT_IN_PRODUCTION).toBe(PRODUCTION_PREVIEW_ORIGINS.includes('https://studio.dddnd.app'))
+    // Only the Studio's own address, ever: never a deploy preview or another site (an ADR to change)
+    expect(PRODUCTION_PREVIEW_ORIGINS.every((origin) => origin === 'https://studio.dddnd.app')).toBe(true)
+  })
+
+  it('the game\'s development build trusts the Studio\'s development server, on its real port', async () => {
+    const { DEVELOPMENT_PREVIEW_ORIGINS } = await import('@/ui/preview/preview_session')
+    const port = readFileSync('studio/vite.config.ts', 'utf8').match(/port:\s*(\d+),\s*strictPort:\s*true/)?.[1]
+    expect(DEVELOPMENT_PREVIEW_ORIGINS).toEqual([`http://localhost:${port}`])
+  })
+})

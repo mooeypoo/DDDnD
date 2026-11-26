@@ -31,7 +31,7 @@ import { couplingRulesOf } from '@/domains/simulation'
 import type { ContentProvider } from '@/domains/content/services/content_provider'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
 import { create_engine } from '@/domains/simulation'
-import { createLocalStorageSaveAdapter, openCommunityPackStore } from '@/domains/persistence/adapters'
+import { createLocalStorageSaveAdapter, createNoopSaveAdapter, openCommunityPackStore } from '@/domains/persistence/adapters'
 import type { RunContentPack } from '@/domains/simulation/model'
 
 /** Why a saved community-pack run can't be continued right now (M2.6). */
@@ -56,6 +56,7 @@ import {
   setBriefingDismissed,
 } from '@/ui/services/player_preferences'
 import { useTutorialState } from '@/ui/composables/tutorial_state'
+import { isPreviewSession } from '@/ui/preview/preview_session'
 import { createGameStoreContentAdapter } from './game_store_content_adapter'
 import { createGameStorePersistenceAdapter } from './game_store_persistence_adapter'
 import {
@@ -83,7 +84,12 @@ export interface RunSetupOptions {
  * lifecycle interactions. Game rules remain in simulation domain services.
  */
 export const useGameStore = defineStore('game', () => {
-  const saveAdapter = createLocalStorageSaveAdapter()
+  /**
+   * A preview of a pack from the Pack Studio (D15): no saved run is read or
+   * written, and no stored pack is read or written, for this whole tab.
+   */
+  const isPreview = isPreviewSession()
+  const saveAdapter = isPreview ? createNoopSaveAdapter() : createLocalStorageSaveAdapter()
   const persistenceAdapter = createGameStorePersistenceAdapter(saveAdapter)
 
   // Core state
@@ -137,7 +143,8 @@ export const useGameStore = defineStore('game', () => {
       externalManifestUrls,
       communityPacks,
     },
-    { openPackStore: () => openCommunityPackStore() },
+    // Without a pack store nothing is read or written (the content adapter's no-op mode)
+    isPreview ? {} : { openPackStore: () => openCommunityPackStore() },
   )
   /**
    * Set when a saved run can't be continued because the community pack it
@@ -400,6 +407,15 @@ export const useGameStore = defineStore('game', () => {
   /** Whether added packs are kept after a reload in this browser. */
   function is_pack_store_persistent() {
     return contentAdapter.isPackStorePersistent()
+  }
+
+  /**
+   * "Play it": plays a pack from the Pack Studio this visit only (D15). Only
+   * a preview tab may, and there no pack store exists, so nothing is written.
+   */
+  async function add_preview_pack(snapshot: PackSnapshot): Promise<void> {
+    if (!isPreview) throw new Error('Only a preview tab plays a pack from the Pack Studio')
+    await contentAdapter.addCommunityPack(snapshot)
   }
 
   async function add_community_pack(snapshot: PackSnapshot) {
@@ -672,6 +688,8 @@ export const useGameStore = defineStore('game', () => {
     find_community_pack,
     find_community_pack_relations,
     add_community_pack,
+    add_preview_pack,
+    isPreview,
     remove_community_pack,
     is_pack_store_persistent,
     refresh_saved_run_pack_notice,
