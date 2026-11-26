@@ -17,6 +17,8 @@
         <p class="confirm-text">
           Delete “{{ score.name || 'this score' }}”? No scenario tracks it any more.
           <template v-if="changes.length"> {{ changes.length === 1 ? 'One of your own items stops' : `${changes.length} of your own items stop` }} changing it: {{ changes.map((change) => change.name).join(', ') }}.</template>
+          Classes stop favouring it, challenges stop changing it and coupling rules stop cutting it.
+          <template v-if="lost.length"> {{ lost.length === 1 ? 'This coupling rule only works with it, so it goes too' : 'These coupling rules only work with it, so they go too' }}: {{ lost.map((rule) => rule.name || 'Unnamed coupling rule').join(', ') }}.</template>
           Anything that still checks it (a condition, an ending) will show under the checks.
         </p>
         <button type="button" class="button button-quiet" @click="confirming = false">Keep it</button>
@@ -66,7 +68,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import { ownChangesToScore, putContent, removeOwnScore, toFillIn, withScoreName, type DraftPack } from '@/domains/authoring'
+import { couplingLostWith, ownChangesToScore, putContent, removeOwnScore, toFillIn, withScoreName, type DraftPack } from '@/domains/authoring'
 import type { Score, VersionRef } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 import type { Selection } from '@studio/workspace/selection'
@@ -84,6 +86,8 @@ const score = computed(() => props.draft.content.scores[props.scoreId] as Score 
 const scenarios = computed(() => Object.values(props.draft.content.scenarios))
 /** The author's own items that change it (the domain's ownChangesToScore). */
 const changes = computed(() => ownChangesToScore(props.draft, props.scoreId))
+/** Coupling rules that go with it (the domain's couplingLostWith). */
+const lost = computed(() => couplingLostWith(props.draft, props.scoreId))
 
 /** What the domain says it still needs, in words (toFillIn). */
 const missing = computed(() => {

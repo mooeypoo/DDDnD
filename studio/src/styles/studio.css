@@ -248,6 +248,18 @@ a:hover { color: var(--forge-text-bright); }
   margin: 0;
 }
 
+/* "In plain words": what the game will do, written by the domain from the numbers (§9.1, 5) */
+.plain {
+  margin: 0;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.5rem;
+  background: var(--forge-ground);
+}
+
+.plain-lead {
+  color: var(--forge-text-secondary);
+}
+
 /* Something of the author's own that is still a placeholder: amber, never blocking while they work */
 .to-fill-in {
   display: flex;

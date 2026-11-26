@@ -58,7 +58,11 @@
         :endings="ownEndings"
         :showEndings="!usesGameContent(draft) || ownEndings.length > 0"
         :canAddEnding="ownEndings.length < ENDINGS_PER_SCENARIO"
+        :rules="ownRules"
+        :showRules="!usesGameContent(draft) || ownRules.length > 0"
+        :canAddCoupling="canAddCoupling"
         @select="select"
+        @createRule="createRule"
         @createScore="createScore"
         @createEnding="createEnding"
         @createMember="createMember"
@@ -98,6 +102,30 @@
           @change="updateDraft"
           @open="select"
           @removed="select({ kind: 'endings' })"
+        />
+        <ClassEditor
+          v-else-if="selection.kind === 'class'"
+          :draft="draft"
+          :classId="selection.id"
+          :scoreOptions="scoreOptions"
+          @change="updateDraft"
+          @removed="select({ kind: 'summary' })"
+        />
+        <ChallengeEditor
+          v-else-if="selection.kind === 'challenge'"
+          :draft="draft"
+          :challengeId="selection.id"
+          :scoreOptions="scoreOptions"
+          @change="updateDraft"
+          @removed="select({ kind: 'summary' })"
+        />
+        <CouplingEditor
+          v-else-if="selection.kind === 'coupling'"
+          :draft="draft"
+          :couplingId="selection.id"
+          :scoreOptions="scoreOptions"
+          @change="updateDraft"
+          @removed="select({ kind: 'summary' })"
         />
         <ScoreEditor
           v-else-if="selection.kind === 'score'"
@@ -161,7 +189,7 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { addToCouncil, aftershockUsers, createOwnEnding, createOwnScore, endingsInOrder, ENDINGS_PER_SCENARIO, isFallback, usesGameContent, newestRef, SCORES_PER_SCENARIO, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
+import { addToCouncil, aftershockUsers, COUPLING_PER_SCENARIO, couplingInOrder, createOwnChallenge, createOwnClass, createOwnCoupling, createOwnEnding, createOwnScore, endingsInOrder, ENDINGS_PER_SCENARIO, isFallback, usesGameContent, newestRef, SCORES_PER_SCENARIO, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 import { PLAY_IT_LIVE, type PlayStatus } from '@studio/content/game_preview'
@@ -181,6 +209,9 @@ import SummaryView from '@studio/workspace/summary_view.vue'
 import ScoreEditor from '@studio/workspace/score_editor.vue'
 import EndingEditor from '@studio/workspace/ending_editor.vue'
 import EndingsView from '@studio/workspace/endings_view.vue'
+import ChallengeEditor from '@studio/workspace/challenge_editor.vue'
+import ClassEditor from '@studio/workspace/class_editor.vue'
+import CouplingEditor from '@studio/workspace/coupling_editor.vue'
 
 defineEmits<{ leave: [] }>()
 
@@ -281,6 +312,30 @@ async function createEnding() {
   if (!made) return
   updateDraft(made.draft)
   select({ kind: 'ending', id: made.id })
+  await focusEditor()
+  ;(document.activeElement as HTMLInputElement | null)?.select?.()
+}
+
+/** A topic's own rules of play (M4.19): classes, challenges, then coupling rules in the scenarios' order. */
+const ownRules = computed(() => {
+  if (!draft.value) return []
+  const { classes, challenge_modifiers } = draft.value.content
+  return [
+    ...Object.values(classes).map((item) => ({ kind: 'class' as const, id: item.id, name: item.name })),
+    ...Object.values(challenge_modifiers).map((item) => ({ kind: 'challenge' as const, id: item.id, name: item.name })),
+    ...couplingInOrder(draft.value).map((item) => ({ kind: 'coupling' as const, id: item.id, name: item.name })),
+  ]
+})
+const canAddCoupling = computed(() => !!draft.value && scenarioRefs(draft.value, 'score_refs').length > 0
+  && Object.values(draft.value.content.scenarios).every((scenario) => (scenario.coupling_rule_refs?.length ?? 0) < COUPLING_PER_SCENARIO))
+
+/** "+ Class" / "+ Challenge" / "+ Coupling rule": made, and opened with its name ready to type. */
+async function createRule(kind: 'class' | 'challenge' | 'coupling') {
+  if (!draft.value) return
+  const made = kind === 'class' ? createOwnClass(draft.value) : kind === 'challenge' ? createOwnChallenge(draft.value) : createOwnCoupling(draft.value)
+  if (!made) return
+  updateDraft(made.draft)
+  select({ kind, id: made.id })
   await focusEditor()
   ;(document.activeElement as HTMLInputElement | null)?.select?.()
 }

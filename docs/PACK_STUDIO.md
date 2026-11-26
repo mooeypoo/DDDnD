@@ -1320,7 +1320,7 @@ Elsewhere:
 
 **Left open:**
 - **A topic's endings are only the fallback until N2's ending editor.**
-- **Classes, modifiers and coupling rules** come in N3.
+- **Classes, modifiers and coupling rules** come in N3 (M4.19).
 - **Retellings can't add their own scores yet** (§3 says a retelling can grow into a topic); `canAddScore` is where that would change.
 
 
@@ -1385,6 +1385,66 @@ Priorities are written evenly spaced (…, 20, 10, 0), so the pack's files stay 
 
 ---
 
+### M4.19: Rules of play: classes, challenges and coupling rules (2026-11-26)
+
+N3 of new-topic authoring (§5). A topic now has its own answer to "who can I play as, what harder start can I choose, and how does one score drag another down".
+
+**What an author sees:**
+- **A "Rules of play" group in the sidebar** (for topics), with "+ Class", "+ Challenge" and "+ Coupling rule". Each item is marked class, challenge or coupling, with the to-fill-in dot. The filter finds them by name.
+- **The class editor:** name, who they are, flavor, and a favourite score (or none). In plain words: "Rest +1 every turn", or "no favourite score: fits any table". The topic's last class that fits every table can't be deleted, and says why.
+- **The challenge editor:** what players read, then what it changes at the start:
+  - where each score starts, compared with the scenario (0 is no change);
+  - turns, more or fewer;
+  - every council member's starting satisfaction (optional).
+
+  In plain words: "Rest starts −10, Uptime starts −5; every council member starts at 40 satisfaction; 2 fewer turns."
+- **The coupling rule editor:**
+  - What players read while it's active.
+  - How it works: while a chosen score is below a line, gains to the ticked scores are cut to a percentage. The last ticked score stays ticked, because the game needs one.
+
+  In plain words: "While Rest is below 25, gains to Uptime and Learning are cut to 60%. Losses aren't changed."
+- **Deleting a score says what it does to them**, and names the coupling rules that go with it.
+
+**Domain (`play_rules.ts`, new):**
+- classes: `createOwnClass`, `setClassFavourite`, `classDeletion`, `removeOwnClass` and `describeClass`;
+- challenges: `createOwnChallenge` (the first score starts 10 lower), `removeOwnChallenge` and `describeChallenge`;
+- coupling rules: `createOwnCoupling` (listed by every scenario, within the game's limit), `removeOwnCoupling`, `couplingInOrder` and `describeCoupling`;
+- a score deleted: `couplingLostWith` and `withoutScoreInPlayRules`, which `removeOwnScore` now calls.
+
+All three join `toFillIn`. The checks' "Go to it" and the summary's "Fill in what you started" open their editors.
+
+**Decisions:**
+- **A deleted score takes its coupling rules with it.** That covers a rule that watched the score, or cut only that score. The walk found that the game's checks don't flag a coupling rule watching a score no scenario tracks: it silently never fires, and its plain words showed a raw id. The model now deletes those rules with the score, and the delete confirmation names them first. Rules that cut other scores too just stop cutting it. Classes lose their favourite, and challenges stop changing it.
+- **Plain words never show an id.** A score the pack doesn't have is written "a score that isn't in this pack".
+- **The topic keeps one class that fits every table.** It's the same move as the fallback ending (M4.18): the game's "every table needs a class" check becomes an operation that can't break it.
+- **The cut is shown as a percentage** (10–100%). The game stores a multiplier (0.1–1); the editor converts it.
+- **One sidebar group, not three.** Classes, challenges and coupling rules are each short lists, and together they answer one question: the rules of play.
+
+**For the talk: the same invariant, found by walking it.** The domain tests passed, and so did the game's checks. A rule that would never fire was only visible on screen, where it read "While incident_new_score is below 25". A screen that shows ids is often the symptom of a missing domain rule, not a missing label.
+
+**Verification:**
+- Tests: 1371 in total (+13):
+  - `tests/authoring/play_rules.test.ts` (10):
+    - favourites, and a class's words;
+    - keeping the last class that fits;
+    - a challenge's words from its numbers;
+    - coupling rules listed by every scenario, and their words;
+    - deleting a score: what happens to each, the coupling rules lost, and never an id;
+    - a topic with all three passing the game's own checks.
+  - `tests/studio/play_rule_editors.test.ts` (3): each editor's plain words, and its input becoming domain calls.
+- Headless Chrome, production build with the Studio CSP:
+  1. Make a class favouring Rest, a challenge changing two scores, the turns and the council, and a coupling rule cutting two scores to 60%. Each editor's plain words read back.
+  2. Delete a score that a coupling rule cuts alongside another: the rule keeps the other.
+  3. Delete the score a coupling rule watches: the confirmation names the rule, and it goes.
+  4. Zero CSP violations, no console errors.
+- Headless Chrome, both dev servers: a complete topic with Pager Paladin (favours Rest), Launch Week (Rest starts 10 lower) and Burnout Spiral reads "Ready to export". Its zip passes `validate-content-pack.ts --content-root`. "Play it" offers Pager Paladin and Launch Week. Played with both, Rest starts at 25 (35 − 10), and the run ends on the author's own ending.
+
+**Left open:**
+- **The game's own challenges that change no scores (Speed Run) are offered in topics too.** That's the game's rule, not the pack's: fine, but worth knowing.
+- **Whether a class's favourite or a coupling rule is balanced** belongs to the balance hints.
+
+---
+
 ## 14. Picking up the work
 
 What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
@@ -1410,7 +1470,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34). Next: classes, modifiers and coupling rules (N3), then importing the SRE pack and the guided round (N4); then balance hints (§6). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19. Next: importing the SRE pack and the guided round (N4); then balance hints (§6). Each follows §9.1.
 - **Left open from the audit:**
   - undo/redo;
   - "Find anything" (search with a shortcut);
