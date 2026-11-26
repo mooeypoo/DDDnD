@@ -45,6 +45,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D23 | **A full UI/UX audit comes after the Studio's important functionality, before launch.** Until then, slices may add screens without polishing the whole. The audit looks at the start screen, the workspace's layout and the editing flows together. | The owner finds parts confusing now, mainly the start screen and some editing. Fixing those one slice at a time would mean redoing them as features land; one audit over the finished set can make it consistent. |
 | D24 | **Exporting is a release. A pack has three kinds of version, and each has one owner.** (1) **The pack's version** (1.0.0, 1.1.0) belongs to the author: the Studio suggests one (a new minor for play, a patch for wording) and only refuses a version that isn't later than the last export. (2) **Each piece of content's version** (`card-v1` → `-v2`) belongs to the Studio: content whose *play* changed since the last export gets the next version, and everything in the pack that points to it follows, up to the scenario. Wording-only changes keep their version. The new pack file holds only the current version of each piece; the earlier file keeps `-v1`. (3) **Which game the pack is for** belongs to the game itself (D25). | CONTENT_VERSIONING.md: "a version never changes meaning". Authors never see ids, and a forgotten bump would quietly change a saved run under a player, so content versions are the model's job, decided from a short list of wording fields; unknown fields count as play (the safe default). Old versions stay out of the new file because the game resumes a saved run only with the exact content it was played with (journal M2.6), so shipping them would help no player. Two files with the same pack id and version would mean different things to different players, so the pack version only moves forward. |
 | D25 | **The Studio exports for the game in the same repository, and CI keeps them in step.** A pack declares the pack format (`schema_version`) and the base pack version it was checked against (`depends_on`), both read from the game's own code and content, never a copy. The game accepts it on any later base of the same major version. In return the base pack keeps a promise within a major version: what it has shipped stays shipped and plays the same, and new content comes with a later base version. `scripts/base-content-lock.json` records that promise. A pre-commit hook records it when base content is committed, and CI checks it (`content:lock:check`). | The game, its content and the Studio live in one monorepo and deploy from the same commit, so the rule can be a check rather than a habit. The Studio had declared a fixed base 1.0.0: right today, but a pack using content added in 1.1.0 would have claimed to work on 1.0.0. A pack names base content by exact version, so a base that changed or dropped `card-v1` within 1.x would break packs already out there. |
+| D26 | **An import is lossless or refused.** A pack file or zip becomes a draft only if the draft can hold all of it, so its next export is the same pack with the author's changes. The Studio refuses, saying why: standalone packs, packs that build on anything but the base game, tutorials, an id the Studio couldn't keep, two versions of one id, and scenarios (or classes, modifiers) not all offered to players. It keeps the license and homepage, and counts the imported content as the last export. | A quietly smaller pack is worse than a refusal: the author would publish it as the next version and players would lose content. The refusals are all rare (both real packs import), and each can be lifted later by teaching the draft the missing piece. |
 
 ---
 
@@ -148,14 +149,14 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 - The minimal playtest: "Play it" opens the draft in a sandboxed game preview (D6).
 - Export (bundle file and zip) and import.
 
-**Order for the rest of M4** (after M4.5b; D23):
+**Order for the rest of M4** (after M4.5b; D23). On 2026-11-25 the owner moved the UI/UX audit (item 7) up, to start next. §14 has the handoff.
 1. ~~Aftershocks and event conditions~~ (M4.6).
 2. ~~The version-bump assistant~~ (M4.7).
-3. Zip export and import.
+3. ~~Zip export and import~~ (M4.8).
 4. "Play it" (D15, D17).
 5. New-topic authoring (scores, endings, classes) and the guided round.
-6. Balance hints, and the smaller items: sidebar collapse or filter, "Go to it" focusing the exact field.
-7. **The UI/UX audit (D23):** the start screen, the workspace and the editing flows, reviewed together and made consistent.
+6. Balance hints, and the smaller items: sidebar collapse or filter, "Go to it" focusing the exact field, a warning when the prefix (the pack's id) changes after a release.
+7. **The UI/UX audit (D23):** the start screen, the workspace and the editing flows, reviewed together and made consistent. Known items: importing the same pack twice gives two drafts of the same name (each shows its version, but nothing says they're the same pack); the release page says "since you exported" for content that was imported.
 8. Launch: remove `noindex`, and add the Studio's origin to the game's preview allowlist.
 
 **Later:**
@@ -713,4 +714,113 @@ The Studio wrote both as constants: format 1 and base 1.0.0. Both were right tod
 - Headless Chrome (production build, Studio CSP): the export page shows the base-game line. All three downloaded files declare `depends_on: base 1.0.0` and format 1. Zero CSP violations, no console errors.
 
 **Risk noted:** the game and the Studio are two Netlify sites building the same commit, so for a few minutes one can be ahead of the other. If the Studio deploys a base version bump first, a pack exported in that window declares a base the live game doesn't have yet, and the game refuses it with its "needs a newer DDDnD" kind of message. This fails safe and is short-lived; launch (step 8) could order the deploys if it matters.
+
+### M4.8: Zip export and import (2026-11-25)
+
+D4 promised two downloads: the pack file the bazaar imports, and a zip in the repository layout to commit to GitHub. Both now exist, and both come back in.
+
+**What an author sees:**
+- **The export page** has a second button, **Download as a zip for GitHub**, with one line on which to use: "The pack file is what players import in the game's Community bazaar. The zip holds the same pack as a folder, with a README, to publish on GitHub." Either download is the release: download one, and the other is the same version.
+- **The zip** is the packs repository's layout under the pack id (`gilded_ledger/manifest.json`, `gilded_ledger/cards/…`) with a generated README: the description, version, which base game it works with (D25), authors, license, the contents by name, and how to play it from a file or from GitHub, with a tag-pinned manifest URL.
+- **The start screen** has "Keep editing a pack" with **Import a pack**. It takes a `.dddnd-pack.json` or a zip, whether a pack's folder or a whole repository download holding one pack. It opens as a new draft, or lists every reason it can't ("It is a standalone pack. The Studio makes packs that build on DDDnD's base game.").
+- **An imported pack starts as released** at its version, so the export page compares the next export with it: the follow-up from M4.7 is done.
+- **Your drafts** show each draft's version.
+
+**Domain** (`pack_files.ts`): `readPackArchive` finds the pack's one `manifest.json`, reads it, then reads only the files its inventory lists, and hands them to the game's own snapshot builder. `draftFromPack` turns a snapshot into a draft, or refuses (D26). `exportDraftArchive` checks the draft and lays out the files; `packReadme` writes the README. The domain sees an archive only as names and a batch read (`PackArchive`); the zip format is the Studio's.
+
+**The zip itself** (`studio/src/content/pack_files.ts`, T11). The first version was a hand-written reader on the browser's `DecompressionStream`, because installing a library was blocked in the session. The owner's call: "let's not reinvent the wheel". Zip parsing is where edge cases live (zip64, data descriptors, damaged archives), so the format is now **fflate 0.8.2** (MIT, no dependencies, pinned exactly, Studio only: the game never imports it). The bounds stay ours, checked before and while anything decompresses:
+- the file's size, before it's read;
+- the number of entries, and every entry's name: plain relative paths only (no `..`, no leading `/`, no backslashes or drive letters);
+- only the manifest, and then the listed files, are decompressed, each counted while it inflates and stopped past its cap, whatever its header claims; everything read is capped together;
+- every entry must be UTF-8 text.
+
+**A design question on the way: one pass or many.** The domain first read files one at a time. With a streaming unzip that means a pass over the archive per file, up to 2,000 passes. So the archive reads in batches: one pass for the manifest, one for everything it lists.
+
+**For the talk: an anti-corruption layer can be one function.** A pack from outside is the game's published language, but the Studio's model is a draft, which can't hold everything a pack can be. `draftFromPack` is the translation, and the important design choice was what it does when the translation would lose something: refuse, and say what. Silently translating less is how a model corrupts the data it was meant to protect.
+
+**Verification:**
+- Tests: 1267 in total (+17). Domain: an import→export→import round trip of the Gilded Ledger keeping its content, license and homepage; every refusal; the batch reads and their caps. The adapter: zips from the Studio and from a repository layout; a 4 MiB zip bomb stopped while inflating; the total cap; unsafe names; too many entries; broken and non-pack files; the game's own refusals passed through.
+- Headless Chrome (production build, Studio CSP), with zips made by Python's `zipfile`, not by fflate:
+  1. A text file, a zip with two packs and a standalone pack are each refused with the reason.
+  2. A repository zip opens as "Demo: The Gilded Ledger", with checks clean and the export page reading "Nothing has changed since you exported version 1.0.0".
+  3. Rest turns on "Split Out the Refunds Context" changed: "Rest turns changed: version 1 → 2", and the scenario "moves too: version 1 → 2". 1.1.0 is suggested and downloads as a zip; the same version then downloads as a pack file.
+  4. Both downloads import back as drafts that are unchanged since 1.1.0.
+  5. Zero CSP violations, no console errors.
+- The exported zip, unpacked by Python (`testzip` clean), passes `scripts/validate-content-pack.ts`, the validator the packs repository's CI runs.
+- The Studio's bundle grew from 81.9 to 92.3 kB gzipped. The game's bundle is unchanged.
+
+**Left open:** the zip has no LICENSE file; the README names the license and links the GPL text. Bundling the full text would add about 35 kB to the Studio.
+
+**Next:** "Play it" (D15, D17).
+
+---
+
+## 14. Picking up the work
+
+What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
+
+### Where things stand (2026-11-25)
+
+- **On `main`:** M4.1–M4.7b. The Studio creates and edits retellings of base scenarios (details, scenario, council, cards, events, aftershocks, event conditions), checks them with the game's own validator, and exports them as releases (D24, D25).
+- **Draft PR #56 (`feat/studio-zip`):** M4.8, zip export and import (D26). It waits for the owner's review and merge. One decision is open: whether the zip carries a LICENSE file (see the M4.8 entry).
+- **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
+- **Next:** the UI/UX audit (D23), brought forward by the owner. "Play it", new-topic authoring, the guided round and balance hints follow (§6). Those later screens should follow the patterns the audit sets, so the audit's result should include a short written pattern guide (for example, a §9 addition), not only fixes.
+
+### Inputs to the UI/UX audit
+
+The owner's words and the known items, collected from the conversations that built M4:
+- **The start screen is cluttered and confusing** (M4.5b, Q14). It offers two kinds of pack, five base scenarios, example packs, import and drafts at once. The owner's idea: "start from core pack" first, and choose a scenario one step further in. The example-pack choice "is a bit cluttered" too (Q10's follow-up).
+- **"Some edit functionality" is confusing** (M4.5b). The owner didn't name which parts. Ask, and walk the editing flows with them, before changing anything.
+- **Copy is plain and direct.** The owner rewrote the council explanation (D21) because it was roundabout: say what you can't do, why, and what to do instead, in short sentences.
+- **Names, never ids or versions,** anywhere an author reads (§4.1).
+- **Known items:**
+  - importing the same pack twice gives two drafts with the same name;
+  - the release page says "since you exported" for imported content;
+  - the sidebar has no collapse or filter;
+  - "Go to it" opens the right item but doesn't always focus the exact field;
+  - nothing warns when the prefix (the pack's id) changes after a release.
+- **Constraints that stay:**
+  - desktop-primary (D10);
+  - the look in §9 (D12);
+  - accessibility and text size (D16, §10);
+  - the guided round's ember header (D20);
+  - no assets from packs (D5).
+- **The mockup** from the design round: https://claude.ai/artifact/1kvHTsALbzcpdLjMvMUmMB.
+
+### How the code is laid out (and the rule to keep)
+
+- **The authoring domain is `src/domains/authoring/`.** It holds the draft model and every rule about content: reading a draft over the game's content, ids, the council, the deck, aftershocks, conditions, releases, export and import. It is plain TypeScript, with no Vue, DOM or storage, and is exported through `index.ts`.
+- **The Studio's screens** are in `studio/src/views` and `studio/src/workspace`. They show a draft and turn input into domain calls (D22). Their state lives in `studio/src/state/studio_state.ts`.
+- **The adapters** are in `studio/src/content` (the game's content, and zips through fflate) and `studio/src/drafts` (IndexedDB).
+- **The guards:**
+  - `tests/architecture/studio_boundaries.test.ts`: the Studio never imports the game's UI, the game never imports the Studio, the domain imports no Vue, DOM or storage, only the content adapter imports the content domain's services, and no Studio file parses content file names.
+  - `tests/architecture/game_studio_sync.test.ts`: exports declare this repository's format and base version (D25).
+- **The rule for the audit, too:** a UI change may move, rename or restyle anything, but a rule about content (what something is called, whose it is, what changed, what is allowed) belongs in the domain, once, with a name (M4.5b). If a screen needs a new answer about content, add a domain function and a test, then call it.
+
+### How to check work
+
+- `npx vitest run` (1267 tests at M4.8). `npx vue-tsc --noEmit` for types.
+- **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
+  1. Run `npm run studio:build`.
+  2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).
+  3. Start from `scripts/dev/browser-check.example.mjs`. It uses playwright-core with `/usr/bin/google-chrome`, installed in a scratch folder, not in the project. Every check reports CSP violations and console errors, and both must be empty.
+  4. Stop the server with `pkill -f serve-with-csp.mjs` in its own command (it exits 144, which is expected).
+- **After any engine or base-content change,** run `scripts/dev/compare-audit.sh <scratch dir>`. It checks that the fixed-seed audit report is identical to `origin/main`'s, unless the change is meant to alter play.
+- **Before a merge,** also check the PR's Netlify deploy preview.
+- **Base content changes:** the pre-commit hook records `scripts/base-content-lock.json` and CI checks it (D25).
+
+### Working agreements with the owner
+
+- **Each slice:**
+  - write a §13 entry covering what an author sees, the domain changes, the decisions and why, "for the talk" (the DDD lens), verification, and what's left open;
+  - add a row to §2 for a new decision;
+  - add an ADR rather than editing an accepted one.
+- **Each PR:**
+  - targets `main`, never another feature branch;
+  - its body ends with a manual "How to test" checklist;
+  - create and edit it with `gh api` (`gh pr edit` fails on this repo).
+- **Pushing:** push feature branches freely. Pushing to `main`, creating tags and anything public need the owner's OK.
+- **Packages:** the owner installs them; installing was blocked for the agent. Prefer a maintained library to a hand-written one ("let's not reinvent the wheel"), pinned exactly, with our own bounds around it.
+- **Security:** a pack's worst case is unwanted text (ADR 0014). No assets from packs (D5). The preview accepts packs only from the Studio's origin (D17).
+- **Risks:** flag any risk of regression, anywhere, before it lands.
 
