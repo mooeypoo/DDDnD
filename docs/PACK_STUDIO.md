@@ -160,8 +160,8 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 3. ~~Zip export and import~~ (M4.8).
 4. "Play it" (D15, D17).
 5. New-topic authoring (scores, endings, classes) and the guided round.
-6. Balance hints, and the smaller items: sidebar collapse or filter, "Go to it" focusing the exact field, a warning when the prefix (the pack's id) changes after a release.
-7. **The UI/UX audit (D23):** the start screen, the workspace and the editing flows, reviewed together and made consistent. Known items: importing the same pack twice gives two drafts of the same name (each shows its version, but nothing says they're the same pack); the release page says "since you exported" for content that was imported.
+6. Balance hints, and the smaller items: "Go to it" focusing the exact field, a warning when the prefix (the pack's id) changes after a release, undo/redo, and search. (The sidebar's collapse and filter came with the audit, M4.9.)
+7. ~~**The UI/UX audit (D23)**~~ (M4.9–M4.15, brought forward and done first). The patterns for every later screen are in §9.1.
 8. Launch: remove `noindex`, and add the Studio's origin to the game's preview allowlist.
 
 **Later:**
@@ -225,7 +225,96 @@ If packs ever need more visual identity, the safe form is **choosing from the ga
 - The workspace (D28, replacing the first layout's three columns): the contents sidebar and the editor, each scrolling on its own under a fixed toolbar. The checks are a toolbar button that opens a panel, at every width. In a narrow window the contents sit above the editor.
 - Editors are stacked sections: "What players read", "When played", limits, a plain-language preview, and "Used in".
 
-**Settled:** the mark is the anvil with sparks (D19), and the guided round's header is ember-tinted (D20). The start screen's layout will be simplified later (Q14).
+**Settled:**
+- the mark is the anvil with sparks (D19);
+- the guided round's header is ember-tinted (D20);
+- the start screen leads with the author's packs (Q14, M4.13).
+
+### 9.1 Patterns for every screen (the UI/UX audit, D23)
+
+The audit (M4.9–M4.14) made the Studio consistent. Every screen still to come follows these patterns: "Play it", new-topic authoring (scores, endings, classes), the guided round, and the balance hints. Each pattern names where it already lives, so a new screen copies a working example instead of inventing one.
+
+**1. Where a screen goes**
+- **Inside a pack, a screen is an editor in the workspace (D28).** Add a kind to `Selection` (`studio/src/workspace/selection.ts`) and a branch in `workspace_view.vue`. The toolbar, the contents sidebar, the checks button and the scrolling come with it. Don't make a separate page that hides the sidebar: the owner chose the sidebar because it always shows where the pack stands.
+- **A view of the whole pack** (like the summary) is a `Selection` too, switched from the toolbar, with the sidebar still there.
+- **Outside a pack, a screen is a route** in `App.vue` (`#/`, `#/new`, `#/draft/<id>`), with `<main id="main" tabindex="-1">` so the skip link and route changes can focus it.
+- **A new kind of content gets a sidebar group** in `contents_nav.vue`. The group gets:
+  - a count;
+  - "+ New …" and, where the game has some, "+ From the game";
+  - the author's own items first, the game's under a closed "From the game";
+  - the to-fill-in ring.
+
+**2. The editor frame** (`studio.css`, shared by every editor)
+- **`.editor-head`:**
+  - `.editor-head-text` holds a kicker that says what it is and whose ("Score · yours", "Ending · from the game") and the title, which is the item's name;
+  - `.head-actions` on the right holds the editor's actions, always there;
+  - a `.head-confirm .confirm` opens under the head before anything is removed.
+- **Then `.editor-section`s,** each with an `.editor-section-title`: "What players read", what it does, limits, then the connections ("What changes their satisfaction").
+- **A placeholder of the author's own gets a `.to-fill-in` line:** "To fill in: … Fine while you work; the pack needs them before you export". It never blocks.
+
+**3. The game's own content is shown, locked**
+- Same layout as the author's own, read-only, with a `.locked-note`. The note is one line on what to do instead ("To change it, make your own version") and a `details.why-more` with the reasons. Explanations are said once, behind "Why?", not repeated on every page.
+- The way to change the game's content is always a copy (D7, D21), offered in the head: "Make my own version", "Copy to a new member".
+
+**4. Actions and their words**
+- **One ember button per screen** (`.button-primary`). In the workspace it's "Export pack", and on the export page the download is. Everything else is `.button-quiet`, and "Delete" is `.button-danger`. "Play it" will be quiet too, beside Export.
+- **Three verbs for removing, by scope:**
+  - **Take out of this pack:** the game's content leaves this pack; the original stays.
+  - **Delete:** the author's own is gone.
+  - **Remove:** a row or link inside an editor.
+
+  Each removal asks first and says what goes.
+- **Disabled buttons look disabled,** and a hint beside them says why ("A council needs at least one member…").
+
+**5. Words**
+- **Names, never ids or versions,** anywhere an author reads. Ids belong behind "Advanced" at most.
+- **Words about content come from the domain:**
+  - effects (`describeEffects`, generic: "Domain Clarity +6; Head of Payments +2 satisfaction", D29);
+  - conditions (`describeCondition`);
+  - when aftershocks land (`landingWords`);
+  - signed changes (`signedDelta`, a true minus);
+  - a check's problem (`describeIssue`);
+  - a pack's release state (`releaseState`).
+
+  New content needs its words added there, with a test, before a screen shows them. Never guess a verb from a pack's own names (a "Nerdiness" score).
+- **The Studio's own words** (buttons, hints, steps) live in the screen. They're short and direct: say what you can't do, why, and what to do instead (the owner's rewrite of D21's explanation is the model).
+
+**6. Connections (D30)**
+- **You never leave what you're editing to connect it.** A picker that chooses something (a score, a member, an ending) can also create it from the typed name, or bring in one of the game's, through one domain operation named for the author's intent (`connectNewMember`). The picker is `change_target_picker.vue`: an ARIA combobox where what exists comes first and "+ “…” as a new …" comes last.
+- **Show connections from both sides:** what an item changes on the item, and what changes it on the other end, each a link.
+- **Placeholders are fine while working.** The domain's `toFillIn` lists them, the summary links them, and only the game's checks stop an export.
+
+**7. Checks and notes**
+- **What stops an export is the game's own checks,** shown in the toolbar's checks button and the summary, in the Studio's words (`describeIssue`), each with "Go to it".
+- **Notes never block, and say why they exist** (D31: the game shares a card, you took someone out, your own content). A note that can be on purpose says so and explains how.
+
+**8. Accessibility (§10), on every screen**
+- Every control works from the keyboard. A popup closes on Escape and returns focus to what opened it. Creating something moves focus into it (its name, or a new row's amount).
+- One live region per fact: the checks button announces the checks. Don't add a second one for the same status.
+- Landmarks the Studio focuses (`[tabindex='-1']`) get no focus ring; controls always do.
+- Nothing by colour alone: +/− and words beside green and coral, a ring and words for "to fill in".
+- Sized in `rem`. Check every screen at 1024 px with Largest text.
+
+**9. Architecture (D22): the rule behind all of it**
+- **A screen shows a draft and turns input into domain calls.** Anything true about content (what it's called, whose it is, what changed, what's allowed, how it's said in words) is a named function in `src/domains/authoring`, with a test, written before the screen that needs it.
+- **Adapters stay at the edges:** `studio/src/content` (the game's content, zips, license texts) and `studio/src/drafts` (IndexedDB).
+- **The boundary tests** (`tests/architecture/studio_boundaries.test.ts`) guard each kind of leak found so far:
+  - the game's UI imported into the Studio;
+  - content services reached from screens;
+  - content file names parsed in screens;
+  - the validator's messages read in screens (M4.13).
+
+  A new kind of leak gets a new guard, one that fails on the code before the fix.
+
+**10. Checking a screen before it ships**
+- **Component tests mount the screen with the game's real content,** read from the repository through a mocked adapter (`tests/studio/editor_actions.test.ts`).
+- **They can't catch everything.** M4.12's workspace failed to open in the production build while every component test passed, so every slice is also walked in headless Chrome on a production build with the real CSP (§14 "How to check work"). The walk covers each new flow, by keyboard where it's an input flow, at 1024 px with Largest text, with zero CSP violations and no console errors.
+
+**Applying it to what comes next**
+- **"Play it" (D15, D17):** a quiet "▶ Play it" in the toolbar beside Export, opening the game's preview in a new tab. Its state (opening, sent, the tab was closed) shows in the toolbar, not in a page.
+- **New-topic authoring:** scores, endings and classes are editors in the frame above, each with a sidebar group. A card's picker gains "+ “…” as a new score" (create from the picker), and an ending shows what reaches it from the other side.
+- **The guided round (§5, D20):** the one place for a step-by-step flow. It's the same editors under the ember "Guided round" header, with its steps as a list like the summary's "Where to go next", and "leave the round: your work is kept" always visible.
+- **Balance hints (D3):** domain arithmetic (`netScoreChange` and friends) shown as "worth a look" lines in an editor and in the summary, never blocking. They're worded like the notes, saying what to try.
 
 ---
 
@@ -1078,6 +1167,31 @@ Every note has a **"Why does the game ignore it?"** that explains shared cards, 
 - Headless Chrome (production build, Studio CSP): a fresh copy of Microservice Sprawl shows the shared-card note with its "Why?"; taking the CTO out adds "You took Chief Technology Officer out". Zero CSP violations, no console errors.
 - The docs site builds.
 
+
+### M4.15: A pattern guide for the screens still to come (UI/UX audit, slice 5) (2026-11-26)
+
+The audit's last slice. The screens still to build ("Play it", new-topic authoring, the guided round, balance hints) should look and behave like the ones the audit made consistent, so the patterns are now written down: **§9.1, "Patterns for every screen"**. It covers:
+1. where a screen goes;
+2. the editor frame;
+3. the game's content shown locked;
+4. actions and their three removal verbs;
+5. words, and which come from the domain;
+6. connections;
+7. checks and notes;
+8. accessibility;
+9. the D22 architecture rule;
+10. how to check a screen before it ships.
+
+It ends with how each coming screen applies them. Each pattern names the file where it already works, so a new screen copies a working example.
+
+**A new guard.** M4.13 found a new kind of leak: the checks panel read the validator's message text ("must not be blank") to reword it, which is a rule about content in a screen. `describeIssue` moved it into the domain then, and now a boundary test stops it coming back: no Studio file may match the validator's phrases. The test fails on the checks panel as it was before M4.13.
+
+**For the talk: a design system that's mostly a domain.** Most of §9.1 isn't about colour or spacing. It's about where answers live: names, words, whose something is, what changed. The visual patterns are a page of CSS classes. The part that keeps the Studio consistent is the rule that every screen asks the model the same questions, and gets the same answers.
+
+**Verification:** tests 1318 in total (+1, the guard). No screen changed.
+
+**The audit, in numbers:** seven PRs (#61–#66 and this one), seven journal entries (M4.9–M4.15), four decisions (D28–D31), and the tests from 1273 to 1318. Two bugs were caught in the browser before shipping: M4.12's initialization order, and M4.14's guide claim, corrected against the validator.
+
 ---
 
 ## 14. Picking up the work
@@ -1086,12 +1200,32 @@ What a new session needs to continue without the conversation that built M4.1–
 
 ### Where things stand (2026-11-26)
 
-- **On `main`:** M4.1–M4.7b. The Studio creates and edits retellings of base scenarios (details, scenario, council, cards, events, aftershocks, event conditions), checks them with the game's own validator, and exports them as releases (D24, D25).
-- **On `main` since:** M4.8 zip export and import (D26), M4.8a (the zip carries `LICENSE`), the relicense to GPL-3.0-or-later (D27, ADR 0017) and M4.8b (authors choose the license).
-- **The UI/UX audit's slices** (D23, D28): 1. the workspace shell (M4.9); 2. consistent actions and wording (M4.10); 3. connections: 3a, both sides, placeholders and generic words (M4.11); 3b, pickers that create what they pick (M4.12); 4. the summary view and the start screen (M4.13); 5. a written pattern guide for the screens still to come.
-- **The UI/UX audit's direction is chosen (2026-11-26):** Direction A (a library sidebar and a document editor) for editing, with Direction C's pack summary as a second view, and maybe a graph view later. The confusing part is connecting items (a card's effect on a member or score). See the canvas https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ. Wording rule from the owner: say what changes generically ("Head of Payments: +2 satisfaction", "Domain Clarity: +6"), not with verbs guessed from a score's name.
+- **On `main`:** M4.1–M4.14.
+  - The Studio creates and edits retellings of base scenarios: details, scenario, council, cards, events, aftershocks, event conditions.
+  - It checks them with the game's own validator and exports them as releases (D24, D25), as a pack file or a zip with its `LICENSE` (D26).
+  - DDDnD and new packs are GPL-3.0-or-later (D27, ADR 0017).
+- **The UI/UX audit (D23) is done** (M4.9–M4.15):
+  - the workspace is an editor with a sidebar and a summary view (D28);
+  - actions and words are consistent;
+  - effects are written generically (D29);
+  - connections can be made from where you are (D30);
+  - notes say why they exist (D31);
+  - the start screen leads with your packs (Q14).
+
+  The patterns are written down in §9.1; every new screen follows them. The canvas from the design round: https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ.
+- **The owner's rules from the audit:**
+  - say what changes generically ("Head of Payments +2 satisfaction"), never a verb guessed from a score's name;
+  - changing someone who isn't seated is a feature, so explain it and never block it;
+  - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
-- **Next:** the UI/UX audit (D23), brought forward by the owner. "Play it", new-topic authoring, the guided round and balance hints follow (§6). Those later screens should follow the patterns the audit sets, so the audit's result should include a short written pattern guide (for example, a §9 addition), not only fixes.
+- **Next:** "Play it" (D15, D17, §11), then new-topic authoring with the guided round, then balance hints (§6), each following §9.1.
+- **Left open from the audit:**
+  - undo/redo;
+  - "Find anything" (search with a shortcut);
+  - "Go to it" focusing the exact field;
+  - a warning when the prefix changes after a release;
+  - a map view of cards and their impact (maybe, D28);
+  - whether the game's validator should check council member ids in changes (M4.14).
 
 ### Inputs to the UI/UX audit
 
@@ -1126,7 +1260,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1317 tests at M4.14). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1318 tests at M4.15). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).

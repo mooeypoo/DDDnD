@@ -6,7 +6,9 @@
  * - the authoring domain is pure: no Vue, DOM or storage;
  * - only the Studio's content adapter (studio/src/content) reaches the content
  *   domain's services; screens ask the authoring domain (M4.5b);
- * - the Studio doesn't read content file names itself: the domain does.
+ * - the Studio doesn't read content file names itself: the domain does;
+ * - the Studio doesn't read the game's check messages to word them: the domain
+ *   does (describeIssue, M4.13).
  */
 
 import { readdirSync, readFileSync, statSync } from 'node:fs'
@@ -62,6 +64,13 @@ describe('Pack Studio boundaries (ADR 0005)', () => {
   it('the Studio leaves content file names to the domain (M4.5b)', () => {
     for (const file of sourceFiles('studio/src')) {
       expect(readFileSync(file, 'utf8'), file).not.toMatch(/-v\(\\d\+\)/)
+    }
+  })
+
+  it('the Studio leaves the wording of the game\'s checks to the domain (M4.13)', () => {
+    // The validator's own phrases: a screen matching them is reading a check's message to reword it
+    for (const file of sourceFiles('studio/src')) {
+      expect(readFileSync(file, 'utf8'), file).not.toMatch(/must not be blank|must be at least \d/)
     }
   })
 })
