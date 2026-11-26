@@ -20,6 +20,23 @@
       </label>
     </section>
 
+    <section class="editor-section" aria-labelledby="details-license">
+      <h2 id="details-license" class="editor-section-title">License</h2>
+      <div class="license-choices" role="radiogroup" aria-labelledby="details-license">
+        <label v-for="choice in licenses" :key="choice.id" class="license-choice">
+          <input type="radio" name="license" :checked="choice.id === license.id" @change="emit('change', withLicense(draft, choice.id))" />
+          <span class="license-text">
+            <span class="license-id">{{ choice.id }}<template v-if="choice.same_as_game">, like the game</template></span>
+            <span class="field-hint">{{ choice.words }}</span>
+          </span>
+        </label>
+      </div>
+      <p class="field-hint">
+        Packs that build on DDDnD's base game use the GPL, like the game. Players see the license before they import your pack.
+        Changing it after an export makes the next export a new version.
+      </p>
+    </section>
+
     <section class="editor-section" aria-labelledby="details-ids">
       <h2 id="details-ids" class="editor-section-title">Behind the scenes</h2>
       <label class="field">Prefix for new content
@@ -30,7 +47,7 @@
         </span>
       </label>
       <p class="facts">
-        Exports as <strong>{{ draft.prefix }}</strong>, an extension of DDDnD's base game, licensed GPL-3.0 like the game.
+        Exports as <strong>{{ draft.prefix }}</strong>, an extension of DDDnD's base game.
         <template v-if="draft.released">Last exported as version <strong>{{ draft.released.version }}</strong>.</template>
         <template v-else>Not exported yet.</template>
         You choose the version when you export.
@@ -40,10 +57,14 @@
 </template>
 
 <script setup lang="ts">
-import { updateDraftDetails, type DraftPack } from '@/domains/authoring'
+import { computed } from 'vue'
+
+import { draftLicense, licenseChoices, updateDraftDetails, withLicense, type DraftPack } from '@/domains/authoring'
 
 const props = defineProps<{ draft: DraftPack }>()
 const emit = defineEmits<{ change: [draft: DraftPack] }>()
+const license = computed(() => draftLicense(props.draft))
+const licenses = licenseChoices()
 
 function value(event: Event): string {
   return (event.target as HTMLInputElement | HTMLTextAreaElement).value
@@ -60,6 +81,38 @@ function updateAuthor(name: string) {
 </script>
 
 <style scoped>
+.license-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.license-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  cursor: pointer;
+}
+
+.license-choice input {
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.2rem;
+  accent-color: var(--forge-gold);
+}
+
+.license-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.license-id {
+  color: var(--forge-text-bright);
+  font-weight: 500;
+}
+
 .editor {
   display: flex;
   flex-direction: column;

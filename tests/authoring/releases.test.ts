@@ -22,6 +22,9 @@ import {
   releaseDraft,
   releaseVersionProblem,
   removeFromDeck,
+  DRAFT_LICENSE,
+  licenseChoices,
+  withLicense,
   type DraftPack,
   type FirstPartyPack,
 } from '@/domains/authoring'
@@ -175,5 +178,38 @@ describe('pack versions', () => {
   it('field comparison ignores key order and missing optional fields', () => {
     expect(changedFields({ a: 1, b: { x: 1, y: 2 } }, { b: { y: 2, x: 1 }, a: 1, c: undefined })).toEqual({ play: [], wording: [] })
     expect(changedFields({ name: 'A', usage_limit: 1 }, { name: 'B' })).toEqual({ play: ['usage_limit'], wording: ['name'] })
+  })
+})
+
+describe('the license (D27)', () => {
+  it('offers the licenses the game accepts for packs that build on it, the game\'s first', () => {
+    expect(licenseChoices()).toEqual([
+      { id: 'GPL-3.0-or-later', same_as_game: true, words: 'Version 3 of the GNU General Public License, or any later version.' },
+      { id: 'GPL-3.0-only', same_as_game: false, words: 'Version 3 of the GNU General Public License, and no later version.' },
+    ])
+  })
+
+  it('stores a license only when it differs from the Studio\'s, and refuses any other', async () => {
+    const { draft } = await released()
+    const only = withLicense(draft, 'GPL-3.0-only')
+    expect(only.license).toBe('GPL-3.0-only')
+    expect('license' in withLicense(only, DRAFT_LICENSE)).toBe(false)
+    expect(() => withLicense(draft, 'MIT')).toThrow(/Not a license a Studio pack can use: MIT/)
+  })
+
+  it('remembers the license it released under, and a change is a new patch release', async () => {
+    const { draft } = await released()
+    expect(draft.released?.license).toBe(DRAFT_LICENSE)
+    const plan = planRelease(withLicense(draft, 'GPL-3.0-only'))
+    expect(plan).toMatchObject({ kind: 'wording', suggested: '1.0.1', changed: [], license: { from: 'GPL-3.0-or-later', to: 'GPL-3.0-only' } })
+    expect(releaseVersionProblem(plan, '1.0.0')).toMatch(/after 1\.0\.0/)
+    // Changed back before exporting: nothing to release
+    expect(planRelease(withLicense(withLicense(draft, 'GPL-3.0-only'), DRAFT_LICENSE))).toMatchObject({ kind: 'unchanged', license: null })
+  })
+
+  it('compares nothing for a release from before the Studio recorded its license', async () => {
+    const { draft } = await released()
+    const { license: _unrecorded, ...older } = draft.released!
+    expect(planRelease(withLicense({ ...draft, released: older }, 'GPL-3.0-only'))).toMatchObject({ kind: 'unchanged', license: null })
   })
 })
