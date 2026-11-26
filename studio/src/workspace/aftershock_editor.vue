@@ -43,7 +43,11 @@
             :stakeholderChanges="entry.entity.stakeholder_changes ?? []"
             :scoreOptions="scoreOptions"
             :stakeholderOptions="stakeholderOptions"
+            :gameMembers="gameMembers"
+            :seatsLeft="seatsLeft"
             @change="(effects) => set(entry.entity!, effects, true)"
+            @createMember="(name) => connect(connectNewMember(draft, 'delayed_effects', entry.entity!.id, name)?.draft)"
+            @seatMember="(memberRef) => connect(connectGameMember(draft, 'delayed_effects', entry.entity!.id, memberRef))"
           />
           <p class="plain"><span class="plain-lead">In plain words:</span> {{ landingWords(entry.entity) }}, {{ describe(entry.entity) }}.</p>
           <p v-if="alsoOn(entry).length" class="field-hint">Also on {{ alsoOn(entry).join(', ') }}: changing it changes it there too.</p>
@@ -85,6 +89,8 @@ import {
   AFTERSHOCKS_PER_ITEM,
   aftershockUsers,
   attachAftershock,
+  connectGameMember,
+  connectNewMember,
   copyAftershockToEdit,
   describeEffects,
   detachAftershock,
@@ -110,8 +116,15 @@ const props = defineProps<{
   aftershocks: AftershockEntry[]
   scoreOptions: Option[]
   stakeholderOptions: Option[]
+  gameMembers: Array<{ ref: VersionRef; name: string }>
+  seatsLeft: number
 }>()
 const emit = defineEmits<{ change: [draft: DraftPack] }>()
+
+/** A connection made from the picker; null when there was no seat. */
+function connect(next: DraftPack | null | undefined) {
+  if (next) emit('change', next)
+}
 
 const limits = CONTENT_LIMITS
 const full = computed(() => props.aftershocks.length >= AFTERSHOCKS_PER_ITEM)

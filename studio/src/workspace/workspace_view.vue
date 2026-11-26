@@ -69,6 +69,9 @@
           :scoreOptions="scoreOptions"
           :stakeholderOptions="stakeholderOptions"
           :changes="studio.memberChanges[selection.ref.id] ?? []"
+          :gameMembers="gameMembers"
+          :seatsLeft="COUNCIL_SEATS - councilRefs.length"
+          :deckChoices="deckChoices"
           @change="updateDraft"
           @select="afterMemberChange"
           @open="select"
@@ -81,6 +84,8 @@
           :draft="draft"
           :scoreOptions="scoreOptions"
           :stakeholderOptions="stakeholderOptions"
+          :gameMembers="gameMembers"
+          :seatsLeft="COUNCIL_SEATS - councilRefs.length"
           @change="updateDraft"
           @select="afterItemChange"
         />
@@ -94,9 +99,9 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { addToCouncil, aftershockUsers, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
+import { addToCouncil, aftershockUsers, newestRef, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
-import { loadFirstParty } from '@studio/content/first_party'
+import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 import { exportCurrentDraft, studio, updateDraft, type ExportFormat } from '@studio/state/studio_state'
 import ChecksButton from '@studio/workspace/checks_button.vue'
 import type { IssueTarget } from '@studio/workspace/checks_panel.vue'
@@ -238,6 +243,23 @@ const decks = computed(() => [
 const scoreOptions = computed(() => [...new Set(scenarios.value.flatMap((scenario) => scenario.score_refs.map((ref) => ref.id)))]
   .map((id) => ({ id, name: names.scores[id] ?? id })))
 const stakeholderOptions = computed(() => councilRefs.value.map((ref) => ({ id: ref.id, name: memberName(ref) })))
+
+/** The deck's cards and events by name, whose each is (the domain's isOwn), for a member's page to connect from. */
+const deckChoices = computed(() => decks.value.flatMap((deck) => deck.refs.map((ref) => ({ section: deck.section, ref, name: itemName(deck.section, ref), own: isOwn(draft.value!, deck.section, ref) }))))
+
+/** The game's council members who aren't seated, by name: a picker can seat one and connect them (slice 3b). */
+const gameMembers = ref<Array<{ ref: VersionRef; name: string }>>([])
+
+async function loadGameMembers() {
+  const seated = new Set(councilRefs.value.map((ref) => ref.id))
+  const { base } = await loadFirstParty()
+  const refs = (await listBaseRefs('stakeholders')).filter((ref) => !seated.has(ref.id))
+  // The newest version of each (the domain's newestRef), as the council notes seat them
+  const newest = [...new Set(refs.map((ref) => ref.id))].map((id) => newestRef(refs, id)!)
+  gameMembers.value = await Promise.all(newest.map(async (ref) => ({ ref, name: await base.loadStakeholder(ref).then((member) => member.name, () => ref.id) })))
+}
+
+watch(() => councilRefs.value.map((ref) => ref.id).join(','), () => void loadGameMembers(), { immediate: true })
 
 const saveText = computed(() => {
   if (!studio.persistent) return 'Not kept: export to save'

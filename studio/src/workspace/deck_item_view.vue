@@ -79,7 +79,11 @@
           :stakeholderChanges="item.stakeholder_changes ?? []"
           :scoreOptions="scoreOptions"
           :stakeholderOptions="stakeholderOptions"
+          :gameMembers="gameMembers"
+          :seatsLeft="seatsLeft"
           @change="setEffects"
+          @createMember="(name) => connect(connectNewMember(draft, section, itemRef.id, name)?.draft)"
+          @seatMember="(memberRef) => connect(connectGameMember(draft, section, itemRef.id, memberRef))"
         />
         <p class="plain">
           <span class="plain-lead">In plain words:</span> {{ plainWords }}.
@@ -99,6 +103,8 @@
         :aftershocks="aftershocks"
         :scoreOptions="scoreOptions"
         :stakeholderOptions="stakeholderOptions"
+        :gameMembers="gameMembers"
+        :seatsLeft="seatsLeft"
         @change="(next) => emit('change', next)"
       />
 
@@ -146,6 +152,8 @@ import { computed, reactive, ref, watch } from 'vue'
 import {
   copyToEdit,
   describeCondition,
+  connectGameMember,
+  connectNewMember,
   describeEffects,
   landingWords,
   toFillIn,
@@ -180,8 +188,16 @@ const props = defineProps<{
   draft: DraftPack
   scoreOptions: Option[]
   stakeholderOptions: Option[]
+  /** The game's members who aren't seated, and how many seats are free (slice 3b). */
+  gameMembers: Array<{ ref: VersionRef; name: string }>
+  seatsLeft: number
 }>()
 const emit = defineEmits<{ change: [draft: DraftPack]; select: [ref: VersionRef | null] }>()
+
+/** A connection made from the picker (the domain's connectNewMember / connectGameMember); null when there was no seat. */
+function connect(next: DraftPack | null | undefined) {
+  if (next) emit('change', next)
+}
 
 const limits = CONTENT_LIMITS
 const confirmingRemoval = ref(false)

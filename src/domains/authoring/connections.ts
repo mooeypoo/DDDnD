@@ -9,12 +9,13 @@
  * They agree because they are the same walk.
  */
 
-import type { StakeholderChange, VersionRef } from '../content/model'
+import type { Card, Event, ScoreChange, StakeholderChange, VersionRef } from '../content/model'
 import { AFTERSHOCK_PLACEHOLDER } from './aftershocks'
-import { COUNCIL_PLACEHOLDERS } from './council'
-import { PLACEHOLDER_NAMES } from './deck'
-import type { DraftPack } from './draft_pack'
-import { resolveRef, type BaseContentReader } from './draft_reading'
+import { addToCouncil, COUNCIL_PLACEHOLDERS, COUNCIL_SEATS, createOwnMember } from './council'
+import { isOwn, PLACEHOLDER_NAMES, type DeckSection } from './deck'
+import { copyToEdit } from './draft_from_base'
+import { putContent, withEffects, type DraftPack } from './draft_pack'
+import { resolveRef, scenarioRefs, type BaseContentReader } from './draft_reading'
 
 /** Where a change to someone's satisfaction can come from. */
 export type ChangeSection = 'cards' | 'events' | 'delayed_effects' | 'stakeholder_reaction_rules'
@@ -157,4 +158,63 @@ export function toFillIn(draft: DraftPack): ToFillIn[] {
     }
   }
   return found
+}
+
+/** The draft's own items that can change someone's satisfaction. */
+export type ChangeHolder = ChangeSection
+
+/**
+ * One of the draft's own cards, events, aftershocks or reactions, with a
+ * change to `memberId`'s satisfaction: added, or set when it has one.
+ */
+export function addMemberChange(draft: DraftPack, section: ChangeHolder, itemId: string, memberId: string, delta = 1): DraftPack {
+  const item = draft.content[section][itemId] as (Named & { score_changes: ScoreChange[] }) | undefined
+  if (!item) return draft
+  const changes = item.stakeholder_changes ?? []
+  const next = changes.some((change) => change.stakeholder_id === memberId)
+    ? changes.map((change) => (change.stakeholder_id === memberId ? { ...change, delta } : change))
+    : [...changes, { stakeholder_id: memberId, delta }]
+  return putContent(draft, section, withEffects(item, { score_changes: item.score_changes, stakeholder_changes: next }) as never)
+}
+
+/**
+ * "+ “Head of Payments” as a new council member", from inside an item: the
+ * member is made with that name, seated, and the item changes them. The
+ * author stays where they are and fills the member in later (toFillIn says
+ * so). Null when every seat is taken or the name is empty.
+ */
+export function connectNewMember(
+  draft: DraftPack,
+  section: ChangeHolder,
+  itemId: string,
+  name: string,
+): { draft: DraftPack; member: VersionRef } | null {
+  if (!name.trim() || scenarioRefs(draft, 'stakeholder_refs').length >= COUNCIL_SEATS) return null
+  const made = createOwnMember(draft, name.trim())
+  return { draft: addMemberChange(made.draft, section, itemId, made.id), member: { id: made.id, version: 1 } }
+}
+
+/** One of the game's members who isn't seated: seated, and the item changes them. Null when every seat is taken. */
+export function connectGameMember(draft: DraftPack, section: ChangeHolder, itemId: string, member: VersionRef): DraftPack | null {
+  if (scenarioRefs(draft, 'stakeholder_refs').length >= COUNCIL_SEATS) return null
+  return addMemberChange(addToCouncil(draft, member), section, itemId, member.id)
+}
+
+/**
+ * From a member's page: make a card or event in the deck change them. One of
+ * the game's is copied first (D7, "make my own version"): the game's own
+ * content is never edited, and the copy replaces it in the deck. Returns the
+ * item that now holds the change.
+ */
+export function connectItemToMember<S extends DeckSection>(
+  draft: DraftPack,
+  section: S,
+  item: S extends 'cards' ? Card : Event,
+  memberId: string,
+  delta: number,
+): { draft: DraftPack; item: VersionRef } {
+  const ref = { id: item.id, version: item.version }
+  if (isOwn(draft, section, ref)) return { draft: addMemberChange(draft, section, item.id, memberId, delta), item: ref }
+  const copied = copyToEdit(draft, section, item as never)
+  return { draft: addMemberChange(copied.draft, section, copied.id, memberId, delta), item: { id: copied.id, version: 1 } }
 }

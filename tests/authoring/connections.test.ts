@@ -9,7 +9,13 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import {
+  addMemberChange,
   changesByMember,
+  connectGameMember,
+  connectItemToMember,
+  connectNewMember,
+  COUNCIL_SEATS,
+  scenarioRefs,
   createOwnCard,
   createOwnMember,
   draftFromBaseScenario,
@@ -79,5 +85,52 @@ describe('what is still to fill in', () => {
 
     const described = putContent(card.draft, 'cards', { ...(card.draft.content.cards[card.id] as Card), description: 'Stop all ledger changes.' })
     expect(toFillIn(described).map((item) => item.section)).toEqual(['stakeholders'])
+  })
+})
+
+describe('connecting from where you are (slice 3b)', () => {
+  it('makes a new member from inside a card: named, seated, and changed by it, in one step', async () => {
+    const card = createOwnCard(await monolith(), 'Freeze the Ledger')
+    const connected = connectNewMember(card.draft, 'cards', card.id, '  Head of Payments ')!
+    const member = connected.draft.content.stakeholders[connected.member.id]
+    expect(member.name).toBe('Head of Payments')
+    expect(scenarioRefs(connected.draft, 'stakeholder_refs')).toContainEqual(connected.member)
+    expect(connected.draft.content.cards[card.id].stakeholder_changes).toEqual([{ stakeholder_id: connected.member.id, delta: 1 }])
+    // A placeholder until it's described
+    expect(toFillIn(connected.draft)).toContainEqual(expect.objectContaining({ section: 'stakeholders', missing: ['description'] }))
+  })
+
+  it('makes nobody when every seat is taken, or without a name', async () => {
+    let draft = (createOwnCard(await monolith(), 'Freeze the Ledger')).draft
+    const cardId = Object.keys(draft.content.cards)[0]
+    expect(connectNewMember(draft, 'cards', cardId, '   ')).toBeNull()
+    while (scenarioRefs(draft, 'stakeholder_refs').length < COUNCIL_SEATS) draft = createOwnMember(draft).draft
+    expect(connectNewMember(draft, 'cards', cardId, 'One Too Many')).toBeNull()
+  })
+
+  it('seats one of the game\'s members and gives the card a change to them', async () => {
+    const card = createOwnCard(await monolith(), 'Freeze the Ledger')
+    const cfo = { id: 'cfo', version: 1 }
+    const draft = connectGameMember(card.draft, 'cards', card.id, cfo)!
+    expect(scenarioRefs(draft, 'stakeholder_refs')).toContainEqual(cfo)
+    expect(draft.content.cards[card.id].stakeholder_changes).toEqual([{ stakeholder_id: 'cfo', delta: 1 }])
+  })
+
+  it('sets the change when the item already has one, rather than adding a second', async () => {
+    const card = createOwnCard(await monolith(), 'Freeze the Ledger')
+    const once = addMemberChange(card.draft, 'cards', card.id, 'cto', 2)
+    expect(addMemberChange(once, 'cards', card.id, 'cto', -3).content.cards[card.id].stakeholder_changes).toEqual([{ stakeholder_id: 'cto', delta: -3 }])
+  })
+
+  it('from a member\'s page, makes your own version of the game\'s card first (D7), and it replaces the original', async () => {
+    const draft = await monolith()
+    const original = await base().loadCard({ id: 'define_bounded_context', version: 1 })
+    const made = createOwnMember(draft, 'Head of Payments')
+    const connected = connectItemToMember(made.draft, 'cards', original, made.id, -2)
+    expect(connected.item.id).not.toBe('define_bounded_context')
+    expect(connected.draft.content.cards[connected.item.id].stakeholder_changes).toContainEqual({ stakeholder_id: made.id, delta: -2 })
+    expect(scenarioRefs(connected.draft, 'card_refs')).toContainEqual(connected.item)
+    expect(scenarioRefs(connected.draft, 'card_refs').map((ref) => ref.id)).not.toContain('define_bounded_context')
+    expect((await changesByMember(connected.draft, base())).get(made.id)).toEqual([expect.objectContaining({ ref: connected.item, own: true, delta: -2 })])
   })
 })
