@@ -48,6 +48,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D26 | **An import is lossless or refused.** A pack file or zip becomes a draft only if the draft can hold all of it, so its next export is the same pack with the author's changes. The Studio refuses, saying why: standalone packs, packs that build on anything but the base game, tutorials, an id the Studio couldn't keep, two versions of one id, and scenarios (or classes, modifiers) not all offered to players. It keeps the license and homepage, and counts the imported content as the last export. | A quietly smaller pack is worse than a refusal: the author would publish it as the next version and players would lose content. The refusals are all rare (both real packs import), and each can be lifted later by teaching the draft the missing piece. |
 | D27 | **DDDnD and new Studio packs are `GPL-3.0-or-later`** ([ADR 0017](adr/0017-gpl-3-or-later.md)). Imported packs keep their license (D26); a pack may still be `GPL-3.0-only` (ADR 0004). | A pack ecosystem on "only" could never move to a later GPL together: every author would have to relicense. The owner is the game's only author, so the game could switch at once. |
 | D28 | **The workspace is an editor, not a set of pages** (the UI/UX audit, owner's choice of Direction A on the [canvas](https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ)): a fixed toolbar, a sidebar with everything in the pack (grouped, collapsible, filterable, the author's own items first), one editor, and the checks as a toolbar button. A summary view of the pack comes next; a map of cards and their impact may follow. | The sidebar shows where the pack stands without switching tabs (the owner's reason for A over a board). The checks rail disappeared below 1100 px, and a page that scrolled as one hid the editor and the checks behind a long contents list. |
+| D29 | **Effects are written generically:** each name with its signed change, then the council's satisfaction ("Domain Clarity +6, Budget −5; Head of Payments +2 satisfaction"). | Packs name their own scores, so a verb guessed from a score's name ("raises", "makes happier") can be wrong for a score like "Nerdiness" (the owner's rule, 2026-11-26). A name and a number read right for any pack. |
 
 ---
 
@@ -905,6 +906,48 @@ The second slice of the audit (D23, D28): every editor does the same things in t
 
 **Next:** slice 3, connections. Pickers that create what they pick, placeholders the summary tracks, "what changes their satisfaction" on a member, and the generic effect words ("Head of Payments +2 satisfaction").
 
+
+### M4.11: Connections, from both sides (UI/UX audit, slice 3a) (2026-11-26)
+
+The owner named the confusing part of editing: *where to start, and how to connect things*. For example, a card that affects a council member: make the member first and come back to the card, or the other way round? Slice 3 answers it in two parts. This first part makes connections visible from both sides and writes effects generically. The second (3b) lets a picker create what it picks, so an author never has to leave what they're editing.
+
+**What an author sees:**
+- **Every council member's page lists "What changes their satisfaction":** each card, event, aftershock and reaction, with its signed change ("Freeze the Ledger · card · yours, −3 satisfaction"). Each one links to where it's edited: an aftershock opens its card, and another member's reaction opens that member. For a new member it says how to connect one ("Give one of your cards or events a change to Head of Payments…"), and the D21 rule in one line: the game's own cards don't change members you create, so make your own version.
+- **The sidebar counts them:** "Chief Technology Officer 12".
+- **Placeholders are marked, not blocked:**
+  - An amber ring before the name of your own members, cards and events that still have a Studio name ("New card") or no description.
+  - On their editor: "To fill in: what they care about. Fine while you work; the pack needs them before you export."
+- **Effects read the same for any pack (D29):** "Domain Clarity +6, Maintainability +2, Delivery Confidence −3, Budget −5; Chief Technology Officer +2 satisfaction". This replaces "raises … by …; makes … happier (+2)". The minus is a true minus sign, so a screen reader says "minus".
+
+**Domain (`connections.ts`, new):**
+- `scenarioChanges(draft, base)`: one walk per scenario of everything that changes anyone's satisfaction (cards, events, their aftershocks, seated members' reactions), seated or not.
+- `changesByMember`: that walk, merged across scenarios, each source once.
+- `unseatedNotes` (M4.5a) is now the part of the same walk about people missing from the table. Its tests pass unchanged, and a new test checks that the notes and a member's sources agree, because they are one walk.
+- `toFillIn(draft)`: the draft's own members, cards, events and aftershocks still named by the Studio or without a description.
+- `describeEffects` is rewritten (D29), with `signedDelta` and `SATISFACTION_WORD` (the game's own word).
+- `landingWords` ("the next turn", "2 turns later") moved into the domain from two screens that each had a copy.
+- The Studio walks once per check and derives the notes and every member's sources from it (`unseatedNotesFrom`, `changesByMemberFrom`).
+
+**Decisions:**
+- **"Made from" isn't stored.** The canvas said "You added Head of Payments from Freeze the Ledger". That needs no history: "What changes their satisfaction" says the same thing, from what the pack is now, and stays true when the card changes later.
+- **A placeholder is a name or a description,** the two things every member, card, event and aftershock has. Missing reactions or effects are design choices, not gaps.
+
+**For the talk: one walk, three screens.** The council notes, a member's "what changes them" and the sidebar's counts all answer the same question: what changes whom. Before this slice only the notes asked it, so it lived in a function named after the notes. Naming the question (`scenarioChanges`) and making the notes one filter of it is a small refactor, but it means three screens can never disagree about who is changed by what. It's the same lesson as M4.5b's "own first, then the game's": when a second screen needs an answer, that's the moment to give the answer its own name.
+
+**Verification:**
+- Tests: 1292 in total (+8).
+  - `tests/authoring/connections.test.ts`: a seated member's sources; notes and sources agree; a new member sees only the author's own content (D21); what's still to fill in.
+  - `deck.test.ts`: the generic wording, including a pack-named "Nerdiness" score, and its empty case.
+  - `aftershocks.test.ts`: `landingWords`.
+- Headless Chrome (production build, Studio CSP):
+  1. The sidebar counts the Monolith's council (CTO 12, VP of Product 7, Lead Developer 5, Operations Manager 7).
+  2. The CTO's page lists 12 sources; Define Bounded Context's link opens it, reading "Domain Clarity +6, … Chief Technology Officer +2 satisfaction".
+  3. A new member named Head of Payments shows "To fill in: what they care about" and how to connect them.
+  4. A new card changing them by −3 reads "Head of Payments −3 satisfaction". Their page then lists it, and the sidebar shows the ring and "1".
+  5. Zero CSP violations, no console errors.
+
+**Next (3b):** the picker that creates or seats a member from inside a card ("+ “Head of Payments” as a new council member"), and adding a card's or event's change from the member's page.
+
 ---
 
 ## 14. Picking up the work
@@ -915,7 +958,7 @@ What a new session needs to continue without the conversation that built M4.1–
 
 - **On `main`:** M4.1–M4.7b. The Studio creates and edits retellings of base scenarios (details, scenario, council, cards, events, aftershocks, event conditions), checks them with the game's own validator, and exports them as releases (D24, D25).
 - **On `main` since:** M4.8 zip export and import (D26), M4.8a (the zip carries `LICENSE`), the relicense to GPL-3.0-or-later (D27, ADR 0017) and M4.8b (authors choose the license).
-- **The UI/UX audit's slices** (D23, D28): 1. the workspace shell (M4.9); 2. consistent actions and wording (M4.10); 3. connections (create from a picker, placeholders, "what affects them", generic effect words); 4. the summary view and the start screen; 5. a written pattern guide for the screens still to come.
+- **The UI/UX audit's slices** (D23, D28): 1. the workspace shell (M4.9); 2. consistent actions and wording (M4.10); 3. connections: 3a, both sides, placeholders and generic words (M4.11); 3b, pickers that create what they pick; 4. the summary view and the start screen; 5. a written pattern guide for the screens still to come.
 - **The UI/UX audit's direction is chosen (2026-11-26):** Direction A (a library sidebar and a document editor) for editing, with Direction C's pack summary as a second view, and maybe a graph view later. The confusing part is connecting items (a card's effect on a member or score). See the canvas https://claude.ai/artifact/Hs3Wu7gs5VqccQCpXuu4VQ. Wording rule from the owner: say what changes generically ("Head of Payments: +2 satisfaction", "Domain Clarity: +6"), not with verbs guessed from a score's name.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **Next:** the UI/UX audit (D23), brought forward by the owner. "Play it", new-topic authoring, the guided round and balance hints follow (§6). Those later screens should follow the patterns the audit sets, so the audit's result should include a short written pattern guide (for example, a §9 addition), not only fixes.
@@ -953,7 +996,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1285 tests at M4.10). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1292 tests at M4.11). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).

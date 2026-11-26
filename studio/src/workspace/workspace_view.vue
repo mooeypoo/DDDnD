@@ -37,6 +37,8 @@
         :decks="decks"
         :seats="COUNCIL_SEATS"
         :nameOf="nameOf"
+        :toFillIn="fillIn"
+        :changeCounts="changeCounts"
         @select="select"
         @createMember="createMember"
         @createNew="createNew"
@@ -66,8 +68,10 @@
           :draft="draft"
           :scoreOptions="scoreOptions"
           :stakeholderOptions="stakeholderOptions"
+          :changes="studio.memberChanges[selection.ref.id] ?? []"
           @change="updateDraft"
           @select="afterMemberChange"
+          @open="select"
         />
         <DeckItemView
           v-else-if="selection.kind === 'item'"
@@ -90,7 +94,7 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { addToCouncil, aftershockUsers, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
+import { addToCouncil, aftershockUsers, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { loadFirstParty } from '@studio/content/first_party'
 import { exportCurrentDraft, studio, updateDraft, type ExportFormat } from '@studio/state/studio_state'
@@ -239,6 +243,11 @@ const saveText = computed(() => {
   if (!studio.persistent) return 'Not kept: export to save'
   return { saved: 'Saved in this browser', saving: 'Saving…', unsaved: 'Saving…', failed: "Couldn't save" }[studio.save]
 })
+
+/** The author's own items still to fill in, as sidebar keys ("cards/ours_x"), from the domain. */
+const fillIn = computed(() => new Set(draft.value ? toFillIn(draft.value).map((item) => `${item.section}/${item.ref.id}`) : []))
+/** How many cards, events, aftershocks and reactions change each member, from the last check. */
+const changeCounts = computed(() => Object.fromEntries(Object.entries(studio.memberChanges).map(([id, sources]) => [id, sources.length])))
 
 const canExport = computed(() => studio.check.state === 'done' && studio.check.issues.length === 0)
 

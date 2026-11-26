@@ -109,34 +109,34 @@ export function onlyHelps(effects: Effects): boolean {
   return deltas.some((delta) => delta > 0) && deltas.every((delta) => delta >= 0)
 }
 
-function joinWords(parts: string[]): string {
-  if (parts.length <= 1) return parts[0] ?? ''
-  return `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`
+/** What a council member's change is measured on, in the game's own word. */
+export const SATISFACTION_WORD = 'satisfaction'
+
+/** A change as players read it: "+6", "−3" (a true minus sign, read as "minus"). */
+export function signedDelta(delta: number): string {
+  return delta > 0 ? `+${delta}` : delta < 0 ? `\u2212${-delta}` : '0'
 }
 
 /**
- * The effects in plain words (§4.1): "raises Rest by 8 and Sight by 2; lowers
- * Uptime by 1; makes the On-Call Engineer happier (+4)". Names come from the
+ * The effects in plain words (§4.1), generically, so they read right for any
+ * pack's scores: "Rest +8, Sight +2, Uptime −1; On-Call Engineer +4
+ * satisfaction". A score's name says what it measures; the Studio never
+ * guesses a verb from it (the owner's rule, M4.11). Names come from the
  * caller; an unknown id is shown as is.
  */
 export function describeEffects(
   effects: Effects,
   names: { scores: Record<string, string>; stakeholders: Record<string, string> },
 ): string {
-  const scoreName = (id: string) => names.scores[id] ?? id
-  const ups = effects.score_changes.filter((change) => change.delta > 0).map((change) => `${scoreName(change.score_id)} by ${change.delta}`)
-  const downs = effects.score_changes.filter((change) => change.delta < 0).map((change) => `${scoreName(change.score_id)} by ${-change.delta}`)
-  const people = (effects.stakeholder_changes ?? []).filter((change) => change.delta !== 0).map((change) => {
-    const who = names.stakeholders[change.stakeholder_id] ?? change.stakeholder_id
-    return change.delta > 0 ? `makes ${who} happier (+${change.delta})` : `makes ${who} unhappier (${change.delta})`
-  })
-  const clauses = [
-    ...(ups.length ? [`raises ${joinWords(ups)}`] : []),
-    ...(downs.length ? [`lowers ${joinWords(downs)}`] : []),
-    ...people,
-  ]
-  // Clauses are separated by semicolons, so lists inside them can use "and"
-  return clauses.length ? clauses.join('; ') : 'changes nothing yet'
+  const scores = effects.score_changes
+    .filter((change) => change.delta !== 0)
+    .map((change) => `${names.scores[change.score_id] ?? change.score_id} ${signedDelta(change.delta)}`)
+  const people = (effects.stakeholder_changes ?? [])
+    .filter((change) => change.delta !== 0)
+    .map((change) => `${names.stakeholders[change.stakeholder_id] ?? change.stakeholder_id} ${signedDelta(change.delta)} ${SATISFACTION_WORD}`)
+  const groups = [scores, people].filter((group) => group.length > 0).map((group) => group.join(', '))
+  // Groups are separated by a semicolon: scores, then the council
+  return groups.length ? groups.join('; ') : 'no changes yet'
 }
 
 /**

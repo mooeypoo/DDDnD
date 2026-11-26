@@ -36,9 +36,9 @@
       </section>
       <section class="editor-section" aria-labelledby="item-effects-read">
         <h2 id="item-effects-read" class="editor-section-title">{{ section === 'cards' ? 'When played' : 'When it happens' }}</h2>
-        <p class="plain"><span class="plain-lead">In plain words:</span> {{ section === 'cards' ? 'playing this' : 'this' }} {{ plainWords }}.</p>
+        <p class="plain"><span class="plain-lead">In plain words:</span> {{ plainWords }}.</p>
         <p v-for="(entry, index) in aftershocks" :key="index" class="plain">
-          <span class="plain-lead">Aftershock{{ entry.entity ? `, ${landing(entry.entity)}` : '' }}:</span>
+          <span class="plain-lead">Aftershock{{ entry.entity ? `, ${landingWords(entry.entity)}` : '' }}:</span>
           {{ entry.entity ? `${entry.entity.name}: ${describeEffects(entry.entity, names)}` : '…' }}.
         </p>
         <p v-if="conditionWords" class="plain"><span class="plain-lead">Only when:</span> {{ conditionWords }}.</p>
@@ -57,6 +57,7 @@
 
     <!-- The draft's own: the editor -->
     <template v-else>
+      <p v-if="missing.length" class="to-fill-in" role="note"><span class="to-fill-in-dot" aria-hidden="true"></span>To fill in: {{ missing.join(' and ') }}. Fine while you work; the pack needs them before you export.</p>
       <section class="editor-section" aria-labelledby="item-words">
         <h2 id="item-words" class="editor-section-title">What players read</h2>
         <label class="field">Name
@@ -81,7 +82,7 @@
           @change="setEffects"
         />
         <p class="plain">
-          <span class="plain-lead">In plain words:</span> {{ section === 'cards' ? 'playing this' : 'this' }} {{ plainWords }}.
+          <span class="plain-lead">In plain words:</span> {{ plainWords }}.
           It nets <strong>{{ signed(net) }}</strong><template v-if="aftershocks.length">, or <strong>{{ signed(netAll) }}</strong> with its aftershocks</template>.
         </p>
         <p v-if="section === 'cards' && helpsOnly" class="nudge" role="note">
@@ -146,6 +147,8 @@ import {
   copyToEdit,
   describeCondition,
   describeEffects,
+  landingWords,
+  toFillIn,
   isOwn,
   netScoreChange,
   netWithAftershocks,
@@ -223,6 +226,12 @@ const names = computed(() => ({
   scores: Object.fromEntries(props.scoreOptions.map((option) => [option.id, option.name])),
   stakeholders: Object.fromEntries(props.stakeholderOptions.map((option) => [option.id, option.name])),
 }))
+/** What the domain says this item still needs, in words (toFillIn). */
+const missing = computed(() => {
+  const entry = toFillIn(props.draft).find((entry) => entry.section === props.section && entry.ref.id === props.itemRef.id)
+  return (entry?.missing ?? []).map((part) => (part === 'name' ? 'a name of its own' : 'what it does, in a sentence'))
+})
+
 const plainWords = computed(() => (item.value ? describeEffects(item.value, names.value) : ''))
 const net = computed(() => (item.value ? netScoreChange(item.value) : 0))
 const netAll = computed(() => (item.value ? netWithAftershocks(item.value, aftershocks.value.flatMap((entry) => (entry.entity ? [entry.entity] : []))) : 0))
@@ -232,10 +241,6 @@ const conditionWords = computed(() => {
   const condition = props.section === 'events' ? (item.value as Event | null)?.trigger_condition : undefined
   return condition ? describeCondition(condition, names.value.scores[condition.target_id] ?? condition.target_id) : ''
 })
-
-function landing(effect: DelayedEffect): string {
-  return effect.turns_until_resolution === 1 ? 'the next turn' : `${effect.turns_until_resolution} turns later`
-}
 
 function setWhen(onlyWhen: boolean) {
   const score = props.scoreOptions[0]

@@ -111,3 +111,8 @@ export function settleNewAftershockId(draft: DraftPack, id: string): { draft: Dr
 export function netWithAftershocks(effects: Effects, aftershocks: readonly Effects[]): number {
   return [effects, ...aftershocks].reduce((total, part) => total + part.score_changes.reduce((sum, change) => sum + change.delta, 0), 0)
 }
+
+/** When an aftershock lands, in words: "the next turn", "2 turns later". */
+export function landingWords(aftershock: Pick<DelayedEffect, 'turns_until_resolution'>): string {
+  return aftershock.turns_until_resolution === 1 ? 'the next turn' : `${aftershock.turns_until_resolution} turns later`
+}

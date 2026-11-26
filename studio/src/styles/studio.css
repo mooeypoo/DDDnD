@@ -248,6 +248,27 @@ a:hover { color: var(--forge-text-bright); }
   margin: 0;
 }
 
+/* Something of the author's own that is still a placeholder: amber, never blocking while they work */
+.to-fill-in {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  color: var(--forge-text);
+  font-size: 0.9375rem;
+}
+
+.to-fill-in-dot {
+  flex: none;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  border: 2px solid var(--forge-warning);
+}
+
 .why-more summary {
   width: fit-content;
   color: var(--forge-gold);

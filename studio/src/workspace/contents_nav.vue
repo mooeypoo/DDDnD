@@ -51,8 +51,11 @@
           <ul class="items">
             <li v-for="memberRef in councilOrdered" :key="memberRef.id">
               <button type="button" class="item" :aria-current="current({ kind: 'member', ref: memberRef }) ? 'page' : undefined" @click="$emit('select', { kind: 'member', ref: memberRef })">
-                <span class="item-name">{{ nameOf('stakeholders', memberRef) }}</span>
-                <span v-if="isOwnMember(draft, memberRef)" class="own-mark">yours</span>
+                <span class="item-name"><span v-if="pending('stakeholders', memberRef)" class="fill-dot" title="To fill in"><span class="visually-hidden">To fill in: </span></span>{{ nameOf('stakeholders', memberRef) }}</span>
+                <span class="item-marks">
+                  <span v-if="changeCounts[memberRef.id]" class="change-count" :title="`${changeCounts[memberRef.id]} things change their satisfaction`"><span class="visually-hidden">, changed by </span>{{ changeCounts[memberRef.id] }}</span>
+                  <span v-if="isOwnMember(draft, memberRef)" class="own-mark">yours</span>
+                </span>
               </button>
             </li>
           </ul>
@@ -71,7 +74,7 @@
           <ul class="items">
             <li v-for="itemRef in own(deck)" :key="`${itemRef.id}-v${itemRef.version}`">
               <button type="button" class="item" :aria-current="current({ kind: 'item', section: deck.section, ref: itemRef }) ? 'page' : undefined" @click="$emit('select', { kind: 'item', section: deck.section, ref: itemRef })">
-                <span class="item-name">{{ nameOf(deck.section, itemRef) }}</span>
+                <span class="item-name"><span v-if="pending(deck.section, itemRef)" class="fill-dot" title="To fill in"><span class="visually-hidden">To fill in: </span></span>{{ nameOf(deck.section, itemRef) }}</span>
                 <span class="own-mark">yours</span>
               </button>
             </li>
@@ -111,7 +114,13 @@ const props = defineProps<{
   seats: number
   /** An item's name, as the workspace shows it everywhere. */
   nameOf: (section: 'stakeholders' | DeckSection, ref: VersionRef) => string
+  /** The author's own items still to fill in ("cards/<id>"), from the domain's toFillIn. */
+  toFillIn: ReadonlySet<string>
+  /** How many things change each member's satisfaction. */
+  changeCounts: Readonly<Record<string, number>>
 }>()
+
+const pending = (section: string, ref: VersionRef) => props.toFillIn.has(`${section}/${ref.id}`)
 defineEmits<{ select: [selection: Selection]; createMember: []; createNew: [section: DeckSection] }>()
 
 const root = ref<HTMLElement | null>(null)
@@ -318,6 +327,29 @@ watch(() => props.selection, async (selection) => {
   flex: none;
   font-size: 0.75rem;
   color: var(--forge-text-secondary);
+}
+
+.item-marks {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.change-count {
+  font-size: 0.75rem;
+  color: var(--forge-text-secondary);
+}
+
+/* An amber ring before the name: still to fill in (shape, not colour alone) */
+.fill-dot {
+  display: inline-block;
+  width: 0.5625rem;
+  height: 0.5625rem;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  border: 2px solid var(--forge-warning);
+  vertical-align: 0.05em;
 }
 
 .own-mark {

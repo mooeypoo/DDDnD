@@ -58,6 +58,7 @@
 
     <!-- The draft's own: the editor -->
     <template v-else>
+      <p v-if="missing.length" class="to-fill-in" role="note"><span class="to-fill-in-dot" aria-hidden="true"></span>To fill in: {{ missing.join(' and ') }}. Fine while you work; the pack needs them before you export.</p>
       <section class="editor-section" aria-labelledby="member-words">
         <h2 id="member-words" class="editor-section-title">Who they are</h2>
         <label class="field">Name
@@ -99,7 +100,7 @@
             :stakeholderOptions="stakeholderOptions"
             @change="(effects) => setRuleEffects(rule, effects)"
           />
-          <p class="plain"><span class="plain-lead">In plain words:</span> when {{ conditionWords(rule) }}, this {{ effectWords(rule) }}.</p>
+          <p class="plain"><span class="plain-lead">In plain words:</span> when {{ conditionWords(rule) }}: {{ effectWords(rule) }}.</p>
           <button type="button" class="effect-remove" @click="dropReaction(rule.id)">Delete this reaction</button>
         </article>
 
@@ -107,6 +108,25 @@
       </section>
 
     </template>
+
+    <!-- Connections from the other side (slice 3): everything that changes their satisfaction, each a link to it -->
+    <section class="editor-section" aria-labelledby="member-changed-by">
+      <h2 id="member-changed-by" class="editor-section-title">What changes their satisfaction</h2>
+      <p v-if="sources.length === 0" class="field-hint">
+        Nothing yet. Give one of your cards or events a change to {{ member.name || 'them' }} under “When played”, or give them a reaction.
+      </p>
+      <ul v-else class="source-list">
+        <li v-for="source in sources" :key="`${source.section}/${source.ref.id}-v${source.ref.version}`" class="source-row">
+          <span class="source-what">
+            <button v-if="targetOf(source)" type="button" class="source-link" @click="emit('open', targetOf(source)!)">{{ source.name }}</button>
+            <span v-else class="source-name">{{ source.name }}</span>
+            <span class="source-kind">{{ kindOf(source) }}</span>
+          </span>
+          <span class="source-delta" :class="source.delta > 0 ? 'tone-up' : 'tone-down'">{{ signedDelta(source.delta) }} {{ SATISFACTION_WORD }}</span>
+        </li>
+      </ul>
+      <p v-if="own" class="field-hint">The game's own cards and events don't change members you create. To have one of them change {{ member.name || 'this member' }}, make your own version of it.</p>
+    </section>
   </div>
   <p v-else class="loading" role="status">Loading…</p>
 </template>
@@ -116,6 +136,10 @@ import { computed, nextTick, ref, watch } from 'vue'
 
 import {
   addReaction,
+  SATISFACTION_WORD,
+  signedDelta,
+  toFillIn,
+  type ChangeSource,
   copyMember,
   COUNCIL_SEATS,
   describeCondition,
@@ -137,6 +161,7 @@ import { loadFirstParty } from '@studio/content/first_party'
 import ConditionEditor from '@studio/workspace/condition_editor.vue'
 import EffectsEditor from '@studio/workspace/effects_editor.vue'
 import RemoveMember from '@studio/workspace/remove_member.vue'
+import type { Selection } from '@studio/workspace/selection'
 
 interface Option { id: string; name: string }
 
@@ -145,8 +170,35 @@ const props = defineProps<{
   draft: DraftPack
   scoreOptions: Option[]
   stakeholderOptions: Option[]
+  /** What changes this member's satisfaction (the domain's walk, from the last check). */
+  changes: ChangeSource[]
 }>()
-const emit = defineEmits<{ change: [draft: DraftPack]; select: [ref: VersionRef | null] }>()
+const emit = defineEmits<{ change: [draft: DraftPack]; select: [ref: VersionRef | null]; open: [selection: Selection] }>()
+
+/** Their sources, the author's own first. */
+const sources = computed(() => [...props.changes.filter((source) => source.own), ...props.changes.filter((source) => !source.own)])
+
+/** Where a source is edited: a card or event; an aftershock's card or event; another member's reaction on their page. */
+function targetOf(source: ChangeSource): Selection | null {
+  if (source.section === 'cards' || source.section === 'events') return { kind: 'item', section: source.section, ref: source.ref }
+  if (source.section === 'delayed_effects' && source.via && source.via.section !== 'stakeholders') return { kind: 'item', section: source.via.section, ref: source.via.ref }
+  if (source.section === 'stakeholder_reaction_rules' && source.via && source.via.ref.id !== props.memberRef.id) return { kind: 'member', ref: source.via.ref }
+  return null
+}
+
+function kindOf(source: ChangeSource): string {
+  const whose = source.own ? 'yours' : "the game's"
+  if (source.section === 'cards') return `card · ${whose}`
+  if (source.section === 'events') return `event · ${whose}`
+  if (source.section === 'delayed_effects') return `aftershock of ${source.via?.name ?? 'a card'}`
+  return source.via?.ref.id === props.memberRef.id ? 'their own reaction' : `${source.via?.name ?? 'a member'}'s reaction`
+}
+
+/** What the domain says this member still needs, in words (toFillIn). */
+const missing = computed(() => {
+  const entry = toFillIn(props.draft).find((item) => item.section === 'stakeholders' && item.ref.id === props.memberRef.id)
+  return (entry?.missing ?? []).map((part) => (part === 'name' ? 'a name of their own' : 'what they care about'))
+})
 
 const limits = CONTENT_LIMITS
 const own = computed(() => isOwnMember(props.draft, props.memberRef))
@@ -264,6 +316,62 @@ function remove() {
 </script>
 
 <style scoped>
+.source-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.source-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.25rem 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--forge-ground);
+}
+
+.source-what {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.625rem;
+  min-width: 0;
+}
+
+.source-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--forge-gold);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.source-name {
+  color: var(--forge-text-bright);
+}
+
+.source-kind {
+  font-size: 0.8125rem;
+  color: var(--forge-text-secondary);
+}
+
+.source-delta {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tone-up { color: var(--forge-up); }
+.tone-down { color: var(--forge-down); }
+
 
 
 
