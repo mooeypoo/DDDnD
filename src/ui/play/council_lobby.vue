@@ -21,8 +21,9 @@
           class="plaque-link"
           @click="$emit('showCommunityPacks')"
         >Community bazaar ›</button>
+        <!-- A preview of a Studio pack has no bazaar to go back to (D15) -->
         <button
-          v-if="bazaarPack"
+          v-if="bazaarPack && !isPreview"
           type="button"
           class="plaque-link bazaar-back"
           @click="$emit('back')"
@@ -201,7 +202,7 @@
     </details>
 
     <footer class="lobby-actions">
-      <button class="ghost-btn" type="button" :disabled="isAwaitingChamber" @click="$emit('back')">
+      <button v-if="!isPreview" class="ghost-btn" type="button" :disabled="isAwaitingChamber" @click="$emit('back')">
         {{ bazaarPack ? 'Back to the bazaar' : 'Back to the door' }}
       </button>
       <button
@@ -237,6 +238,7 @@
 </template>
 
 <script setup lang="ts">
+import { isPreviewSession } from '@/ui/preview/preview_session'
 import { computed, ref, watch } from 'vue'
 
 import type { ChallengeModifier, PlayerClass } from '@/domains/content/model'
@@ -407,6 +409,8 @@ function affinityLine(scoreId: string | undefined): string {
     .find((name): name is string => Boolean(name))
   return classAffinityCopy(scoreId, shortFromQuests) ?? 'Identity in the council'
 }
+
+const isPreview = isPreviewSession()
 </script>
 
 <style scoped>

@@ -5,6 +5,9 @@ import GameView from '@/ui/views/game_view.vue'
 import EndOfRunView from '@/ui/views/end_of_run_view.vue'
 import ShareView from '@/ui/views/share_view.vue'
 import CommunityBazaarView from '@/ui/views/community_bazaar_view.vue'
+import PreviewView from '@/ui/views/preview_view.vue'
+import { PREVIEW_PATH } from '@/domains/content/services/preview_handoff'
+import { isPreviewSession } from '@/ui/preview/preview_session'
 import { useGameStore } from '@/ui/stores/game_store'
 
 /**
@@ -62,6 +65,12 @@ const router = createRouter({
       component: ShareView
     },
     {
+      // "Play it" from the Pack Studio (docs/PACK_STUDIO.md §11): a pack in memory, nothing saved
+      path: PREVIEW_PATH,
+      name: 'preview',
+      component: PreviewView
+    },
+    {
       path: '/:pathMatch(.*)*',
       redirect: '/'
     }
@@ -74,6 +83,14 @@ const router = createRouter({
  * Attempts restoring a saved run before allowing access to in-run pages.
  */
 router.beforeEach(async (to) => {
+  // A preview tab (D15): the preview, the pack's table, the run and its results. Nothing else,
+  // and never a saved run: without a run in memory, back to the preview.
+  if (isPreviewSession()) {
+    if (to.name === 'preview' || to.name === 'community-pack') return true
+    if ((to.name === 'game' || to.name === 'end') && useGameStore().hasActiveRun) return true
+    return { path: PREVIEW_PATH }
+  }
+
   if (to.name !== 'game' && to.name !== 'end') {
     return true
   }

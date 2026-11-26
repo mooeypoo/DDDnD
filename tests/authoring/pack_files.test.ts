@@ -11,6 +11,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 import {
   createOwnCard,
+  previewBundle,
+  PREVIEW_AUTHOR,
   DRAFT_LICENSE,
   draftLicense,
   draftFromPack,
@@ -229,5 +231,29 @@ describe('the zip export', () => {
     if (!withoutText.ok) throw new Error(JSON.stringify(withoutText.issues))
     expect(withoutText.files['gilded_ledger/LICENSE']).toBeUndefined()
     expect(withoutText.files['gilded_ledger/README.md']).toContain("**License:** GPL-3.0-only. This zip doesn't include the license's text: add it as `LICENSE` before you publish.")
+  })
+})
+
+describe('the pack "Play it" sends (D15)', () => {
+  it('plays before the author has added their name, without changing the draft', async () => {
+    const result = draftFromPack(await ledger())
+    if (!result.ok) throw new Error(result.problems.join('\n'))
+    const draft = { ...result.draft, authors: [] }
+    expect((await exportDraftBundle(draft, firstParty())).ok).toBe(false)
+
+    const preview = await previewBundle(draft, firstParty())
+    if (!preview.ok) throw new Error(JSON.stringify(preview.issues))
+    expect((await readPackBundle(preview.text, 'preview.dddnd-pack.json')).manifest.authors).toEqual([{ name: PREVIEW_AUTHOR }])
+    expect(draft.authors).toEqual([])
+  })
+
+  it('still refuses what the game would refuse, with the same issues', async () => {
+    const result = draftFromPack(await ledger())
+    if (!result.ok) throw new Error(result.problems.join('\n'))
+    const card = Object.values(result.draft.content.cards)[0]
+    const broken = putContent(result.draft, 'cards', { ...card, name: '' })
+    const preview = await previewBundle(broken, firstParty())
+    expect(preview.ok).toBe(false)
+    expect(preview.ok ? [] : preview.issues.map((issue) => issue.message)).toContainEqual(expect.stringMatching(/name/))
   })
 })

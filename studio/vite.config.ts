@@ -53,6 +53,9 @@ export default defineConfig({
     },
   },
   server: { port: 5318, strictPort: true },
+  // Its own dependency cache: the game's dev server uses node_modules/.vite, and two
+  // servers sharing one cache re-optimize over each other ("Play it" runs both, D15)
+  cacheDir: fileURLToPath(new URL('../node_modules/.vite-studio', import.meta.url)),
   build: {
     outDir: fileURLToPath(new URL('./dist', import.meta.url)),
     emptyOutDir: true,

@@ -7,6 +7,8 @@
  * throw on storage, so every read falls back to the first-time answer.
  */
 
+import { isPreviewSession } from '@/ui/preview/preview_session'
+
 export const BRIEFING_DISMISSED_STORAGE_KEY = 'dddnd:briefing-dismissed'
 export const TUTORIAL_COMPLETED_STORAGE_KEY = 'dddnd:tutorial-completed'
 
@@ -24,7 +26,8 @@ function readFlag(key: string): boolean {
 }
 
 function writeFlag(key: string, value: boolean): void {
-  if (typeof window === 'undefined') {
+  // A preview of a Studio pack writes nothing at all (D15)
+  if (typeof window === 'undefined' || isPreviewSession()) {
     return
   }
 

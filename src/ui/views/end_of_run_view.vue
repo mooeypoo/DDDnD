@@ -149,8 +149,8 @@
         </div>
       </div>
       
-      <!-- Share Controls -->
-      <div class="share-card">
+      <!-- Share Controls: none for a preview of a Studio pack, whose pack nobody else can load (D18) -->
+      <div v-if="!gameStore.isPreview" class="share-card">
         <h3 class="card-title">
           <span class="title-icon"><IconMegaphone :size="24" /></span>
           Share Your Journey
@@ -178,7 +178,7 @@
       
       <!-- Actions -->
       <div class="actions-area">
-        <AppButton variant="secondary" @click="goHome">
+        <AppButton v-if="!gameStore.isPreview" variant="secondary" @click="goHome">
           <span>🏠</span> Return Home
         </AppButton>
         <AppButton variant="primary" @click="playAgain">
@@ -305,8 +305,8 @@ onMounted(() => {
     gameStore.get_run_outcome()
   }
 
-  // Build share payload from canonical outcome and game state
-  if (gameStore.runOutcome && gameStore.gameState) {
+  // Build share payload from canonical outcome and game state (never for a preview, D18)
+  if (gameStore.runOutcome && gameStore.gameState && !gameStore.isPreview) {
     sharePayload.value = buildSharePayload({
       run_outcome: gameStore.runOutcome,
       game_state: gameStore.gameState,

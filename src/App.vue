@@ -1,5 +1,6 @@
 <template>
   <div id="app" class="app-shell" :class="{ 'is-chamber': isChamber }">
+    <PreviewBanner v-if="isPreview" />
     <main class="app-main">
       <RouterView />
     </main>
@@ -13,8 +14,12 @@ import { computed } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import SiteFooter from '@/ui/components/common/site_footer.vue'
 import MobileNotice from '@/ui/components/common/mobile_notice.vue'
+import PreviewBanner from '@/ui/preview/preview_banner.vue'
+import { isPreviewSession } from '@/ui/preview/preview_session'
 
 const route = useRoute()
+/** A preview of a Pack Studio pack says so on every page (D15). */
+const isPreview = isPreviewSession()
 
 const showFooter = computed(() => {
   return route.name === 'end' || route.name === 'share'

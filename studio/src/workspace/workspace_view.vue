@@ -21,6 +21,15 @@
           @seat="(memberRef) => updateDraft(addToCouncil(draft!, memberRef))"
           @removeChange="(change) => updateDraft(removeChangesTo(draft!, change.section, change.id, change.stakeholderId))"
         />
+        <!-- "Play it" (D15, §9.1): quiet, beside Export; its state shows here, not on a page -->
+        <span v-if="playText" class="bar-play-status" role="status">{{ playText }}</span>
+        <button
+          type="button"
+          class="button button-quiet"
+          :disabled="!PLAY_IT_LIVE || playing"
+          :title="PLAY_IT_LIVE ? 'Play this pack in the game, in a tab of its own. Nothing is saved.' : 'Play it arrives with the Studio\'s launch.'"
+          @click="playIt"
+        >▶ Play it</button>
         <!-- The one ember action (§9); on the export page itself, the download is -->
         <button
           type="button"
@@ -117,7 +126,8 @@ import { computed, nextTick, reactive, ref, watch } from 'vue'
 import { addToCouncil, aftershockUsers, newestRef, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
-import { exportCurrentDraft, studio, updateDraft, type ExportFormat } from '@studio/state/studio_state'
+import { PLAY_IT_LIVE, type PlayStatus } from '@studio/content/game_preview'
+import { exportCurrentDraft, playCurrentDraft, studio, updateDraft, type ExportFormat } from '@studio/state/studio_state'
 import ChecksButton from '@studio/workspace/checks_button.vue'
 import type { IssueTarget } from '@studio/workspace/checks_panel.vue'
 import ContentsNav from '@studio/workspace/contents_nav.vue'
@@ -291,6 +301,31 @@ const fillIn = computed(() => new Set(draft.value ? toFillIn(draft.value).map((i
 /** How many cards, events, aftershocks and reactions change each member, from the last check. */
 const changeCounts = computed(() => Object.fromEntries(Object.entries(studio.memberChanges).map(([id, sources]) => [id, sources.length])))
 
+/** "Play it": what happened, in the toolbar (D15). */
+const playing = ref(false)
+const playText = ref(PLAY_IT_LIVE ? '' : 'Play it arrives with the launch')
+
+const PLAY_WORDS: Record<PlayStatus['state'], string> = {
+  opening: 'Opening the game…',
+  playing: "Playing in the game's tab",
+  refused: "The game refused it: see its tab",
+  no_answer: "The game didn't answer: press Play it again",
+  blocked: "Your browser blocked the game's tab: allow pop-ups here",
+}
+
+async function playIt() {
+  playing.value = true
+  playText.value = 'Preparing the pack…'
+  try {
+    const issues = await playCurrentDraft((status) => {
+      playText.value = PLAY_WORDS[status.state]
+    })
+    if (issues.length > 0) playText.value = 'Fix what the checks list first'
+  } finally {
+    playing.value = false
+  }
+}
+
 const canExport = computed(() => studio.check.state === 'done' && studio.check.issues.length === 0)
 
 /** Download a release (M4.7); the release page says how it went. */
@@ -362,6 +397,11 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
   background: rgba(212, 184, 96, 0.18);
   color: var(--forge-text-bright);
   font-weight: 600;
+}
+
+.bar-play-status {
+  font-size: 0.875rem;
+  color: var(--forge-text-secondary);
 }
 
 .bar-tools {
