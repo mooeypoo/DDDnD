@@ -36,6 +36,14 @@ jobs:
       - name: Content audit gate
         run: npm run audit:gate -- --runs 400
 
+      # The docs site deploys only from main (pages.yml), so a change that breaks
+      # it passed every PR: M3 slice 6 removed a table the catalog script read,
+      # and the docs deploy failed from then on. Building it here catches that.
+      - name: Docs site still builds
+        env:
+          AUDIT_RUNS: '50'
+        run: npm run docs:generate-data && npm run docs:build
+
   external-content-pack-validation:
     runs-on: ubuntu-latest
 
