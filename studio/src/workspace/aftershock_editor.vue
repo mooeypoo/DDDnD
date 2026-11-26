@@ -45,12 +45,12 @@
             :stakeholderOptions="stakeholderOptions"
             @change="(effects) => set(entry.entity!, effects, true)"
           />
-          <p class="plain"><span class="plain-lead">In plain words:</span> {{ landing(entry.entity) }}, this {{ describe(entry.entity) }}.</p>
+          <p class="plain"><span class="plain-lead">In plain words:</span> {{ landingWords(entry.entity) }}, {{ describe(entry.entity) }}.</p>
           <p v-if="alsoOn(entry).length" class="field-hint">Also on {{ alsoOn(entry).join(', ') }}: changing it changes it there too.</p>
         </template>
 
         <template v-else>
-          <p class="plain"><span class="plain-lead">In plain words:</span> {{ landing(entry.entity) }}, this {{ describe(entry.entity) }}.</p>
+          <p class="plain"><span class="plain-lead">In plain words:</span> {{ landingWords(entry.entity) }}, {{ describe(entry.entity) }}.</p>
           <p class="field-hint">The game's cards share it, so it can't be changed here. Your own version replaces it on this {{ section === 'cards' ? 'card' : 'event' }} only.</p>
         </template>
 
@@ -88,6 +88,7 @@ import {
   copyAftershockToEdit,
   describeEffects,
   detachAftershock,
+  landingWords,
   putContent,
   settleNewAftershockId,
   withEffects,
@@ -137,10 +138,6 @@ watch(() => props.itemId, () => {
 
 function text(event: Event): string {
   return (event.target as HTMLInputElement).value
-}
-
-function landing(effect: DelayedEffect): string {
-  return effect.turns_until_resolution === 1 ? 'the next turn' : `${effect.turns_until_resolution} turns later`
 }
 
 function describe(effect: DelayedEffect): string {

@@ -88,17 +88,22 @@ describe('naming a new card', () => {
 describe('describing effects', () => {
   const names = { scores: { rest: 'Rest', sight: 'Sight', uptime: 'Uptime' }, stakeholders: { oncall: 'the On-Call Engineer' } }
 
-  it('says what a card does in plain words', () => {
+  it('says what a card changes, generically: each name with its signed change, then the council\'s satisfaction', () => {
     const effects = {
       score_changes: [{ score_id: 'rest', delta: 8 }, { score_id: 'sight', delta: 2 }, { score_id: 'uptime', delta: -1 }],
       stakeholder_changes: [{ stakeholder_id: 'oncall', delta: 4 }],
     }
-    expect(describeEffects(effects, names)).toBe('raises Rest by 8 and Sight by 2; lowers Uptime by 1; makes the On-Call Engineer happier (+4)')
+    expect(describeEffects(effects, names)).toBe('Rest +8, Sight +2, Uptime \u22121; the On-Call Engineer +4 satisfaction')
     expect(netScoreChange(effects)).toBe(9)
   })
 
+  it('never guesses a verb from a score\'s name, so any pack\'s scores read right (owner\'s rule)', () => {
+    const effects = { score_changes: [{ score_id: 'nerdiness', delta: -3 }] }
+    expect(describeEffects(effects, { scores: { nerdiness: 'Nerdiness' }, stakeholders: {} })).toBe('Nerdiness \u22123')
+  })
+
   it('says when nothing happens yet', () => {
-    expect(describeEffects({ score_changes: [] }, names)).toBe('changes nothing yet')
+    expect(describeEffects({ score_changes: [] }, names)).toBe('no changes yet')
   })
 
   it('spots a card that only helps (every move should trade something away)', () => {

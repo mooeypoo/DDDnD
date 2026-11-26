@@ -11,6 +11,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import {
+  landingWords,
   addNewAftershock,
   aftershockUsers,
   attachAftershock,
@@ -188,3 +189,10 @@ describe('through the game\'s own import', () => {
   })
 })
 
+
+describe('when an aftershock lands, in words', () => {
+  it('says "the next turn" for one turn, and counts the rest', () => {
+    expect(landingWords({ turns_until_resolution: 1 })).toBe('the next turn')
+    expect(landingWords({ turns_until_resolution: 3 })).toBe('3 turns later')
+  })
+})

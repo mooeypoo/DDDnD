@@ -17,7 +17,11 @@ import {
   exportDraftBundle,
   newestRef,
   releaseDraft,
-  unseatedNotes,
+  unseatedNotesFrom,
+  scenarioChanges,
+  changesByMemberFrom,
+  type ChangeSource,
+  type ScenarioChanges,
   type BaseContentReader,
   type DraftPack,
   type UnseatedNote,
@@ -51,6 +55,8 @@ interface StudioState {
   check: { state: CheckState; issues: PackIssue[] }
   /** Things worth knowing that don't block export (M4.5a). */
   notes: CouncilNote[]
+  /** What changes each council member's satisfaction, by member id (slice 3). */
+  memberChanges: Record<string, ChangeSource[]>
   error: string | null
 }
 
@@ -62,6 +68,7 @@ const state = reactive<StudioState>({
   save: 'saved',
   check: { state: 'idle', issues: [] },
   notes: [],
+  memberChanges: {},
   error: null,
 })
 
@@ -111,10 +118,13 @@ async function checkNow() {
   try {
     const { packs, base } = await loadFirstParty()
     const draft = plainDraft(state.current.draft)
-    const [result, notes] = await Promise.all([checkDraft(draft, packs), councilNotes(draft, base)])
+    // One walk of who changes whom, for the notes and every member's page
+    const tables = await scenarioChanges(draft, base)
+    const [result, notes] = await Promise.all([checkDraft(draft, packs), councilNotes(draft, tables, base)])
     if (run !== checkRun) return
     state.check = { state: 'done', issues: result.issues }
     state.notes = notes
+    state.memberChanges = Object.fromEntries(changesByMemberFrom(tables))
   } catch (error) {
     if (run !== checkRun) return
     state.check = { state: 'failed', issues: [{ file: 'pack', message: (error as Error).message }] }
@@ -122,8 +132,8 @@ async function checkNow() {
 }
 
 /** Council notes, named: the game's members by their base version, the draft's own by theirs. */
-async function councilNotes(draft: DraftPack, base: BaseContentReader): Promise<CouncilNote[]> {
-  const notes = await unseatedNotes(draft, base)
+async function councilNotes(draft: DraftPack, tables: readonly ScenarioChanges[], base: BaseContentReader): Promise<CouncilNote[]> {
+  const notes = unseatedNotesFrom(tables)
   const baseMembers = await listBaseRefs('stakeholders')
   return Promise.all(notes.map(async (note) => {
     const own = draft.content.stakeholders[note.stakeholder_id]
@@ -158,6 +168,7 @@ export async function startFromBaseScenario(choice: BaseScenarioChoice): Promise
   state.current = { draft_id: draftId, draft }
   state.check = { state: 'idle', issues: [] }
   state.notes = []
+  state.memberChanges = {}
   await saveNow()
   void checkNow()
   return draftId
@@ -182,6 +193,7 @@ export async function importPack(file: File): Promise<{ ok: true; draft_id: stri
   state.current = { draft_id: draftId, draft }
   state.check = { state: 'idle', issues: [] }
   state.notes = []
+  state.memberChanges = {}
   await saveNow()
   void checkNow()
   return { ok: true, draft_id: draftId }
@@ -198,6 +210,7 @@ export async function openDraft(draftId: string): Promise<boolean> {
   state.save = 'saved'
   state.check = { state: 'idle', issues: [] }
   state.notes = []
+  state.memberChanges = {}
   void checkNow()
   return true
 }
@@ -212,6 +225,7 @@ export async function closeDraft(): Promise<void> {
   if (checkTimer) clearTimeout(checkTimer)
   state.current = null
   state.notes = []
+  state.memberChanges = {}
 }
 
 export async function removeDraft(draftId: string): Promise<void> {
