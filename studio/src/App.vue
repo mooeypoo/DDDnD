@@ -1,11 +1,14 @@
 <template>
   <a class="skip-link" href="#main">Skip to the content</a>
   <StudioHeader :textSize="textSize" @update:textSize="setTextSize" />
-  <WorkspaceView v-if="route.kind === 'draft' && studio.current" @leave="go('#/')" />
-  <p v-else-if="route.kind === 'draft' && route.missing" class="missing" role="alert">
-    That draft isn't in this browser. <a href="#/">See your drafts</a>.
-  </p>
-  <StartView v-else-if="route.kind === 'start'" @openDraft="(id) => go(`#/draft/${id}`)" />
+  <!-- The header stays put; below it, the start screen scrolls as a page and the workspace's columns scroll on their own -->
+  <div class="route">
+    <WorkspaceView v-if="route.kind === 'draft' && studio.current" @leave="go('#/')" />
+    <p v-else-if="route.kind === 'draft' && route.missing" class="missing" role="alert">
+      That draft isn't in this browser. <a href="#/">See your drafts</a>.
+    </p>
+    <StartView v-else-if="route.kind === 'start'" @openDraft="(id) => go(`#/draft/${id}`)" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -57,7 +60,15 @@ onBeforeUnmount(() => window.removeEventListener('hashchange', follow))
 
 <style>
 #app {
-  min-height: 100dvh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.route {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }

@@ -1,80 +1,46 @@
 <template>
   <div v-if="draft" class="workspace">
     <div class="workspace-bar">
-      <button type="button" class="button button-quiet" @click="$emit('leave')">‹ All drafts</button>
+      <button type="button" class="button button-quiet" @click="$emit('leave')">‹ Your packs</button>
       <span class="bar-name">{{ draft.name || 'Untitled pack' }}</span>
       <span class="kind-pill" :class="draft.kind === 'retelling' ? 'pill-setting' : 'pill-topic'">
         {{ draft.kind === 'retelling' ? 'Retelling' : 'New topic' }}
       </span>
       <span class="bar-save" role="status" aria-live="polite">{{ saveText }}</span>
-      <button
-        type="button"
-        class="button button-primary"
-        :aria-current="selection.kind === 'release' ? 'page' : undefined"
-        @click="select({ kind: 'release' })"
-      >Export pack</button>
+      <div class="bar-tools">
+        <ChecksButton
+          :state="studio.check.state"
+          :issues="studio.check.issues"
+          :notes="studio.notes"
+          :full="councilRefs.length >= COUNCIL_SEATS"
+          @goTo="goTo"
+          @seat="(memberRef) => updateDraft(addToCouncil(draft!, memberRef))"
+          @removeChange="(change) => updateDraft(removeChangesTo(draft!, change.section, change.id, change.stakeholderId))"
+        />
+        <button
+          type="button"
+          class="button button-primary"
+          :aria-current="selection.kind === 'release' ? 'page' : undefined"
+          @click="select({ kind: 'release' })"
+        >Export pack</button>
+      </div>
     </div>
 
     <div class="workspace-body">
-      <nav class="contents" aria-label="Pack contents">
-        <button type="button" class="contents-item" :aria-current="isSelected('details') ? 'page' : undefined" @click="select({ kind: 'details' })">
-          Pack details
-        </button>
-        <span class="contents-group">Scenarios</span>
-        <button
-          v-for="scenario in scenarios"
-          :key="scenario.id"
-          type="button"
-          class="contents-item contents-sub"
-          :aria-current="isSelected('scenario', scenario.id) ? 'page' : undefined"
-          @click="select({ kind: 'scenario', id: scenario.id })"
-        >{{ scenario.name || 'Untitled scenario' }}</button>
-        <button
-          type="button"
-          class="contents-item"
-          :aria-current="isSelected('council') ? 'page' : undefined"
-          @click="select({ kind: 'council' })"
-        ><span>Council</span><span class="count">{{ councilRefs.length }}</span></button>
-        <div class="deck-actions">
-          <button type="button" class="deck-new" :disabled="councilRefs.length >= COUNCIL_SEATS" @click="createMember">+ New member</button>
-        </div>
-        <button
-          v-for="memberRef in councilRefs"
-          :key="memberRef.id"
-          type="button"
-          class="contents-item contents-sub"
-          :aria-current="isSelectedMember(memberRef) ? 'page' : undefined"
-          @click="select({ kind: 'member', ref: memberRef })"
-        >
-          <span class="item-name">{{ memberName(memberRef) }}</span>
-          <span v-if="isOwnMember(draft, memberRef)" class="own-mark">yours</span>
-        </button>
-        <template v-for="deck in decks" :key="deck.section">
-          <span class="contents-group">{{ deck.title }} <span class="count">{{ deck.refs.length }}</span></span>
-          <div class="deck-actions">
-            <button type="button" class="deck-new" @click="createNew(deck.section)">+ New {{ deck.singular }}</button>
-            <button
-              type="button"
-              class="deck-new"
-              :aria-current="isSelected('add', deck.section) ? 'page' : undefined"
-              @click="select({ kind: 'add', section: deck.section })"
-            >+ From the game</button>
-          </div>
-          <button
-            v-for="itemRef in deck.refs"
-            :key="`${itemRef.id}-v${itemRef.version}`"
-            type="button"
-            class="contents-item contents-sub"
-            :aria-current="isSelectedItem(deck.section, itemRef) ? 'page' : undefined"
-            @click="select({ kind: 'item', section: deck.section, ref: itemRef })"
-          >
-            <span class="item-name">{{ itemName(deck.section, itemRef) }}</span>
-            <span v-if="isOwn(draft, deck.section, itemRef)" class="own-mark">yours</span>
-          </button>
-        </template>
-      </nav>
+      <ContentsNav
+        class="contents"
+        :draft="draft"
+        :selection="selection"
+        :councilRefs="councilRefs"
+        :decks="decks"
+        :seats="COUNCIL_SEATS"
+        :nameOf="nameOf"
+        @select="select"
+        @createMember="createMember"
+        @createNew="createNew"
+      />
 
-      <main id="main" class="editor-area" tabindex="-1">
+      <main id="main" ref="editorArea" class="editor-area" tabindex="-1">
         <PackDetailsEditor v-if="selection.kind === 'details'" :draft="draft" @change="updateDraft" />
         <ScenarioEditor
           v-else-if="selection.kind === 'scenario' && selectedScenario"
@@ -115,17 +81,6 @@
         <DeckAddView v-else-if="selection.kind === 'add'" :section="selection.section" :draft="draft" @change="updateDraft" />
         <ReleaseView v-else-if="selection.kind === 'release'" :draft="draft" :checksClean="canExport" @export="exportPack" />
       </main>
-
-      <div class="rail">
-        <ChecksPanel :state="studio.check.state" :issues="studio.check.issues" @goTo="goTo" />
-        <CouncilNotesPanel
-          :notes="studio.notes"
-          :full="councilRefs.length >= COUNCIL_SEATS"
-          @seat="(memberRef) => updateDraft(addToCouncil(draft!, memberRef))"
-          @removeChange="(change) => updateDraft(removeChangesTo(draft!, change.section, change.id, change.stakeholderId))"
-          @goTo="goTo"
-        />
-      </div>
     </div>
   </div>
 </template>
@@ -137,8 +92,9 @@ import { addToCouncil, aftershockUsers, COUNCIL_SEATS, createOwnCard, createOwnE
 import type { VersionRef } from '@/domains/content/model'
 import { loadFirstParty } from '@studio/content/first_party'
 import { exportCurrentDraft, studio, updateDraft, type ExportFormat } from '@studio/state/studio_state'
-import ChecksPanel, { type IssueTarget } from '@studio/workspace/checks_panel.vue'
-import CouncilNotesPanel from '@studio/workspace/council_notes_panel.vue'
+import ChecksButton from '@studio/workspace/checks_button.vue'
+import type { IssueTarget } from '@studio/workspace/checks_panel.vue'
+import ContentsNav from '@studio/workspace/contents_nav.vue'
 import CouncilView from '@studio/workspace/council_view.vue'
 import DeckAddView from '@studio/workspace/deck_add_view.vue'
 import DeckItemView from '@studio/workspace/deck_item_view.vue'
@@ -146,17 +102,10 @@ import MemberView from '@studio/workspace/member_view.vue'
 import PackDetailsEditor from '@studio/workspace/pack_details_editor.vue'
 import ReleaseView from '@studio/workspace/release_view.vue'
 import ScenarioEditor from '@studio/workspace/scenario_editor.vue'
+import type { Selection } from '@studio/workspace/selection'
 
 defineEmits<{ leave: [] }>()
 
-type Selection =
-  | { kind: 'details' }
-  | { kind: 'scenario'; id: string }
-  | { kind: 'council' }
-  | { kind: 'member'; ref: VersionRef }
-  | { kind: 'item'; section: DeckSection; ref: VersionRef }
-  | { kind: 'add'; section: DeckSection }
-  | { kind: 'release' }
 type NameSection = 'scores' | 'stakeholders' | 'cards' | 'events'
 
 const draft = computed(() => studio.current?.draft ?? null)
@@ -164,8 +113,12 @@ const scenarios = computed(() => Object.values(draft.value?.content.scenarios ??
 const selection = ref<Selection>(scenarios.value[0] ? { kind: 'scenario', id: scenarios.value[0].id } : { kind: 'details' })
 const selectedScenario = computed(() => (selection.value.kind === 'scenario' ? draft.value?.content.scenarios[selection.value.id] : undefined))
 
+const editorArea = ref<HTMLElement | null>(null)
+
+/** Open an editor. Each opens at its top, since the editor column scrolls on its own. */
 function select(next: Selection) {
   selection.value = next
+  editorArea.value?.scrollTo?.({ top: 0 })
 }
 
 /** A release can give the open card, event or member a new version (M4.7): stay on it. */
@@ -195,23 +148,6 @@ async function goTo(target: IssueTarget) {
   await focusEditor()
 }
 
-function isSelected(kind: Selection['kind'], key?: string) {
-  const current = selection.value
-  if (current.kind !== kind) return false
-  if (key === undefined) return true
-  return ('id' in current && current.id === key) || ('section' in current && current.section === key)
-}
-
-function isSelectedItem(section: DeckSection, ref: VersionRef) {
-  const current = selection.value
-  return current.kind === 'item' && current.section === section && current.ref.id === ref.id && current.ref.version === ref.version
-}
-
-function isSelectedMember(ref: VersionRef) {
-  const current = selection.value
-  return current.kind === 'member' && current.ref.id === ref.id
-}
-
 /** A council member's name: the draft's own (live as it's edited), else the game's. */
 function memberName(ref: VersionRef): string {
   if (draft.value && isOwnMember(draft.value, ref)) return draft.value.content.stakeholders[ref.id].name || 'Unnamed council member'
@@ -238,6 +174,11 @@ function itemName(section: DeckSection, ref: VersionRef): string {
   const fallback = section === 'cards' ? 'Untitled card' : 'Untitled event'
   if (draft.value && isOwn(draft.value, section, ref)) return draft.value.content[section][ref.id].name || fallback
   return names[section][ref.id] ?? ref.id
+}
+
+/** Any item's name, for the sidebar. */
+function nameOf(section: 'stakeholders' | DeckSection, ref: VersionRef): string {
+  return section === 'stakeholders' ? memberName(ref) : itemName(section, ref)
 }
 
 async function focusEditor(selector = '.editor-area input, .editor-area textarea') {
@@ -311,19 +252,25 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
 </script>
 
 <style scoped>
+/*
+ * The workspace fills the window below the header, and each column scrolls
+ * on its own (the UI/UX audit, D23): the toolbar, the contents and the
+ * editor never scroll each other out of view.
+ */
 .workspace {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 .workspace-bar {
+  flex: none;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.875rem;
-  padding: 0.75rem 1.5rem;
+  padding: 0.625rem 1.5rem;
   border-bottom: 1px solid var(--forge-hairline);
   background: var(--forge-rail);
 }
@@ -335,9 +282,15 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
 }
 
 .bar-save {
-  margin-left: auto;
   font-size: 0.875rem;
   color: var(--forge-text-secondary);
+}
+
+.bar-tools {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .kind-pill {
@@ -355,107 +308,21 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
 
 .workspace-body {
   flex: 1;
-  display: flex;
-  flex-wrap: wrap;
   min-height: 0;
+  display: flex;
 }
 
 .contents {
-  flex: 1 1 15rem;
-  max-width: 17rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 1.125rem 0.875rem;
+  flex: 0 0 17.5rem;
+  overflow-y: auto;
   border-right: 1px solid var(--forge-hairline);
   background: var(--forge-rail);
 }
 
-.contents-group {
-  margin: 0.75rem 0.75rem 0.25rem;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--forge-text-secondary);
-}
-
-.contents-item {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  min-height: 2.5rem;
-  padding: 0.5rem 0.75rem;
-  border: none;
-  border-radius: 0.5rem;
-  background: transparent;
-  color: var(--forge-text);
-  font-family: var(--forge-font-body);
-  font-size: 0.9375rem;
-  text-align: left;
-  cursor: pointer;
-}
-
-.contents-sub {
-  padding-left: 1.25rem;
-}
-
-.contents-item[aria-current='page'] {
-  background: rgba(212, 184, 96, 0.12);
-  color: var(--forge-text-bright);
-  font-weight: 600;
-}
-
-.count {
-  color: var(--forge-text-secondary);
-}
-
-.contents {
-  overflow-y: auto;
-}
-
-.deck-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.375rem;
-  padding: 0 0.5rem 0.25rem 1.25rem;
-}
-
-.deck-new {
-  min-height: 2rem;
-  padding: 0 0.625rem;
-  border-radius: 0.375rem;
-  border: 1px dashed rgba(224, 128, 58, 0.6);
-  background: transparent;
-  color: var(--forge-ember-soft);
-  font-family: var(--forge-font-body);
-  font-size: 0.8125rem;
-  cursor: pointer;
-}
-
-.deck-new[aria-current='page'] {
-  border-style: solid;
-}
-
-.item-name {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
-.own-mark {
-  flex: none;
-  align-self: center;
-  padding: 0 0.4rem;
-  border-radius: 999px;
-  border: 1px solid var(--forge-ember-soft);
-  color: var(--forge-ember-soft);
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
 .editor-area {
-  flex: 999 1 32rem;
+  flex: 1;
   min-width: 0;
+  overflow-y: auto;
   padding: 1.75rem 2.25rem 2.5rem;
 }
 
@@ -463,19 +330,23 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
   outline: none;
 }
 
-.rail {
-  flex: 1 1 18rem;
-  max-width: 21rem;
-  padding: 1.5rem 1.375rem;
-  border-left: 1px solid var(--forge-hairline);
-  background: var(--forge-rail);
-}
+/* A narrow window (a tablet held upright): the contents above the editor, the page scrolling as one */
+@media (max-width: 48rem) {
+  .workspace-body {
+    flex-direction: column;
+    min-height: auto;
+  }
 
-@media (max-width: 1100px) {
-  .rail {
-    max-width: none;
-    border-left: none;
-    border-top: 1px solid var(--forge-hairline);
+  .contents {
+    flex: none;
+    max-height: 18rem;
+    border-right: none;
+    border-bottom: 1px solid var(--forge-hairline);
+  }
+
+  .editor-area {
+    overflow-y: visible;
+    padding: 1.25rem 1.25rem 2rem;
   }
 }
 </style>
