@@ -17,6 +17,7 @@ import { copyToEdit } from './draft_from_base'
 import { putContent, withEffects, type DraftPack } from './draft_pack'
 import { resolveRef, scenarioRefs, type BaseContentReader } from './draft_reading'
 import { TOPIC_PLACEHOLDERS } from './topics'
+import { ENDING_PLACEHOLDER } from './endings'
 
 /** Where a change to someone's satisfaction can come from. */
 export type ChangeSection = 'cards' | 'events' | 'delayed_effects' | 'stakeholder_reaction_rules'
@@ -125,7 +126,7 @@ export type MissingPart = 'name' | 'description'
 
 /** One of the draft's own items that is still a placeholder. */
 export interface ToFillIn {
-  section: 'scores' | 'stakeholders' | 'cards' | 'events' | 'delayed_effects'
+  section: 'scores' | 'outcome_archetypes' | 'stakeholders' | 'cards' | 'events' | 'delayed_effects'
   ref: VersionRef
   name: string
   missing: MissingPart[]
@@ -135,6 +136,7 @@ export interface ToFillIn {
 function placeholders(): Record<ToFillIn['section'], string> {
   return {
     scores: TOPIC_PLACEHOLDERS.score,
+    outcome_archetypes: ENDING_PLACEHOLDER,
     stakeholders: COUNCIL_PLACEHOLDERS.member,
     cards: PLACEHOLDER_NAMES.cards,
     events: PLACEHOLDER_NAMES.events,

@@ -53,6 +53,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D31 | **Changing someone who isn't seated is a feature, and the Studio explains it, never blocks it.** A note says why it's there: the game shares a card (nothing to do), you took them out, or your own content changes them (fine for a card shared with another scenario). The author guide explains sharing cards between scenarios. | The owner (2026-11-26): pack authors may share cards between scenarios with different councils on purpose, as the base game does (Automate Deployment Pipeline in Microservice Sprawl). The note should alert and explain, so it can be done on purpose. |
 | D32 | **"Play it" is trusted in production only from the launch.** Until then the game trusts only the local Studio, in development builds; the launch PR adds `https://studio.dddnd.app` and switches the Studio's button on together (a test keeps them in step). Deploy previews are never trusted (D17). | The owner's call (2026-11-26), keeping the plan in §12: a pack sent by "Play it" skips the bazaar's review, so the live game starts trusting the Studio when the Studio is announced, not before. |
 | D33 | **A new topic is an extension of the base game with everything else its own:** its own scores, council, cards, events and endings, the game's five outcome tiers (the owner's call), and none of the game's cards, events or council members, whose changes and conditions name the game's scores. It starts as a skeleton (a scenario, a fallback ending, a class with no score bonus) that the summary's steps walk through. | Matches the SRE pack, the one real topic. Reusing the tiers keeps the first topic short (§5); the game's content would only fail the checks in a topic; the skeleton means a fresh topic already plays once it has scores. |
+| D34 | **Endings are an ordered list, never priorities.** Authors see "tried 1st of 4" and move endings earlier or later; the Studio writes evenly spaced priorities. The fallback (no conditions) is always last and can't be deleted while it's the only one. Conditions are written generically (D29): "Rest ends below 25". | The game picks the first ending, by priority, whose conditions all hold. A number authors must keep unique and ordered is a rule the model can keep instead, and the validator's errors (two endings at one priority, an ending below the fallback) become impossible to make. |
 
 ---
 
@@ -1322,6 +1323,65 @@ Elsewhere:
 - **Classes, modifiers and coupling rules** come in N3.
 - **Retellings can't add their own scores yet** (§3 says a retelling can grow into a topic); `canAddScore` is where that would change.
 
+
+### M4.18: Endings: what kind of leader the player was (2026-11-26)
+
+N2 of new-topic authoring (§5: "Endings should be reachable, and mean something in this topic"). D34.
+
+**What an author sees:**
+- **An Endings group in the sidebar** (for topics), listed in the order they're tried, with "+ New ending" and **Order**. The fallback is marked "every run".
+- **The ending editor:**
+  - **What players read at the end:** name, meaning, flavor.
+  - **When it's chosen:** condition rows, all of which must hold. Each row is one of the game's four measures:
+    - a score at the end;
+    - how much scores changed over the run (one or several, added together);
+    - how much the council's satisfaction changed (some members, or the whole council);
+    - pressure (events and aftershocks per turn).
+
+    Each measure has its comparison and a value, read back in plain words: "chosen when Rest ends below 25, and the council's satisfaction changes by less than −10 over the run".
+  - **When it's tried:** "Try it earlier" and "Try it later", and "tried 1 of 3" in its kicker.
+- **The Order page** lists every ending, numbered, with its plain words and Earlier or Later buttons. The fallback sits last as "every run".
+- **A new ending is tried first,** with a condition to start from (the first score ends at or above 70), since a new ending is usually a particular one.
+- **The fallback can't be deleted** while it's the only one, and the page says why. An ending whose conditions are all removed becomes a fallback and moves last.
+- **For topics, "Where to go next" adds "Write the endings":** done once there's an ending besides the fallback.
+
+**Domain (`endings.ts`, new):**
+- order: `endingsInOrder`, `isFallback`, `moveEnding`;
+- making and removing: `createOwnEnding` (first in order, listed by every scenario), `endingDeletion` and `removeOwnEnding`;
+- conditions: `setEndingConditions` (an ending left with none moves last), `startingEndingCondition` and `endingConditionOf`;
+- words: `describeEndingCondition`, `describeEnding`, `endingOperatorChoices` and `ENDING_MEASURES`;
+- limits: `ENDINGS_PER_SCENARIO` and `CONDITIONS_PER_ENDING`.
+
+Priorities are written evenly spaced (…, 20, 10, 0), so the pack's files stay readable. Endings also join `toFillIn` and the topic's `nextSteps`.
+
+**Decisions:**
+- **Order, not numbers (D34).** The game's two ending errors (two endings at one priority, an ending that can never be reached because it's below the fallback) can't be made in the Studio.
+- **A new ending goes first, not just above the fallback.** Particular endings belong first, and the one being written is usually the particular one.
+- **The game's "reachable" is the only reachability the Studio promises.** Whether an ending's conditions can actually be met in play is a balance question, which belongs to the balance hints and, later, the balance lab (D3).
+
+**For the talk: an invariant the model keeps so the author doesn't have to.** The game's rule is "highest priority first, unique priorities, a fallback at the bottom". As data, that's three things an author can get wrong. As an operation on an ordered list ("try it earlier"), none of them can go wrong. The domain turns a format's constraints into the shape of its operations: the same move as the council's seats (M4.5) and the release's versions (M4.7).
+
+**Verification:**
+- Tests: 1358 in total (+10, `tests/authoring/endings.test.ts`):
+  - order: new first, moving, renumbering, the fallback staying last;
+  - an ending without conditions becoming the fallback;
+  - deleting, and keeping the last fallback;
+  - every kind of condition in words, including several scores, named members and decimals;
+  - comparisons that fit the measure;
+  - the topic's step;
+  - a topic with three endings passing the game's own checks.
+- Headless Chrome, production build with the Studio CSP:
+  1. Create "Pager Haunted" from the summary's step ("tried 1 of 2").
+  2. Set "Rest ends below 25" and add "the council's satisfaction changes by less than −10"; the plain words read both.
+  3. A second ending, then move it later on the Order page.
+  4. The fallback's Delete is off, with the reason.
+  5. Zero CSP violations, no console errors.
+- Headless Chrome, both dev servers: a complete topic with an extra ending ("Rested Responder": Rest ends at or above 0) reads "Ready to export", and "Play it" ends the run on **Rested Responder**, ahead of the fallback, as the Studio ordered them.
+
+**Left open:**
+- **Retellings keep the game's endings,** read-only and not listed.
+- **No check yet that an ending can actually be reached in play:** that's the balance hints' job.
+
 ---
 
 ## 14. Picking up the work
@@ -1349,7 +1409,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Next: the endings editor (N2), then classes, modifiers and coupling rules (N3), then importing the SRE pack and the guided round (N4); then balance hints (§6). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34). Next: classes, modifiers and coupling rules (N3), then importing the SRE pack and the guided round (N4); then balance hints (§6). Each follows §9.1.
 - **Left open from the audit:**
   - undo/redo;
   - "Find anything" (search with a shortcut);
@@ -1391,7 +1451,7 @@ The owner's words and the known items, collected from the conversations that bui
 
 ### How to check work
 
-- `npx vitest run` (1348 tests at M4.17). `npx vue-tsc --noEmit` for types.
+- `npx vitest run` (1358 tests at M4.18). `npx vue-tsc --noEmit` for types.
 - **Headless Chrome on a production build with the real CSP.** `vite preview` sends no CSP, so:
   1. Run `npm run studio:build`.
   2. Run `node scripts/dev/serve-with-csp.mjs studio 4319` (for the game: `npm run build`, then the same script with `.` and port 5317).

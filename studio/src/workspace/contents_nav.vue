@@ -59,6 +59,27 @@
         </template>
       </div>
 
+      <!-- A topic's own endings (M4.18), in the order the game tries them -->
+      <div v-if="showEndings" class="group">
+        <button type="button" class="group-toggle" :aria-expanded="open.endings" @click="open.endings = !open.endings">
+          <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5" /></svg>Endings <span class="count">{{ endings?.length ?? 0 }}</span>
+        </button>
+        <template v-if="open.endings">
+          <div class="actions">
+            <button type="button" class="action" :disabled="!canAddEnding" @click="$emit('createEnding')">+ New ending</button>
+            <button type="button" class="action" :aria-current="current({ kind: 'endings' }) ? 'page' : undefined" @click="$emit('select', { kind: 'endings' })">Order</button>
+          </div>
+          <ul class="items">
+            <li v-for="ending in endings ?? []" :key="ending.id">
+              <button type="button" class="item" :aria-current="current({ kind: 'ending', id: ending.id }) ? 'page' : undefined" @click="$emit('select', { kind: 'ending', id: ending.id })">
+                <span class="item-name"><span v-if="toFillIn.has(`outcome_archetypes/${ending.id}`)" class="fill-dot" title="To fill in"><span class="visually-hidden">To fill in: </span></span>{{ ending.name || 'Unnamed ending' }}</span>
+                <span v-if="ending.fallback" class="item-kind">every run</span>
+              </button>
+            </li>
+          </ul>
+        </template>
+      </div>
+
       <div class="group">
         <button type="button" class="group-toggle" :aria-expanded="open.council" @click="open.council = !open.council">
           <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5" /></svg>Council <span class="count">{{ councilRefs.length }} of {{ seats }}</span>
@@ -142,13 +163,17 @@ const props = defineProps<{
   scores: Array<{ id: string; name: string }>
   showScores: boolean
   maxScores: number
+  /** A topic's own endings in the order they're tried (M4.18), and whether to show the group. */
+  endings?: Array<{ id: string; name: string; fallback: boolean }>
+  showEndings?: boolean
+  canAddEnding?: boolean
 }>()
 
 const pending = (section: string, ref: VersionRef) => props.toFillIn.has(`${section}/${ref.id}`)
-defineEmits<{ select: [selection: Selection]; createMember: []; createNew: [section: DeckSection]; createScore: [] }>()
+defineEmits<{ select: [selection: Selection]; createMember: []; createNew: [section: DeckSection]; createScore: []; createEnding: [] }>()
 
 const root = ref<HTMLElement | null>(null)
-const open = reactive({ pack: true, scores: true, council: true, cards: true, events: true })
+const open = reactive({ pack: true, scores: true, endings: true, council: true, cards: true, events: true })
 const openGame = reactive<Record<DeckSection, boolean>>({ cards: false, events: false })
 const filter = ref('')
 const query = computed(() => filter.value.trim().toLocaleLowerCase())
@@ -176,6 +201,10 @@ const matches = computed(() => {
     const name = score.name || 'Unnamed score'
     if (hit(name)) found.push({ key: `score/${score.id}`, name, kind: 'score', target: { kind: 'score', id: score.id } })
   }
+  for (const ending of props.endings ?? []) {
+    const name = ending.name || 'Unnamed ending'
+    if (hit(name)) found.push({ key: `ending/${ending.id}`, name, kind: 'ending', target: { kind: 'ending', id: ending.id } })
+  }
   for (const memberRef of councilOrdered.value) {
     const name = props.nameOf('stakeholders', memberRef)
     if (hit(name)) found.push({ key: `member/${memberRef.id}`, name, kind: 'council', target: { kind: 'member', ref: memberRef } })
@@ -193,6 +222,7 @@ const matches = computed(() => {
 watch(() => props.selection, async (selection) => {
   if (selection.kind === 'details' || selection.kind === 'scenario') open.pack = true
   if (selection.kind === 'score') open.scores = true
+  if (selection.kind === 'ending' || selection.kind === 'endings') open.endings = true
   if (selection.kind === 'council' || selection.kind === 'member') open.council = true
   if (selection.kind === 'item' || selection.kind === 'add') open[selection.section] = true
   if (selection.kind === 'item' && !isOwn(props.draft, selection.section, selection.ref)) openGame[selection.section] = true
