@@ -22,11 +22,18 @@ import {
   planRelease,
   putContent,
   readPackArchive,
+  readPackArchiveFiles,
+  readPackReadme,
+  zipReadme,
+  PACK_README_MAX_BYTES,
+  draftToRawPack,
+  gameTarget,
   type FirstPartyPack,
   type PackArchive,
 } from '@/domains/authoring'
 import type { ContentPackManifest, PackSnapshot } from '@/domains/content/model'
 import { readPackBundle } from '@/domains/content/services/pack_bundle_file'
+import { computePackContentHash } from '@/domains/content/services/pack_snapshot_builder'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 import { createFileContentProvider } from '../../scripts/lib/file_content_provider'
 
@@ -126,11 +133,64 @@ describe('a pack as a draft', () => {
     if (!exported.ok) throw new Error(JSON.stringify(exported.issues))
     const again = await readPackBundle(exported.text, exported.file_name)
     expect(again.entities).toEqual(snapshot.entities)
+    // The same pack to players: the game's identity is unchanged (N4)
+    expect(again.content_hash).toBe(snapshot.content_hash)
     const keep = (manifest: ContentPackManifest) => ({
       id: manifest.id, version: manifest.version, name: manifest.name, description: manifest.description, kind: manifest.kind,
       license: manifest.license, authors: manifest.authors, homepage: manifest.pack_homepage_url, depends_on: manifest.depends_on, scenarios: manifest.scenarios,
     })
     expect(keep(again.manifest)).toEqual(keep(snapshot.manifest))
+  })
+
+  it('exports untouched as the very same pack: its identity, its order, and its files as written (N4)', async () => {
+    // The ledger, rewritten the way an author might: its cards listed and offered out of id order, keys in their own order
+    const files = folderFiles(LEDGER, '')
+    const manifest = JSON.parse(files['manifest.json']) as ContentPackManifest
+    manifest.content.cards = [...manifest.content.cards!].reverse()
+    files['manifest.json'] = `${JSON.stringify(manifest, null, 2)}\n`
+    for (const name of Object.keys(files).filter((file) => file.endsWith('.json') && file !== 'manifest.json')) {
+      // Whitespace isn't kept (nor part of a pack's identity): every file is written the one way the Studio writes
+      const { $schema, ...entity } = JSON.parse(files[name]) as Record<string, unknown>
+      const fields = name.startsWith('cards/') ? Object.entries(entity).reverse() : Object.entries(entity)
+      files[name] = `${JSON.stringify({ $schema, ...Object.fromEntries(fields) }, null, 2)}\n`
+    }
+    const sources = await readPackArchiveFiles(archiveOf(files), 'ledger.zip')
+    const snapshot = await readPackArchive(archiveOf(files), 'ledger.zip')
+    const result = draftFromPack(snapshot, { sources })
+    if (!result.ok) throw new Error(result.problems.join('\n'))
+
+    const exported = draftToRawPack(result.draft, gameTarget(firstParty()))
+    expect(await computePackContentHash(exported)).toBe(snapshot.content_hash)
+    expect(JSON.parse(exported.manifest_text).content.cards).toEqual(manifest.content.cards)
+    expect(exported.manifest_text).toBe(files['manifest.json'])
+    for (const [name, text] of Object.entries(sources.files)) expect(exported.files[name]).toBe(text)
+
+    // A new card comes after the pack's own order
+    const added = createOwnCard(result.draft, 'Reconcile Hourly')
+    const listed = JSON.parse(draftToRawPack(added.draft, gameTarget(firstParty())).manifest_text).content.cards as string[]
+    expect(listed.slice(0, -1)).toEqual(manifest.content.cards)
+    expect(listed[listed.length - 1]).toBe(`${added.id}-v1.json`)
+  })
+
+  it('keeps the pack\'s own README for its zip, as written (N4)', async () => {
+    const files = { ...folderFiles(LEDGER, 'gilded_ledger/'), 'gilded_ledger/README.md': '# The Gilded Ledger\n\nOur payments monolith, as a game.\n' }
+    const archive = archiveOf(files)
+    const readme = await readPackReadme(archive, 'ledger.zip')
+    expect(readme).toBe(files['gilded_ledger/README.md'])
+    const result = draftFromPack(await readPackArchive(archive, 'ledger.zip'), { readme })
+    if (!result.ok) throw new Error(result.problems.join('\n'))
+    expect(zipReadme(result.draft)).toBe('yours')
+    const zip = await exportDraftArchive(result.draft, firstParty())
+    if (!zip.ok) throw new Error(JSON.stringify(zip.issues))
+    expect(zip.files['gilded_ledger/README.md']).toBe(readme)
+
+    // None, or one too large to keep: the Studio writes its own
+    const { 'gilded_ledger/README.md': _readme, ...bare } = files
+    expect(await readPackReadme(archiveOf(bare), 'ledger.zip')).toBeUndefined()
+    expect(await readPackReadme(archiveOf({ ...bare, 'gilded_ledger/README.md': 'x'.repeat(PACK_README_MAX_BYTES + 1) }), 'ledger.zip')).toBeUndefined()
+    const written = draftFromPack(await readPackArchive(archiveOf(bare), 'ledger.zip'))
+    if (!written.ok) throw new Error(written.problems.join('\n'))
+    expect(zipReadme(written.draft)).toBe('written')
   })
 
   it('then compares the next export with what it imported', async () => {

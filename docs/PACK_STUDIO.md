@@ -1445,6 +1445,60 @@ All three join `toFillIn`. The checks' "Go to it" and the summary's "Fill in wha
 
 ---
 
+### M4.20: An imported pack exports as the same pack (2026-11-26)
+
+N4, first half: importing the SRE pack (the one real topic, from DDDnD-packs) and editing it end to end.
+
+**What the walk found.** SRE imported cleanly as a new topic and read "Ready to export". All 64 items opened in their editors, with no ids on screen. Then I exported it untouched and compared:
+- **It was a different pack to players.** The game identifies a pack by a hash of its manifest and files, and the manifest's lists are hashed in order. The Studio wrote every list sorted by id, but SRE offers its classes in its own order (Pager Paladin first), so an untouched re-export had a new identity: a new table in the bazaar, and saves that no longer match. The table also listed the classes in a different order.
+- **The Gilded Ledger had the same problem another way.** Its manifest has no coupling rules list, and the Studio wrote an empty one. An empty list where there was none is also a different hash.
+- **Every file was rewritten anyway.** Keys came back in the parser's order, and each file's `$schema` line (the editor support the official packs carry) was dropped. An author who imports from GitHub, changes one number and commits would see 81 files change.
+- **The pack's own README was replaced** by the one the Studio writes.
+
+**What changed:**
+- **The draft remembers an imported pack's layout** (`DraftPack.layout`): the order of each list in its manifest, and which sections it lists. Export follows it, so an untouched pack is the same pack. New content goes after the pack's own, by id. A section the pack never listed stays out while it's empty. Drafts the Studio started keep exporting as before.
+- **Files keep how the author wrote them.** At import, each checked entity takes back the key order of its source file, nested keys too (values always come from the game's checks). Every file the Studio writes starts with its `$schema` link, as the packs repository does. Whitespace isn't kept, and isn't part of a pack's identity.
+- **The pack's own README goes back in the zip as written** (`DraftPack.readme`, up to 64 KB). The export page says the README is the author's, and to check what it says about versions. A pack without one gets the Studio's, as before. The Studio stores this text and never shows it.
+
+**Domain:**
+- `PackLayout`, and the export's ordering and sections (`draft_export.ts`), and the `$schema` link;
+- `readPackArchiveFiles` (the files as written, split from `readPackArchive`), `readPackReadme`, `zipReadme` and `PACK_README_MAX_BYTES`;
+- `draftFromPack(snapshot, { sources, readme })`.
+
+The Studio's import adapter passes the files it read along with the snapshot.
+
+**Result, on the real SRE pack:**
+- **Untouched:** imported and exported again, it's identical to the original, file for file and byte for byte, apart from the `LICENSE` the zip adds (M4.8a).
+- **One edit:** "Tune the Noisy Alerts" gives Rested On-Call 9 instead of 8. In git, that's a three-file change:
+  - the card's file renamed to v2, with its version and the one number changed;
+  - the scenario's file renamed to v2, since it includes the card;
+  - the manifest's version and file names.
+- **Both pass** `validate-content-pack.ts --content-root`.
+- **Play it** offers SRE's classes in its own order.
+
+**For the talk: identity is a domain concept, and "unchanged" has to mean unchanged.** The game's rule (a pack is its content hash) is sound. The Studio broke it without changing any content, just by having opinions about order. Every check passed: the content was identical, value for value. Only comparing the files, and then the hashes, showed the pack had quietly become another one. Lossless (D26) turned out to be three promises: the same values (kept since M4.8), the same identity (now), and the same files as written, so an author's diff shows only their edit (now).
+
+**Verification:**
+- Tests: 1373 in total (+2, and the existing round-trip test now also asserts the identity). Both identity tests fail without the fix.
+  - `tests/authoring/pack_files.test.ts`:
+    - a pack with its cards out of id order and its keys in its own order exports with the same hash, its manifest and every file byte for byte, and a new card comes after its own;
+    - the Ledger's round trip keeps its identity;
+    - a pack's own README is kept, and one that's missing or too large is not.
+  - `tests/studio/pack_files.test.ts`: the adapter passes the source files from a zip, and none from a pack file.
+- Headless Chrome, production build with the Studio CSP:
+  1. Import SRE's zip.
+  2. Export it untouched: identical to the original.
+  3. Change one number and export: the three-file diff above.
+  4. Zero CSP violations, no console errors.
+- Headless Chrome, both dev servers: "Play it" on the imported SRE pack lists Pager Paladin, Signal Seer, Toil Druid and Budget Keeper, in the pack's order.
+
+**Left open:**
+- **Whitespace isn't kept.** The Ledger's scenario writes short lists on one line; after an export, they're on several. That's a one-time diff, and not part of the pack's identity.
+- **The README can't be edited in the Studio.**
+- **A pack file (`.dddnd-pack.json`) carries no README or `$schema` links,** so a pack imported from one gets the Studio's README in its zip.
+
+---
+
 ## 14. Picking up the work
 
 What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
@@ -1470,7 +1524,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19. Next: importing the SRE pack and the guided round (N4); then balance hints (§6). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20. Next: the guided round (N4, second half); then balance hints (§6). Each follows §9.1.
 - **Left open from the audit:**
   - undo/redo;
   - "Find anything" (search with a shortcut);

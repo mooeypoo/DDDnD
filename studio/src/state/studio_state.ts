@@ -199,7 +199,8 @@ export async function startNewTopic(name: string, description: string): Promise<
 export async function importPack(file: File): Promise<{ ok: true; draft_id: string } | { ok: false; problems: string[] }> {
   let draft: DraftPack
   try {
-    const result = draftFromPack(await readImportedPack(file))
+    const { snapshot, sources, readme } = await readImportedPack(file)
+    const result = draftFromPack(snapshot, { sources, readme })
     if (!result.ok) return { ok: false, problems: result.problems }
     draft = result.draft
   } catch (error) {

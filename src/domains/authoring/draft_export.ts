@@ -24,6 +24,7 @@ import {
   type PackIssue,
   type RawPackFiles,
 } from '../content/services/pack_snapshot_builder'
+import { JSON_SCHEMA_BASE_URL } from '../content/validation/json_schema_export'
 import { BASE_PACK_ID, CURRENT_PACK_SCHEMA_VERSION } from '../content/validation/pack_policy'
 import { contentPrefix } from './content_ids'
 import { DRAFT_LICENSE, DRAFT_SECTIONS, type DraftPack, type DraftSection } from './draft_pack'
@@ -41,8 +42,44 @@ function fileName(entity: { id: string; version: number }): string {
   return `${entity.id}-v${entity.version}.json`
 }
 
-function sortedEntities<S extends DraftSection>(draft: DraftPack, section: S) {
-  return Object.values(draft.content[section]).sort((a, b) => a.id.localeCompare(b.id) || a.version - b.version)
+/**
+ * A section's content in the order a pack lists it: an imported pack's own
+ * order (DraftPack.layout), then everything else by id. The order is part of
+ * the pack's identity, so the same content always exports in the same order.
+ */
+function orderedEntities<S extends DraftSection>(draft: DraftPack, section: S, list: 'content' | 'entries' = 'content') {
+  const order = (list === 'content' ? draft.layout?.content[section] : draft.layout?.entries[section as 'classes']) ?? []
+  const place = (id: string) => {
+    const index = order.indexOf(id)
+    return index === -1 ? order.length : index
+  }
+  return Object.values(draft.content[section]).sort((a, b) => place(a.id) - place(b.id) || a.id.localeCompare(b.id) || a.version - b.version)
+}
+
+/**
+ * The sections a manifest lists: every one for the Studio's own drafts; an
+ * imported pack's own, in its order, and then any it has gained content in.
+ */
+function manifestSections(draft: DraftPack): DraftSection[] {
+  if (!draft.layout) return [...DRAFT_SECTIONS]
+  const listed = Object.keys(draft.layout.content) as DraftSection[]
+  return [...listed, ...DRAFT_SECTIONS.filter((section) => !listed.includes(section) && Object.keys(draft.content[section]).length > 0)]
+}
+
+/** The schema a section's files follow, by its published name (card, coupling-rule, …). */
+const SCHEMA_NAMES: Record<DraftSection, string> = {
+  scenarios: 'scenario', stakeholders: 'stakeholder', stakeholder_reaction_rules: 'stakeholder-reaction-rule', cards: 'card', events: 'event',
+  delayed_effects: 'delayed-effect', scores: 'score', outcome_tiers: 'outcome-tier', outcome_archetypes: 'outcome-archetype',
+  coupling_rules: 'coupling-rule', classes: 'class', challenge_modifiers: 'challenge-modifier',
+}
+
+/**
+ * A file as the packs repository writes them: its schema's link first, for
+ * editors (the game ignores it), then the content. The official packs carry
+ * it, so an imported pack's files keep it.
+ */
+function packFileText(schema: string, value: object): string {
+  return `${JSON.stringify({ $schema: `${JSON_SCHEMA_BASE_URL}${schema}.schema.json`, ...value }, null, 2)}\n`
 }
 
 /**
@@ -74,7 +111,7 @@ export function compatibleBaseGames(target: GameTarget): { from: string; series:
 /** The manifest a draft exports with, for the game it was checked against. */
 export function draftManifest(draft: DraftPack, target: GameTarget): ContentPackManifest {
   const refs = (section: 'scenarios' | 'classes' | 'challenge_modifiers') =>
-    sortedEntities(draft, section).map(({ id, version }) => ({ id, version }))
+    orderedEntities(draft, section, 'entries').map(({ id, version }) => ({ id, version }))
   return {
     schema_version: target.schema_version,
     kind: 'extension',
@@ -91,7 +128,7 @@ export function draftManifest(draft: DraftPack, target: GameTarget): ContentPack
     classes: refs('classes'),
     challenge_modifiers: refs('challenge_modifiers'),
     tutorials: [],
-    content: Object.fromEntries(DRAFT_SECTIONS.map((section) => [section, sortedEntities(draft, section).map(fileName)])) as unknown as ContentPackManifest['content'],
+    content: Object.fromEntries(manifestSections(draft).map((section) => [section, orderedEntities(draft, section).map(fileName)])) as unknown as ContentPackManifest['content'],
   }
 }
 
@@ -99,11 +136,11 @@ export function draftManifest(draft: DraftPack, target: GameTarget): ContentPack
 export function draftToRawPack(draft: DraftPack, target: GameTarget): RawPackFiles {
   const files: Record<string, string> = {}
   for (const section of DRAFT_SECTIONS) {
-    for (const entity of sortedEntities(draft, section)) {
-      files[`${CONTENT_TYPE_BY_SECTION[section]}/${fileName(entity)}`] = `${JSON.stringify(entity, null, 2)}\n`
+    for (const entity of orderedEntities(draft, section)) {
+      files[`${CONTENT_TYPE_BY_SECTION[section]}/${fileName(entity)}`] = packFileText(SCHEMA_NAMES[section], entity)
     }
   }
-  return { manifest_text: `${JSON.stringify(draftManifest(draft, target), null, 2)}\n`, files }
+  return { manifest_text: packFileText('manifest', draftManifest(draft, target)), files }
 }
 
 /** A first-party pack the draft is checked against: its manifest and where its files come from. */

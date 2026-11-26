@@ -83,6 +83,7 @@
     </div>
     <p class="field-hint formats">
       The pack file is what players import in the game's Community bazaar. The zip holds the same pack as a folder, with a README, to publish on GitHub.
+      <template v-if="zipReadme(draft) === 'yours'"> The README is the one your pack came with, as you wrote it: check what it says about versions and contents.</template>
     </p>
     <p v-if="state === 'done'" class="done" role="status">Exported version {{ exportedVersion }}{{ exportedFormat === 'zip' ? ' as a zip' : '' }}. The Studio will compare your next export with it.</p>
     <p v-if="state === 'failed'" class="field-problem" role="alert">The game's checks refused this export: see the "to fix" button at the top.</p>
@@ -92,7 +93,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
-import { compatibleBaseGames, fieldWords, gameTarget, planRelease, releaseState, releaseVersionProblem, type DraftPack, type DraftSection } from '@/domains/authoring'
+import { compatibleBaseGames, fieldWords, zipReadme, gameTarget, planRelease, releaseState, releaseVersionProblem, type DraftPack, type DraftSection } from '@/domains/authoring'
 import { loadFirstParty } from '@studio/content/first_party'
 import type { ExportFormat } from '@studio/state/studio_state'
 

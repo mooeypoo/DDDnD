@@ -81,6 +81,31 @@ export interface DraftPack {
    * exported. Absent for imported scenarios and for drafts made before M4.14.
    */
   origins?: Record<string, ScenarioOrigin>
+  /**
+   * The order an imported pack listed its content and its classes,
+   * challenges and scenarios in, by id. The game's identity for a pack
+   * hashes its manifest, lists in order, so an export keeps this order to
+   * stay the same pack (N4). New content comes after, by id. Never shown.
+   */
+  layout?: PackLayout
+  /**
+   * An imported pack's own README, as its author wrote it: its zip carries
+   * it back unchanged, instead of one the Studio writes (N4). Plain text the
+   * Studio stores and exports, never shows.
+   */
+  readme?: string
+}
+
+/** An imported pack's lists, in its own order (ids). */
+export interface PackLayout {
+  /**
+   * The manifest's `content` lists, in its order of sections. A section it
+   * didn't list stays out of the export while it's empty: an empty list
+   * where there was none is a different pack to the game.
+   */
+  content: Partial<Record<DraftSection, string[]>>
+  /** What it offers players: `scenarios`, `classes`, `challenge_modifiers`. */
+  entries: Partial<Record<'scenarios' | 'classes' | 'challenge_modifiers', string[]>>
 }
 
 /** Where a draft's scenario came from: one of the game's, and the council it seated. */
