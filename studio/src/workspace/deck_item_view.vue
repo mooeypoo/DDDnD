@@ -81,6 +81,8 @@
           :stakeholderOptions="stakeholderOptions"
           :gameMembers="gameMembers"
           :seatsLeft="seatsLeft"
+          :canCreateScore="canAddScore(draft)"
+          @createScore="(name) => connect(connectNewScore(draft, section, itemRef.id, name)?.draft)"
           @change="setEffects"
           @createMember="(name) => connect(connectNewMember(draft, section, itemRef.id, name)?.draft)"
           @seatMember="(memberRef) => connect(connectGameMember(draft, section, itemRef.id, memberRef))"
@@ -152,7 +154,9 @@ import { computed, reactive, ref, watch } from 'vue'
 import {
   copyToEdit,
   describeCondition,
+  canAddScore,
   connectGameMember,
+  connectNewScore,
   connectNewMember,
   describeEffects,
   landingWords,

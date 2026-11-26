@@ -31,7 +31,8 @@
         <input type="number" :value="scenario.max_turns" :min="limits.numbers.max_turns.min" :max="limits.numbers.max_turns.max" step="1" @change="setTurns($event)" />
       </label>
       <fieldset class="scores">
-        <legend class="field">Starting health, 0 to 100</legend>
+        <legend class="field">Starting values, 0 to 100</legend>
+        <p v-if="scenario.score_refs.length === 0" class="field-hint">No scores yet. Add them under Scores in the sidebar: what your topic trades off.</p>
         <div class="score-grid">
           <label v-for="ref in scenario.score_refs" :key="ref.id" class="field">
             {{ scoreNames[ref.id] ?? ref.id }}
@@ -39,9 +40,12 @@
           </label>
         </div>
       </fieldset>
-      <p class="field-hint">
-        The copy starts with the original's numbers, so it plays exactly like it. Changing the turns or the starting health
+      <p v-if="copied" class="field-hint">
+        The copy starts with the original's numbers, so it plays exactly like it. Changing the turns or the starting values
         changes how hard it is; the balance lab (a later release) will show by how much.
+      </p>
+      <p v-else class="field-hint">
+        Low starts are where the pressure is: the game's scenarios start their weakest scores around 30, their strongest around 60.
       </p>
     </section>
   </div>
@@ -52,7 +56,7 @@ import { withOptionalText } from '@/domains/authoring'
 import type { Scenario } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 
-const props = defineProps<{ scenario: Scenario; scoreNames: Record<string, string> }>()
+const props = withDefaults(defineProps<{ scenario: Scenario; scoreNames: Record<string, string>; copied?: boolean }>(), { copied: true })
 const emit = defineEmits<{ change: [scenario: Scenario] }>()
 
 const limits = CONTENT_LIMITS

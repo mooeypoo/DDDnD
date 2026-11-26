@@ -39,7 +39,7 @@ function navProps(draft: DraftPack, selection: Selection) {
     const own = (draft.content[section] as Record<string, { name?: string }>)[ref.id]
     return own?.name ?? ref.id.replace(/_/g, ' ')
   }
-  return { draft, selection, councilRefs: scenarioRefs(draft, 'stakeholder_refs'), decks, seats: COUNCIL_SEATS, nameOf, toFillIn: new Set<string>(), changeCounts: {} }
+  return { draft, selection, councilRefs: scenarioRefs(draft, 'stakeholder_refs'), decks, seats: COUNCIL_SEATS, nameOf, toFillIn: new Set<string>(), changeCounts: {}, scores: [], showScores: false, maxScores: 12 }
 }
 
 const itemNames = (wrapper: ReturnType<typeof mount>) => wrapper.findAll('.item .item-name').map((name) => name.text())

@@ -29,7 +29,10 @@ export function releaseState(draft: DraftPack): ReleaseState {
 }
 
 /** The steps from a copied scenario to a pack players can import, in order. */
-export type NextStep = 'write_a_card' | 'bring_your_people' | 'fill_in' | 'add_author' | 'export'
+export type NextStep = 'name_scores' | 'write_a_card' | 'bring_your_people' | 'fill_in' | 'add_author' | 'export'
+
+/** A topic's scores should trade off: three to six of them (§5). Done from three. */
+export const TOPIC_SCORES_ENOUGH = 3
 
 /**
  * Where to go next, from what the draft already holds. Every step can be done
@@ -39,7 +42,12 @@ export type NextStep = 'write_a_card' | 'bring_your_people' | 'fill_in' | 'add_a
 export function nextSteps(draft: DraftPack): Array<{ step: NextStep; done: boolean }> {
   const own = (section: 'cards' | 'events', field: 'card_refs' | 'event_refs') => scenarioRefs(draft, field).filter((ref) => isOwn(draft, section, ref)).length
   const release = releaseState(draft)
+  // A new topic starts with what it trades off: its own scores
+  const topic: Array<{ step: NextStep; done: boolean }> = draft.kind === 'new_topic'
+    ? [{ step: 'name_scores', done: Object.keys(draft.content.scores).length >= TOPIC_SCORES_ENOUGH }]
+    : []
   return [
+    ...topic,
     { step: 'write_a_card', done: own('cards', 'card_refs') + own('events', 'event_refs') > 0 },
     { step: 'bring_your_people', done: scenarioRefs(draft, 'stakeholder_refs').some((ref) => isOwnMember(draft, ref)) },
     { step: 'fill_in', done: toFillIn(draft).length === 0 },
@@ -50,6 +58,8 @@ export function nextSteps(draft: DraftPack): Array<{ step: NextStep; done: boole
 
 /** How much of a pack is the author's own, and how big it is. */
 export function packCounts(draft: DraftPack): {
+  scores: number
+  own_scores: number
   seated: number
   own_members: number
   cards: number
@@ -60,7 +70,10 @@ export function packCounts(draft: DraftPack): {
   const cards = scenarioRefs(draft, 'card_refs')
   const events = scenarioRefs(draft, 'event_refs')
   const seated = scenarioRefs(draft, 'stakeholder_refs')
+  const scores = scenarioRefs(draft, 'score_refs')
   return {
+    scores: scores.length,
+    own_scores: scores.filter((ref) => draft.content.scores[ref.id]).length,
     seated: seated.length,
     own_members: seated.filter((ref) => isOwnMember(draft, ref)).length,
     cards: cards.length,

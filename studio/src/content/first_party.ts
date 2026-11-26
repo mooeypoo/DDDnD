@@ -4,8 +4,9 @@
  * lists base scenarios from them, and every draft check runs against them.
  */
 
-import { manifestRefs, type FirstPartyPack, type ReferencedSection } from '@/domains/authoring'
+import { manifestRefs, type FirstPartyPack } from '@/domains/authoring'
 import type { Scenario, VersionRef } from '@/domains/content/model'
+import type { ContentInventoryKey } from '@/domains/content/model/content_pack_manifest'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
 import { createContentProvider, type ContentProvider } from '@/domains/content/services/content_provider'
 import { loadManifest } from '@/domains/content/services/manifest_loader'
@@ -38,7 +39,7 @@ export function loadFirstParty(): Promise<FirstPartyContent> {
 }
 
 /** Everything the base game offers in one section (its manifest's list), as references. */
-export async function listBaseRefs(section: ReferencedSection): Promise<VersionRef[]> {
+export async function listBaseRefs(section: ContentInventoryKey): Promise<VersionRef[]> {
   const { packs } = await loadFirstParty()
   const manifest = packs.find((pack) => pack.manifest.id === 'base')?.manifest
   return manifest ? manifestRefs(manifest, section) : []

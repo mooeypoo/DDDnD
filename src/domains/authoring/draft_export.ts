@@ -207,6 +207,12 @@ export function issueSubject(file: string): IssueSubject | null {
 /** What the Studio calls each kind of content a check can be about. */
 const ISSUE_PLACES: Partial<Record<DraftSection, string>> = {
   scenarios: 'Scenario',
+  scores: 'Score',
+  outcome_archetypes: 'Ending',
+  outcome_tiers: 'Outcome tier',
+  classes: 'Class',
+  challenge_modifiers: 'Challenge modifier',
+  coupling_rules: 'Coupling rule',
   cards: 'Card',
   events: 'Event',
   stakeholders: 'Council member',
@@ -229,7 +235,9 @@ export function describeIssue(issue: PackIssue): { where: string; text: string }
   else if (/^description: must not be blank/.test(message)) {
     text = pack ? 'Add a description of the pack.'
       : subject?.kind === 'content' && subject.section === 'stakeholders' ? 'Add a description: who they are and what they care about.'
-        : 'Add a description: what it does, in a sentence.'
+        : subject?.kind === 'content' && subject.section === 'scores' ? 'Add a description: what it measures, in a sentence.'
+          : subject?.kind === 'content' && subject.section === 'scenarios' ? 'Add a description: what the player walks into.'
+            : 'Add a description: what it does, in a sentence.'
   } else if (/^name: must not be blank/.test(message)) text = pack ? 'Give the pack a name.' : 'Give it a name.'
   return { where, text }
 }

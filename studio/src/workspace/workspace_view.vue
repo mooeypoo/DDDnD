@@ -52,7 +52,11 @@
         :nameOf="nameOf"
         :toFillIn="fillIn"
         :changeCounts="changeCounts"
+        :scores="ownScores"
+        :showScores="draft.kind === 'new_topic' || ownScores.length > 0"
+        :maxScores="SCORES_PER_SCENARIO"
         @select="select"
+        @createScore="createScore"
         @createMember="createMember"
         @createNew="createNew"
       />
@@ -68,12 +72,22 @@
           @select="select"
           @createNew="createNew"
           @createMember="createMember"
+          @createScore="createScore"
         />
         <PackDetailsEditor v-else-if="selection.kind === 'details'" :draft="draft" @change="updateDraft" />
+        <ScoreEditor
+          v-else-if="selection.kind === 'score'"
+          :draft="draft"
+          :scoreId="selection.id"
+          @change="updateDraft"
+          @open="select"
+          @removed="select({ kind: 'summary' })"
+        />
         <ScenarioEditor
           v-else-if="selection.kind === 'scenario' && selectedScenario"
           :scenario="selectedScenario"
           :scoreNames="names.scores"
+          :copied="draft.kind === 'retelling'"
           @change="(scenario) => updateDraft(putContent(draft!, 'scenarios', scenario))"
         />
         <CouncilView
@@ -93,7 +107,7 @@
           :scoreOptions="scoreOptions"
           :stakeholderOptions="stakeholderOptions"
           :changes="studio.memberChanges[selection.ref.id] ?? []"
-          :gameMembers="gameMembers"
+          :gameMembers="usesGameContent(draft) ? gameMembers : []"
           :seatsLeft="COUNCIL_SEATS - councilRefs.length"
           :deckChoices="deckChoices"
           @change="updateDraft"
@@ -108,7 +122,7 @@
           :draft="draft"
           :scoreOptions="scoreOptions"
           :stakeholderOptions="stakeholderOptions"
-          :gameMembers="gameMembers"
+          :gameMembers="usesGameContent(draft) ? gameMembers : []"
           :seatsLeft="COUNCIL_SEATS - councilRefs.length"
           @change="updateDraft"
           @select="afterItemChange"
@@ -123,7 +137,7 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { addToCouncil, aftershockUsers, newestRef, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
+import { addToCouncil, aftershockUsers, createOwnScore, usesGameContent, newestRef, SCORES_PER_SCENARIO, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 import { PLAY_IT_LIVE, type PlayStatus } from '@studio/content/game_preview'
@@ -140,6 +154,7 @@ import ReleaseView from '@studio/workspace/release_view.vue'
 import ScenarioEditor from '@studio/workspace/scenario_editor.vue'
 import type { Selection } from '@studio/workspace/selection'
 import SummaryView from '@studio/workspace/summary_view.vue'
+import ScoreEditor from '@studio/workspace/score_editor.vue'
 
 defineEmits<{ leave: [] }>()
 
@@ -225,6 +240,20 @@ function nameOf(section: 'stakeholders' | DeckSection, ref: VersionRef): string 
 async function focusEditor(selector = '.editor-area input, .editor-area textarea') {
   await nextTick()
   document.querySelector<HTMLElement>(selector)?.focus()
+}
+
+/** The pack's own scores, in the first scenario's order (M4.17). */
+const ownScores = computed(() => (draft.value ? scenarioRefs(draft.value, 'score_refs').filter((ref) => draft.value!.content.scores[ref.id]).map((ref) => ({ id: ref.id, name: draft.value!.content.scores[ref.id].name })) : []))
+
+/** "+ New score": made, tracked by every scenario, and opened with its name ready to type. */
+async function createScore() {
+  if (!draft.value) return
+  const made = createOwnScore(draft.value)
+  if (!made) return
+  updateDraft(made.draft)
+  select({ kind: 'score', id: made.id })
+  await focusEditor()
+  ;(document.activeElement as HTMLInputElement | null)?.select?.()
 }
 
 /** "+ New card" / "+ New event": made, added to the deck, and opened with its name ready to type. */

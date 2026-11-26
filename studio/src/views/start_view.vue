@@ -68,15 +68,12 @@
           <span class="new-text">Copy one of the game's adventures, with its council, cards and events, and make it about your team.</span>
           <span class="new-go">Choose a scenario ›</span>
         </button>
-        <div class="new-tile new-later">
+        <button type="button" class="new-tile" @click="$emit('newTopic')">
           <span class="kind-pill pill-topic">A different topic</span>
           <span class="new-title">Teach another subject</span>
-          <span class="new-text">
-            Your own scores, council and endings arrive in a later release. The
-            <a href="https://github.com/mooeypoo/DDDnD-packs/tree/main/packs/sre_on_call" target="_blank" rel="noopener noreferrer">SRE pack</a>
-            shows what one looks like.
-          </span>
-        </div>
+          <span class="new-text">Your own scores, council, cards and endings, about incident response, security, or whatever you teach.</span>
+          <span class="new-go">Start a topic ›</span>
+        </button>
       </div>
     </section>
   </main>
@@ -93,7 +90,7 @@ import { computed, ref } from 'vue'
 import { packCounts, releaseState, sharedPackIds, type DraftPack } from '@/domains/authoring'
 import { importPack, removeDraft, studio } from '@studio/state/studio_state'
 
-const emit = defineEmits<{ openDraft: [draftId: string]; newPack: [] }>()
+const emit = defineEmits<{ openDraft: [draftId: string]; newPack: []; newTopic: [] }>()
 
 const pendingRemoval = ref<string | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)

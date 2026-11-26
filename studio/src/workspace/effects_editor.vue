@@ -31,7 +31,9 @@
       :knownNames="knownNames"
       :canSeat="seatsLeft > 0"
       :seatsLeft="seatsLeft"
+      :canCreateScore="canCreateScore"
       @score="addScore"
+      @createScore="(name) => { picking = false; emit('createScore', name) }"
       @member="addMember"
       @create="(name) => { picking = false; emit('createMember', name) }"
       @seat="(memberRef) => { picking = false; emit('seatMember', memberRef) }"
@@ -62,13 +64,17 @@ const props = withDefaults(defineProps<{
   gameMembers?: Array<{ ref: VersionRef; name: string }>
   /** Free seats at the table: a new or game member needs one. */
   seatsLeft?: number
-}>(), { gameMembers: () => [], seatsLeft: 0 })
+  /** A topic can make a score from the picker (the domain's canAddScore, M4.17). */
+  canCreateScore?: boolean
+}>(), { gameMembers: () => [], seatsLeft: 0, canCreateScore: false })
 const emit = defineEmits<{
   change: [effects: { score_changes: ScoreChange[]; stakeholder_changes: StakeholderChange[] }]
   /** "+ “name” as a new council member": the parent makes, seats and connects them (connectNewMember). */
   createMember: [name: string]
   /** One of the game's members: the parent seats and connects them (connectGameMember). */
   seatMember: [ref: VersionRef]
+  /** "+ “name” as a new score": the parent makes and connects it (connectNewScore). */
+  createScore: [name: string]
 }>()
 
 const delta = CONTENT_LIMITS.numbers.delta

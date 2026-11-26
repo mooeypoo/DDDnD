@@ -39,6 +39,26 @@
         </ul>
       </div>
 
+      <!-- A topic's own scores (M4.17): what it trades off, first, since everything else changes them -->
+      <div v-if="showScores" class="group">
+        <button type="button" class="group-toggle" :aria-expanded="open.scores" @click="open.scores = !open.scores">
+          <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5" /></svg>Scores <span class="count">{{ scores.length }}</span>
+        </button>
+        <template v-if="open.scores">
+          <div class="actions">
+            <button type="button" class="action" :disabled="scores.length >= maxScores" @click="$emit('createScore')">+ New score</button>
+          </div>
+          <ul class="items">
+            <li v-for="score in scores" :key="score.id">
+              <button type="button" class="item" :aria-current="current({ kind: 'score', id: score.id }) ? 'page' : undefined" @click="$emit('select', { kind: 'score', id: score.id })">
+                <span class="item-name"><span v-if="toFillIn.has(`scores/${score.id}`)" class="fill-dot" title="To fill in"><span class="visually-hidden">To fill in: </span></span>{{ score.name || 'Unnamed score' }}</span>
+                <span class="own-mark">yours</span>
+              </button>
+            </li>
+          </ul>
+        </template>
+      </div>
+
       <div class="group">
         <button type="button" class="group-toggle" :aria-expanded="open.council" @click="open.council = !open.council">
           <svg class="chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5" /></svg>Council <span class="count">{{ councilRefs.length }} of {{ seats }}</span>
@@ -69,7 +89,7 @@
         <template v-if="open[deck.section]">
           <div class="actions">
             <button type="button" class="action" @click="$emit('createNew', deck.section)">+ New {{ deck.singular }}</button>
-            <button type="button" class="action" :aria-current="current({ kind: 'add', section: deck.section }) ? 'page' : undefined" @click="$emit('select', { kind: 'add', section: deck.section })">+ From the game</button>
+            <button v-if="usesGameContent(draft)" type="button" class="action" :aria-current="current({ kind: 'add', section: deck.section }) ? 'page' : undefined" @click="$emit('select', { kind: 'add', section: deck.section })">+ From the game</button>
           </div>
           <ul class="items">
             <li v-for="itemRef in own(deck)" :key="`${itemRef.id}-v${itemRef.version}`">
@@ -100,7 +120,7 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { isOwn, isOwnMember, type DeckSection, type DraftPack } from '@/domains/authoring'
+import { isOwn, isOwnMember, usesGameContent, type DeckSection, type DraftPack } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { isSelected, type Selection } from '@studio/workspace/selection'
 
@@ -118,13 +138,17 @@ const props = defineProps<{
   toFillIn: ReadonlySet<string>
   /** How many things change each member's satisfaction. */
   changeCounts: Readonly<Record<string, number>>
+  /** The pack's own scores (a topic's, M4.17), and whether to show the group at all. */
+  scores: Array<{ id: string; name: string }>
+  showScores: boolean
+  maxScores: number
 }>()
 
 const pending = (section: string, ref: VersionRef) => props.toFillIn.has(`${section}/${ref.id}`)
-defineEmits<{ select: [selection: Selection]; createMember: []; createNew: [section: DeckSection] }>()
+defineEmits<{ select: [selection: Selection]; createMember: []; createNew: [section: DeckSection]; createScore: [] }>()
 
 const root = ref<HTMLElement | null>(null)
-const open = reactive({ pack: true, council: true, cards: true, events: true })
+const open = reactive({ pack: true, scores: true, council: true, cards: true, events: true })
 const openGame = reactive<Record<DeckSection, boolean>>({ cards: false, events: false })
 const filter = ref('')
 const query = computed(() => filter.value.trim().toLocaleLowerCase())
@@ -148,6 +172,10 @@ const matches = computed(() => {
     const name = scenario.name || 'Untitled scenario'
     if (hit(name)) found.push({ key: `scenario/${scenario.id}`, name, kind: 'scenario', target: { kind: 'scenario', id: scenario.id } })
   }
+  for (const score of props.scores) {
+    const name = score.name || 'Unnamed score'
+    if (hit(name)) found.push({ key: `score/${score.id}`, name, kind: 'score', target: { kind: 'score', id: score.id } })
+  }
   for (const memberRef of councilOrdered.value) {
     const name = props.nameOf('stakeholders', memberRef)
     if (hit(name)) found.push({ key: `member/${memberRef.id}`, name, kind: 'council', target: { kind: 'member', ref: memberRef } })
@@ -164,6 +192,7 @@ const matches = computed(() => {
 /** Whatever opens (from a check, a link or a new item) is shown: its group opens, and it scrolls into view. */
 watch(() => props.selection, async (selection) => {
   if (selection.kind === 'details' || selection.kind === 'scenario') open.pack = true
+  if (selection.kind === 'score') open.scores = true
   if (selection.kind === 'council' || selection.kind === 'member') open.council = true
   if (selection.kind === 'item' || selection.kind === 'add') open[selection.section] = true
   if (selection.kind === 'item' && !isOwn(props.draft, selection.section, selection.ref)) openGame[selection.section] = true

@@ -45,6 +45,8 @@
             :stakeholderOptions="stakeholderOptions"
             :gameMembers="gameMembers"
             :seatsLeft="seatsLeft"
+            :canCreateScore="canAddScore(draft)"
+            @createScore="(name) => connect(connectNewScore(draft, 'delayed_effects', entry.entity!.id, name)?.draft)"
             @change="(effects) => set(entry.entity!, effects, true)"
             @createMember="(name) => connect(connectNewMember(draft, 'delayed_effects', entry.entity!.id, name)?.draft)"
             @seatMember="(memberRef) => connect(connectGameMember(draft, 'delayed_effects', entry.entity!.id, memberRef))"
@@ -89,7 +91,9 @@ import {
   AFTERSHOCKS_PER_ITEM,
   aftershockUsers,
   attachAftershock,
+  canAddScore,
   connectGameMember,
+  connectNewScore,
   connectNewMember,
   copyAftershockToEdit,
   describeEffects,

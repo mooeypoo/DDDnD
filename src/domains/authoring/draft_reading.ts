@@ -18,6 +18,7 @@ import type {
   VersionRef,
 } from '../content/model'
 import { parseFilename } from '../content/model/version_ref'
+import type { ContentInventoryKey } from '../content/model/content_pack_manifest'
 import type { DraftContentTypes, DraftPack } from './draft_pack'
 
 /** What the Studio needs from the base game: the content provider's loaders. */
@@ -97,8 +98,8 @@ export function isReferenced(draft: DraftPack, field: ScenarioRefField, ref: Ver
 }
 
 /** The content a pack's manifest lists in one section, as references. */
-export function manifestRefs(manifest: ContentPackManifest, section: ReferencedSection): VersionRef[] {
-  return (manifest.content[section] ?? []).map(parseFilename).filter((ref): ref is VersionRef => ref !== null)
+export function manifestRefs(manifest: ContentPackManifest, section: ContentInventoryKey): VersionRef[] {
+  return ((manifest.content[section] as string[] | undefined) ?? []).map(parseFilename).filter((ref): ref is VersionRef => ref !== null)
 }
 
 /** The newest version of an id among some references, or null. */

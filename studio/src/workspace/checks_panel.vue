@@ -37,6 +37,7 @@ defineEmits<{ goTo: [target: IssueTarget] }>()
 export type IssueTarget =
   | { kind: 'details' }
   | { kind: 'scenario'; id: string }
+  | { kind: 'score'; id: string }
   | { kind: 'item'; section: 'cards' | 'events'; ref: { id: string; version: number } }
   | { kind: 'member'; ref: { id: string; version: number } }
   | { kind: 'reaction'; id: string }
@@ -53,6 +54,7 @@ function target(file: string): IssueTarget | null {
   if (section === 'stakeholder_reaction_rules') return { kind: 'reaction', id: ref.id }
   if (section === 'cards' || section === 'events') return { kind: 'item', section, ref }
   if (section === 'delayed_effects') return { kind: 'aftershock', ref }
+  if (section === 'scores') return { kind: 'score', id: ref.id }
   return null
 }
 
