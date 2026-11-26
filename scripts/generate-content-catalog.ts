@@ -1,7 +1,8 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { SCENARIO_BALANCE_TARGETS } from '../src/domains/simulation/services/audit/scenario_balance_targets_audit.ts'
+import type { BalanceTargets } from '../src/domains/content/model/content_types.ts'
+import { questDifficulty } from '../src/ui/play/quest_difficulty.ts'
 import {
   recordPlayableRef,
   selectHistoryEntities,
@@ -72,20 +73,13 @@ async function loadInventory<T extends VersionedEntity>(
   return entries
 }
 
-function difficultyFor(scenarioId: string): { id: string; label: string } | null {
-  const target = SCENARIO_BALANCE_TARGETS[scenarioId]
-  if (!target) {
-    return null
-  }
-
-  const expected = (target.win_rate_min + target.win_rate_max) / 2
-  if (expected >= 0.6) {
-    return { id: 'easy', label: 'Easy' }
-  }
-  if (expected >= 0.45) {
-    return { id: 'normal', label: 'Normal' }
-  }
-  return { id: 'hard', label: 'Hard' }
+/**
+ * The scenario's difficulty mark, from its own balance targets (M3 slice 6),
+ * by the same rule the game's lobby uses, so the docs and the game agree.
+ */
+function difficultyFor(targets: BalanceTargets | undefined): { id: string; label: string } | null {
+  const mark = questDifficulty(targets ? { winRateTarget: { min: targets.win_rate_min, max: targets.win_rate_max } } : {})
+  return mark ? { id: mark.id, label: mark.label } : null
 }
 
 function mapToObject(map: Map<string, number>): Record<string, number> {
@@ -99,12 +93,10 @@ async function main() {
   ) as ContentPackManifest
 
   const playableScenarios = await Promise.all(
-    baseManifest.scenarios.map(async (ref) => ({
-      ...(await readJsonFile<any>(baseRoot, 'scenarios', `${ref.id}-v${ref.version}.json`)),
-      is_tutorial: false,
-      pack_id: baseManifest.id,
-      difficulty: difficultyFor(ref.id),
-    }))
+    baseManifest.scenarios.map(async (ref) => {
+      const scenario = await readJsonFile<any>(baseRoot, 'scenarios', `${ref.id}-v${ref.version}.json`)
+      return { ...scenario, is_tutorial: false, pack_id: baseManifest.id, difficulty: difficultyFor(scenario.balance_targets) }
+    })
   )
 
   const tutorialScenarios = await Promise.all(
