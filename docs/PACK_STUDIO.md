@@ -55,6 +55,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D33 | **A new topic is an extension of the base game with everything else its own:** its own scores, council, cards, events and endings, the game's five outcome tiers (the owner's call), and none of the game's cards, events or council members, whose changes and conditions name the game's scores. It starts as a skeleton (a scenario, a fallback ending, a class with no score bonus) that the summary's steps walk through. | Matches the SRE pack, the one real topic. Reusing the tiers keeps the first topic short (§5); the game's content would only fail the checks in a topic; the skeleton means a fresh topic already plays once it has scores. |
 | D34 | **Endings are an ordered list, never priorities.** Authors see "tried 1st of 4" and move endings earlier or later; the Studio writes evenly spaced priorities. The fallback (no conditions) is always last and can't be deleted while it's the only one. Conditions are written generically (D29): "Rest ends below 25". | The game picks the first ending, by priority, whose conditions all hold. A number authors must keep unique and ordered is a rule the model can keep instead, and the validator's errors (two endings at one priority, an ending below the fallback) become impossible to make. |
 | D35 | **The guided round is a view of the workspace, not a separate app.** `#/guided/<draft>` shows the same editors, with the ember header and step strip (D20) above, and the step's guide (what it asks, its teaching moment, a worked example from the Gilded Ledger) in place of the sidebar. Where the author is in the round is kept with the draft, never exported. "Next" never blocks; a step ticks when the draft has what it asks for, as the domain reads it. Leaving keeps everything, and "Back to the guided round" returns to it. | One set of editors means the round teaches the real tool, and nothing in it can drift from the workspace. Ticks read from the draft (two people with a reaction each, three cards, one bad and one good surprise, clean checks) can't say "done" when it isn't. The round is a first hour, not a gate. |
+| D36 | **Balance hints measure against the game's own scenarios, read live, per score.** The yardstick is the range the five scenarios the game offers span, worked out from its content when the Studio loads (cards +9.0 to +12.2 on average, aftershocks included; events −3.3 to +0.5 a draw, weighted by how often each is drawn), not a number written into the Studio. Compared per score, since a run is judged on its scores' average. A deck is worth a look only more than a point outside that range (`NEAR_ENOUGH`). Hints never block, and never comment on the game's own cards. | A written-in number had already drifted: the plan said "+11 to +12", but Startup Hypergrowth's cards net +9.0. Reading the game's content keeps the yardstick honest as the game is rebalanced. The point of slack comes from evidence: the SRE pack wins 40% of runs with cards at +8.2. |
 
 ---
 
@@ -164,7 +165,7 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 3. ~~Zip export and import~~ (M4.8).
 4. ~~"Play it" (D15, D17)~~ (M4.16; live in production from the launch, D32).
 5. ~~New-topic authoring (scores, endings, classes) and the guided round~~ (M4.17–M4.21; the new-topic round may follow).
-6. Balance hints, and the smaller items: "Go to it" focusing the exact field, a warning when the prefix (the pack's id) changes after a release, undo/redo, and search. (The sidebar's collapse and filter came with the audit, M4.9.)
+6. ~~Balance hints~~ (M4.22, D36), and the smaller items: "Go to it" focusing the exact field, a warning when the prefix (the pack's id) changes after a release, undo/redo, and search. (The sidebar's collapse and filter came with the audit, M4.9.)
 7. ~~**The UI/UX audit (D23)**~~ (M4.9–M4.15, brought forward and done first). The patterns for every later screen are in §9.1.
 8. Launch: remove `noindex`, and add the Studio's origin to the game's preview allowlist.
 
@@ -318,7 +319,7 @@ The audit (M4.9–M4.14) made the Studio consistent. Every screen still to come 
 - **"Play it" (D15, D17):** a quiet "▶ Play it" in the toolbar beside Export, opening the game's preview in a new tab. Its state (opening, sent, the tab was closed) shows in the toolbar, not in a page.
 - **New-topic authoring:** scores, endings and classes are editors in the frame above, each with a sidebar group. A card's picker gains "+ “…” as a new score" (create from the picker), and an ending shows what reaches it from the other side.
 - **The guided round (§5, D20):** the one place for a step-by-step flow. It's the same editors under the ember "Guided round" header, with its steps as a list like the summary's "Where to go next", and "leave the round: your work is kept" always visible.
-- **Balance hints (D3):** domain arithmetic (`netScoreChange` and friends) shown as "worth a look" lines in an editor and in the summary, never blocking. They're worded like the notes, saying what to try.
+- **Balance hints (D3, D36):** domain arithmetic (`balance_hints.ts`) shown as "worth a look" lines in an editor and in the summary, never blocking. They're worded like the notes, saying what to try. Built in M4.22.
 
 ---
 
@@ -1580,6 +1581,80 @@ The round's place is `DraftPack.round`, the Studio's memory, like `origins`: a t
 
 ---
 
+### M4.22: Balance hints (2026-11-26)
+
+D3's balance hints: arithmetic on the draft's decks, beside the game's own scenarios. D36.
+
+**What an author sees:**
+- **In the summary, "Balance, beside the game's":**
+  - "Your cards net +10.8 on average, aftershocks included; the game's scenarios: +9.0 to +12.2."
+  - "Your events net −2.4 a draw, weighted by how often each is drawn; the game's scenarios: −3.3 to +0.5."
+  - then "Nothing worth a look", or each hint with what to try, and "Open …" for a card or event it names. The count is a polite live region (§10).
+- **In a card's or event's editor:**
+  - the deck's line, in place of the fixed "+11 to +12" calibration hint;
+  - the hints about this item, in the amber nudge that "This card only helps" used.
+- **In the guided round:** the cards and surprises steps show the deck's line under what the author has made.
+
+**The hints:**
+- **Cards gain less, or more, than the game's** (more than a point outside the range): "Players may struggle to reach your endings. Keep each card's cost, and raise what it gains."
+- **Events are harsher, or kinder:** "Add a good event, soften a bad one, or make a bad one happen only sometimes."
+- **A card of your own only helps.**
+- **A card or event of your own changes nothing yet:** "Playing it is a wasted turn."
+
+**Domain (`balance_hints.ts`, new):**
+- `deckBalance` works out a scenario's numbers through a `DeckLookup`: the draft's (`draftLookup`, its own content first) or the game's (`gameLookup`). The same arithmetic measures both sides.
+- `gameBalance` gives the range of the game's scenarios, per score; `rangeFor` scales it to a deck's own score count.
+- `balanceHints` lists what's worth a look, whole decks first. `deckHolding` and `hintsAbout` find what an editor needs.
+- The words: `netWords` ("+8.2", "−3.3"), `deckBalanceWords` and `describeBalanceHint`, so the Studio holds no wording about balance.
+
+The Studio works the numbers out in the same pass as the checks (`checkNow`), so they're as current as the checks. It works out the game's range once (`loadGameBalance`).
+
+**What the hints say about real packs:**
+
+| | Cards | Events | Hints |
+|---|---|---|---|
+| The game's scenarios | +9.0 to +12.2 | −3.3 to +0.5 | |
+| SRE, first draft (from M3) | +4.7 | −5.7 | both |
+| SRE, as published | +8.2 | −2.0 | none |
+| Gilded Ledger | +10.9 | −6.3 | events harsher |
+
+The Ledger's flag is a real finding, not a false alarm the slack should hide. Its events are harsher than any of the game's scenarios. Whether that's the story it means to tell (an audit looming) is the balance lab's question (M5).
+
+**Decisions (D36):**
+- **The yardstick is read from the game's content, not written in.** The plan's "+11 to +12" had already drifted: it fits four of the five scenarios, but Startup Hypergrowth's cards net +9.0.
+- **Per score.** A run is judged on its scores' average, so a pack with three scores needs half what a six-score pack does per card. Every scenario so far has six scores, so the numbers read as before.
+- **A point of slack** (`NEAR_ENOUGH`). The SRE pack wins 40% of runs at +8.2, under a point below the range, so being that close isn't worth a hint.
+- **Never about the game's own content.** A copy of the Monolith has nothing worth a look, and a test holds it.
+- **Conditional events count at their weight.** An event that only happens when a score is low is drawn less often than its weight says. The hint's advice ("make a bad one happen only sometimes") points at that, but the arithmetic doesn't model it; the balance lab will.
+
+**Fixed along the way:** **toolbar buttons moved while the draft saved.** "Saving…" is shorter than "Saved in this browser", so the Summary and Edit switch slid 85 px left for a moment. A click that starts by leaving a field triggers that save, so the click landed on empty space: typing a card's name and then clicking Summary did nothing. The save state now holds the width of its longest message. This dated from the audit; the walk caught it.
+
+**For the talk: the yardstick is in the domain's own language.** The game's balance work counted "net with aftershocks" and "weighted event net" in a script and a journal entry. Giving those numbers names (`deckBalance`, `GameBalance`) meant the same function could measure the game's scenarios and the author's draft. The hint is then a comparison of two values of one type, not a constant someone has to keep in step.
+
+**Verification:**
+- Tests: 1395 in total (+12):
+  - `tests/authoring/balance_hints.test.ts` (9):
+    - the game's range, read from its content;
+    - per-score scaling;
+    - aftershocks and weights counted, missing content left out;
+    - the words;
+    - a copy of the game's scenario says nothing;
+    - the SRE first draft's shape is caught;
+    - the point of slack;
+    - only the author's own cards and events are named.
+  - `tests/studio/summary_and_start.test.ts` (2): the summary's numbers and "Open …"; nothing worth a look for a copy.
+  - `tests/studio/editor_actions.test.ts` (1): a new card's nudge and its deck line.
+- Headless Chrome, production build with the Studio CSP:
+  - the SRE and Gilded Ledger imports show the numbers in the table above;
+  - a new card in a Monolith copy, at 1024 px with Largest text: the nudge, the deck line, the summary's hint, and "Open Write an RFC";
+  - the round's cards and surprises steps show the deck's line;
+  - Summary opens straight from a focused name field, and the switch holds still while saving;
+  - zero CSP violations, no console errors.
+
+**Left open:**
+- **Starting scores and turn count aren't compared.** A low start makes the same deck harder. That needs play, so it's the balance lab's.
+- **Hints aren't in the checks popover.** §9.1 puts them in the editors and the summary; the popover stays about what blocks export, plus the council notes.
+
 ## 14. Picking up the work
 
 What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
@@ -1605,7 +1680,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Next: balance hints and the smaller items (§6, item 6), then the new-topic round. Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). Next: the smaller items (§6, item 6), then the new-topic round, then the start screen's "start something new" with the owner (they have feedback: it reads as if you must pick an existing pack). Each follows §9.1.
 - **Left open from the audit:**
   - undo/redo;
   - "Find anything" (search with a shortcut);

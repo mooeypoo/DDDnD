@@ -4,7 +4,7 @@
  * lists base scenarios from them, and every draft check runs against them.
  */
 
-import { manifestRefs, type FirstPartyPack } from '@/domains/authoring'
+import { gameBalance, manifestRefs, type FirstPartyPack, type GameBalance } from '@/domains/authoring'
 import type { Scenario, VersionRef } from '@/domains/content/model'
 import type { ContentInventoryKey } from '@/domains/content/model/content_pack_manifest'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
@@ -61,4 +61,22 @@ export async function listBaseScenarios(): Promise<BaseScenarioChoice[]> {
     name: scenario.name,
     summary: scenario.short_description ?? scenario.description,
   }))
+}
+
+let balance: Promise<GameBalance> | null = null
+
+/** The game's own scenarios in numbers (D3), for the balance hints to compare with. Worked out once. */
+export function loadGameBalance(): Promise<GameBalance> {
+  if (!balance) {
+    balance = (async () => {
+      const { packs, base } = await loadFirstParty()
+      const manifest = packs.find((pack) => pack.manifest.id === 'base')?.manifest
+      const scenarios: Scenario[] = await Promise.all((manifest?.scenarios ?? []).map((ref) => base.loadScenario(ref)))
+      return gameBalance(scenarios, base)
+    })()
+    balance.catch(() => {
+      balance = null
+    })
+  }
+  return balance
 }

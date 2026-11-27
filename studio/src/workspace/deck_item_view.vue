@@ -91,11 +91,9 @@
           <span class="plain-lead">In plain words:</span> {{ plainWords }}.
           It nets <strong>{{ signed(net) }}</strong><template v-if="aftershocks.length">, or <strong>{{ signed(netAll) }}</strong> with its aftershocks</template>.
         </p>
-        <p v-if="section === 'cards' && helpsOnly" class="nudge" role="note">
-          <strong>This card only helps.</strong> Every move in DDDnD trades something away. What does it cost: some budget,
-          a tired team, slower delivery for a while? Without a cost, players will play nothing else.
-        </p>
-        <p v-if="section === 'cards'" class="field-hint">For calibration: the base game's cards net about +11 to +12 on average, aftershocks included, with at least one score going down.</p>
+        <!-- Balance hints (D3): the domain's, about this card or event, and its deck beside the game's -->
+        <p v-for="hint in itemHints" :key="hint.title" class="nudge" role="note"><strong>{{ hint.title }}</strong> {{ hint.text }}</p>
+        <p v-if="deckLine" class="field-hint">{{ deckLine }}</p>
       </section>
 
       <AftershockEditor
@@ -164,7 +162,10 @@ import {
   isOwn,
   netScoreChange,
   netWithAftershocks,
-  onlyHelps,
+  deckBalanceWords,
+  deckHolding,
+  describeBalanceHint,
+  hintsAbout,
   ownEntity,
   putContent,
   removeFromDeck,
@@ -174,8 +175,11 @@ import {
   startingCondition,
   withEffects,
   withOptionalText,
+  type BalanceHint,
+  type DeckBalance,
   type DeckSection,
   type DraftPack,
+  type GameBalance,
 } from '@/domains/authoring'
 import type { Card, DelayedEffect, Event, NumericCondition, ScoreChange, StakeholderChange, VersionRef } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
@@ -195,6 +199,8 @@ const props = defineProps<{
   /** The game's members who aren't seated, and how many seats are free (slice 3b). */
   gameMembers: Array<{ ref: VersionRef; name: string }>
   seatsLeft: number
+  /** The last check's balance numbers (D3); absent until a check has run. */
+  balance?: { decks: DeckBalance[]; game: GameBalance | null; hints: BalanceHint[] }
 }>()
 const emit = defineEmits<{ change: [draft: DraftPack]; select: [ref: VersionRef | null] }>()
 
@@ -255,7 +261,13 @@ const missing = computed(() => {
 const plainWords = computed(() => (item.value ? describeEffects(item.value, names.value) : ''))
 const net = computed(() => (item.value ? netScoreChange(item.value) : 0))
 const netAll = computed(() => (item.value ? netWithAftershocks(item.value, aftershocks.value.flatMap((entry) => (entry.entity ? [entry.entity] : []))) : 0))
-const helpsOnly = computed(() => (item.value ? onlyHelps(item.value) : false))
+/** What's worth a look about this item, and its deck's numbers beside the game's, in the domain's words. */
+const itemHints = computed(() => hintsAbout(props.balance?.hints ?? [], props.section, props.itemRef).map((hint) => describeBalanceHint(hint, props.draft)))
+const deckLine = computed(() => {
+  const deck = props.balance ? deckHolding(props.draft, props.balance.decks, props.section, props.itemRef) : null
+  if (!deck) return ''
+  return deckBalanceWords(deck, props.balance?.game ?? null)[props.section]
+})
 /** When the event can happen, in plain words, from its condition (not its stored text). */
 const conditionWords = computed(() => {
   const condition = props.section === 'events' ? (item.value as Event | null)?.trigger_condition : undefined

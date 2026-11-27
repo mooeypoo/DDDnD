@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 
-import { createOwnCard, draftFromBaseScenario, isOwn, scenarioRefs, type DraftPack } from '@/domains/authoring'
+import { balanceHints, createOwnCard, draftBalance, gameBalance, draftFromBaseScenario, isOwn, scenarioRefs, type DraftPack } from '@/domains/authoring'
 import type { ContentPackManifest } from '@/domains/content/model'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
 import { firstPartyPackKey } from '@/domains/content/services/pack_identity'
@@ -33,6 +33,10 @@ vi.mock('@studio/content/first_party', () => ({
     return { packs: [{ manifest, provider }], base }
   },
   listBaseRefs: async () => [],
+  loadGameBalance: async () => {
+    const { manifest, base } = baseRegistry()
+    return gameBalance(await Promise.all(manifest.scenarios.map((ref) => base.loadScenario(ref))), base)
+  },
 }))
 
 const { default: DeckItemView } = await import('@studio/workspace/deck_item_view.vue')
@@ -92,6 +96,21 @@ describe('your own card', () => {
     const emitted = wrapper.emitted('change')!
     const [changed] = emitted[emitted.length - 1] as [DraftPack]
     expect(changed.content.cards[ownCardId]).toBeUndefined()
+  })
+})
+
+describe("your own card's balance", () => {
+  it("says it changes nothing yet, and shows its deck beside the game's (D3)", async () => {
+    const { draft, ownCardId } = await monolith()
+    const { manifest, base } = baseRegistry()
+    const game = await gameBalance(await Promise.all(manifest.scenarios.map((ref) => base.loadScenario(ref))), base)
+    const decks = await draftBalance(draft, base)
+    const wrapper = mount(DeckItemView, {
+      props: { section: 'cards', itemRef: { id: ownCardId, version: 1 }, draft, scoreOptions: [], stakeholderOptions: [], gameMembers: [], seatsLeft: 4, balance: { decks, game, hints: balanceHints(draft, decks, game) } },
+    })
+    await loaded(wrapper)
+    expect(wrapper.find('.nudge').text()).toBe("Pair On It changes nothing yet. Playing it is a wasted turn. Give it a change to a score or to someone's satisfaction.")
+    expect(wrapper.findAll('.field-hint').map((hint) => hint.text())).toContainEqual(expect.stringMatching(/^Your cards net \+\d+\.\d on average, aftershocks included; the game's scenarios: \+9\.0 to \+12\.2\.$/))
   })
 })
 
