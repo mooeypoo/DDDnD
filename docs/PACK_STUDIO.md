@@ -165,7 +165,7 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 3. ~~Zip export and import~~ (M4.8).
 4. ~~"Play it" (D15, D17)~~ (M4.16; live in production from the launch, D32).
 5. ~~New-topic authoring (scores, endings, classes) and the guided round~~ (M4.17–M4.21; the new-topic round may follow).
-6. ~~Balance hints~~ (M4.22, D36), and the smaller items: ~~"Go to it" focusing the exact field~~ and ~~a warning when the prefix (the pack's id) changes after a release~~ (M4.23), undo/redo, and search. (The sidebar's collapse and filter came with the audit, M4.9.)
+6. ~~Balance hints~~ (M4.22, D36), and the smaller items: ~~"Go to it" focusing the exact field~~ and ~~a warning when the prefix (the pack's id) changes after a release~~ (M4.23), ~~undo/redo, and search~~ (M4.24). (The sidebar's collapse and filter came with the audit, M4.9.)
 7. ~~**The UI/UX audit (D23)**~~ (M4.9–M4.15, brought forward and done first). The patterns for every later screen are in §9.1.
 8. Launch: remove `noindex`, and add the Studio's origin to the game's preview allowlist.
 
@@ -1706,6 +1706,60 @@ Two of §6 item 6's smaller items.
 
 **Left open:** a field with no input of its own (a list the Studio edits through a picker) still lands on the editor's first input.
 
+### M4.24: Undo, redo, and find (2026-11-27)
+
+The last of §6 item 6's smaller items.
+
+**Undo and redo:**
+- **Undo** and **Redo** buttons sit beside the Summary/Edit switch, with Ctrl Z / Ctrl Shift Z / Ctrl Y (⌘ on a Mac). "Undone" or "Redone" is announced politely.
+- **Typing is one step:** edits less than a second apart join the step they follow, so undoing a name takes back the whole name, not a letter.
+- **Inside a text field, Ctrl Z is the browser's own** and takes back the typing. The pack's undo works from anywhere else, and from the buttons. No shortcut fires while typing (§10).
+- **Undoing what's open** (a card just made) opens the summary instead of an empty editor.
+- **Moving through the guided round isn't a step.** Undo keeps the round where the author left it.
+- **An export ends the history.** Undoing past it would forget what players already have. An export the checks refuse doesn't count.
+- **The history is per draft and per session.** Opening another draft starts a new one; it isn't saved.
+
+**Find:**
+- **Ctrl K (⌘ K) focuses the sidebar's filter** from anywhere in the workspace, now called "Find in this pack (Ctrl K)". Enter opens the first match.
+- **It finds more than the sidebar lists:**
+  - reactions and aftershocks by name, each with whose page it's on ("reaction · on Head of Payments");
+  - anything of the author's own by their words ("card · in its description").
+
+  A match found in the words opens at that field, through the same `goTo` as the checks (M4.23).
+- **Matching ignores case and accents:** "cafe" finds "Café".
+
+**Domain:** `searchOwnContent` (`pack_search.ts`, new): the author's own content matching a query, name matches first, then words (short name, summary, description, flavor), with whose page a reaction or aftershock is on (`memberOfReaction`, `aftershockUsers`). The game's own content is found by the names the Studio already has; its words aren't loaded.
+
+**Studio:**
+- `draft_history.ts` (new, pure): `recordEdit`, `undoEdit`, `redoEdit`, `GROUP_MS`, `MAX_STEPS = 100`.
+- `studio_state`:
+  - `updateDraft(next, { sameStep })` records each edit, except one that only moves the round;
+  - `undoDraft` and `redoDraft`;
+  - `state.undo` for the toolbar;
+  - the history is cleared with the rest of a draft's findings, and after an export.
+- **`settle` events:** a new item's id following its name is part of naming it. The card, member, reaction and aftershock editors emit it, and the workspace joins it to the last step.
+- `selection.ts`'s `stillThere` decides when what's open has gone. The sidebar's filter exposes `focusFilter` for the shortcut.
+
+**Fixed along the way:** the walk's first try undid a card's description and landed on the summary. When the name field lost focus, the card's placeholder id followed its name as an edit of its own; undoing that brought the placeholder id back, so the open card "vanished". The id change now joins the naming step, however late the field loses focus, and doesn't restart the clock, so what's typed next is its own step. A test covers both.
+
+**Decisions:**
+- **Whole drafts, not inverse operations.** Every edit already makes a new draft (D22), so a step back is the draft before. No editor needed to learn how to reverse itself, and nothing an editor adds later can be missed.
+- **The browser's undo inside fields.** Taking Ctrl Z from a text field would surprise everyone. Outside one, the pack's undo is what an author means.
+- **Find, not a second search box.** The sidebar's filter already found things by name, so the shortcut and the wider matches went there.
+- **Not in the guided round.** The guide takes the sidebar's place there. Undo works by shortcut, but Find isn't offered; leaving the round brings both.
+
+**For the talk: undo came free from immutability.** Because the domain never mutates a draft (D22), history is a list of values. The only design work was deciding what isn't a step: the round's place and an id settling are the Studio's bookkeeping, not the author's edits. That's the same line the domain draws everywhere between content and the Studio's memory.
+
+**Verification:**
+- Tests: 1416 in total (+10):
+  - `tests/studio/undo_and_find.test.ts` (8): grouping, a late id settle, redo cleared by an edit, the round's place, the step limit, the Studio state (the round not recorded; a refused export keeps the history and a real one ends it), what's open after an undo, and Find in words with Enter.
+  - `tests/authoring/pack_search.test.ts` (2): order and accents; whose page.
+- Headless Chrome, production build with the Studio CSP, at 1440 and 1024 px:
+  - "Ours" then ", at home" are two steps; Ctrl Z in the field takes back a letter; Undo, Undo, Redo;
+  - a new card with a description: Ctrl Z takes back the description (the card stays open), Ctrl Z again takes back the card (the summary opens), Ctrl Shift Z twice brings both back;
+  - Ctrl K, "payments team": "Write an RFC · card · in its description"; Enter lands in its description;
+  - zero CSP violations, no console errors.
+
 ## 14. Picking up the work
 
 What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
@@ -1731,10 +1785,8 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23. Next: undo/redo and search (§6, item 6), then the new-topic round, then the start screen's "start something new" with the owner (they have feedback: it reads as if you must pick an existing pack). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. Next: the new-topic round, then the start screen's "start something new" with the owner (they have feedback: it reads as if you must pick an existing pack). Each follows §9.1.
 - **Left open from the audit:**
-  - undo/redo;
-  - "Find anything" (search with a shortcut);
   - a map view of cards and their impact (maybe, D28);
   - whether the game's validator should check council member ids in changes (M4.14).
 

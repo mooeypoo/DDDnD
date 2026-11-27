@@ -254,7 +254,8 @@ async function connectFromHere() {
 function connect(next: DraftPack | null | undefined) {
   if (next) emit('change', next)
 }
-const emit = defineEmits<{ change: [draft: DraftPack]; select: [ref: VersionRef | null]; open: [selection: Selection] }>()
+/** `settle`: a new member's or reaction's id follows its name, part of naming it (undo, M4.24). */
+const emit = defineEmits<{ change: [draft: DraftPack]; settle: [draft: DraftPack]; select: [ref: VersionRef | null]; open: [selection: Selection] }>()
 
 /** Their sources, the author's own first. */
 const sources = computed(() => [...props.changes.filter((source) => source.own), ...props.changes.filter((source) => !source.own)])
@@ -346,7 +347,7 @@ function setSummary(value: string) {
 function settleMember() {
   const settled = settleNewMemberId(props.draft, props.memberRef.id)
   if (settled.id === props.memberRef.id) return
-  emit('change', settled.draft)
+  emit('settle', settled.draft)
   emit('select', { id: settled.id, version: props.memberRef.version })
 }
 
@@ -365,7 +366,7 @@ function setRuleEffects(rule: StakeholderReactionRule, effects: { score_changes:
 
 function settleRule(ruleId: string) {
   const settled = settleNewReactionId(props.draft, props.memberRef.id, ruleId)
-  if (settled.id !== ruleId) emit('change', settled.draft)
+  if (settled.id !== ruleId) emit('settle', settled.draft)
 }
 
 async function newReaction() {

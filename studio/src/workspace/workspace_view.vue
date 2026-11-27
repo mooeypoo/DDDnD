@@ -23,6 +23,12 @@
         <button type="button" class="view-option" :aria-pressed="selection.kind === 'summary'" @click="select({ kind: 'summary' })">Summary</button>
         <button type="button" class="view-option" :aria-pressed="selection.kind !== 'summary'" @click="select(lastEdit)">Edit</button>
       </div>
+      <!-- Undo and redo (M4.24): the whole pack, a step at a time; typing a name is one step -->
+      <div class="history" role="group" aria-label="History">
+        <button type="button" class="button button-quiet" :disabled="!studio.undo.can_undo" :title="`Undo (${SHORTCUT} Z)`" :aria-keyshortcuts="KEYS.undo" @click="undoDraft">Undo</button>
+        <button type="button" class="button button-quiet" :disabled="!studio.undo.can_redo" :title="`Redo (${SHORTCUT} Shift Z)`" :aria-keyshortcuts="KEYS.redo" @click="redoDraft">Redo</button>
+        <span class="visually-hidden" role="status" aria-live="polite">{{ studio.undo.said }}</span>
+      </div>
       <div class="bar-tools">
         <!-- A draft with a guided round in progress can go back to it (§5) -->
         <button v-if="inRound(draft)" type="button" class="button button-quiet" @click="$emit('resumeRound')">Back to the guided round</button>
@@ -74,6 +80,7 @@
       />
       <ContentsNav
         v-else
+        ref="contentsNav"
         class="contents"
         :draft="draft"
         :selection="selection"
@@ -92,7 +99,10 @@
         :rules="ownRules"
         :showRules="!usesGameContent(draft) || ownRules.length > 0"
         :canAddCoupling="canAddCoupling"
+        :shortcut="SHORTCUT"
+        :shortcutKeys="KEYS.find"
         @select="select"
+        @goTo="goTo"
         @createRule="createRule"
         @createScore="createScore"
         @createEnding="createEnding"
@@ -210,6 +220,7 @@
           :seatsLeft="COUNCIL_SEATS - councilRefs.length"
           :deckChoices="deckChoices"
           @change="updateDraft"
+          @settle="(next) => updateDraft(next, { sameStep: true })"
           @select="afterMemberChange"
           @open="select"
         />
@@ -225,6 +236,7 @@
           :seatsLeft="COUNCIL_SEATS - councilRefs.length"
           :balance="studio.balance"
           @change="updateDraft"
+          @settle="(next) => updateDraft(next, { sameStep: true })"
           @select="afterItemChange"
         />
         <DeckAddView v-else-if="selection.kind === 'add'" :section="selection.section" :draft="draft" @change="updateDraft" />
@@ -235,13 +247,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
 import { addToCouncil, aftershockUsers, finishRound, goToRoundStep, inRound, nextRoundStep, previousRoundStep, type RoundStep, isOwn as isOwnItem, COUPLING_PER_SCENARIO, couplingInOrder, createOwnChallenge, createOwnClass, createOwnCoupling, createOwnEnding, createOwnScore, endingsInOrder, ENDINGS_PER_SCENARIO, isFallback, usesGameContent, newestRef, SCORES_PER_SCENARIO, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 import { PLAY_IT_LIVE, type PlayStatus } from '@studio/content/game_preview'
-import { exportCurrentDraft, playCurrentDraft, studio, updateDraft, type ExportFormat } from '@studio/state/studio_state'
+import { exportCurrentDraft, playCurrentDraft, redoDraft, studio, undoDraft, updateDraft, type ExportFormat } from '@studio/state/studio_state'
 import ChecksButton from '@studio/workspace/checks_button.vue'
 import type { IssueTarget } from '@studio/workspace/checks_panel.vue'
 import { centreIn, fieldElement } from '@studio/workspace/field_focus'
@@ -253,7 +265,7 @@ import MemberView from '@studio/workspace/member_view.vue'
 import PackDetailsEditor from '@studio/workspace/pack_details_editor.vue'
 import ReleaseView from '@studio/workspace/release_view.vue'
 import ScenarioEditor from '@studio/workspace/scenario_editor.vue'
-import type { Selection } from '@studio/workspace/selection'
+import { stillThere, type Selection } from '@studio/workspace/selection'
 import SummaryView from '@studio/workspace/summary_view.vue'
 import ScoreEditor from '@studio/workspace/score_editor.vue'
 import EndingEditor from '@studio/workspace/ending_editor.vue'
@@ -266,6 +278,46 @@ import ClassEditor from '@studio/workspace/class_editor.vue'
 import CouplingEditor from '@studio/workspace/coupling_editor.vue'
 
 const props = withDefaults(defineProps<{ guided?: boolean }>(), { guided: false })
+
+/** The shortcuts (M4.24, §10): with Ctrl or ⌘, never a single key that fires while typing. */
+const APPLE = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
+const SHORTCUT = APPLE ? '⌘' : 'Ctrl'
+const KEYS = APPLE
+  ? { undo: 'Meta+Z', redo: 'Meta+Shift+Z', find: 'Meta+K' }
+  : { undo: 'Control+Z', redo: 'Control+Shift+Z Control+Y', find: 'Control+K' }
+
+/** True where the browser's own undo belongs: inside a text field, Ctrl Z takes back the typing. */
+function typingIn(target: EventTarget | null): boolean {
+  const element = target as HTMLElement | null
+  if (!element) return false
+  return element.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(element.tagName)
+}
+
+function onKeydown(event: KeyboardEvent) {
+  if (!(event.ctrlKey || event.metaKey) || event.altKey) return
+  const key = event.key.toLowerCase()
+  if (key === 'k') {
+    // Find, from anywhere, even mid-typing: it moves focus, it doesn't edit
+    event.preventDefault()
+    findInPack()
+    return
+  }
+  if (typingIn(event.target)) return
+  if (key === 'z' && !event.shiftKey) {
+    event.preventDefault()
+    undoDraft()
+  } else if ((key === 'z' && event.shiftKey) || key === 'y') {
+    event.preventDefault()
+    redoDraft()
+  }
+}
+const contentsNav = ref<{ focusFilter: () => void } | null>(null)
+/** Find (M4.24): the sidebar's filter. The guided round's guide takes the sidebar's place, so there it's not offered. */
+function findInPack() {
+  contentsNav.value?.focusFilter()
+}
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 const emit = defineEmits<{ leave: []; leaveRound: []; resumeRound: [] }>()
 
 type NameSection = 'scores' | 'stakeholders' | 'cards' | 'events'
@@ -286,6 +338,11 @@ function select(next: Selection) {
   if (next.kind !== 'summary') lastEdit.value = next
   editorArea.value?.scrollTo?.({ top: 0 })
 }
+
+/** Undo can take back what's open (a new card, say): then the summary opens instead of an empty editor. */
+watch(() => draft.value, (current) => {
+  if (current && !stillThere(current, selection.value)) select({ kind: 'summary' })
+})
 
 /** A release can give the open card, event or member a new version (M4.7): stay on it. */
 watch(() => draft.value?.content, (content) => {
@@ -646,6 +703,11 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
 .bar-play-status {
   font-size: 0.875rem;
   color: var(--forge-text-secondary);
+}
+
+.history {
+  display: flex;
+  gap: 0.375rem;
 }
 
 .bar-tools {
