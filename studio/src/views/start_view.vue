@@ -28,7 +28,7 @@
 
       <p v-if="!studio.ready" class="loading" role="status">Loading your packs…</p>
       <div v-else-if="studio.drafts.length === 0" class="empty-packs">
-        <p><strong>No packs yet.</strong> Start one from one of the game's scenarios, or import a pack file or zip to keep editing it.</p>
+        <p><strong>No packs yet.</strong> New here? The guided round builds your first one with you, about your own organization. Or start from one of the game's scenarios, or import a pack file or zip to keep editing it.</p>
       </div>
       <ul v-else class="pack-tiles">
         <li v-for="entry in studio.drafts" :key="entry.draft_id" class="pack-tile">
@@ -62,6 +62,13 @@
     <section class="start-new" aria-labelledby="new-title">
       <h2 id="new-title" class="section-label">Start something new</h2>
       <div class="new-tiles">
+        <!-- The guided round (§5, D20): ember, like its header, since it's the way in for a first pack -->
+        <button type="button" class="new-tile new-guided" @click="$emit('guidedRound')">
+          <span class="kind-pill pill-guided">Guided round</span>
+          <span class="new-title">Build your first pack, step by step</span>
+          <span class="new-text">About fifteen minutes: your system, your people and the moves your team argues about, with an example beside every step. Then play it.</span>
+          <span class="new-go">Start the guided round ›</span>
+        </button>
         <button type="button" class="new-tile" @click="$emit('newPack')">
           <span class="kind-pill pill-setting">Same game, new setting</span>
           <span class="new-title">Retell a DDDnD scenario</span>
@@ -90,7 +97,7 @@ import { computed, ref } from 'vue'
 import { packCounts, releaseState, sharedPackIds, type DraftPack } from '@/domains/authoring'
 import { importPack, removeDraft, studio } from '@studio/state/studio_state'
 
-const emit = defineEmits<{ openDraft: [draftId: string]; newPack: []; newTopic: [] }>()
+const emit = defineEmits<{ openDraft: [draftId: string]; newPack: []; newTopic: []; guidedRound: [] }>()
 
 const pendingRemoval = ref<string | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -350,6 +357,17 @@ function formatWhen(iso: string): string {
 
 button.new-tile {
   cursor: pointer;
+}
+
+.new-guided {
+  border-color: var(--forge-ember);
+  background: var(--forge-ember-ground);
+}
+
+.pill-guided {
+  align-self: flex-start;
+  background: var(--forge-ember);
+  color: var(--forge-ember-ink);
 }
 
 .new-later {

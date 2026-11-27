@@ -54,6 +54,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D32 | **"Play it" is trusted in production only from the launch.** Until then the game trusts only the local Studio, in development builds; the launch PR adds `https://studio.dddnd.app` and switches the Studio's button on together (a test keeps them in step). Deploy previews are never trusted (D17). | The owner's call (2026-11-26), keeping the plan in §12: a pack sent by "Play it" skips the bazaar's review, so the live game starts trusting the Studio when the Studio is announced, not before. |
 | D33 | **A new topic is an extension of the base game with everything else its own:** its own scores, council, cards, events and endings, the game's five outcome tiers (the owner's call), and none of the game's cards, events or council members, whose changes and conditions name the game's scores. It starts as a skeleton (a scenario, a fallback ending, a class with no score bonus) that the summary's steps walk through. | Matches the SRE pack, the one real topic. Reusing the tiers keeps the first topic short (§5); the game's content would only fail the checks in a topic; the skeleton means a fresh topic already plays once it has scores. |
 | D34 | **Endings are an ordered list, never priorities.** Authors see "tried 1st of 4" and move endings earlier or later; the Studio writes evenly spaced priorities. The fallback (no conditions) is always last and can't be deleted while it's the only one. Conditions are written generically (D29): "Rest ends below 25". | The game picks the first ending, by priority, whose conditions all hold. A number authors must keep unique and ordered is a rule the model can keep instead, and the validator's errors (two endings at one priority, an ending below the fallback) become impossible to make. |
+| D35 | **The guided round is a view of the workspace, not a separate app.** `#/guided/<draft>` shows the same editors, with the ember header and step strip (D20) above, and the step's guide (what it asks, its teaching moment, a worked example from the Gilded Ledger) in place of the sidebar. Where the author is in the round is kept with the draft, never exported. "Next" never blocks; a step ticks when the draft has what it asks for, as the domain reads it. Leaving keeps everything, and "Back to the guided round" returns to it. | One set of editors means the round teaches the real tool, and nothing in it can drift from the workspace. Ticks read from the draft (two people with a reaction each, three cards, one bad and one good surprise, clean checks) can't say "done" when it isn't. The round is a first hour, not a gate. |
 
 ---
 
@@ -162,7 +163,7 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 2. ~~The version-bump assistant~~ (M4.7).
 3. ~~Zip export and import~~ (M4.8).
 4. ~~"Play it" (D15, D17)~~ (M4.16; live in production from the launch, D32).
-5. New-topic authoring (scores, endings, classes) and the guided round.
+5. ~~New-topic authoring (scores, endings, classes) and the guided round~~ (M4.17–M4.21; the new-topic round may follow).
 6. Balance hints, and the smaller items: "Go to it" focusing the exact field, a warning when the prefix (the pack's id) changes after a release, undo/redo, and search. (The sidebar's collapse and filter came with the audit, M4.9.)
 7. ~~**The UI/UX audit (D23)**~~ (M4.9–M4.15, brought forward and done first). The patterns for every later screen are in §9.1.
 8. Launch: remove `noindex`, and add the Studio's origin to the game's preview allowlist.
@@ -1499,6 +1500,86 @@ The Studio's import adapter passes the files it read along with the snapshot.
 
 ---
 
+### M4.21: The guided round (2026-11-26)
+
+N4, second half: the retelling round from §5, in the look the owner approved (the mockup's step 4). D35.
+
+**What an author sees:**
+- **"Build your first pack, step by step"** on the start screen, first among "Start something new" and in ember. A first visit's empty state points to it too.
+- **They choose the game's scenario closest to theirs** ("Which of the game's stories is closest to yours?"), and the round starts on a copy of it. The pack plays from the first minute.
+- **The round's header** (D20): the "Guided round" pill, "Retell DDDnD for your organization", the pack's name, its save state, and "Leave the round (your work is kept)". Below it are the eight steps, each a button that ticks when it's done.
+- **The guide**, in place of the sidebar:
+  - "Step 3 of 8", the step's question and what it asks for;
+  - a teaching moment from §5 ("The one rule: every move trades something away…");
+  - what the author has made for this step so far:
+    - people, each with "✓ a reaction" or "needs a reaction";
+    - cards, each "✓ trades off", "only helps", "only costs" or "changes nothing yet";
+    - surprises, each "✓ bad", "✓ good" or "mixed: neither";
+    - dashed slots for what's still missing;
+  - a worked example from the Gilded Ledger (D9, D14);
+  - Back and Next, pinned to the bottom of the guide.
+- **The editor beside it is the workspace's own**, for each step:
+  1. **Name your world:** pack details.
+  2. **Your scenario:** the scenario editor.
+  3. **Your council:** a member.
+  4. **Your cards:** a card, or "Your first card" with a prompt.
+  5. **Your surprises:** an event.
+  6. **Fill the deck:** the game's cards and events to add, and the ones in the deck, which can be opened and taken out.
+  7. **Check it:** the game's checks.
+  8. **Play it:** "▶ Play it", then the export page.
+- **"Finish the round"** opens the pack's summary in the full workspace. Leaving keeps the round's place, and the workspace's toolbar offers "Back to the guided round".
+
+**Domain (`guided_round.ts`, new):**
+- the steps: `ROUND_STEPS` and `ROUND_ASKS`;
+- moving through them: `startRound`, `goToRoundStep`, `nextRoundStep`, `previousRoundStep` and `finishRound`;
+- `roundStepDone` and `roundProgress`, which read the draft. "Check it" also takes the checks' verdict, which the Studio runs.
+- what each step holds: `roundCouncil`, `roundCards` with `cardVerdict`, and `roundSurprises` with `eventLeaning`.
+
+The round's place is `DraftPack.round`, the Studio's memory, like `origins`: a test shows the exported pack is identical with or without it.
+
+**Fixed along the way:**
+- **Re-opening the open draft read an older copy back.** The round and the workspace are two routes to one draft, and moving between them called `openDraft`, which reloaded from storage. An edit still waiting to be saved was lost: the walk caught it when "Finish the round" came back unfinished. Opening the draft that's already open now keeps it (with a test that fails without the fix).
+- **The checks said "Card" three times.** With three cards each missing a description, the checks listed "Card / Card / Card". `describeIssue` now names which one from the draft ("Card · Freeze the Payment Path"), in the checks panel, the toolbar's popover and the summary. This dated from M4.13; the round made it obvious.
+- **A watcher that fired on every edit.** The round reopened its step's first member whenever anything changed, so typing a second person's name renamed the first. It now watches the step alone. The walk caught it, not a test: the domain was right, and only the screen misbehaved.
+
+**Decisions:**
+- **A view of the workspace (D35).** §9.1 asked for "the same editors under the ember header", and building the round as a mode of `workspace_view` gave exactly that, with no second copy of any editor's wiring.
+- **Next never blocks; ticks are honest.** The summary's steps work the same way (M4.13). A tick that says "done" when it isn't teaches the wrong thing, so the countable steps tick from the draft, and "Check it" ticks only when the checks pass.
+- **"Name your world" asks for the author's name too.** It's the one thing a copied scenario always fails the checks on.
+- **The round starts from a full copy** of the chosen scenario, so "Fill the deck" (§5, step 6) is about keeping what fits and taking out what doesn't, as much as adding.
+- **The examples are the Studio's words about the Ledger** (D14), not loaded from DDDnD-packs. The Studio's CSP and offline use argue for text in the app; the list naming the Ledger as the source is `EXAMPLE_PACK`.
+- **Topics have no round yet.** `#/guided/<id>` on a topic opens the workspace. §6 lets the new-topic round follow.
+
+**For the talk: the round has no rules of its own.** Every tick is a question the domain already knew how to answer, or a small new one with a name: "is this card one-sided?" (`onlyHelps`, from M4.4, now `cardVerdict`), "which way does this event go?" (`eventLeaning`). The round's own state is just a place in a list. That's why it could reuse every editor: a tutorial is a view over the model, not a second model.
+
+**Verification:**
+- Tests: 1383 in total (+10):
+  - `tests/authoring/guided_round.test.ts` (8):
+    - moving through the round, never blocked;
+    - the round never reaching the export;
+    - each step's ask: the world with its author, two people with a reaction each, three cards and their verdicts, one bad and one good surprise (a mixed one is neither), and "Check it" only on clean checks;
+    - the progress list.
+  - `tests/authoring/draft_reading.test.ts`: a check names its item.
+  - `tests/studio/studio_state.test.ts`: re-opening the open draft keeps an unsaved edit.
+- Headless Chrome, production build with the Studio CSP, the whole round:
+  1. Start it from the start screen and choose the Monolith.
+  2. Name the world with an author, and move on past the scenario.
+  3. Add two people, a reaction each: "Your council ✓".
+  4. Write three cards: "trades off", "only helps" (in amber), "trades off", then "Your cards ✓".
+  5. Write a bad and a good event: "Your surprises ✓".
+  6. The deck lists 29 cards (3 of your own) and 13 events (2 of your own).
+  7. The checks name each card and member still to describe, and "Check it" stays unticked.
+  8. Leave the round, come back to it, and finish it: the summary, with no "Back to the guided round".
+  9. Zero CSP violations, no console errors.
+- Headless Chrome, both dev servers: a round's draft, named and with an author, plays from step 8's "▶ Play it" in the game, and Next is in view without scrolling.
+
+**Left open:**
+- **The new-topic round** (scores, endings, a class), which §6 allows in a point release.
+- **The round's words aren't checked by anyone but me yet;** the owner's read of the steps' copy is the next review.
+- **Balance hints** (§6), which the cards step would use ("nets +9; base cards net +11 to +12").
+
+---
+
 ## 14. Picking up the work
 
 What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
@@ -1524,7 +1605,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20. Next: the guided round (N4, second half); then balance hints (§6). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Next: balance hints and the smaller items (§6, item 6), then the new-topic round. Each follows §9.1.
 - **Left open from the audit:**
   - undo/redo;
   - "Find anything" (search with a shortcut);

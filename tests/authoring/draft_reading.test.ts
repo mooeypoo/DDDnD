@@ -23,6 +23,7 @@ import {
   ownEntity,
   ownItemsNamingAfterRemoval,
   putContent,
+  createDraft,
   resolveNames,
   resolveRef,
   scenarioRefs,
@@ -140,5 +141,14 @@ describe('a check\'s issue, in the Studio\'s words', () => {
     expect(describeIssue({ file: 'scores/ours_rest-v1.json', message: 'description: must not be blank' })).toEqual({ where: 'Score', text: 'Add a description: what it measures, in a sentence.' })
     expect(describeIssue({ file: 'outcome-archetypes/ours_end-v1.json', message: 'name: must not be blank' })).toEqual({ where: 'Ending', text: 'Give it a name.' })
     expect(describeIssue({ file: 'pack', message: 'Something else broke' })).toEqual({ where: 'Pack', text: 'Something else broke' })
+  })
+
+  it('names which one, from the draft, when it has a name (the guided round, M4.21)', () => {
+    const card = { id: 'ours_a', version: 1, name: 'Freeze the Payment Path', description: '', score_changes: [], delayed_effect_refs: [] } as unknown as Card
+    const draft = putContent(createDraft({ kind: 'retelling', name: 'Ours' }), 'cards', card)
+    expect(describeIssue({ file: 'cards/ours_a-v1.json', message: 'description: must not be blank' }, draft).where).toBe('Card · Freeze the Payment Path')
+    // A blank name, or something the draft doesn't hold, stays just its kind
+    expect(describeIssue({ file: 'cards/ours_a-v1.json', message: 'name: must not be blank' }, putContent(draft, 'cards', { ...card, name: ' ' })).where).toBe('Card')
+    expect(describeIssue({ file: 'cards/ours_b-v1.json', message: 'x' }, draft).where).toBe('Card')
   })
 })

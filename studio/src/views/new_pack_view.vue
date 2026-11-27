@@ -7,9 +7,14 @@
   <main id="main" class="new-view" tabindex="-1">
     <button type="button" class="button button-quiet back" @click="$emit('back')">‹ Your packs</button>
     <div class="new-head">
-      <span class="kind-pill">Same game, new setting</span>
-      <h1 class="new-title">Choose a scenario to retell</h1>
-      <p class="new-lede">
+      <span class="kind-pill" :class="{ 'kind-guided': guided }">{{ guided ? 'Guided round' : 'Same game, new setting' }}</span>
+      <h1 class="new-title">{{ guided ? 'Which of the game\'s stories is closest to yours?' : 'Choose a scenario to retell' }}</h1>
+      <p v-if="guided" class="new-lede">
+        The round starts from a copy of one of the game's scenarios, so your pack plays from the first minute.
+        Then, step by step, it becomes about your organization: your system, your people, the moves your team argues about.
+        Pick the one whose trouble sounds most like yours; you'll rewrite the rest.
+      </p>
+      <p v-else class="new-lede">
         Your copy starts with the scenario's council, cards and events, and plays exactly like it. Then make it yours:
         your story, your people, the moves your team argues about. The original stays as it is.
       </p>
@@ -27,9 +32,9 @@
           type="button"
           class="button button-quiet"
           :disabled="starting !== null"
-          :aria-label="`Copy and adapt ${scenario.name}`"
+          :aria-label="guided ? `Start the round from ${scenario.name}` : `Copy and adapt ${scenario.name}`"
           @click="start(scenario)"
-        >{{ starting === scenario.ref.id ? 'Copying…' : 'Copy and adapt' }}</button>
+        >{{ starting === scenario.ref.id ? 'Copying…' : guided ? 'Start from this one' : 'Copy and adapt' }}</button>
       </li>
     </ul>
   </main>
@@ -41,6 +46,7 @@ import { onMounted, ref } from 'vue'
 import { listBaseScenarios, type BaseScenarioChoice } from '@studio/content/first_party'
 import { startFromBaseScenario } from '@studio/state/studio_state'
 
+const props = withDefaults(defineProps<{ guided?: boolean }>(), { guided: false })
 const emit = defineEmits<{ openDraft: [draftId: string]; back: [] }>()
 
 const scenarios = ref<BaseScenarioChoice[] | null>(null)
@@ -58,7 +64,7 @@ onMounted(async () => {
 async function start(choice: BaseScenarioChoice) {
   starting.value = choice.ref.id
   try {
-    emit('openDraft', await startFromBaseScenario(choice))
+    emit('openDraft', await startFromBaseScenario(choice, { guided: props.guided }))
   } finally {
     starting.value = null
   }
@@ -101,6 +107,12 @@ async function start(choice: BaseScenarioChoice) {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+.kind-guided {
+  border-color: var(--forge-ember);
+  background: var(--forge-ember);
+  color: var(--forge-ember-ink);
 }
 
 .new-title {

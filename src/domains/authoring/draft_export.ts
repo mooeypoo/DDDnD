@@ -262,10 +262,13 @@ const ISSUE_PLACES: Partial<Record<DraftSection, string>> = {
  * "Card") and what to do, plainly, for the commonest problems. Anything
  * else keeps the game's own message.
  */
-export function describeIssue(issue: PackIssue): { where: string; text: string } {
+export function describeIssue(issue: PackIssue, draft?: DraftPack): { where: string; text: string } {
   const { file, message } = issue
   const subject = issueSubject(file)
-  const where = subject?.kind === 'manifest' ? 'Pack details' : (subject?.kind === 'content' && ISSUE_PLACES[subject.section]) || 'Pack'
+  const place = subject?.kind === 'manifest' ? 'Pack details' : (subject?.kind === 'content' && ISSUE_PLACES[subject.section]) || 'Pack'
+  // Which one, by its name: three cards that each need a description aren't three "Card"s
+  const named = subject?.kind === 'content' && draft ? (draft.content[subject.section][subject.ref.id] as { name?: string } | undefined)?.name?.trim() : undefined
+  const where = named ? `${place} · ${named}` : place
   const pack = subject?.kind === 'manifest'
   let text = message
   if (/^authors: must be at least 1/.test(message)) text = 'Add your name as the author.'
