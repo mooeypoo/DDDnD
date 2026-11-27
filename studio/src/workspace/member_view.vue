@@ -62,14 +62,14 @@
       <section class="editor-section" aria-labelledby="member-words">
         <h2 id="member-words" class="editor-section-title">Who they are</h2>
         <label class="field">Name
-          <input :value="member.name" :maxlength="limits.text.name" @input="setMember({ name: text($event) })" @change="settleMember" />
+          <input data-field="name" :value="member.name" :maxlength="limits.text.name" @input="setMember({ name: text($event) })" @change="settleMember" />
           <span class="field-hint">A role, so it reads well at any table: "Head of Payments", not a person's name.</span>
         </label>
         <label class="field">What they care about, in a sentence
-          <textarea :value="member.description" rows="2" :maxlength="limits.text.description" @input="setMember({ description: text($event) })"></textarea>
+          <textarea data-field="description" :value="member.description" rows="2" :maxlength="limits.text.description" @input="setMember({ description: text($event) })"></textarea>
         </label>
         <label class="field">One-line summary (optional)
-          <input :value="member.short_description ?? ''" :maxlength="limits.text.short_description" @input="setSummary(text($event))" />
+          <input data-field="short_description" :value="member.short_description ?? ''" :maxlength="limits.text.short_description" @input="setSummary(text($event))" />
         </label>
       </section>
 
@@ -82,13 +82,13 @@
         </p>
 
         <!-- Keyed by place, not id: naming a reaction settles its id, and the fields must stay put (focus) -->
-        <article v-for="(rule, index) in ownReactions" :key="index" class="reaction" :aria-labelledby="`reaction-${index}`">
+        <article v-for="(rule, index) in ownReactions" :key="index" class="reaction" :data-subject="`stakeholder_reaction_rules/${rule.id}`" :aria-labelledby="`reaction-${index}`">
           <h3 :id="`reaction-${index}`" class="reaction-title">{{ rule.name || 'Unnamed reaction' }}</h3>
           <label class="field">Name
-            <input :value="rule.name" :maxlength="limits.text.name" @input="setRule(rule, { name: text($event) })" @change="settleRule(rule.id)" />
+            <input data-field="name" :value="rule.name" :maxlength="limits.text.name" @input="setRule(rule, { name: text($event) })" @change="settleRule(rule.id)" />
           </label>
           <label class="field">What happens, in a sentence
-            <input :value="rule.description" :maxlength="limits.text.description" @input="setRule(rule, { description: text($event) })" />
+            <input data-field="description" :value="rule.description" :maxlength="limits.text.description" @input="setRule(rule, { description: text($event) })" />
           </label>
 
           <ConditionEditor :condition="rule.condition" :scoreOptions="scoreOptions" @change="(patch) => setCondition(rule, patch)" />

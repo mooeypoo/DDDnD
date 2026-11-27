@@ -26,14 +26,14 @@
     <section class="editor-section" aria-labelledby="ending-words">
       <h2 id="ending-words" class="editor-section-title">What players read at the end</h2>
       <label class="field">Name
-        <input :value="ending.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" />
+        <input data-field="name" :value="ending.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" />
         <span class="field-hint">What kind of leader the player was: "The Pager Paladin", "Firefighter".</span>
       </label>
       <label class="field">What it means, in a sentence
-        <textarea :value="ending.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
+        <textarea data-field="description" :value="ending.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
       </label>
       <label class="field">Flavor (optional)
-        <input :value="ending.flavor_text ?? ''" :maxlength="limits.text.flavor_text" @input="setFlavor(text($event))" />
+        <input data-field="flavor_text" :value="ending.flavor_text ?? ''" :maxlength="limits.text.flavor_text" @input="setFlavor(text($event))" />
       </label>
     </section>
 

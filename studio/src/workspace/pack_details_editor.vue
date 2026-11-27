@@ -10,14 +10,14 @@
     <section class="editor-section" aria-labelledby="details-players">
       <h2 id="details-players" class="editor-section-title">What players see</h2>
       <label class="field">Pack name
-        <input :value="draft.name" maxlength="80" @input="update({ name: value($event) })" />
+        <input data-field="name" :value="draft.name" maxlength="80" @input="update({ name: value($event) })" />
       </label>
       <label class="field">Description
-        <textarea :value="draft.description" rows="3" maxlength="500" @input="update({ description: value($event) })"></textarea>
+        <textarea data-field="description" :value="draft.description" rows="3" maxlength="500" @input="update({ description: value($event) })"></textarea>
         <span class="field-hint">Shown in the bazaar and on the review before a player imports your pack.</span>
       </label>
       <label class="field">Your name, as the author
-        <input :value="draft.authors[0]?.name ?? ''" maxlength="80" autocomplete="name" @input="updateAuthor(value($event))" />
+        <input data-field="authors" :value="draft.authors[0]?.name ?? ''" maxlength="80" autocomplete="name" @input="updateAuthor(value($event))" />
         <span class="field-hint">Players see it next to the pack. Every pack needs one.</span>
       </label>
     </section>
@@ -45,9 +45,11 @@
         <input :value="draft.prefix" maxlength="16" spellcheck="false" @change="update({ prefix: value($event) })" />
         <span class="field-hint">
           The Studio names everything you create with this, such as <code>{{ draft.prefix }}_your_card</code>,
-          so it never clashes with the game's content. Changing it affects only what you create next.
+          so it never clashes with the game's content. Changing it never renames what you've already made.
+          <template v-if="release.state !== 'never'"> It's also your pack's id: change it after an export, and players' games see a different pack.</template>
         </span>
       </label>
+      <PackIdWarning :draft="draft" @change="(next) => emit('change', next)" />
       <p class="facts">
         Exports as <strong>{{ draft.prefix }}</strong>, an extension of DDDnD's base game.
         <template v-if="release.state !== 'never'">{{ release.imported ? 'Imported' : 'Last exported' }} as version <strong>{{ release.version }}</strong>.</template>
@@ -61,6 +63,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import PackIdWarning from '@studio/workspace/pack_id_warning.vue'
 import { draftLicense, licenseChoices, releaseState, updateDraftDetails, withLicense, type DraftPack } from '@/domains/authoring'
 
 const props = defineProps<{ draft: DraftPack }>()

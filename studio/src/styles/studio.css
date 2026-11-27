@@ -354,3 +354,13 @@ a:hover { color: var(--forge-text-bright); }
     animation: none !important;
   }
 }
+
+/* Worth a look, in amber: a balance hint (M4.22), a pack id that changed since its export (M4.23) */
+.nudge {
+  margin: 0;
+  padding: 0.75rem 0.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  background: rgba(251, 191, 36, 0.07);
+  color: var(--forge-text-bright);
+}

@@ -25,11 +25,11 @@
     <section class="editor-section" aria-labelledby="coupling-words">
       <h2 id="coupling-words" class="editor-section-title">What players read while it's active</h2>
       <label class="field">Name
-        <input :value="rule.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" />
+        <input data-field="name" :value="rule.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" />
         <span class="field-hint">What's happening: "Burnout Spiral", "Flying Blind".</span>
       </label>
       <label class="field">What it means, in a sentence
-        <textarea :value="rule.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
+        <textarea data-field="description" :value="rule.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
         <span class="field-hint">"Exhausted on-call: improvements to uptime are less effective."</span>
       </label>
     </section>
@@ -38,15 +38,15 @@
       <h2 id="coupling-how" class="editor-section-title">How it works</h2>
       <div class="inline-fields">
         <label class="field field-short">While this score
-          <select :value="rule.trigger_score_id" @change="set({ trigger_score_id: ($event.target as HTMLSelectElement).value })">
+          <select data-field="trigger_score_id" :value="rule.trigger_score_id" @change="set({ trigger_score_id: ($event.target as HTMLSelectElement).value })">
             <option v-for="option in scoreOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
           </select>
         </label>
         <label class="field field-short">is below
-          <input type="number" min="0" max="100" step="1" :value="rule.threshold" @change="setThreshold($event)" />
+          <input data-field="threshold" type="number" min="0" max="100" step="1" :value="rule.threshold" @change="setThreshold($event)" />
         </label>
         <label class="field field-short">gains are cut to (%)
-          <input type="number" min="10" max="100" step="5" :value="Math.round(rule.gain_multiplier * 100)" @change="setPercent($event)" />
+          <input data-field="gain_multiplier" type="number" min="10" max="100" step="5" :value="Math.round(rule.gain_multiplier * 100)" @change="setPercent($event)" />
         </label>
       </div>
       <div class="choice-list" role="group" aria-label="Gains to these scores are cut">

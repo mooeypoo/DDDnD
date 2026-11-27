@@ -165,7 +165,7 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 3. ~~Zip export and import~~ (M4.8).
 4. ~~"Play it" (D15, D17)~~ (M4.16; live in production from the launch, D32).
 5. ~~New-topic authoring (scores, endings, classes) and the guided round~~ (M4.17–M4.21; the new-topic round may follow).
-6. ~~Balance hints~~ (M4.22, D36), and the smaller items: "Go to it" focusing the exact field, a warning when the prefix (the pack's id) changes after a release, undo/redo, and search. (The sidebar's collapse and filter came with the audit, M4.9.)
+6. ~~Balance hints~~ (M4.22, D36), and the smaller items: ~~"Go to it" focusing the exact field~~ and ~~a warning when the prefix (the pack's id) changes after a release~~ (M4.23), undo/redo, and search. (The sidebar's collapse and filter came with the audit, M4.9.)
 7. ~~**The UI/UX audit (D23)**~~ (M4.9–M4.15, brought forward and done first). The patterns for every later screen are in §9.1.
 8. Launch: remove `noindex`, and add the Studio's origin to the game's preview allowlist.
 
@@ -1655,6 +1655,57 @@ The Ledger's flag is a real finding, not a false alarm the slack should hide. It
 - **Starting scores and turn count aren't compared.** A low start makes the same deck harder. That needs play, so it's the balance lab's.
 - **Hints aren't in the checks popover.** §9.1 puts them in the editors and the summary; the popover stays about what blocks export, plus the council notes.
 
+### M4.23: "Go to it" lands on the field, and a changed pack id is noticed (2026-11-27)
+
+Two of §6 item 6's smaller items.
+
+**"Go to it" lands on the field a check is about.** Before, it opened the right editor and focused its first input, usually the name, even when the problem was the description. Now:
+- "Add your name as the author" focuses the author field on pack details.
+- "Card · Write an RFC: Add a description" focuses that card's description.
+- A reaction's missing description focuses that reaction's description, on its member's page, not the member's own.
+- "score_changes[1].delta: must be at most 100" focuses the second score change's amount.
+- The field is scrolled to the middle of the editor area, so what's around it says what it's for.
+- A problem that names no field (a cross-reference, the pack as a whole) still opens the editor at its first input.
+
+**A pack id changed after an export is noticed.** The prefix is the pack's id, and to players a different id is a different pack: it won't update their copy, it sits beside it. Once a pack has been exported:
+- the prefix's hint says so;
+- if it has changed, pack details and the export page show an amber warning naming both ids, with "Change it back to “ours”".
+
+**Domain:**
+- `issueField(issue)` (`draft_export.ts`, beside `describeIssue`): the field and list position from the path the game's checks start their messages with. Its tests use messages captured from the real checks on a broken Monolith copy.
+- `DraftRelease.pack_id`: the id an export went out under, recorded by `releaseDraft` and by an import (the imported manifest's id).
+- `packIdChange`, `keepReleasedPackId` and `describePackIdChange` (`pack_overview.ts`). Changing back keeps what was made meanwhile: ids never change once given.
+
+**Studio:**
+- Inputs say which field they edit with `data-field` (and `data-index` in a list). A reaction or an aftershock, edited inside another's page, is marked with `data-subject`.
+- `field_focus.ts` finds the element (`fieldElement`) and centres it in the editor area alone (`centreIn`).
+- The checks panel's targets carry the field; `goTo` strips it before selecting.
+- `pack_id_warning.vue` is one component, on pack details and the export page. `.nudge` (amber, "worth a look") moved to `studio.css`, now that three screens use it.
+
+**Decisions:**
+- **The field comes from the game's own message.** The checks already name it, so the Studio reads that path rather than guessing from the wording. A message without one falls back safely.
+- **Markers, not a map of selectors.** A screen that's redesigned keeps working as long as its inputs keep their `data-field`.
+- **The scope rule is in one place:** without a subject, a reaction's or an aftershock's fields aren't the page's own.
+- **Warn, don't block.** Renaming a pack can be deliberate (a fork, a fresh start). The warning says what players will see and offers the way back.
+- **Older exports say nothing.** A release made before M4.23 has no recorded id. Guessing it from the prefix would be wrong exactly when it matters.
+
+**Fixed along the way:** the first version scrolled the field into view with `scrollIntoView`, which also scrolled the window and pushed the Studio's header off the top. The walk's screenshot caught it.
+
+**For the talk: the validator already knew.** Every check message started with the path to its field; the Studio had been throwing that away. Naming it (`issueField`) turned a string into a fact the screens can act on. Like M4.21's named checks, the fix was to stop discarding what the model already said.
+
+**Verification:**
+- Tests: 1406 in total (+11):
+  - `tests/authoring/draft_reading.test.ts` (2): fields from real messages, and none for a pack-wide problem.
+  - `tests/authoring/releases.test.ts` (3): the id recorded and its change noticed; changing back keeps new content; older exports say nothing.
+  - `tests/authoring/pack_files.test.ts`: an import records its id.
+  - `tests/studio/go_to_field.test.ts` (6): the page's own field over a reaction's, a reaction's own field and list position, the fallbacks, the checks panel carrying the field, and the warning shown and undone.
+- Headless Chrome, production build with the Studio CSP:
+  - "Go to it" lands on the author, a card's description, a member's description, and a reaction's description, centred, with the header in place;
+  - export 1.0.0 as "ours", change the prefix to "acme": the warning on pack details and the export page; "Change it back" restores "ours" and the warning goes;
+  - zero CSP violations, no console errors.
+
+**Left open:** a field with no input of its own (a list the Studio edits through a picker) still lands on the editor's first input.
+
 ## 14. Picking up the work
 
 What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
@@ -1680,12 +1731,10 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). Next: the smaller items (§6, item 6), then the new-topic round, then the start screen's "start something new" with the owner (they have feedback: it reads as if you must pick an existing pack). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23. Next: undo/redo and search (§6, item 6), then the new-topic round, then the start screen's "start something new" with the owner (they have feedback: it reads as if you must pick an existing pack). Each follows §9.1.
 - **Left open from the audit:**
   - undo/redo;
   - "Find anything" (search with a shortcut);
-  - "Go to it" focusing the exact field;
-  - a warning when the prefix changes after a release;
   - a map view of cards and their impact (maybe, D28);
   - whether the game's validator should check council member ids in changes (M4.14).
 

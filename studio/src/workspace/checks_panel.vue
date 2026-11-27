@@ -12,7 +12,7 @@
       <li v-for="(issue, index) in issues" :key="index" class="issue">
         <span class="issue-where">{{ where(issue) }}</span>
         <span class="issue-text">{{ friendly(issue) }}</span>
-        <button v-if="target(issue.file)" type="button" class="issue-go" @click="$emit('goTo', target(issue.file)!)">Go to it ›</button>
+        <button v-if="target(issue)" type="button" class="issue-go" @click="$emit('goTo', target(issue)!)">Go to it ›</button>
       </li>
     </ul>
 
@@ -26,15 +26,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { describeIssue, issueSubject, type DraftPack, type PackIssue } from '@/domains/authoring'
+import { describeIssue, issueField, issueSubject, type DraftPack, type PackIssue } from '@/domains/authoring'
 import type { CheckState } from '@studio/state/studio_state'
 
 /** `live: false` when something else announces the status (the toolbar's checks button). */
 const props = withDefaults(defineProps<{ state: CheckState; issues: PackIssue[]; live?: boolean; draft?: DraftPack }>(), { live: true, draft: undefined })
 defineEmits<{ goTo: [target: IssueTarget] }>()
 
-/** Where a problem can be fixed in the Studio, when there's an editor for it. */
-export type IssueTarget =
+/** Where a problem can be fixed in the Studio, when there's an editor for it, and the field it's about (M4.23). */
+export type IssueTarget = IssueEditor & { field?: { field: string; index?: number } }
+
+type IssueEditor =
   | { kind: 'details' }
   | { kind: 'scenario'; id: string }
   | { kind: 'score'; id: string }
@@ -47,8 +49,15 @@ export type IssueTarget =
   | { kind: 'reaction'; id: string }
   | { kind: 'aftershock'; ref: { id: string; version: number } }
 
-/** The Studio's editor for what an issue is about, if it has one. */
-function target(file: string): IssueTarget | null {
+/** The Studio's editor for what an issue is about, if it has one, and the field "Go to it" lands on. */
+function target(issue: PackIssue): IssueTarget | null {
+  const editor = editorFor(issue.file)
+  if (!editor) return null
+  const field = issueField(issue)
+  return field ? { ...editor, field } : editor
+}
+
+function editorFor(file: string): IssueEditor | null {
   const subject = issueSubject(file)
   if (!subject) return null
   if (subject.kind === 'manifest') return { kind: 'details' }

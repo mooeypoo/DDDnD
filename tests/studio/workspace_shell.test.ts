@@ -127,6 +127,6 @@ describe('the checks button', () => {
     await wrapper.find('.checks-toggle').trigger('click')
     await wrapper.find('.issue-go').trigger('click')
     expect(wrapper.find('#checks-panel').exists()).toBe(false)
-    expect(wrapper.emitted('goTo')).toEqual([[{ kind: 'details' }]])
+    expect(wrapper.emitted('goTo')).toEqual([[{ kind: 'details', field: { field: 'authors' } }]])
   })
 })

@@ -18,6 +18,7 @@
  */
 
 import type { VersionRef } from '../content/model'
+import { draftPackId } from './draft_export'
 import { DRAFT_SECTIONS, draftLicense, putContent, type DraftContent, type DraftPack, type DraftSection } from './draft_pack'
 
 /**
@@ -268,7 +269,7 @@ export function planRelease(draft: DraftPack): ReleasePlan {
 export function releaseDraft(draft: DraftPack, version: string): DraftPack {
   const bumped = applyVersionBumps(draft).draft
   const content = JSON.parse(JSON.stringify(bumped.content)) as DraftContent
-  return { ...bumped, version, released: { version, content, license: draftLicense(bumped).id } }
+  return { ...bumped, version, released: { version, content, license: draftLicense(bumped).id, pack_id: draftPackId(bumped) } }
 }
 
 /** Whether `version` can be the next release: later than the last export, or the same when nothing changed. */

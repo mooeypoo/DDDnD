@@ -27,15 +27,15 @@
     <section class="editor-section" aria-labelledby="challenge-words">
       <h2 id="challenge-words" class="editor-section-title">What players read</h2>
       <label class="field">Name
-        <input :value="challenge.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" />
+        <input data-field="name" :value="challenge.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" />
         <span class="field-hint">A situation that makes the run harder: "Launch Week", "Skeleton Crew".</span>
       </label>
       <label class="field">What it does, in a sentence
-        <textarea :value="challenge.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
+        <textarea data-field="description" :value="challenge.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
         <span class="field-hint">Players choose it by reading this, so say what changes: "Half the rotation is on leave. Rest starts 15 lower."</span>
       </label>
       <label class="field">Flavor (optional)
-        <input :value="challenge.flavor_text ?? ''" :maxlength="limits.text.flavor_text" @input="emitChange(withOptionalText(challenge, 'flavor_text', text($event)))" />
+        <input data-field="flavor_text" :value="challenge.flavor_text ?? ''" :maxlength="limits.text.flavor_text" @input="emitChange(withOptionalText(challenge, 'flavor_text', text($event)))" />
       </label>
     </section>
 
@@ -44,15 +44,15 @@
       <fieldset class="adjustments">
         <legend class="field">Where scores start, compared with the scenario (0: no change)</legend>
         <label v-for="option in scoreOptions" :key="option.id" class="field">{{ option.name }}
-          <input type="number" min="-100" max="100" step="1" :value="challenge.score_adjustments?.[option.id] ?? 0" @change="setAdjustment(option.id, $event)" />
+          <input data-field="score_adjustments" type="number" min="-100" max="100" step="1" :value="challenge.score_adjustments?.[option.id] ?? 0" @change="setAdjustment(option.id, $event)" />
         </label>
       </fieldset>
       <div class="inline-fields">
         <label class="field field-short">Turns, more or fewer
-          <input type="number" min="-20" max="20" step="1" :value="challenge.turn_adjustment ?? 0" @change="setTurns($event)" />
+          <input data-field="turn_adjustment" type="number" min="-20" max="20" step="1" :value="challenge.turn_adjustment ?? 0" @change="setTurns($event)" />
         </label>
         <label class="field field-short">Council starts at (satisfaction)
-          <input type="number" min="0" max="100" step="1" placeholder="As usual" :value="challenge.stakeholder_satisfaction_override ?? ''" @change="setSatisfaction($event)" />
+          <input data-field="stakeholder_satisfaction_override" type="number" min="0" max="100" step="1" placeholder="As usual" :value="challenge.stakeholder_satisfaction_override ?? ''" @change="setSatisfaction($event)" />
         </label>
       </div>
       <p class="plain"><span class="plain-lead">In plain words:</span> {{ describeChallenge(challenge, names) }}.</p>

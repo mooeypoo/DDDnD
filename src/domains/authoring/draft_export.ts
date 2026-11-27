@@ -282,5 +282,18 @@ export function describeIssue(issue: PackIssue, draft?: DraftPack): { where: str
   return { where, text }
 }
 
+/**
+ * Which field an issue is about, from the path the game's checks start
+ * their messages with ("description: must not be blank",
+ * "score_changes[1].delta: …"), so "Go to it" can land on it (M4.23).
+ * The top-level field, and the list position when there is one. Null when
+ * the message names no field (a problem with the pack as a whole).
+ */
+export function issueField(issue: PackIssue): { field: string; index?: number } | null {
+  const match = /^([a-z_]+)(?:\[(\d+)\])?(?:[.[][^:]*)?:\s/.exec(issue.message)
+  if (!match) return null
+  return match[2] === undefined ? { field: match[1] } : { field: match[1], index: Number(match[2]) }
+}
+
 /** One reason the game would refuse the pack, as its checks report it. */
 export type { PackIssue }
