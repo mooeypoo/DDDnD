@@ -109,7 +109,7 @@ describe('undo in the Studio', () => {
     expect(studio.undo.can_undo).toBe(true)
 
     // One that goes out is: undoing past it would forget what players have
-    await startFromBaseScenario({ ref: { id: 'monolith_of_mild_despair', version: 2 }, name: 'The Monolith', summary: '' })
+    await startFromBaseScenario({ ref: { id: 'monolith_of_mild_despair', version: 2 }, name: 'The Monolith' })
     updateDraft(updateDraftDetails(studio.current!.draft, { authors: [{ name: 'A' }] }))
     expect(studio.undo.can_undo).toBe(true)
     // The download itself is the browser's: jsdom can't follow the link

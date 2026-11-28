@@ -10,7 +10,7 @@
       <div class="editor-head-text">
         <span class="editor-kicker">Pack summary</span>
         <h1 class="editor-title">{{ draft.name || 'Untitled pack' }}</h1>
-        <p class="summary-lede">{{ draft.kind === 'retelling' ? 'A retelling of DDDnD' : 'A different topic, built on DDDnD' }} · {{ releaseWords }}</p>
+        <p class="summary-lede">{{ KIND_NAMES[draft.kind] }} · {{ releaseWords }}</p>
       </div>
     </div>
 
@@ -18,12 +18,11 @@
       <div class="summary-main">
         <section class="editor-section" aria-labelledby="summary-next">
           <h2 id="summary-next" class="editor-section-title">Where to go next</h2>
-          <p class="field-hint">{{ draft.kind === 'new_topic' ? 'Any order works. Your topic plays once it has scores, so each step adds to what players can do.' : 'Any order works. Your copy of the scenario already plays, so each step is about making it yours.' }}</p>
+          <p class="field-hint">Any order works. {{ START_WORDS[start].plays }}</p>
           <ol class="steps">
             <li class="step step-done">
               <span class="step-mark" aria-hidden="true">✓</span>
-              <span v-if="draft.kind === 'new_topic'" class="step-text"><strong>Started your topic.</strong> A scenario, an ending every run can reach, and a class to play as. The game's outcome tiers come with it.</span>
-              <span v-else class="step-text"><strong>Copied the game's scenario.</strong> Its council, cards and events play exactly as in DDDnD.</span>
+              <span class="step-text"><strong>{{ START_WORDS[start].title }}</strong> {{ START_WORDS[start].text }}</span>
             </li>
             <li v-for="entry in steps" :key="entry.step" class="step" :class="{ 'step-done': entry.done }">
               <span class="step-mark" aria-hidden="true">{{ entry.done ? '✓' : '' }}</span>
@@ -111,7 +110,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { deckBalanceWords, describeBalanceHint, describeIssue, nextSteps, packCounts, releaseState, toFillIn, type BalanceHint, type DeckBalance, type DraftPack, type GameBalance, type NextStep, type PackIssue, type ToFillIn } from '@/domains/authoring'
+import { KIND_NAMES, packStart, type PackStart, deckBalanceWords, describeBalanceHint, describeIssue, nextSteps, packCounts, releaseState, toFillIn, type BalanceHint, type DeckBalance, type DraftPack, type GameBalance, type NextStep, type PackIssue, type ToFillIn } from '@/domains/authoring'
 import type { CheckState } from '@studio/state/studio_state'
 import type { Selection } from '@studio/workspace/selection'
 
@@ -126,7 +125,16 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{ select: [selection: Selection]; createNew: [section: 'cards']; createMember: []; createScore: []; createEnding: [] }>()
 
 /** The Studio's words for each step; which are done is the domain's (nextSteps). */
+/** How the pack began (the domain's packStart), and so what already holds. */
+const START_WORDS: Record<PackStart, { title: string; text: string; plays: string }> = {
+  copied: { title: 'Copied the game\'s scenario.', text: 'Its council, cards and events play exactly as in DDDnD.', plays: 'Your copy of the scenario already plays, so each step is about making it yours.' },
+  from_scratch: { title: 'Started from scratch.', text: 'The game\'s scores and endings, and nothing else yet.', plays: 'It plays once it has a council and a deck.' },
+  imported: { title: 'Imported a pack.', text: 'It plays as it did when it was exported.', plays: 'It already plays, so each step is about what you change.' },
+  topic: { title: 'Started your topic.', text: 'A scenario, an ending every run can reach, and a class to play as. The game\'s outcome tiers come with it.', plays: 'Your topic plays once it has scores, so each step adds to what players can do.' },
+}
+
 const STEP_WORDS: Record<NextStep, { title: string; text: string; action?: string }> = {
+  fill_deck: { title: 'Fill the deck.', text: 'Cards to play and events that can happen between turns: the game\'s, your own, or both.', action: '+ From the game' },
   write_endings: { title: 'Write the endings.', text: 'What kind of leader can a player become in your topic? Each ending is chosen by how the run went.', action: '+ New ending' },
   name_scores: { title: 'Name what your topic trades off.', text: 'Three to six scores that pull against each other, each named so more is better ("Rest", not "Fatigue").', action: '+ New score' },
   write_a_card: { title: 'Write a card of your own.', text: 'A move your team actually argues about, with what it costs.', action: '+ New card' },
@@ -137,6 +145,7 @@ const STEP_WORDS: Record<NextStep, { title: string; text: string; action?: strin
 }
 
 const steps = computed(() => nextSteps(props.draft))
+const start = computed(() => packStart(props.draft))
 const fillIn = computed(() => toFillIn(props.draft))
 const counts = computed(() => packCounts(props.draft))
 const firstScenario = computed(() => Object.values(props.draft.content.scenarios)[0])
@@ -152,6 +161,7 @@ function act(step: NextStep) {
   if (step === 'name_scores') emit('createScore')
   else if (step === 'write_endings') emit('createEnding')
   else if (step === 'write_a_card') emit('createNew', 'cards')
+  else if (step === 'fill_deck') emit('select', { kind: 'add', section: 'cards' })
   else if (step === 'bring_your_people') emit('createMember')
   else if (step === 'add_author') emit('select', { kind: 'details' })
   else if (step === 'export') emit('select', { kind: 'release' })

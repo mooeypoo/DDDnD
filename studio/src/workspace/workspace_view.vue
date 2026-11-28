@@ -12,9 +12,7 @@
     <div v-else class="workspace-bar">
       <button type="button" class="button button-quiet" @click="$emit('leave')">‹ Your packs</button>
       <span class="bar-name">{{ draft.name || 'Untitled pack' }}</span>
-      <span class="kind-pill" :class="draft.kind === 'retelling' ? 'pill-setting' : 'pill-topic'">
-        {{ draft.kind === 'retelling' ? 'Retelling' : 'New topic' }}
-      </span>
+      <KindPill :kind="draft.kind" />
       <!-- As wide as its longest message, so the buttons after it don't move while it saves (a click that leaves a field would miss) -->
       <span class="bar-save" role="status" aria-live="polite">
         <span :class="{ working: saveText === SAVE_WORDS.saving }">{{ saveText }}</span>
@@ -279,6 +277,7 @@ import ScoreEditor from '@studio/workspace/score_editor.vue'
 import EndingEditor from '@studio/workspace/ending_editor.vue'
 import EndingsView from '@studio/workspace/endings_view.vue'
 import ChallengeEditor from '@studio/workspace/challenge_editor.vue'
+import KindPill from '@studio/components/kind_pill.vue'
 import GuidedBar from '@studio/guided/guided_bar.vue'
 import GuidedGuide from '@studio/guided/guided_guide.vue'
 import GuidedPanel from '@studio/guided/guided_panel.vue'
@@ -754,19 +753,6 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
   align-items: center;
   gap: 0.75rem;
 }
-
-.kind-pill {
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  border: 1px solid currentColor;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.pill-setting { color: var(--forge-gold); }
-.pill-topic { color: var(--forge-teal); }
 
 .workspace-body {
   flex: 1;
