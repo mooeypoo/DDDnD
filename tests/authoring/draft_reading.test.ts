@@ -15,6 +15,7 @@ import {
   isOwnRef,
   isReferenced,
   describeIssue,
+  issueField,
   issueSubject,
   manifestRefs,
   memberOfReaction,
@@ -150,5 +151,20 @@ describe('a check\'s issue, in the Studio\'s words', () => {
     // A blank name, or something the draft doesn't hold, stays just its kind
     expect(describeIssue({ file: 'cards/ours_a-v1.json', message: 'name: must not be blank' }, putContent(draft, 'cards', { ...card, name: ' ' })).where).toBe('Card')
     expect(describeIssue({ file: 'cards/ours_b-v1.json', message: 'x' }, draft).where).toBe('Card')
+  })
+})
+
+describe('the field a check is about ("Go to it", M4.23)', () => {
+  it('reads it from the path the game\'s checks start their messages with', () => {
+    // Messages as the game's checks write them (walked on a broken Monolith copy)
+    expect(issueField({ file: 'manifest.json', message: 'authors: must be at least 1 items' })).toEqual({ field: 'authors' })
+    expect(issueField({ file: 'scenarios/ours_x-v1.json', message: 'max_turns: must be at least 1' })).toEqual({ field: 'max_turns' })
+    expect(issueField({ file: 'cards/ours_x-v1.json', message: 'score_changes[1].delta: must be at most 100' })).toEqual({ field: 'score_changes', index: 1 })
+    expect(issueField({ file: 'scenarios/ours_x-v1.json', message: 'starting_scores.budget: must be at most 100' })).toEqual({ field: 'starting_scores' })
+  })
+
+  it('names no field for a problem with the pack as a whole', () => {
+    expect(issueField({ file: 'scenarios/ours_x-v1.json', message: 'card ours_x-v1 references score "nope" which is not in the scenario score_refs' })).toBeNull()
+    expect(issueField({ file: 'pack', message: 'Something else broke' })).toBeNull()
   })
 })

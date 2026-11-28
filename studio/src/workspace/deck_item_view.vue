@@ -61,14 +61,14 @@
       <section class="editor-section" aria-labelledby="item-words">
         <h2 id="item-words" class="editor-section-title">What players read</h2>
         <label class="field">Name
-          <input :value="item.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" @change="settleId" />
+          <input data-field="name" :value="item.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" @change="settleId" />
         </label>
         <label class="field">What it does, in a sentence
-          <textarea :value="item.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
+          <textarea data-field="description" :value="item.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
           <span class="field-hint">{{ section === 'cards' ? 'The move the team makes: what someone would actually propose in a meeting.' : 'What happens to the team, without warning.' }}</span>
         </label>
         <label class="field">Flavor (optional)
-          <input :value="item.flavor_text ?? ''" :maxlength="limits.text.flavor_text" @input="setFlavor(text($event))" />
+          <input data-field="flavor_text" :value="item.flavor_text ?? ''" :maxlength="limits.text.flavor_text" @input="setFlavor(text($event))" />
         </label>
       </section>
 
@@ -125,10 +125,10 @@
         <h2 id="item-limits" class="editor-section-title">How often it can be played</h2>
         <div class="inline-fields">
           <label class="field field-short">Times per game
-            <input type="number" :min="limits.numbers.usage_limit.min" :max="limits.numbers.usage_limit.max" placeholder="No limit" :value="card?.usage_limit ?? ''" @change="setUsage($event)" />
+            <input data-field="usage_limit" type="number" :min="limits.numbers.usage_limit.min" :max="limits.numbers.usage_limit.max" placeholder="No limit" :value="card?.usage_limit ?? ''" @change="setUsage($event)" />
           </label>
           <label class="field field-short">Rest turns after playing
-            <input type="number" :min="limits.numbers.cooldown_turns.min" :max="limits.numbers.cooldown_turns.max" :value="card?.cooldown_turns ?? 0" @change="setCooldown($event)" />
+            <input data-field="cooldown_turns" type="number" :min="limits.numbers.cooldown_turns.min" :max="limits.numbers.cooldown_turns.max" :value="card?.cooldown_turns ?? 0" @change="setCooldown($event)" />
           </label>
         </div>
       </section>
@@ -136,7 +136,7 @@
       <section v-else class="editor-section" aria-labelledby="item-weight">
         <h2 id="item-weight" class="editor-section-title">How often it happens</h2>
         <label class="field field-short">Weight
-          <input type="number" min="1" :max="limits.numbers.occurrence_weight.max" :value="event?.occurrence_weight ?? 3" aria-describedby="weight-hint" @change="setWeight($event)" />
+          <input data-field="occurrence_weight" type="number" min="1" :max="limits.numbers.occurrence_weight.max" :value="event?.occurrence_weight ?? 3" aria-describedby="weight-hint" @change="setWeight($event)" />
         </label>
         <p id="weight-hint" class="field-hint">Compared with the other events: 6 comes up twice as often as 3. The game's events use 1 to 6.</p>
       </section>
@@ -406,15 +406,6 @@ function takeOut() {
 }
 
 .plain strong {
-  color: var(--forge-text-bright);
-}
-
-.nudge {
-  margin: 0;
-  padding: 0.75rem 0.875rem;
-  border-radius: 0.5rem;
-  border: 1px solid rgba(251, 191, 36, 0.45);
-  background: rgba(251, 191, 36, 0.07);
   color: var(--forge-text-bright);
 }
 

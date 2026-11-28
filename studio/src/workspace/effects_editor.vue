@@ -16,7 +16,7 @@
         </span>
         <label class="effect-field effect-amount">
           <span class="visually-hidden">{{ row.kind === 'score' ? `Change to ${row.name}` : `Change to ${row.name}'s satisfaction` }}</span>
-          <input type="number" :min="delta.min" :max="delta.max" step="1" :value="row.delta" @change="setDelta(row, numberValue($event, row.delta))" />
+          <input :data-field="row.kind === 'score' ? 'score_changes' : 'stakeholder_changes'" :data-index="row.index" type="number" :min="delta.min" :max="delta.max" step="1" :value="row.delta" @change="setDelta(row, numberValue($event, row.delta))" />
         </label>
         <span class="effect-word" aria-hidden="true">{{ row.kind === 'score' ? word(row.delta) : row.seated ? SATISFACTION_WORD : 'does nothing: not seated' }}</span>
         <button type="button" class="effect-remove" :aria-label="`Remove the change to ${row.name}`" @click="remove(row)">Remove</button>
@@ -53,7 +53,8 @@ import { studio } from '@studio/state/studio_state'
 import ChangeTargetPicker from '@studio/workspace/change_target_picker.vue'
 
 interface Option { id: string; name: string }
-type Row = { key: string; kind: 'score' | 'member'; id: string; name: string; delta: number; seated: boolean }
+/** `index`: the change's place in its own list (score_changes or stakeholder_changes), which the game's checks name. */
+type Row = { key: string; kind: 'score' | 'member'; index: number; id: string; name: string; delta: number; seated: boolean }
 
 const props = withDefaults(defineProps<{
   scoreChanges: ScoreChange[]
@@ -92,8 +93,8 @@ function unseatedName(id: string): string {
 }
 
 const rows = computed<Row[]>(() => [
-  ...props.scoreChanges.map((change) => ({ key: `s/${change.score_id}`, kind: 'score' as const, id: change.score_id, name: props.scoreOptions.find((option) => option.id === change.score_id)?.name ?? change.score_id, delta: change.delta, seated: true })),
-  ...props.stakeholderChanges.map((change) => ({ key: `m/${change.stakeholder_id}`, kind: 'member' as const, id: change.stakeholder_id, name: props.stakeholderOptions.find((option) => option.id === change.stakeholder_id)?.name ?? unseatedName(change.stakeholder_id), delta: change.delta, seated: seated(change.stakeholder_id) })),
+  ...props.scoreChanges.map((change, index) => ({ key: `s/${change.score_id}`, kind: 'score' as const, index, id: change.score_id, name: props.scoreOptions.find((option) => option.id === change.score_id)?.name ?? change.score_id, delta: change.delta, seated: true })),
+  ...props.stakeholderChanges.map((change, index) => ({ key: `m/${change.stakeholder_id}`, kind: 'member' as const, index, id: change.stakeholder_id, name: props.stakeholderOptions.find((option) => option.id === change.stakeholder_id)?.name ?? unseatedName(change.stakeholder_id), delta: change.delta, seated: seated(change.stakeholder_id) })),
 ])
 
 const unusedScores = computed(() => props.scoreOptions.filter((option) => !props.scoreChanges.some((change) => change.score_id === option.id)))

@@ -61,6 +61,8 @@
       </template>
     </section>
 
+    <PackIdWarning :draft="draft" @change="(next) => emit('change', next)" />
+
     <section class="editor-section" aria-labelledby="release-version">
       <h2 id="release-version" class="editor-section-title">Version</h2>
       <label class="field field-short">Pack version players will see
@@ -95,10 +97,11 @@ import { computed, ref, watch } from 'vue'
 
 import { compatibleBaseGames, fieldWords, zipReadme, gameTarget, planRelease, releaseState, releaseVersionProblem, type DraftPack, type DraftSection } from '@/domains/authoring'
 import { loadFirstParty } from '@studio/content/first_party'
+import PackIdWarning from '@studio/workspace/pack_id_warning.vue'
 import type { ExportFormat } from '@studio/state/studio_state'
 
 const props = defineProps<{ draft: DraftPack; checksClean: boolean }>()
-const emit = defineEmits<{ export: [version: string, format: ExportFormat, done: (ok: boolean) => void] }>()
+const emit = defineEmits<{ export: [version: string, format: ExportFormat, done: (ok: boolean) => void]; change: [draft: DraftPack] }>()
 
 const plan = computed(() => planRelease(props.draft))
 

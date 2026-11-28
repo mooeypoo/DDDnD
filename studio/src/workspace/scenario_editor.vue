@@ -10,25 +10,25 @@
     <section class="editor-section" aria-labelledby="scenario-story">
       <h2 id="scenario-story" class="editor-section-title">The story</h2>
       <label class="field">Name
-        <input :value="scenario.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" />
+        <input data-field="name" :value="scenario.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" />
       </label>
       <label class="field">One-line summary
-        <input :value="scenario.short_description ?? ''" :maxlength="limits.text.short_description" @input="setOptional('short_description', text($event))" />
+        <input data-field="short_description" :value="scenario.short_description ?? ''" :maxlength="limits.text.short_description" @input="setOptional('short_description', text($event))" />
         <span class="field-hint">Shown on the adventure's card at the table.</span>
       </label>
       <label class="field">The situation
-        <textarea :value="scenario.description" rows="4" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
+        <textarea data-field="description" :value="scenario.description" rows="4" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
         <span class="field-hint">What the player walks into: the system, the pressure, what's at stake.</span>
       </label>
       <label class="field">Flavor (optional)
-        <input :value="scenario.flavor_text ?? ''" :maxlength="limits.text.flavor_text" @input="setOptional('flavor_text', text($event))" />
+        <input data-field="flavor_text" :value="scenario.flavor_text ?? ''" :maxlength="limits.text.flavor_text" @input="setOptional('flavor_text', text($event))" />
       </label>
     </section>
 
     <section class="editor-section" aria-labelledby="scenario-start">
       <h2 id="scenario-start" class="editor-section-title">How it starts</h2>
       <label class="field field-short">Turns
-        <input type="number" :value="scenario.max_turns" :min="limits.numbers.max_turns.min" :max="limits.numbers.max_turns.max" step="1" @change="setTurns($event)" />
+        <input data-field="max_turns" type="number" :value="scenario.max_turns" :min="limits.numbers.max_turns.min" :max="limits.numbers.max_turns.max" step="1" @change="setTurns($event)" />
       </label>
       <fieldset class="scores">
         <legend class="field">Starting values, 0 to 100</legend>
@@ -36,7 +36,7 @@
         <div class="score-grid">
           <label v-for="ref in scenario.score_refs" :key="ref.id" class="field">
             {{ scoreNames[ref.id] ?? ref.id }}
-            <input type="number" min="0" max="100" step="1" :value="scenario.starting_scores[ref.id] ?? 0" @change="setScore(ref.id, $event)" />
+            <input data-field="starting_scores" type="number" min="0" max="100" step="1" :value="scenario.starting_scores[ref.id] ?? 0" @change="setScore(ref.id, $event)" />
           </label>
         </div>
       </fieldset>

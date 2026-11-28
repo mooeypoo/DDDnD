@@ -121,6 +121,7 @@ describe('a pack as a draft', () => {
     expect(draft.license).toBe('GPL-3.0-only')
     expect(draft.released?.license).toBe('GPL-3.0-only')
     expect(draft.released?.imported).toBe(true)
+    expect(draft.released?.pack_id).toBe('gilded_ledger')
     expect(Object.keys(draft.content.scenarios)).toEqual(['ledger_payments_monolith'])
     expect(planRelease(draft)).toMatchObject({ since: '1.0.0', kind: 'unchanged' })
   })

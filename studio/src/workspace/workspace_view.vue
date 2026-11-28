@@ -228,7 +228,7 @@
           @select="afterItemChange"
         />
         <DeckAddView v-else-if="selection.kind === 'add'" :section="selection.section" :draft="draft" @change="updateDraft" />
-        <ReleaseView v-else-if="selection.kind === 'release'" :draft="draft" :checksClean="canExport" @export="exportPack" />
+        <ReleaseView v-else-if="selection.kind === 'release'" :draft="draft" :checksClean="canExport" @export="exportPack" @change="updateDraft" />
       </main>
     </div>
   </div>
@@ -244,6 +244,7 @@ import { PLAY_IT_LIVE, type PlayStatus } from '@studio/content/game_preview'
 import { exportCurrentDraft, playCurrentDraft, studio, updateDraft, type ExportFormat } from '@studio/state/studio_state'
 import ChecksButton from '@studio/workspace/checks_button.vue'
 import type { IssueTarget } from '@studio/workspace/checks_panel.vue'
+import { centreIn, fieldElement } from '@studio/workspace/field_focus'
 import ContentsNav from '@studio/workspace/contents_nav.vue'
 import CouncilView from '@studio/workspace/council_view.vue'
 import DeckAddView from '@studio/workspace/deck_add_view.vue'
@@ -294,23 +295,30 @@ watch(() => draft.value?.content, (content) => {
   if (own && own.version !== current.ref.version) select({ ...current, ref: { id: own.id, version: own.version } })
 })
 
-/** "Go to it" from the checks: open the editor, then move focus into it. */
+/** "Go to it" from the checks: open the editor, then move focus to the field the problem is about (M4.23). */
 async function goTo(target: IssueTarget) {
-  if (target.kind === 'reaction') {
+  const { field, ...where } = target
+  let subject: string | undefined
+  if (where.kind === 'reaction') {
     // A reaction is edited on its member's page
-    const owner = draft.value ? memberOfReaction(draft.value, target.id) : null
+    const owner = draft.value ? memberOfReaction(draft.value, where.id) : null
     select(owner ? { kind: 'member', ref: { id: owner.id, version: owner.version } } : { kind: 'council' })
-  } else if (target.kind === 'aftershock') {
+    if (owner) subject = `stakeholder_reaction_rules/${where.id}`
+  } else if (where.kind === 'aftershock') {
     // An aftershock is edited on a card or event that has it
-    const user = draft.value ? aftershockUsers(draft.value, target.ref)[0] : undefined
+    const user = draft.value ? aftershockUsers(draft.value, where.ref)[0] : undefined
     if (!user) return
     select({ kind: 'item', section: user.section, ref: { id: user.id, version: draft.value!.content[user.section][user.id].version } })
-    await focusEditor('.aftershock input')
-    return
+    subject = `delayed_effects/${where.ref.id}`
   } else {
-    select(target)
+    select(where)
   }
-  await focusEditor()
+  await nextTick()
+  const found = editorArea.value ? fieldElement(editorArea.value, { subject, field }) : null
+  // In the middle of the window, not on its bottom edge: what's around the field says what it's for
+  if (!found || !editorArea.value) return
+  found.focus({ preventScroll: true })
+  centreIn(editorArea.value, found)
 }
 
 /** A council member's name: the draft's own (live as it's edited), else the game's. */

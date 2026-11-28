@@ -211,7 +211,7 @@ export function draftFromPack(snapshot: PackSnapshot, from: { sources?: RawPackF
     version: manifest.version,
     authors: manifest.authors.map((author) => (author.url ? { name: author.name, url: author.url } : { name: author.name })),
     content,
-    released: { version: manifest.version, content: JSON.parse(JSON.stringify(content)) as DraftContent, license: manifest.license, imported: true },
+    released: { version: manifest.version, content: JSON.parse(JSON.stringify(content)) as DraftContent, license: manifest.license, imported: true, pack_id: manifest.id },
   }
   draft.layout = {
     content: Object.fromEntries(listedSections(snapshot, sources).map((section) => [section, (manifest.content[section] ?? []).map((filename) => parseFilename(filename)?.id ?? filename)])),

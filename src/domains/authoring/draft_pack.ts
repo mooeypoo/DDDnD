@@ -125,6 +125,8 @@ export interface DraftRelease {
   license?: string
   /** True when this "last export" is the pack the draft was imported from (D26), not one the Studio exported. */
   imported?: true
+  /** The pack id it went out under. Absent on drafts released before the Studio recorded it (M4.23). */
+  pack_id?: string
 }
 
 /**

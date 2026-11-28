@@ -26,21 +26,21 @@
     <section class="editor-section" aria-labelledby="class-words">
       <h2 id="class-words" class="editor-section-title">What players read</h2>
       <label class="field">Name
-        <input :value="playerClass.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" />
+        <input data-field="name" :value="playerClass.name" :maxlength="limits.text.name" @input="set({ name: text($event) })" />
         <span class="field-hint">Who the player is at the table: "Pager Paladin", "Signal Seer".</span>
       </label>
       <label class="field">Who they are, in a sentence
-        <textarea :value="playerClass.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
+        <textarea data-field="description" :value="playerClass.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
       </label>
       <label class="field">Flavor (optional)
-        <input :value="playerClass.flavor_text ?? ''" :maxlength="limits.text.flavor_text" @input="emitChange(withOptionalText(playerClass, 'flavor_text', text($event)))" />
+        <input data-field="flavor_text" :value="playerClass.flavor_text ?? ''" :maxlength="limits.text.flavor_text" @input="emitChange(withOptionalText(playerClass, 'flavor_text', text($event)))" />
       </label>
     </section>
 
     <section class="editor-section" aria-labelledby="class-favourite">
       <h2 id="class-favourite" class="editor-section-title">Favourite score</h2>
       <label class="field field-short">Favourite score
-        <select :value="playerClass.score_affinity ?? ''" @change="setFavourite(($event.target as HTMLSelectElement).value)">
+        <select data-field="score_affinity" :value="playerClass.score_affinity ?? ''" @change="setFavourite(($event.target as HTMLSelectElement).value)">
           <option value="">None</option>
           <option v-for="option in scoreOptions" :key="option.id" :value="option.id">{{ option.name }}</option>
         </select>

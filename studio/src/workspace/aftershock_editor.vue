@@ -14,7 +14,7 @@
     </p>
 
     <!-- Keyed by place, not id: naming one settles its id, and the fields must stay put (focus) -->
-    <article v-for="(entry, index) in aftershocks" :key="index" class="aftershock" :aria-labelledby="`aftershock-${index}`">
+    <article v-for="(entry, index) in aftershocks" :key="index" class="aftershock" :data-subject="`delayed_effects/${entry.ref.id}`" :aria-labelledby="`aftershock-${index}`">
       <template v-if="entry.entity">
         <div class="aftershock-head">
           <h3 :id="`aftershock-${index}`" class="aftershock-title">{{ entry.entity.name || 'Unnamed aftershock' }}</h3>
@@ -23,13 +23,14 @@
 
         <template v-if="entry.own">
           <label class="field">Name
-            <input :value="entry.entity.name" :maxlength="limits.text.name" @input="set(entry.entity, { name: text($event) })" @change="settle(entry.entity.id)" />
+            <input data-field="name" :value="entry.entity.name" :maxlength="limits.text.name" @input="set(entry.entity, { name: text($event) })" @change="settle(entry.entity.id)" />
           </label>
           <label class="field">What players read when it lands
-            <input :value="entry.entity.description" :maxlength="limits.text.description" @input="set(entry.entity, { description: text($event) })" />
+            <input data-field="description" :value="entry.entity.description" :maxlength="limits.text.description" @input="set(entry.entity, { description: text($event) })" />
           </label>
           <label class="field field-short">Turns later
             <input
+              data-field="turns_until_resolution"
               type="number"
               :min="limits.numbers.turns_until_resolution.min"
               :max="limits.numbers.turns_until_resolution.max"

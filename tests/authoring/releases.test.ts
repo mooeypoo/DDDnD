@@ -27,6 +27,10 @@ import {
   withLicense,
   type DraftPack,
   type FirstPartyPack,
+  describePackIdChange,
+  keepReleasedPackId,
+  packIdChange,
+  updateDraftDetails,
 } from '@/domains/authoring'
 import type { Card, ContentPackManifest } from '@/domains/content/model'
 import { buildScenarioBundle } from '@/domains/content/services/bundle_builder'
@@ -211,5 +215,35 @@ describe('the license (D27)', () => {
     const { draft } = await released()
     const { license: _unrecorded, ...older } = draft.released!
     expect(planRelease(withLicense({ ...draft, released: older }, 'GPL-3.0-only'))).toMatchObject({ kind: 'unchanged', license: null })
+  })
+})
+
+describe('a pack id changed after an export (M4.23)', () => {
+  it('is remembered with the export, and noticed when the prefix changes', async () => {
+    const { draft } = await released()
+    expect(draft.released?.pack_id).toBe('ours')
+    expect(packIdChange(draft)).toBeNull()
+    const renamed = updateDraftDetails(draft, { prefix: 'acme' })
+    expect(packIdChange(renamed)).toEqual({ released: 'ours', next: 'acme' })
+    expect(describePackIdChange(packIdChange(renamed)!, '1.0.0')).toBe(
+      'You exported version 1.0.0 as \u201cours\u201d. It now exports as \u201cacme\u201d, which players\' games see as a different pack: it won\'t update their copy of \u201cours\u201d, it will sit beside it. Change it back to keep one pack.',
+    )
+  })
+
+  it('can be changed back, keeping what was made meanwhile', async () => {
+    const { draft } = await released()
+    const renamed = createOwnCard(updateDraftDetails(draft, { prefix: 'acme' }), 'Ship It')
+    const back = keepReleasedPackId(renamed.draft)
+    expect(back.prefix).toBe('ours')
+    expect(packIdChange(back)).toBeNull()
+    // Ids never change once made: the card keeps the id it was given
+    expect(back.content.cards[renamed.id]).toBeDefined()
+    expect(renamed.id.startsWith('acme_')).toBe(true)
+  })
+
+  it('says nothing for an export made before the Studio recorded the id', async () => {
+    const { draft } = await released()
+    const older = { ...draft, released: { ...draft.released!, pack_id: undefined } }
+    expect(packIdChange(updateDraftDetails(older, { prefix: 'acme' }))).toBeNull()
   })
 })

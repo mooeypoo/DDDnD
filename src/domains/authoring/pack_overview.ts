@@ -9,7 +9,7 @@ import { endingsInOrder, isFallback } from './endings'
 import { isOwnMember } from './council'
 import { isOwn } from './deck'
 import { draftPackId } from './draft_export'
-import type { DraftPack } from './draft_pack'
+import { updateDraftDetails, type DraftPack } from './draft_pack'
 import { scenarioRefs } from './draft_reading'
 import { planRelease } from './releases'
 
@@ -27,6 +27,30 @@ export function releaseState(draft: DraftPack): ReleaseState {
   if (!draft.released) return { state: 'never' }
   const plan = planRelease(draft)
   return { state: plan.kind === 'unchanged' ? 'unchanged' : 'changed', version: draft.released.version, imported: draft.released.imported === true }
+}
+
+/**
+ * The pack's id changed since its last export (M4.23): the prefix is the
+ * pack's id, and to players a different id is a different pack. Their copy
+ * of the old one stays, and the new one sits beside it instead of updating
+ * it. Null when it hasn't changed, or when the export predates the record.
+ */
+export function packIdChange(draft: DraftPack): { released: string; next: string } | null {
+  const released = draft.released?.pack_id
+  if (!released) return null
+  const next = draftPackId(draft)
+  return next === released ? null : { released, next }
+}
+
+/** "Change it back": the pack exports under the id it last went out under. New content keeps the ids it has. */
+export function keepReleasedPackId(draft: DraftPack): DraftPack {
+  const change = packIdChange(draft)
+  return change ? updateDraftDetails(draft, { prefix: change.released }) : draft
+}
+
+/** The warning, in words. */
+export function describePackIdChange(change: { released: string; next: string }, version: string): string {
+  return `You exported version ${version} as “${change.released}”. It now exports as “${change.next}”, which players' games see as a different pack: it won't update their copy of “${change.released}”, it will sit beside it. Change it back to keep one pack.`
 }
 
 /** The steps from a copied scenario to a pack players can import, in order. */

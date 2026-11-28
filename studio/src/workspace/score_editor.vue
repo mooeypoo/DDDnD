@@ -31,15 +31,15 @@
     <section class="editor-section" aria-labelledby="score-words">
       <h2 id="score-words" class="editor-section-title">What players read</h2>
       <label class="field">Name
-        <input :value="score.name" :maxlength="limits.text.name" @input="rename(text($event))" />
+        <input data-field="name" :value="score.name" :maxlength="limits.text.name" @input="rename(text($event))" />
         <span class="field-hint">Named so that more is better: "Rest", not "Fatigue". The game reads every score that way.</span>
       </label>
       <label class="field field-short">Short name
-        <input :value="score.short_name" :maxlength="limits.text.short_name" @input="set({ short_name: text($event) })" />
+        <input data-field="short_name" :value="score.short_name" :maxlength="limits.text.short_name" @input="set({ short_name: text($event) })" />
         <span class="field-hint">Shown where space is tight, on the play screen and share cards.</span>
       </label>
       <label class="field">What it measures, in a sentence
-        <textarea :value="score.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
+        <textarea data-field="description" :value="score.description" rows="2" :maxlength="limits.text.description" @input="set({ description: text($event) })"></textarea>
       </label>
     </section>
 
