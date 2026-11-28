@@ -11,6 +11,7 @@ import { reactive, toRaw } from 'vue'
 
 import {
   checkDraft,
+  copyOfPack,
   draftForBlankRetelling,
   draftFromBaseScenario,
   draftFromPack,
@@ -260,6 +261,19 @@ export async function startRetellingFromScratch(name: string, description: strin
   const frame = await baseFrameRef()
   if (!frame) throw new Error("The game's scenarios couldn't be loaded.")
   const { draft } = await draftForBlankRetelling(base, frame, { name, description })
+  const draftId = newDraftId()
+  state.current = { draft_id: draftId, draft }
+  clearDraftFindings()
+  await saveNow()
+  void checkNow()
+  return draftId
+}
+
+/** A pack of your own from an example (M4.30): its content, a new name and pack id. Returns its draft id. */
+export async function startFromExample(folder: string, name: string, description: string): Promise<string> {
+  const example = examplePack(folder)
+  if (!example) throw new Error('That example isn\'t one the Studio has.')
+  const draft = copyOfPack(await loadExample(example), { name, description })
   const draftId = newDraftId()
   state.current = { draft_id: draftId, draft }
   clearDraftFindings()

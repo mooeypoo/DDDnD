@@ -17,6 +17,8 @@
       <template v-if="example">
         <span class="kind-pill pill-example">Example · version {{ example.version }}</span>
         <span class="bar-example">View-only: look around, nothing here can change.</span>
+        <!-- A new subject's example can start a pack of your own (M4.30): its one ember action -->
+        <a v-if="example.kind === 'new_topic'" class="button button-primary bar-copy" href="#/new-from-example">Start a pack from this</a>
       </template>
       <!-- As wide as its longest message, so the buttons after it don't move while it saves (a click that leaves a field would miss) -->
       <span v-else class="bar-save" role="status" aria-live="polite">
@@ -807,6 +809,12 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
 
 .pill-example {
   color: var(--forge-text-secondary);
+}
+
+.bar-copy {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
 }
 
 .bar-example {

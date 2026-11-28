@@ -31,6 +31,7 @@ interface ExampleEntry {
   name?: string
   /** The pack's own version, which the Studio shows (never the tag, an id). */
   version?: string
+  description?: string
   kind?: 'retelling' | 'new_topic'
   content_hash?: string
 }
@@ -60,7 +61,7 @@ for (const entry of entries) {
   if (!imported.ok) throw new Error(`${entry.tag} doesn't open in the Studio: ${imported.problems.join('; ')}`)
 
   await writeFile(path.join(EXAMPLES_DIR, file), writePackBundle(snapshot))
-  Object.assign(entry, { file, name: manifest.name, version: manifest.version, kind: imported.draft.kind, content_hash: snapshot.content_hash })
+  Object.assign(entry, { file, name: manifest.name, version: manifest.version, description: manifest.description, kind: imported.draft.kind, content_hash: snapshot.content_hash })
   console.log(`${entry.tag}: ${file} (${imported.draft.kind}, ${Object.keys(snapshot.entities).length} files, ${snapshot.content_hash})`)
 }
 await writeFile(LIST, `${JSON.stringify(entries, null, 2)}\n`)

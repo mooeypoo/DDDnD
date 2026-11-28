@@ -18,6 +18,8 @@ export interface ExamplePack {
   name: string
   /** The pack's own version: what the Studio shows (the tag is an id). */
   version: string
+  /** What the pack says about itself, for the create screen. */
+  description: string
   kind: DraftKind
   content_hash: string
 }

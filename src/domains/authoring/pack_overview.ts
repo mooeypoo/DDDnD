@@ -63,9 +63,11 @@ export type NextStep = 'name_scores' | 'write_endings' | 'fill_deck' | 'write_a_
  * a new subject starts as a skeleton (M4.28: the summary called all
  * retellings copies).
  */
-export type PackStart = 'copied' | 'from_scratch' | 'imported' | 'topic'
+export type PackStart = 'copied' | 'from_scratch' | 'from_example' | 'imported' | 'topic'
 
 export function packStart(draft: DraftPack): PackStart {
+  // A copy of a finished pack plays already, whichever kind it is (M4.30)
+  if (draft.from_pack) return 'from_example'
   if (draft.kind === 'new_topic') return 'topic'
   if (draft.from_scratch) return 'from_scratch'
   if (draft.released?.imported) return 'imported'

@@ -28,7 +28,7 @@
           <ol class="steps">
             <li class="step step-done">
               <span class="step-mark" aria-hidden="true">✓</span>
-              <span class="step-text"><strong>{{ START_WORDS[start].title }}</strong> {{ START_WORDS[start].text }}</span>
+              <span class="step-text"><strong>{{ start === 'from_example' ? `Started from ${draft.from_pack}.` : START_WORDS[start].title }}</strong> {{ START_WORDS[start].text }}</span>
             </li>
             <li v-for="entry in steps" :key="entry.step" class="step" :class="{ 'step-done': entry.done }">
               <span class="step-mark" aria-hidden="true">{{ entry.done ? '✓' : '' }}</span>
@@ -137,6 +137,7 @@ const emit = defineEmits<{ select: [selection: Selection]; createNew: [section: 
 const START_WORDS: Record<PackStart, { title: string; text: string; plays: string }> = {
   copied: { title: 'Copied the game\'s scenario.', text: 'Its council, cards and events play exactly as in DDDnD.', plays: 'Your copy of the scenario already plays, so each step is about making it yours.' },
   from_scratch: { title: 'Started from scratch.', text: 'The game\'s scores and endings, and nothing else yet.', plays: 'It plays once it has a council and a deck.' },
+  from_example: { title: '', text: 'Everything in it came with the copy, and all of it is yours to change.', plays: 'It already plays, so each step is about making it about your subject.' },
   imported: { title: 'Imported a pack.', text: 'It plays as it did when it was exported.', plays: 'It already plays, so each step is about what you change.' },
   topic: { title: 'Started your topic.', text: 'A scenario, an ending every run can reach, and a class to play as. The game\'s outcome tiers come with it.', plays: 'Your topic plays once it has scores, so each step adds to what players can do.' },
 }

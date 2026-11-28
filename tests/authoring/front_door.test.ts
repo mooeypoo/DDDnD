@@ -12,6 +12,7 @@ import { describe, expect, it } from 'vitest'
 import {
   KIND_NAMES,
   addToDeck,
+  copyOfPack,
   createOwnCard,
   createOwnEnding,
   createOwnEvent,
@@ -21,6 +22,7 @@ import {
   draftForBlankRetelling,
   draftForNewTopic,
   draftFromBaseScenario,
+  draftFromPack,
   draftToRawPack,
   exportDraftBundle,
   gameTarget,
@@ -155,6 +157,48 @@ describe('a DDD retelling from scratch', () => {
     games.registerPack(snapshot.manifest, createSnapshotContentProvider(snapshot), key)
     const bundle = await buildScenarioBundle(scenarioId, 1, games.createScopedProvider(key))
     const runs = simulate_runs({ scenario_bundle: bundle, runs: 20, seed: 'from-scratch', play_policy: 'player_true' }).per_run
+    expect(runs.every((run) => run.turns_completed === run.max_turns)).toBe(true)
+  })
+})
+
+describe('a pack of your own, from an example (M4.30)', () => {
+  async function sre() {
+    const file = 'sre_on_call-v1.0.0.dddnd-pack.json'
+    const imported = draftFromPack(await readPackBundle(readFileSync(path.resolve('studio/examples', file), 'utf8'), file))
+    if (!imported.ok) throw new Error(imported.problems.join('; '))
+    return imported.draft
+  }
+
+  it("keeps the example's content under a new name and pack id, with nothing of its release", async () => {
+    const example = await sre()
+    const copy = copyOfPack(example, { name: 'Incident Response' })
+    expect(copy).toMatchObject({ kind: 'new_topic', name: 'Incident Response', prefix: 'incident', version: '1.0.0', authors: [] })
+    expect(copy.content).toEqual(example.content)
+    expect([copy.released, copy.layout, copy.readme, copy.license, copy.homepage_url]).toEqual([undefined, undefined, undefined, undefined, undefined])
+    expect(describeOwnContent(copy)).toBe(describeOwnContent(example))
+    // It already plays: the summary says where it came from, not that it's an empty starter
+    expect(copy.from_pack).toBe('SRE: The Pager Storm')
+    expect(packStart(copy)).toBe('from_example')
+    const { from_pack: _mark, ...unmarked } = copy
+    expect(draftToRawPack(copy, gameTarget(firstParty()))).toEqual(draftToRawPack(unmarked, gameTarget(firstParty())))
+  })
+
+  it("never takes the original's pack id, or one would replace the other for players", async () => {
+    expect(copyOfPack(await sre(), { name: 'SRE On Call' }).prefix).toBe('sre_on_call_copy')
+  })
+
+  it('exports, and plays whole runs in the game', async () => {
+    const copy = { ...copyOfPack(await sre(), { name: 'Incident Response' }), authors: [{ name: 'Ada' }] }
+    const exported = await exportDraftBundle(copy, firstParty())
+    if (!exported.ok) throw new Error(JSON.stringify(exported.issues))
+    const snapshot = await readPackBundle(exported.text, exported.file_name)
+    expect(snapshot.manifest.id).toBe('incident')
+    const { registry: games } = registry()
+    const key = packKeyOf(snapshot)
+    games.registerPack(snapshot.manifest, createSnapshotContentProvider(snapshot), key)
+    const [scenario] = Object.values(copy.content.scenarios)
+    const bundle = await buildScenarioBundle(scenario.id, scenario.version, games.createScopedProvider(key))
+    const runs = simulate_runs({ scenario_bundle: bundle, runs: 20, seed: 'from-example', play_policy: 'player_true' }).per_run
     expect(runs.every((run) => run.turns_completed === run.max_turns)).toBe(true)
   })
 })

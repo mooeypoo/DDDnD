@@ -99,6 +99,8 @@ export interface DraftPack {
   round?: RoundState
   /** Set for a DDD retelling started from scratch rather than copied (M4.28). The Studio's own memory: never exported. */
   from_scratch?: true
+  /** The name of the pack this one was copied from (an example, M4.30). The Studio's own memory: never exported. */
+  from_pack?: string
 }
 
 /** An imported pack's lists, in its own order (ids). */

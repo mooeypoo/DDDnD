@@ -51,7 +51,7 @@ function setTextSize(size: TextSize) {
  * used (`#/new-topic`, `#/guided`) open the create screen with their answers
  * chosen, so a bookmark still lands somewhere sensible.
  */
-type Preset = 'none' | 'topic' | 'guided'
+type Preset = 'none' | 'topic' | 'guided' | 'example'
 const route = reactive<{ kind: 'welcome' | 'packs' | 'create' | 'draft' | 'guided' | 'example'; preset: Preset; missing: boolean; draftId: string; problem: string }>({ kind: 'welcome', preset: 'none', missing: false, draftId: '', problem: '' })
 
 const PAGES: Record<string, { kind: 'packs' | 'create'; preset: Preset }> = {
@@ -59,8 +59,9 @@ const PAGES: Record<string, { kind: 'packs' | 'create'; preset: Preset }> = {
   '#/new': { kind: 'create', preset: 'none' },
   '#/new-topic': { kind: 'create', preset: 'topic' },
   '#/guided': { kind: 'create', preset: 'guided' },
+  '#/new-from-example': { kind: 'create', preset: 'example' },
 }
-const CREATE_PRESETS: Record<Preset, { about?: DraftKind; how?: 'guided' }> = { none: {}, topic: { about: 'new_topic' }, guided: { how: 'guided' } }
+const CREATE_PRESETS: Record<Preset, { about?: DraftKind; how?: 'guided' | 'example' }> = { none: {}, topic: { about: 'new_topic' }, guided: { how: 'guided' }, example: { about: 'new_topic', how: 'example' } }
 
 /** Leaving an example: back to where it was opened from, or the welcome page in a tab of its own. */
 function leaveExample() {

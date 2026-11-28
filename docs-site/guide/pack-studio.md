@@ -43,6 +43,8 @@ The Studio carries two finished packs from the [DDDnD-packs repository](https://
 
 An example opens **view-only**: every part of it is there to read, and nothing can change. It never appears in your packs.
 
+To start a new subject from *SRE: The Pager Storm*, choose **Start a pack from this** on the example, or **From an example** when you create a pack. Your copy has all of it, under your name and a pack id of its own; the original stays as it is.
+
 ## Working on a pack
 
 - **The summary** says how the pack began and where to go next. Every step can be done in any order.

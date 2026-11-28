@@ -60,6 +60,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D38 | **A front door: welcome, then create.** `#/` is a welcome page (what DDDnD is, what a pack holds, the two kinds, where a pack goes, one ember action "Create a pack"), with returning authors' latest packs high on it. `#/new` asks two questions: what the pack is about (**DDD retelling** or **New subject**, one name each everywhere), then how to start (**step by step**, **from one of the game's scenarios** after a preview, or **from scratch**). "Your packs" is `#/packs`. Nothing is made until the author says yes. | The first-screen audit (owner's feedback and choices, 2026-11-27; the audit page is the owner's). The old start screen's ember "+ New pack" copied a scenario, blended "what" with "how", and gave newcomers no context. Other tools put blank and templates side by side, ask one question first, and preview before "use this". |
 | D39 | **A DDD retelling can start from scratch:** the game's frame (scores, outcome tiers, endings, coupling, from its first scenario, which all share them), every score at 50, ten turns, and no council or deck. The draft remembers it started this way (`from_scratch`, never exported), so the summary says so and adds "Fill the deck". | The owner's call: the three ways in mean the same for both kinds. A copy is the right start for "the Monolith, but ours", but not for a facilitator whose system looks like none of the five. |
 | D40 | **The example packs ship inside the Studio, view-only.** The Gilded Ledger and the SRE pack are vendored from DDDnD-packs at their release tags (`npm run studio:examples`, which reads each tag with `git show`) as single pack files in `studio/examples/`, served from the Studio's own site. `examples.json` records each tag, version, kind and content hash. An example opens at `#/example/<folder>` through the import path, as a draft that's never saved and that no edit reaches. | D14 pins examples to tags; the Studio's CSP reaches only itself, and its Netlify build can't see the packs repository, so the packs travel with it. A test holds each file to its recorded hash, to its tag (where the packs repository is beside this one), and to the game's checks today. The owner chose view-only first (the audit's decision 2); starting a new subject from one comes after. |
+| D41 | **A new subject can start from an example:** a copy of its content under the author's name and a pack id of its own, never the original's (`copyOfPack`), with nothing of the original's release, authors, README or license. Content ids stay. The draft remembers which pack it came from (`from_pack`, never exported), so the summary says "Started from SRE: The Pager Storm". | The audit's decision 2, second half. A new subject has no game scenario to start from; a finished pack is its counterpart. A shared pack id would make one pack replace the other for players who have both. |
 
 ---
 
@@ -2099,11 +2100,58 @@ The first-screen audit, part three: the owner's decision 2, view-only first. D40
   - zero CSP violations, no console errors.
 
 **Left open:**
-- **Starting a new subject from the SRE pack** (the audit's decision 2, second half): a copy of an example as a draft of your own.
+- **Starting a new subject from the SRE pack** (the audit's decision 2, second half): M4.30.
 - **The rest of the audit's suggestions:**
   - "Share it" after the first export;
   - a facilitator's page;
   - Scratch-style skill tutorials.
+
+### M4.30: A new subject from an example (2026-11-27)
+
+The audit's decision 2, second half. D41.
+
+**What an author sees:**
+- **"From an example"** is a new subject's third way in on the create screen, beside "Step by step" and "From scratch" (a retelling's counterpart is "From one of the game's scenarios"). It shows the example's name and what it says about itself, "Look inside first" (a new tab), and a name and a sentence, then **Make my copy**.
+- **"Start a pack from this"** on the SRE example's toolbar, its one ember action, opens the create screen with "Something else" and "From an example" chosen (`#/new-from-example`).
+- **The copy opens in the workspace, as a pack of your own:**
+  - "✓ Started from SRE: The Pager Storm. Everything in it came with the copy, and all of it is yours to change.";
+  - "It already plays";
+  - one check left, its author's name.
+- **Your packs** counts what's its own: "6 scores, 22 cards, 14 events, 5 members and 5 endings."
+
+**Domain:**
+- `copyOfPack`:
+  - the source's content, under a new name and the pack id that name makes;
+  - never the original's id ("SRE On Call" becomes `sre_on_call_copy`);
+  - version 1.0.0, no authors, release, layout, README, license or homepage;
+  - content ids stay, since the game doesn't require them to carry the pack's id.
+- `DraftPack.from_pack` (never exported), and `packStart` gains "from_example".
+
+**Studio:**
+- `startFromExample`.
+- The create screen's "example" way.
+- The examples' descriptions are recorded by the vendoring script.
+
+**Decisions (D41):**
+- **New subjects only, for now (the owner's call).** A retelling already starts from the game's scenarios, and a fourth way in would crowd the choice. The Ledger can still be looked inside.
+- **A new pack id, always.** Two packs with one id are one pack to the bazaar (M4.23's warning): a copy that kept SRE's would replace it for players who have both.
+
+**For the talk: a copy is a draft with a past.** The model already had "a draft" and "an imported draft". A copy is the first, made from the second's content, and the only thing it keeps of its past is a name, so the summary can say where it started.
+
+**Verification:**
+- Tests: 1458 in total (+4):
+  - `tests/authoring/front_door.test.ts` (+3):
+    - the copy's content, name, id and nothing of the release, `from_pack`, never exported;
+    - never the original's id;
+    - **it exports as `incident` and plays twenty whole runs.**
+  - `tests/studio/topic_round.test.ts` (+1, one updated): a new subject's three ways in, and the example form makes a copy.
+- Headless Chrome, production build with the Studio CSP, at 1440×1000 and 1024×768:
+  - the SRE example: "Start a pack from this";
+  - the create screen opens on "From an example";
+  - "Incident Response", then "Make my copy";
+  - the summary reads "Started from SRE: The Pager Storm", with "1 to fix" (the author);
+  - Your packs lists it with its counts;
+  - zero CSP violations, no console errors.
 
 ## 14. Picking up the work
 
@@ -2130,7 +2178,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. The new-topic round is M4.25 (D37); M4.26 shows when anything is being worked out (§9.1). The first-screen audit (the owner's choices, D38, D39) is M4.27 (the welcome page, `#/packs`, one name per kind) and M4.28 (the create screen's two questions, the scenario preview, a retelling from scratch). The example packs, vendored at their tags and opened view-only, are M4.29 (D40). Next: starting a new subject from an example, then the audit's other suggestions ("Share it", a facilitator's page, skill tutorials). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. The new-topic round is M4.25 (D37); M4.26 shows when anything is being worked out (§9.1). The first-screen audit (the owner's choices, D38, D39) is M4.27 (the welcome page, `#/packs`, one name per kind) and M4.28 (the create screen's two questions, the scenario preview, a retelling from scratch). The example packs, vendored at their tags and opened view-only, are M4.29 (D40); starting a new subject from one is M4.30 (D41). Next: the audit's other suggestions ("Share it" after an export, a facilitator's page, skill tutorials). Each follows §9.1.
 - **Left open from the audit:**
   - a map view of cards and their impact (maybe, D28);
   - whether the game's validator should check council member ids in changes (M4.14).

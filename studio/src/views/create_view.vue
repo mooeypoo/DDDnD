@@ -58,6 +58,27 @@
       </ul>
     </section>
 
+    <!-- From an example (M4.30): what it is, a look inside, then your copy's name -->
+    <form v-else-if="how === 'example' && subjectExample" class="question name-form" @submit.prevent="startCopy">
+      <h2 class="question-label">Start from {{ subjectExample.name }}</h2>
+      <div class="example-card">
+        <span class="choice-title">{{ subjectExample.name }}</span>
+        <span>{{ subjectExample.description }}</span>
+        <a :href="`#/example/${subjectExample.folder}`" target="_blank" rel="noopener">Look inside first<span class="visually-hidden"> (opens in a new tab)</span></a>
+      </div>
+      <p class="field-hint">Your copy has all of it, under your name and a pack id of its own. Change anything; the original stays as it is.</p>
+      <label class="field">What will you call it?
+        <input v-model="name" maxlength="80" placeholder="Incident response" required autocomplete="off" />
+      </label>
+      <label class="field">In a sentence, for players (optional)
+        <input v-model="description" maxlength="300" :placeholder="subjectExample.description.slice(0, 80)" autocomplete="off" />
+      </label>
+      <p v-if="startError" class="note note-warning" role="alert">{{ startError }}</p>
+      <button type="submit" class="button button-primary" :disabled="!name.trim() || starting !== null">
+        <span :class="{ working: starting === 'named' }">{{ starting === 'named' ? 'Copying…' : 'Make my copy' }}</span>
+      </button>
+    </form>
+
     <!-- From scratch, or a new subject's round: a name and a sentence -->
     <form v-else-if="how === 'scratch' || (about === 'new_topic' && how === 'guided')" class="question name-form" @submit.prevent="startNamed">
       <h2 class="question-label">{{ about === 'new_topic' ? 'What does your pack teach?' : 'What\'s your pack called?' }}</h2>
@@ -100,9 +121,9 @@ import { exampleOfKind } from '@studio/content/example_packs'
 import KindPill from '@studio/components/kind_pill.vue'
 import ScenarioPreview from '@studio/components/scenario_preview.vue'
 import { listBaseScenarios, type BaseScenarioChoice } from '@studio/content/first_party'
-import { startFromBaseScenario, startNewTopic, startRetellingFromScratch } from '@studio/state/studio_state'
+import { startFromBaseScenario, startFromExample, startNewTopic, startRetellingFromScratch } from '@studio/state/studio_state'
 
-type How = 'guided' | 'scenario' | 'scratch'
+type How = 'guided' | 'scenario' | 'example' | 'scratch'
 
 /** Old addresses (#/new-topic, #/guided) arrive with their answers already chosen. */
 const props = withDefaults(defineProps<{ about?: DraftKind; how?: How | null }>(), { about: 'retelling', how: null })
@@ -117,6 +138,7 @@ const about = ref<DraftKind>(props.about)
 const how = ref<How | null>(props.how)
 
 /** The ways in for each kind: a new subject has no scenario of the game's to start from. */
+const subjectExample = exampleOfKind('new_topic')
 const ways = computed(() => about.value === 'retelling'
   ? [
       { how: 'guided' as const, title: 'Step by step', text: 'A guided round builds a small, playable pack with you, about your own organization. About 15 minutes, with an example beside every step.' },
@@ -125,6 +147,8 @@ const ways = computed(() => about.value === 'retelling'
     ]
   : [
       { how: 'guided' as const, title: 'Step by step', text: 'A guided round builds it with you: what it trades off, who\'s at the table, the moves, the endings. Two sittings, with an example from the SRE pack beside every step.' },
+      // A finished pack to change (M4.30): a new subject's counterpart to starting from one of the game's scenarios
+      ...(subjectExample ? [{ how: 'example' as const, title: 'From an example', text: `A finished pack to change: ${subjectExample.name}, with its scores, council, cards and endings.` }] : []),
       { how: 'scratch' as const, title: 'From scratch', text: 'A scenario, an ending every run can reach and a class to play as. The summary lists what\'s left.' },
     ])
 
@@ -169,6 +193,19 @@ async function startFromScenario(choice: BaseScenarioChoice) {
   const guided = how.value === 'guided'
   try {
     emit('openDraft', await startFromBaseScenario(choice, { guided }), guided)
+  } finally {
+    starting.value = null
+  }
+}
+
+async function startCopy() {
+  if (!subjectExample || !name.value.trim() || starting.value) return
+  starting.value = 'named'
+  startError.value = null
+  try {
+    emit('openDraft', await startFromExample(subjectExample.folder, name.value, description.value), false)
+  } catch (error) {
+    startError.value = (error as Error).message
   } finally {
     starting.value = null
   }
@@ -354,6 +391,21 @@ h2.question-label {
 }
 
 .name-form .button {
+  align-self: flex-start;
+}
+
+.example-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 1rem 1.125rem;
+  border-radius: var(--forge-radius);
+  border: 1px solid var(--forge-hairline);
+  background: var(--forge-panel);
+  font-size: 0.9375rem;
+}
+
+.example-card a {
   align-self: flex-start;
 }
 
