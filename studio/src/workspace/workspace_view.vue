@@ -74,6 +74,8 @@
         @select="select"
         @createMember="createMember"
         @createNew="createNew"
+        @createScore="createScore"
+        @createEnding="createEnding"
         @back="updateDraft(previousRoundStep(draft!))"
         @next="updateDraft(nextRoundStep(draft!))"
         @finish="finishTheRound"
@@ -122,6 +124,8 @@
           :playing="playing"
           :playText="playText"
           @createNew="createNew"
+          @createScore="createScore"
+          @createEnding="createEnding"
           @goTo="goTo"
           @play="playIt"
           @export="select({ kind: 'release' })"
@@ -220,7 +224,7 @@
           :seatsLeft="COUNCIL_SEATS - councilRefs.length"
           :deckChoices="deckChoices"
           @change="updateDraft"
-          @settle="(next) => updateDraft(next, { sameStep: true })"
+          @settle="settleOpen"
           @select="afterMemberChange"
           @open="select"
         />
@@ -236,7 +240,7 @@
           :seatsLeft="COUNCIL_SEATS - councilRefs.length"
           :balance="studio.balance"
           @change="updateDraft"
-          @settle="(next) => updateDraft(next, { sameStep: true })"
+          @settle="settleOpen"
           @select="afterItemChange"
         />
         <DeckAddView v-else-if="selection.kind === 'add'" :section="selection.section" :draft="draft" @change="updateDraft" />
@@ -249,7 +253,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
-import { addToCouncil, aftershockUsers, finishRound, goToRoundStep, inRound, nextRoundStep, previousRoundStep, type RoundStep, isOwn as isOwnItem, COUPLING_PER_SCENARIO, couplingInOrder, createOwnChallenge, createOwnClass, createOwnCoupling, createOwnEnding, createOwnScore, endingsInOrder, ENDINGS_PER_SCENARIO, isFallback, usesGameContent, newestRef, SCORES_PER_SCENARIO, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection } from '@/domains/authoring'
+import { addToCouncil, aftershockUsers, finishRound, goToRoundStep, inRound, nextRoundStep, previousRoundStep, type RoundStep, isOwn as isOwnItem, COUPLING_PER_SCENARIO, couplingInOrder, createOwnChallenge, createOwnClass, createOwnCoupling, createOwnEnding, createOwnScore, endingsInOrder, ENDINGS_PER_SCENARIO, isFallback, usesGameContent, newestRef, SCORES_PER_SCENARIO, toFillIn, COUNCIL_SEATS, createOwnCard, createOwnEvent, createOwnMember, isOwn, isOwnMember, memberOfReaction, PLACEHOLDER_NAMES, putContent, removeChangesTo, resolveNames as resolveRefNames, scenarioRefs, type DeckSection, type DraftPack } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 import { PLAY_IT_LIVE, type PlayStatus } from '@studio/content/game_preview'
@@ -337,6 +341,21 @@ function select(next: Selection) {
   selection.value = next
   if (next.kind !== 'summary') lastEdit.value = next
   editorArea.value?.scrollTo?.({ top: 0 })
+}
+
+/**
+ * A new item's id followed its name (on leaving the name field): part of
+ * naming it (one undo step, M4.24), and the same item stays open where it
+ * is. Opening it afresh would scroll to the top mid-click, and the click
+ * that left the field would land on nothing (M4.25's walk).
+ */
+function settleOpen(next: DraftPack, ref?: VersionRef) {
+  updateDraft(next, { sameStep: true })
+  const current = selection.value
+  if (!ref) return
+  if (current.kind === 'item') selection.value = { ...current, ref }
+  else if (current.kind === 'member') selection.value = { kind: 'member', ref }
+  lastEdit.value = selection.value
 }
 
 /** Undo can take back what's open (a new card, say): then the summary opens instead of an empty editor. */
@@ -483,17 +502,30 @@ function roundSelection(step: RoundStep): Selection {
     }
     case 'deck':
       return { kind: 'add', section: 'cards' }
+    // A topic's own steps (§5): its first score, its first ending of its own, its first class
+    case 'scores': {
+      const [score] = scenarioRefs(current, 'score_refs')
+      return score ? { kind: 'score', id: score.id } : { kind: 'round', step }
+    }
+    case 'endings': {
+      const ending = endingsInOrder(current).find((item) => !isFallback(item))
+      return ending ? { kind: 'ending', id: ending.id } : { kind: 'round', step }
+    }
+    case 'class': {
+      const [playerClass] = Object.values(current.content.classes)
+      return playerClass ? { kind: 'class', id: playerClass.id } : { kind: 'round', step }
+    }
     default:
       return { kind: 'round', step }
   }
 }
 
-/** A step opened (from the strip, Next or Back, or on arriving): show what it's about. A topic has no retelling round. */
+/** A step opened (from the strip, Next or Back, or on arriving): show what it's about. */
 // Watched as one string: a new array each time would fire on every edit, and reopen the step's default
 watch(() => `${props.guided ? 'guided' : ''}:${draft.value?.round?.step ?? ''}`, () => {
   const step = draft.value?.round?.step
   if (!props.guided || !draft.value) return
-  if (draft.value.kind !== 'retelling' || !step) {
+  if (!step) {
     emit('leaveRound')
     return
   }

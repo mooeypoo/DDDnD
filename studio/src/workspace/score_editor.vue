@@ -137,16 +137,6 @@ function remove() {
   padding-left: 1.125rem;
 }
 
-.link-button {
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--forge-gold);
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 .field-short {
   max-width: 16rem;
 }

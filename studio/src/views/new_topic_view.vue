@@ -12,12 +12,13 @@
       <h1 class="new-title">Teach another subject</h1>
       <p class="new-lede">
         Your own scores, council, cards and endings, about something other than domain-driven design: incident response,
-        security, product discovery. You start with a scenario, an ending every run can reach, and a class to play as;
-        the summary then walks you through the rest. The SRE pack shows a finished one.
+        security, product discovery. You start with a scenario, an ending every run can reach, and a class to play as.
+        The guided round then builds the rest with you, step by step, in two sittings; or start on your own, and the
+        summary lists what's left. The SRE pack shows a finished one.
       </p>
     </div>
 
-    <form class="topic-form" @submit.prevent="start">
+    <form class="topic-form" @submit.prevent="start(true)">
       <label class="field">What does your pack teach?
         <input v-model="name" maxlength="80" placeholder="Incident response" required autocomplete="off" />
         <span class="field-hint">This names the pack and its first scenario. You can change both later.</span>
@@ -25,7 +26,10 @@
       <label class="field">In a sentence, for players (optional)
         <input v-model="description" maxlength="300" placeholder="Keep the pager quiet without burning out the team." autocomplete="off" />
       </label>
-      <button type="submit" class="button button-primary" :disabled="!name.trim() || starting">{{ starting ? 'Starting…' : 'Start the topic' }}</button>
+      <div class="topic-actions">
+        <button type="submit" class="button button-primary" :disabled="!name.trim() || starting !== null">{{ starting === 'guided' ? 'Starting…' : 'Start with the guided round' }}</button>
+        <button type="button" class="button button-quiet" :disabled="!name.trim() || starting !== null" @click="start(false)">{{ starting === 'own' ? 'Starting…' : 'Start on my own' }}</button>
+      </div>
     </form>
   </main>
 </template>
@@ -35,19 +39,20 @@ import { ref } from 'vue'
 
 import { startNewTopic } from '@studio/state/studio_state'
 
-const emit = defineEmits<{ openDraft: [draftId: string]; back: [] }>()
+const emit = defineEmits<{ openDraft: [draftId: string, guided: boolean]; back: [] }>()
 
 const name = ref('')
 const description = ref('')
-const starting = ref(false)
+const starting = ref<'guided' | 'own' | null>(null)
 
-async function start() {
-  if (!name.value.trim()) return
-  starting.value = true
+/** The topic's skeleton, opened in the guided round (§5) or in the workspace. */
+async function start(guided: boolean) {
+  if (!name.value.trim() || starting.value) return
+  starting.value = guided ? 'guided' : 'own'
   try {
-    emit('openDraft', await startNewTopic(name.value, description.value))
+    emit('openDraft', await startNewTopic(name.value, description.value, { guided }), guided)
   } finally {
-    starting.value = false
+    starting.value = null
   }
 }
 </script>
@@ -110,7 +115,9 @@ async function start() {
   background: var(--forge-panel);
 }
 
-.topic-form .button {
-  align-self: flex-start;
+.topic-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 </style>

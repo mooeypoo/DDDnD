@@ -13,13 +13,44 @@ import { isOwnMember } from './council'
 import { isOwn, onlyHelps } from './deck'
 import type { DraftPack, Effects } from './draft_pack'
 import { scenarioRefs } from './draft_reading'
+import { ENDING_PLACEHOLDER, endingsInOrder, isFallback } from './endings'
+import { PLAY_RULE_PLACEHOLDERS } from './play_rules'
+import { TOPIC_PLACEHOLDERS, TOPIC_STARTERS } from './topics'
 
 /** The retelling round's steps, in order (§5). */
-export const ROUND_STEPS = ['world', 'scenario', 'council', 'cards', 'surprises', 'deck', 'check', 'play'] as const
-export type RoundStep = (typeof ROUND_STEPS)[number]
+export const RETELLING_ROUND = ['world', 'scenario', 'council', 'cards', 'surprises', 'deck', 'check', 'play'] as const
 
-/** What the round asks for: two of the author's own people, three of their own moves. */
-export const ROUND_ASKS = { council: 2, cards: 3 } as const
+/**
+ * The new-topic round's steps (§5): the retelling's, with what a topic must
+ * make for itself (what it trades off, its endings, a class), and without
+ * filling the deck from the game's (a topic uses none of it, D33). Scores
+ * come before the scenario, which sets where they start.
+ */
+export const TOPIC_ROUND = ['world', 'scores', 'scenario', 'council', 'cards', 'surprises', 'endings', 'class', 'check', 'play'] as const
+
+export type RoundStep = (typeof RETELLING_ROUND)[number] | (typeof TOPIC_ROUND)[number]
+
+/** The draft's round: a topic's is longer. */
+export function roundSteps(draft: Pick<DraftPack, 'kind'>): readonly RoundStep[] {
+  return draft.kind === 'new_topic' ? TOPIC_ROUND : RETELLING_ROUND
+}
+
+/**
+ * The topic round is "longer, in two sittings" (§5): the first makes the
+ * world (what it trades off, where it starts, who's at the table), the
+ * second what happens in it. The step the second sitting starts at; a
+ * retelling's round is one sitting.
+ */
+export function secondSitting(draft: Pick<DraftPack, 'kind'>): RoundStep | null {
+  return draft.kind === 'new_topic' ? 'cards' : null
+}
+
+/**
+ * What the round asks for: two of the author's own people, three of their
+ * own moves; in a topic, three scores to trade between (§5 says three to
+ * six), two endings besides the one every run reaches, and a class.
+ */
+export const ROUND_ASKS = { council: 2, cards: 3, scores: 3, endings: 2 } as const
 
 /** What the game's checks last said, which the round's "Check it" step is about (the Studio runs them). */
 export interface RoundChecks {
@@ -42,24 +73,26 @@ export function inRound(draft: DraftPack): boolean {
   return draft.round !== undefined
 }
 
-/** Open a step (any order works). */
+/** Open a step (any order works), of this draft's round. */
 export function goToRoundStep(draft: DraftPack, step: RoundStep): DraftPack {
-  if (!draft.round) return draft
+  if (!draft.round || !roundSteps(draft).includes(step)) return draft
   return { ...draft, round: { ...draft.round, step } }
 }
 
 /** "Next": the current step counts as passed, and the next one opens. On the last step, nothing changes. */
 export function nextRoundStep(draft: DraftPack): DraftPack {
   if (!draft.round) return draft
-  const index = ROUND_STEPS.indexOf(draft.round.step)
+  const steps = roundSteps(draft)
+  const index = steps.indexOf(draft.round.step)
   const passed = draft.round.passed.includes(draft.round.step) ? draft.round.passed : [...draft.round.passed, draft.round.step]
-  return { ...draft, round: { step: ROUND_STEPS[Math.min(index + 1, ROUND_STEPS.length - 1)], passed } }
+  return { ...draft, round: { step: steps[Math.min(index + 1, steps.length - 1)], passed } }
 }
 
 export function previousRoundStep(draft: DraftPack): DraftPack {
   if (!draft.round) return draft
-  const index = ROUND_STEPS.indexOf(draft.round.step)
-  return { ...draft, round: { ...draft.round, step: ROUND_STEPS[Math.max(index - 1, 0)] } }
+  const steps = roundSteps(draft)
+  const index = steps.indexOf(draft.round.step)
+  return { ...draft, round: { ...draft.round, step: steps[Math.max(index - 1, 0)] } }
 }
 
 /** The round is over: the draft is an ordinary draft again, with everything made in it. */
@@ -115,6 +148,50 @@ export function roundSurprises(draft: DraftPack): Array<{ ref: VersionRef; name:
   })
 }
 
+/** How a score is pulled by the author's cards: the round's rule for scores is that they trade off. */
+export type ScorePull = 'both_ways' | 'only_up' | 'only_down' | 'untouched'
+
+/**
+ * The topic's scores, each with how the author's cards move it. A score no
+ * card lowers is one the best plan raises every turn, and then one strategy
+ * wins (§5, "Scores should trade off").
+ */
+export function roundScores(draft: DraftPack): Array<{ ref: VersionRef; name: string; raised_by: number; lowered_by: number; pull: ScorePull }> {
+  const cards = scenarioRefs(draft, 'card_refs').filter((ref) => isOwn(draft, 'cards', ref)).map((ref) => draft.content.cards[ref.id])
+  return scenarioRefs(draft, 'score_refs').filter((ref) => draft.content.scores[ref.id]).map((ref) => {
+    const deltas = cards.map((card) => card.score_changes.filter((change) => change.score_id === ref.id).reduce((sum, change) => sum + change.delta, 0))
+    const raised_by = deltas.filter((delta) => delta > 0).length
+    const lowered_by = deltas.filter((delta) => delta < 0).length
+    const pull: ScorePull = raised_by && lowered_by ? 'both_ways' : raised_by ? 'only_up' : lowered_by ? 'only_down' : 'untouched'
+    return { ref, name: draft.content.scores[ref.id].name, raised_by, lowered_by, pull }
+  })
+}
+
+/** A name the author gave it: not blank, and not the one the Studio started it with. */
+function named(name: string, placeholder: string): boolean {
+  return name.trim() !== '' && name.trim() !== placeholder
+}
+
+/** The topic's endings, in the order the game tries them, each saying whether it's the one every run reaches. */
+export function roundEndings(draft: DraftPack): Array<{ ref: VersionRef; name: string; fallback: boolean }> {
+  return endingsInOrder(draft).map((ending) => ({ ref: { id: ending.id, version: ending.version }, name: ending.name, fallback: isFallback(ending) }))
+}
+
+/**
+ * The topic's classes, each with its favourite score (a class with none
+ * plays as anyone) and whether the author has named it: the skeleton's
+ * "Generalist" is a stand-in, and a Generalist with a favourite isn't one.
+ */
+export function roundClasses(draft: DraftPack): Array<{ id: string; name: string; favourite: string | null; named: boolean }> {
+  const tracked = new Set(scenarioRefs(draft, 'score_refs').map((ref) => ref.id))
+  return Object.values(draft.content.classes).map((playerClass) => ({
+    id: playerClass.id,
+    name: playerClass.name,
+    favourite: playerClass.score_affinity && tracked.has(playerClass.score_affinity) ? playerClass.score_affinity : null,
+    named: named(playerClass.name, PLAY_RULE_PLACEHOLDERS.playerClass) && playerClass.name.trim() !== TOPIC_STARTERS.playerClass.name,
+  }))
+}
+
 /**
  * Whether the draft has what a step asks for. The steps that ask for
  * something countable tick when it's there; the others tick once the author
@@ -138,11 +215,17 @@ export function roundStepDone(draft: DraftPack, step: RoundStep, checks: RoundCh
       const leanings = roundSurprises(draft).map((event) => event.leaning)
       return leanings.includes('bad') && leanings.includes('good')
     }
+    case 'scores':
+      return roundScores(draft).filter((score) => named(score.name, TOPIC_PLACEHOLDERS.score)).length >= ROUND_ASKS.scores
+    case 'endings':
+      return roundEndings(draft).filter((ending) => !ending.fallback && named(ending.name, ENDING_PLACEHOLDER)).length >= ROUND_ASKS.endings
+    case 'class':
+      return roundClasses(draft).some((playerClass) => playerClass.favourite !== null && playerClass.named)
     default:
       return passed
   }
 }
 
 export function roundProgress(draft: DraftPack, checks: RoundChecks = { clean: false }): Array<{ step: RoundStep; done: boolean; current: boolean }> {
-  return ROUND_STEPS.map((step) => ({ step, done: roundStepDone(draft, step, checks), current: draft.round?.step === step }))
+  return roundSteps(draft).map((step) => ({ step, done: roundStepDone(draft, step, checks), current: draft.round?.step === step }))
 }

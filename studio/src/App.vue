@@ -14,8 +14,8 @@
       That draft isn't in this browser. <a href="#/">See your drafts</a>.
     </p>
     <NewPackView v-else-if="route.kind === 'new'" @openDraft="(id) => go(`#/draft/${id}`)" @back="go('#/')" />
-    <NewPackView v-else-if="route.kind === 'guided-start'" guided @openDraft="(id) => go(`#/guided/${id}`)" @back="go('#/')" />
-    <NewTopicView v-else-if="route.kind === 'new-topic'" @openDraft="(id) => go(`#/draft/${id}`)" @back="go('#/')" />
+    <NewPackView v-else-if="route.kind === 'guided-start'" guided @openDraft="(id) => go(`#/guided/${id}`)" @newTopic="go('#/new-topic')" @back="go('#/')" />
+    <NewTopicView v-else-if="route.kind === 'new-topic'" @openDraft="(id, guided) => go(guided ? `#/guided/${id}` : `#/draft/${id}`)" @back="go('#/')" />
     <StartView v-else-if="route.kind === 'start'" @openDraft="(id) => go(`#/draft/${id}`)" @newPack="go('#/new')" @newTopic="go('#/new-topic')" @guidedRound="go('#/guided')" />
   </div>
 </template>

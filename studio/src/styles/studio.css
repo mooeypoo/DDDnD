@@ -364,3 +364,14 @@ a:hover { color: var(--forge-text-bright); }
   background: rgba(251, 191, 36, 0.07);
   color: var(--forge-text-bright);
 }
+
+/* A button that reads as a link, inside a sentence (an editor can make it quieter) */
+.link-button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--forge-gold);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
