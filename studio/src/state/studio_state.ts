@@ -11,6 +11,7 @@ import { reactive, toRaw } from 'vue'
 
 import {
   checkDraft,
+  draftForBlankRetelling,
   draftFromBaseScenario,
   draftFromPack,
   draftForNewTopic,
@@ -36,7 +37,8 @@ import {
 } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import type { PackIssue } from '@/domains/authoring'
-import { listBaseRefs, loadFirstParty, loadGameBalance, type BaseScenarioChoice } from '@studio/content/first_party'
+import { baseFrameRef, listBaseRefs, loadFirstParty, loadGameBalance, type BaseScenarioChoice } from '@studio/content/first_party'
+import { examplePack, loadExample, type ExamplePack } from '@studio/content/example_packs'
 import { playInGame, type PlayStatus } from '@studio/content/game_preview'
 import { LICENSE_TEXTS } from '@studio/content/license_texts'
 import { ImportError, readImportedPack, zipPackFiles } from '@studio/content/pack_files'
@@ -61,7 +63,8 @@ interface StudioState {
   /** False when drafts only live until the page is closed. */
   persistent: boolean
   drafts: StoredDraft[]
-  current: { draft_id: string; draft: DraftPack } | null
+  /** The open draft. An example (M4.29) is view-only: never saved, and no edit reaches it. */
+  current: { draft_id: string; draft: DraftPack; example?: ExamplePack } | null
   save: SaveState
   check: { state: CheckState; issues: PackIssue[] }
   /** Things worth knowing that don't block export (M4.5a). */
@@ -118,7 +121,7 @@ export async function initStudio(): Promise<void> {
 }
 
 async function saveNow() {
-  if (!store || !state.current) return
+  if (!store || !state.current || state.current.example) return
   state.save = 'saving'
   try {
     await store.put({ draft_id: state.current.draft_id, draft: plainDraft(state.current.draft), updated_at: new Date().toISOString() })
@@ -193,7 +196,8 @@ function clearDraftFindings() {
 
 /** Replaces the open draft with an edited one, then saves and checks it. */
 export function updateDraft(next: DraftPack, options: { sameStep?: boolean } = {}): void {
-  if (!state.current) return
+  // An example is view-only (M4.29): the screens offer no edits, and this refuses any that slips through
+  if (!state.current || state.current.example) return
   const before = state.current.draft
   // Moving through the guided round isn't an edit to undo; a new item's id following its name is part of naming it
   if (!onlyRoundMoved(before, next)) setHistory(recordEdit(history, before, Date.now(), options))
@@ -237,11 +241,25 @@ function onlyRoundMoved(before: DraftPack, next: DraftPack): boolean {
 }
 
 /** "Start from a DDDnD scenario" (D13): a new retelling holding a copy of the scenario. */
-export async function startFromBaseScenario(choice: BaseScenarioChoice, options: { guided?: boolean } = {}): Promise<string> {
+export async function startFromBaseScenario(choice: Pick<BaseScenarioChoice, 'ref' | 'name'>, options: { guided?: boolean } = {}): Promise<string> {
   const { base } = await loadFirstParty()
   const copied = (await draftFromBaseScenario(base, choice.ref, { name: `${choice.name}, retold` })).draft
   // The guided round (§5) starts on the same copy, with the round's place kept beside it
   const draft = options.guided ? startRound(copied) : copied
+  const draftId = newDraftId()
+  state.current = { draft_id: draftId, draft }
+  clearDraftFindings()
+  await saveNow()
+  void checkNow()
+  return draftId
+}
+
+/** "From scratch" for a DDD retelling (M4.28): the game's frame, nothing else. Returns its draft id. */
+export async function startRetellingFromScratch(name: string, description: string): Promise<string> {
+  const { base } = await loadFirstParty()
+  const frame = await baseFrameRef()
+  if (!frame) throw new Error("The game's scenarios couldn't be loaded.")
+  const { draft } = await draftForBlankRetelling(base, frame, { name, description })
   const draftId = newDraftId()
   state.current = { draft_id: draftId, draft }
   clearDraftFindings()
@@ -306,6 +324,36 @@ export async function openDraft(draftId: string): Promise<boolean> {
 }
 
 /** Saves anything pending, then leaves the draft. */
+/**
+ * Whose an item is, in a word: the author's ("yours"), or, in an example
+ * someone else made (M4.29), the pack's own ("its own"). Every "yours" in
+ * the editors reads this, so an example never tells a visitor it's theirs.
+ */
+export function ownWord(): string {
+  return state.current?.example ? 'its own' : 'yours'
+}
+
+/**
+ * Opens one of the example packs (M4.29), view-only: it's loaded from the
+ * Studio's own site each time, never saved, and never listed in "Your
+ * packs". The game's checks still run, so it shows what a finished pack
+ * looks like there too.
+ */
+export async function openExample(folder: string): Promise<boolean> {
+  const example = examplePack(folder)
+  if (!example) {
+    state.current = null
+    return false
+  }
+  if (state.current?.example?.folder === folder) return true
+  const draft = await loadExample(example)
+  state.current = { draft_id: `example-${folder}`, draft, example }
+  state.save = 'saved'
+  clearDraftFindings()
+  void checkNow()
+  return true
+}
+
 export async function closeDraft(): Promise<void> {
   if (saveTimer) {
     clearTimeout(saveTimer)

@@ -16,8 +16,14 @@ import GuidedGuide from '@studio/guided/guided_guide.vue'
 import { ROUNDS, stepWords } from '@studio/guided/round_words'
 
 const startNewTopic = vi.fn(async () => 'draft-1')
-vi.mock('@studio/state/studio_state', () => ({ startNewTopic: (...args: unknown[]) => startNewTopic(...(args as [])) }))
-const { default: NewTopicView } = await import('@studio/views/new_topic_view.vue')
+vi.mock('@studio/state/studio_state', () => ({
+  startNewTopic: (...args: unknown[]) => startNewTopic(...(args as [])),
+  startFromBaseScenario: vi.fn(),
+  startRetellingFromScratch: vi.fn(),
+  importPack: vi.fn(),
+}))
+vi.mock('@studio/content/first_party', () => ({ listBaseScenarios: async () => [], previewScenario: vi.fn() }))
+const { default: CreateView } = await import('@studio/views/create_view.vue')
 
 const tiers = manifestRefs(JSON.parse(readFileSync(path.resolve('content/manifest.json'), 'utf8')) as ContentPackManifest, 'outcome_tiers')
 const topic = (): DraftPack => startRound(draftForNewTopic({ name: 'Incident Response', authors: [{ name: 'Ada' }] }, tiers).draft)
@@ -74,14 +80,21 @@ describe("a topic's round, on screen", () => {
   })
 })
 
-describe('starting a topic', () => {
-  it('starts in the guided round, or on your own', async () => {
-    const wrapper = mount(NewTopicView)
-    await wrapper.find('input').setValue('Incident Response')
+describe('starting a new subject (the create screen, M4.28)', () => {
+  it('starts in the guided round, or from scratch', async () => {
+    const wrapper = mount(CreateView, { props: { about: 'new_topic' } })
+    const choose = (text: string) => wrapper.findAll('label.choice').find((label) => label.text().includes(text))!.find('input').setValue(true)
+    // A new subject has no scenario of the game's to start from
+    expect(wrapper.findAll('fieldset')[1].findAll('.choice-title').map((title) => title.text())).toEqual(['Step by step', 'From scratch'])
+    await choose('Step by step')
+    await wrapper.find('form input').setValue('Incident Response')
+    expect(wrapper.find('form .button-primary').text()).toBe('Start the guided round')
     await wrapper.find('form').trigger('submit')
     await vi.waitFor(() => expect(wrapper.emitted('openDraft')).toEqual([['draft-1', true]]))
     expect(startNewTopic).toHaveBeenLastCalledWith('Incident Response', '', { guided: true })
-    await wrapper.findAll('.topic-actions button').find((button) => button.text() === 'Start on my own')!.trigger('click')
+    await choose('From scratch')
+    expect(wrapper.find('form .button-primary').text()).toBe('Create the pack')
+    await wrapper.find('form').trigger('submit')
     await vi.waitFor(() => expect(wrapper.emitted('openDraft')?.[1]).toEqual(['draft-1', false]))
   })
 })

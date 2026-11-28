@@ -38,7 +38,7 @@
       <p v-if="note.seat && full" class="note-hint">Every seat is taken: take someone out to seat them.</p>
       <ul v-if="isOpen(note)" class="source-list">
         <li v-for="source in note.sources" :key="`${source.section}/${source.ref.id}`" class="source">
-          <span class="source-kind">{{ kindLabel(source) }} · {{ source.own ? 'yours' : 'from the game' }}</span>
+          <span class="source-kind">{{ kindLabel(source) }} · {{ source.own ? ownWord() : 'from the game' }}</span>
           <span class="source-name">{{ source.name }} <span class="source-delta">({{ source.delta > 0 ? `+${source.delta}` : source.delta }})</span></span>
           <span v-if="source.via" class="source-via">{{ viaLabel(source) }}</span>
           <span class="source-actions">
@@ -58,6 +58,7 @@ import { ref } from 'vue'
 import type { NoteSection, UnseatedSource } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import type { CouncilNote } from '@studio/state/studio_state'
+import { ownWord } from '@studio/state/studio_state'
 import type { IssueTarget } from '@studio/workspace/checks_panel.vue'
 
 defineProps<{ notes: CouncilNote[]; full: boolean }>()

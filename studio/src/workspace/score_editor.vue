@@ -7,7 +7,7 @@
   <div v-if="score" class="editor">
     <div class="editor-head">
       <div class="editor-head-text">
-        <span class="editor-kicker">Score · yours</span>
+        <span class="editor-kicker">Score · {{ ownWord() }}</span>
         <h1 class="editor-title">{{ score.name || 'Unnamed score' }}</h1>
       </div>
       <div class="head-actions">
@@ -72,6 +72,7 @@ import { couplingLostWith, ownChangesToScore, putContent, removeOwnScore, toFill
 import type { Score, VersionRef } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 import type { Selection } from '@studio/workspace/selection'
+import { ownWord } from '@studio/state/studio_state'
 
 const props = defineProps<{ draft: DraftPack; scoreId: string }>()
 const emit = defineEmits<{ change: [draft: DraftPack]; open: [selection: Selection]; removed: [] }>()

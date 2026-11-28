@@ -97,6 +97,8 @@ export interface DraftPack {
   readme?: string
   /** Where the author is in the guided round (§5), while they're in one. The Studio's own memory: never exported. */
   round?: RoundState
+  /** Set for a DDD retelling started from scratch rather than copied (M4.28). The Studio's own memory: never exported. */
+  from_scratch?: true
 }
 
 /** An imported pack's lists, in its own order (ids). */

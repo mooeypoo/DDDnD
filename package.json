@@ -18,6 +18,7 @@
     "studio:dev": "vite --config studio/vite.config.ts",
     "studio:build": "vue-tsc --noEmit && vite build --config studio/vite.config.ts",
     "studio:preview": "vite preview --config studio/vite.config.ts --port 4318",
+    "studio:examples": "npx tsx scripts/vendor-example-packs.ts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "prepare": "git rev-parse --git-dir >/dev/null 2>&1 && git config core.hooksPath .githooks || true",

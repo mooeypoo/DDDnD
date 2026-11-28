@@ -18,7 +18,7 @@
       <template v-if="entry.entity">
         <div class="aftershock-head">
           <h3 :id="`aftershock-${index}`" class="aftershock-title">{{ entry.entity.name || 'Unnamed aftershock' }}</h3>
-          <span class="mark" :class="entry.own ? 'mark-own' : 'mark-game'">{{ entry.own ? 'yours' : 'from the game' }}</span>
+          <span class="mark" :class="entry.own ? 'mark-own' : 'mark-game'">{{ entry.own ? ownWord() : 'from the game' }}</span>
         </div>
 
         <template v-if="entry.own">
@@ -110,6 +110,7 @@ import type { DelayedEffect, ScoreChange, StakeholderChange, VersionRef } from '
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
 import EffectsEditor from '@studio/workspace/effects_editor.vue'
+import { ownWord } from '@studio/state/studio_state'
 
 interface Option { id: string; name: string }
 export interface AftershockEntry { ref: VersionRef; own: boolean; entity: DelayedEffect | null }

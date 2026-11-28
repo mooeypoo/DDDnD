@@ -10,13 +10,16 @@
       @goTo="(step) => updateDraft(goToRoundStep(draft!, step))"
     />
     <div v-else class="workspace-bar">
-      <button type="button" class="button button-quiet" @click="$emit('leave')">‹ Your packs</button>
+      <button type="button" class="button button-quiet" @click="$emit('leave')">{{ example ? '‹ Back' : '‹ Your packs' }}</button>
       <span class="bar-name">{{ draft.name || 'Untitled pack' }}</span>
-      <span class="kind-pill" :class="draft.kind === 'retelling' ? 'pill-setting' : 'pill-topic'">
-        {{ draft.kind === 'retelling' ? 'Retelling' : 'New topic' }}
-      </span>
+      <KindPill :kind="draft.kind" />
+      <!-- An example pack (M4.29): which release, and that it's for looking at -->
+      <template v-if="example">
+        <span class="kind-pill pill-example">Example · version {{ example.version }}</span>
+        <span class="bar-example">View-only: look around, nothing here can change.</span>
+      </template>
       <!-- As wide as its longest message, so the buttons after it don't move while it saves (a click that leaves a field would miss) -->
-      <span class="bar-save" role="status" aria-live="polite">
+      <span v-else class="bar-save" role="status" aria-live="polite">
         <span :class="{ working: saveText === SAVE_WORDS.saving }">{{ saveText }}</span>
         <span v-for="text in SAVE_TEXTS" :key="text" class="save-room" :class="{ working: text === SAVE_WORDS.saving }" aria-hidden="true">{{ text }}</span>
       </span>
@@ -25,7 +28,7 @@
         <button type="button" class="view-option" :aria-pressed="selection.kind !== 'summary'" @click="select(lastEdit)">Edit</button>
       </div>
       <!-- Undo and redo (M4.24): the whole pack, a step at a time; typing a name is one step -->
-      <div class="history" role="group" aria-label="History">
+      <div v-if="!example" class="history" role="group" aria-label="History">
         <button type="button" class="button button-quiet" :disabled="!studio.undo.can_undo" :title="`Undo (${SHORTCUT} Z)`" :aria-keyshortcuts="KEYS.undo" @click="undoDraft">Undo</button>
         <button type="button" class="button button-quiet" :disabled="!studio.undo.can_redo" :title="`Redo (${SHORTCUT} Shift Z)`" :aria-keyshortcuts="KEYS.redo" @click="redoDraft">Redo</button>
         <span class="visually-hidden" role="status" aria-live="polite">{{ studio.undo.said }}</span>
@@ -54,6 +57,7 @@
         >▶ Play it</button>
         <!-- The one ember action (§9); on the export page itself, the download is -->
         <button
+          v-if="!example"
           type="button"
           class="button"
           :class="selection.kind === 'release' ? 'button-quiet' : 'button-primary'"
@@ -103,6 +107,7 @@
         :rules="ownRules"
         :showRules="!usesGameContent(draft) || ownRules.length > 0"
         :canAddCoupling="canAddCoupling"
+        :viewOnly="!!example"
         :shortcut="SHORTCUT"
         :shortcutKeys="KEYS.find"
         @select="select"
@@ -115,6 +120,8 @@
       />
 
       <main id="main" ref="editorArea" class="editor-area" tabindex="-1">
+        <!-- An example is view-only (M4.29): one disabled fieldset turns off every field and button in every editor -->
+        <fieldset class="view-frame" :disabled="!!example">
         <GuidedPanel
           v-if="selection.kind === 'round'"
           :draft="draft"
@@ -135,6 +142,7 @@
         <SummaryView
           v-else-if="selection.kind === 'summary'"
           :draft="draft"
+          :example="example"
           :seats="COUNCIL_SEATS"
           :checkState="studio.check.state"
           :issues="studio.check.issues"
@@ -249,6 +257,7 @@
         />
         <DeckAddView v-else-if="selection.kind === 'add'" :section="selection.section" :draft="draft" @change="updateDraft" />
         <ReleaseView v-else-if="selection.kind === 'release'" :draft="draft" :checksClean="canExport" :checking="rechecking" @export="exportPack" @change="updateDraft" />
+        </fieldset>
       </main>
     </div>
   </div>
@@ -279,6 +288,7 @@ import ScoreEditor from '@studio/workspace/score_editor.vue'
 import EndingEditor from '@studio/workspace/ending_editor.vue'
 import EndingsView from '@studio/workspace/endings_view.vue'
 import ChallengeEditor from '@studio/workspace/challenge_editor.vue'
+import KindPill from '@studio/components/kind_pill.vue'
 import GuidedBar from '@studio/guided/guided_bar.vue'
 import GuidedGuide from '@studio/guided/guided_guide.vue'
 import GuidedPanel from '@studio/guided/guided_panel.vue'
@@ -654,6 +664,9 @@ async function playIt() {
   }
 }
 
+/** The example pack open, view-only (M4.29), if it is one. */
+const example = computed(() => studio.current?.example ?? null)
+
 /** The pack is being checked again after an edit: what the last check found is out of date. */
 const rechecking = computed(() => studio.check.state === 'checking')
 const canExport = computed(() => studio.check.state === 'done' && studio.check.issues.length === 0)
@@ -755,19 +768,6 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
   gap: 0.75rem;
 }
 
-.kind-pill {
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  border: 1px solid currentColor;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-.pill-setting { color: var(--forge-gold); }
-.pill-topic { color: var(--forge-teal); }
-
 .workspace-body {
   flex: 1;
   min-height: 0;
@@ -795,6 +795,23 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
 
 .editor-area:focus {
   outline: none;
+}
+
+/* Only there to switch the editors off for an example: no box of its own */
+.view-frame {
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-inline-size: 0;
+}
+
+.pill-example {
+  color: var(--forge-text-secondary);
+}
+
+.bar-example {
+  font-size: 0.875rem;
+  color: var(--forge-text-secondary);
 }
 
 /* A narrow window (a tablet held upright): the contents above the editor, the page scrolling as one */

@@ -9,7 +9,7 @@
   <div v-if="challenge" class="editor">
     <div class="editor-head">
       <div class="editor-head-text">
-        <span class="editor-kicker">Challenge · yours</span>
+        <span class="editor-kicker">Challenge · {{ ownWord() }}</span>
         <h1 class="editor-title">{{ challenge.name || 'Unnamed challenge' }}</h1>
       </div>
       <div class="head-actions">
@@ -67,6 +67,7 @@ import { computed, ref, watch } from 'vue'
 import { describeChallenge, putContent, removeOwnChallenge, toFillIn, withOptionalText, type DraftPack } from '@/domains/authoring'
 import type { ChallengeModifier } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
+import { ownWord } from '@studio/state/studio_state'
 
 interface Option { id: string; name: string }
 
