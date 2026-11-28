@@ -1,18 +1,20 @@
 <template>
   <header class="studio-header">
-    <div class="brand">
+    <!-- The brand goes home: the welcome page (M4.27) -->
+    <a class="brand" href="#/" aria-label="DDDnD Pack Studio, The Forge: welcome">
       <ForgeMark :size="34" />
-      <div class="brand-text">
+      <span class="brand-text">
         <span class="brand-name">DDDnD Pack Studio</span>
         <span class="brand-subtitle">The Forge</span>
-      </div>
-    </div>
+      </span>
+    </a>
 
     <div class="header-tools">
       <DisplayMenu :textSize="textSize" @update:textSize="$emit('update:textSize', $event)" />
       <nav class="header-nav" aria-label="Studio">
-        <a href="https://mooeypoo.github.io/DDDnD/guide/content-authoring" target="_blank" rel="noopener noreferrer">Author guide</a>
-        <a href="https://dddnd.app" target="_blank" rel="noopener noreferrer">Open DDDnD</a>
+        <a href="#/packs">Your packs</a>
+        <a :href="LINKS.studioGuide" target="_blank" rel="noopener noreferrer">Guide<span class="visually-hidden"> (opens in a new tab)</span></a>
+        <a :href="LINKS.game" target="_blank" rel="noopener noreferrer">Play DDDnD<span class="visually-hidden"> (opens in a new tab)</span></a>
       </nav>
     </div>
   </header>
@@ -21,6 +23,7 @@
 <script setup lang="ts">
 import DisplayMenu from '@studio/components/display_menu.vue'
 import ForgeMark from '@studio/components/forge_mark.vue'
+import { LINKS } from '@studio/content/links'
 import type { TextSize } from '@studio/preferences/text_size'
 
 defineProps<{ textSize: TextSize }>()
@@ -41,6 +44,7 @@ defineEmits<{ 'update:textSize': [size: TextSize] }>()
 
 .brand {
   display: flex;
+  text-decoration: none;
   align-items: center;
   gap: 0.875rem;
 }

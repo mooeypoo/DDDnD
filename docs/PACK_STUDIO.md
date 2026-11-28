@@ -57,6 +57,8 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D35 | **The guided round is a view of the workspace, not a separate app.** `#/guided/<draft>` shows the same editors, with the ember header and step strip (D20) above, and the step's guide (what it asks, its teaching moment, a worked example from the Gilded Ledger) in place of the sidebar. Where the author is in the round is kept with the draft, never exported. "Next" never blocks; a step ticks when the draft has what it asks for, as the domain reads it. Leaving keeps everything, and "Back to the guided round" returns to it. | One set of editors means the round teaches the real tool, and nothing in it can drift from the workspace. Ticks read from the draft (two people with a reaction each, three cards, one bad and one good surprise, clean checks) can't say "done" when it isn't. The round is a first hour, not a gate. |
 | D36 | **Balance hints measure against the game's own scenarios, read live, per score.** The yardstick is the range the five scenarios the game offers span, worked out from its content when the Studio loads (cards +9.0 to +12.2 on average, aftershocks included; events −3.3 to +0.5 a draw, weighted by how often each is drawn), not a number written into the Studio. Compared per score, since a run is judged on its scores' average. A deck is worth a look only more than a point outside that range (`NEAR_ENOUGH`). Hints never block, and never comment on the game's own cards. | A written-in number had already drifted: the plan said "+11 to +12", but Startup Hypergrowth's cards net +9.0. Reading the game's content keeps the yardstick honest as the game is rebalanced. The point of slack comes from evidence: the SRE pack wins 40% of runs with cards at +8.2. |
 | D37 | **The new-topic round is the retelling's, plus what a topic makes for itself, in two sittings.** Ten steps: world, **what it trades off** (three scores), scenario, council; then cards, surprises, **endings** (two besides the fallback), **a class** (named, with a favourite), check, play. No "Fill the deck": a topic uses none of the game's. Scores come before the scenario, which sets where they start. The first sitting ends at the council, said in the guide's pinned footer. A stand-in the Studio made (the "Generalist" class, "New score", "New ending") never ticks a step. The examples are the SRE pack's (D14). | §5 asks for exactly this ("longer, in two sittings", scores, endings, one class, the base tiers). The world is what a second sitting needs to exist; what happens in it is the second. A tick for the skeleton's own class would say "done" before the author did anything (D35's honest ticks). |
+| D38 | **A front door: welcome, then create.** `#/` is a welcome page (what DDDnD is, what a pack holds, the two kinds, where a pack goes, one ember action "Create a pack"), with returning authors' latest packs high on it. `#/new` asks two questions: what the pack is about (**DDD retelling** or **New subject**, one name each everywhere), then how to start (**step by step**, **from one of the game's scenarios** after a preview, or **from scratch**). "Your packs" is `#/packs`. Nothing is made until the author says yes. | The first-screen audit (owner's feedback and choices, 2026-11-27; the audit page is the owner's). The old start screen's ember "+ New pack" copied a scenario, blended "what" with "how", and gave newcomers no context. Other tools put blank and templates side by side, ask one question first, and preview before "use this". |
+| D39 | **A DDD retelling can start from scratch:** the game's frame (scores, outcome tiers, endings, coupling, from its first scenario, which all share them), every score at 50, ten turns, and no council or deck. The draft remembers it started this way (`from_scratch`, never exported), so the summary says so and adds "Fill the deck". | The owner's call: the three ways in mean the same for both kinds. A copy is the right start for "the Monolith, but ours", but not for a facilitator whose system looks like none of the five. |
 
 ---
 
@@ -243,7 +245,9 @@ The audit (M4.9–M4.14) made the Studio consistent. Every screen still to come 
 **1. Where a screen goes**
 - **Inside a pack, a screen is an editor in the workspace (D28).** Add a kind to `Selection` (`studio/src/workspace/selection.ts`) and a branch in `workspace_view.vue`. The toolbar, the contents sidebar, the checks button and the scrolling come with it. Don't make a separate page that hides the sidebar: the owner chose the sidebar because it always shows where the pack stands.
 - **A view of the whole pack** (like the summary) is a `Selection` too, switched from the toolbar, with the sidebar still there.
-- **Outside a pack, a screen is a route** in `App.vue` (`#/`, `#/new`, `#/draft/<id>`), with `<main id="main" tabindex="-1">` so the skip link and route changes can focus it.
+- **Outside a pack, a screen is a route** in `App.vue` (`#/` welcome, `#/packs`, `#/new`, `#/draft/<id>`, D38), with `<main id="main" tabindex="-1">` so the skip link and route changes can focus it (after the new page is drawn).
+- **The two kinds have one name each:** `KIND_NAMES` ("DDD retelling", "New subject"), shown by `kind_pill.vue`. Never a third name.
+- **Look before making.** Anything that copies content opens a preview first (a native `<dialog>` with `showModal`, focus back on the button that opened it), and only "Start from this…" makes the draft.
 - **A new kind of content gets a sidebar group** in `contents_nav.vue`. The group gets:
   - a count;
   - "+ New …" and, where the game has some, "+ From the game";
@@ -1903,6 +1907,134 @@ The owner's ask, after M4.25 left "the deck line lags an edit" open: if anything
   - the same with reduced motion: the ring stands still;
   - zero CSP violations, no console errors.
 
+### M4.27: The welcome page, and one name per kind (2026-11-27)
+
+The first-screen audit, part one. The audit page (current screens, how other tools start people off, mockups, decisions) is the owner's: https://claude.ai/artifact/FAwq4LfQ7ucfa9RD7EQAqq. The owner chose every recommended option. D38.
+
+**What the audit found on the old start screen:**
+- **"+ New pack" copied one of the game's scenarios.** The ember button in the corner opened "Choose a scenario to retell": it read as "new" and acted as "from a template", apart from "Start something new" (the owner's feedback).
+- **No context.** A newcomer met "Your packs", empty, with nothing about what DDDnD or a pack is.
+- **Two ember buttons**, against §9.1.
+- **The tiles blended two questions,** what it's about and how to start. The guided tile described only the retelling round.
+- **Four names for two kinds:** "Same game, new setting", "Retelling", "A different topic", "New topic".
+- **A bug:** a new subject's tile read "Nothing of your own yet: the game's scenario as it is", the retelling's sentence.
+- **"Author guide" led to the hand-authoring format,** not to anything about the Studio.
+
+**What an author sees now:**
+- **The welcome page (`#/`):**
+  - "Make DDDnD about your world", what DDDnD is, and one ember action, **Create a pack**, beside "Play DDDnD first";
+  - **a real move from the game**, read from its content and described in the domain's words ("Define Bounded Context: Domain Clarity +6 … Chief Technology Officer +2 satisfaction");
+  - **"Pick up where you left off"** when there are packs: the latest three, a round in progress by its step ("Guided round: step 4 of 8", with Continue), and "All your packs (N)";
+  - **what a pack holds**, **the two kinds** with an example each, and **from draft to players** (make, check, play, share);
+  - links to the game, player help, the Studio guide, the pack format (advanced), the example packs and the source.
+- **Your packs (`#/packs`):** the list, with "Create a pack" as its one ember action and Import beside it. A round in progress shows its step.
+- **The header:**
+  - the brand goes home;
+  - **Your packs**, **Guide** (a new docs page, "Making a pack in the Studio") and **Play DDDnD**.
+- **One name per kind, everywhere:**
+  - **DDD retelling** and **New subject**, on pills, tiles, the workspace and the summary;
+  - a new subject's tile counts its own ("2 scores and 1 ending").
+
+**Domain:**
+- `KIND_NAMES` and `KIND_SUMMARIES`.
+- `describeOwnContent`:
+  - what's the author's own, by kind;
+  - "Just started" for a new subject, or for a retelling with nothing in it.
+- `roundPlace`.
+
+**Studio:**
+- `welcome_view.vue`, `packs_view.vue` (was `start_view.vue`, without the tiles), `kind_pill.vue`, `import_button.vue` (shared by "Your packs" and the create screen).
+- `content/links.ts`: one list of outside links.
+- The pills, notes and section label moved into `studio.css`.
+- **Routes:**
+  - `#/` welcome, `#/packs`, `#/new`;
+  - `#/new-topic` and `#/guided` still work: they open the create screen with their answer chosen;
+  - leaving a pack goes to `#/packs`.
+- **Docs:** `docs-site/guide/pack-studio.md`, "Making a pack in the Studio", under "For authors". It says the Studio opens at its launch, and doesn't give the address before then.
+
+**For the talk: a sentence was a domain rule in disguise.** "Nothing of your own yet: the game's scenario as it is" lived in a screen, written for the only kind there was when it was written. A second kind made it false. Moved into the domain, it had to answer for every kind, and the next slice's third way of starting gave it a third answer.
+
+### M4.28: Create a pack: two questions, a preview, and from scratch (2026-11-27)
+
+The first-screen audit, part two. D38, D39.
+
+**What an author sees:**
+- **"What's your pack about?"** DDD retelling ("Domain-driven design, in your world") or New subject ("Something else"), each with its one line.
+- **"How do you want to start?"**
+  - **Step by step**, ember, "Recommended for a first pack";
+  - **From one of the game's scenarios** (retellings only; a new subject has no scenario of the game's to start from);
+  - **From scratch**.
+
+  Nothing is chosen at first, and nothing is made until the author confirms.
+- **The gallery:**
+  - each scenario with its line and size ("4 at the table · 26 cards · 11 events · 10 turns"), and **Preview**;
+  - for step by step, it asks "Which of the game's stories is closest to yours?".
+- **The preview:**
+  - a modal dialog: the scenario's scores and where each starts, lowest first (below 40 in a warmer colour, "start where it hurts"), its council by name, and its deck;
+  - **Start from this scenario** (or **Start the round from this one**) makes the copy; **Keep looking** or Escape makes nothing and puts focus back on the Preview button.
+- **From scratch, or a new subject's round:** a name and an optional sentence, then **Create the pack** or **Start the guided round**.
+- **A retelling from scratch** opens on its summary:
+  - "✓ Started from scratch. The game's scores and endings, and nothing else yet.";
+  - "It plays once it has a council and a deck";
+  - a new step, **Fill the deck**, with "+ From the game".
+- "Already have a pack file or zip? **Import it**" at the bottom.
+
+**Domain:**
+- `draftForBlankRetelling`: the game's frame, every score at 50, ten turns, nothing else; it marks the draft `from_scratch`.
+- `previewBaseScenario` (`ScenarioPreview`).
+- **How a pack began:** `packStart` ("copied", "from scratch", "imported" or "topic"), and `nextSteps` gains `fill_deck` for a retelling from scratch. The summary used to call every retelling "Copied the game's scenario", imported ones included.
+- `DraftPack.from_scratch`: the Studio's memory, never exported (a test compares the raw pack with and without it).
+
+**Fixed along the way (the walk):**
+- **Escape lost focus.** It closed the preview and left focus nowhere; the create screen now returns it to the Preview button that opened it.
+- **Focus didn't reach a new page.** The route focused `#main` before Vue drew the new page, so focus landed on the old one, then nowhere. It now waits a tick. This dated from the routes' first version.
+- **"A move in Compliance Gauntlet".** The example and the frame came from the manifest's inventory (alphabetical); they now come from its scenario list, the lobby's order, so the Monolith.
+
+**Decisions:**
+- **Questions, not a gallery row (the owner's call).** What it's about decides what the second question offers, and was the choice people got wrong.
+- **Preview before copy.** It's the pattern every template gallery uses, and a wrong copy used to leave a pack to delete.
+- **The guided round stays for copies, for a retelling.** Step by step for a retelling still starts from the scenario closest to yours; a round from scratch would teach the empty deck before the moves.
+- **No "play it first" link in the preview.** The game has no address that opens one scenario; the welcome page links the game.
+
+**For the talk: three ways in, one aggregate.** A retelling from scratch isn't a new kind of pack, only a draft with less in it. The frame (scores, tiers, endings) comes from the game, as a copy's does. The one thing that differs is what the summary can promise, so the domain says how the pack began (`packStart`) and every promise reads from that.
+
+**Verification:**
+- Tests: 1447 in total (+14):
+  - `tests/authoring/front_door.test.ts` (7, new):
+    - the kind names;
+    - own content in words, by kind, and how a pack began;
+    - round place;
+    - a scenario's preview;
+    - a retelling from scratch: the game's frame and nothing else, `fill_deck`, never exported;
+    - **a retelling from scratch, with a council and a deck, exports with no issues and plays twenty whole runs.**
+  - `tests/studio/front_door.test.ts` (7, new):
+    - the welcome page, new and returning;
+    - the create screen's questions;
+    - preview then copy only on yes;
+    - step by step's gallery;
+    - a retelling from scratch;
+    - the header's links.
+  - `tests/studio/topic_round.test.ts`: a new subject starts from the create screen, in the round or from scratch.
+  - `tests/studio/summary_and_start.test.ts`: "Your packs", with one name per kind and "Create a pack".
+- Docs build.
+- Headless Chrome, production build with the Studio CSP, at 1440×1000 and 1024×768 (the welcome page at 390 px too):
+  - the welcome page with one ember action and a move from the Monolith;
+  - Create a pack, with focus on the page;
+  - from a scenario: the gallery, then the preview with focus inside it, then Escape, with focus back on Preview;
+  - step by step asks for the closest story;
+  - a new subject offers two ways in;
+  - a retelling from scratch opens on "Started from scratch" with "Fill the deck";
+  - back on the welcome page, it's there to pick up; `#/packs` lists it, and `#/new-topic` opens with "Something else" chosen;
+  - zero CSP violations, no console errors, and no sideways scroll at phone width.
+
+**Left open:**
+- **The example packs (decision 2):** bundling the Gilded Ledger and the SRE pack, pinned to their tags, to look at view-only; starting a new subject from SRE after. That's the next slice.
+- **The rest of the audit's suggestions:**
+  - "Share it" after the first export;
+  - a facilitator's page;
+  - Scratch-style skill tutorials in the workspace.
+- **The guide page is public on the docs site before the Studio is.** It says the Studio opens at its launch.
+
 ## 14. Picking up the work
 
 What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
@@ -1928,7 +2060,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. The new-topic round is M4.25 (D37); M4.26 shows when anything is being worked out (§9.1). Next: the start screen's "start something new", walked with the owner (they have feedback: it reads as if you must pick an existing pack, and "+ New pack" sits apart from the emphasized "Start something new"). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. The new-topic round is M4.25 (D37); M4.26 shows when anything is being worked out (§9.1). The first-screen audit (the owner's choices, D38, D39) is M4.27 (the welcome page, `#/packs`, one name per kind) and M4.28 (the create screen's two questions, the scenario preview, a retelling from scratch). Next: the example packs bundled view-only (the audit's decision 2). Each follows §9.1.
 - **Left open from the audit:**
   - a map view of cards and their impact (maybe, D28);
   - whether the game's validator should check council member ids in changes (M4.14).

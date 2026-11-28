@@ -418,3 +418,48 @@ a:hover { color: var(--forge-text-bright); }
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* The two kinds of pack, and the guided round, as pills (one name each: the domain's KIND_NAMES, M4.27) */
+.kind-pill {
+  align-self: flex-start;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.pill-retelling { color: var(--forge-gold); }
+.pill-topic { color: var(--forge-teal); }
+
+.pill-guided {
+  border-color: var(--forge-ember);
+  background: var(--forge-ember);
+  color: var(--forge-ember-ink);
+}
+
+/* A small uppercase label over a group ("Start something new", "Pick up where you left off") */
+.section-label {
+  margin: 0;
+  font-family: var(--forge-font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--forge-text-secondary);
+}
+
+.note {
+  margin: 0;
+  font-size: 0.9375rem;
+}
+
+.note-warning {
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  color: var(--forge-text);
+}

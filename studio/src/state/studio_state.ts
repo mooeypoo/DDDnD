@@ -11,6 +11,7 @@ import { reactive, toRaw } from 'vue'
 
 import {
   checkDraft,
+  draftForBlankRetelling,
   draftFromBaseScenario,
   draftFromPack,
   draftForNewTopic,
@@ -36,7 +37,7 @@ import {
 } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import type { PackIssue } from '@/domains/authoring'
-import { listBaseRefs, loadFirstParty, loadGameBalance, type BaseScenarioChoice } from '@studio/content/first_party'
+import { baseFrameRef, listBaseRefs, loadFirstParty, loadGameBalance, type BaseScenarioChoice } from '@studio/content/first_party'
 import { playInGame, type PlayStatus } from '@studio/content/game_preview'
 import { LICENSE_TEXTS } from '@studio/content/license_texts'
 import { ImportError, readImportedPack, zipPackFiles } from '@studio/content/pack_files'
@@ -237,11 +238,25 @@ function onlyRoundMoved(before: DraftPack, next: DraftPack): boolean {
 }
 
 /** "Start from a DDDnD scenario" (D13): a new retelling holding a copy of the scenario. */
-export async function startFromBaseScenario(choice: BaseScenarioChoice, options: { guided?: boolean } = {}): Promise<string> {
+export async function startFromBaseScenario(choice: Pick<BaseScenarioChoice, 'ref' | 'name'>, options: { guided?: boolean } = {}): Promise<string> {
   const { base } = await loadFirstParty()
   const copied = (await draftFromBaseScenario(base, choice.ref, { name: `${choice.name}, retold` })).draft
   // The guided round (§5) starts on the same copy, with the round's place kept beside it
   const draft = options.guided ? startRound(copied) : copied
+  const draftId = newDraftId()
+  state.current = { draft_id: draftId, draft }
+  clearDraftFindings()
+  await saveNow()
+  void checkNow()
+  return draftId
+}
+
+/** "From scratch" for a DDD retelling (M4.28): the game's frame, nothing else. Returns its draft id. */
+export async function startRetellingFromScratch(name: string, description: string): Promise<string> {
+  const { base } = await loadFirstParty()
+  const frame = await baseFrameRef()
+  if (!frame) throw new Error("The game's scenarios couldn't be loaded.")
+  const { draft } = await draftForBlankRetelling(base, frame, { name, description })
   const draftId = newDraftId()
   state.current = { draft_id: draftId, draft }
   clearDraftFindings()

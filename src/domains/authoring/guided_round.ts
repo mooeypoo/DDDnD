@@ -73,6 +73,13 @@ export function inRound(draft: DraftPack): boolean {
   return draft.round !== undefined
 }
 
+/** Where a draft is in its round, as "step 5 of 10"; null when it isn't in one. */
+export function roundPlace(draft: DraftPack): { step: number; of: number } | null {
+  if (!draft.round) return null
+  const steps = roundSteps(draft)
+  return { step: steps.indexOf(draft.round.step) + 1, of: steps.length }
+}
+
 /** Open a step (any order works), of this draft's round. */
 export function goToRoundStep(draft: DraftPack, step: RoundStep): DraftPack {
   if (!draft.round || !roundSteps(draft).includes(step)) return draft
