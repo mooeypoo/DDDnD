@@ -68,7 +68,10 @@
         <section class="editor-section" aria-labelledby="summary-balance">
           <h2 id="summary-balance" class="editor-section-title">Balance, beside the game's</h2>
           <p class="field-hint">Arithmetic on your deck, not a playtest: the game's own scenarios are the yardstick. Nothing here stops an export.</p>
-          <p v-if="checkState !== 'done' && !balance.decks.length" class="field-hint">Working it out…</p>
+          <p v-if="checkState !== 'done' && !balance.decks.length" class="field-hint working">Working it out…</p>
+          <p v-else-if="checkState === 'checking'" class="field-hint working">Working it out again…</p>
+          <!-- While worked out again, the last numbers stay in place, dimmed -->
+          <div :class="{ 'is-updating': checkState === 'checking' }" :aria-busy="checkState === 'checking' ? 'true' : undefined">
           <template v-for="deck in balance.decks" :key="deck.scenario_id">
             <h3 v-if="balance.decks.length > 1" class="balance-scenario">{{ draft.content.scenarios[deck.scenario_id]?.name || 'Untitled scenario' }}</h3>
             <p class="plain">{{ deckBalanceWords(deck, balance.game).cards }}</p>
@@ -83,12 +86,13 @@
               </span>
             </li>
           </ul>
+          </div>
         </section>
       </div>
 
       <section class="editor-section summary-side" aria-labelledby="summary-export">
         <h2 id="summary-export" class="editor-section-title">Before you export</h2>
-        <p v-if="checkState !== 'done'" class="field-hint">Checking…</p>
+        <p v-if="checkState !== 'done'" class="field-hint working">Checking…</p>
         <p v-else-if="issues.length === 0" class="ready">Ready to export.</p>
         <template v-else>
           <p class="to-fix">{{ issues.length === 1 ? '1 thing to fix' : `${issues.length} things to fix` }}, from the game's own checks:</p>

@@ -92,8 +92,9 @@
           It nets <strong>{{ signed(net) }}</strong><template v-if="aftershocks.length">, or <strong>{{ signed(netAll) }}</strong> with its aftershocks</template>.
         </p>
         <!-- Balance hints (D3): the domain's, about this card or event, and its deck beside the game's -->
-        <p v-for="hint in itemHints" :key="hint.title" class="nudge" role="note"><strong>{{ hint.title }}</strong> {{ hint.text }}</p>
-        <p v-if="deckLine" class="field-hint">{{ deckLine }}</p>
+        <!-- The numbers come from the last check: while it runs again they stay, dimmed, with a turning ring (no lines come and go mid-typing) -->
+        <p v-for="hint in itemHints" :key="hint.title" class="nudge" :class="{ 'is-updating': updating }" role="note"><strong>{{ hint.title }}</strong> {{ hint.text }}</p>
+        <p v-if="deckLine" class="field-hint" :class="{ working: updating, 'is-updating': updating }" :aria-busy="updating ? 'true' : undefined">{{ deckLine }}</p>
       </section>
 
       <AftershockEditor
@@ -202,6 +203,8 @@ const props = defineProps<{
   seatsLeft: number
   /** The last check's balance numbers (D3); absent until a check has run. */
   balance?: { decks: DeckBalance[]; game: GameBalance | null; hints: BalanceHint[] }
+  /** The pack is being checked again after an edit: the balance numbers are out of date until it's done. */
+  updating?: boolean
 }>()
 /** `settle`: a new item's id follows its name, part of naming it rather than an edit of its own (undo, M4.24). */
 const emit = defineEmits<{ change: [draft: DraftPack]; settle: [draft: DraftPack, ref?: VersionRef]; select: [ref: VersionRef | null] }>()
@@ -419,9 +422,5 @@ function takeOut() {
 
 .field-short {
   max-width: 13rem;
-}
-
-.loading {
-  margin: 0;
 }
 </style>

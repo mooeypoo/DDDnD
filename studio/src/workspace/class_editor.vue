@@ -114,8 +114,4 @@ function remove() {
 .field-short {
   max-width: 18rem;
 }
-
-.loading {
-  margin: 0;
-}
 </style>

@@ -302,8 +302,4 @@ function takeOff(ref: VersionRef) {
   text-decoration: underline;
   cursor: pointer;
 }
-
-.loading {
-  margin: 0;
-}
 </style>

@@ -166,10 +166,6 @@ function seat(ref: VersionRef) {
   align-self: flex-start;
 }
 
-.loading {
-  margin: 0;
-}
-
 .choice-list {
   margin: 0;
   padding: 0;

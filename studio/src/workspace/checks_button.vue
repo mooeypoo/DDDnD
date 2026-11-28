@@ -16,9 +16,10 @@
       aria-controls="checks-panel"
       @click="open ? close(false) : show()"
     >
-      <span class="dot" aria-hidden="true"></span>
+      <span v-if="statusKind !== 'pending'" class="dot" aria-hidden="true"></span>
       <span class="visually-hidden">Checks: </span>
-      <span>{{ shortText }}</span>
+      <!-- While the pack is checked again, a turning ring: the count it had is being worked out -->
+      <span :class="{ working: statusKind === 'pending' }">{{ shortText }}</span>
       <span v-if="notes.length > 0" class="notes-count">· {{ notes.length === 1 ? '1 note' : `${notes.length} notes` }}</span>
     </button>
     <span class="visually-hidden" role="status" aria-live="polite">{{ announced }}</span>
@@ -26,6 +27,8 @@
     <div v-if="open" id="checks-panel" ref="panel" class="checks-popover" role="region" aria-label="Checks and notes">
       <ChecksPanel :state="state" :issues="issues" :live="false" :draft="draft" @goTo="goTo" />
       <CouncilNotesPanel
+        :class="{ 'is-updating': statusKind === 'pending' }"
+        :aria-busy="statusKind === 'pending' ? 'true' : undefined"
         :notes="notes"
         :full="full"
         @seat="(memberRef) => $emit('seat', memberRef)"

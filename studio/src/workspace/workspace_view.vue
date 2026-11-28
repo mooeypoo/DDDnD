@@ -4,6 +4,7 @@
       v-if="guided && draft.round"
       :draft="draft"
       :saveText="saveText"
+      :saving="saveText === SAVE_WORDS.saving"
       :checksClean="canExport"
       @leave="$emit('leaveRound')"
       @goTo="(step) => updateDraft(goToRoundStep(draft!, step))"
@@ -16,8 +17,8 @@
       </span>
       <!-- As wide as its longest message, so the buttons after it don't move while it saves (a click that leaves a field would miss) -->
       <span class="bar-save" role="status" aria-live="polite">
-        <span>{{ saveText }}</span>
-        <span v-for="text in SAVE_TEXTS" :key="text" class="save-room" aria-hidden="true">{{ text }}</span>
+        <span :class="{ working: saveText === SAVE_WORDS.saving }">{{ saveText }}</span>
+        <span v-for="text in SAVE_TEXTS" :key="text" class="save-room" :class="{ working: text === SAVE_WORDS.saving }" aria-hidden="true">{{ text }}</span>
       </span>
       <div class="view-switch" role="group" aria-label="View">
         <button type="button" class="view-option" :aria-pressed="selection.kind === 'summary'" @click="select({ kind: 'summary' })">Summary</button>
@@ -43,7 +44,7 @@
           @removeChange="(change) => updateDraft(removeChangesTo(draft!, change.section, change.id, change.stakeholderId))"
         />
         <!-- "Play it" (D15, §9.1): quiet, beside Export; its state shows here, not on a page -->
-        <span v-if="playText" class="bar-play-status" role="status">{{ playText }}</span>
+        <span v-if="playText" class="bar-play-status" :class="{ working: playing }" role="status">{{ playText }}</span>
         <button
           type="button"
           class="button button-quiet"
@@ -71,6 +72,7 @@
         :selection="selection"
         :nameOf="itemName"
         :balance="studio.balance"
+        :updating="rechecking"
         @select="select"
         @createMember="createMember"
         @createNew="createNew"
@@ -220,6 +222,7 @@
           :scoreOptions="scoreOptions"
           :stakeholderOptions="stakeholderOptions"
           :changes="studio.memberChanges[selection.ref.id] ?? []"
+          :updating="rechecking"
           :gameMembers="usesGameContent(draft) ? gameMembers : []"
           :seatsLeft="COUNCIL_SEATS - councilRefs.length"
           :deckChoices="deckChoices"
@@ -239,12 +242,13 @@
           :gameMembers="usesGameContent(draft) ? gameMembers : []"
           :seatsLeft="COUNCIL_SEATS - councilRefs.length"
           :balance="studio.balance"
+          :updating="rechecking"
           @change="updateDraft"
           @settle="settleOpen"
           @select="afterItemChange"
         />
         <DeckAddView v-else-if="selection.kind === 'add'" :section="selection.section" :draft="draft" @change="updateDraft" />
-        <ReleaseView v-else-if="selection.kind === 'release'" :draft="draft" :checksClean="canExport" @export="exportPack" @change="updateDraft" />
+        <ReleaseView v-else-if="selection.kind === 'release'" :draft="draft" :checksClean="canExport" :checking="rechecking" @export="exportPack" @change="updateDraft" />
       </main>
     </div>
   </div>
@@ -650,6 +654,8 @@ async function playIt() {
   }
 }
 
+/** The pack is being checked again after an edit: what the last check found is out of date. */
+const rechecking = computed(() => studio.check.state === 'checking')
 const canExport = computed(() => studio.check.state === 'done' && studio.check.issues.length === 0)
 
 /** Download a release (M4.7); the release page says how it went. */

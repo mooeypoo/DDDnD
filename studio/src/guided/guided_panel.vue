@@ -50,7 +50,8 @@
         <button type="button" class="button button-primary" :disabled="!playLive || playing || !checksClean" @click="$emit('play')">▶ Play it</button>
         <span v-if="playText" class="field-hint" role="status">{{ playText }}</span>
       </div>
-      <p v-if="!checksClean" class="field-hint">Fix what the checks list first: the step before this one.</p>
+      <p v-if="checkState === 'checking' || checkState === 'idle'" class="field-hint working">Checking the pack…</p>
+      <p v-else-if="!checksClean" class="field-hint">Fix what the checks list first: the step before this one.</p>
       <p class="field-hint">
         Then, whenever you're ready, export it to share: a pack file players import in the game, or a zip for GitHub.
         <button type="button" class="link-button" @click="$emit('export')">Open the export page</button>

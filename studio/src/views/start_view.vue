@@ -14,7 +14,7 @@
         </div>
         <div class="packs-actions">
           <input ref="fileInput" type="file" class="visually-hidden" tabindex="-1" aria-hidden="true" accept=".json,.zip,application/json,application/zip" @change="importFile" />
-          <button type="button" class="button button-quiet" :disabled="importing" @click="fileInput?.click()">{{ importing ? 'Importing…' : 'Import a pack' }}</button>
+          <button type="button" class="button button-quiet" :disabled="importing" @click="fileInput?.click()"><span :class="{ working: importing }">{{ importing ? 'Importing…' : 'Import a pack' }}</span></button>
           <button type="button" class="button button-primary" @click="$emit('newPack')">+ New pack</button>
         </div>
       </div>

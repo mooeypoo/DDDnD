@@ -186,8 +186,4 @@ function remove() {
   flex-wrap: wrap;
   gap: 0.5rem;
 }
-
-.loading {
-  margin: 0;
-}
 </style>
