@@ -9,7 +9,7 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 
-import { connectNewMember, createOwnCard, draftFromBaseScenario, releaseDraft, type DraftPack } from '@/domains/authoring'
+import { balanceHints, connectNewMember, createOwnCard, draftBalance, draftFromBaseScenario, gameBalance, putContent, releaseDraft, type DraftPack } from '@/domains/authoring'
 import type { ContentPackManifest } from '@/domains/content/model'
 import { ContentPackRegistry } from '@/domains/content/services/content_pack_registry'
 import { firstPartyPackKey } from '@/domains/content/services/pack_identity'
@@ -22,10 +22,21 @@ const { default: SummaryView } = await import('@studio/workspace/summary_view.vu
 const { default: StartView } = await import('@studio/views/start_view.vue')
 
 const BASE = path.resolve('content')
-async function monolith(prefix = 'ours'): Promise<DraftPack> {
+function baseReader() {
   const registry = new ContentPackRegistry()
-  registry.registerPack(JSON.parse(readFileSync(path.join(BASE, 'manifest.json'), 'utf8')) as ContentPackManifest, createFileContentProvider(BASE))
-  return (await draftFromBaseScenario(registry.createScopedProvider(firstPartyPackKey('base')), { id: 'monolith_of_mild_despair', version: 2 }, { name: 'Ours', prefix, authors: [] })).draft
+  const manifest = JSON.parse(readFileSync(path.join(BASE, 'manifest.json'), 'utf8')) as ContentPackManifest
+  registry.registerPack(manifest, createFileContentProvider(BASE))
+  return { manifest, base: registry.createScopedProvider(firstPartyPackKey('base')) }
+}
+async function monolith(prefix = 'ours'): Promise<DraftPack> {
+  return (await draftFromBaseScenario(baseReader().base, { id: 'monolith_of_mild_despair', version: 2 }, { name: 'Ours', prefix, authors: [] })).draft
+}
+/** What the Studio's check works out (studio_state's checkNow), from the repository's content. */
+async function balanceOf(draft: DraftPack) {
+  const { manifest, base } = baseReader()
+  const game = await gameBalance(await Promise.all(manifest.scenarios.map((ref) => base.loadScenario(ref))), base)
+  const decks = await draftBalance(draft, base)
+  return { decks, game, hints: balanceHints(draft, decks, game) }
 }
 
 describe('the pack summary', () => {
@@ -47,6 +58,29 @@ describe('the pack summary', () => {
     expect(wrapper.emitted('select')![0]).toEqual([{ kind: 'member', ref: expect.objectContaining({ version: 1 }) }])
     expect(wrapper.find('.issue-list').text()).toBe('Pack details: Add your name as the author.')
     expect(wrapper.find('.summary-lede').text()).toBe('A retelling of DDDnD · not exported yet')
+  })
+})
+
+describe("the summary's balance", () => {
+  it("shows the deck beside the game's, and opens a card worth a look", async () => {
+    const made = createOwnCard(await monolith(), 'Hire a Platform Team')
+    const draft = putContent(made.draft, 'cards', { ...made.draft.content.cards[made.id], score_changes: [{ score_id: 'domain_clarity', delta: 6 }] })
+    const wrapper = mount(SummaryView, { props: { draft, seats: 8, checkState: 'done', issues: [], notes: 0, balance: await balanceOf(draft) } })
+    const section = wrapper.find('[aria-labelledby="summary-balance"]')
+    expect(section.findAll('.plain').map((line) => line.text())).toEqual([
+      expect.stringMatching(/^Your cards net \+\d+\.\d on average, aftershocks included; the game's scenarios: \+9\.0 to \+12\.2\.$/),
+      expect.stringMatching(/^Your events net .+ a draw, weighted by how often each is drawn; the game's scenarios: \u22123\.3 to \+0\.5\.$/),
+    ])
+    expect(section.find('[role="status"]').text()).toBe('1 thing worth a look:')
+    expect(section.find('.hint-list strong').text()).toBe('Hire a Platform Team only helps.')
+    await section.find('.hint-list button').trigger('click')
+    expect(wrapper.emitted('select')![0]).toEqual([{ kind: 'item', section: 'cards', ref: { id: made.id, version: 1 } }])
+  })
+
+  it("says so when a copy of the game's scenario has nothing worth a look", async () => {
+    const draft = await monolith()
+    const wrapper = mount(SummaryView, { props: { draft, seats: 8, checkState: 'done', issues: [], notes: 0, balance: await balanceOf(draft) } })
+    expect(wrapper.find('[aria-labelledby="summary-balance"] [role="status"]').text()).toBe("Nothing worth a look: your deck is close to the game's numbers.")
   })
 })
 

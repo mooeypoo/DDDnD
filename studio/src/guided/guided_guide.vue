@@ -34,6 +34,7 @@
       </button>
       <span v-for="n in Math.max(0, asks.cards - cards.length)" :key="`empty-${n}`" class="so-far-empty">Card {{ cards.length + n }}</span>
       <button type="button" class="button button-quiet so-far-add" @click="$emit('createNew', 'cards')">+ Write a card</button>
+      <p v-if="deckWords" class="field-hint">{{ deckWords.cards }}</p>
     </div>
 
     <div v-else-if="step === 'surprises'" class="so-far">
@@ -44,11 +45,12 @@
       </button>
       <span v-for="missing in missingLeanings" :key="missing" class="so-far-empty">A {{ missing }} one</span>
       <button type="button" class="button button-quiet so-far-add" @click="$emit('createNew', 'events')">+ Write an event</button>
+      <p v-if="deckWords" class="field-hint">{{ deckWords.events }}</p>
     </div>
 
     <div v-else-if="step === 'deck'" class="so-far">
       <h2 class="so-far-title">Your deck</h2>
-      <p class="so-far-line">{{ deckWords }}</p>
+      <p class="so-far-line">{{ deckCounts }}</p>
       <button type="button" class="so-far-row" :aria-current="current({ kind: 'add', section: 'cards' }) ? 'true' : undefined" @click="$emit('select', { kind: 'add', section: 'cards' })"><span>Add cards from the game</span><span aria-hidden="true">›</span></button>
       <button type="button" class="so-far-row" :aria-current="current({ kind: 'add', section: 'events' }) ? 'true' : undefined" @click="$emit('select', { kind: 'add', section: 'events' })"><span>Add events from the game</span><span aria-hidden="true">›</span></button>
       <h2 class="so-far-title">From the game, in your deck</h2>
@@ -77,12 +79,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { COUNCIL_SEATS, ROUND_ASKS, ROUND_STEPS, roundCards, roundCouncil, roundSurprises, scenarioRefs, isOwn, type DeckSection, type DraftPack, type RoundStep } from '@/domains/authoring'
+import { COUNCIL_SEATS, ROUND_ASKS, ROUND_STEPS, deckBalanceWords, roundCards, roundCouncil, roundSurprises, scenarioRefs, isOwn, type BalanceHint, type DeckBalance, type DeckSection, type DraftPack, type GameBalance, type RoundStep } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { EXAMPLE_PACK, LEANING_WORDS, ROUND_WORDS, VERDICT_WORDS } from '@studio/guided/round_words'
 import { isSelected, type Selection } from '@studio/workspace/selection'
 
-const props = defineProps<{ draft: DraftPack; step: RoundStep; selection: Selection; nameOf: (section: DeckSection, ref: VersionRef) => string }>()
+const props = defineProps<{
+  draft: DraftPack
+  step: RoundStep
+  selection: Selection
+  nameOf: (section: DeckSection, ref: VersionRef) => string
+  /** The last check's balance numbers (D3): the cards and surprises steps show the deck beside the game's. */
+  balance?: { decks: DeckBalance[]; game: GameBalance | null; hints: BalanceHint[] }
+}>()
 defineEmits<{ select: [selection: Selection]; createMember: []; createNew: [section: DeckSection]; back: []; next: []; finish: [] }>()
 
 const steps = ROUND_STEPS
@@ -97,13 +106,19 @@ const cards = computed(() => roundCards(props.draft))
 const surprises = computed(() => roundSurprises(props.draft))
 const missingLeanings = computed(() => (['bad', 'good'] as const).filter((leaning) => !surprises.value.some((event) => event.leaning === leaning)))
 
+/** The round's one scenario's deck, in numbers (a retelling has one). */
+const deckWords = computed(() => {
+  const deck = props.balance?.decks[0]
+  return deck ? deckBalanceWords(deck, props.balance?.game ?? null) : null
+})
+
 /** The game's cards and events in the deck (the author's own have their steps). */
 const gameDeck = computed(() => (['cards', 'events'] as const).map((section) => ({
   section,
   refs: scenarioRefs(props.draft, section === 'cards' ? 'card_refs' : 'event_refs').filter((ref) => !isOwn(props.draft, section, ref)),
 })))
 
-const deckWords = computed(() => {
+const deckCounts = computed(() => {
   const count = (section: DeckSection, field: 'card_refs' | 'event_refs') => {
     const refs = scenarioRefs(props.draft, field)
     const own = refs.filter((ref) => isOwn(props.draft, section, ref)).length

@@ -63,6 +63,27 @@
             <span class="part-line">{{ counts.events }} that can happen · {{ counts.own_events ? `${counts.own_events} of your own` : 'all from the game' }}</span>
           </div>
         </div>
+
+        <!-- Balance hints (D3): arithmetic on the deck, beside the game's own scenarios. Never blocking -->
+        <section class="editor-section" aria-labelledby="summary-balance">
+          <h2 id="summary-balance" class="editor-section-title">Balance, beside the game's</h2>
+          <p class="field-hint">Arithmetic on your deck, not a playtest: the game's own scenarios are the yardstick. Nothing here stops an export.</p>
+          <p v-if="checkState !== 'done' && !balance.decks.length" class="field-hint">Working it out…</p>
+          <template v-for="deck in balance.decks" :key="deck.scenario_id">
+            <h3 v-if="balance.decks.length > 1" class="balance-scenario">{{ draft.content.scenarios[deck.scenario_id]?.name || 'Untitled scenario' }}</h3>
+            <p class="plain">{{ deckBalanceWords(deck, balance.game).cards }}</p>
+            <p class="plain">{{ deckBalanceWords(deck, balance.game).events }}</p>
+          </template>
+          <p v-if="balance.decks.length" class="balance-count" role="status" aria-live="polite">{{ balance.hints.length === 0 ? 'Nothing worth a look: your deck is close to the game\'s numbers.' : balance.hints.length === 1 ? '1 thing worth a look:' : `${balance.hints.length} things worth a look:` }}</p>
+          <ul v-if="balance.hints.length" class="hint-list">
+            <li v-for="hint in balance.hints" :key="hint.kind + ('section' in hint ? hint.section : hint.scenario_id)">
+              <strong class="worth">{{ describeBalanceHint(hint, draft).title }}</strong> {{ describeBalanceHint(hint, draft).text }}
+              <span v-if="'refs' in hint" class="fill-list">
+                <button v-for="ref in hint.refs" :key="ref.id" type="button" class="link-button" @click="$emit('select', { kind: 'item', section: hint.section, ref })">Open {{ draft.content[hint.section][ref.id]?.name || (hint.section === 'cards' ? 'Untitled card' : 'Untitled event') }}</button>
+              </span>
+            </li>
+          </ul>
+        </section>
       </div>
 
       <section class="editor-section summary-side" aria-labelledby="summary-export">
@@ -86,11 +107,18 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-import { describeIssue, nextSteps, packCounts, releaseState, toFillIn, type DraftPack, type NextStep, type PackIssue, type ToFillIn } from '@/domains/authoring'
+import { deckBalanceWords, describeBalanceHint, describeIssue, nextSteps, packCounts, releaseState, toFillIn, type BalanceHint, type DeckBalance, type DraftPack, type GameBalance, type NextStep, type PackIssue, type ToFillIn } from '@/domains/authoring'
 import type { CheckState } from '@studio/state/studio_state'
 import type { Selection } from '@studio/workspace/selection'
 
-const props = defineProps<{ draft: DraftPack; seats: number; checkState: CheckState; issues: PackIssue[]; notes: number }>()
+const props = withDefaults(defineProps<{
+  draft: DraftPack
+  seats: number
+  checkState: CheckState
+  issues: PackIssue[]
+  notes: number
+  balance?: { decks: DeckBalance[]; game: GameBalance | null; hints: BalanceHint[] }
+}>(), { balance: () => ({ decks: [], game: null, hints: [] }) })
 const emit = defineEmits<{ select: [selection: Selection]; createNew: [section: 'cards']; createMember: []; createScore: []; createEnding: [] }>()
 
 /** The Studio's words for each step; which are done is the domain's (nextSteps). */
@@ -137,6 +165,26 @@ function openFillIn(item: ToFillIn) {
 </script>
 
 <style scoped>
+.balance-scenario {
+  margin: 0.5rem 0 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--forge-text-bright);
+}
+
+.balance-count {
+  margin: 0;
+}
+
+.hint-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  line-height: 1.55;
+}
+
 .summary-lede {
   margin: 0.25rem 0 0;
   color: var(--forge-text-secondary);

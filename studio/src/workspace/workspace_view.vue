@@ -14,7 +14,11 @@
       <span class="kind-pill" :class="draft.kind === 'retelling' ? 'pill-setting' : 'pill-topic'">
         {{ draft.kind === 'retelling' ? 'Retelling' : 'New topic' }}
       </span>
-      <span class="bar-save" role="status" aria-live="polite">{{ saveText }}</span>
+      <!-- As wide as its longest message, so the buttons after it don't move while it saves (a click that leaves a field would miss) -->
+      <span class="bar-save" role="status" aria-live="polite">
+        <span>{{ saveText }}</span>
+        <span v-for="text in SAVE_TEXTS" :key="text" class="save-room" aria-hidden="true">{{ text }}</span>
+      </span>
       <div class="view-switch" role="group" aria-label="View">
         <button type="button" class="view-option" :aria-pressed="selection.kind === 'summary'" @click="select({ kind: 'summary' })">Summary</button>
         <button type="button" class="view-option" :aria-pressed="selection.kind !== 'summary'" @click="select(lastEdit)">Edit</button>
@@ -60,6 +64,7 @@
         :step="draft.round.step"
         :selection="selection"
         :nameOf="itemName"
+        :balance="studio.balance"
         @select="select"
         @createMember="createMember"
         @createNew="createNew"
@@ -118,6 +123,7 @@
           :checkState="studio.check.state"
           :issues="studio.check.issues"
           :notes="studio.notes.length"
+          :balance="studio.balance"
           @select="select"
           @createNew="createNew"
           @createMember="createMember"
@@ -217,6 +223,7 @@
           :stakeholderOptions="stakeholderOptions"
           :gameMembers="usesGameContent(draft) ? gameMembers : []"
           :seatsLeft="COUNCIL_SEATS - councilRefs.length"
+          :balance="studio.balance"
           @change="updateDraft"
           @select="afterItemChange"
         />
@@ -511,10 +518,10 @@ async function loadGameMembers() {
 
 watch(() => councilRefs.value.map((ref) => ref.id).join(','), () => void loadGameMembers(), { immediate: true })
 
-const saveText = computed(() => {
-  if (!studio.persistent) return 'Not kept: export to save'
-  return { saved: 'Saved in this browser', saving: 'Saving…', unsaved: 'Saving…', failed: "Couldn't save" }[studio.save]
-})
+const SAVE_WORDS = { saved: 'Saved in this browser', saving: 'Saving…', unsaved: 'Saving…', failed: "Couldn't save" } as const
+const NOT_KEPT = 'Not kept: export to save'
+const SAVE_TEXTS = [...new Set([...Object.values(SAVE_WORDS), NOT_KEPT])]
+const saveText = computed(() => (studio.persistent ? SAVE_WORDS[studio.save] : NOT_KEPT))
 
 /** The author's own items still to fill in, as sidebar keys ("cards/ours_x"), from the domain. */
 const fillIn = computed(() => new Set(draft.value ? toFillIn(draft.value).map((item) => `${item.section}/${item.ref.id}`) : []))
@@ -590,8 +597,17 @@ async function exportPack(version: string, format: ExportFormat, done: (ok: bool
 }
 
 .bar-save {
+  display: inline-grid;
   font-size: 0.875rem;
   color: var(--forge-text-secondary);
+}
+
+.bar-save > * {
+  grid-area: 1 / 1;
+}
+
+.save-room {
+  visibility: hidden;
 }
 
 .view-switch {

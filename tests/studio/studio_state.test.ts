@@ -45,6 +45,7 @@ describe('opening the draft that is already open', () => {
     vi.doMock('@studio/content/first_party', () => ({
       listBaseRefs: async () => [],
       loadFirstParty: async () => ({ packs: [], base: {} }),
+      loadGameBalance: async () => null,
     }))
     const { openDraft, startNewTopic, studio, updateDraft } = await import('@studio/state/studio_state')
     const id = await startNewTopic('Incident Response', 'On call.')

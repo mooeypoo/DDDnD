@@ -23,6 +23,11 @@ import {
   unseatedNotesFrom,
   scenarioChanges,
   changesByMemberFrom,
+  balanceHints,
+  draftBalance,
+  type BalanceHint,
+  type DeckBalance,
+  type GameBalance,
   type ChangeSource,
   type ScenarioChanges,
   type BaseContentReader,
@@ -31,7 +36,7 @@ import {
 } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import type { PackIssue } from '@/domains/authoring'
-import { listBaseRefs, loadFirstParty, type BaseScenarioChoice } from '@studio/content/first_party'
+import { listBaseRefs, loadFirstParty, loadGameBalance, type BaseScenarioChoice } from '@studio/content/first_party'
 import { playInGame, type PlayStatus } from '@studio/content/game_preview'
 import { LICENSE_TEXTS } from '@studio/content/license_texts'
 import { ImportError, readImportedPack, zipPackFiles } from '@studio/content/pack_files'
@@ -61,6 +66,8 @@ interface StudioState {
   notes: CouncilNote[]
   /** What changes each council member's satisfaction, by member id (slice 3). */
   memberChanges: Record<string, ChangeSource[]>
+  /** The draft's decks in numbers, beside the game's, and what's worth a look (D3). Never blocking. */
+  balance: { decks: DeckBalance[]; game: GameBalance | null; hints: BalanceHint[] }
   error: string | null
 }
 
@@ -73,6 +80,7 @@ const state = reactive<StudioState>({
   check: { state: 'idle', issues: [] },
   notes: [],
   memberChanges: {},
+  balance: { decks: [], game: null, hints: [] },
   error: null,
 })
 
@@ -124,11 +132,18 @@ async function checkNow() {
     const draft = plainDraft(state.current.draft)
     // One walk of who changes whom, for the notes and every member's page
     const tables = await scenarioChanges(draft, base)
-    const [result, notes] = await Promise.all([checkDraft(draft, packs), councilNotes(draft, tables, base)])
+    const [result, notes, decks, game] = await Promise.all([
+      checkDraft(draft, packs),
+      councilNotes(draft, tables, base),
+      draftBalance(draft, base),
+      // The game's own numbers, to compare with; without them the hints still name cards that only help
+      loadGameBalance().catch(() => null),
+    ])
     if (run !== checkRun) return
     state.check = { state: 'done', issues: result.issues }
     state.notes = notes
     state.memberChanges = Object.fromEntries(changesByMemberFrom(tables))
+    state.balance = { decks, game, hints: balanceHints(draft, decks, game) }
   } catch (error) {
     if (run !== checkRun) return
     state.check = { state: 'failed', issues: [{ file: 'pack', message: (error as Error).message }] }
@@ -157,6 +172,14 @@ function scheduleSaveAndCheck() {
   checkTimer = setTimeout(() => void checkNow(), CHECK_DELAY_MS)
 }
 
+/** Forgets what the last check found, for a draft just opened or closed. */
+function clearDraftFindings() {
+  state.check = { state: 'idle', issues: [] }
+  state.notes = []
+  state.memberChanges = {}
+  state.balance = { decks: [], game: null, hints: [] }
+}
+
 /** Replaces the open draft with an edited one, then saves and checks it. */
 export function updateDraft(next: DraftPack): void {
   if (!state.current) return
@@ -172,9 +195,7 @@ export async function startFromBaseScenario(choice: BaseScenarioChoice, options:
   const draft = options.guided ? startRound(copied) : copied
   const draftId = newDraftId()
   state.current = { draft_id: draftId, draft }
-  state.check = { state: 'idle', issues: [] }
-  state.notes = []
-  state.memberChanges = {}
+  clearDraftFindings()
   await saveNow()
   void checkNow()
   return draftId
@@ -186,9 +207,7 @@ export async function startNewTopic(name: string, description: string): Promise<
   const { draft } = draftForNewTopic({ name, description }, tiers)
   const draftId = newDraftId()
   state.current = { draft_id: draftId, draft }
-  state.check = { state: 'idle', issues: [] }
-  state.notes = []
-  state.memberChanges = {}
+  clearDraftFindings()
   await saveNow()
   void checkNow()
   return draftId
@@ -212,9 +231,7 @@ export async function importPack(file: File): Promise<{ ok: true; draft_id: stri
   }
   const draftId = newDraftId()
   state.current = { draft_id: draftId, draft }
-  state.check = { state: 'idle', issues: [] }
-  state.notes = []
-  state.memberChanges = {}
+  clearDraftFindings()
   await saveNow()
   void checkNow()
   return { ok: true, draft_id: draftId }
@@ -232,9 +249,7 @@ export async function openDraft(draftId: string): Promise<boolean> {
   }
   state.current = { draft_id: entry.draft_id, draft: entry.draft }
   state.save = 'saved'
-  state.check = { state: 'idle', issues: [] }
-  state.notes = []
-  state.memberChanges = {}
+  clearDraftFindings()
   void checkNow()
   return true
 }
@@ -248,8 +263,7 @@ export async function closeDraft(): Promise<void> {
   }
   if (checkTimer) clearTimeout(checkTimer)
   state.current = null
-  state.notes = []
-  state.memberChanges = {}
+  clearDraftFindings()
 }
 
 export async function removeDraft(draftId: string): Promise<void> {
