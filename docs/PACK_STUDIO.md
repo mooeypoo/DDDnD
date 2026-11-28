@@ -56,6 +56,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D34 | **Endings are an ordered list, never priorities.** Authors see "tried 1st of 4" and move endings earlier or later; the Studio writes evenly spaced priorities. The fallback (no conditions) is always last and can't be deleted while it's the only one. Conditions are written generically (D29): "Rest ends below 25". | The game picks the first ending, by priority, whose conditions all hold. A number authors must keep unique and ordered is a rule the model can keep instead, and the validator's errors (two endings at one priority, an ending below the fallback) become impossible to make. |
 | D35 | **The guided round is a view of the workspace, not a separate app.** `#/guided/<draft>` shows the same editors, with the ember header and step strip (D20) above, and the step's guide (what it asks, its teaching moment, a worked example from the Gilded Ledger) in place of the sidebar. Where the author is in the round is kept with the draft, never exported. "Next" never blocks; a step ticks when the draft has what it asks for, as the domain reads it. Leaving keeps everything, and "Back to the guided round" returns to it. | One set of editors means the round teaches the real tool, and nothing in it can drift from the workspace. Ticks read from the draft (two people with a reaction each, three cards, one bad and one good surprise, clean checks) can't say "done" when it isn't. The round is a first hour, not a gate. |
 | D36 | **Balance hints measure against the game's own scenarios, read live, per score.** The yardstick is the range the five scenarios the game offers span, worked out from its content when the Studio loads (cards +9.0 to +12.2 on average, aftershocks included; events −3.3 to +0.5 a draw, weighted by how often each is drawn), not a number written into the Studio. Compared per score, since a run is judged on its scores' average. A deck is worth a look only more than a point outside that range (`NEAR_ENOUGH`). Hints never block, and never comment on the game's own cards. | A written-in number had already drifted: the plan said "+11 to +12", but Startup Hypergrowth's cards net +9.0. Reading the game's content keeps the yardstick honest as the game is rebalanced. The point of slack comes from evidence: the SRE pack wins 40% of runs with cards at +8.2. |
+| D37 | **The new-topic round is the retelling's, plus what a topic makes for itself, in two sittings.** Ten steps: world, **what it trades off** (three scores), scenario, council; then cards, surprises, **endings** (two besides the fallback), **a class** (named, with a favourite), check, play. No "Fill the deck": a topic uses none of the game's. Scores come before the scenario, which sets where they start. The first sitting ends at the council, said in the guide's pinned footer. A stand-in the Studio made (the "Generalist" class, "New score", "New ending") never ticks a step. The examples are the SRE pack's (D14). | §5 asks for exactly this ("longer, in two sittings", scores, endings, one class, the base tiers). The world is what a second sitting needs to exist; what happens in it is the second. A tick for the skeleton's own class would say "done" before the author did anything (D35's honest ticks). |
 
 ---
 
@@ -154,7 +155,7 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 - The start screen with the two kinds and the example packs.
 - Editors for every entity type, with pickers and the live validation panel.
 - The version-bump assistant.
-- The retelling tutorial round. The new-topic round may follow in a point release.
+- The retelling tutorial round, and the new-topic round (M4.25, D37).
 - Balance hints (D3), copy-to-edit (D7), several drafts (D8).
 - The minimal playtest: "Play it" opens the draft in a sandboxed game preview (D6).
 - Export (bundle file and zip) and import.
@@ -164,7 +165,7 @@ A first-run walkthrough that **builds a real, small pack**, then hands it over. 
 2. ~~The version-bump assistant~~ (M4.7).
 3. ~~Zip export and import~~ (M4.8).
 4. ~~"Play it" (D15, D17)~~ (M4.16; live in production from the launch, D32).
-5. ~~New-topic authoring (scores, endings, classes) and the guided round~~ (M4.17–M4.21; the new-topic round may follow).
+5. ~~New-topic authoring (scores, endings, classes) and the guided round~~ (M4.17–M4.21), ~~and the new-topic round~~ (M4.25, D37).
 6. ~~Balance hints~~ (M4.22, D36), and the smaller items: ~~"Go to it" focusing the exact field~~ and ~~a warning when the prefix (the pack's id) changes after a release~~ (M4.23), ~~undo/redo, and search~~ (M4.24). (The sidebar's collapse and filter came with the audit, M4.9.)
 7. ~~**The UI/UX audit (D23)**~~ (M4.9–M4.15, brought forward and done first). The patterns for every later screen are in §9.1.
 8. Launch: remove `noindex`, and add the Studio's origin to the game's preview allowlist.
@@ -1549,7 +1550,7 @@ The round's place is `DraftPack.round`, the Studio's memory, like `origins`: a t
 - **"Name your world" asks for the author's name too.** It's the one thing a copied scenario always fails the checks on.
 - **The round starts from a full copy** of the chosen scenario, so "Fill the deck" (§5, step 6) is about keeping what fits and taking out what doesn't, as much as adding.
 - **The examples are the Studio's words about the Ledger** (D14), not loaded from DDDnD-packs. The Studio's CSP and offline use argue for text in the app; the list naming the Ledger as the source is `EXAMPLE_PACK`.
-- **Topics have no round yet.** `#/guided/<id>` on a topic opens the workspace. §6 lets the new-topic round follow.
+- **Topics have no round yet.** `#/guided/<id>` on a topic opens the workspace. §6 lets the new-topic round follow. (It did: M4.25.)
 
 **For the talk: the round has no rules of its own.** Every tick is a question the domain already knew how to answer, or a small new one with a name: "is this card one-sided?" (`onlyHelps`, from M4.4, now `cardVerdict`), "which way does this event go?" (`eventLeaning`). The round's own state is just a place in a list. That's why it could reuse every editor: a tutorial is a view over the model, not a second model.
 
@@ -1760,6 +1761,94 @@ The last of §6 item 6's smaller items.
   - Ctrl K, "payments team": "Write an RFC · card · in its description"; Enter lands in its description;
   - zero CSP violations, no console errors.
 
+### M4.25: The new-topic round (2026-11-27)
+
+§5's "new-topic round (teacher), longer, in two sittings", on the round M4.21 built. D37.
+
+**What an author sees:**
+- **The way in:** "Teach another subject" now asks for the topic's name and offers **"Start with the guided round"** (the ember button, and what Enter does) beside **"Start on my own"**. The retelling round's first page ("Which of the game's stories is closest to yours?") links to it: "Teaching something other than domain-driven design? Start a new topic, with its own round".
+- **The header** says "Teach your topic with DDDnD", with ten steps:
+  1. **Name your world** (as in a retelling).
+  2. **What it trades off:** "Name three to six things your topic pulls between, each phrased so that higher is better." The teaching moment is §5's "Scores should trade off". The list beside it says how the author's cards pull each score: "✓ pulls both ways", "only goes up", "only goes down", or "no card moves it yet". With no score yet, "Your first score" asks what someone in the field worries about losing.
+  3. **Your scenario:** where each score starts.
+  4. **Your council.**
+  5. **Your cards** (all the author's own; the deck line compares them with the game's, per score, D36).
+  6. **Your surprises.**
+  7. **Your endings:** "What kinds of leader can a player become?" Two of the author's own, listed in the order they're tried, with the fallback marked "any run that fits no other". The teaching moment is "Endings should be reachable, and mean something here".
+  8. **Your class:** the skeleton's Generalist, waiting for "its own name" and a favourite score.
+  9. **Check it.**
+  10. **Play it.**
+- **Two sittings:** the kicker says "Step 4 of 10 · first sitting". On the council step, the guide's pinned footer says "A good place to stop", that the work is kept, and that "Back to the guided round" brings them back.
+- **The examples are the SRE pack's** (D14): Rested On-Call, the On-Call Engineer's reaction, Tune the Noisy Alerts, The 3 a.m. Outage, The Hero Firefighter, the Toil Druid.
+
+**Domain (`guided_round.ts`):**
+- `RETELLING_ROUND` and `TOPIC_ROUND`, `roundSteps(draft)` and `secondSitting(draft)`. Next, Back and the progress list follow the draft's own round, and `goToRoundStep` refuses a step the round doesn't have.
+- `roundScores` (each score's `pull` from the author's cards), `roundEndings` and `roundClasses` (with `named`).
+- `roundStepDone` for `scores`, `endings` and `class`. A name the Studio gave ("New score", "New ending", "New class", the skeleton's "Generalist") doesn't count as the author's.
+- `ROUND_ASKS` gains `scores: 3` and `endings: 2`.
+
+**Studio:**
+- `round_words.ts`: `ROUNDS` per kind (the header's words, the example pack, each step's words), `stepWords`, `SITTING_BREAK` and `PULL_WORDS`.
+- The guide, header and panel read the draft's round. The workspace maps the new steps to the score, ending and class editors, and the round's own "first score" and "first ending" panels.
+- `startNewTopic(name, description, { guided })`.
+- `.link-button` moved into `studio.css`: four screens had the same copy, and the round's start page needed a fifth.
+
+**Fixed along the way (all caught by the walk):**
+- **The class step ticked for the skeleton's class.** Choosing a favourite for "Generalist" ticked "Your class ✓", though the step asks the author to name it, and a Generalist with a favourite contradicts its name. `roundClasses` now says whether the author named it, and the row reads "favours Rested On-Call; give it its own name".
+- **"A good place to stop" was out of sight.** As a box below the example, it sat under the guide's pinned Back/Next on a laptop screen. It's now part of that footer.
+- **The break's first wording promised too much.** It said "Back to the guided round" would pick up at the cards, but leaving on the council step comes back to the council. It now says "brings you back here".
+- **A click that left a new item's name could land on nothing (older than this slice).** Leaving the name field gives a new card, event or member the id of its name, and the editor then opened the item afresh under that id, which scrolls the editor to the top. If the click that left the field was further down (on a laptop-height window, "+ Add a change" usually is), the editor jumped away between mouse-down and mouse-up, and the click was lost. The walk at 1024×768 caught it; at 1440×1000 the button happened to be in view. Now `settle` carries the new id, and the workspace keeps the same item open in place (`settleOpen`). A copy ("make my own version") still opens at the top, since it's a different item.
+
+**Decisions (D37):**
+- **Scores before the scenario.** The scenario's starting values are per score, so a topic needs its scores first. In a retelling, the scores came with the copy.
+- **No "Fill the deck".** A topic uses none of the game's cards (D33). Its deck is the cards the author writes, and three play a whole run (a test plays twenty).
+- **The sitting is a word, not a wall.** Nothing stops at the break; it's said where it can be seen, like everything else in the round (D35: Next never blocks).
+- **A stand-in never ticks.** D35's honest ticks, applied to what the skeleton (D33) pre-fills.
+- **The round's own start page links to a topic's round,** rather than the start screen gaining a fourth tile: the start screen's "Start something new" is the owner's next review (§14).
+
+**For the talk: one round, two aggregates' worth of steps.** The round M4.21 built had no rules of its own, only questions the domain already answered. The topic round is the same shape: its list of steps is a function of the draft's kind, like every other topic/retelling difference (`usesGameContent`, M4.17). Three new questions have names ("how do the cards pull this score?", "is this ending the fallback?", "did the author name this class?"), and the screens changed only to ask the draft which round it's in.
+
+**Verification:**
+- Tests: 1430 in total (+14):
+  - `tests/authoring/guided_round.test.ts` (+7):
+    - the topic's steps, and a step it doesn't have;
+    - the two sittings;
+    - scores and their pulls;
+    - endings besides the fallback, with a Studio-made name not counting;
+    - a class of the author's naming, with a tracked favourite;
+    - the world;
+    - **a topic made by the round alone exports with no issues and plays twenty whole runs in the game's simulation, on three cards.**
+  - `tests/studio/topic_round.test.ts` (6, new):
+    - every step of each round has words, and a topic's examples come from the SRE pack;
+    - the header and its ten steps;
+    - the scores list with pulls;
+    - the break and the sittings in the kicker;
+    - the class waiting for a favourite, then for its own name;
+    - both ways in from "Teach another subject".
+  - `tests/studio/undo_and_find.test.ts`: a topic's round now moves on to its scores.
+  - `tests/studio/editor_actions.test.ts`: naming a new card settles its id with the new ref, and doesn't open it afresh.
+- Headless Chrome, production build with the Studio CSP, at 1440×1000 and 1024×768:
+  1. From the round's start page, "Start a new topic, with its own round".
+  2. "Incident Response", then Enter starts the round.
+  3. Name the world with its author.
+  4. Three scores: "What it trades off ✓".
+  5. The scenario's starting values.
+  6. Two people, each with a reaction: the first sitting's footer.
+  7. Three cards; the deck line reads "+4.5 on average; the game's scenarios: +4.5 to +6.1" (per score, three scores).
+  8. Back on the scores, the cards pull Rested On-Call and Availability both ways, and Change Velocity reads "no card moves it yet".
+  9. A bad and a good surprise.
+  10. Two endings, tried before "Held It Together".
+  11. A favourite for the class.
+  12. The checks name what's still to describe.
+  13. Leave the round, come back to step 10, and finish on the summary.
+  14. Zero CSP violations, no console errors.
+
+**Left open:**
+- **The owner's read of both rounds' copy.** The retelling round's words haven't been reviewed yet (M4.21), and now there are a topic's too.
+- **The start screen's guided tile** still describes the retelling round ("your system, your people…"). It's the next thing to review with the owner, with the rest of "Start something new".
+- **More classes, challenges and coupling rules** aren't in the round. §5 asks for one class; the rest are in the workspace.
+- **The deck line lags an edit by a moment.** It's the last check's numbers (D36), so right after writing a card it can still say "No cards in the deck yet" until the checks run again (about a second).
+
 ## 14. Picking up the work
 
 What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
@@ -1785,7 +1874,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. Next: the new-topic round, then the start screen's "start something new" with the owner (they have feedback: it reads as if you must pick an existing pack). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. The new-topic round is M4.25 (D37). Next: the start screen's "start something new", walked with the owner (they have feedback: it reads as if you must pick an existing pack, and "+ New pack" sits apart from the emphasized "Start something new"). Each follows §9.1.
 - **Left open from the audit:**
   - a map view of cards and their impact (maybe, D28);
   - whether the game's validator should check council member ids in changes (M4.14).

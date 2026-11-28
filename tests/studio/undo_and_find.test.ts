@@ -98,7 +98,7 @@ describe('undo in the Studio', () => {
     undoDraft()
     // The rename is undone; the round stays where the author moved it
     expect(studio.current!.draft.name).toBe('Incident Response')
-    expect(studio.current!.draft.round?.step).toBe('scenario')
+    expect(studio.current!.draft.round?.step).toBe('scores')  // a topic's round: its scores come next (M4.25)
     expect(studio.undo).toEqual({ can_undo: false, can_redo: true, said: 'Undone' })
     redoDraft()
     expect(studio.current!.draft.name).toBe('On Call')

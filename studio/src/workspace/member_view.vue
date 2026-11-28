@@ -255,7 +255,7 @@ function connect(next: DraftPack | null | undefined) {
   if (next) emit('change', next)
 }
 /** `settle`: a new member's or reaction's id follows its name, part of naming it (undo, M4.24). */
-const emit = defineEmits<{ change: [draft: DraftPack]; settle: [draft: DraftPack]; select: [ref: VersionRef | null]; open: [selection: Selection] }>()
+const emit = defineEmits<{ change: [draft: DraftPack]; settle: [draft: DraftPack, ref?: VersionRef]; select: [ref: VersionRef | null]; open: [selection: Selection] }>()
 
 /** Their sources, the author's own first. */
 const sources = computed(() => [...props.changes.filter((source) => source.own), ...props.changes.filter((source) => !source.own)])
@@ -347,8 +347,8 @@ function setSummary(value: string) {
 function settleMember() {
   const settled = settleNewMemberId(props.draft, props.memberRef.id)
   if (settled.id === props.memberRef.id) return
-  emit('settle', settled.draft)
-  emit('select', { id: settled.id, version: props.memberRef.version })
+  // Stay where the author is: the open item is the same one, under its new id (no scroll to the top, which would lose a click)
+  emit('settle', settled.draft, { id: settled.id, version: props.memberRef.version })
 }
 
 function setRule(rule: StakeholderReactionRule, fields: Partial<StakeholderReactionRule>) {

@@ -16,6 +16,18 @@
       <button type="button" class="button button-primary start" @click="$emit('createNew', step === 'cards' ? 'cards' : 'events')">{{ step === 'cards' ? 'Write a card' : 'Write an event' }}</button>
     </template>
 
+    <!-- A topic's first score or ending (§5): made from here, then the workspace's editor -->
+    <template v-else-if="step === 'scores' || step === 'endings'">
+      <div class="editor-head">
+        <div class="editor-head-text">
+          <span class="editor-kicker">Guided round</span>
+          <h1 :id="`round-${step}`" class="editor-title">{{ step === 'scores' ? 'Your first score' : 'Your first ending' }}</h1>
+        </div>
+      </div>
+      <p class="field-hint">{{ step === 'scores' ? 'Think of what someone in your field worries about losing when the pressure is on. That\'s a score.' : 'Think of a leader you\'ve worked with. What were they known for, and what did the numbers look like by the end?' }}</p>
+      <button type="button" class="button button-primary start" @click="step === 'scores' ? $emit('createScore') : $emit('createEnding')">{{ step === 'scores' ? 'Name a score' : 'Write an ending' }}</button>
+    </template>
+
     <template v-else-if="step === 'check'">
       <div class="editor-head">
         <div class="editor-head-text">
@@ -63,7 +75,7 @@ defineProps<{
   playing: boolean
   playText: string
 }>()
-defineEmits<{ createNew: [section: DeckSection]; goTo: [target: IssueTarget]; play: []; export: [] }>()
+defineEmits<{ createNew: [section: DeckSection]; createScore: []; createEnding: []; goTo: [target: IssueTarget]; play: []; export: [] }>()
 </script>
 
 <style scoped>
@@ -76,15 +88,5 @@ defineEmits<{ createNew: [section: DeckSection]; goTo: [target: IssueTarget]; pl
   flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
-}
-
-.link-button {
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--forge-gold);
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
 }
 </style>

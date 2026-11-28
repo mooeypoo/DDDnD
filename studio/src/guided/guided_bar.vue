@@ -8,7 +8,7 @@
   <div class="guided-bar">
     <div class="bar-row">
       <span class="guided-pill">Guided round</span>
-      <span class="bar-what">Retell DDDnD for your organization</span>
+      <span class="bar-what">{{ ROUNDS[draft.kind].what }}</span>
       <span class="bar-name">{{ draft.name || 'Untitled pack' }}</span>
       <span class="bar-save" role="status" aria-live="polite">{{ saveText }}</span>
       <button type="button" class="leave" @click="$emit('leave')">Leave the round (your work is kept)</button>
@@ -22,7 +22,7 @@
           :aria-current="item.current ? 'step' : undefined"
           @click="$emit('goTo', item.step)"
         >
-          {{ index + 1 }} {{ ROUND_WORDS[item.step].short }}<span v-if="item.done" aria-hidden="true"> ✓</span><span v-if="item.done" class="visually-hidden"> (done)</span>
+          {{ index + 1 }} {{ stepWords(draft.kind, item.step).short }}<span v-if="item.done" aria-hidden="true"> ✓</span><span v-if="item.done" class="visually-hidden"> (done)</span>
         </button>
       </li>
     </ol>
@@ -33,7 +33,7 @@
 import { computed } from 'vue'
 
 import { roundProgress, type DraftPack, type RoundStep } from '@/domains/authoring'
-import { ROUND_WORDS } from '@studio/guided/round_words'
+import { ROUNDS, stepWords } from '@studio/guided/round_words'
 
 const props = defineProps<{ draft: DraftPack; saveText: string; checksClean: boolean }>()
 defineEmits<{ leave: []; goTo: [step: RoundStep] }>()

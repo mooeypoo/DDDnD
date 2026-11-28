@@ -187,16 +187,6 @@ function remove() {
   gap: 0.5rem;
 }
 
-.link-button {
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--forge-gold);
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 .loading {
   margin: 0;
 }

@@ -247,9 +247,11 @@ export async function startFromBaseScenario(choice: BaseScenarioChoice, options:
 }
 
 /** "Teach another subject" (M4.17): a new topic's skeleton, using the game's outcome tiers. Returns its draft id. */
-export async function startNewTopic(name: string, description: string): Promise<string> {
+export async function startNewTopic(name: string, description: string, options: { guided?: boolean } = {}): Promise<string> {
   const tiers = await listBaseRefs('outcome_tiers')
-  const { draft } = draftForNewTopic({ name, description }, tiers)
+  const { draft: skeleton } = draftForNewTopic({ name, description }, tiers)
+  // The topic's guided round (§5) starts on the same skeleton
+  const draft = options.guided ? startRound(skeleton) : skeleton
   const draftId = newDraftId()
   state.current = { draft_id: draftId, draft }
   clearDraftFindings()

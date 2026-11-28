@@ -14,6 +14,10 @@
         Then, step by step, it becomes about your organization: your system, your people, the moves your team argues about.
         Pick the one whose trouble sounds most like yours; you'll rewrite the rest.
       </p>
+      <p v-if="guided" class="new-lede">
+        Teaching something other than domain-driven design?
+        <button type="button" class="link-button" @click="$emit('newTopic')">Start a new topic, with its own round</button>
+      </p>
       <p v-else class="new-lede">
         Your copy starts with the scenario's council, cards and events, and plays exactly like it. Then make it yours:
         your story, your people, the moves your team argues about. The original stays as it is.
@@ -47,7 +51,7 @@ import { listBaseScenarios, type BaseScenarioChoice } from '@studio/content/firs
 import { startFromBaseScenario } from '@studio/state/studio_state'
 
 const props = withDefaults(defineProps<{ guided?: boolean }>(), { guided: false })
-const emit = defineEmits<{ openDraft: [draftId: string]; back: [] }>()
+const emit = defineEmits<{ openDraft: [draftId: string]; newTopic: []; back: [] }>()
 
 const scenarios = ref<BaseScenarioChoice[] | null>(null)
 const scenarioError = ref<string | null>(null)

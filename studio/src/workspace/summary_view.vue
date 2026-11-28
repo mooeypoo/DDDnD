@@ -262,16 +262,6 @@ function openFillIn(item: ToFillIn) {
   margin-top: 0.25rem;
 }
 
-.link-button {
-  padding: 0;
-  border: none;
-  background: none;
-  color: var(--forge-gold);
-  font: inherit;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
 .parts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));

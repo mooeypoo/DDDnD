@@ -99,6 +99,25 @@ describe('your own card', () => {
   })
 })
 
+describe('naming a new card', () => {
+  it("settles its id where it is: the same card stays open, with no fresh opening to scroll the editor to the top mid-click", async () => {
+    const { draft } = await monolith()
+    const made = createOwnCard(draft, 'New card')
+    const wrapper = await mountItem(made.draft, { id: made.id, version: 1 })
+    const name = wrapper.find('input[data-field="name"]')
+    await name.setValue('Pair On It Again')
+    // The workspace hands the edited draft back, as it does after every keystroke
+    const changes = wrapper.emitted('change')!
+    const typed = changes[changes.length - 1][0] as DraftPack
+    await wrapper.setProps({ draft: typed })
+    await name.trigger('change')
+    const [[settled, ref]] = wrapper.emitted('settle') as [[DraftPack, { id: string; version: number }]]
+    expect(ref).toEqual({ id: 'ours_pair_on_it_again', version: 1 })
+    expect(settled.content.cards[ref.id]?.name).toBe('Pair On It Again')
+    expect(wrapper.emitted('select')).toBeUndefined()
+  })
+})
+
 describe("your own card's balance", () => {
   it("says it changes nothing yet, and shows its deck beside the game's (D3)", async () => {
     const { draft, ownCardId } = await monolith()

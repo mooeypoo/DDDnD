@@ -204,7 +204,7 @@ const props = defineProps<{
   balance?: { decks: DeckBalance[]; game: GameBalance | null; hints: BalanceHint[] }
 }>()
 /** `settle`: a new item's id follows its name, part of naming it rather than an edit of its own (undo, M4.24). */
-const emit = defineEmits<{ change: [draft: DraftPack]; settle: [draft: DraftPack]; select: [ref: VersionRef | null] }>()
+const emit = defineEmits<{ change: [draft: DraftPack]; settle: [draft: DraftPack, ref?: VersionRef]; select: [ref: VersionRef | null] }>()
 
 /** A connection made from the picker (the domain's connectNewMember / connectGameMember); null when there was no seat. */
 function connect(next: DraftPack | null | undefined) {
@@ -351,8 +351,8 @@ function makeOwnVersion() {
 function settleId() {
   const settled = settleNewItemId(props.draft, props.section, props.itemRef.id)
   if (settled.id === props.itemRef.id) return
-  emit('settle', settled.draft)
-  emit('select', { id: settled.id, version: props.itemRef.version })
+  // Stay where the author is: the open item is the same one, under its new id (no scroll to the top, which would lose a click)
+  emit('settle', settled.draft, { id: settled.id, version: props.itemRef.version })
 }
 
 function takeOut() {
