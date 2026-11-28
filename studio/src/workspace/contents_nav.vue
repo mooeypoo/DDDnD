@@ -7,16 +7,25 @@
   -->
   <nav ref="root" class="contents" aria-label="Pack contents">
     <label class="filter">
-      <span class="visually-hidden">Filter this pack by name</span>
+      <span class="visually-hidden">Find in this pack, by name or by your words</span>
       <svg class="filter-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-      <input v-model="filter" type="search" placeholder="Filter this pack" spellcheck="false" @keydown.escape="filter = ''" />
+      <input
+        ref="filterInput"
+        v-model="filter"
+        type="search"
+        :placeholder="`Find in this pack (${shortcut} K)`"
+        :aria-keyshortcuts="shortcutKeys"
+        spellcheck="false"
+        @keydown.escape="filter = ''"
+        @keydown.enter.prevent="matches[0] && openMatch(matches[0])"
+      />
     </label>
 
     <template v-if="query">
       <p v-if="matches.length === 0" class="empty" role="status">Nothing called “{{ filter.trim() }}” in this pack.</p>
       <ul v-else class="items" :aria-label="`Matches for ${filter.trim()}`">
         <li v-for="match in matches" :key="match.key">
-          <button type="button" class="item" :aria-current="current(match.target) ? 'page' : undefined" @click="$emit('select', match.target)">
+          <button type="button" class="item" :aria-current="match.target && current(match.target) ? 'page' : undefined" @click="openMatch(match)">
             <span class="item-name">{{ match.name }}</span>
             <span class="item-kind">{{ match.kind }}</span>
           </button>
@@ -163,8 +172,9 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
-import { isOwn, isOwnMember, usesGameContent, type DeckSection, type DraftPack } from '@/domains/authoring'
+import { isOwn, isOwnMember, searchOwnContent, usesGameContent, type DeckSection, type DraftPack, type DraftSection, type PackMatch } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
+import type { IssueTarget } from '@studio/workspace/checks_panel.vue'
 import { isSelected, type Selection } from '@studio/workspace/selection'
 
 type Deck = { section: DeckSection; title: string; singular: string; refs: VersionRef[] }
@@ -193,6 +203,9 @@ const props = defineProps<{
   rules?: Array<{ kind: RuleKind; id: string; name: string }>
   showRules?: boolean
   canAddCoupling?: boolean
+  /** How the find shortcut is written here ("Ctrl" or "⌘"), and its keys for assistive technology. */
+  shortcut?: string
+  shortcutKeys?: string
 }>()
 
 type RuleKind = 'class' | 'challenge' | 'coupling'
@@ -204,7 +217,15 @@ const RULE_WORDS: Record<RuleKind, { kind: string; unnamed: string }> = {
 }
 
 const pending = (section: string, ref: VersionRef) => props.toFillIn.has(`${section}/${ref.id}`)
-defineEmits<{ select: [selection: Selection]; createMember: []; createNew: [section: DeckSection]; createScore: []; createEnding: []; createRule: [kind: RuleKind] }>()
+const emit = defineEmits<{ select: [selection: Selection]; goTo: [target: IssueTarget]; createMember: []; createNew: [section: DeckSection]; createScore: []; createEnding: []; createRule: [kind: RuleKind] }>()
+
+const filterInput = ref<HTMLInputElement | null>(null)
+/** "Find" (M4.24): the shortcut lands here, with what was typed before selected. */
+function focusFilter() {
+  filterInput.value?.focus()
+  filterInput.value?.select()
+}
+defineExpose({ focusFilter })
 
 const root = ref<HTMLElement | null>(null)
 const open = reactive({ pack: true, scores: true, endings: true, rules: true, council: true, cards: true, events: true })
@@ -223,9 +244,47 @@ const councilOrdered = computed(() => [
 const own = (deck: Deck) => deck.refs.filter((itemRef) => isOwn(props.draft, deck.section, itemRef))
 const games = (deck: Deck) => deck.refs.filter((itemRef) => !isOwn(props.draft, deck.section, itemRef))
 
-/** Everything in the pack whose name contains the filter, in sidebar order. */
+type Match = { key: string; name: string; kind: string; target?: Selection; go?: IssueTarget }
+
+/** A match opens its page; one found by the domain opens at the field it was found in. */
+function openMatch(match: Match) {
+  if (match.go) emit('goTo', match.go)
+  else if (match.target) emit('select', match.target)
+}
+
+/** How a section reads in the list of matches. */
+const SECTION_WORDS: Partial<Record<DraftSection, string>> = {
+  scenarios: 'scenario', scores: 'score', outcome_archetypes: 'ending', classes: 'class', challenge_modifiers: 'challenge',
+  coupling_rules: 'coupling rule', stakeholders: 'council', stakeholder_reaction_rules: 'reaction', cards: 'card', events: 'event', delayed_effects: 'aftershock',
+}
+const FIELD_WORDS: Record<Exclude<PackMatch['found_in'], 'name'>, string> = {
+  short_name: 'its short name', short_description: 'its summary', description: 'its description', flavor_text: 'its flavor',
+}
+
+/** Where "Go to it" takes a domain match: its editor, or the page it's edited on, at the field it was found in. */
+function goFor(match: PackMatch): IssueTarget | null {
+  const field = { field: match.found_in }
+  const { section, ref } = match
+  if (section === 'scenarios') return { kind: 'scenario', id: ref.id, field }
+  if (section === 'scores') return { kind: 'score', id: ref.id, field }
+  if (section === 'outcome_archetypes') return { kind: 'ending', id: ref.id, field }
+  if (section === 'classes') return { kind: 'class', id: ref.id, field }
+  if (section === 'challenge_modifiers') return { kind: 'challenge', id: ref.id, field }
+  if (section === 'coupling_rules') return { kind: 'coupling', id: ref.id, field }
+  if (section === 'stakeholders') return { kind: 'member', ref, field }
+  if (section === 'stakeholder_reaction_rules') return { kind: 'reaction', id: ref.id, field }
+  if (section === 'cards' || section === 'events') return { kind: 'item', section, ref, field }
+  if (section === 'delayed_effects') return { kind: 'aftershock', ref, field }
+  return null
+}
+
+/**
+ * Everything the filter finds: the sidebar's items by name, in sidebar order;
+ * then from the domain, reactions and aftershocks by name (each with whose
+ * it is), and anything of the author's own by their words.
+ */
 const matches = computed(() => {
-  const found: Array<{ key: string; name: string; kind: string; target: Selection }> = []
+  const found: Match[] = []
   const hit = (name: string) => name.toLocaleLowerCase().includes(query.value)
   for (const scenario of scenarios.value) {
     const name = scenario.name || 'Untitled scenario'
@@ -252,6 +311,15 @@ const matches = computed(() => {
       const name = props.nameOf(deck.section, itemRef)
       if (hit(name)) found.push({ key: `${deck.section}/${itemRef.id}`, name, kind: deck.singular, target: { kind: 'item', section: deck.section, ref: itemRef } })
     }
+  }
+  for (const match of searchOwnContent(props.draft, query.value)) {
+    // Things the sidebar lists were found above, by name
+    const inside = match.section === 'stakeholder_reaction_rules' || match.section === 'delayed_effects'
+    if (match.found_in === 'name' && !inside) continue
+    const go = goFor(match)
+    if (!go) continue
+    const kind = [SECTION_WORDS[match.section] ?? 'item', match.on ? `on ${match.on.name || 'an unnamed one'}` : '', match.found_in === 'name' ? '' : `in ${FIELD_WORDS[match.found_in]}`].filter(Boolean).join(' · ')
+    found.push({ key: `${match.section}/${match.ref.id}/${match.found_in}`, name: match.name || 'Unnamed', kind, go })
   }
   return found
 })

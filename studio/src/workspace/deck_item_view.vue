@@ -106,6 +106,7 @@
         :gameMembers="gameMembers"
         :seatsLeft="seatsLeft"
         @change="(next) => emit('change', next)"
+        @settle="(next) => emit('settle', next)"
       />
 
       <section v-if="section === 'events' && event" class="editor-section" aria-labelledby="item-when">
@@ -202,7 +203,8 @@ const props = defineProps<{
   /** The last check's balance numbers (D3); absent until a check has run. */
   balance?: { decks: DeckBalance[]; game: GameBalance | null; hints: BalanceHint[] }
 }>()
-const emit = defineEmits<{ change: [draft: DraftPack]; select: [ref: VersionRef | null] }>()
+/** `settle`: a new item's id follows its name, part of naming it rather than an edit of its own (undo, M4.24). */
+const emit = defineEmits<{ change: [draft: DraftPack]; settle: [draft: DraftPack]; select: [ref: VersionRef | null] }>()
 
 /** A connection made from the picker (the domain's connectNewMember / connectGameMember); null when there was no seat. */
 function connect(next: DraftPack | null | undefined) {
@@ -349,7 +351,7 @@ function makeOwnVersion() {
 function settleId() {
   const settled = settleNewItemId(props.draft, props.section, props.itemRef.id)
   if (settled.id === props.itemRef.id) return
-  emit('change', settled.draft)
+  emit('settle', settled.draft)
   emit('select', { id: settled.id, version: props.itemRef.version })
 }
 

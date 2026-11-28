@@ -124,7 +124,8 @@ const props = defineProps<{
   gameMembers: Array<{ ref: VersionRef; name: string }>
   seatsLeft: number
 }>()
-const emit = defineEmits<{ change: [draft: DraftPack] }>()
+/** `settle`: a new aftershock's id follows its name. Not an edit of its own: undo takes it back with the naming (M4.24). */
+const emit = defineEmits<{ change: [draft: DraftPack]; settle: [draft: DraftPack] }>()
 
 /** A connection made from the picker; null when there was no seat. */
 function connect(next: DraftPack | null | undefined) {
@@ -182,7 +183,7 @@ function setTurns(effect: DelayedEffect, event: Event) {
 
 function settle(id: string) {
   const settled = settleNewAftershockId(props.draft, id)
-  if (settled.id !== id) emit('change', settled.draft)
+  if (settled.id !== id) emit('settle', settled.draft)
 }
 
 async function addNew() {

@@ -41,6 +41,7 @@ import { playInGame, type PlayStatus } from '@studio/content/game_preview'
 import { LICENSE_TEXTS } from '@studio/content/license_texts'
 import { ImportError, readImportedPack, zipPackFiles } from '@studio/content/pack_files'
 import { newDraftId, openDraftStore, type DraftStore, type StoredDraft } from '@studio/drafts/draft_store'
+import { emptyHistory, recordEdit, redoEdit, undoEdit, type DraftHistory } from '@studio/state/draft_history'
 
 const SAVE_DELAY_MS = 400
 const CHECK_DELAY_MS = 700
@@ -68,6 +69,8 @@ interface StudioState {
   memberChanges: Record<string, ChangeSource[]>
   /** The draft's decks in numbers, beside the game's, and what's worth a look (D3). Never blocking. */
   balance: { decks: DeckBalance[]; game: GameBalance | null; hints: BalanceHint[] }
+  /** Whether there's a step to undo or redo (M4.24), and what was last done, for a polite announcement. */
+  undo: { can_undo: boolean; can_redo: boolean; said: string }
   error: string | null
 }
 
@@ -81,6 +84,7 @@ const state = reactive<StudioState>({
   notes: [],
   memberChanges: {},
   balance: { decks: [], game: null, hints: [] },
+  undo: { can_undo: false, can_redo: false, said: '' },
   error: null,
 })
 
@@ -88,6 +92,7 @@ let store: DraftStore | null = null
 let saveTimer: ReturnType<typeof setTimeout> | null = null
 let checkTimer: ReturnType<typeof setTimeout> | null = null
 let checkRun = 0
+let history: DraftHistory = emptyHistory()
 
 /**
  * A plain copy of a draft, safe to store and to hand to the domain. Vue wraps
@@ -178,13 +183,53 @@ function clearDraftFindings() {
   state.notes = []
   state.memberChanges = {}
   state.balance = { decks: [], game: null, hints: [] }
+  // Another draft, or none: its history isn't this one's
+  setHistory(emptyHistory())
 }
 
 /** Replaces the open draft with an edited one, then saves and checks it. */
-export function updateDraft(next: DraftPack): void {
+export function updateDraft(next: DraftPack, options: { sameStep?: boolean } = {}): void {
   if (!state.current) return
+  const before = state.current.draft
+  // Moving through the guided round isn't an edit to undo; a new item's id following its name is part of naming it
+  if (!onlyRoundMoved(before, next)) setHistory(recordEdit(history, before, Date.now(), options))
   state.current = { draft_id: state.current.draft_id, draft: next }
   scheduleSaveAndCheck()
+}
+
+/** Undo (M4.24): the draft before the last step. Saved and checked like any edit. */
+export function undoDraft(): void {
+  if (!state.current) return
+  const step = undoEdit(history, state.current.draft)
+  if (!step) return
+  applyStep(step, 'Undone')
+}
+
+export function redoDraft(): void {
+  if (!state.current) return
+  const step = redoEdit(history, state.current.draft)
+  if (!step) return
+  applyStep(step, 'Redone')
+}
+
+function applyStep(step: { history: DraftHistory; draft: DraftPack }, words: string) {
+  setHistory(step.history)
+  state.current = { draft_id: state.current!.draft_id, draft: step.draft }
+  state.undo.said = words
+  scheduleSaveAndCheck()
+}
+
+/** The history and what the toolbar shows of it, together. */
+function setHistory(next: DraftHistory) {
+  history = next
+  state.undo = { can_undo: next.past.length > 0, can_redo: next.future.length > 0, said: '' }
+}
+
+/** True when the only difference is the round's place: everything else is the same object (edits return new ones). */
+function onlyRoundMoved(before: DraftPack, next: DraftPack): boolean {
+  const keys = new Set([...Object.keys(before), ...Object.keys(next)])
+  keys.delete('round')
+  return [...keys].every((key) => before[key as keyof DraftPack] === next[key as keyof DraftPack])
 }
 
 /** "Start from a DDDnD scenario" (D13): a new retelling holding a copy of the scenario. */
@@ -310,6 +355,8 @@ export async function exportCurrentDraft(version: string, format: ExportFormat =
     return result.issues
   }
   state.current = { draft_id: state.current.draft_id, draft: released }
+  // An export is out in the world: undoing past it would forget what players have
+  setHistory(emptyHistory())
   if (saveTimer) clearTimeout(saveTimer)
   await saveNow()
   void checkNow()

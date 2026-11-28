@@ -2,7 +2,7 @@
  * What the workspace has open: one editor at a time, chosen from the
  * contents sidebar, a check's "Go to it", or an editor's own links.
  */
-import type { DeckSection, RoundStep } from '@/domains/authoring'
+import { scenarioRefs, type DeckSection, type DraftPack, type RoundStep } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 
 export type Selection =
@@ -46,5 +46,24 @@ export function isSelected(selection: Selection, target: Selection): boolean {
       return (selection as typeof target).step === target.step
     default:
       return true
+  }
+}
+
+/**
+ * True while what's open is still in the draft. Undo (M4.24) can take back
+ * the card or ending an editor shows; the workspace then opens the summary.
+ */
+export function stillThere(draft: DraftPack, selection: Selection): boolean {
+  const { content } = draft
+  switch (selection.kind) {
+    case 'scenario': return selection.id in content.scenarios
+    case 'score': return selection.id in content.scores
+    case 'ending': return selection.id in content.outcome_archetypes
+    case 'class': return selection.id in content.classes
+    case 'challenge': return selection.id in content.challenge_modifiers
+    case 'coupling': return selection.id in content.coupling_rules
+    case 'member': return scenarioRefs(draft, 'stakeholder_refs').some((ref) => ref.id === selection.ref.id)
+    case 'item': return scenarioRefs(draft, selection.section === 'cards' ? 'card_refs' : 'event_refs').some((ref) => ref.id === selection.ref.id)
+    default: return true
   }
 }
