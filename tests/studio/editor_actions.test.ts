@@ -130,6 +130,13 @@ describe("your own card's balance", () => {
     await loaded(wrapper)
     expect(wrapper.find('.nudge').text()).toBe("Pair On It changes nothing yet. Playing it is a wasted turn. Give it a change to a score or to someone's satisfaction.")
     expect(wrapper.findAll('.field-hint').map((hint) => hint.text())).toContainEqual(expect.stringMatching(/^Your cards net \+\d+\.\d on average, aftershocks included; the game's scenarios: \+9\.0 to \+12\.2\.$/))
+
+    // While the pack is checked again, the numbers stay, dimmed, with a turning ring (M4.26)
+    await wrapper.setProps({ updating: true })
+    const line = wrapper.findAll('.field-hint').find((hint) => hint.text().startsWith('Your cards net'))!
+    expect(line.classes()).toEqual(expect.arrayContaining(['working', 'is-updating']))
+    expect(line.attributes('aria-busy')).toBe('true')
+    expect(wrapper.find('.nudge').classes()).toContain('is-updating')
   })
 })
 

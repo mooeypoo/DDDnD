@@ -34,7 +34,7 @@
       </button>
       <span v-for="n in Math.max(0, asks.cards - cards.length)" :key="`empty-${n}`" class="so-far-empty">Card {{ cards.length + n }}</span>
       <button type="button" class="button button-quiet so-far-add" @click="$emit('createNew', 'cards')">+ Write a card</button>
-      <p v-if="deckWords" class="field-hint">{{ deckWords.cards }}</p>
+      <p v-if="deckWords" class="field-hint" :class="{ working: updating, 'is-updating': updating }" :aria-busy="updating ? 'true' : undefined">{{ deckWords.cards }}</p>
     </div>
 
     <div v-else-if="step === 'surprises'" class="so-far">
@@ -45,7 +45,7 @@
       </button>
       <span v-for="missing in missingLeanings" :key="missing" class="so-far-empty">A {{ missing }} one</span>
       <button type="button" class="button button-quiet so-far-add" @click="$emit('createNew', 'events')">+ Write an event</button>
-      <p v-if="deckWords" class="field-hint">{{ deckWords.events }}</p>
+      <p v-if="deckWords" class="field-hint" :class="{ working: updating, 'is-updating': updating }" :aria-busy="updating ? 'true' : undefined">{{ deckWords.events }}</p>
     </div>
 
     <div v-else-if="step === 'scores'" class="so-far">
@@ -122,6 +122,8 @@ const props = defineProps<{
   nameOf: (section: DeckSection, ref: VersionRef) => string
   /** The last check's balance numbers (D3): the cards and surprises steps show the deck beside the game's. */
   balance?: { decks: DeckBalance[]; game: GameBalance | null; hints: BalanceHint[] }
+  /** The pack is being checked again: the deck's numbers are out of date until it's done. */
+  updating?: boolean
 }>()
 defineEmits<{ select: [selection: Selection]; createMember: []; createNew: [section: DeckSection]; createScore: []; createEnding: []; back: []; next: []; finish: [] }>()
 

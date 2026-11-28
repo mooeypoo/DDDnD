@@ -70,10 +70,6 @@ function add(ref: VersionRef) {
   max-width: 24rem;
 }
 
-.loading {
-  margin: 0;
-}
-
 .choice-list {
   margin: 0;
   padding: 0;

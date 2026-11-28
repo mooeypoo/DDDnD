@@ -348,6 +348,49 @@ a:hover { color: var(--forge-text-bright); }
   color: var(--forge-text-secondary);
 }
 
+/*
+ * Working on it: something is being loaded or worked out. A small turning
+ * ring before the words, so a wait never looks like a stall. With reduced
+ * motion the ring stays still (the rule below), and the words still say it.
+ */
+.loading {
+  margin: 0;
+}
+
+.loading,
+.working {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.loading::before,
+.working::before {
+  content: '';
+  flex: none;
+  width: 0.85em;
+  height: 0.85em;
+  border-radius: 50%;
+  border: 2px solid var(--forge-hairline-strong);
+  border-top-color: var(--forge-gold);
+  animation: forge-turn 0.9s linear infinite;
+}
+
+@keyframes forge-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*
+ * Being worked out again after an edit: the last answer stays in place,
+ * dimmed, until the new one arrives (with aria-busy on the same element).
+ */
+.is-updating {
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     transition: none !important;

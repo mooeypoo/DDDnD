@@ -47,6 +47,7 @@ const SAVE_DELAY_MS = 400
 const CHECK_DELAY_MS = 700
 
 export type SaveState = 'saved' | 'saving' | 'unsaved' | 'failed'
+/** `checking`: from an edit until the check after it is done (the last findings stay, out of date). */
 export type CheckState = 'idle' | 'checking' | 'done' | 'failed'
 
 /** A council note (M4.5a), with the person's name and, when they can be seated, who to seat. */
@@ -171,6 +172,9 @@ async function councilNotes(draft: DraftPack, tables: readonly ScenarioChanges[]
 
 function scheduleSaveAndCheck() {
   state.save = 'unsaved'
+  // What the last check found is out of date from this edit on, not just once the next check starts:
+  // the screens show it as being worked out again, not as the answer (it was "No cards in the deck yet" after three cards)
+  if (state.check.state !== 'idle') state.check.state = 'checking'
   if (saveTimer) clearTimeout(saveTimer)
   saveTimer = setTimeout(() => void saveNow(), SAVE_DELAY_MS)
   if (checkTimer) clearTimeout(checkTimer)

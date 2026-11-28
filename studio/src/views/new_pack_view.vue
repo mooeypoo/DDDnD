@@ -38,7 +38,7 @@
           :disabled="starting !== null"
           :aria-label="guided ? `Start the round from ${scenario.name}` : `Copy and adapt ${scenario.name}`"
           @click="start(scenario)"
-        >{{ starting === scenario.ref.id ? 'Copying…' : guided ? 'Start from this one' : 'Copy and adapt' }}</button>
+        ><span :class="{ working: starting === scenario.ref.id }">{{ starting === scenario.ref.id ? 'Copying…' : guided ? 'Start from this one' : 'Copy and adapt' }}</span></button>
       </li>
     </ul>
   </main>
@@ -169,10 +169,6 @@ async function start(choice: BaseScenarioChoice) {
 .scenario-summary {
   font-size: 0.9375rem;
   color: var(--forge-text-secondary);
-}
-
-.loading {
-  margin: 0;
 }
 
 .note-warning {

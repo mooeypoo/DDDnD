@@ -293,6 +293,8 @@ The audit (M4.9–M4.14) made the Studio consistent. Every screen still to come 
 **7. Checks and notes**
 - **What stops an export is the game's own checks,** shown in the toolbar's checks button and the summary, in the Studio's words (`describeIssue`), each with "Go to it".
 - **Notes never block, and say why they exist** (D31: the game shares a card, you took someone out, your own content). A note that can be on purpose says so and explains how.
+- **Anything worked out after an edit says when it's being worked out again (M4.26).** The checks, the council notes, "what changes their satisfaction" and the balance numbers all come from the check that runs after typing pauses. From the edit until it's done, `studio.check.state` is `checking`. A screen showing those results keeps them in place, dimmed (`.is-updating` with `aria-busy`), with a turning ring (`.working`) beside the line that says so. Don't swap the old answer for a placeholder: lines coming and going mid-typing move what's below them.
+- **Every wait shows the ring.** `.loading` lines and `.working` words ("Saving…", "Copying…", "Exporting…", "Opening the game…") get the same small turning ring from `studio.css`. With reduced motion it stands still, and the words still say it.
 
 **8. Accessibility (§10), on every screen**
 - Every control works from the keyboard. A popup closes on Escape and returns focus to what opened it. Creating something moves focus into it (its name, or a new row's amount).
@@ -1847,7 +1849,59 @@ The last of §6 item 6's smaller items.
 - **The owner's read of both rounds' copy.** The retelling round's words haven't been reviewed yet (M4.21), and now there are a topic's too.
 - **The start screen's guided tile** still describes the retelling round ("your system, your people…"). It's the next thing to review with the owner, with the rest of "Start something new".
 - **More classes, challenges and coupling rules** aren't in the round. §5 asks for one class; the rest are in the workspace.
-- **The deck line lags an edit by a moment.** It's the last check's numbers (D36), so right after writing a card it can still say "No cards in the deck yet" until the checks run again (about a second).
+- **The deck line lags an edit by a moment.** It's the last check's numbers (D36), so right after writing a card it can still say "No cards in the deck yet" until the checks run again (about a second). (M4.26 shows it as being worked out again.)
+
+### M4.26: Showing that the Studio is working on it (2026-11-27)
+
+The owner's ask, after M4.25 left "the deck line lags an edit" open: if anything lags because of a computation, show that it's being worked out.
+
+**What lagged, and why:** the checks run 0.7 s after typing pauses (so they don't run on every keystroke). The same run works out the council notes, each member's "what changes their satisfaction", and the balance numbers. Until it started, the Studio's state still said `done`, so every screen showed the last answer as if it were current. That's how the round's cards step said "No cards in the deck yet" after three cards had been written.
+
+**What an author sees now:**
+- **The moment they edit**, what the last check found counts as out of date:
+  - **the toolbar's checks button** turns a small ring in place of its status dot ("Checking…");
+  - **the checks panel and the council notes** keep the last findings, dimmed;
+  - **the summary's balance** says "Working it out again…" over the last numbers, dimmed;
+  - **a card's or event's deck line and nudge**, and **the round's deck lines**, are dimmed with a ring;
+  - **a member's "What changes their satisfaction"** is dimmed;
+  - **the export page** says "Checking the pack…" instead of "Fix what the checks list first", which was untrue while the checks hadn't run yet. The round's "Play it" step does the same.
+- **Every other wait shows the same ring:**
+  - "Saving…" in both headers;
+  - the `.loading` lines ("Loading the game's scenarios…");
+  - busy buttons ("Copying…", "Starting…", "Importing…", "Exporting…");
+  - "Play it"'s "Opening the game…".
+- **With reduced motion**, the ring stands still (the Studio's global rule); the words and the dimming still say it.
+
+**Studio:**
+- `scheduleSaveAndCheck` sets `check.state` to `checking` at once, keeping the findings until the next check replaces them.
+- Two shared classes in `studio.css`:
+  - `.working`, the ring, via `::before`;
+  - `.is-updating`, dimmed, used with `aria-busy`.
+  - `.loading` (eleven identical scoped copies) moved there too, and gets the ring.
+- The workspace passes `rechecking` to the card, member and export screens and to the guide, as `updating` (or `checking`).
+- The save status's hidden width-keepers carry the ring too, so "Saving…" doesn't push the toolbar (M4.22's lesson).
+
+**Decisions:**
+- **Dim, don't replace.** The last answer is usually still nearly right, and swapping it for a placeholder on every keystroke would make lines come and go, moving whatever sits below them (M4.25's lost click came from exactly that kind of jump).
+- **Out of date from the edit, not from the run.** Debounce is an implementation detail; what the author needs to know is whether the answer reflects what they just typed.
+- **No new announcements.** The checks button stays silent while checking (it already was, so typing isn't interrupted); `aria-busy` tells assistive technology the dimmed regions are updating.
+- **The pattern is in §9.1,** so screens still to come do the same.
+
+**For the talk: freshness is state too.** The findings had a value but no age. One word (`checking`, set at the edit) let every screen tell "the answer" from "the last answer", and the dimming came for free from a class.
+
+**Verification:**
+- Tests: 1433 in total (+3; the card editor's check joined an existing test):
+  - `tests/studio/working_indicator.test.ts` (3, new):
+    - an edit marks the findings out of date at once, keeping them until the next check is done;
+    - the checks button and panel while checking again;
+    - the export page says it's checking.
+  - `tests/studio/editor_actions.test.ts`: a card's deck line and nudge while the pack is checked again.
+- Headless Chrome, production build with the Studio CSP:
+  - typing a card's name in the round, the guide's deck line and the editor's are dimmed, `aria-busy`, with the ring turning;
+  - after the check, "Your cards net +10.8 …" undimmed, and no ring;
+  - in the workspace, "Saving…" and "Checking…" turn while typing, then "1 to fix";
+  - the same with reduced motion: the ring stands still;
+  - zero CSP violations, no console errors.
 
 ## 14. Picking up the work
 
@@ -1874,7 +1928,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. The new-topic round is M4.25 (D37). Next: the start screen's "start something new", walked with the owner (they have feedback: it reads as if you must pick an existing pack, and "+ New pack" sits apart from the emphasized "Start something new"). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. The new-topic round is M4.25 (D37); M4.26 shows when anything is being worked out (§9.1). Next: the start screen's "start something new", walked with the owner (they have feedback: it reads as if you must pick an existing pack, and "+ New pack" sits apart from the emphasized "Start something new"). Each follows §9.1.
 - **Left open from the audit:**
   - a map view of cards and their impact (maybe, D28);
   - whether the game's validator should check council member ids in changes (M4.14).

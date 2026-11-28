@@ -10,7 +10,7 @@
       <span class="guided-pill">Guided round</span>
       <span class="bar-what">{{ ROUNDS[draft.kind].what }}</span>
       <span class="bar-name">{{ draft.name || 'Untitled pack' }}</span>
-      <span class="bar-save" role="status" aria-live="polite">{{ saveText }}</span>
+      <span class="bar-save" :class="{ working: saving }" role="status" aria-live="polite">{{ saveText }}</span>
       <button type="button" class="leave" @click="$emit('leave')">Leave the round (your work is kept)</button>
     </div>
     <ol class="steps" aria-label="Steps of the round">
@@ -35,7 +35,7 @@ import { computed } from 'vue'
 import { roundProgress, type DraftPack, type RoundStep } from '@/domains/authoring'
 import { ROUNDS, stepWords } from '@studio/guided/round_words'
 
-const props = defineProps<{ draft: DraftPack; saveText: string; checksClean: boolean }>()
+const props = defineProps<{ draft: DraftPack; saveText: string; saving?: boolean; checksClean: boolean }>()
 defineEmits<{ leave: []; goTo: [step: RoundStep] }>()
 
 const progress = computed(() => roundProgress(props.draft, { clean: props.checksClean }))

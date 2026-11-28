@@ -121,7 +121,7 @@
       <p v-if="sources.length === 0" class="field-hint">
         Nothing yet. Give one of your cards or events a change to {{ member.name || 'them' }} under “When played”, or give them a reaction.
       </p>
-      <ul v-else class="source-list">
+      <ul v-else class="source-list" :class="{ 'is-updating': updating }" :aria-busy="updating ? 'true' : undefined">
         <li v-for="source in sources" :key="`${source.section}/${source.ref.id}-v${source.ref.version}`" class="source-row">
           <span class="source-what">
             <button v-if="targetOf(source)" type="button" class="source-link" @click="emit('open', targetOf(source)!)">{{ source.name }}</button>
@@ -206,6 +206,8 @@ const props = defineProps<{
   stakeholderOptions: Option[]
   /** What changes this member's satisfaction (the domain's walk, from the last check). */
   changes: ChangeSource[]
+  /** The pack is being checked again after an edit: `changes` is out of date until it's done. */
+  updating?: boolean
   /** The game's members who aren't seated, and how many seats are free (slice 3b). */
   gameMembers: Array<{ ref: VersionRef; name: string }>
   seatsLeft: number
@@ -560,9 +562,5 @@ function remove() {
 
 .add-reaction {
   align-self: flex-start;
-}
-
-.loading {
-  margin: 0;
 }
 </style>

@@ -6,9 +6,10 @@
   -->
   <section class="checks" aria-labelledby="checks-title">
     <h2 id="checks-title" class="checks-title">Checks</h2>
-    <p class="checks-status" :class="`status-${statusKind}`" :role="live ? 'status' : undefined" :aria-live="live ? 'polite' : undefined">{{ statusText }}</p>
+    <p class="checks-status" :class="[`status-${statusKind}`, { working: statusKind === 'pending' }]" :role="live ? 'status' : undefined" :aria-live="live ? 'polite' : undefined">{{ statusText }}</p>
 
-    <ul v-if="issues.length > 0" class="issue-list">
+    <!-- While checking again, what the last check found stays in place, dimmed -->
+    <ul v-if="issues.length > 0" class="issue-list" :class="{ 'is-updating': statusKind === 'pending' }" :aria-busy="statusKind === 'pending' ? 'true' : undefined">
       <li v-for="(issue, index) in issues" :key="index" class="issue">
         <span class="issue-where">{{ where(issue) }}</span>
         <span class="issue-text">{{ friendly(issue) }}</span>

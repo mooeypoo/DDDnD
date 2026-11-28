@@ -152,8 +152,4 @@ function remove() {
   gap: 0.375rem;
   color: var(--forge-text-bright);
 }
-
-.loading {
-  margin: 0;
-}
 </style>

@@ -76,12 +76,13 @@
 
     <div class="actions">
       <button type="button" class="button button-primary" :disabled="!canDownload" @click="download('pack_file')">
-        {{ exporting === 'pack_file' ? 'Exporting…' : `Download version ${version || '…'}` }}
+        <span :class="{ working: exporting === 'pack_file' }">{{ exporting === 'pack_file' ? 'Exporting…' : `Download version ${version || '…'}` }}</span>
       </button>
       <button type="button" class="button button-quiet" :disabled="!canDownload" @click="download('zip')">
-        {{ exporting === 'zip' ? 'Exporting…' : 'Download as a zip for GitHub' }}
+        <span :class="{ working: exporting === 'zip' }">{{ exporting === 'zip' ? 'Exporting…' : 'Download as a zip for GitHub' }}</span>
       </button>
-      <span v-if="!checksClean" class="field-hint">Fix what the checks list first: the "to fix" button at the top.</span>
+      <span v-if="checking" class="field-hint working">Checking the pack…</span>
+      <span v-else-if="!checksClean" class="field-hint">Fix what the checks list first: the "to fix" button at the top.</span>
     </div>
     <p class="field-hint formats">
       The pack file is what players import in the game's Community bazaar. The zip holds the same pack as a folder, with a README, to publish on GitHub.
@@ -100,7 +101,8 @@ import { loadFirstParty } from '@studio/content/first_party'
 import PackIdWarning from '@studio/workspace/pack_id_warning.vue'
 import type { ExportFormat } from '@studio/state/studio_state'
 
-const props = defineProps<{ draft: DraftPack; checksClean: boolean }>()
+/** `checking`: the pack is being checked after an edit, so whether it's clean isn't known yet. */
+const props = defineProps<{ draft: DraftPack; checksClean: boolean; checking?: boolean }>()
 const emit = defineEmits<{ export: [version: string, format: ExportFormat, done: (ok: boolean) => void]; change: [draft: DraftPack] }>()
 
 const plan = computed(() => planRelease(props.draft))

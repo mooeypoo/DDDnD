@@ -27,8 +27,8 @@
         <input v-model="description" maxlength="300" placeholder="Keep the pager quiet without burning out the team." autocomplete="off" />
       </label>
       <div class="topic-actions">
-        <button type="submit" class="button button-primary" :disabled="!name.trim() || starting !== null">{{ starting === 'guided' ? 'Starting…' : 'Start with the guided round' }}</button>
-        <button type="button" class="button button-quiet" :disabled="!name.trim() || starting !== null" @click="start(false)">{{ starting === 'own' ? 'Starting…' : 'Start on my own' }}</button>
+        <button type="submit" class="button button-primary" :disabled="!name.trim() || starting !== null"><span :class="{ working: starting === 'guided' }">{{ starting === 'guided' ? 'Starting…' : 'Start with the guided round' }}</span></button>
+        <button type="button" class="button button-quiet" :disabled="!name.trim() || starting !== null" @click="start(false)"><span :class="{ working: starting === 'own' }">{{ starting === 'own' ? 'Starting…' : 'Start on my own' }}</span></button>
       </div>
     </form>
   </main>
