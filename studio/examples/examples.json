@@ -1,0 +1,22 @@
+[
+  {
+    "folder": "gilded_ledger",
+    "tag": "gilded_ledger-v1.1.0",
+    "file": "gilded_ledger-v1.1.0.dddnd-pack.json",
+    "name": "Demo: The Gilded Ledger",
+    "kind": "retelling",
+    "content_hash": "sha256:e6af62c6b609e494dc18b51c0e9d83b919fe64a6701a25088f04281f9544ec13",
+    "version": "1.1.0",
+    "description": "A demo extension pack: the DDDnD monolith story retold for a fictional payments company, built on the base pack's scores, cards, and endings."
+  },
+  {
+    "folder": "sre_on_call",
+    "tag": "sre_on_call-v1.0.0",
+    "file": "sre_on_call-v1.0.0.dddnd-pack.json",
+    "name": "SRE: The Pager Storm",
+    "kind": "new_topic",
+    "content_hash": "sha256:7cf88a32cc0c4fb9672bc59345b2bcf72ab1d4e875a4bed404b68ee61bbf763d",
+    "version": "1.0.0",
+    "description": "A second domain for DDDnD: site reliability engineering and incident response. Its own scores (availability, error budget, a rested on-call…), council, cards, events, endings, classes and challenge modifiers, on the base pack's outcome tiers."
+  }
+]

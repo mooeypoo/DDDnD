@@ -21,7 +21,7 @@ import { CONTENT_LIMITS } from '../content/validation/content_limits'
 import { BASE_PACK_ID, MAX_FILES_PER_PACK } from '../content/validation/pack_policy'
 import { contentPrefix } from './content_ids'
 import { checkDraft, compatibleBaseGames, draftFileName, draftPackId, draftToRawPack, gameTarget, type FirstPartyPack, type PackIssue } from './draft_export'
-import { DRAFT_LICENSE, DRAFT_SECTIONS, draftLicense, type DraftContent, type DraftPack, type DraftSection, type LicenseTexts } from './draft_pack'
+import { DRAFT_LICENSE, DRAFT_SECTIONS, createDraft, draftLicense, type DraftContent, type DraftPack, type DraftSection, type LicenseTexts } from './draft_pack'
 
 /** An archive opened for reading. The Studio's zip adapter provides one; this file knows only packs. */
 export interface PackArchive {
@@ -221,6 +221,24 @@ export function draftFromPack(snapshot: PackSnapshot, from: { sources?: RawPackF
   if (manifest.license !== DRAFT_LICENSE) draft.license = manifest.license
   if (manifest.pack_homepage_url) draft.homepage_url = manifest.pack_homepage_url
   return { ok: true, draft }
+}
+
+/**
+ * A pack of your own, started from someone else's (an example, M4.30): its
+ * content as it is, under a new name and a new pack id, with nothing of the
+ * original's release (never exported, version 1.0.0), authors, README,
+ * license or homepage. Content ids stay: the game doesn't require them to
+ * carry the pack's id, and "never renames what you've already made" holds.
+ * The new pack id is never the original's, or players who have both would
+ * see one replace the other.
+ */
+export function copyOfPack(source: DraftPack, input: { name: string; description?: string }): DraftPack {
+  const name = input.name.trim() || `${source.name}, your copy`
+  const original = source.released?.pack_id ?? source.prefix
+  const named = contentPrefix(name)
+  const prefix = named && named !== original ? named : contentPrefix(`${original} copy`)
+  const fresh = createDraft({ kind: source.kind, name, prefix, description: input.description?.trim() || source.description })
+  return { ...fresh, content: JSON.parse(JSON.stringify(source.content)) as DraftContent, from_pack: source.name }
 }
 
 const SECTION_TITLES: Partial<Record<DraftSection, string>> = {

@@ -2,7 +2,7 @@
   <div v-if="member" class="editor">
     <div class="editor-head">
       <div class="editor-head-text">
-        <span class="editor-kicker">Council member · {{ own ? 'yours' : 'from the game' }}</span>
+        <span class="editor-kicker">Council member · {{ own ? ownWord() : 'from the game' }}</span>
         <h1 class="editor-title">{{ member.name || 'Unnamed council member' }}</h1>
       </div>
       <div class="head-actions">
@@ -196,6 +196,7 @@ import ConditionEditor from '@studio/workspace/condition_editor.vue'
 import EffectsEditor from '@studio/workspace/effects_editor.vue'
 import RemoveMember from '@studio/workspace/remove_member.vue'
 import type { Selection } from '@studio/workspace/selection'
+import { ownWord } from '@studio/state/studio_state'
 
 interface Option { id: string; name: string }
 

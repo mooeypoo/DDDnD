@@ -94,6 +94,7 @@
 
     <aside class="guide-example" :aria-label="`An example from ${round.example_pack}`">
       <span class="example-from">From {{ round.example_pack }}</span>
+      <a v-if="example" class="example-look" :href="`#/example/${example.folder}`" target="_blank" rel="noopener">Look inside the whole pack<span class="visually-hidden"> (opens in a new tab; your round stays here)</span></a>
       <p v-for="(line, i) in words.example.lines" :key="i">{{ line }}</p>
     </aside>
 
@@ -113,6 +114,7 @@ import { computed } from 'vue'
 import { COUNCIL_SEATS, ENDINGS_PER_SCENARIO, ROUND_ASKS, canAddScore, deckBalanceWords, roundCards, roundClasses, roundCouncil, roundEndings, roundScores, roundSteps, roundSurprises, scenarioRefs, secondSitting, isOwn, type BalanceHint, type DeckBalance, type DeckSection, type DraftPack, type GameBalance, type RoundStep } from '@/domains/authoring'
 import type { VersionRef } from '@/domains/content/model'
 import { LEANING_WORDS, PULL_WORDS, ROUNDS, SITTING_BREAK, VERDICT_WORDS, stepWords } from '@studio/guided/round_words'
+import { exampleOfKind } from '@studio/content/example_packs'
 import { isSelected, type Selection } from '@studio/workspace/selection'
 
 const props = defineProps<{
@@ -132,6 +134,8 @@ const asks = ROUND_ASKS
 const steps = computed(() => roundSteps(props.draft))
 const round = computed(() => ROUNDS[props.draft.kind])
 const wordsOf = (step: RoundStep) => stepWords(props.draft.kind, step)
+/** The whole example pack, view-only (M4.29), in a tab of its own so the round stays put. */
+const example = computed(() => exampleOfKind(props.draft.kind))
 const index = computed(() => steps.value.indexOf(props.step))
 const words = computed(() => wordsOf(props.step))
 /** Which sitting a step is in, for a round of two (a topic's, §5). */
@@ -247,6 +251,11 @@ const deckCounts = computed(() => {
   border-style: dashed;
   background: transparent;
   font-size: 0.9375rem;
+}
+
+.example-look {
+  align-self: flex-start;
+  font-size: 0.875rem;
 }
 
 .example-from {

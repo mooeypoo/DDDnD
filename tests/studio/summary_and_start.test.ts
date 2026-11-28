@@ -19,7 +19,7 @@ const state = vi.hoisted(() => ({ studio: { ready: true, persistent: true, draft
 vi.mock('@studio/state/studio_state', () => ({ studio: state.studio, importPack: vi.fn(), removeDraft: vi.fn() }))
 
 const { default: SummaryView } = await import('@studio/workspace/summary_view.vue')
-const { default: StartView } = await import('@studio/views/start_view.vue')
+const { default: PacksView } = await import('@studio/views/packs_view.vue')
 
 const BASE = path.resolve('content')
 function baseReader() {
@@ -57,7 +57,7 @@ describe('the pack summary', () => {
     await wrapper.findAll('.fill-list button')[0].trigger('click')
     expect(wrapper.emitted('select')![0]).toEqual([{ kind: 'member', ref: expect.objectContaining({ version: 1 }) }])
     expect(wrapper.find('.issue-list').text()).toBe('Pack details: Add your name as the author.')
-    expect(wrapper.find('.summary-lede').text()).toBe('A retelling of DDDnD · not exported yet')
+    expect(wrapper.find('.summary-lede').text()).toBe('DDD retelling · not exported yet')
   })
 })
 
@@ -84,8 +84,8 @@ describe("the summary's balance", () => {
   })
 })
 
-describe('the start screen', () => {
-  it('leads with the author\'s packs: what is theirs, where each stands, and a warning when two share a pack id', async () => {
+describe('your packs (#/packs, M4.27)', () => {
+  it('lists the author\'s packs: what is theirs, where each stands, and a warning when two share a pack id', async () => {
     const released = releaseDraft(await monolith('acme'), '1.0.0')
     const changed = createOwnCard(released, 'Freeze the Ledger').draft
     const other = { ...(await monolith('acme')), name: 'Ours, again' }
@@ -93,7 +93,7 @@ describe('the start screen', () => {
       { draft_id: '1', draft: changed, updated_at: '2026-11-26T10:00:00Z' },
       { draft_id: '2', draft: other, updated_at: '2026-11-26T09:00:00Z' },
     ]
-    const wrapper = mount(StartView)
+    const wrapper = mount(PacksView)
     await flushPromises()
     const tiles = wrapper.findAll('.pack-tile')
     expect(tiles[0].find('.tile-line').text()).toBe('1 card of your own.')
@@ -101,8 +101,10 @@ describe('the start screen', () => {
     expect(tiles[1].find('.tile-line').text()).toBe("Nothing of your own yet: the game's scenario as it is.")
     expect(tiles[1].find('.tile-foot').text()).toContain('Not exported yet')
     expect(tiles[0].find('.tile-shared').text()).toContain('the same pack id as “Ours, again”')
-    expect(wrapper.find('.button-primary').text()).toBe('+ New pack')
+    // One name per kind, and one ember action that says what it does
+    expect(tiles[0].find('.kind-pill').text()).toBe('DDD retelling')
+    expect(wrapper.find('.button-primary').text()).toBe('Create a pack')
     await wrapper.find('.button-primary').trigger('click')
-    expect(wrapper.emitted('newPack')).toHaveLength(1)
+    expect(wrapper.emitted('create')).toHaveLength(1)
   })
 })

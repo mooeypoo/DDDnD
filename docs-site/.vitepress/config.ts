@@ -92,6 +92,7 @@ export default defineConfig({
           { text: 'Community packs', link: '/guide/community-packs' },
         ] },
         { text: 'For authors', items: [
+          { text: 'Making a pack in the Studio', link: '/guide/pack-studio' },
           { text: 'Content authoring', link: '/guide/content-authoring' },
           { text: 'Reading the audit', link: '/guide/reading-the-audit' },
         ] },

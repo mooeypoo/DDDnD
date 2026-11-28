@@ -1,0 +1,754 @@
+{
+  "format": "dddnd-pack",
+  "format_version": 1,
+  "manifest": {
+    "$schema": "https://dddnd.app/schema/v1/manifest.schema.json",
+    "schema_version": 1,
+    "kind": "extension",
+    "id": "gilded_ledger",
+    "version": "1.1.0",
+    "name": "Demo: The Gilded Ledger",
+    "description": "A demo extension pack: the DDDnD monolith story retold for a fictional payments company, built on the base pack's scores, cards, and endings.",
+    "depends_on": [
+      {
+        "pack_id": "base",
+        "version": "1.0.0"
+      }
+    ],
+    "base_url": ".",
+    "license": "GPL-3.0-only",
+    "authors": [
+      {
+        "name": "Moriel Schottlender",
+        "url": "https://moriel.tech"
+      }
+    ],
+    "pack_homepage_url": "https://github.com/mooeypoo/DDDnD-packs/tree/main/packs/gilded_ledger",
+    "scenarios": [
+      {
+        "id": "ledger_payments_monolith",
+        "version": 1
+      }
+    ],
+    "classes": [],
+    "challenge_modifiers": [],
+    "tutorials": [],
+    "content": {
+      "scenarios": [
+        "ledger_payments_monolith-v1.json"
+      ],
+      "cards": [
+        "ledger_add_transactional_outbox-v1.json",
+        "ledger_freeze_payment_changes-v1.json",
+        "ledger_nightly_reconciliation-v1.json",
+        "ledger_split_refunds_context-v1.json"
+      ],
+      "stakeholders": [
+        "ledger_head_of_payments-v1.json",
+        "ledger_support_lead-v1.json"
+      ],
+      "stakeholder_reaction_rules": [
+        "ledger_payments_fears_outages-v1.json",
+        "ledger_payments_values_steady_delivery-v1.json",
+        "ledger_support_drowning-v1.json",
+        "ledger_support_relieved-v1.json"
+      ],
+      "scores": [],
+      "events": [
+        "ledger_audit_dry_run_passes-v1.json",
+        "ledger_chargeback_storm-v1.json",
+        "ledger_double_charge_incident-v1.json",
+        "ledger_regulator_letter-v1.json"
+      ],
+      "delayed_effects": [
+        "ledger_outbox_settles-v1.json"
+      ],
+      "outcome_tiers": [],
+      "outcome_archetypes": [],
+      "coupling_rules": [],
+      "classes": [],
+      "challenge_modifiers": []
+    }
+  },
+  "files": {
+    "scenarios/ledger_payments_monolith-v1.json": {
+      "id": "ledger_payments_monolith",
+      "version": 1,
+      "name": "The Gilded Ledger",
+      "description": "Gilded Ledger Co. runs every charge, refund, and chargeback through one payments monolith and one shared database. The regulator's audit is coming, and nobody can say where a refund's data actually lives.",
+      "short_description": "Untangle a payments monolith before the regulator's audit.",
+      "flavor_text": "Every refund is a negative payment. Every payment is a special case.",
+      "max_turns": 10,
+      "starting_scores": {
+        "domain_clarity": 36,
+        "maintainability": 36,
+        "delivery_confidence": 56,
+        "team_morale": 50,
+        "user_trust": 56,
+        "budget": 72
+      },
+      "score_refs": [
+        {
+          "id": "domain_clarity",
+          "version": 1
+        },
+        {
+          "id": "maintainability",
+          "version": 1
+        },
+        {
+          "id": "delivery_confidence",
+          "version": 1
+        },
+        {
+          "id": "team_morale",
+          "version": 1
+        },
+        {
+          "id": "user_trust",
+          "version": 1
+        },
+        {
+          "id": "budget",
+          "version": 1
+        }
+      ],
+      "stakeholder_refs": [
+        {
+          "id": "cto",
+          "version": 1
+        },
+        {
+          "id": "security_officer",
+          "version": 1
+        },
+        {
+          "id": "ledger_head_of_payments",
+          "version": 1
+        },
+        {
+          "id": "ledger_support_lead",
+          "version": 1
+        }
+      ],
+      "card_refs": [
+        {
+          "id": "define_bounded_context",
+          "version": 1
+        },
+        {
+          "id": "extract_shared_kernel",
+          "version": 1
+        },
+        {
+          "id": "document_ubiquitous_language",
+          "version": 1
+        },
+        {
+          "id": "introduce_anti_corruption_layer",
+          "version": 1
+        },
+        {
+          "id": "ship_quick_fix",
+          "version": 1
+        },
+        {
+          "id": "add_integration_tests",
+          "version": 1
+        },
+        {
+          "id": "establish_team_ownership",
+          "version": 1
+        },
+        {
+          "id": "harden_operational_runbooks",
+          "version": 1
+        },
+        {
+          "id": "negotiate_technical_runway",
+          "version": 1
+        },
+        {
+          "id": "absorb_emergency_production_fix",
+          "version": 1
+        },
+        {
+          "id": "launch_compliance_audit_trail",
+          "version": 1
+        },
+        {
+          "id": "pay_down_incident_backlog",
+          "version": 1
+        },
+        {
+          "id": "hold_architecture_workshop",
+          "version": 1
+        },
+        {
+          "id": "align_budget_with_architecture",
+          "version": 1
+        },
+        {
+          "id": "clarify_cross_team_handoffs",
+          "version": 1
+        },
+        {
+          "id": "host_cross_team_retrospective",
+          "version": 1
+        },
+        {
+          "id": "ledger_split_refunds_context",
+          "version": 1
+        },
+        {
+          "id": "ledger_add_transactional_outbox",
+          "version": 1
+        },
+        {
+          "id": "ledger_freeze_payment_changes",
+          "version": 1
+        },
+        {
+          "id": "ledger_nightly_reconciliation",
+          "version": 1
+        }
+      ],
+      "event_refs": [
+        {
+          "id": "critical_bug_discovered",
+          "version": 1
+        },
+        {
+          "id": "customer_escalation",
+          "version": 1
+        },
+        {
+          "id": "team_burnout_spike",
+          "version": 1
+        },
+        {
+          "id": "key_engineer_leaves",
+          "version": 1
+        },
+        {
+          "id": "team_member_discovers_pattern",
+          "version": 1
+        },
+        {
+          "id": "legacy_system_wins_award",
+          "version": 1
+        },
+        {
+          "id": "ledger_chargeback_storm",
+          "version": 1
+        },
+        {
+          "id": "ledger_regulator_letter",
+          "version": 1
+        },
+        {
+          "id": "ledger_double_charge_incident",
+          "version": 1
+        },
+        {
+          "id": "ledger_audit_dry_run_passes",
+          "version": 1
+        }
+      ],
+      "outcome_tier_refs": [
+        {
+          "id": "triumph",
+          "version": 1
+        },
+        {
+          "id": "success",
+          "version": 1
+        },
+        {
+          "id": "survival",
+          "version": 1
+        },
+        {
+          "id": "struggle",
+          "version": 1
+        },
+        {
+          "id": "collapse",
+          "version": 1
+        }
+      ],
+      "outcome_archetype_refs": [
+        {
+          "id": "boundary_builder",
+          "version": 1
+        },
+        {
+          "id": "stakeholder_whisperer",
+          "version": 1
+        },
+        {
+          "id": "runaway_refactorer",
+          "version": 1
+        },
+        {
+          "id": "firefighter",
+          "version": 1
+        },
+        {
+          "id": "system_stabilizer",
+          "version": 1
+        },
+        {
+          "id": "the_diplomat",
+          "version": 1
+        },
+        {
+          "id": "budget_hawk",
+          "version": 1
+        },
+        {
+          "id": "the_pragmatist",
+          "version": 1
+        },
+        {
+          "id": "the_visionary",
+          "version": 1
+        },
+        {
+          "id": "burnout_machine",
+          "version": 1
+        }
+      ],
+      "coupling_rule_refs": [
+        {
+          "id": "delivery_collapse",
+          "version": 1
+        },
+        {
+          "id": "morale_collapse",
+          "version": 1
+        },
+        {
+          "id": "trust_collapse",
+          "version": 1
+        }
+      ],
+      "score_variance": 5
+    },
+    "cards/ledger_add_transactional_outbox-v1.json": {
+      "id": "ledger_add_transactional_outbox",
+      "version": 1,
+      "name": "Add a Transactional Outbox",
+      "description": "Publish payment events from the same transaction that records the payment, so nothing is charged without being announced.",
+      "flavor_text": "No more 'we charged them but never told anyone'.",
+      "score_changes": [
+        {
+          "score_id": "user_trust",
+          "delta": 4
+        },
+        {
+          "score_id": "maintainability",
+          "delta": 4
+        },
+        {
+          "score_id": "delivery_confidence",
+          "delta": -2
+        },
+        {
+          "score_id": "budget",
+          "delta": -4
+        }
+      ],
+      "delayed_effect_refs": [
+        {
+          "id": "ledger_outbox_settles",
+          "version": 1
+        }
+      ],
+      "usage_limit": 1,
+      "style_tags": [
+        "integration",
+        "stability"
+      ]
+    },
+    "cards/ledger_freeze_payment_changes-v1.json": {
+      "id": "ledger_freeze_payment_changes",
+      "version": 1,
+      "name": "Freeze Changes to the Payment Path",
+      "description": "Pause every non-critical change to the payment flow until the audit is over.",
+      "flavor_text": "The safest deploy is the one you didn't do.",
+      "score_changes": [
+        {
+          "score_id": "user_trust",
+          "delta": 5
+        },
+        {
+          "score_id": "team_morale",
+          "delta": -3
+        },
+        {
+          "score_id": "delivery_confidence",
+          "delta": -3
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "ledger_head_of_payments",
+          "delta": 3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 2,
+      "cooldown_turns": 3,
+      "style_tags": [
+        "process",
+        "short-term"
+      ]
+    },
+    "cards/ledger_nightly_reconciliation-v1.json": {
+      "id": "ledger_nightly_reconciliation",
+      "version": 1,
+      "name": "Automate Nightly Reconciliation",
+      "description": "Match every ledger entry against the bank's records, every night, without anyone doing it by hand.",
+      "flavor_text": "Finally, someone other than Priya can explain the numbers.",
+      "score_changes": [
+        {
+          "score_id": "user_trust",
+          "delta": 3
+        },
+        {
+          "score_id": "team_morale",
+          "delta": 3
+        },
+        {
+          "score_id": "delivery_confidence",
+          "delta": 2
+        },
+        {
+          "score_id": "budget",
+          "delta": -4
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "ledger_support_lead",
+          "delta": 3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 2,
+      "cooldown_turns": 1,
+      "style_tags": [
+        "workflow",
+        "stability"
+      ]
+    },
+    "cards/ledger_split_refunds_context-v1.json": {
+      "id": "ledger_split_refunds_context",
+      "version": 1,
+      "name": "Split Out the Refunds Context",
+      "description": "Give refunds and chargebacks their own bounded context, with their own model and language.",
+      "flavor_text": "Refunds were never 'negative payments'. Now the code agrees.",
+      "score_changes": [
+        {
+          "score_id": "domain_clarity",
+          "delta": 7
+        },
+        {
+          "score_id": "maintainability",
+          "delta": 3
+        },
+        {
+          "score_id": "delivery_confidence",
+          "delta": -4
+        },
+        {
+          "score_id": "budget",
+          "delta": -5
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "ledger_head_of_payments",
+          "delta": 2
+        }
+      ],
+      "delayed_effect_refs": [
+        {
+          "id": "boundaries_clarify",
+          "version": 1
+        }
+      ],
+      "usage_limit": 1,
+      "style_tags": [
+        "boundary",
+        "architecture"
+      ]
+    },
+    "stakeholders/ledger_head_of_payments-v1.json": {
+      "id": "ledger_head_of_payments",
+      "version": 1,
+      "name": "Head of Payments",
+      "description": "Owns the money flow. Measures success in uptime, and in not being on the evening news.",
+      "reaction_rule_refs": [
+        {
+          "id": "ledger_payments_fears_outages",
+          "version": 1
+        },
+        {
+          "id": "ledger_payments_values_steady_delivery",
+          "version": 1
+        }
+      ]
+    },
+    "stakeholders/ledger_support_lead-v1.json": {
+      "id": "ledger_support_lead",
+      "version": 1,
+      "name": "Customer Support Lead",
+      "description": "Hears about every payment problem first, usually from an upset customer.",
+      "reaction_rule_refs": [
+        {
+          "id": "ledger_support_drowning",
+          "version": 1
+        },
+        {
+          "id": "ledger_support_relieved",
+          "version": 1
+        }
+      ]
+    },
+    "stakeholder-reaction-rules/ledger_payments_fears_outages-v1.json": {
+      "id": "ledger_payments_fears_outages",
+      "version": 1,
+      "name": "Payments Fears Outages",
+      "description": "The Head of Payments escalates when customers stop trusting their payments.",
+      "condition_description": "User trust < 40",
+      "condition": {
+        "target_type": "score",
+        "target_id": "user_trust",
+        "operator": "<",
+        "value": 40
+      },
+      "score_changes": [
+        {
+          "score_id": "budget",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "ledger_head_of_payments",
+          "delta": -6
+        }
+      ],
+      "priority": 10
+    },
+    "stakeholder-reaction-rules/ledger_payments_values_steady_delivery-v1.json": {
+      "id": "ledger_payments_values_steady_delivery",
+      "version": 1,
+      "name": "Payments Values Steady Delivery",
+      "description": "Predictable releases reassure the Head of Payments.",
+      "condition_description": "Delivery confidence > 60",
+      "condition": {
+        "target_type": "score",
+        "target_id": "delivery_confidence",
+        "operator": ">",
+        "value": 60
+      },
+      "score_changes": [],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "ledger_head_of_payments",
+          "delta": 4
+        }
+      ],
+      "priority": 50
+    },
+    "stakeholder-reaction-rules/ledger_support_drowning-v1.json": {
+      "id": "ledger_support_drowning",
+      "version": 1,
+      "name": "Support Is Drowning",
+      "description": "When trust drops, the support queue floods and the team wears down.",
+      "condition_description": "User trust < 45",
+      "condition": {
+        "target_type": "score",
+        "target_id": "user_trust",
+        "operator": "<",
+        "value": 45
+      },
+      "score_changes": [
+        {
+          "score_id": "team_morale",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "ledger_support_lead",
+          "delta": -5
+        }
+      ],
+      "priority": 10
+    },
+    "stakeholder-reaction-rules/ledger_support_relieved-v1.json": {
+      "id": "ledger_support_relieved",
+      "version": 1,
+      "name": "Support Breathes Again",
+      "description": "A maintainable system means fewer mystery tickets.",
+      "condition_description": "Maintainability > 55",
+      "condition": {
+        "target_type": "score",
+        "target_id": "maintainability",
+        "operator": ">",
+        "value": 55
+      },
+      "score_changes": [],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "ledger_support_lead",
+          "delta": 3
+        }
+      ],
+      "priority": 50
+    },
+    "events/ledger_audit_dry_run_passes-v1.json": {
+      "id": "ledger_audit_dry_run_passes",
+      "version": 1,
+      "name": "The Audit Dry Run Goes Well",
+      "description": "An internal rehearsal of the regulator's audit finds clear ownership and traceable payments.",
+      "flavor_text": "For once, the answer to 'where does this number come from?' fit on one slide.",
+      "score_changes": [
+        {
+          "score_id": "user_trust",
+          "delta": 4
+        },
+        {
+          "score_id": "team_morale",
+          "delta": 4
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "security_officer",
+          "delta": 4
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3,
+      "trigger_condition_description": "Domain clarity > 50",
+      "trigger_condition": {
+        "target_type": "score",
+        "target_id": "domain_clarity",
+        "operator": ">",
+        "value": 50
+      }
+    },
+    "events/ledger_chargeback_storm-v1.json": {
+      "id": "ledger_chargeback_storm",
+      "version": 1,
+      "name": "Chargeback Storm",
+      "description": "One merchant's fraud problem turns into a wave of disputed payments.",
+      "flavor_text": "Support's queue just grew a second queue.",
+      "score_changes": [
+        {
+          "score_id": "user_trust",
+          "delta": -4
+        },
+        {
+          "score_id": "team_morale",
+          "delta": -3
+        },
+        {
+          "score_id": "budget",
+          "delta": -4
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "ledger_support_lead",
+          "delta": -4
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3
+    },
+    "events/ledger_double_charge_incident-v1.json": {
+      "id": "ledger_double_charge_incident",
+      "version": 1,
+      "name": "Double-Charge Incident",
+      "description": "A retry bug charges hundreds of customers twice.",
+      "flavor_text": "'At least it's consistent,' said nobody.",
+      "score_changes": [
+        {
+          "score_id": "user_trust",
+          "delta": -6
+        },
+        {
+          "score_id": "delivery_confidence",
+          "delta": -3
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "ledger_head_of_payments",
+          "delta": -5
+        },
+        {
+          "stakeholder_id": "ledger_support_lead",
+          "delta": -3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 4,
+      "trigger_condition_description": "User trust < 45",
+      "trigger_condition": {
+        "target_type": "score",
+        "target_id": "user_trust",
+        "operator": "<",
+        "value": 45
+      }
+    },
+    "events/ledger_regulator_letter-v1.json": {
+      "id": "ledger_regulator_letter",
+      "version": 1,
+      "name": "A Letter from the Regulator",
+      "description": "The audit date moves up, and the regulator would like to see your data lineage.",
+      "flavor_text": "Dear Gilded Ledger Co., we have some questions.",
+      "score_changes": [
+        {
+          "score_id": "delivery_confidence",
+          "delta": -4
+        },
+        {
+          "score_id": "budget",
+          "delta": -3
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "security_officer",
+          "delta": -3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 2
+    },
+    "delayed-effects/ledger_outbox_settles-v1.json": {
+      "id": "ledger_outbox_settles",
+      "version": 1,
+      "name": "Payment Events Become Trustworthy",
+      "description": "Downstream teams stop double-checking every payment event.",
+      "turns_until_resolution": 2,
+      "score_changes": [
+        {
+          "score_id": "maintainability",
+          "delta": 4
+        },
+        {
+          "score_id": "user_trust",
+          "delta": 3
+        }
+      ]
+    }
+  }
+}

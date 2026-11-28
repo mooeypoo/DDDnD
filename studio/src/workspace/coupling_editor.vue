@@ -7,7 +7,7 @@
   <div v-if="rule" class="editor">
     <div class="editor-head">
       <div class="editor-head-text">
-        <span class="editor-kicker">Coupling rule · yours</span>
+        <span class="editor-kicker">Coupling rule · {{ ownWord() }}</span>
         <h1 class="editor-title">{{ rule.name || 'Unnamed coupling rule' }}</h1>
       </div>
       <div class="head-actions">
@@ -67,6 +67,7 @@ import { computed, ref, watch } from 'vue'
 import { describeCoupling, putContent, removeOwnCoupling, toFillIn, type DraftPack } from '@/domains/authoring'
 import type { CouplingRule } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
+import { ownWord } from '@studio/state/studio_state'
 
 interface Option { id: string; name: string }
 
