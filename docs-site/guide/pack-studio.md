@@ -37,6 +37,12 @@ A **pack** is a set of DDDnD adventures someone made: their scenario, their coun
 
 Already have a pack file or zip? **Import** it to keep editing.
 
+## Looking inside the examples
+
+The Studio carries two finished packs from the [DDDnD-packs repository](https://github.com/mooeypoo/DDDnD-packs), each at a released version: *The Gilded Ledger* (a DDD retelling) and *SRE: The Pager Storm* (a new subject). Open one with **Look inside**, from the welcome page, the create screen, or a guided round's example.
+
+An example opens **view-only**: every part of it is there to read, and nothing can change. It never appears in your packs.
+
 ## Working on a pack
 
 - **The summary** says how the pack began and where to go next. Every step can be done in any order.

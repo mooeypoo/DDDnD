@@ -16,7 +16,13 @@
 
     <div class="summary-grid">
       <div class="summary-main">
-        <section class="editor-section" aria-labelledby="summary-next">
+        <!-- An example pack (M4.29): what it is, instead of steps it can't take -->
+        <section v-if="example" class="editor-section" aria-labelledby="summary-example">
+          <h2 id="summary-example" class="editor-section-title">An example pack</h2>
+          <p>{{ draft.name }}, version {{ example.version }}, from the DDDnD-packs repository. Look through it in the sidebar: how its cards trade off, who sits on its council, what its endings ask for. Nothing here can change.</p>
+          <p>Want one like it? <a href="#/new">Create a pack</a>.</p>
+        </section>
+        <section v-else class="editor-section" aria-labelledby="summary-next">
           <h2 id="summary-next" class="editor-section-title">Where to go next</h2>
           <p class="field-hint">Any order works. {{ START_WORDS[start].plays }}</p>
           <ol class="steps">
@@ -116,6 +122,8 @@ import type { Selection } from '@studio/workspace/selection'
 
 const props = withDefaults(defineProps<{
   draft: DraftPack
+  /** An example pack, view-only (M4.29): its release, in place of where to go next. */
+  example?: { version: string } | null
   seats: number
   checkState: CheckState
   issues: PackIssue[]

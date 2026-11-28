@@ -463,3 +463,19 @@ a:hover { color: var(--forge-text-bright); }
   border: 1px solid rgba(251, 191, 36, 0.45);
   color: var(--forge-text);
 }
+
+/* An example pack, view-only (M4.29): its fields read as text to look at, not boxes to type in */
+fieldset:disabled input,
+fieldset:disabled textarea,
+fieldset:disabled select {
+  border-style: dashed;
+  background: transparent;
+  color: var(--forge-text-bright);
+  cursor: default;
+  opacity: 1;
+}
+
+/* Its buttons would all do nothing, so they aren't shown: you move around from the sidebar and links */
+fieldset:disabled button {
+  display: none;
+}

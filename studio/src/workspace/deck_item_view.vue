@@ -2,7 +2,7 @@
   <div v-if="item" class="editor">
     <div class="editor-head">
       <div class="editor-head-text">
-        <span class="editor-kicker">{{ section === 'cards' ? 'Card' : 'Event' }} · {{ own ? 'yours' : 'from the game' }}</span>
+        <span class="editor-kicker">{{ section === 'cards' ? 'Card' : 'Event' }} · {{ own ? ownWord() : 'from the game' }}</span>
         <h1 class="editor-title">{{ item.name || (section === 'cards' ? 'Untitled card' : 'Untitled event') }}</h1>
       </div>
       <!-- The editor's actions, in the same place on every editor: change it, take it out, delete it -->
@@ -189,6 +189,7 @@ import { loadFirstParty } from '@studio/content/first_party'
 import AftershockEditor, { type AftershockEntry } from '@studio/workspace/aftershock_editor.vue'
 import ConditionEditor from '@studio/workspace/condition_editor.vue'
 import EffectsEditor from '@studio/workspace/effects_editor.vue'
+import { ownWord } from '@studio/state/studio_state'
 
 interface Option { id: string; name: string }
 

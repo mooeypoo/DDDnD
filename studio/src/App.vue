@@ -4,14 +4,17 @@
   <!-- The header stays put; below it, the start screen scrolls as a page and the workspace's columns scroll on their own -->
   <div class="route">
     <WorkspaceView
-      v-if="(route.kind === 'draft' || route.kind === 'guided') && studio.current"
+      v-if="(route.kind === 'draft' || route.kind === 'guided' || route.kind === 'example') && studio.current"
       :guided="route.kind === 'guided'"
-      @leave="go('#/packs')"
+      @leave="route.kind === 'example' ? leaveExample() : go('#/packs')"
       @leaveRound="go(`#/draft/${route.draftId}`)"
       @resumeRound="go(`#/guided/${route.draftId}`)"
     />
     <p v-else-if="(route.kind === 'draft' || route.kind === 'guided') && route.missing" class="missing" role="alert">
       That draft isn't in this browser. <a href="#/packs">See your packs</a>.
+    </p>
+    <p v-else-if="route.kind === 'example' && route.missing" class="missing" role="alert">
+      That example couldn't be opened{{ route.problem ? `: ${route.problem}` : '' }}. <a href="#/">Back to the welcome page</a>.
     </p>
     <!-- The front door (the first-screen audit, M4.27–M4.28): welcome, create, and your packs -->
     <CreateView v-else-if="route.kind === 'create'" :key="route.preset" v-bind="CREATE_PRESETS[route.preset]" @openDraft="openDraftAt" />
@@ -30,7 +33,7 @@ import PacksView from '@studio/views/packs_view.vue'
 import WelcomeView from '@studio/views/welcome_view.vue'
 import WorkspaceView from '@studio/workspace/workspace_view.vue'
 import { applyTextSize, readTextSize, writeTextSize, type TextSize } from '@studio/preferences/text_size'
-import { closeDraft, initStudio, openDraft, studio } from '@studio/state/studio_state'
+import { closeDraft, initStudio, openDraft, openExample, studio } from '@studio/state/studio_state'
 
 const textSize = ref<TextSize>(readTextSize())
 applyTextSize(textSize.value)
@@ -49,7 +52,7 @@ function setTextSize(size: TextSize) {
  * chosen, so a bookmark still lands somewhere sensible.
  */
 type Preset = 'none' | 'topic' | 'guided'
-const route = reactive<{ kind: 'welcome' | 'packs' | 'create' | 'draft' | 'guided'; preset: Preset; missing: boolean; draftId: string }>({ kind: 'welcome', preset: 'none', missing: false, draftId: '' })
+const route = reactive<{ kind: 'welcome' | 'packs' | 'create' | 'draft' | 'guided' | 'example'; preset: Preset; missing: boolean; draftId: string; problem: string }>({ kind: 'welcome', preset: 'none', missing: false, draftId: '', problem: '' })
 
 const PAGES: Record<string, { kind: 'packs' | 'create'; preset: Preset }> = {
   '#/packs': { kind: 'packs', preset: 'none' },
@@ -59,6 +62,12 @@ const PAGES: Record<string, { kind: 'packs' | 'create'; preset: Preset }> = {
 }
 const CREATE_PRESETS: Record<Preset, { about?: DraftKind; how?: 'guided' }> = { none: {}, topic: { about: 'new_topic' }, guided: { how: 'guided' } }
 
+/** Leaving an example: back to where it was opened from, or the welcome page in a tab of its own. */
+function leaveExample() {
+  if (window.history.length > 1) window.history.back()
+  else go('#/')
+}
+
 /** A pack just made or picked up: its guided round when it's in one, else the workspace. */
 function openDraftAt(id: string, guided: boolean) {
   go(guided ? `#/guided/${id}` : `#/draft/${id}`)
@@ -66,7 +75,19 @@ function openDraftAt(id: string, guided: boolean) {
 
 async function follow() {
   const match = window.location.hash.match(/^#\/(draft|guided)\/([\w-]+)$/)
-  if (match) {
+  const example = window.location.hash.match(/^#\/example\/([\w-]+)$/)
+  if (example) {
+    // An example pack, view-only (M4.29): never one of your drafts
+    await closeDraft()
+    route.kind = 'example'
+    route.problem = ''
+    try {
+      route.missing = !(await openExample(example[1]))
+    } catch (error) {
+      route.missing = true
+      route.problem = (error as Error).message
+    }
+  } else if (match) {
     route.kind = match[1] as 'draft' | 'guided'
     route.draftId = match[2]
     route.missing = !(await openDraft(match[2]))

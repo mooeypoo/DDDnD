@@ -1,0 +1,2389 @@
+{
+  "format": "dddnd-pack",
+  "format_version": 1,
+  "manifest": {
+    "$schema": "https://dddnd.app/schema/v1/manifest.schema.json",
+    "schema_version": 1,
+    "kind": "extension",
+    "id": "sre_on_call",
+    "version": "1.0.0",
+    "name": "SRE: The Pager Storm",
+    "description": "A second domain for DDDnD: site reliability engineering and incident response. Its own scores (availability, error budget, a rested on-call…), council, cards, events, endings, classes and challenge modifiers, on the base pack's outcome tiers.",
+    "depends_on": [
+      {
+        "pack_id": "base",
+        "version": "1.0.0"
+      }
+    ],
+    "base_url": ".",
+    "license": "GPL-3.0-only",
+    "authors": [
+      {
+        "name": "Moriel Schottlender",
+        "url": "https://moriel.tech"
+      }
+    ],
+    "pack_homepage_url": "https://github.com/mooeypoo/DDDnD-packs/tree/main/packs/sre_on_call",
+    "scenarios": [
+      {
+        "id": "sre_pager_storm",
+        "version": 1
+      }
+    ],
+    "classes": [
+      {
+        "id": "sre_pager_paladin",
+        "version": 1
+      },
+      {
+        "id": "sre_signal_seer",
+        "version": 1
+      },
+      {
+        "id": "sre_toil_druid",
+        "version": 1
+      },
+      {
+        "id": "sre_budget_keeper",
+        "version": 1
+      }
+    ],
+    "challenge_modifiers": [
+      {
+        "id": "sre_launch_week",
+        "version": 1
+      },
+      {
+        "id": "sre_skeleton_crew",
+        "version": 1
+      }
+    ],
+    "tutorials": [],
+    "content": {
+      "scenarios": [
+        "sre_pager_storm-v1.json"
+      ],
+      "cards": [
+        "sre_automate_rollbacks-v1.json",
+        "sre_blameless_postmortem-v1.json",
+        "sre_canary_releases-v1.json",
+        "sre_capacity_planning-v1.json",
+        "sre_chaos_drill-v1.json",
+        "sre_cut_cloud_bill-v1.json",
+        "sre_define_slos-v1.json",
+        "sre_distributed_tracing-v1.json",
+        "sre_embed_with_product-v1.json",
+        "sre_error_budget_policy-v1.json",
+        "sre_fair_rotation-v1.json",
+        "sre_feature_freeze-v1.json",
+        "sre_hero_fix-v1.json",
+        "sre_honest_status_page-v1.json",
+        "sre_incident_commanders-v1.json",
+        "sre_pay_down_toil-v1.json",
+        "sre_quick_patch-v1.json",
+        "sre_retire_flaky_endpoint-v1.json",
+        "sre_ship_anyway-v1.json",
+        "sre_support_dashboard-v1.json",
+        "sre_tune_alerts-v1.json",
+        "sre_write_runbooks-v1.json"
+      ],
+      "stakeholders": [
+        "sre_finance_director-v1.json",
+        "sre_on_call_engineer-v1.json",
+        "sre_product_lead-v1.json",
+        "sre_support_lead-v1.json",
+        "sre_vp_engineering-v1.json"
+      ],
+      "stakeholder_reaction_rules": [
+        "sre_finance_counts_sla_credits-v1.json",
+        "sre_finance_no_credits-v1.json",
+        "sre_on_call_exhausted-v1.json",
+        "sre_on_call_grateful-v1.json",
+        "sre_product_frustrated_by_slowdown-v1.json",
+        "sre_product_happy_shipping-v1.json",
+        "sre_support_breathes-v1.json",
+        "sre_support_drowning-v1.json",
+        "sre_vp_fears_outages-v1.json",
+        "sre_vp_trusts_steady_service-v1.json"
+      ],
+      "scores": [
+        "sre_availability-v1.json",
+        "sre_change_velocity-v1.json",
+        "sre_customer_trust-v1.json",
+        "sre_error_budget-v1.json",
+        "sre_observability-v1.json",
+        "sre_on_call_rest-v1.json"
+      ],
+      "events": [
+        "sre_alert_storm-v1.json",
+        "sre_bill_review-v1.json",
+        "sre_cascading_failure-v1.json",
+        "sre_certificate_expired-v1.json",
+        "sre_customer_praise-v1.json",
+        "sre_engineer_burns_out-v1.json",
+        "sre_launch_traffic-v1.json",
+        "sre_new_hire_joins-v1.json",
+        "sre_postmortem_shared-v1.json",
+        "sre_quiet_week-v1.json",
+        "sre_region_down-v1.json",
+        "sre_root_cause_by_noon-v1.json",
+        "sre_three_am_outage-v1.json",
+        "sre_vendor_ships_fix-v1.json"
+      ],
+      "delayed_effects": [
+        "sre_canary_confidence-v1.json",
+        "sre_chaos_lessons-v1.json",
+        "sre_rollback_safety_net-v1.json",
+        "sre_runbooks_pay_off-v1.json",
+        "sre_slos_take_hold-v1.json",
+        "sre_toil_receding-v1.json",
+        "sre_tracing_insights-v1.json"
+      ],
+      "outcome_tiers": [],
+      "outcome_archetypes": [
+        "sre_error_budget_accountant-v1.json",
+        "sre_hero_firefighter-v1.json",
+        "sre_pager_haunted-v1.json",
+        "sre_reliability_architect-v1.json",
+        "sre_steady_operator-v1.json",
+        "sre_toil_slayer-v1.json"
+      ],
+      "classes": [
+        "sre_budget_keeper-v1.json",
+        "sre_pager_paladin-v1.json",
+        "sre_signal_seer-v1.json",
+        "sre_toil_druid-v1.json"
+      ],
+      "challenge_modifiers": [
+        "sre_launch_week-v1.json",
+        "sre_skeleton_crew-v1.json"
+      ],
+      "coupling_rules": [
+        "sre_budget_exhausted-v1.json",
+        "sre_burnout_spiral-v1.json",
+        "sre_flying_blind-v1.json"
+      ]
+    }
+  },
+  "files": {
+    "scenarios/sre_pager_storm-v1.json": {
+      "id": "sre_pager_storm",
+      "version": 1,
+      "name": "The Pager Storm",
+      "description": "A growing service pages its on-call team every night. The SLOs are vague, the error budget is nearly spent, and the people holding the pager are running out of sleep. Make the service reliable without burning out the team, or stopping the company from shipping.",
+      "short_description": "Tame a service that pages someone every night, before the rotation burns out.",
+      "flavor_text": "The pager went off during the planning meeting about the pager.",
+      "max_turns": 10,
+      "starting_scores": {
+        "sre_availability": 54,
+        "sre_error_budget": 45,
+        "sre_on_call_rest": 40,
+        "sre_customer_trust": 57,
+        "sre_change_velocity": 60,
+        "sre_observability": 34
+      },
+      "score_refs": [
+        {
+          "id": "sre_availability",
+          "version": 1
+        },
+        {
+          "id": "sre_error_budget",
+          "version": 1
+        },
+        {
+          "id": "sre_on_call_rest",
+          "version": 1
+        },
+        {
+          "id": "sre_customer_trust",
+          "version": 1
+        },
+        {
+          "id": "sre_change_velocity",
+          "version": 1
+        },
+        {
+          "id": "sre_observability",
+          "version": 1
+        }
+      ],
+      "stakeholder_refs": [
+        {
+          "id": "sre_vp_engineering",
+          "version": 1
+        },
+        {
+          "id": "sre_product_lead",
+          "version": 1
+        },
+        {
+          "id": "sre_support_lead",
+          "version": 1
+        },
+        {
+          "id": "sre_finance_director",
+          "version": 1
+        },
+        {
+          "id": "sre_on_call_engineer",
+          "version": 1
+        }
+      ],
+      "card_refs": [
+        {
+          "id": "sre_automate_rollbacks",
+          "version": 1
+        },
+        {
+          "id": "sre_blameless_postmortem",
+          "version": 1
+        },
+        {
+          "id": "sre_canary_releases",
+          "version": 1
+        },
+        {
+          "id": "sre_capacity_planning",
+          "version": 1
+        },
+        {
+          "id": "sre_chaos_drill",
+          "version": 1
+        },
+        {
+          "id": "sre_cut_cloud_bill",
+          "version": 1
+        },
+        {
+          "id": "sre_define_slos",
+          "version": 1
+        },
+        {
+          "id": "sre_distributed_tracing",
+          "version": 1
+        },
+        {
+          "id": "sre_embed_with_product",
+          "version": 1
+        },
+        {
+          "id": "sre_error_budget_policy",
+          "version": 1
+        },
+        {
+          "id": "sre_fair_rotation",
+          "version": 1
+        },
+        {
+          "id": "sre_feature_freeze",
+          "version": 1
+        },
+        {
+          "id": "sre_hero_fix",
+          "version": 1
+        },
+        {
+          "id": "sre_honest_status_page",
+          "version": 1
+        },
+        {
+          "id": "sre_incident_commanders",
+          "version": 1
+        },
+        {
+          "id": "sre_pay_down_toil",
+          "version": 1
+        },
+        {
+          "id": "sre_quick_patch",
+          "version": 1
+        },
+        {
+          "id": "sre_retire_flaky_endpoint",
+          "version": 1
+        },
+        {
+          "id": "sre_ship_anyway",
+          "version": 1
+        },
+        {
+          "id": "sre_support_dashboard",
+          "version": 1
+        },
+        {
+          "id": "sre_tune_alerts",
+          "version": 1
+        },
+        {
+          "id": "sre_write_runbooks",
+          "version": 1
+        }
+      ],
+      "event_refs": [
+        {
+          "id": "sre_alert_storm",
+          "version": 1
+        },
+        {
+          "id": "sre_bill_review",
+          "version": 1
+        },
+        {
+          "id": "sre_cascading_failure",
+          "version": 1
+        },
+        {
+          "id": "sre_certificate_expired",
+          "version": 1
+        },
+        {
+          "id": "sre_customer_praise",
+          "version": 1
+        },
+        {
+          "id": "sre_engineer_burns_out",
+          "version": 1
+        },
+        {
+          "id": "sre_launch_traffic",
+          "version": 1
+        },
+        {
+          "id": "sre_new_hire_joins",
+          "version": 1
+        },
+        {
+          "id": "sre_postmortem_shared",
+          "version": 1
+        },
+        {
+          "id": "sre_quiet_week",
+          "version": 1
+        },
+        {
+          "id": "sre_region_down",
+          "version": 1
+        },
+        {
+          "id": "sre_root_cause_by_noon",
+          "version": 1
+        },
+        {
+          "id": "sre_three_am_outage",
+          "version": 1
+        },
+        {
+          "id": "sre_vendor_ships_fix",
+          "version": 1
+        }
+      ],
+      "outcome_tier_refs": [
+        {
+          "id": "triumph",
+          "version": 1
+        },
+        {
+          "id": "success",
+          "version": 1
+        },
+        {
+          "id": "survival",
+          "version": 1
+        },
+        {
+          "id": "struggle",
+          "version": 1
+        },
+        {
+          "id": "collapse",
+          "version": 1
+        }
+      ],
+      "outcome_archetype_refs": [
+        {
+          "id": "sre_hero_firefighter",
+          "version": 1
+        },
+        {
+          "id": "sre_pager_haunted",
+          "version": 1
+        },
+        {
+          "id": "sre_reliability_architect",
+          "version": 1
+        },
+        {
+          "id": "sre_error_budget_accountant",
+          "version": 1
+        },
+        {
+          "id": "sre_toil_slayer",
+          "version": 1
+        },
+        {
+          "id": "sre_steady_operator",
+          "version": 1
+        }
+      ],
+      "coupling_rule_refs": [
+        {
+          "id": "sre_burnout_spiral",
+          "version": 1
+        },
+        {
+          "id": "sre_budget_exhausted",
+          "version": 1
+        },
+        {
+          "id": "sre_flying_blind",
+          "version": 1
+        }
+      ],
+      "score_variance": 5,
+      "balance_targets": {
+        "win_rate_min": 0.3,
+        "win_rate_max": 0.6,
+        "max_critical_findings": 0
+      }
+    },
+    "cards/sre_automate_rollbacks-v1.json": {
+      "id": "sre_automate_rollbacks",
+      "version": 1,
+      "name": "Automate Rollbacks",
+      "description": "Let the deploy pipeline undo a bad release on its own when error rates jump.",
+      "flavor_text": "Rolling back should be the most boring thing you do.",
+      "score_changes": [
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -2
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": 2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_finance_director",
+          "delta": -2
+        }
+      ],
+      "delayed_effect_refs": [
+        {
+          "id": "sre_rollback_safety_net",
+          "version": 1
+        }
+      ],
+      "usage_limit": 1,
+      "style_tags": [
+        "automation",
+        "reliability"
+      ]
+    },
+    "cards/sre_blameless_postmortem-v1.json": {
+      "id": "sre_blameless_postmortem",
+      "version": 1,
+      "name": "Hold a Blameless Postmortem",
+      "description": "Study the last incident for what the system allowed, not who pressed the button.",
+      "flavor_text": "The question is \"how did this make sense at the time?\"",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": 5
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 2
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": 3
+        },
+        {
+          "stakeholder_id": "sre_vp_engineering",
+          "delta": 1
+        }
+      ],
+      "delayed_effect_refs": [],
+      "cooldown_turns": 1,
+      "style_tags": [
+        "learning",
+        "culture"
+      ]
+    },
+    "cards/sre_canary_releases-v1.json": {
+      "id": "sre_canary_releases",
+      "version": 1,
+      "name": "Canary Every Release",
+      "description": "Send each release to a small slice of traffic first, and watch it.",
+      "flavor_text": "One percent of the traffic, a hundred percent of the attention.",
+      "score_changes": [
+        {
+          "score_id": "sre_error_budget",
+          "delta": 5
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [],
+      "delayed_effect_refs": [
+        {
+          "id": "sre_canary_confidence",
+          "version": 1
+        }
+      ],
+      "usage_limit": 1,
+      "style_tags": [
+        "delivery",
+        "reliability"
+      ]
+    },
+    "cards/sre_capacity_planning-v1.json": {
+      "id": "sre_capacity_planning",
+      "version": 1,
+      "name": "Do Capacity Planning",
+      "description": "Forecast the growth before it arrives, and buy headroom.",
+      "flavor_text": "The traffic graph only goes one way, and it isn't down.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": 5
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_finance_director",
+          "delta": -2
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 2,
+      "cooldown_turns": 1,
+      "style_tags": [
+        "planning",
+        "reliability"
+      ]
+    },
+    "cards/sre_chaos_drill-v1.json": {
+      "id": "sre_chaos_drill",
+      "version": 1,
+      "name": "Run a Chaos Drill",
+      "description": "Break something on purpose, in daylight, with everyone watching.",
+      "flavor_text": "Better to meet the failure at 2 p.m. than at 2 a.m.",
+      "score_changes": [
+        {
+          "score_id": "sre_observability",
+          "delta": 6
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": -2
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": -2
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_vp_engineering",
+          "delta": 2
+        }
+      ],
+      "delayed_effect_refs": [
+        {
+          "id": "sre_chaos_lessons",
+          "version": 1
+        }
+      ],
+      "usage_limit": 2,
+      "cooldown_turns": 2,
+      "style_tags": [
+        "learning",
+        "reliability"
+      ]
+    },
+    "cards/sre_cut_cloud_bill-v1.json": {
+      "id": "sre_cut_cloud_bill",
+      "version": 1,
+      "name": "Cut the Cloud Bill",
+      "description": "Shrink the overprovisioned clusters and turn off what looks unused.",
+      "flavor_text": "It looked unused.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": -2
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_finance_director",
+          "delta": 6
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 1,
+      "style_tags": [
+        "cost",
+        "short-term"
+      ]
+    },
+    "cards/sre_define_slos-v1.json": {
+      "id": "sre_define_slos",
+      "version": 1,
+      "name": "Define SLOs with Product",
+      "description": "Agree with product on what \"reliable enough\" means, in numbers customers would recognize.",
+      "flavor_text": "\"Five nines\" was never a requirement. It was a mood.",
+      "score_changes": [
+        {
+          "score_id": "sre_observability",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": 5
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": 2
+        }
+      ],
+      "delayed_effect_refs": [
+        {
+          "id": "sre_slos_take_hold",
+          "version": 1
+        }
+      ],
+      "usage_limit": 1,
+      "style_tags": [
+        "process",
+        "reliability"
+      ]
+    },
+    "cards/sre_distributed_tracing-v1.json": {
+      "id": "sre_distributed_tracing",
+      "version": 1,
+      "name": "Add Distributed Tracing",
+      "description": "Follow one request through every service it touches.",
+      "flavor_text": "The slow part was never where anyone guessed.",
+      "score_changes": [
+        {
+          "score_id": "sre_observability",
+          "delta": 8
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 2
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_finance_director",
+          "delta": -1
+        }
+      ],
+      "delayed_effect_refs": [
+        {
+          "id": "sre_tracing_insights",
+          "version": 1
+        }
+      ],
+      "usage_limit": 1,
+      "style_tags": [
+        "observability",
+        "architecture"
+      ]
+    },
+    "cards/sre_embed_with_product-v1.json": {
+      "id": "sre_embed_with_product",
+      "version": 1,
+      "name": "Embed an SRE with a Product Team",
+      "description": "Put reliability expertise in the room where features are designed.",
+      "flavor_text": "Reliability is a feature. Now someone says so in planning.",
+      "score_changes": [
+        {
+          "score_id": "sre_change_velocity",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 2
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": 3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 1,
+      "style_tags": [
+        "culture",
+        "delivery"
+      ]
+    },
+    "cards/sre_error_budget_policy-v1.json": {
+      "id": "sre_error_budget_policy",
+      "version": 1,
+      "name": "Adopt an Error-Budget Policy",
+      "description": "Write down what happens when the budget runs out: reliability work comes first until it recovers.",
+      "flavor_text": "The budget is for spending. The policy says what happens when it's gone.",
+      "score_changes": [
+        {
+          "score_id": "sre_error_budget",
+          "delta": 8
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": 5
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -3
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": -3
+        },
+        {
+          "stakeholder_id": "sre_vp_engineering",
+          "delta": 2
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 1,
+      "style_tags": [
+        "process",
+        "reliability"
+      ]
+    },
+    "cards/sre_fair_rotation-v1.json": {
+      "id": "sre_fair_rotation",
+      "version": 1,
+      "name": "Rotate the Pager Fairly",
+      "description": "Spread the on-call load, add a secondary, and give time off after a bad night.",
+      "flavor_text": "The pager was never meant to be one person's personality.",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 8
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": 1
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": 4
+        },
+        {
+          "stakeholder_id": "sre_finance_director",
+          "delta": -1
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 1,
+      "style_tags": [
+        "on-call",
+        "culture"
+      ]
+    },
+    "cards/sre_feature_freeze-v1.json": {
+      "id": "sre_feature_freeze",
+      "version": 1,
+      "name": "Call a Feature Freeze",
+      "description": "Stop shipping features until the service is stable again.",
+      "flavor_text": "The safest deploy is the one you didn't do.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": 7
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": 7
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -7
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": -5
+        },
+        {
+          "stakeholder_id": "sre_vp_engineering",
+          "delta": 2
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 2,
+      "cooldown_turns": 2,
+      "style_tags": [
+        "process",
+        "short-term"
+      ]
+    },
+    "cards/sre_hero_fix-v1.json": {
+      "id": "sre_hero_fix",
+      "version": 1,
+      "name": "Heroic Fix at 3 a.m.",
+      "description": "Someone stays up all night and saves the day. Again.",
+      "flavor_text": "Everyone thanks them in the channel. Nobody asks why it keeps happening.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": 8
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -6
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": -3
+        },
+        {
+          "stakeholder_id": "sre_vp_engineering",
+          "delta": 2
+        },
+        {
+          "stakeholder_id": "sre_support_lead",
+          "delta": 2
+        }
+      ],
+      "delayed_effect_refs": [],
+      "cooldown_turns": 1,
+      "style_tags": [
+        "heroics",
+        "short-term"
+      ]
+    },
+    "cards/sre_honest_status_page-v1.json": {
+      "id": "sre_honest_status_page",
+      "version": 1,
+      "name": "Publish an Honest Status Page",
+      "description": "Tell customers what is broken, while it is broken.",
+      "flavor_text": "\"Some users may experience\" was retired with honors.",
+      "score_changes": [
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 7
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": 1
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_support_lead",
+          "delta": 4
+        },
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": -1
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 2,
+      "cooldown_turns": 1,
+      "style_tags": [
+        "communication",
+        "trust"
+      ]
+    },
+    "cards/sre_incident_commanders-v1.json": {
+      "id": "sre_incident_commanders",
+      "version": 1,
+      "name": "Train Incident Commanders",
+      "description": "Give incidents one calm person in charge, and a playbook for the chaos.",
+      "flavor_text": "Someone is coordinating. It is not the person typing the fix.",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 2
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_vp_engineering",
+          "delta": 1
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 1,
+      "style_tags": [
+        "learning",
+        "on-call"
+      ]
+    },
+    "cards/sre_pay_down_toil-v1.json": {
+      "id": "sre_pay_down_toil",
+      "version": 1,
+      "name": "Pay Down Toil",
+      "description": "Automate the manual, repetitive work that grows with the service.",
+      "flavor_text": "If a human does it every week, a script can do it every minute.",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 6
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": 2
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": 3
+        }
+      ],
+      "delayed_effect_refs": [
+        {
+          "id": "sre_toil_receding",
+          "version": 1
+        }
+      ],
+      "usage_limit": 2,
+      "cooldown_turns": 1,
+      "style_tags": [
+        "automation",
+        "on-call"
+      ]
+    },
+    "cards/sre_quick_patch-v1.json": {
+      "id": "sre_quick_patch",
+      "version": 1,
+      "name": "Patch It and Move On",
+      "description": "A small fix, no follow-up ticket, back to the roadmap.",
+      "flavor_text": "We'll write the postmortem later. We won't.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": -2
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": 2
+        }
+      ],
+      "delayed_effect_refs": [],
+      "cooldown_turns": 1,
+      "style_tags": [
+        "short-term",
+        "delivery"
+      ]
+    },
+    "cards/sre_retire_flaky_endpoint-v1.json": {
+      "id": "sre_retire_flaky_endpoint",
+      "version": 1,
+      "name": "Retire the Flaky Legacy Endpoint",
+      "description": "Turn off the old API that pages someone every week.",
+      "flavor_text": "Three customers still use it. All three are very loud.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": -2
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_support_lead",
+          "delta": -3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 1,
+      "style_tags": [
+        "cleanup",
+        "reliability"
+      ]
+    },
+    "cards/sre_ship_anyway-v1.json": {
+      "id": "sre_ship_anyway",
+      "version": 1,
+      "name": "Ship the Feature Anyway",
+      "description": "The launch date was promised. The error budget will have to cope.",
+      "flavor_text": "It's fine. It's behind a flag. Mostly.",
+      "score_changes": [
+        {
+          "score_id": "sre_change_velocity",
+          "delta": 8
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": -5
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": 5
+        }
+      ],
+      "delayed_effect_refs": [],
+      "cooldown_turns": 1,
+      "style_tags": [
+        "delivery",
+        "short-term"
+      ]
+    },
+    "cards/sre_support_dashboard-v1.json": {
+      "id": "sre_support_dashboard",
+      "version": 1,
+      "name": "Give Support Their Own Dashboard",
+      "description": "Let support see the service's health without asking an engineer.",
+      "flavor_text": "Support stopped asking \"is it down?\" and started telling us.",
+      "score_changes": [
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_support_lead",
+          "delta": 4
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 1,
+      "style_tags": [
+        "observability",
+        "communication"
+      ]
+    },
+    "cards/sre_tune_alerts-v1.json": {
+      "id": "sre_tune_alerts",
+      "version": 1,
+      "name": "Tune the Noisy Alerts",
+      "description": "Delete the alerts nobody acts on, and page only on what customers feel.",
+      "flavor_text": "Forty pages a night, and none of them mattered.",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 8
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": 2
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": -1
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": 4
+        }
+      ],
+      "delayed_effect_refs": [],
+      "usage_limit": 2,
+      "cooldown_turns": 2,
+      "style_tags": [
+        "on-call",
+        "observability"
+      ]
+    },
+    "cards/sre_write_runbooks-v1.json": {
+      "id": "sre_write_runbooks",
+      "version": 1,
+      "name": "Write Runbooks for the Loudest Alerts",
+      "description": "Turn tribal knowledge into steps anyone on the rotation can follow.",
+      "flavor_text": "Step one: do not panic. Step two is longer.",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 5
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": 3
+        }
+      ],
+      "delayed_effect_refs": [
+        {
+          "id": "sre_runbooks_pay_off",
+          "version": 1
+        }
+      ],
+      "usage_limit": 1,
+      "style_tags": [
+        "documentation",
+        "on-call"
+      ]
+    },
+    "stakeholders/sre_finance_director-v1.json": {
+      "id": "sre_finance_director",
+      "version": 1,
+      "name": "Finance Director",
+      "description": "Pays the cloud bill and the SLA credits, and would like fewer of both.",
+      "reaction_rule_refs": [
+        {
+          "id": "sre_finance_counts_sla_credits",
+          "version": 1
+        },
+        {
+          "id": "sre_finance_no_credits",
+          "version": 1
+        }
+      ]
+    },
+    "stakeholders/sre_on_call_engineer-v1.json": {
+      "id": "sre_on_call_engineer",
+      "version": 1,
+      "name": "On-Call Engineer",
+      "description": "Carries the pager this rotation. Has opinions about 3 a.m.",
+      "reaction_rule_refs": [
+        {
+          "id": "sre_on_call_exhausted",
+          "version": 1
+        },
+        {
+          "id": "sre_on_call_grateful",
+          "version": 1
+        }
+      ]
+    },
+    "stakeholders/sre_product_lead-v1.json": {
+      "id": "sre_product_lead",
+      "version": 1,
+      "name": "Product Lead",
+      "description": "Owns the roadmap and the launch dates promised to customers.",
+      "reaction_rule_refs": [
+        {
+          "id": "sre_product_frustrated_by_slowdown",
+          "version": 1
+        },
+        {
+          "id": "sre_product_happy_shipping",
+          "version": 1
+        }
+      ]
+    },
+    "stakeholders/sre_support_lead-v1.json": {
+      "id": "sre_support_lead",
+      "version": 1,
+      "name": "Customer Support Lead",
+      "description": "Hears about every outage first, from the customers who were in the middle of something.",
+      "reaction_rule_refs": [
+        {
+          "id": "sre_support_drowning",
+          "version": 1
+        },
+        {
+          "id": "sre_support_breathes",
+          "version": 1
+        }
+      ]
+    },
+    "stakeholders/sre_vp_engineering-v1.json": {
+      "id": "sre_vp_engineering",
+      "version": 1,
+      "name": "VP of Engineering",
+      "description": "Answers to the board for every outage, and to the teams for every feature.",
+      "reaction_rule_refs": [
+        {
+          "id": "sre_vp_fears_outages",
+          "version": 1
+        },
+        {
+          "id": "sre_vp_trusts_steady_service",
+          "version": 1
+        }
+      ]
+    },
+    "stakeholder-reaction-rules/sre_finance_counts_sla_credits-v1.json": {
+      "id": "sre_finance_counts_sla_credits",
+      "version": 1,
+      "name": "Finance Counts the SLA Credits",
+      "description": "A spent error budget means credits paid back to customers.",
+      "condition_description": "Error budget < 25",
+      "condition": {
+        "target_type": "score",
+        "target_id": "sre_error_budget",
+        "operator": "<",
+        "value": 25
+      },
+      "score_changes": [],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_finance_director",
+          "delta": -5
+        }
+      ],
+      "priority": 10
+    },
+    "stakeholder-reaction-rules/sre_finance_no_credits-v1.json": {
+      "id": "sre_finance_no_credits",
+      "version": 1,
+      "name": "No SLA Credits This Quarter",
+      "description": "Finance notices that nothing was paid back.",
+      "condition_description": "Error budget > 60",
+      "condition": {
+        "target_type": "score",
+        "target_id": "sre_error_budget",
+        "operator": ">",
+        "value": 60
+      },
+      "score_changes": [],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_finance_director",
+          "delta": 3
+        }
+      ],
+      "priority": 50
+    },
+    "stakeholder-reaction-rules/sre_on_call_exhausted-v1.json": {
+      "id": "sre_on_call_exhausted",
+      "version": 1,
+      "name": "The On-Call Is Exhausted",
+      "description": "Tired people make mistakes in production.",
+      "condition_description": "Rested on-call < 30",
+      "condition": {
+        "target_type": "score",
+        "target_id": "sre_on_call_rest",
+        "operator": "<",
+        "value": 30
+      },
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": -6
+        }
+      ],
+      "priority": 10
+    },
+    "stakeholder-reaction-rules/sre_on_call_grateful-v1.json": {
+      "id": "sre_on_call_grateful",
+      "version": 1,
+      "name": "The On-Call Sleeps Through the Night",
+      "description": "A quiet rotation, and someone noticed.",
+      "condition_description": "Rested on-call > 60",
+      "condition": {
+        "target_type": "score",
+        "target_id": "sre_on_call_rest",
+        "operator": ">",
+        "value": 60
+      },
+      "score_changes": [],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": 4
+        }
+      ],
+      "priority": 50
+    },
+    "stakeholder-reaction-rules/sre_product_frustrated_by_slowdown-v1.json": {
+      "id": "sre_product_frustrated_by_slowdown",
+      "version": 1,
+      "name": "Product Frustrated by the Slowdown",
+      "description": "Every freeze and review pushes a promised launch back.",
+      "condition_description": "Change velocity < 40",
+      "condition": {
+        "target_type": "score",
+        "target_id": "sre_change_velocity",
+        "operator": "<",
+        "value": 40
+      },
+      "score_changes": [],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": -5
+        }
+      ],
+      "priority": 10
+    },
+    "stakeholder-reaction-rules/sre_product_happy_shipping-v1.json": {
+      "id": "sre_product_happy_shipping",
+      "version": 1,
+      "name": "Product Happy to Be Shipping",
+      "description": "Features are landing on time again.",
+      "condition_description": "Change velocity > 65",
+      "condition": {
+        "target_type": "score",
+        "target_id": "sre_change_velocity",
+        "operator": ">",
+        "value": 65
+      },
+      "score_changes": [],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": 4
+        }
+      ],
+      "priority": 50
+    },
+    "stakeholder-reaction-rules/sre_support_breathes-v1.json": {
+      "id": "sre_support_breathes",
+      "version": 1,
+      "name": "Support Breathes Again",
+      "description": "Customers stop opening tickets \"just to check\".",
+      "condition_description": "Customer trust > 65",
+      "condition": {
+        "target_type": "score",
+        "target_id": "sre_customer_trust",
+        "operator": ">",
+        "value": 65
+      },
+      "score_changes": [],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_support_lead",
+          "delta": 3
+        }
+      ],
+      "priority": 50
+    },
+    "stakeholder-reaction-rules/sre_support_drowning-v1.json": {
+      "id": "sre_support_drowning",
+      "version": 1,
+      "name": "Support Is Drowning",
+      "description": "When trust drops, the ticket queue floods and support burns out.",
+      "condition_description": "Customer trust < 40",
+      "condition": {
+        "target_type": "score",
+        "target_id": "sre_customer_trust",
+        "operator": "<",
+        "value": 40
+      },
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_support_lead",
+          "delta": -5
+        }
+      ],
+      "priority": 10
+    },
+    "stakeholder-reaction-rules/sre_vp_fears_outages-v1.json": {
+      "id": "sre_vp_fears_outages",
+      "version": 1,
+      "name": "VP Fears the Next Outage",
+      "description": "The VP escalates when the service keeps falling over.",
+      "condition_description": "Availability < 40",
+      "condition": {
+        "target_type": "score",
+        "target_id": "sre_availability",
+        "operator": "<",
+        "value": 40
+      },
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_vp_engineering",
+          "delta": -5
+        }
+      ],
+      "priority": 10
+    },
+    "stakeholder-reaction-rules/sre_vp_trusts_steady_service-v1.json": {
+      "id": "sre_vp_trusts_steady_service",
+      "version": 1,
+      "name": "VP Trusts a Steady Service",
+      "description": "A boring, reliable quarter earns the VP's backing.",
+      "condition_description": "Availability > 65",
+      "condition": {
+        "target_type": "score",
+        "target_id": "sre_availability",
+        "operator": ">",
+        "value": 65
+      },
+      "score_changes": [],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_vp_engineering",
+          "delta": 3
+        }
+      ],
+      "priority": 50
+    },
+    "scores/sre_availability-v1.json": {
+      "id": "sre_availability",
+      "version": 1,
+      "name": "Availability",
+      "short_name": "Uptime",
+      "description": "How much of the time the service meets its SLO.",
+      "default_value": 54
+    },
+    "scores/sre_change_velocity-v1.json": {
+      "id": "sre_change_velocity",
+      "version": 1,
+      "name": "Change Velocity",
+      "short_name": "Velocity",
+      "description": "How quickly and safely the teams can ship changes.",
+      "default_value": 60
+    },
+    "scores/sre_customer_trust-v1.json": {
+      "id": "sre_customer_trust",
+      "version": 1,
+      "name": "Customer Trust",
+      "short_name": "Trust",
+      "description": "Whether customers believe the service will be there when they need it.",
+      "default_value": 57
+    },
+    "scores/sre_error_budget-v1.json": {
+      "id": "sre_error_budget",
+      "version": 1,
+      "name": "Error Budget",
+      "short_name": "Err budget",
+      "description": "How much unreliability is left to spend this quarter before the SLO is broken.",
+      "default_value": 45
+    },
+    "scores/sre_observability-v1.json": {
+      "id": "sre_observability",
+      "version": 1,
+      "name": "Observability",
+      "short_name": "Sight",
+      "description": "How well the team can see what the system is doing, and why.",
+      "default_value": 34
+    },
+    "scores/sre_on_call_rest-v1.json": {
+      "id": "sre_on_call_rest",
+      "version": 1,
+      "name": "Rested On-Call",
+      "short_name": "Rest",
+      "description": "Whether the people holding the pager can sleep, think, and stay.",
+      "default_value": 40
+    },
+    "events/sre_alert_storm-v1.json": {
+      "id": "sre_alert_storm",
+      "version": 1,
+      "name": "Alert Storm",
+      "description": "Hundreds of alerts fire at once, and nobody can tell which one matters.",
+      "flavor_text": "The pager sounds like a slot machine.",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -4
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": -3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3,
+      "trigger_condition_description": "Rested on-call < 45",
+      "trigger_condition": {
+        "target_type": "score",
+        "target_id": "sre_on_call_rest",
+        "operator": "<",
+        "value": 45
+      }
+    },
+    "events/sre_bill_review-v1.json": {
+      "id": "sre_bill_review",
+      "version": 1,
+      "name": "The Quarterly Cloud Bill",
+      "description": "Finance reviews the cloud bill, line by line, out loud.",
+      "flavor_text": "\"What is a NAT gateway, and why do we have eleven?\"",
+      "score_changes": [
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_finance_director",
+          "delta": -4
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 2
+    },
+    "events/sre_cascading_failure-v1.json": {
+      "id": "sre_cascading_failure",
+      "version": 1,
+      "name": "Cascading Failure",
+      "description": "One slow dependency takes the rest of the system down with it.",
+      "flavor_text": "Retries, all the way down.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": -6
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": -4
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": -3
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_vp_engineering",
+          "delta": -3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3,
+      "trigger_condition_description": "Observability < 35",
+      "trigger_condition": {
+        "target_type": "score",
+        "target_id": "sre_observability",
+        "operator": "<",
+        "value": 35
+      }
+    },
+    "events/sre_certificate_expired-v1.json": {
+      "id": "sre_certificate_expired",
+      "version": 1,
+      "name": "The Certificate Expired",
+      "description": "A TLS certificate nobody owned expires on a Saturday.",
+      "flavor_text": "It was valid for exactly one year. Who knew.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": -4
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": -3
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_support_lead",
+          "delta": -2
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 2,
+      "trigger_condition_description": "Observability < 45",
+      "trigger_condition": {
+        "target_type": "score",
+        "target_id": "sre_observability",
+        "operator": "<",
+        "value": 45
+      }
+    },
+    "events/sre_customer_praise-v1.json": {
+      "id": "sre_customer_praise",
+      "version": 1,
+      "name": "A Customer Says Thank You",
+      "description": "A big customer writes in to say the service has been rock solid.",
+      "flavor_text": "Support forwards it to everyone. Twice.",
+      "score_changes": [
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_support_lead",
+          "delta": 3
+        },
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": 2
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3,
+      "trigger_condition_description": "Customer trust > 65",
+      "trigger_condition": {
+        "target_type": "score",
+        "target_id": "sre_customer_trust",
+        "operator": ">",
+        "value": 65
+      }
+    },
+    "events/sre_engineer_burns_out-v1.json": {
+      "id": "sre_engineer_burns_out",
+      "version": 1,
+      "name": "An Engineer Burns Out",
+      "description": "One of the people carrying the pager says they can't do it anymore.",
+      "flavor_text": "The rotation just got shorter, and so did everyone's sleep.",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -4
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": -3
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": -5
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3,
+      "trigger_condition_description": "Rested on-call < 30",
+      "trigger_condition": {
+        "target_type": "score",
+        "target_id": "sre_on_call_rest",
+        "operator": "<",
+        "value": 30
+      }
+    },
+    "events/sre_launch_traffic-v1.json": {
+      "id": "sre_launch_traffic",
+      "version": 1,
+      "name": "Launch-Day Traffic",
+      "description": "A marketing launch triples the traffic overnight.",
+      "flavor_text": "Success looks a lot like a DDoS.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": -2
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": -2
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 4
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_product_lead",
+          "delta": 3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3
+    },
+    "events/sre_new_hire_joins-v1.json": {
+      "id": "sre_new_hire_joins",
+      "version": 1,
+      "name": "A New SRE Joins the Rotation",
+      "description": "An experienced engineer joins, and brings their old team's best dashboards with them.",
+      "flavor_text": "First week: \"why does this alert exist?\" Good question.",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": 2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": 3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3
+    },
+    "events/sre_postmortem_shared-v1.json": {
+      "id": "sre_postmortem_shared",
+      "version": 1,
+      "name": "The Postmortem Gets Shared",
+      "description": "Another team reads your postmortem and fixes the same problem before it bites them.",
+      "flavor_text": "Learning, at the speed of a link.",
+      "score_changes": [
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 2
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": 2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_vp_engineering",
+          "delta": 3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3,
+      "trigger_condition_description": "Observability > 55",
+      "trigger_condition": {
+        "target_type": "score",
+        "target_id": "sre_observability",
+        "operator": ">",
+        "value": 55
+      }
+    },
+    "events/sre_quiet_week-v1.json": {
+      "id": "sre_quiet_week",
+      "version": 1,
+      "name": "A Quiet Week",
+      "description": "Nothing pages. Nobody is sure what to do with the time.",
+      "flavor_text": "Someone checks the pager is still on.",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 5
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": 2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": 2
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3,
+      "trigger_condition_description": "Availability > 60",
+      "trigger_condition": {
+        "target_type": "score",
+        "target_id": "sre_availability",
+        "operator": ">",
+        "value": 60
+      }
+    },
+    "events/sre_region_down-v1.json": {
+      "id": "sre_region_down",
+      "version": 1,
+      "name": "A Cloud Region Goes Down",
+      "description": "The provider loses a whole region. Your failover gets its first real test.",
+      "flavor_text": "The provider's status page is still green.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": -4
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": -5
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": -1
+        }
+      ],
+      "stakeholder_changes": [],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 2
+    },
+    "events/sre_root_cause_by_noon-v1.json": {
+      "id": "sre_root_cause_by_noon",
+      "version": 1,
+      "name": "Root Cause by Noon",
+      "description": "The VP wants a single root cause for yesterday's incident, in writing, by lunch.",
+      "flavor_text": "There were seven causes. Pick one.",
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -3
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": 2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": -2
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 3
+    },
+    "events/sre_three_am_outage-v1.json": {
+      "id": "sre_three_am_outage",
+      "version": 1,
+      "name": "The 3 a.m. Outage",
+      "description": "The service goes down in the middle of the night, and the pager goes off.",
+      "flavor_text": "The phone lights up the ceiling.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": -5
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": -4
+        },
+        {
+          "score_id": "sre_customer_trust",
+          "delta": -2
+        }
+      ],
+      "stakeholder_changes": [
+        {
+          "stakeholder_id": "sre_on_call_engineer",
+          "delta": -3
+        }
+      ],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 5
+    },
+    "events/sre_vendor_ships_fix-v1.json": {
+      "id": "sre_vendor_ships_fix",
+      "version": 1,
+      "name": "The Vendor Ships the Fix",
+      "description": "The database bug you reported months ago is finally fixed upstream.",
+      "flavor_text": "The ticket was older than some of the team.",
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": 2
+        }
+      ],
+      "stakeholder_changes": [],
+      "delayed_effect_refs": [],
+      "occurrence_weight": 2
+    },
+    "delayed-effects/sre_canary_confidence-v1.json": {
+      "id": "sre_canary_confidence",
+      "version": 1,
+      "name": "Confidence in Canaries",
+      "description": "Small, watched releases make shipping feel safe again.",
+      "turns_until_resolution": 2,
+      "score_changes": [
+        {
+          "score_id": "sre_change_velocity",
+          "delta": 5
+        },
+        {
+          "score_id": "sre_error_budget",
+          "delta": 2
+        }
+      ]
+    },
+    "delayed-effects/sre_chaos_lessons-v1.json": {
+      "id": "sre_chaos_lessons",
+      "version": 1,
+      "name": "Lessons from the Drill",
+      "description": "The weaknesses the drill found get fixed before a real outage finds them.",
+      "turns_until_resolution": 2,
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": 6
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 3
+        }
+      ]
+    },
+    "delayed-effects/sre_rollback_safety_net-v1.json": {
+      "id": "sre_rollback_safety_net",
+      "version": 1,
+      "name": "Rollbacks Become Boring",
+      "description": "A bad deploy is undone in minutes, by a machine.",
+      "turns_until_resolution": 2,
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": 3
+        }
+      ]
+    },
+    "delayed-effects/sre_runbooks_pay_off-v1.json": {
+      "id": "sre_runbooks_pay_off",
+      "version": 1,
+      "name": "The Runbooks Pay Off",
+      "description": "The 3 a.m. page now comes with instructions.",
+      "turns_until_resolution": 2,
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_availability",
+          "delta": 2
+        }
+      ]
+    },
+    "delayed-effects/sre_slos_take_hold-v1.json": {
+      "id": "sre_slos_take_hold",
+      "version": 1,
+      "name": "The SLOs Take Hold",
+      "description": "Teams start arguing with numbers instead of opinions.",
+      "turns_until_resolution": 2,
+      "score_changes": [
+        {
+          "score_id": "sre_error_budget",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 2
+        }
+      ]
+    },
+    "delayed-effects/sre_toil_receding-v1.json": {
+      "id": "sre_toil_receding",
+      "version": 1,
+      "name": "Toil Recedes",
+      "description": "The hours that went into manual work go into engineering.",
+      "turns_until_resolution": 2,
+      "score_changes": [
+        {
+          "score_id": "sre_on_call_rest",
+          "delta": 4
+        },
+        {
+          "score_id": "sre_change_velocity",
+          "delta": 3
+        }
+      ]
+    },
+    "delayed-effects/sre_tracing_insights-v1.json": {
+      "id": "sre_tracing_insights",
+      "version": 1,
+      "name": "The Traces Tell a Story",
+      "description": "Slow requests finally have a name and an owner.",
+      "turns_until_resolution": 2,
+      "score_changes": [
+        {
+          "score_id": "sre_availability",
+          "delta": 3
+        },
+        {
+          "score_id": "sre_observability",
+          "delta": 2
+        }
+      ]
+    },
+    "outcome-archetypes/sre_error_budget_accountant-v1.json": {
+      "id": "sre_error_budget_accountant",
+      "version": 1,
+      "name": "The Error-Budget Accountant",
+      "description": "You treated reliability as a budget to spend wisely, and kept shipping.",
+      "flavor_text": "Not a penny of unreliability wasted. Not a feature left behind.",
+      "criteria": {
+        "priority": 60,
+        "when": [
+          {
+            "measure": "final_score",
+            "score_id": "sre_error_budget",
+            "operator": ">=",
+            "value": 52
+          },
+          {
+            "measure": "final_score",
+            "score_id": "sre_change_velocity",
+            "operator": ">=",
+            "value": 45
+          }
+        ]
+      }
+    },
+    "outcome-archetypes/sre_hero_firefighter-v1.json": {
+      "id": "sre_hero_firefighter",
+      "version": 1,
+      "name": "The Hero Firefighter",
+      "description": "You saved the day, again and again, and the pager ate the people holding it.",
+      "flavor_text": "Every outage had a hero. None of them slept.",
+      "criteria": {
+        "priority": 90,
+        "when": [
+          {
+            "measure": "score_change",
+            "score_ids": [
+              "sre_availability"
+            ],
+            "operator": ">=",
+            "value": 5
+          },
+          {
+            "measure": "score_change",
+            "score_ids": [
+              "sre_on_call_rest"
+            ],
+            "operator": "<=",
+            "value": -8
+          }
+        ]
+      }
+    },
+    "outcome-archetypes/sre_pager_haunted-v1.json": {
+      "id": "sre_pager_haunted",
+      "version": 1,
+      "name": "Pager-Haunted",
+      "description": "The service survived, but the on-call rotation didn't come out whole.",
+      "flavor_text": "They still flinch when a phone buzzes.",
+      "criteria": {
+        "priority": 80,
+        "when": [
+          {
+            "measure": "final_score",
+            "score_id": "sre_on_call_rest",
+            "operator": "<",
+            "value": 25
+          }
+        ]
+      }
+    },
+    "outcome-archetypes/sre_reliability_architect-v1.json": {
+      "id": "sre_reliability_architect",
+      "version": 1,
+      "name": "The Reliability Architect",
+      "description": "You made the system reliable by design, not by heroics, and the people stayed rested.",
+      "flavor_text": "The best incident is the one the architecture never let happen.",
+      "criteria": {
+        "priority": 70,
+        "when": [
+          {
+            "measure": "score_change",
+            "score_ids": [
+              "sre_availability",
+              "sre_observability"
+            ],
+            "operator": ">=",
+            "value": 32
+          },
+          {
+            "measure": "final_score",
+            "score_id": "sre_on_call_rest",
+            "operator": ">=",
+            "value": 50
+          }
+        ]
+      }
+    },
+    "outcome-archetypes/sre_steady_operator-v1.json": {
+      "id": "sre_steady_operator",
+      "version": 1,
+      "name": "The Steady Operator",
+      "description": "You kept the lights on and the teams moving, without a grand plan or a disaster.",
+      "flavor_text": "Nobody wrote a postmortem about your quarter. That's the point.",
+      "criteria": {
+        "priority": 0,
+        "when": []
+      }
+    },
+    "outcome-archetypes/sre_toil_slayer-v1.json": {
+      "id": "sre_toil_slayer",
+      "version": 1,
+      "name": "The Toil Slayer",
+      "description": "You automated away the drudgery, and the rotation got its nights back.",
+      "flavor_text": "The scripts do the boring part now.",
+      "criteria": {
+        "priority": 50,
+        "when": [
+          {
+            "measure": "score_change",
+            "score_ids": [
+              "sre_on_call_rest"
+            ],
+            "operator": ">=",
+            "value": 15
+          }
+        ]
+      }
+    },
+    "coupling-rules/sre_budget_exhausted-v1.json": {
+      "id": "sre_budget_exhausted",
+      "version": 1,
+      "name": "Error Budget Exhausted",
+      "description": "With no error budget left, every change is a risk: velocity improvements are less effective.",
+      "trigger_score_id": "sre_error_budget",
+      "threshold": 20,
+      "affected_score_ids": [
+        "sre_change_velocity"
+      ],
+      "gain_multiplier": 0.7
+    },
+    "coupling-rules/sre_burnout_spiral-v1.json": {
+      "id": "sre_burnout_spiral",
+      "version": 1,
+      "name": "Burnout Spiral",
+      "description": "Exhausted on-call: availability and observability improvements are less effective.",
+      "trigger_score_id": "sre_on_call_rest",
+      "threshold": 25,
+      "affected_score_ids": [
+        "sre_availability",
+        "sre_observability"
+      ],
+      "gain_multiplier": 0.7
+    },
+    "coupling-rules/sre_flying_blind-v1.json": {
+      "id": "sre_flying_blind",
+      "version": 1,
+      "name": "Flying Blind",
+      "description": "Without observability, fixes miss their target: availability improvements are less effective.",
+      "trigger_score_id": "sre_observability",
+      "threshold": 20,
+      "affected_score_ids": [
+        "sre_availability"
+      ],
+      "gain_multiplier": 0.75
+    },
+    "classes/sre_budget_keeper-v1.json": {
+      "id": "sre_budget_keeper",
+      "version": 1,
+      "name": "Budget Keeper",
+      "description": "Keeper of the error budget, and of the policy that spends it.",
+      "flavor_text": "You know exactly how much unreliability is left, to the minute.",
+      "score_affinity": "sre_error_budget"
+    },
+    "classes/sre_pager_paladin-v1.json": {
+      "id": "sre_pager_paladin",
+      "version": 1,
+      "name": "Pager Paladin",
+      "description": "Sworn protector of the uptime graph.",
+      "flavor_text": "You answer the page before it finishes ringing.",
+      "score_affinity": "sre_availability"
+    },
+    "classes/sre_signal_seer-v1.json": {
+      "id": "sre_signal_seer",
+      "version": 1,
+      "name": "Signal Seer",
+      "description": "Reads the dashboards the way others read tea leaves, but with evidence.",
+      "flavor_text": "You saw the latency creep before anyone else did.",
+      "score_affinity": "sre_observability"
+    },
+    "classes/sre_toil_druid-v1.json": {
+      "id": "sre_toil_druid",
+      "version": 1,
+      "name": "Toil Druid",
+      "description": "Tends the rotation like a garden: prune the alerts, and the people grow back.",
+      "flavor_text": "Every script you write gives someone an evening back.",
+      "score_affinity": "sre_on_call_rest"
+    },
+    "challenge-modifiers/sre_launch_week-v1.json": {
+      "id": "sre_launch_week",
+      "version": 1,
+      "name": "Launch Week",
+      "description": "A big launch is already scheduled. The error budget starts 15 lower and the on-call 5 lower.",
+      "flavor_text": "Marketing booked the billboard before anyone asked.",
+      "score_adjustments": {
+        "sre_error_budget": -15,
+        "sre_on_call_rest": -5
+      }
+    },
+    "challenge-modifiers/sre_skeleton_crew-v1.json": {
+      "id": "sre_skeleton_crew",
+      "version": 1,
+      "name": "Skeleton Crew",
+      "description": "Half the rotation is on leave. The on-call starts 15 lower and observability 5 lower.",
+      "flavor_text": "Two people, one pager, and a lot of coffee.",
+      "score_adjustments": {
+        "sre_on_call_rest": -15,
+        "sre_observability": -5
+      }
+    }
+  }
+}

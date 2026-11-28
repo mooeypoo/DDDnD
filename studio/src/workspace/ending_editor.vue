@@ -7,7 +7,7 @@
   <div v-if="ending" class="editor">
     <div class="editor-head">
       <div class="editor-head-text">
-        <span class="editor-kicker">Ending · yours · tried {{ position }} of {{ ordered.length }}</span>
+        <span class="editor-kicker">Ending · {{ ownWord() }} · tried {{ position }} of {{ ordered.length }}</span>
         <h1 class="editor-title">{{ ending.name || 'Unnamed ending' }}</h1>
       </div>
       <div class="head-actions">
@@ -104,6 +104,7 @@ import type { EndingCondition, OutcomeArchetype } from '@/domains/content/model'
 import { CONTENT_LIMITS } from '@/domains/content/validation/content_limits'
 import EndingConditionEditor from '@studio/workspace/ending_condition_editor.vue'
 import type { Selection } from '@studio/workspace/selection'
+import { ownWord } from '@studio/state/studio_state'
 
 interface Option { id: string; name: string }
 

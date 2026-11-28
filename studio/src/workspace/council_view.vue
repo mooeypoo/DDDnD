@@ -23,7 +23,7 @@
           <button type="button" class="member" @click="$emit('open', member.ref)">
             <span class="member-name">{{ member.name }}</span>
             <span class="member-summary">{{ member.summary }}</span>
-            <span v-if="member.own" class="member-mark mark-own">yours</span>
+            <span v-if="member.own" class="member-mark mark-own">{{ ownWord() }}</span>
           </button>
         </li>
       </ul>
@@ -55,6 +55,7 @@ import { computed, ref } from 'vue'
 import { addToCouncil, COUNCIL_SEATS, ownEntity, usesGameContent, type DraftPack } from '@/domains/authoring'
 import type { Stakeholder, VersionRef } from '@/domains/content/model'
 import { listBaseRefs, loadFirstParty } from '@studio/content/first_party'
+import { ownWord } from '@studio/state/studio_state'
 
 const props = defineProps<{ draft: DraftPack; councilRefs: VersionRef[]; names: Record<string, string> }>()
 const emit = defineEmits<{ change: [draft: DraftPack]; open: [ref: VersionRef]; createMember: [] }>()

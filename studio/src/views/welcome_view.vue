@@ -68,7 +68,10 @@
           <KindPill :kind="kind.kind" />
           <h3 class="kind-title">{{ kind.title }}</h3>
           <p>{{ KIND_SUMMARIES[kind.kind] }} {{ kind.for }}</p>
-          <p class="kind-example">Example: {{ kind.example }}</p>
+          <p v-if="exampleOfKind(kind.kind)" class="kind-example">
+            Example: {{ exampleOfKind(kind.kind)!.name }}.
+            <a :href="`#/example/${exampleOfKind(kind.kind)!.folder}`">Look inside</a>
+          </p>
         </div>
       </div>
     </section>
@@ -101,6 +104,7 @@ import { computed, onMounted, ref } from 'vue'
 
 import { KIND_SUMMARIES, describeOwnContent, roundPlace, type DraftKind, type DraftPack } from '@/domains/authoring'
 import KindPill from '@studio/components/kind_pill.vue'
+import { exampleOfKind } from '@studio/content/example_packs'
 import { exampleMove } from '@studio/content/first_party'
 import { LINKS } from '@studio/content/links'
 import { studio } from '@studio/state/studio_state'
@@ -130,9 +134,9 @@ const PARTS = [
   { name: 'Endings', text: 'The kind of leader the run says you were.' },
 ]
 
-const KINDS: Array<{ kind: DraftKind; title: string; for: string; example: string }> = [
-  { kind: 'retelling', title: 'Domain-driven design, in your world', for: 'For workshops: "the Monolith, but ours".', example: 'The Gilded Ledger, a payments company.' },
-  { kind: 'new_topic', title: 'Teach something else', for: 'Incident response, security, product discovery.', example: 'SRE: The Pager Storm.' },
+const KINDS: Array<{ kind: DraftKind; title: string; for: string }> = [
+  { kind: 'retelling', title: 'Domain-driven design, in your world', for: 'For workshops: "the Monolith, but ours".' },
+  { kind: 'new_topic', title: 'Teach something else', for: 'Incident response, security, product discovery.' },
 ]
 
 const PATH = [

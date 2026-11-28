@@ -55,13 +55,13 @@
         </button>
         <template v-if="open.scores">
           <div class="actions">
-            <button type="button" class="action" :disabled="scores.length >= maxScores" @click="$emit('createScore')">+ New score</button>
+            <button v-if="!viewOnly" type="button" class="action" :disabled="scores.length >= maxScores" @click="$emit('createScore')">+ New score</button>
           </div>
           <ul class="items">
             <li v-for="score in scores" :key="score.id">
               <button type="button" class="item" :aria-current="current({ kind: 'score', id: score.id }) ? 'page' : undefined" @click="$emit('select', { kind: 'score', id: score.id })">
                 <span class="item-name"><span v-if="toFillIn.has(`scores/${score.id}`)" class="fill-dot" title="To fill in"><span class="visually-hidden">To fill in: </span></span>{{ score.name || 'Unnamed score' }}</span>
-                <span class="own-mark">yours</span>
+                <span class="own-mark">{{ ownWord() }}</span>
               </button>
             </li>
           </ul>
@@ -75,7 +75,7 @@
         </button>
         <template v-if="open.endings">
           <div class="actions">
-            <button type="button" class="action" :disabled="!canAddEnding" @click="$emit('createEnding')">+ New ending</button>
+            <button v-if="!viewOnly" type="button" class="action" :disabled="!canAddEnding" @click="$emit('createEnding')">+ New ending</button>
             <button type="button" class="action" :aria-current="current({ kind: 'endings' }) ? 'page' : undefined" @click="$emit('select', { kind: 'endings' })">Order</button>
           </div>
           <ul class="items">
@@ -96,9 +96,9 @@
         </button>
         <template v-if="open.rules">
           <div class="actions">
-            <button type="button" class="action" @click="$emit('createRule', 'class')">+ Class</button>
-            <button type="button" class="action" @click="$emit('createRule', 'challenge')">+ Challenge</button>
-            <button type="button" class="action" :disabled="!canAddCoupling" @click="$emit('createRule', 'coupling')">+ Coupling rule</button>
+            <button v-if="!viewOnly" type="button" class="action" @click="$emit('createRule', 'class')">+ Class</button>
+            <button v-if="!viewOnly" type="button" class="action" @click="$emit('createRule', 'challenge')">+ Challenge</button>
+            <button v-if="!viewOnly" type="button" class="action" :disabled="!canAddCoupling" @click="$emit('createRule', 'coupling')">+ Coupling rule</button>
           </div>
           <ul class="items">
             <li v-for="rule in rules ?? []" :key="`${rule.kind}/${rule.id}`">
@@ -117,7 +117,7 @@
         </button>
         <template v-if="open.council">
           <div class="actions">
-            <button type="button" class="action" :disabled="councilRefs.length >= seats" @click="$emit('createMember')">+ New member</button>
+            <button v-if="!viewOnly" type="button" class="action" :disabled="councilRefs.length >= seats" @click="$emit('createMember')">+ New member</button>
             <button type="button" class="action" :aria-current="current({ kind: 'council' }) ? 'page' : undefined" @click="$emit('select', { kind: 'council' })">All seats</button>
           </div>
           <ul class="items">
@@ -126,7 +126,7 @@
                 <span class="item-name"><span v-if="pending('stakeholders', memberRef)" class="fill-dot" title="To fill in"><span class="visually-hidden">To fill in: </span></span>{{ nameOf('stakeholders', memberRef) }}</span>
                 <span class="item-marks">
                   <span v-if="changeCounts[memberRef.id]" class="change-count" :title="`${changeCounts[memberRef.id]} things change their satisfaction`"><span class="visually-hidden">, changed by </span>{{ changeCounts[memberRef.id] }}</span>
-                  <span v-if="isOwnMember(draft, memberRef)" class="own-mark">yours</span>
+                  <span v-if="isOwnMember(draft, memberRef)" class="own-mark">{{ ownWord() }}</span>
                 </span>
               </button>
             </li>
@@ -140,14 +140,14 @@
         </button>
         <template v-if="open[deck.section]">
           <div class="actions">
-            <button type="button" class="action" @click="$emit('createNew', deck.section)">+ New {{ deck.singular }}</button>
-            <button v-if="usesGameContent(draft)" type="button" class="action" :aria-current="current({ kind: 'add', section: deck.section }) ? 'page' : undefined" @click="$emit('select', { kind: 'add', section: deck.section })">+ From the game</button>
+            <button v-if="!viewOnly" type="button" class="action" @click="$emit('createNew', deck.section)">+ New {{ deck.singular }}</button>
+            <button v-if="usesGameContent(draft) && !viewOnly" type="button" class="action" :aria-current="current({ kind: 'add', section: deck.section }) ? 'page' : undefined" @click="$emit('select', { kind: 'add', section: deck.section })">+ From the game</button>
           </div>
           <ul class="items">
             <li v-for="itemRef in own(deck)" :key="`${itemRef.id}-v${itemRef.version}`">
               <button type="button" class="item" :aria-current="current({ kind: 'item', section: deck.section, ref: itemRef }) ? 'page' : undefined" @click="$emit('select', { kind: 'item', section: deck.section, ref: itemRef })">
                 <span class="item-name"><span v-if="pending(deck.section, itemRef)" class="fill-dot" title="To fill in"><span class="visually-hidden">To fill in: </span></span>{{ nameOf(deck.section, itemRef) }}</span>
-                <span class="own-mark">yours</span>
+                <span class="own-mark">{{ ownWord() }}</span>
               </button>
             </li>
           </ul>
@@ -176,11 +176,14 @@ import { isOwn, isOwnMember, searchOwnContent, usesGameContent, type DeckSection
 import type { VersionRef } from '@/domains/content/model'
 import type { IssueTarget } from '@studio/workspace/checks_panel.vue'
 import { isSelected, type Selection } from '@studio/workspace/selection'
+import { ownWord } from '@studio/state/studio_state'
 
 type Deck = { section: DeckSection; title: string; singular: string; refs: VersionRef[] }
 
 const props = defineProps<{
   draft: DraftPack
+  /** An example pack (M4.29): look, don't make. No "+ New …" or "+ From the game". */
+  viewOnly?: boolean
   selection: Selection
   councilRefs: VersionRef[]
   decks: Deck[]
@@ -421,6 +424,10 @@ watch(() => props.selection, async (selection) => {
 .count {
   font-weight: 400;
   color: var(--forge-text-secondary);
+}
+
+.actions:empty {
+  display: none;
 }
 
 .actions {

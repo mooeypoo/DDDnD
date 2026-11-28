@@ -38,6 +38,10 @@
       </div>
     </fieldset>
 
+    <p v-if="exampleOfKind(about)" class="example-line">
+      Want to see a finished one first? <a :href="`#/example/${exampleOfKind(about)!.folder}`">Look inside {{ exampleOfKind(about)!.name }}</a>: view-only, nothing is made.
+    </p>
+
     <!-- From one of the game's scenarios (or the round's starting point): look first, then say yes -->
     <section v-if="about === 'retelling' && (how === 'guided' || how === 'scenario')" class="question" aria-labelledby="gallery-title">
       <h2 id="gallery-title" class="question-label">{{ how === 'guided' ? 'Which of the game\'s stories is closest to yours?' : 'Choose a scenario to start from' }}</h2>
@@ -92,6 +96,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 import { KIND_SUMMARIES, type DraftKind } from '@/domains/authoring'
 import ImportButton from '@studio/components/import_button.vue'
+import { exampleOfKind } from '@studio/content/example_packs'
 import KindPill from '@studio/components/kind_pill.vue'
 import ScenarioPreview from '@studio/components/scenario_preview.vue'
 import { listBaseScenarios, type BaseScenarioChoice } from '@studio/content/first_party'
@@ -350,6 +355,12 @@ h2.question-label {
 
 .name-form .button {
   align-self: flex-start;
+}
+
+.example-line {
+  margin: -1rem 0 0;
+  font-size: 0.9375rem;
+  color: var(--forge-text-secondary);
 }
 
 .import-line {

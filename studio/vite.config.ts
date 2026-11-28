@@ -5,6 +5,8 @@ import { defineConfig, type Plugin } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
 const CONTENT_ROOT = fileURLToPath(new URL('../content', import.meta.url))
+/** The example packs, vendored at their release tags (D14, D40: `npm run studio:examples`). */
+const EXAMPLES_ROOT = fileURLToPath(new URL('./examples', import.meta.url))
 
 /**
  * The first-party packs (base, tutorial) served at /content, like the game
@@ -15,25 +17,29 @@ const CONTENT_ROOT = fileURLToPath(new URL('../content', import.meta.url))
  */
 function firstPartyContent(): Plugin {
   let outDir = ''
+  // Served at its path: the game's content, and the example packs beside it (M4.29)
+  const served: Array<[url: string, root: string]> = [['/content', CONTENT_ROOT], ['/examples', EXAMPLES_ROOT]]
   return {
     name: 'dddnd-studio-first-party-content',
     configResolved(config) {
       outDir = config.build.outDir
     },
     configureServer(server) {
-      server.middlewares.use('/content', (req, res, next) => {
-        const relative = decodeURIComponent((req.url ?? '').split('?')[0])
-        const file = path.resolve(CONTENT_ROOT, `.${relative}`)
-        if (!file.startsWith(CONTENT_ROOT + path.sep) || !file.endsWith('.json') || !existsSync(file) || !statSync(file).isFile()) {
-          next()
-          return
-        }
-        res.setHeader('Content-Type', 'application/json')
-        res.end(readFileSync(file))
-      })
+      for (const [url, root] of served) {
+        server.middlewares.use(url, (req, res, next) => {
+          const relative = decodeURIComponent((req.url ?? '').split('?')[0])
+          const file = path.resolve(root, `.${relative}`)
+          if (!file.startsWith(root + path.sep) || !file.endsWith('.json') || !existsSync(file) || !statSync(file).isFile()) {
+            next()
+            return
+          }
+          res.setHeader('Content-Type', 'application/json')
+          res.end(readFileSync(file))
+        })
+      }
     },
     writeBundle() {
-      cpSync(CONTENT_ROOT, path.join(outDir, 'content'), { recursive: true })
+      for (const [url, root] of served) cpSync(root, path.join(outDir, url.slice(1)), { recursive: true })
     },
   }
 }

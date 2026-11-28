@@ -59,6 +59,7 @@ The Studio lets someone make a pack **without writing JSON, without knowing ids 
 | D37 | **The new-topic round is the retelling's, plus what a topic makes for itself, in two sittings.** Ten steps: world, **what it trades off** (three scores), scenario, council; then cards, surprises, **endings** (two besides the fallback), **a class** (named, with a favourite), check, play. No "Fill the deck": a topic uses none of the game's. Scores come before the scenario, which sets where they start. The first sitting ends at the council, said in the guide's pinned footer. A stand-in the Studio made (the "Generalist" class, "New score", "New ending") never ticks a step. The examples are the SRE pack's (D14). | §5 asks for exactly this ("longer, in two sittings", scores, endings, one class, the base tiers). The world is what a second sitting needs to exist; what happens in it is the second. A tick for the skeleton's own class would say "done" before the author did anything (D35's honest ticks). |
 | D38 | **A front door: welcome, then create.** `#/` is a welcome page (what DDDnD is, what a pack holds, the two kinds, where a pack goes, one ember action "Create a pack"), with returning authors' latest packs high on it. `#/new` asks two questions: what the pack is about (**DDD retelling** or **New subject**, one name each everywhere), then how to start (**step by step**, **from one of the game's scenarios** after a preview, or **from scratch**). "Your packs" is `#/packs`. Nothing is made until the author says yes. | The first-screen audit (owner's feedback and choices, 2026-11-27; the audit page is the owner's). The old start screen's ember "+ New pack" copied a scenario, blended "what" with "how", and gave newcomers no context. Other tools put blank and templates side by side, ask one question first, and preview before "use this". |
 | D39 | **A DDD retelling can start from scratch:** the game's frame (scores, outcome tiers, endings, coupling, from its first scenario, which all share them), every score at 50, ten turns, and no council or deck. The draft remembers it started this way (`from_scratch`, never exported), so the summary says so and adds "Fill the deck". | The owner's call: the three ways in mean the same for both kinds. A copy is the right start for "the Monolith, but ours", but not for a facilitator whose system looks like none of the five. |
+| D40 | **The example packs ship inside the Studio, view-only.** The Gilded Ledger and the SRE pack are vendored from DDDnD-packs at their release tags (`npm run studio:examples`, which reads each tag with `git show`) as single pack files in `studio/examples/`, served from the Studio's own site. `examples.json` records each tag, version, kind and content hash. An example opens at `#/example/<folder>` through the import path, as a draft that's never saved and that no edit reaches. | D14 pins examples to tags; the Studio's CSP reaches only itself, and its Netlify build can't see the packs repository, so the packs travel with it. A test holds each file to its recorded hash, to its tag (where the packs repository is beside this one), and to the game's checks today. The owner chose view-only first (the audit's decision 2); starting a new subject from one comes after. |
 
 ---
 
@@ -2035,6 +2036,75 @@ The first-screen audit, part two. D38, D39.
   - Scratch-style skill tutorials in the workspace.
 - **The guide page is public on the docs site before the Studio is.** It says the Studio opens at its launch.
 
+### M4.29: Looking inside the example packs (2026-11-27)
+
+The first-screen audit, part three: the owner's decision 2, view-only first. D40.
+
+**What an author sees:**
+- **"Look inside"** where an example is named:
+  - on the welcome page, beside each kind's example ("Example: SRE: The Pager Storm. Look inside");
+  - on the create screen, for the kind chosen ("Want to see a finished one first? Look inside SRE: The Pager Storm: view-only, nothing is made.");
+  - in the guided round's example box ("Look inside the whole pack"), in a tab of its own so the round stays where it is.
+- **The example opens in the workspace, view-only:**
+  - the toolbar says "‹ Back", the pack's name and kind, "Example · version 1.1.0", and "View-only: look around, nothing here can change", with the checks ("Ready to export") and "Play it";
+  - Undo, Redo and Export aren't there, and neither are the sidebar's "+ New …" and "+ From the game";
+  - **every field reads as text** (dashed, no fill), and the editors' buttons aren't shown;
+  - the sidebar and Find move around it as in any pack.
+- **"Its own", not "yours":** in an example, what the pack made itself is marked "its own", in the sidebar and every editor's kicker. It's someone else's pack.
+- **The summary** says what it is ("version 1.1.0, from the DDDnD-packs repository"), in place of steps it can't take, with a link to "Create a pack".
+- **"‹ Back"** returns to where it was opened from, or to the welcome page in a tab of its own.
+- **An example never appears in your packs,** and is never saved.
+
+**Vendoring:**
+- `scripts/vendor-example-packs.ts` (`npm run studio:examples`):
+  - reads each pack's files at its tag in DDDnD-packs with `git show`, so that repository's checkout doesn't matter;
+  - bundles them into one `.dddnd-pack.json`;
+  - checks the Studio can open it;
+  - records its file, name, version, kind and content hash in `studio/examples/examples.json`.
+- **Moving an example to a new release** is a new tag in `examples.json` and a run of the script.
+- **Serving:** the Studio's Vite plugin serves `studio/examples` at `/examples`, as it serves the game's content at `/content`, and copies it into the build. The CSP stays `connect-src 'self'`.
+
+**Studio:**
+- `content/example_packs.ts`: `EXAMPLE_PACKS`, `examplePack`, `exampleOfKind`, and `loadExample`, which refuses a file whose hash isn't the recorded one.
+- `studio_state`:
+  - `openExample`;
+  - `current.example`;
+  - `saveNow` and `updateDraft` refuse an example;
+  - `ownWord()`.
+- **Route:** `#/example/<folder>`.
+- **The workspace wraps its editors in one `<fieldset :disabled>`.** It turns off every field and button in every editor without any editor knowing about examples; `studio.css` styles what it disables.
+
+**Decisions (D40):**
+- **Vendored, not fetched.** The Studio's CSP reaches only itself (§11), and its Netlify build can't see the packs repository. A pinned file in this repository, held to its tag by a test, keeps D14's "one source of truth": the file is the tag's content, and the test says so.
+- **One pack file each, not folders.** The import path already reads pack files, and one file per example keeps the vendored copy small and easy to check.
+- **View-only through one fieldset.** A disabled fieldset is the platform's own "these fields can't change". Hiding the buttons it disables keeps the page honest: nothing on it looks like it does something it won't.
+- **The examples pass today's checks, or the test fails.** When the base game moves on, an example that stops passing needs a new release in DDDnD-packs, not a quiet exception here.
+
+**For the talk: an example is a draft that refuses.** Nothing new in the model: an example is the import path's draft, held where saving and editing say no. The only new word was ownership: "yours" had always meant "the author's", and an example made that a question with two answers, so it's a function now (`ownWord`) instead of a word in a dozen templates.
+
+**Verification:**
+- Tests: 1454 in total (+7, `tests/studio/example_packs.test.ts`, new):
+  - the two examples and their kinds;
+  - each reads back with its recorded hash, opens in the Studio, and passes the game's checks;
+  - each is exactly what its tag holds in DDDnD-packs (when that repository is beside this one);
+  - opened: view-only, never saved or listed, no edit reaches it, "its own";
+  - the sidebar offers nothing to make.
+- Docs: "Looking inside the examples" in the Studio guide.
+- Headless Chrome, production build with the Studio CSP, at 1440×1000 and 1024×768:
+  - the welcome page's "Look inside" opens the Ledger: "Example · version 1.1.0", "Ready to export", the fields disabled, no editor buttons, no Export or Undo;
+  - a card reads "Card · its own", with its plain words;
+  - "‹ Back" returns to the welcome page;
+  - the create screen offers the SRE pack for a new subject, which opens with all its parts;
+  - a guided round's "Look inside the whole pack" opens a new tab, and the round stays where it was;
+  - zero CSP violations, no console errors.
+
+**Left open:**
+- **Starting a new subject from the SRE pack** (the audit's decision 2, second half): a copy of an example as a draft of your own.
+- **The rest of the audit's suggestions:**
+  - "Share it" after the first export;
+  - a facilitator's page;
+  - Scratch-style skill tutorials.
+
 ## 14. Picking up the work
 
 What a new session needs to continue without the conversation that built M4.1–M4.8. Keep this section current at the end of each session: it is a handoff note, not a log (the log is §13).
@@ -2060,7 +2130,7 @@ What a new session needs to continue without the conversation that built M4.1–
   - any rule about content goes in the domain first, with a test.
 - **Other open PRs:** #23 (Dependabot, vite) and #11 (Copilot) are deferred by the owner, like the Dependabot alerts.
 - **"Play it" is built** (M4.16), trusted in production from the launch (D32).
-- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. The new-topic round is M4.25 (D37); M4.26 shows when anything is being worked out (§9.1). The first-screen audit (the owner's choices, D38, D39) is M4.27 (the welcome page, `#/packs`, one name per kind) and M4.28 (the create screen's two questions, the scenario preview, a retelling from scratch). Next: the example packs bundled view-only (the audit's decision 2). Each follows §9.1.
+- **New-topic authoring has started** (M4.17: the skeleton and scores, D33). Endings (N2) are M4.18 (D34); classes, challenges and coupling rules (N3) are M4.19; importing and editing the SRE pack (N4, first half) is M4.20, and the guided round (N4, second half, D35) is M4.21. Balance hints are M4.22 (D36). "Go to it" landing on the field, and the pack-id warning, are M4.23; undo/redo and find are M4.24, which finishes §6 item 6. The new-topic round is M4.25 (D37); M4.26 shows when anything is being worked out (§9.1). The first-screen audit (the owner's choices, D38, D39) is M4.27 (the welcome page, `#/packs`, one name per kind) and M4.28 (the create screen's two questions, the scenario preview, a retelling from scratch). The example packs, vendored at their tags and opened view-only, are M4.29 (D40). Next: starting a new subject from an example, then the audit's other suggestions ("Share it", a facilitator's page, skill tutorials). Each follows §9.1.
 - **Left open from the audit:**
   - a map view of cards and their impact (maybe, D28);
   - whether the game's validator should check council member ids in changes (M4.14).
